@@ -1,0 +1,31 @@
+SCR_AIWorld : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
+ coords 1195.902 39 2719.574
+}
+SCR_FactionManager FactionManager_Lobby1 : "{4D1750C5F5444560}Prefabs/MP/Managers/Factions/FactionManager_Lobby.et" {
+ coords 1192.241 39 2717.502
+ Factions {
+  SCR_Faction "{6A141800911A0D0B}" {
+   FactionKey "USss"
+  }
+ }
+}
+SCR_BaseGameMode GameMode_Lobby2 : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
+ coords 1194.457 39 2723.129
+}
+SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
+ coords 1188.026 39 2716.793
+}
+SCR_AIGroup : "{D807C7047E818488}Prefabs/Groups/BLUFOR/Group_US_SniperTeam.et" {
+ coords 1196.259 40.347 2726.05
+ m_bDeleteWhenEmpty 0
+ m_bDeleteIfNoPlayer 0
+}
+SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
+ components {
+  AIFormationComponent "{507E9DC12F541FE6}" {
+   DefaultFormation "Test"
+  }
+ }
+ coords 1190.153 39 2725.608
+ angles 0 -13.511 0
+}

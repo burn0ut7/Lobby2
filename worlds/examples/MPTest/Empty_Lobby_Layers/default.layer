@@ -1,0 +1,96 @@
+SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
+ coords 125.908 1 128.795
+}
+SCR_FactionManager FactionManager_Lobby2 : "{4D1750C5F5444560}Prefabs/MP/Managers/Factions/FactionManager_Lobby.et" {
+ coords 125.581 1 127.501
+}
+SCR_BaseGameMode GameMode_Lobby3 : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
+ components {
+  GC_LobbyManager "{6A137A39106A4973}" {
+   m_aFormations {
+    GC_PlayerFormationDefinition "{6A137A391367F905}" {
+     m_sName "Line"
+     m_aOffsets {
+      0 0 0
+      3 0 0
+      -3 0 0
+      6 0 0
+      -6 0 0
+      9 0 0
+      -9 0 0
+      12 0 0
+      -12 0 0
+      15 0 0
+      -15 0 0
+     }
+    }
+    GC_PlayerFormationDefinition "{6A143487881C7479}" {
+     m_sName "StaggeredColumn"
+     m_aOffsets {
+      0 0 0
+      3 0 -3
+      0 0 -6
+      3 0 -9
+      0 0 -12
+      3 0 -15
+      0 0 -18
+      3 0 -21
+      0 0 -24
+      3 0 -27
+      0 0 -30
+     }
+    }
+    GC_PlayerFormationDefinition "{6A1434878877C57B}" {
+     m_sName "Wedge"
+     m_aOffsets {
+      0 0 0
+      3 0 -3
+      -3 0 -3
+      6 0 -6
+      -6 0 -6
+      9 0 -9
+      -9 0 -9
+      12 0 -12
+      -12 0 -12
+      15 0 -15
+      -15 0 -15
+     }
+    }
+    GC_PlayerFormationDefinition "{6A14348788A79894}" {
+     m_sName "Column"
+     m_aOffsets {
+      0 0 0
+      0 0 -3
+      0 0 -6
+      0 0 -9
+      0 0 -12
+      0 0 -15
+      0 0 -18
+      0 0 -21
+      0 0 -24
+      0 0 -27
+      0 0 -30
+     }
+    }
+   }
+  }
+ }
+ coords 135.297 1 123.139
+}
+SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
+ coords 120.258 1 129.308
+}
+SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
+ components {
+  AIFormationComponent "{507E9DC12F541FE6}" {
+   DefaultFormation "Test"
+  }
+ }
+ coords 127.157 1 132.377
+ angles 0 -179.265 0
+ m_aUnitPrefabSlots +{
+  "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et"
+ }
+ m_bPlayable 1
+ m_bDeleteIfNoPlayer 0
+}

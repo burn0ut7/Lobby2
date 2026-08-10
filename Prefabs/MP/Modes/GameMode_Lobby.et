@@ -1,0 +1,21 @@
+SCR_BaseGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
+ ID "56B2B479C6B96951"
+ components {
+  GC_LobbyManager "{6A137A39106A4973}" {
+   m_aFormations {
+    GC_PlayerFormationDefinition "{6A137A391367F905}" {
+    }
+   }
+  }
+  GC_TestComp "{6A14271439D18FEA}" {
+  }
+  SCR_RespawnSystemComponent "{56B2B4793051E7C9}" {
+   m_SpawnLogic SCR_SpawnLogic "{6A1418033F1AD000}" {
+    m_eDisconnectPlayerControllerBehaviour NOTHING
+    m_eDisconnectCharacterBehaviour NOTHING
+   }
+   m_sLoadingLayout ""
+  }
+ }
+ PlayerControllerPrefab "{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et"
+}

@@ -1,0 +1,23 @@
+FrameWidgetClass {
+ Name "rootFrame"
+ {
+  FrameWidgetClass "{6A145B248928ECED}" : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" {
+   Name "Frame0"
+   Slot FrameWidgetSlot "{6A14348964DA4CFD}" {
+   }
+  }
+  ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
+   Name "Player"
+   Slot FrameWidgetSlot "{6A142E93D253C20D}" {
+    PositionX 1309.81
+    OffsetLeft 1309.81
+    PositionY 142.389
+    OffsetTop 142.389
+    SizeX 578.15
+    OffsetRight -1887.96
+    SizeY 837.637
+    OffsetBottom -980.026
+   }
+  }
+ }
+}

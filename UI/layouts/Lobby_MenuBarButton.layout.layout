@@ -1,0 +1,96 @@
+ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_ButtonTextImage.layout" {
+ Name "PauseMenuButton"
+ Slot LayoutSlot "{6A145B26FC68C58E}" {
+ }
+ components {
+  SCR_ButtonTextComponent "{5548F0143AE99095}" {
+   m_sSoundHovered ""
+   m_sSoundClicked ""
+   m_sSoundContainerClosed ""
+   m_bUseColorization 0
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{557098260F312277}" {
+   Prefab "{557098260F312277}"
+   Slot ButtonWidgetSlot "{5548E6E7E6AEDDC1}" {
+   }
+   AllowMinDesiredWidth 1
+   MinDesiredWidth 180
+   AllowMaxDesiredHeight 1
+   MaxDesiredHeight 70
+   {
+    OverlayWidgetClass "{557098260F312272}" {
+     Prefab "{557098260F312272}"
+     Slot ButtonWidgetSlot "{5548E6E7F213FB11}" {
+      VerticalAlign 3
+      Padding 0 0 0 0
+     }
+     {
+      ImageWidgetClass "{6A145B276E7C0408}" : "{E679D416053194D7}UI/layouts/WidgetLibrary/BaseElements/WLib_LineHighlight.layout" {
+       Name "LineHighlight"
+       Slot OverlayWidgetSlot "{5DB8C57A14F7A8AF}" {
+       }
+       "Z Order" 2
+       Opacity 0
+       Mask "{099C73E0F66A5F28}UI/Textures/Common/gradientTexture_Dither_down_512.edds"
+       Progress 0.6
+       "Mask Mode" "Include Above"
+      }
+      ImageWidgetClass "{6A145B2879FC9A88}" {
+       Name "LineHighlight2"
+       Slot OverlayWidgetSlot "{6A145B2879FC9AA3}" {
+        HorizontalAlign 3
+        VerticalAlign 2
+        Padding 0 0 0 1
+       }
+       Opacity 0
+       Color 0.761 0.386 0.078 1
+       Size 2 2
+      }
+      ImageWidgetClass "{557098260F312273}" {
+       Prefab "{557098260F312273}"
+       "Is Enabled" 0
+       "Is Visible" 0
+       Opacity 0.3
+       Color 0.761 0.392 0.078 0
+      }
+      PanelWidgetClass "{557098260F31227C}" {
+       Prefab "{557098260F31227C}"
+       Slot OverlayWidgetSlot "{55367D8E4A13554A}" {
+        Padding 0 0 0 0
+       }
+       "Is Enabled" 0
+       "Is Visible" 0
+       Color 0.761 0.392 0.078 0
+       style outline_4px
+      }
+      HorizontalLayoutWidgetClass "{557098267862A738}" {
+       Prefab "{557098267862A738}"
+       Slot OverlayWidgetSlot "{557098267862A74F}" {
+       }
+       {
+        ScaleWidgetClass "{557478C2A0AF4E50}" {
+         Prefab "{557478C2A0AF4E50}"
+         Slot LayoutSlot "{557478C2A0AF4E68}" {
+          Padding -4 0 10 0
+         }
+         {
+          ImageWidgetClass "{557098267D2A9494}" {
+           Prefab "{557098267D2A9494}"
+           Slot LayoutSlot "{557098267D2A94B6}" {
+           }
+           Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+           Image "exit"
+           Size 64 64
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

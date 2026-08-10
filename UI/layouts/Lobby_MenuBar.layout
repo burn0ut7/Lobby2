@@ -1,0 +1,331 @@
+FrameWidgetClass {
+ Name "Frame"
+ Slot FrameWidgetSlot "{6A14348964DA4CFD}" {
+  Anchor 0.5 0 0.5 0
+  PositionX -960
+  OffsetLeft -960
+  PositionY 0
+  OffsetTop 0
+  SizeX 1920
+  OffsetRight -960
+  SizeY 70
+  OffsetBottom -70
+ }
+ {
+  ImageWidgetClass "{6A14348FED23A371}" {
+   Name "Background"
+   Slot FrameWidgetSlot "{6A14348FED23A36C}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 100
+    OffsetRight -100
+    SizeY 30
+    OffsetBottom -30
+    SizeToContent 1
+   }
+   Texture "{FA224404BE9B371A}UI/Textures/map_texture.edds"
+   Size 1920 1080
+   Tiling Wrap
+  }
+  ImageWidgetClass "{6A14348DF4743AAA}" {
+   Name "Texture"
+   Slot FrameWidgetSlot "{6A14348DF4743A82}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 1920
+    OffsetRight -1920
+    SizeY 1080
+    OffsetBottom -1080
+   }
+   Color 0.007 0.012 0.014 1
+   Mask "{EEEA388EB9A457E9}UI/Textures/ProgressMasks/ProgressMaskVertical_256x1.edds"
+   "Transition width" 0.46
+   Progress 0.22
+   "Mask Mode" "Include Range"
+   Range 0.52
+  }
+  ImageWidgetClass "{6A145B2CE86EE897}" {
+   Name "Line"
+   Slot FrameWidgetSlot "{6A145B2CE86EE8AF}" {
+    Anchor 0 1 0 1
+    OffsetLeft 0
+    OffsetTop 0
+    SizeX 1920
+    OffsetRight -1920
+    SizeY 3
+    OffsetBottom -3
+    Alignment 0 1
+   }
+   Color 0.0307 0.0331 0.0356 1
+   Mask "{2ADA399EDE7BE27F}UI/Textures/Common/GradientTexture_Dither_mid_1024x16.edds"
+   "Shadow Offset" 0 1
+   "Shadow Color" 0.0162 0.0173 0.0185 1
+  }
+  HorizontalLayoutWidgetClass "{6A145B24392C23D4}" {
+   Name "HorizontalLayout"
+   Slot FrameWidgetSlot "{6A145B24392C23E9}" {
+    Anchor 0.5 0 0.5 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 900
+    OffsetRight -900
+    SizeY 70
+    OffsetBottom -70
+    Alignment 0.5 0
+    SizeToContent 1
+   }
+   {
+    ButtonWidgetClass "{6A145B26CB88A0BC}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
+     Name "Mission Preview Button"
+     Slot LayoutSlot "{6A145B26FC68C58E}" {
+     }
+     components {
+      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+       m_sText "MISSION PREVIEW"
+      }
+     }
+     {
+      SizeLayoutWidgetClass "{557098260F312277}" {
+       Prefab "{557098260F312277}"
+       Slot ButtonWidgetSlot "{5548E6E7E6AEDDC1}" {
+        Padding 0 0 0 0
+       }
+       AllowHeightOverride 0
+       HeightOverride 0
+       {
+        OverlayWidgetClass "{557098260F312272}" {
+         Prefab "{557098260F312272}"
+         {
+          HorizontalLayoutWidgetClass "{557098267862A738}" {
+           Prefab "{557098267862A738}"
+           {
+            ScaleWidgetClass "{557478C2A0AF4E50}" {
+             Prefab "{557478C2A0AF4E50}"
+             {
+              ImageWidgetClass "{557098267D2A9494}" {
+               Prefab "{557098267D2A9494}"
+               Image "gameMaster"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    ImageWidgetClass "{6A145B2FCA0DD6A3}" {
+     Name "Line0"
+     Slot LayoutSlot "{6A145B2FCA0DD6BC}" {
+      HorizontalAlign 1
+      VerticalAlign 1
+      Padding 2 0 2 0
+     }
+     Color 0.0307 0.0331 0.0356 1
+     Size 2 30
+    }
+    ButtonWidgetClass "{6A145B2F3B7AC20F}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
+     Name "Lobby Button"
+     Slot LayoutSlot "{6A145B26FC68C58E}" {
+     }
+     components {
+      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+       m_sText "LOBBY"
+      }
+     }
+     {
+      SizeLayoutWidgetClass "{557098260F312277}" {
+       Prefab "{557098260F312277}"
+       Slot ButtonWidgetSlot "{5548E6E7E6AEDDC1}" {
+        Padding 0 0 0 0
+       }
+       AllowHeightOverride 0
+       HeightOverride 0
+       {
+        OverlayWidgetClass "{557098260F312272}" {
+         Prefab "{557098260F312272}"
+         {
+          HorizontalLayoutWidgetClass "{557098267862A738}" {
+           Prefab "{557098267862A738}"
+           {
+            ScaleWidgetClass "{557478C2A0AF4E50}" {
+             Prefab "{557478C2A0AF4E50}"
+             {
+              ImageWidgetClass "{557098267D2A9494}" {
+               Prefab "{557098267D2A9494}"
+               Image "career_server"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    ImageWidgetClass "{6A145B31B6193E93}" {
+     Name "Line1"
+     Slot LayoutSlot "{6A145B2FCA0DD6BC}" {
+      HorizontalAlign 1
+      VerticalAlign 1
+      Padding 2 0 2 0
+     }
+     Color 0.0307 0.0331 0.0356 1
+     Size 2 30
+    }
+    ButtonWidgetClass "{6A145B31B6193E6A}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
+     Name "Briefing Button"
+     Slot LayoutSlot "{6A145B26FC68C58E}" {
+     }
+     components {
+      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+       m_sText "BRIEFING"
+      }
+     }
+     {
+      SizeLayoutWidgetClass "{557098260F312277}" {
+       Prefab "{557098260F312277}"
+       Slot ButtonWidgetSlot "{5548E6E7E6AEDDC1}" {
+        Padding 0 0 0 0
+       }
+       AllowHeightOverride 0
+       HeightOverride 0
+       {
+        OverlayWidgetClass "{557098260F312272}" {
+         Prefab "{557098260F312272}"
+         {
+          HorizontalLayoutWidgetClass "{557098267862A738}" {
+           Prefab "{557098267862A738}"
+           {
+            ScaleWidgetClass "{557478C2A0AF4E50}" {
+             Prefab "{557478C2A0AF4E50}"
+             {
+              ImageWidgetClass "{557098267D2A9494}" {
+               Prefab "{557098267D2A9494}"
+               Image "scenarios"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    ImageWidgetClass "{6A145B317F5942E9}" {
+     Name "Line2"
+     Slot LayoutSlot "{6A145B2FCA0DD6BC}" {
+      HorizontalAlign 1
+      VerticalAlign 1
+      Padding 2 0 2 0
+     }
+     Color 0.0307 0.0331 0.0356 1
+     Size 2 30
+    }
+    ButtonWidgetClass "{6A145B317F5942BB}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
+     Name "Game Button"
+     Slot LayoutSlot "{6A145B26FC68C58E}" {
+     }
+     components {
+      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+       m_sText "GAME"
+      }
+     }
+     {
+      SizeLayoutWidgetClass "{557098260F312277}" {
+       Prefab "{557098260F312277}"
+       Slot ButtonWidgetSlot "{5548E6E7E6AEDDC1}" {
+        Padding 0 0 0 0
+       }
+       AllowHeightOverride 0
+       HeightOverride 0
+       {
+        OverlayWidgetClass "{557098260F312272}" {
+         Prefab "{557098260F312272}"
+         {
+          HorizontalLayoutWidgetClass "{557098267862A738}" {
+           Prefab "{557098267862A738}"
+           {
+            ScaleWidgetClass "{557478C2A0AF4E50}" {
+             Prefab "{557478C2A0AF4E50}"
+             {
+              ImageWidgetClass "{557098267D2A9494}" {
+               Prefab "{557098267D2A9494}"
+               Image "characters"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    ImageWidgetClass "{6A145B31646C7229}" {
+     Name "Line3"
+     Slot LayoutSlot "{6A145B2FCA0DD6BC}" {
+      HorizontalAlign 1
+      VerticalAlign 1
+      Padding 2 0 2 0
+     }
+     Color 0.0307 0.0331 0.0356 1
+     Size 2 30
+    }
+    ButtonWidgetClass "{6A145B3158BF320A}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
+     Name "Debrief Button"
+     Slot LayoutSlot "{6A145B26FC68C58E}" {
+     }
+     components {
+      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+       m_sText "DEBREIF"
+      }
+     }
+     {
+      SizeLayoutWidgetClass "{557098260F312277}" {
+       Prefab "{557098260F312277}"
+       Slot ButtonWidgetSlot "{5548E6E7E6AEDDC1}" {
+        Padding 0 0 0 0
+       }
+       AllowHeightOverride 0
+       HeightOverride 0
+       {
+        OverlayWidgetClass "{557098260F312272}" {
+         Prefab "{557098260F312272}"
+         {
+          HorizontalLayoutWidgetClass "{557098267862A738}" {
+           Prefab "{557098267862A738}"
+           {
+            ScaleWidgetClass "{557478C2A0AF4E50}" {
+             Prefab "{557478C2A0AF4E50}"
+             {
+              ImageWidgetClass "{557098267D2A9494}" {
+               Prefab "{557098267D2A9494}"
+               Image "feedback"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
