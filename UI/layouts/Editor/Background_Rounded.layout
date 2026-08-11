@@ -1,0 +1,46 @@
+HorizontalLayoutWidgetClass : "{F7B5DF87CE1F28E2}UI/layouts/Editor/Effects/Effect_Background_Rounded.layout" {
+ Opacity 1
+ Color 0.2623 0.2623 0.2623 1
+ {
+  VerticalLayoutWidgetClass "{59EC7B8322F87B83}" {
+   Prefab "{59EC7B8322F87B83}"
+   "Inherit Color" 1
+   {
+    ImageWidgetClass "{59EC7B8322F87B8D}" {
+     Prefab "{59EC7B8322F87B8D}"
+     "Inherit Color" 1
+    }
+    ImageWidgetClass "{59EC7B8322F87B8C}" {
+     Prefab "{59EC7B8322F87B8C}"
+     "Inherit Color" 1
+    }
+    ImageWidgetClass "{59EC7B8322F87B8F}" {
+     Prefab "{59EC7B8322F87B8F}"
+     "Inherit Color" 1
+    }
+   }
+  }
+  ImageWidgetClass "{59EC7B8322F87B8E}" {
+   Prefab "{59EC7B8322F87B8E}"
+   "Inherit Color" 1
+  }
+  VerticalLayoutWidgetClass "{59EC7B8322F87B89}" {
+   Prefab "{59EC7B8322F87B89}"
+   "Inherit Color" 1
+   {
+    ImageWidgetClass "{59EC7B8322F87B88}" {
+     Prefab "{59EC7B8322F87B88}"
+     "Inherit Color" 1
+    }
+    ImageWidgetClass "{59EC7B8322F87B8B}" {
+     Prefab "{59EC7B8322F87B8B}"
+     "Inherit Color" 1
+    }
+    ImageWidgetClass "{59EC7B8322F87B8A}" {
+     Prefab "{59EC7B8322F87B8A}"
+     "Inherit Color" 1
+    }
+   }
+  }
+ }
+}

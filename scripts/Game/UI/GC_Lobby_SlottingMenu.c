@@ -5,8 +5,16 @@ modded enum ChimeraMenuPreset
 
 class GC_Lobby_SlottingMenu : ChimeraMenuBase
 {
+    protected static ResourceName PREVIEW_MANAGER_PREFAB = "{9F18C476AB860F3B}Prefabs/World/Game/ItemPreviewManager.et";
+    protected static ResourceName FALLBACK_CHARACTER_PREFAB = "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et";
+
     protected Widget m_wRoot;
-    protected ref array<SCR_ButtonTextComponent> m_aHeaderButtons = {};
+    protected GC_HeaderComponent m_Header;
+    protected ItemPreviewWidget m_wPlayerRender;
+    protected ItemPreviewManagerEntity m_PreviewManager;
+    protected PreviewRenderAttributes m_PlayerRenderAttributes;
+    protected GC_LobbyCharacterPreviewHelper m_CharacterWidgetHelper;
+    protected IEntity m_PreviewEntity;
 
     override void OnMenuOpen()
     {
@@ -14,190 +22,215 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
         m_wRoot = GetRootWidget();
 
-        ItemPreviewWidget render = ItemPreviewWidget.Cast(m_wRoot.FindAnyWidget("Player"));
+        InitializePlayerPreview();
+
+        Widget headerRoot = m_wRoot.FindAnyWidget("Frame");
+        if (!headerRoot)
+        {
+            PrintFormat("GC | Header root not found");
+            return;
+        }
+
+        m_Header = GC_HeaderComponent.Cast(headerRoot.FindHandler(GC_HeaderComponent));
+        if (!m_Header)
+        {
+            PrintFormat("GC | Header component not found");
+            return;
+        }
+
+        m_Header.m_OnStateChanged.Insert(OnHeaderStateChanged);
+        m_Header.SetActiveState(0);
+        m_Header.SetCanChangeState(SCR_Global.IsAdmin());
+        PrintFormat("GC | Slotting menu subscribed to header state changes");
+    }
+
+    override void OnMenuUpdate(float tDelta)
+    {
+        super.OnMenuUpdate(tDelta);
+
+        if (!m_CharacterWidgetHelper || !m_PreviewManager || !m_PlayerRenderAttributes)
+            return;
+
+        if (m_CharacterWidgetHelper.Update(tDelta, m_PlayerRenderAttributes))
+            RefreshPlayerPreview();
+    }
+
+    override void OnMenuClose()
+    {
+        if (m_PlayerRenderAttributes)
+            m_PlayerRenderAttributes.ResetDeltaRotation();
+
+        if (m_CharacterWidgetHelper)
+        {
+            m_CharacterWidgetHelper.Destroy();
+            m_CharacterWidgetHelper = null;
+        }
+
+        if (m_Header)
+            m_Header.m_OnStateChanged.Remove(OnHeaderStateChanged);
+
+        m_PreviewEntity = null;
+        m_PlayerRenderAttributes = null;
+        m_PreviewManager = null;
+        m_wPlayerRender = null;
+        m_wRoot = null;
+        m_Header = null;
+
+        super.OnMenuClose();
+    }
+
+    protected void InitializePlayerPreview()
+    {
+        if (!m_wRoot)
+            return;
+
+        m_wPlayerRender = ItemPreviewWidget.Cast(m_wRoot.FindAnyWidget("playerRender"));
+        if (!m_wPlayerRender)
+        {
+            PrintFormat("GC | Player preview widget not found");
+            return;
+        }
+
+        RenderTargetWidget renderTarget = m_wPlayerRender;
+        if (renderTarget)
+        {
+            renderTarget.SetClearColor(false, 0);
+            renderTarget.SetBlendMode(RenderTargetWidgetBlendMode.ALPHA_BLEND);
+        }
 
         ChimeraWorld world = GetGame().GetWorld();
-        ItemPreviewManagerEntity manager = world.GetItemPreviewManager();
+        if (!world)
+            return;
 
-        manager.SetPreviewItemFromPrefab(render, "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et");
-
-        RegisterHeaderButton("Mission Preview Button");
-        RegisterHeaderButton("Lobby Button");
-        RegisterHeaderButton("Briefing Button");
-        RegisterHeaderButton("Game Button");
-        RegisterHeaderButton("Debrief Button");
-
-        // This menu opens in the lobby state.
-        SetActiveHeaderButton(1);
-        SetHeaderInputEnabled(CanChangeLobbyState());
-    }
-
-    protected void RegisterHeaderButton(string buttonName)
-    {
-        SCR_ButtonTextComponent button = SCR_ButtonTextComponent.GetButtonText(buttonName, m_wRoot);
-        if (!button)
+        m_PreviewManager = world.GetItemPreviewManager();
+        if (!m_PreviewManager)
         {
-            PrintFormat("GC | Header button not found: %1", buttonName);
+            Resource resource = Resource.Load(PREVIEW_MANAGER_PREFAB);
+            if (resource.IsValid())
+                GetGame().SpawnEntityPrefabLocal(resource, world);
+
+            m_PreviewManager = world.GetItemPreviewManager();
+        }
+
+        if (!m_PreviewManager)
+        {
+            PrintFormat("GC | Item preview manager not found");
             return;
         }
 
-        m_aHeaderButtons.Insert(button);
-        button.m_OnClicked.Insert(OnHeaderButtonClicked);
-        button.m_OnFocus.Insert(OnFocusHeaderButton);
-    }
-
-    protected bool CanChangeLobbyState()
-    {
-        // This controls presentation/input only. The server must validate the
-        // same permission before applying any replicated game-state change.
-        return SCR_Global.IsAdmin();
-    }
-
-    protected void SetHeaderInputEnabled(bool enabled)
-    {
-        for (int i = 0; i < m_aHeaderButtons.Count(); i++)
+        PlayerController playerController = GetGame().GetPlayerController();
+        if (playerController)
         {
-            Widget buttonRoot = m_aHeaderButtons[i].GetRootWidget();
-            if (buttonRoot)
-                buttonRoot.SetEnabled(enabled);
-        }
-    }
-
-    protected void SetActiveHeaderButton(int activeIndex)
-    {
-        for (int i = 0; i < m_aHeaderButtons.Count(); i++)
-        {
-            SCR_ButtonTextComponent button = m_aHeaderButtons[i];
-            bool isActive = i == activeIndex;
-
-            // Keep the standard button toggle state in sync.
-            button.SetToggled(isActive, true, false, false);
-
-            // Keep SCR_ButtonEffectColor/SCR_ButtonEffectOpacity in sync too.
-            Widget buttonRoot = button.GetRootWidget();
-            if (!buttonRoot)
-                continue;
-
-            SCR_ModularButtonComponent modularButton =
-                SCR_ModularButtonComponent.Cast(buttonRoot.FindHandler(SCR_ModularButtonComponent));
-
-            if (modularButton)
-                modularButton.SetToggled(isActive, false, false);
-        }
-    }
-
-    protected void OnHeaderButtonClicked(SCR_ButtonTextComponent button)
-    {
-        if (!CanChangeLobbyState())
-        {
-            SetHeaderInputEnabled(false);
-            PrintFormat("GC | Header input rejected: local player is not an admin");
-            return;
-        }
-
-        int buttonIndex = -1;
-        for (int i = 0; i < m_aHeaderButtons.Count(); i++)
-        {
-            if (m_aHeaderButtons[i] == button)
+            ChimeraCharacter player = ChimeraCharacter.Cast(playerController.GetControlledEntity());
+            if (player)
             {
-                buttonIndex = i;
-                break;
+                m_PreviewEntity = player;
+                LoadPreviewAttributes(m_PreviewEntity);
             }
         }
 
-        if (buttonIndex < 0)
+        if (m_PreviewEntity && m_PlayerRenderAttributes)
+        {
+            m_PreviewManager.SetPreviewItem(m_wPlayerRender, m_PreviewEntity, m_PlayerRenderAttributes, true);
+        }
+        else
+        {
+            m_PreviewManager.SetPreviewItemFromPrefab(m_wPlayerRender, FALLBACK_CHARACTER_PREFAB, null, true);
+            m_PreviewEntity = m_PreviewManager.ResolvePreviewEntityForPrefab(FALLBACK_CHARACTER_PREFAB);
+            LoadPreviewAttributes(m_PreviewEntity);
+
+            if (m_PreviewEntity && m_PlayerRenderAttributes)
+                m_PreviewManager.SetPreviewItem(m_wPlayerRender, m_PreviewEntity, m_PlayerRenderAttributes, true);
+        }
+
+        if (m_PlayerRenderAttributes)
+        {
+            m_CharacterWidgetHelper = GC_LobbyCharacterPreviewHelper(m_wPlayerRender, GetGame().GetWorkspace());
+        }
+        else
+        {
+            PrintFormat("GC | Preview attributes not found; rotation disabled");
+        }
+    }
+
+    protected void LoadPreviewAttributes(IEntity entity)
+    {
+        if (!entity)
             return;
 
-        SetActiveHeaderButton(buttonIndex);
+        SCR_CharacterInventoryStorageComponent storage = SCR_CharacterInventoryStorageComponent.Cast(entity.FindComponent(SCR_CharacterInventoryStorageComponent));
+        if (!storage)
+            return;
 
-        switch (buttonIndex)
+        auto collection = storage.GetAttributes();
+        if (collection)
+            m_PlayerRenderAttributes = PreviewRenderAttributes.Cast(collection.FindAttribute(SCR_CharacterInventoryPreviewAttributes));
+    }
+
+    protected void RefreshPlayerPreview()
+    {
+        if (!m_PreviewManager || !m_wPlayerRender || !m_PreviewEntity)
+            return;
+
+        m_PreviewManager.SetPreviewItem(m_wPlayerRender, m_PreviewEntity, m_PlayerRenderAttributes);
+    }
+
+    protected void OnHeaderStateChanged(GC_HeaderComponent header)
+    {
+        int state = header.GetActiveState();
+        PrintFormat("GC | Slotting header state callback: %1", state);
+
+        switch (state)
         {
             case 0:
-                MissionPreview(button);
+                MissionPreview();
                 break;
             case 1:
-                LobbyState(button);
+                LobbyState();
                 break;
             case 2:
-                BriefingState(button);
+                BriefingState();
                 break;
             case 3:
-                GameState(button);
+                GameState();
                 break;
             case 4:
-                DebriefState(button);
+                DebriefState();
+                break;
+            default:
+                ClearHeaderState();
                 break;
         }
     }
 
-    protected void MissionPreview(SCR_ButtonTextComponent button)
+    protected void MissionPreview()
     {
-        bool isMissionPreviewToggled = button.IsToggled();
-        PrintFormat("GC | MissionPreview Clicked: %1", isMissionPreviewToggled);
-
-        // Prototype: find a child widget and customize its visual state.
-        Widget buttonRoot = button.GetRootWidget();
-        if (!buttonRoot)
-        {
-            PrintFormat("GC | MissionPreview: button root not found");
-            return;
-        }
-
-        TextWidget text = TextWidget.Cast(buttonRoot.FindAnyWidget("Text"));
-        if (!text)
-        {
-            PrintFormat("GC | MissionPreview: Text widget not found");
-            return;
-        }
-
-        text.SetColor(Color.FromRGBA(255, 0, 0, 255));
+        PrintFormat("GC | Mission Preview state selected");
+        // Put the actual mission-preview transition here.
     }
 
-    protected void LobbyState(SCR_ButtonTextComponent button)
+    protected void LobbyState()
     {
         PrintFormat("GC | Lobby state selected");
     }
 
-    protected void BriefingState(SCR_ButtonTextComponent button)
+    protected void BriefingState()
     {
         PrintFormat("GC | Briefing state selected");
     }
 
-    protected void GameState(SCR_ButtonTextComponent button)
+    protected void GameState()
     {
         PrintFormat("GC | Game state selected");
     }
 
-    protected void DebriefState(SCR_ButtonTextComponent button)
+    protected void DebriefState()
     {
         PrintFormat("GC | Debrief state selected");
     }
 
-    protected void OnFocusHeaderButton(Widget widget)
+    protected void ClearHeaderState()
     {
-        if (!widget)
-            return;
-
-        PrintFormat("GC | OnFocusHeaderButton: %1", widget);
-
-        Widget search = widget.FindAnyWidget("Border");
-        if (search)
-            search.SetOpacity(0.5);
-
-        search = widget.FindAnyWidget("LineHighlight");
-        if (search)
-            search.SetOpacity(0.1);
-
-        search = widget.FindAnyWidget("LineHighlight2");
-        if (search)
-            search.SetOpacity(1);
-
-        ImageWidget image = ImageWidget.Cast(widget.FindAnyWidget("Image0"));
-        if (image)
-            image.SetColor(Color.FromRGBA(255, 152, 50, 255));
-
-        TextWidget text = TextWidget.Cast(widget.FindAnyWidget("Text"));
-        if (text)
-            text.SetColor(Color.FromRGBA(255, 152, 50, 255));
+        PrintFormat("GC | Header state cleared");
     }
 }

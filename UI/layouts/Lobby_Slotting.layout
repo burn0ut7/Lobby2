@@ -1,13 +1,56 @@
 FrameWidgetClass {
  Name "rootFrame"
  {
+  HorizontalLayoutWidgetClass "{6A1577A82C9D3187}" : "{80329E8932405F77}UI/layouts/Editor/Background_Rounded.layout" {
+   Name "Effect_Background_Rounded0"
+   Slot FrameWidgetSlot "{6A1577A82C9D3198}" {
+    PositionX 769.229
+    OffsetLeft 769.229
+    PositionY 272.078
+    OffsetTop 272.078
+    SizeX 466.101
+    OffsetRight -1235.33
+    SizeY 539.271
+    OffsetBottom -811.349
+   }
+  }
   FrameWidgetClass "{6A145B248928ECED}" : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" {
-   Name "Frame0"
+   Name "MenuBar"
    Slot FrameWidgetSlot "{6A14348964DA4CFD}" {
+    Anchor 0 0 1 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    OffsetRight 0
+    SizeY 70
+    OffsetBottom -70
+   }
+   {
+    ImageWidgetClass "{6A14348DF4743AAA}" {
+     Prefab "{6A14348DF4743AAA}"
+     Tiling None
+     Progress 0.76
+    }
+    ImageWidgetClass "{6A14348FED23A371}" {
+     Prefab "{6A14348FED23A371}"
+     Slot FrameWidgetSlot "{6A14348FED23A36C}" {
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 0
+      OffsetRight 0
+      SizeY 0
+      OffsetBottom 0
+     }
+     Opacity 1
+     Texture "{DBDAC86F71E7B0EB}UI/Textures/map_texture2.edds"
+     Size 10 400
+    }
    }
   }
   ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
-   Name "Player"
+   Name "playerRender"
    Slot FrameWidgetSlot "{6A142E93D253C20D}" {
     PositionX 1309.81
     OffsetLeft 1309.81
@@ -18,6 +61,7 @@ FrameWidgetClass {
     SizeY 837.637
     OffsetBottom -980.026
    }
+   "Ignore Cursor" 0
   }
  }
 }

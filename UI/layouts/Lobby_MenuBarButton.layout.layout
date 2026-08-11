@@ -3,11 +3,13 @@ ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_But
  Slot LayoutSlot "{6A145B26FC68C58E}" {
  }
  components {
-  SCR_ButtonTextComponent "{5548F0143AE99095}" {
+  GC_HeaderButtonComponent "{5548F0143AE99095}" {
    m_sSoundHovered ""
    m_sSoundClicked ""
-   m_sSoundContainerClosed ""
+   m_bMouseOverToFocus 0
+   m_bCanBeToggled 0
    m_bUseColorization 0
+   m_bShowBorderOnHover 1
   }
  }
  {
@@ -60,9 +62,7 @@ ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_But
        Slot OverlayWidgetSlot "{55367D8E4A13554A}" {
         Padding 0 0 0 0
        }
-       "Is Enabled" 0
-       "Is Visible" 0
-       Color 0.761 0.392 0.078 0
+       Color 1 0 0 0
        style outline_4px
       }
       HorizontalLayoutWidgetClass "{557098267862A738}" {

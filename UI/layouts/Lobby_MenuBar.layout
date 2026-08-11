@@ -1,61 +1,57 @@
 FrameWidgetClass {
  Name "Frame"
  Slot FrameWidgetSlot "{6A14348964DA4CFD}" {
-  Anchor 0.5 0 0.5 0
-  PositionX -960
-  OffsetLeft -960
+  Anchor 0 0 1 0
+  OffsetLeft 0
   PositionY 0
   OffsetTop 0
-  SizeX 1920
-  OffsetRight -960
+  OffsetRight 0
   SizeY 70
   OffsetBottom -70
  }
+ components {
+  GC_HeaderComponent "{6A145B3B00000001}" {
+  }
+ }
  {
+  ImageWidgetClass "{6A14348DF4743AAA}" {
+   Name "Color"
+   Slot FrameWidgetSlot "{6A14348DF4743A82}" {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   "Is Visible" 0
+   Color 0.007 0.012 0.014 1
+   Tiling Wrap
+   "Transition width" 1
+   Progress 0.63
+   Range 0
+  }
   ImageWidgetClass "{6A14348FED23A371}" {
    Name "Background"
    Slot FrameWidgetSlot "{6A14348FED23A36C}" {
-    PositionX 0
+    Anchor 0 0 1 1
     OffsetLeft 0
-    PositionY 0
     OffsetTop 0
-    SizeX 100
-    OffsetRight -100
-    SizeY 30
-    OffsetBottom -30
-    SizeToContent 1
+    OffsetRight 0
+    OffsetBottom 0
    }
+   Color 0.007 0.012 0.014 1
    Texture "{FA224404BE9B371A}UI/Textures/map_texture.edds"
    Size 1920 1080
    Tiling Wrap
-  }
-  ImageWidgetClass "{6A14348DF4743AAA}" {
-   Name "Texture"
-   Slot FrameWidgetSlot "{6A14348DF4743A82}" {
-    PositionX 0
-    OffsetLeft 0
-    PositionY 0
-    OffsetTop 0
-    SizeX 1920
-    OffsetRight -1920
-    SizeY 1080
-    OffsetBottom -1080
-   }
-   Color 0.007 0.012 0.014 1
-   Mask "{EEEA388EB9A457E9}UI/Textures/ProgressMasks/ProgressMaskVertical_256x1.edds"
-   "Transition width" 0.46
-   Progress 0.22
-   "Mask Mode" "Include Range"
-   Range 0.52
+   "Blend Mode" Additive
   }
   ImageWidgetClass "{6A145B2CE86EE897}" {
    Name "Line"
    Slot FrameWidgetSlot "{6A145B2CE86EE8AF}" {
-    Anchor 0 1 0 1
+    Anchor 0 1 1 1
     OffsetLeft 0
     OffsetTop 0
-    SizeX 1920
-    OffsetRight -1920
+    OffsetRight 0
     SizeY 3
     OffsetBottom -3
     Alignment 0 1
@@ -85,8 +81,9 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A145B26FC68C58E}" {
      }
      components {
-      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+      GC_HeaderButtonComponent "{5548F0143AE99095}" {
        m_sText "MISSION PREVIEW"
+       m_iHeaderState 0
       }
      }
      {
@@ -136,8 +133,9 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A145B26FC68C58E}" {
      }
      components {
-      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+      GC_HeaderButtonComponent "{5548F0143AE99095}" {
        m_sText "LOBBY"
+       m_iHeaderState 1
       }
      }
      {
@@ -187,8 +185,9 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A145B26FC68C58E}" {
      }
      components {
-      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+      GC_HeaderButtonComponent "{5548F0143AE99095}" {
        m_sText "BRIEFING"
+       m_iHeaderState 2
       }
      }
      {
@@ -238,8 +237,9 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A145B26FC68C58E}" {
      }
      components {
-      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+      GC_HeaderButtonComponent "{5548F0143AE99095}" {
        m_sText "GAME"
+       m_iHeaderState 3
       }
      }
      {
@@ -289,8 +289,9 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A145B26FC68C58E}" {
      }
      components {
-      SCR_ButtonTextComponent "{5548F0143AE99095}" {
+      GC_HeaderButtonComponent "{5548F0143AE99095}" {
        m_sText "DEBREIF"
+       m_iHeaderState 4
       }
      }
      {
@@ -324,6 +325,71 @@ FrameWidgetClass {
        }
       }
      }
+    }
+   }
+  }
+  VerticalLayoutWidgetClass "{6A1577A7F771EB46}" {
+   Name "Title"
+   Slot FrameWidgetSlot "{6A1577A7F771EB5A}" {
+    Anchor 0 0 0 0
+    PositionX 10
+    OffsetLeft 10
+    PositionY 10
+    OffsetTop 10
+    OffsetRight -110
+    OffsetBottom -40
+    SizeToContent 1
+   }
+   {
+    TextWidgetClass "{6A1577A42705BE72}" {
+     Name "TitleText"
+     Slot LayoutSlot "{6A161192FD5C0B29}" {
+     }
+     Text "BANGALORIOUS"
+     "Vertical Alignment" Center
+    }
+    TextWidgetClass "{6A1577A7BDB5F4A3}" {
+     Name "Description"
+     Slot LayoutSlot "{6A1577A7BDB5F4BA}" {
+     }
+     Color 0.4287 0.4287 0.4287 1
+     Text "COOPERATIVE ATTACK"
+     "Font Size" 12
+     "Min Font Size" 12
+    }
+   }
+  }
+  HorizontalLayoutWidgetClass "{6A1577A659C82CD8}" {
+   Name "PlayerCount"
+   Slot FrameWidgetSlot "{6A1577A659C82CEB}" {
+    Anchor 1 0 1 0
+    PositionX -10
+    OffsetLeft -10
+    PositionY 10
+    OffsetTop 10
+    SizeX 100
+    OffsetRight -90
+    SizeY 30
+    OffsetBottom -40
+    Alignment 1 0
+    SizeToContent 1
+   }
+   {
+    TextWidgetClass "{6A1577A1BDE77F3D}" {
+     Name "PlayerCountText"
+     Slot LayoutSlot "{6A1577A1BDE77F56}" {
+      HorizontalAlign 1
+      VerticalAlign 1
+     }
+     Text "128"
+    }
+    ImageWidgetClass "{6A1577A6397F5800}" {
+     Name "PlayerIcon"
+     Slot LayoutSlot "{6A161192FD5C0B59}" {
+     }
+     Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+     Image "global"
+     Size 48 48
     }
    }
   }

@@ -1,0 +1,198 @@
+class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
+{
+    protected InputManager m_InputManager;
+    protected bool m_bMouseRotate;
+    protected bool m_bMouseRoll;
+    protected bool m_bMouseWheel;
+    protected ItemPreviewWidget m_wCharacter;
+    protected WorkspaceWidget m_wWorkspace;
+    protected float m_fZoomInput;
+    protected vector m_vRotationInput = vector.Zero;
+    protected float m_fLastPanX;
+    protected float m_fLastPanY;
+    protected float m_fLastZoom;
+    protected float m_fLastMouseX;
+    protected float m_fLastMouseY;
+    protected float m_fMouseDeltaX;
+    protected float m_fMouseDeltaY;
+    protected float m_fWheelInput;
+    protected bool m_bHasMouseSample;
+
+    protected bool CanProcessEvent(int x, int y)
+    {
+        if (!m_wCharacter)
+            return false;
+
+        float sizeX, sizeY;
+        float posX, posY;
+        m_wCharacter.GetScreenSize(sizeX, sizeY);
+        m_wCharacter.GetScreenPos(posX, posY);
+
+        return x >= posX && x <= posX + sizeX && y >= posY && y <= posY + sizeY;
+    }
+
+    protected void ProcessInput()
+    {
+        const float inputResetEpsilon = 10;
+
+        m_InputManager.ActivateContext("CharacterFreelookMouseContext");
+        m_fLastPanX = m_InputManager.GetActionValue("Inventory_InspectPanX");
+        m_fLastPanY = m_InputManager.GetActionValue("Inventory_InspectPanY");
+        m_fLastZoom = m_InputManager.GetActionValue("Inventory_InspectZoom");
+
+        float mouseX = m_InputManager.GetActionValue("MouseX");
+        float mouseY = m_InputManager.GetActionValue("MouseY");
+        m_fMouseDeltaX = 0;
+        m_fMouseDeltaY = 0;
+
+        if (m_bMouseRotate || m_bMouseRoll)
+        {
+            if (!m_bHasMouseSample)
+            {
+                m_fLastMouseX = mouseX;
+                m_fLastMouseY = mouseY;
+                m_bHasMouseSample = true;
+            }
+            else
+            {
+                m_fMouseDeltaX = (mouseX - m_fLastMouseX) / 15;
+                m_fMouseDeltaY = (mouseY - m_fLastMouseY) / 15;
+                m_fLastMouseX = mouseX;
+                m_fLastMouseY = mouseY;
+            }
+        }
+        else
+        {
+            m_bHasMouseSample = false;
+        }
+
+        if (m_vRotationInput[0] * m_vRotationInput[0] < inputResetEpsilon)
+            m_vRotationInput[0] = 0;
+        if (m_vRotationInput[1] * m_vRotationInput[1] < inputResetEpsilon)
+            m_vRotationInput[1] = 0;
+        if (m_vRotationInput[2] * m_vRotationInput[2] < inputResetEpsilon)
+            m_vRotationInput[2] = 0;
+        if (m_fZoomInput * m_fZoomInput < inputResetEpsilon)
+            m_fZoomInput = 0;
+
+        if (m_bMouseRotate)
+        {
+            m_vRotationInput[1] = Math.Clamp(m_vRotationInput[1] + m_fMouseDeltaX, -10, 10);
+            m_vRotationInput[0] = Math.Clamp(m_vRotationInput[0] - m_fMouseDeltaY, -10, 10);
+        }
+
+        if (m_bMouseRoll)
+            m_vRotationInput[2] = Math.Clamp(m_vRotationInput[2] + m_fMouseDeltaX, -10, 10);
+
+        if (m_bMouseWheel)
+        {
+            m_fZoomInput += m_fWheelInput * 0.1;
+            m_fWheelInput = 0;
+        }
+
+        if (!m_InputManager.IsUsingMouseAndKeyboard())
+        {
+            m_vRotationInput[1] = 1000.0 * m_vRotationInput[1] + m_fLastPanX;
+            m_vRotationInput[0] = 1000.0 * m_vRotationInput[0] - m_fLastPanY;
+            m_fZoomInput += 0.01 * m_fLastZoom;
+        }
+    }
+
+    override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+    {
+        if (w && w.GetName() == "playerRender")
+        {
+            if (button == 0)
+                m_bMouseRotate = CanProcessEvent(x, y);
+            else if (button == 1)
+                m_bMouseRoll = CanProcessEvent(x, y);
+        }
+
+        return true;
+    }
+
+    override bool OnMouseButtonUp(Widget w, int x, int y, int button)
+    {
+        if (button == 0)
+            m_bMouseRotate = false;
+        else if (button == 1)
+            m_bMouseRoll = false;
+
+        return true;
+    }
+
+    override bool OnMouseWheel(Widget w, int x, int y, int wheel)
+    {
+        m_bMouseWheel = CanProcessEvent(x, y);
+        if (m_bMouseWheel)
+            m_fWheelInput += wheel;
+        return true;
+    }
+
+    bool Update(float timeSlice, inout PreviewRenderAttributes playerRenderAttributes)
+    {
+        const float rotationSensitivity = 2500;
+        const float zoomSensitivity = -10000;
+        const float interpolationAlpha = 0.15;
+
+        ProcessInput();
+
+        vector updatedRotation = "0 0 0";
+        updatedRotation[0] = m_vRotationInput[0] * interpolationAlpha;
+        updatedRotation[1] = m_vRotationInput[1] * interpolationAlpha;
+        updatedRotation[2] = m_vRotationInput[2] * interpolationAlpha;
+
+        m_vRotationInput[0] = m_vRotationInput[0] - updatedRotation[0];
+        m_vRotationInput[1] = m_vRotationInput[1] - updatedRotation[1];
+        m_vRotationInput[2] = m_vRotationInput[2] - updatedRotation[2];
+
+        float zoom = m_fZoomInput * interpolationAlpha;
+        m_fZoomInput -= zoom;
+
+        updatedRotation[0] = updatedRotation[0] * timeSlice * rotationSensitivity;
+        updatedRotation[1] = updatedRotation[1] * timeSlice * rotationSensitivity;
+        updatedRotation[2] = updatedRotation[2] * timeSlice * rotationSensitivity;
+        zoom = zoom * timeSlice * zoomSensitivity;
+
+        bool changesApplied = false;
+        if (updatedRotation[0] * updatedRotation[0] + updatedRotation[1] * updatedRotation[1] + updatedRotation[2] * updatedRotation[2] > 0)
+        {
+            const vector limitsMin = "-90 -180 -180";
+            const vector limitsMax = "90 180 180";
+            playerRenderAttributes.RotateItemCamera(updatedRotation, limitsMin, limitsMax);
+            changesApplied = true;
+        }
+
+        if (zoom != 0)
+        {
+            playerRenderAttributes.ZoomCamera(zoom);
+            changesApplied = true;
+        }
+
+        return changesApplied;
+    }
+
+    void Destroy()
+    {
+        if (m_wWorkspace)
+        {
+            m_wWorkspace.RemoveHandler(this);
+            m_wWorkspace.RemoveFromHierarchy();
+        }
+
+        m_wWorkspace = null;
+        m_wCharacter = null;
+        m_InputManager = null;
+    }
+
+    void GC_LobbyCharacterPreviewHelper(ItemPreviewWidget characterWidget, WorkspaceWidget workspace)
+    {
+        if (!characterWidget || !workspace)
+            return;
+
+        m_InputManager = GetGame().GetInputManager();
+        m_wWorkspace = workspace;
+        m_wCharacter = characterWidget;
+        m_wWorkspace.AddHandler(this);
+    }
+};
