@@ -1,0 +1,100 @@
+FrameWidgetClass {
+ Name "Faction"
+ Slot LayoutSlot "{6A161187281C906A}" {
+  Padding 0 8 0 0
+ }
+ {
+  ButtonWidgetClass "{6A16118972CE0CFC}" {
+   Name "Button"
+   Slot FrameWidgetSlot "{6A16118972CE0D0D}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 125
+    OffsetRight -125
+    SizeY 125
+    OffsetBottom -125
+   }
+   Color 1 1 1 0
+   components {
+    SCR_ButtonBaseComponent "{6A1611891F697B24}" {
+     m_bCanBeToggled 1
+     m_BackgroundDefault 0.014 0.027 0.032 1
+     m_BackgroundHovered 0.05 0.102 0.125 1
+     m_BackgroundSelected 0.231 0.1 0.024 1
+     m_BackgroundSelectedHovered 0.503 0.211 0.047 1
+     m_bShowBorderOnFocus 0
+    }
+   }
+   {
+    HorizontalLayoutWidgetClass "{6A1611873277D461}" : "{80329E8932405F77}UI/layouts/Editor/Background_Rounded.layout" {
+     Name "Background"
+     Slot ButtonWidgetSlot "{6A16118CB248AD1B}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.0143 0.0267 0.0319 1
+    }
+   }
+  }
+  VerticalLayoutWidgetClass "{6A16118727CA9545}" {
+   Name "VerticalLayout0"
+   Slot FrameWidgetSlot "{6A16118727CA9556}" {
+    PositionX 12
+    OffsetLeft 12
+    PositionY 12
+    OffsetTop 12
+    SizeX 101
+    OffsetRight -113
+    SizeY 101
+    OffsetBottom -113
+   }
+   {
+    ImageWidgetClass "{6A161184569548C8}" {
+     Name "Flag"
+     Slot LayoutSlot "{6A161184569548E5}" {
+     }
+     Texture "{46FB2FB2C2125A3C}UI/Textures/Flags/US-flag-base-3it.edds"
+     Size 100 55
+    }
+    OverlayWidgetClass "{6A16118545566D7C}" {
+     Name "Overlay"
+     Slot LayoutSlot "{6A16118545566D91}" {
+      VerticalAlign 1
+      SizeMode Fill
+     }
+     {
+      ImageWidgetClass "{6A16118564B69C0A}" {
+       Name "Color"
+       Slot OverlayWidgetSlot "{6A16118FAE1C157C}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0 0.0774 0.1804 1
+      }
+      TextWidgetClass "{6A161185C71DE62B}" {
+       Name "Text"
+       Slot OverlayWidgetSlot "{6A16118FAE1C1592}" {
+       }
+       Text "US Army"
+       "Font Size" 32
+       "Min Font Size" 8
+       "Vertical Alignment" Center
+      }
+     }
+    }
+    TextWidgetClass "{6A16118BE558D562}" {
+     Name "Counter"
+     Slot LayoutSlot "{6A16118BE558D57A}" {
+      HorizontalAlign 1
+      VerticalAlign 2
+     }
+     Text "64 / 128"
+     "Font Size" 16
+     "Min Font Size" 16
+    }
+   }
+  }
+ }
+}

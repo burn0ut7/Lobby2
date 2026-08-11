@@ -2,9 +2,11 @@ FrameWidgetClass {
  Name "Frame"
  Slot FrameWidgetSlot "{6A14348964DA4CFD}" {
   Anchor 0 0 1 0
+  PositionX 0
   OffsetLeft 0
   PositionY 0
   OffsetTop 0
+  SizeX 0
   OffsetRight 0
   SizeY 70
   OffsetBottom -70
@@ -18,12 +20,15 @@ FrameWidgetClass {
    Name "Color"
    Slot FrameWidgetSlot "{6A14348DF4743A82}" {
     Anchor 0 0 1 1
+    PositionX 0
     OffsetLeft 0
+    PositionY 0
     OffsetTop 0
+    SizeX 0
     OffsetRight 0
+    SizeY 0
     OffsetBottom 0
    }
-   "Is Visible" 0
    Color 0.007 0.012 0.014 1
    Tiling Wrap
    "Transition width" 1
@@ -34,12 +39,16 @@ FrameWidgetClass {
    Name "Background"
    Slot FrameWidgetSlot "{6A14348FED23A36C}" {
     Anchor 0 0 1 1
+    PositionX 0
     OffsetLeft 0
+    PositionY 0
     OffsetTop 0
+    SizeX 0
     OffsetRight 0
+    SizeY 0
     OffsetBottom 0
    }
-   Color 0.007 0.012 0.014 1
+   Color 0.0174 0.033 0.0396 1
    Texture "{FA224404BE9B371A}UI/Textures/map_texture.edds"
    Size 1920 1080
    Tiling Wrap

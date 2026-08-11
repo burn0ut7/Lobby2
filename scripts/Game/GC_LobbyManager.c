@@ -8,7 +8,7 @@ class GC_TestComp : ScriptComponent
 {
     override protected void OnPostInit(IEntity owner)
     {	
-		GetGame().GetCallqueue().CallLater(CheckSlots, 1000);
+		GetGame().GetCallqueue().CallLater(CheckSlots, 1);
     }
 	
 	void CheckSlots()
@@ -35,6 +35,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     protected ref array<ref GC_PlayerFormationDefinition> m_aFormations;
 
     protected ref array<SCR_AIGroup> m_aGroups = {};
+    protected ref array<Faction> m_aRegisteredFactions = {};
     protected ref array<ref GC_Slot> m_aSlots = {};
     protected int m_iNextSlotID = 1;
 
@@ -167,6 +168,57 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         }
 
         return true;
+    }
+
+    //! Registers a faction key with the lobby manager.
+    bool RegisterFaction(FactionKey factionKey)
+    {
+        if (factionKey == "")
+            return false;
+
+        Faction faction = GetGame().GetFactionManager().GetFactionByKey(factionKey);
+        if (!faction  || m_aRegisteredFactions.Contains(faction))
+            return false;
+
+        m_aRegisteredFactions.Insert(faction);
+        return true;
+    }
+
+    //! Removes a faction key from the lobby manager.
+    bool UnregisterFaction(FactionKey factionKey)
+    {
+        if (factionKey == "")
+            return false;
+
+        for (int i = 0; i < m_aRegisteredFactions.Count(); i++)
+        {
+            if (m_aRegisteredFactions[i].GetFactionKey() != factionKey)
+                continue;
+
+            m_aRegisteredFactions.RemoveOrdered(i);
+            return true;
+        }
+
+        return false;
+    }
+
+    //! Returns whether a faction key is currently registered.
+    Faction GetRegisteredFaction(FactionKey factionKey)
+    {
+        Faction faction = GetGame().GetFactionManager().GetFactionByKey(factionKey);
+        if (!faction)
+            return null;
+
+        if (!m_aRegisteredFactions.Contains(faction))
+            return faction;
+
+        return null;
+    }
+
+    //! Returns the faction keys currently registered with the lobby manager.
+    array<Faction> GetRegisteredFactions()
+    {
+        return m_aRegisteredFactions;
     }
 
     array<ref GC_Slot> GetSlots()

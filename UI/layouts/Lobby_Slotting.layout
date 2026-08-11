@@ -1,52 +1,43 @@
 FrameWidgetClass {
  Name "rootFrame"
+ Slot FrameWidgetSlot "{6A16119E312F45C2}" {
+  Anchor 0 0 1 1
+  PositionX 0
+  OffsetLeft 0
+  PositionY 0
+  OffsetTop 0
+  SizeX -1820
+  OffsetRight 1820
+  SizeY -1050
+  OffsetBottom 1050
+ }
  {
+  ImageWidgetClass "{6A16118EF335A54F}" {
+   Name "Image0"
+   Slot FrameWidgetSlot "{6A16118EF335A565}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 1.08
+    SizeX 99.84
+    OffsetRight 0
+    SizeY 29.16
+    OffsetBottom 0
+   }
+   Texture "{B98FB2CD75200E57}UI/Textures/MainMenu/MenuBackgroundBlank_UI.edds"
+   Size 1920 1080
+  }
   HorizontalLayoutWidgetClass "{6A1577A82C9D3187}" : "{80329E8932405F77}UI/layouts/Editor/Background_Rounded.layout" {
    Name "Effect_Background_Rounded0"
-   Slot FrameWidgetSlot "{6A1577A82C9D3198}" {
-    PositionX 769.229
-    OffsetLeft 769.229
-    PositionY 272.078
-    OffsetTop 272.078
-    SizeX 466.101
-    OffsetRight -1235.33
-    SizeY 539.271
-    OffsetBottom -811.349
-   }
-  }
-  FrameWidgetClass "{6A145B248928ECED}" : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" {
-   Name "MenuBar"
-   Slot FrameWidgetSlot "{6A14348964DA4CFD}" {
-    Anchor 0 0 1 0
-    OffsetLeft 0
-    PositionY 0
-    OffsetTop 0
-    OffsetRight 0
-    SizeY 70
-    OffsetBottom -70
-   }
-   {
-    ImageWidgetClass "{6A14348DF4743AAA}" {
-     Prefab "{6A14348DF4743AAA}"
-     Tiling None
-     Progress 0.76
-    }
-    ImageWidgetClass "{6A14348FED23A371}" {
-     Prefab "{6A14348FED23A371}"
-     Slot FrameWidgetSlot "{6A14348FED23A36C}" {
-      PositionX 0
-      OffsetLeft 0
-      PositionY 0
-      OffsetTop 0
-      SizeX 0
-      OffsetRight 0
-      SizeY 0
-      OffsetBottom 0
-     }
-     Opacity 1
-     Texture "{DBDAC86F71E7B0EB}UI/Textures/map_texture2.edds"
-     Size 10 400
-    }
+   Slot FrameWidgetSlot "{6A16119E157C8CD8}" {
+    PositionX 1107.2
+    OffsetLeft 1107.2
+    PositionY 310.792
+    OffsetTop 310.792
+    SizeX 517.626
+    OffsetRight -1624.82
+    SizeY 457.339
+    OffsetBottom -768.131
    }
   }
   ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
@@ -62,6 +53,106 @@ FrameWidgetClass {
     OffsetBottom -980.026
    }
    "Ignore Cursor" 0
+  }
+  VerticalLayoutWidgetClass "{6A16119E533F666C}" {
+   Name "VerticalLayout"
+   Slot FrameWidgetSlot "{6A16119E533F667E}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 0
+    OffsetBottom 0
+   }
+   {
+    FrameWidgetClass "{6A145B248928ECED}" : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" {
+     Name "MenuBar"
+     Slot LayoutSlot "{6A16118EE53D83D2}" {
+     }
+     {
+      ImageWidgetClass "{6A14348DF4743AAA}" {
+       Prefab "{6A14348DF4743AAA}"
+       Tiling None
+       Progress 0.76
+      }
+      ImageWidgetClass "{6A14348FED23A371}" {
+       Prefab "{6A14348FED23A371}"
+       Slot FrameWidgetSlot "{6A14348FED23A36C}" {
+        PositionX 0
+        OffsetLeft 0
+        PositionY 0
+        OffsetTop 0
+        SizeX 0
+        OffsetRight 0
+        SizeY 0
+        OffsetBottom 0
+       }
+       Opacity 1
+       Texture "{DBDAC86F71E7B0EB}UI/Textures/map_texture2.edds"
+       Size 10 400
+      }
+      VerticalLayoutWidgetClass "{6A1577A7F771EB46}" {
+       Prefab "{6A1577A7F771EB46}"
+       Slot FrameWidgetSlot "{6A1577A7F771EB5A}" {
+        PositionX 20
+        OffsetLeft 20
+        OffsetTop 10
+        OffsetRight -120
+        OffsetBottom -40
+       }
+      }
+      HorizontalLayoutWidgetClass "{6A1577A659C82CD8}" {
+       Prefab "{6A1577A659C82CD8}"
+       Slot FrameWidgetSlot "{6A1577A659C82CEB}" {
+        PositionX -20
+        OffsetLeft -20
+        OffsetTop 10
+        OffsetRight -80
+        OffsetBottom -40
+       }
+      }
+     }
+    }
+    HorizontalLayoutWidgetClass "{6A16118381DD1F08}" {
+     Name "Body"
+     Slot LayoutSlot "{6A16118381DD1F22}" {
+     }
+     {
+      ScrollLayoutWidgetClass "{6A1611890911DC96}" {
+       Name "Scroll"
+       Slot LayoutSlot "{6A16118EE53D802F}" {
+       }
+       {
+        VerticalLayoutWidgetClass "{6A1611890911DC97}" {
+         Name "VerticalLayout"
+         Slot AlignableSlot "{6A16118804221BA9}" {
+         }
+         {
+          FrameWidgetClass "{6A1611890911DC99}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
+           Name "Faction0"
+           Slot LayoutSlot "{6A161187281C906A}" {
+           }
+          }
+          FrameWidgetClass "{6A1611890911DC9C}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
+           Name "Faction1"
+           Slot LayoutSlot "{6A161187281C906A}" {
+           }
+          }
+          FrameWidgetClass "{6A1611890911DC9D}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
+           Name "Faction2"
+           Slot LayoutSlot "{6A161187281C906A}" {
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
   }
  }
 }
