@@ -1,0 +1,159 @@
+FrameWidgetClass {
+ Name "LobbySquadTactical"
+ {
+  ImageWidgetClass "{6A25000100000002}" {
+   Name "SquadBackground"
+   Slot FrameWidgetSlot "{6A25000100000003}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 2
+    OffsetTop 2
+    SizeX 137.667
+    OffsetRight 0
+    SizeY -2
+    OffsetBottom 0
+   }
+   Color 0.0048 0.0048 0.0048 0.78
+  }
+  HorizontalLayoutWidgetClass "{6A19073206DD8705}" {
+   Name "HorizontalLayout0"
+   Slot FrameWidgetSlot "{6A19073206DD871E}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX -700
+    OffsetRight 0
+    SizeY -770
+    OffsetBottom 0
+    SizeToContent 1
+   }
+   {
+    ImageWidgetClass "{6A25000100000006}" {
+     Name "SquadAccent"
+     Slot LayoutSlot "{6A1907307EFE05D9}" {
+      Padding 0 0 6 0
+     }
+     Color 0.85 0.08 0.05 1
+     Size 3 32
+    }
+    VerticalLayoutWidgetClass "{6A19072B283F0A5A}" {
+     Name "VerticalLayout"
+     Slot LayoutSlot "{6A1907307EFE05F4}" {
+      SizeMode Fill
+     }
+     {
+      HorizontalLayoutWidgetClass "{6A25000100000004}" {
+       Name "SquadHeader"
+       Slot LayoutSlot "{6A190729841F8842}" {
+       }
+       {
+        VerticalLayoutWidgetClass "{6A25000100000008}" {
+         Name "SquadIdentity"
+         Slot LayoutSlot "{6A25000100000009}" {
+          VerticalAlign 1
+         }
+         {
+          TextWidgetClass "{6A2500010000000A}" {
+           Name "SquadName"
+           Slot LayoutSlot "{6A2500010000000B}" {
+           }
+           Text "Aktiv-22"
+           "Font Size" 28
+           "Min Font Size" 18
+           "Vertical Alignment" Center
+           FontProperties FontProperties "{6A2500010000000C}" {
+            OutlineSize 1
+            OutlineColor 0 0 0 0.7
+           }
+          }
+          TextWidgetClass "{6A2500010000000D}" {
+           Name "SquadDescription"
+           Slot LayoutSlot "{6A2500010000000E}" {
+           }
+           Color 0.62 0.65 0.63 1
+           Text "Rifle Squad"
+           "Font Size" 15
+           "Min Font Size" 11
+          }
+         }
+        }
+        VerticalLayoutWidgetClass "{6A2500010000000F}" {
+         Name "PlayerCounter"
+         Slot LayoutSlot "{6A25000100000010}" {
+          HorizontalAlign 2
+          VerticalAlign 1
+          Padding 0 18 28 18
+          SizeMode Fill
+         }
+         {
+          TextWidgetClass "{6A25000100000011}" {
+           Name "PlayerCount"
+           Slot LayoutSlot "{6A25000100000012}" {
+            HorizontalAlign 2
+           }
+           Text "1 / 4"
+           "Font Size" 18
+           "Min Font Size" 14
+           "Vertical Alignment" Center
+          }
+          TextWidgetClass "{6A25000100000013}" {
+           Name "PlayerCountLabel"
+           Slot LayoutSlot "{6A25000100000014}" {
+            HorizontalAlign 2
+           }
+           Color 0.52 0.55 0.53 1
+           Text "PLAYERS"
+           "Font Size" 10
+           "Min Font Size" 8
+          }
+         }
+        }
+       }
+      }
+      ImageWidgetClass "{6A2500010000001D}" {
+       Name "HeaderDivider"
+       Slot LayoutSlot "{6A190729841F88C0}" {
+        Padding 0 0 6 0
+       }
+       Color 0.28 0.34 0.34 0.8
+       Size 32 3
+      }
+      VerticalLayoutWidgetClass "{6A25000100000015}" {
+       Name "Slots"
+       Slot LayoutSlot "{6A190729841F88C7}" {
+        HorizontalAlign 3
+        VerticalAlign 1
+       }
+       {
+        FrameWidgetClass "{6A25000100000017}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
+         Name "Slot1"
+         Slot LayoutSlot "{6A25000100000018}" {
+          HorizontalAlign 3
+          Padding 0 10 0 0
+         }
+        }
+        FrameWidgetClass "{6A25000100000019}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
+         Name "Slot2"
+         Slot LayoutSlot "{6A2500010000001A}" {
+          HorizontalAlign 3
+          Padding 0 10 0 0
+         }
+        }
+        FrameWidgetClass "{6A2500010000001B}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
+         Name "Slot3"
+         Slot LayoutSlot "{6A2500010000001C}" {
+          HorizontalAlign 3
+          Padding 0 10 0 0
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

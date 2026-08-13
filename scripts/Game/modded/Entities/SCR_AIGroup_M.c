@@ -9,6 +9,13 @@ modded class SCR_AIGroup : ChimeraAIGroup
 		super.EOnInit(owner);
 	}
 
+	void ~SCR_AIGroup()
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			manager.UnregisterGroup(this);
+	}
+
 	override void SpawnUnits()
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();

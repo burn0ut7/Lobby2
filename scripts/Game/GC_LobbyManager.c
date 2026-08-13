@@ -7,12 +7,18 @@ class GC_TestCompClass : ScriptComponentClass
 class GC_TestComp : ScriptComponent
 {
     override protected void OnPostInit(IEntity owner)
-    {	
+    { 	
+		if (SCR_Global.IsEditMode())
+			return;
+
 		GetGame().GetCallqueue().CallLater(CheckSlots, 1);
     }
 	
 	void CheckSlots()
 	{
+		if (SCR_Global.IsEditMode())
+			return;
+
 		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu);
 		
 		Print("GC | CheckSlots!!!");
@@ -37,6 +43,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     protected ref array<SCR_AIGroup> m_aGroups = {};
     protected ref array<Faction> m_aRegisteredFactions = {};
     protected ref array<ref GC_Slot> m_aSlots = {};
+    ref ScriptInvoker<Faction> m_OnFactionUpdated = new ScriptInvoker<Faction>();
     protected int m_iNextSlotID = 1;
 
     override void OnPlayerAuditSuccess(int playerId)
@@ -74,15 +81,172 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     void RegisterGroup(SCR_AIGroup group)
     {
         PrintFormat("GC | RegisterGroup: %1", group);
-        if (!Replication.IsServer() || !group)
+        if (!group)
             return;
         
         if (m_aGroups.Contains(group))
             return;
 
+        bool wasEmpty = m_aGroups.IsEmpty();
         m_aGroups.Insert(group);
-        RegisterGroupMembers(group);
-        //On group register event?
+        SubscribeToGroupEvents(group);
+
+        if (wasEmpty)
+            SubscribeToGroupPlayerEvents();
+
+        Faction faction = group.GetFaction();
+        if (faction)
+            RegisterFaction(faction.GetFactionKey());
+
+        if (Replication.IsServer())
+            RegisterGroupMembers(group);
+    }
+
+    //! Removes a group from the manager's index and its lobby-only slot records.
+    bool UnregisterGroup(SCR_AIGroup group)
+    {
+        if (!group)
+            return false;
+
+        int groupIndex = m_aGroups.Find(group);
+        if (groupIndex < 0)
+            return false;
+
+        Faction faction = group.GetFaction();
+        UnsubscribeFromGroupEvents(group);
+        m_aGroups.RemoveOrdered(groupIndex);
+
+        for (int i = m_aSlots.Count() - 1; i >= 0; i--)
+        {
+            GC_Slot slot = m_aSlots[i];
+            if (slot && slot.GetGroup() == group)
+            {
+                UnsubscribeFromSlotEvents(slot);
+                m_aSlots.RemoveOrdered(i);
+            }
+        }
+
+        if (m_aGroups.IsEmpty())
+            UnsubscribeFromGroupPlayerEvents();
+
+        if (faction)
+            m_OnFactionUpdated.Invoke(faction);
+
+        return true;
+    }
+
+    protected void SubscribeToGroupEvents(SCR_AIGroup group)
+    {
+        if (!group)
+            return;
+
+        group.GetOnFactionChanged().Insert(OnGroupFactionChanged);
+    }
+
+    protected void SubscribeToGroupPlayerEvents()
+    {
+        SCR_AIGroup.GetOnPlayerAdded().Insert(OnGroupPlayerAdded);
+        SCR_AIGroup.GetOnPlayerRemoved().Insert(OnGroupPlayerRemoved);
+    }
+
+    protected void UnsubscribeFromGroupEvents(SCR_AIGroup group)
+    {
+        if (!group)
+            return;
+
+        group.GetOnFactionChanged().Remove(OnGroupFactionChanged);
+    }
+
+    protected void UnsubscribeFromGroupPlayerEvents()
+    {
+        SCR_AIGroup.GetOnPlayerAdded().Remove(OnGroupPlayerAdded);
+        SCR_AIGroup.GetOnPlayerRemoved().Remove(OnGroupPlayerRemoved);
+    }
+
+    protected void UnsubscribeFromAllGroupEvents()
+    {
+        foreach (SCR_AIGroup group : m_aGroups)
+            UnsubscribeFromGroupEvents(group);
+
+        UnsubscribeFromGroupPlayerEvents();
+    }
+
+    protected void OnGroupFactionChanged(Faction faction)
+    {
+        if (faction && !m_aRegisteredFactions.Contains(faction))
+            m_aRegisteredFactions.Insert(faction);
+
+        // The event does not identify which group changed. Notify all registered
+        // faction views so each view re-queries the authoritative group state.
+        foreach (Faction registeredFaction : m_aRegisteredFactions)
+        {
+            if (registeredFaction)
+                m_OnFactionUpdated.Invoke(registeredFaction);
+        }
+    }
+
+    protected void OnGroupPlayerAdded(SCR_AIGroup group, int playerId)
+    {
+        NotifyGroupFactionUpdated(group);
+    }
+
+    protected void OnGroupPlayerRemoved(SCR_AIGroup group, int playerId)
+    {
+        NotifyGroupFactionUpdated(group);
+    }
+
+    protected void NotifyGroupFactionUpdated(SCR_AIGroup group)
+    {
+        if (!group || !m_aGroups.Contains(group))
+            return;
+
+        Faction faction = group.GetFaction();
+        if (faction)
+            m_OnFactionUpdated.Invoke(faction);
+    }
+
+    protected void SubscribeToSlotEvents(GC_Slot slot)
+    {
+        if (!slot)
+            return;
+
+        slot.m_OnChanged.Insert(OnSlotChanged);
+    }
+
+    protected void UnsubscribeFromSlotEvents(GC_Slot slot)
+    {
+        if (!slot)
+            return;
+
+        slot.m_OnChanged.Remove(OnSlotChanged);
+    }
+
+    protected void UnsubscribeFromAllSlotEvents()
+    {
+        foreach (GC_Slot slot : m_aSlots)
+            UnsubscribeFromSlotEvents(slot);
+    }
+
+    protected void OnSlotChanged(GC_Slot slot)
+    {
+        if (!slot || !m_aSlots.Contains(slot))
+            return;
+
+        if (Replication.IsServer())
+            UpdateSlot(slot);
+
+        // A slot can change groups, so notify every registered faction. Each UI
+        // view re-queries the authoritative group and slot state before drawing.
+        NotifyAllRegisteredFactions();
+    }
+
+    protected void NotifyAllRegisteredFactions()
+    {
+        foreach (Faction faction : m_aRegisteredFactions)
+        {
+            if (faction)
+                m_OnFactionUpdated.Invoke(faction);
+        }
     }
 
     protected void RegisterGroupMembers(SCR_AIGroup group)
@@ -101,10 +265,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             slot.SetGroup(group);
             
             m_aSlots.Insert(slot);
+            SubscribeToSlotEvents(slot);
 
             UpdateSlot(slot);
             PrintFormat("GC | Registered slot: %1", m_iNextSlotID - 1);
         }
+
+        NotifyGroupFactionUpdated(group);
     }
 
     //! Serializes the registered groups and slots for initial replication and JIP.
@@ -141,7 +308,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!reader.ReadInt(groupCount) || groupCount < 0)
             return false;
 
+        UnsubscribeFromAllGroupEvents();
+        UnsubscribeFromAllSlotEvents();
         m_aGroups.Clear();
+        m_aRegisteredFactions.Clear();
         for (int i = 0; i < groupCount; i++)
         {
             RplId groupRplId;
@@ -150,8 +320,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
             SCR_AIGroup group = SCR_AIGroup.Cast(Replication.FindItem(groupRplId));
             if (group)
+            {
                 m_aGroups.Insert(group);
+                SubscribeToGroupEvents(group);
+
+                Faction faction = group.GetFaction();
+                if (faction)
+                    RegisterFaction(faction.GetFactionKey());
+            }
         }
+
+        if (!m_aGroups.IsEmpty())
+            SubscribeToGroupPlayerEvents();
 
         int slotCount;
         if (!reader.ReadInt(slotCount) || slotCount < 0)
@@ -165,7 +345,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
                 return false;
 
             m_aSlots.Insert(slot);
+            SubscribeToSlotEvents(slot);
         }
+
+        NotifyAllRegisteredFactions();
 
         return true;
     }
@@ -181,6 +364,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return false;
 
         m_aRegisteredFactions.Insert(faction);
+        m_OnFactionUpdated.Invoke(faction);
         return true;
     }
 
@@ -190,12 +374,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (factionKey == "")
             return false;
 
+        Faction faction;
         for (int i = 0; i < m_aRegisteredFactions.Count(); i++)
         {
-            if (m_aRegisteredFactions[i].GetFactionKey() != factionKey)
+            faction = m_aRegisteredFactions[i];
+            if (!faction || faction.GetFactionKey() != factionKey)
                 continue;
 
             m_aRegisteredFactions.RemoveOrdered(i);
+            m_OnFactionUpdated.Invoke(faction);
             return true;
         }
 
@@ -210,9 +397,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return null;
 
         if (!m_aRegisteredFactions.Contains(faction))
-            return faction;
+            return null;
 
-        return null;
+        return faction;
+    }
+
+    //! Notifies subscribed UI when an already registered faction changes.
+    void NotifyFactionUpdated(Faction faction)
+    {
+        if (!faction || !m_aRegisteredFactions.Contains(faction))
+            return;
+
+        m_OnFactionUpdated.Invoke(faction);
     }
 
     //! Returns the faction keys currently registered with the lobby manager.
@@ -226,11 +422,81 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return m_aSlots;
     }
 
+    //! Returns registered groups whose current base-game faction matches the key.
+    array<SCR_AIGroup> GetGroupsForFaction(FactionKey factionKey)
+    {
+        array<SCR_AIGroup> groups = {};
+        if (factionKey == "")
+            return groups;
+
+        foreach (SCR_AIGroup group : m_aGroups)
+        {
+            if (!group)
+                continue;
+
+            Faction faction = group.GetFaction();
+            if (faction && faction.GetFactionKey() == factionKey)
+                groups.Insert(group);
+        }
+
+        return groups;
+    }
+
+    //! Counts unique base-game player IDs currently assigned to groups in the faction.
+    int GetFactionPlayerCount(FactionKey factionKey)
+    {
+        array<int> playerIDs = {};
+
+        foreach (SCR_AIGroup group : GetGroupsForFaction(factionKey))
+        {
+            foreach (int playerID : group.GetPlayerIDs())
+            {
+                if (playerID > 0 && !playerIDs.Contains(playerID))
+                    playerIDs.Insert(playerID);
+            }
+        }
+
+        return playerIDs.Count();
+    }
+
+    //! Returns lobby slot records belonging to the specified base-game group.
+    array<ref GC_Slot> GetSlotsForGroup(SCR_AIGroup group)
+    {
+        array<ref GC_Slot> slots = {};
+        if (!group)
+            return slots;
+
+        foreach (GC_Slot slot : m_aSlots)
+        {
+            if (slot && slot.GetGroup() == group)
+                slots.Insert(slot);
+        }
+
+        return slots;
+    }
+
+    //! Counts lobby slots belonging to groups whose authoritative faction matches the key.
+    int GetFactionSlotCount(FactionKey factionKey)
+    {
+        int slotCount;
+
+        foreach (SCR_AIGroup group : GetGroupsForFaction(factionKey))
+        {
+            foreach (GC_Slot slot : GetSlotsForGroup(group))
+            {
+                if (slot)
+                    slotCount++;
+            }
+        }
+
+        return slotCount;
+    }
+
     GC_Slot GetSlot(int id)
     {
         foreach (ref GC_Slot slot : m_aSlots)
         {
-            if (slot.GetID() == id)
+            if (slot && slot.GetID() == id)
                 return slot;
         }
 
@@ -244,7 +510,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
         foreach (ref GC_Slot slot : m_aSlots)
         {
-            if (slot.GetPlayerId() == playerId)
+            if (slot && slot.GetPlayerId() == playerId)
                 return slot;
         }
 
@@ -254,14 +520,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Broadcasts a complete server-authoritative slot state.
     bool UpdateSlot(GC_Slot slot)
     {
-        if (!Replication.IsServer() || !slot)
+        if (!Replication.IsServer() || !slot || !m_aSlots.Contains(slot))
             return false;
-
-        string playerUUID = slot.GetUUID();
-        string prefab = slot.GetPrefab();
-        RplId groupRplId = RplId.Invalid();
-        if (slot.GetGroup())
-            groupRplId = Replication.FindItemId(slot.GetGroup());
 
         Rpc(RpcDo_UpdateSlot, slot);
         return true;
@@ -270,7 +530,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     [RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
     protected void RpcDo_UpdateSlot(GC_Slot updateSlot)
     {
-        if (Replication.IsServer())
+        if (Replication.IsServer() || !updateSlot)
             return;
 
         int slotId = updateSlot.GetID();
@@ -280,7 +540,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             slot = new GC_Slot();
             slot.SetID(slotId);
             m_aSlots.Insert(slot);
+            SubscribeToSlotEvents(slot);
         }
+
+        slot.CopyFrom(updateSlot);
+        NotifyAllRegisteredFactions();
     }
 
     GC_PlayerFormationDefinition GetFormation(string name)
@@ -294,8 +558,24 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return null;
     }
 
+    override void OnGameModeEnd(SCR_GameModeEndData data)
+    {
+        UnsubscribeFromAllGroupEvents();
+        UnsubscribeFromAllSlotEvents();
+        m_aGroups.Clear();
+        m_aSlots.Clear();
+
+        super.OnGameModeEnd(data);
+    }
+
     static GC_LobbyManager GetManager()
     {
+        if (SCR_Global.IsEditMode())
+            return null;
+
+        if (!GetGame().GetGameMode())
+            return null;
+
         return GC_LobbyManager.Cast(GetGame().GetGameMode().FindComponent(GC_LobbyManager));
     }
 }

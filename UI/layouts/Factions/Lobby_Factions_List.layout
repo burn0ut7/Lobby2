@@ -1,27 +1,18 @@
 ScrollLayoutWidgetClass {
  Name "Scroll"
- Color 0.05 0.102 0.125 1
+ Color 1 1 1 0
+ components {
+  GC_FactionListComponent "{6A18396A1D5D2BEE}" {
+  }
+ }
  {
   VerticalLayoutWidgetClass "{6A16118804221B91}" {
-   Name "VerticalLayout"
+   Name "FactionContent"
    Slot AlignableSlot "{6A16118804221BA9}" {
+    HorizontalAlign 3
+    VerticalAlign 0
    }
    {
-    FrameWidgetClass "{6A161189C0D936C1}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
-     Name "Faction0"
-     Slot LayoutSlot "{6A161187281C906A}" {
-     }
-    }
-    FrameWidgetClass "{6A161189C2C59FB3}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
-     Name "Faction1"
-     Slot LayoutSlot "{6A161187281C906A}" {
-     }
-    }
-    FrameWidgetClass "{6A161189C4142482}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
-     Name "Faction2"
-     Slot LayoutSlot "{6A161187281C906A}" {
-     }
-    }
    }
   }
  }

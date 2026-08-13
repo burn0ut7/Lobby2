@@ -2,13 +2,16 @@ enum GC_SlotState
 {
     FREE,
     LOCKED,
-    DEAD,
+    KIA,
     DISCONNECTED,
     RESERVED
 }
 
 class GC_Slot
 {
+	//! Fired whenever lobby-owned slot state changes after the slot is registered.
+	ref ScriptInvoker<GC_Slot> m_OnChanged = new ScriptInvoker<GC_Slot>();
+
 	//! Unique slot ID
 	protected int m_iID;
 
@@ -58,11 +61,6 @@ class GC_Slot
 		return m_sCachedPlayerName;
 	}
 
-	void SetCachedPlayerName(string playerName)
-	{
-		m_sCachedPlayerName = playerName;
-	}
-
 	GC_SlotState GetState()
 	{
 		return m_eState;
@@ -74,6 +72,7 @@ class GC_Slot
 			return;
 
 		m_eState = state;
+		NotifyChanged();
 	}
 
 	ResourceName GetPrefab()
@@ -83,7 +82,11 @@ class GC_Slot
 
 	void SetPrefab(ResourceName prefab)
 	{
+		if (m_Prefab == prefab)
+			return;
+
 		m_Prefab = prefab;
+		NotifyChanged();
 	}
 
 	SCR_AIGroup GetGroup()
@@ -93,7 +96,11 @@ class GC_Slot
 
 	void SetGroup(SCR_AIGroup group)
 	{
+		if (m_pGroup == group)
+			return;
+
 		m_pGroup = group;
+		NotifyChanged();
 	}
 
 	IEntity GetEntity()
@@ -103,7 +110,11 @@ class GC_Slot
 
 	void SetEntity(IEntity entity)
 	{
+		if (m_Entity == entity)
+			return;
+
 		m_Entity = entity;
+		NotifyChanged();
 	}
 
 	//! Returns the RPL ID of the slot entity's replication component.
@@ -123,6 +134,10 @@ class GC_Slot
 	//! An invalid player ID clears the int, UUID, and cached name.
 	void SetPlayer(int playerId)
 	{
+		int previousPlayerId = m_iPlayerId;
+		UUID previousUUID = m_PlayerUUID;
+		string previousPlayerName = m_sCachedPlayerName;
+
 		if (playerId < 0)
 		{
 			m_iPlayerId = -1;
@@ -138,6 +153,14 @@ class GC_Slot
 			if (!m_sCachedPlayerName)
 				m_sCachedPlayerName = GetGame().GetPlayerManager().GetPlayerName(playerId);
 		}
+
+		if (previousPlayerId != m_iPlayerId || previousUUID != m_PlayerUUID || previousPlayerName != m_sCachedPlayerName)
+			NotifyChanged();
+	}
+
+	protected void NotifyChanged()
+	{
+		m_OnChanged.Invoke(this);
 	}
 
 	//! Copies a complete server-originated slot state into this local slot.

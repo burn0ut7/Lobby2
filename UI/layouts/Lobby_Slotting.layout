@@ -27,19 +27,6 @@ FrameWidgetClass {
    Texture "{B98FB2CD75200E57}UI/Textures/MainMenu/MenuBackgroundBlank_UI.edds"
    Size 1920 1080
   }
-  HorizontalLayoutWidgetClass "{6A1577A82C9D3187}" : "{80329E8932405F77}UI/layouts/Editor/Background_Rounded.layout" {
-   Name "Effect_Background_Rounded0"
-   Slot FrameWidgetSlot "{6A16119E157C8CD8}" {
-    PositionX 1107.2
-    OffsetLeft 1107.2
-    PositionY 310.792
-    OffsetTop 310.792
-    SizeX 517.626
-    OffsetRight -1624.82
-    SizeY 457.339
-    OffsetBottom -768.131
-   }
-  }
   ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
    Name "playerRender"
    Slot FrameWidgetSlot "{6A142E93D253C20D}" {
@@ -58,12 +45,12 @@ FrameWidgetClass {
    Name "VerticalLayout"
    Slot FrameWidgetSlot "{6A16119E533F667E}" {
     Anchor 0 0 1 1
-    PositionX 0
-    OffsetLeft 0
+    PositionX -1.255
+    OffsetLeft -1.255
     PositionY 0
     OffsetTop 0
     SizeX 0
-    OffsetRight 0
+    OffsetRight 1.255
     SizeY 0
     OffsetBottom 0
    }
@@ -118,32 +105,56 @@ FrameWidgetClass {
     }
     HorizontalLayoutWidgetClass "{6A16118381DD1F08}" {
      Name "Body"
-     Slot LayoutSlot "{6A16118381DD1F22}" {
+     Slot LayoutSlot "{6A1A4D1F32A87031}" {
      }
      {
-      ScrollLayoutWidgetClass "{6A1611890911DC96}" {
-       Name "Scroll"
-       Slot LayoutSlot "{6A16118EE53D802F}" {
+      OverlayWidgetClass "{6A1A4BD15D55F2D3}" {
+       Name "Factions"
+       Slot LayoutSlot "{6A1A4BD15D55F2F3}" {
+        VerticalAlign 3
        }
        {
-        VerticalLayoutWidgetClass "{6A1611890911DC97}" {
-         Name "VerticalLayout"
-         Slot AlignableSlot "{6A16118804221BA9}" {
+        VerticalLayoutWidgetClass "{6A1A4D19EA948035}" {
+         Name "VerticalLayout0"
+         Slot OverlayWidgetSlot "{6A1A4D195EEFB915}" {
          }
          {
-          FrameWidgetClass "{6A1611890911DC99}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
-           Name "Faction0"
-           Slot LayoutSlot "{6A161187281C906A}" {
+          TextWidgetClass "{6A1A4D19DE266DDF}" {
+           Name "Text0"
+           Slot LayoutSlot "{6A1A4D19DE266DF6}" {
+           }
+           Text "Factions"
+          }
+          ScrollLayoutWidgetClass "{6A18396A1D5D2BCD}" : "{A52A9C30E35CAA58}UI/layouts/Factions/Lobby_Factions_List.layout" {
+           Name "Factions"
+           Slot LayoutSlot "{6A1A4D195EEFB941}" {
            }
           }
-          FrameWidgetClass "{6A1611890911DC9C}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
-           Name "Faction1"
-           Slot LayoutSlot "{6A161187281C906A}" {
+         }
+        }
+       }
+      }
+      OverlayWidgetClass "{6A1A4BD1725683EB}" {
+       Name "Slots"
+       Slot LayoutSlot "{6A1A4BD17256800B}" {
+       }
+       {
+        VerticalLayoutWidgetClass "{6A1A4D19A90D36F4}" {
+         Name "VerticalLayout0"
+         Slot OverlayWidgetSlot "{6A1A4D19A90D370E}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         {
+          TextWidgetClass "{6A1A4D1994014C5B}" {
+           Name "Text0"
+           Slot LayoutSlot "{6A1A4D195EEFB961}" {
            }
+           Text "Slots"
           }
-          FrameWidgetClass "{6A1611890911DC9D}" : "{BF292F3C1D6C5FB5}UI/layouts/Factions/Lobby_Faction.layout" {
-           Name "Faction2"
-           Slot LayoutSlot "{6A161187281C906A}" {
+          FrameWidgetClass "{6A19076E45ED8D79}" : "{6A25000000000001}UI/layouts/Groups/Lobby_Group_Tactical.layout" {
+           Name "Groups"
+           Slot LayoutSlot "{6A1A4D195EEFB975}" {
            }
           }
          }

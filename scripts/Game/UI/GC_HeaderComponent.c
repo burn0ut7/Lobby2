@@ -6,10 +6,14 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
     protected int m_iActiveState = -1;
     protected bool m_bCanChangeState;
     protected bool m_bInitialized;
+    protected int m_iAdminCheckAttempts;
 
     override void HandlerAttached(Widget w)
     {
         super.HandlerAttached(w);
+
+        if (SCR_Global.IsEditMode())
+            return;
 
         GetGame().GetCallqueue().CallLater(InitializeHeader, 0);
     }
@@ -29,8 +33,26 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
         // Mission Preview is the default header state.
         SetActiveState(0);
+        SetCanChangeState(false);
+        RefreshAdminPermission();
+        PrintFormat("GC | Header initialized: buttons=%1", m_aButtons.Count());
+    }
+
+    protected void RefreshAdminPermission()
+    {
+        PlayerController playerController = GetGame().GetPlayerController();
+        if (!playerController)
+        {
+            // Layout previews and early menu construction do not have a local player yet.
+            // Retry briefly so a real game session can apply the permission when it becomes available.
+            if (m_iAdminCheckAttempts++ < 20)
+                GetGame().GetCallqueue().CallLater(RefreshAdminPermission, 250);
+
+            return;
+        }
+
+        m_iAdminCheckAttempts = 0;
         SetCanChangeState(SCR_Global.IsAdmin());
-        PrintFormat("GC | Header initialized: buttons=%1 admin=%2", m_aButtons.Count(), m_bCanChangeState);
     }
 
     protected void RegisterButton(string buttonName)
@@ -101,7 +123,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
         if (!m_bCanChangeState)
         {
-            SetCanChangeState(SCR_Global.IsAdmin());
+            RefreshAdminPermission();
             PrintFormat("GC | Header input rejected: local player is not an admin");
             return;
         }

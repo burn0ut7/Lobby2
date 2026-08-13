@@ -17,13 +17,17 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
     {
         super.HandlerAttached(w);
 
+        if (SCR_Global.IsEditMode())
+            return;
+
         // The base widget component plays these automatically from its serialized attributes.
         // Clear them so sound playback remains under the header permission check below.
         SetHoverSound(string.Empty);
         SetClickedSound(string.Empty);
 
-        // Establish the permission state before the header controller finishes its deferred setup.
-        SetHeaderEnabled(SCR_Global.IsAdmin());
+        // Workbench can attach the layout before a local player controller exists.
+        // GC_HeaderComponent applies the real permission state once the controller is ready.
+        SetHeaderEnabled(false);
 
         // The header owns selection. Do not let the base button toggle itself.
         SetToggleable(false);

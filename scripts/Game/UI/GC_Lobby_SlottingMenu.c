@@ -10,6 +10,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
     protected Widget m_wRoot;
     protected GC_HeaderComponent m_Header;
+    protected GC_FactionListComponent m_FactionList;
+    protected FactionKey m_SelectedFactionKey;
     protected ItemPreviewWidget m_wPlayerRender;
     protected ItemPreviewManagerEntity m_PreviewManager;
     protected PreviewRenderAttributes m_PlayerRenderAttributes;
@@ -18,10 +20,14 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
     override void OnMenuOpen()
     {
+        if (SCR_Global.IsEditMode())
+            return;
+
         PrintFormat("GC | OnMenuOpen");
 
         m_wRoot = GetRootWidget();
 
+        InitializeFactionList();
         InitializePlayerPreview();
 
         Widget headerRoot = m_wRoot.FindAnyWidget("Frame");
@@ -40,7 +46,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
         m_Header.m_OnStateChanged.Insert(OnHeaderStateChanged);
         m_Header.SetActiveState(0);
-        m_Header.SetCanChangeState(SCR_Global.IsAdmin());
         PrintFormat("GC | Slotting menu subscribed to header state changes");
     }
 
@@ -69,14 +74,44 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         if (m_Header)
             m_Header.m_OnStateChanged.Remove(OnHeaderStateChanged);
 
+        if (m_FactionList)
+            m_FactionList.m_OnFactionSelected.Remove(OnFactionSelected);
+
         m_PreviewEntity = null;
         m_PlayerRenderAttributes = null;
         m_PreviewManager = null;
         m_wPlayerRender = null;
         m_wRoot = null;
         m_Header = null;
+        m_FactionList = null;
+        m_SelectedFactionKey = string.Empty;
 
         super.OnMenuClose();
+    }
+
+    protected void InitializeFactionList()
+    {
+        if (!m_wRoot)
+            return;
+
+        Widget factionListRoot = m_wRoot.FindAnyWidget("Scroll0");
+        if (!factionListRoot)
+            return;
+
+        m_FactionList = GC_FactionListComponent.Cast(factionListRoot.FindHandler(GC_FactionListComponent));
+        if (!m_FactionList)
+            return;
+
+        m_FactionList.m_OnFactionSelected.Insert(OnFactionSelected);
+        m_SelectedFactionKey = m_FactionList.GetSelectedFactionKey();
+    }
+
+    protected void OnFactionSelected(FactionKey factionKey)
+    {
+        m_SelectedFactionKey = factionKey;
+
+        // Slotting-specific faction behavior belongs here. Other menus can
+        // subscribe to the same list component and provide their own response.
     }
 
     protected void InitializePlayerPreview()

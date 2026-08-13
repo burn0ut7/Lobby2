@@ -1,0 +1,162 @@
+FrameWidgetClass {
+ Name "LobbySlot"
+ Slot FrameWidgetSlot "{6A19072738B404F8}" {
+  Anchor 0 0 1 0
+  PositionX 0
+  OffsetLeft 0
+  PositionY 0
+  OffsetTop 0
+  SizeX 0
+  OffsetRight 0
+  SizeY 60
+  OffsetBottom -60
+ }
+ {
+  ButtonWidgetClass "{6A24000100000001}" {
+   Name "SlotButton"
+   Slot FrameWidgetSlot "{6A24000100000002}" {
+    Anchor 0 0 1 0
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 60
+    OffsetBottom -60
+   }
+   Color 1 1 1 0
+   components {
+    GC_SlotButtonComponent "{6A24000100000003}" {
+    }
+   }
+   {
+    OverlayWidgetClass "{6A24000100000004}" {
+     Name "SlotOverlay"
+     Slot ButtonWidgetSlot "{6A24000100000005}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+      Padding 0 0 0 0
+     }
+     {
+      FrameWidgetClass "{6A24000100000006}" {
+       Name "SlotFrame"
+       Slot OverlayWidgetSlot "{6A24000100000007}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       {
+        ImageWidgetClass "{6A18A023C7A6F704}" {
+         Name "Background"
+         Slot FrameWidgetSlot "{6A18A023C7A6F719}" {
+          Anchor 0 0 1 1
+          PositionX 0
+          OffsetLeft 0
+          PositionY 0
+          OffsetTop 0
+          SizeX 0
+          OffsetRight 0
+          SizeY 0
+          OffsetBottom 0
+         }
+         Color 0.0048 0.0048 0.0048 0.3922
+        }
+        HorizontalLayoutWidgetClass "{6A18A023D7522F80}" {
+         Name "HorizontalLayout"
+         Slot FrameWidgetSlot "{6A18A023D7522F97}" {
+          Anchor 0 0 1 1
+          PositionX 0
+          OffsetLeft 0
+          PositionY 0
+          OffsetTop 0
+          SizeX 0
+          OffsetRight 0
+          SizeY 0
+          OffsetBottom 0
+         }
+         {
+          ImageWidgetClass "{6A2400010000000A}" {
+           Name "SelectionAccent"
+           Slot LayoutSlot "{6A2400010000000B}" {
+            Padding 3 6 12 6
+           }
+           Color 0.85 0.08 0.05 1
+           Size 3 68
+          }
+          HorizontalLayoutWidgetClass "{6A2400010000000C}" {
+           Name "RoleSection"
+           Slot LayoutSlot "{6A18A023B5033783}" {
+            VerticalAlign 1
+            Padding 0 0 18 0
+           }
+           {
+            ImageWidgetClass "{6A2400010000000D}" {
+             Name "RoleIcon"
+             Slot LayoutSlot "{6A2400010000000E}" {
+              VerticalAlign 1
+              Padding 0 0 14 0
+             }
+             Texture "{70417B54F33ED6E5}UI/Textures/PlayableSlots/DefaultPlayableSlot.edds"
+             Size 48 48
+            }
+            TextWidgetClass "{6A2400010000000F}" {
+             Name "RoleName"
+             Slot LayoutSlot "{6A24000100000010}" {
+              VerticalAlign 1
+              Padding 0 0 12 0
+             }
+             Text "Anti-Tank Specialist Assistant"
+             "Font Size" 24
+             "Min Font Size" 14
+             "Vertical Alignment" Center
+             FontProperties FontProperties "{6A24000100000011}" {
+              OutlineSize 1
+              OutlineColor 0 0 0 0.65
+             }
+            }
+           }
+          }
+          HorizontalLayoutWidgetClass "{6A24000100000012}" {
+           Name "StatusSection"
+           Slot LayoutSlot "{6A18A023B50336D6}" {
+            VerticalAlign 1
+            Padding 0 0 24 0
+           }
+           {
+            ImageWidgetClass "{6A24000100000013}" {
+             Name "StatusIcon"
+             Slot LayoutSlot "{6A24000100000014}" {
+              VerticalAlign 1
+              Padding 0 0 12 0
+             }
+             Texture "{2E717F4664C6E49D}UI/Textures/Nametags/Nametag-Filter-Icons/Player.edds"
+             Size 32 32
+            }
+            TextWidgetClass "{6A24000100000015}" {
+             Name "StatusText"
+             Slot LayoutSlot "{6A24000100000016}" {
+              VerticalAlign 1
+              Padding 0 0 24 0
+             }
+             Color 1 1 1 1
+             Text "John Reforger"
+             "Font Size" 22
+             "Min Font Size" 14
+             "Vertical Alignment" Center
+             FontProperties FontProperties "{6A24000100000017}" {
+              OutlineSize 1
+              OutlineColor 0 0 0 0.65
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

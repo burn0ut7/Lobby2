@@ -1,98 +1,152 @@
-FrameWidgetClass {
- Name "Faction"
+ButtonWidgetClass {
+ Name "Button"
  Slot LayoutSlot "{6A161187281C906A}" {
-  Padding 0 8 0 0
+  HorizontalAlign 1
+  VerticalAlign 1
+  Padding 16 0 16 8
+ }
+ Color 1 1 1 0
+ components {
+  GC_FactionWidgetComponent "{6A16118F00000000}" {
+  }
+  GC_FactionButtonComponent "{6A1611891F697B24}" {
+   m_bCanBeToggled 1
+   m_bUseColorization 1
+   m_BackgroundDefault 0.014 0.027 0.032 1
+   m_BackgroundHovered 0.05 0.102 0.125 1
+   m_BackgroundSelected 0.231 0.1 0.024 1
+   m_BackgroundSelectedHovered 0.503 0.211 0.047 1
+   m_bShowBorderOnFocus 0
+  }
  }
  {
-  ButtonWidgetClass "{6A16118972CE0CFC}" {
-   Name "Button"
-   Slot FrameWidgetSlot "{6A16118972CE0D0D}" {
-    PositionX 0
-    OffsetLeft 0
-    PositionY 0
-    OffsetTop 0
-    SizeX 125
-    OffsetRight -125
-    SizeY 125
-    OffsetBottom -125
-   }
-   Color 1 1 1 0
-   components {
-    SCR_ButtonBaseComponent "{6A1611891F697B24}" {
-     m_bCanBeToggled 1
-     m_BackgroundDefault 0.014 0.027 0.032 1
-     m_BackgroundHovered 0.05 0.102 0.125 1
-     m_BackgroundSelected 0.231 0.1 0.024 1
-     m_BackgroundSelectedHovered 0.503 0.211 0.047 1
-     m_bShowBorderOnFocus 0
-    }
+  OverlayWidgetClass "{6A24000200000001}" {
+   Name "Overlay"
+   Slot ButtonWidgetSlot "{6A24000200000002}" {
    }
    {
     HorizontalLayoutWidgetClass "{6A1611873277D461}" : "{80329E8932405F77}UI/layouts/Editor/Background_Rounded.layout" {
      Name "Background"
-     Slot ButtonWidgetSlot "{6A16118CB248AD1B}" {
+     Slot OverlayWidgetSlot "{6A24000200000003}" {
       HorizontalAlign 3
       VerticalAlign 3
      }
      Color 0.0143 0.0267 0.0319 1
-    }
-   }
-  }
-  VerticalLayoutWidgetClass "{6A16118727CA9545}" {
-   Name "VerticalLayout0"
-   Slot FrameWidgetSlot "{6A16118727CA9556}" {
-    PositionX 12
-    OffsetLeft 12
-    PositionY 12
-    OffsetTop 12
-    SizeX 101
-    OffsetRight -113
-    SizeY 101
-    OffsetBottom -113
-   }
-   {
-    ImageWidgetClass "{6A161184569548C8}" {
-     Name "Flag"
-     Slot LayoutSlot "{6A161184569548E5}" {
+     {
+      ImageWidgetClass "{59EC7B8322F87B8E}" {
+       Prefab "{59EC7B8322F87B8E}"
+       Slot LayoutSlot "{59EA7D7B2B1796A6}" {
+       }
+      }
      }
-     Texture "{46FB2FB2C2125A3C}UI/Textures/Flags/US-flag-base-3it.edds"
-     Size 100 55
     }
-    OverlayWidgetClass "{6A16118545566D7C}" {
-     Name "Overlay"
-     Slot LayoutSlot "{6A16118545566D91}" {
-      VerticalAlign 1
-      SizeMode Fill
+    VerticalLayoutWidgetClass "{6A16118727CA9545}" {
+     Name "VerticalLayout"
+     Slot OverlayWidgetSlot "{6A24000200000004}" {
+      Padding 12 12 12 12
      }
      {
-      ImageWidgetClass "{6A16118564B69C0A}" {
-       Name "Color"
-       Slot OverlayWidgetSlot "{6A16118FAE1C157C}" {
-        HorizontalAlign 3
-        VerticalAlign 3
+      FrameWidgetClass "{6A161184569548C8}" {
+       Name "FlagFrame"
+       Slot LayoutSlot "{6A161184569548E5}" {
        }
-       Color 0 0.0774 0.1804 1
+       {
+        ScaleWidgetClass "{6A25000200000001}" {
+         Name "FlagScale"
+         Slot FrameWidgetSlot "{6A25000200000002}" {
+          OffsetLeft 0
+          OffsetTop 0
+          SizeX 224
+          OffsetRight -224
+          SizeY 144
+          OffsetBottom -144
+         }
+         "Scale Mode" "Scale to fill"
+         {
+          ImageWidgetClass "{6A25000200000003}" {
+           Name "Flag"
+           Slot AlignableSlot "{6A25000200000004}" {
+           }
+           Texture "{EB7F65DBC9392557}UI/Textures/Editor/EditableEntities/Factions/EditableEntity_Faction_USA.edds"
+           Size 256 256
+          }
+         }
+        }
+       }
       }
-      TextWidgetClass "{6A161185C71DE62B}" {
-       Name "Text"
-       Slot OverlayWidgetSlot "{6A16118FAE1C1592}" {
+      FrameWidgetClass "{6A16118545566D7C}" {
+       Name "FactionNameFrame"
+       Slot LayoutSlot "{6A16118545566D91}" {
        }
-       Text "US Army"
-       "Font Size" 32
-       "Min Font Size" 8
-       "Vertical Alignment" Center
+       {
+        ImageWidgetClass "{6A16118564B69C0A}" {
+         Name "Color"
+         Slot FrameWidgetSlot "{6A16118FAE1C157C}" {
+          OffsetLeft 0
+          OffsetTop 0
+          SizeX 224
+          OffsetRight -224
+          SizeY 40
+          OffsetBottom -40
+         }
+         Color 0 0.0774 0.1804 1
+        }
+        TextWidgetClass "{6A161185C71DE62B}" {
+         Name "Text"
+         Slot FrameWidgetSlot "{6A16118FAE1C1592}" {
+          PositionX 8
+          OffsetLeft 8
+          OffsetTop 0
+          SizeX 208
+          OffsetRight -216
+          SizeY 40
+          OffsetBottom -40
+         }
+         Text "US Army"
+         "Font Size" 32
+         "Min Font Size" 8
+         "Horizontal Alignment" Center
+         "Vertical Alignment" Center
+         FontProperties FontProperties "{6A1890E30603B325}" {
+          OutlineSize 2
+          OutlineColor 0 0 0 0.5896
+         }
+        }
+       }
+      }
+      FrameWidgetClass "{6A16118BE558D562}" {
+       Name "CounterFrame"
+       Slot LayoutSlot "{6A16118BE558D57A}" {
+        Padding 0 2 0 0
+       }
+       {
+        TextWidgetClass "{6A16118BE558D563}" {
+         Name "Counter"
+         Slot FrameWidgetSlot "{6A16118BE558D5A0}" {
+          Anchor 0.5 0 0.5 0
+          OffsetLeft 0
+          PositionY 0
+          OffsetTop 0
+          SizeX 224
+          OffsetRight -224
+          SizeY 30
+          OffsetBottom -30
+          Alignment 0.5 0
+          SizeToContent 1
+         }
+         Text "64 / 128"
+         "Font Size" 16
+         "Min Font Size" 16
+         "Horizontal Alignment" Center
+         "Vertical Alignment" Center
+         FontProperties FontProperties "{6A1890E2DBD453FF}" {
+          OutlineSize 2
+          OutlineColor 0 0 0 0.5882
+         }
+        }
+       }
       }
      }
-    }
-    TextWidgetClass "{6A16118BE558D562}" {
-     Name "Counter"
-     Slot LayoutSlot "{6A16118BE558D57A}" {
-      HorizontalAlign 1
-      VerticalAlign 2
-     }
-     Text "64 / 128"
-     "Font Size" 16
-     "Min Font Size" 16
     }
    }
   }

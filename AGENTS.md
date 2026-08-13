@@ -21,6 +21,19 @@ This game mode must remain separate from all other game modes. The add-on may st
 - Do not leave persistent state, subscriptions, entities, or callbacks active after this game mode is unloaded or another mode becomes active.
 - Before merging a slice, test that the mode still works when other game modes are loaded or selected, and that those modes retain their original behavior.
 
+## Source of truth and base-game integration
+
+Base-game systems are the authoritative source for faction, group, player membership, and character affiliation. Lobby2 must query and use the existing base-game functions and events even when that adds some performance overhead or requires additional traversal.
+
+- Do not create a second faction, group-membership, or player-ownership roster in Lobby2.
+- Treat Lobby2 registries as indexes, discovery lists, or replication views only; they must be derivable from the authoritative base-game state and must not override it.
+- Resolve a group's faction through the base-game group APIs and resolve group membership through the base-game membership APIs when producing lobby or UI data.
+- Store only lobby-specific state that the base game does not own, such as slot selection, reservation, lock state, or presentation metadata.
+- Reference the authoritative group, player, character, and faction identifiers from lobby-specific records rather than copying their ownership relationships into parallel fields.
+- Prefer re-querying authoritative state or subscribing to its change events over maintaining shadow state that can become stale.
+- Do not modify base-game scripts to establish a competing authority. Use add-on-owned lifecycle hooks, modded integration points, or event subscriptions only to observe and coordinate with the base systems.
+- When a base-game API is unavailable or insufficient, document the gap and ask for direction before introducing a new ownership source.
+
 ## Development rules
 
 - Make every change a small, coherent, testable slice.
