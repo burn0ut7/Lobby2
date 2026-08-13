@@ -111,7 +111,8 @@ FrameWidgetClass {
       OverlayWidgetClass "{6A1A4BD15D55F2D3}" {
        Name "Factions"
        Slot LayoutSlot "{6A1A4BD15D55F2F3}" {
-        VerticalAlign 3
+        VerticalAlign 0
+        Padding 0 0 50 0
        }
        {
         VerticalLayoutWidgetClass "{6A1A4D19EA948035}" {
@@ -152,9 +153,70 @@ FrameWidgetClass {
            }
            Text "Slots"
           }
-          FrameWidgetClass "{6A19076E45ED8D79}" : "{6A25000000000001}UI/layouts/Groups/Lobby_Group_Tactical.layout" {
+          FrameWidgetClass "{6A19076E45ED8D79}" : "{6A25000000000001}UI/layouts/Groups/Lobby_Group.layout" {
            Name "Groups"
            Slot LayoutSlot "{6A1A4D195EEFB975}" {
+           }
+           {
+            HorizontalLayoutWidgetClass "{6A19073206DD8705}" {
+             Prefab "{6A19073206DD8705}"
+             {
+              VerticalLayoutWidgetClass "{6A19072B283F0A5A}" {
+               Prefab "{6A19072B283F0A5A}"
+               {
+                HorizontalLayoutWidgetClass "{6A25000100000004}" {
+                 Prefab "{6A25000100000004}"
+                 Slot LayoutSlot "{6A190729841F8842}" {
+                  Padding 0 0 0 2
+                 }
+                 {
+                  VerticalLayoutWidgetClass "{6A2500010000000F}" {
+                   Prefab "{6A2500010000000F}"
+                   Slot LayoutSlot "{6A25000100000010}" {
+                    Padding 0 18 28 0
+                   }
+                  }
+                 }
+                }
+                VerticalLayoutWidgetClass "{6A25000100000015}" {
+                 Prefab "{6A25000100000015}"
+                 {
+                  ButtonWidgetClass "{6A1A4D01D41DE3B2}" {
+                   Prefab "{6A1A4D01D41DE3B2}"
+                   {
+                    OverlayWidgetClass "{6A24000100000004}" {
+                     Prefab "{6A24000100000004}"
+                     {
+                      SizeLayoutWidgetClass "{6A27000100000001}" {
+                       Prefab "{6A27000100000001}"
+                       {
+                        HorizontalLayoutWidgetClass "{6A18A023D7522F80}" {
+                         Prefab "{6A18A023D7522F80}"
+                         {
+                          HorizontalLayoutWidgetClass "{6A24000100000012}" {
+                           Prefab "{6A24000100000012}"
+                           {
+                            TextWidgetClass "{6A24000100000015}" {
+                             Prefab "{6A24000100000015}"
+                             Text "John Reforgerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+                             "Font Size" 24
+                            }
+                           }
+                          }
+                         }
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
            }
           }
          }

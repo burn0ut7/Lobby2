@@ -12,7 +12,7 @@ ButtonWidgetClass {
   GC_FactionButtonComponent "{6A1611891F697B24}" {
    m_bCanBeToggled 1
    m_bUseColorization 1
-   m_BackgroundDefault 0.014 0.027 0.032 1
+   m_BackgroundDefault 0.01 0.018 0.021 1
    m_BackgroundHovered 0.05 0.102 0.125 1
    m_BackgroundSelected 0.231 0.1 0.024 1
    m_BackgroundSelectedHovered 0.503 0.211 0.047 1
@@ -31,7 +31,6 @@ ButtonWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0.0143 0.0267 0.0319 1
      {
       ImageWidgetClass "{59EC7B8322F87B8E}" {
        Prefab "{59EC7B8322F87B8E}"
@@ -40,26 +39,35 @@ ButtonWidgetClass {
       }
      }
     }
-    VerticalLayoutWidgetClass "{6A16118727CA9545}" {
-     Name "VerticalLayout"
-     Slot OverlayWidgetSlot "{6A24000200000004}" {
+    SizeLayoutWidgetClass "{6A26000200000001}" {
+     Name "SquareSize"
+     Slot OverlayWidgetSlot "{6A26000200000002}" {
       Padding 12 12 12 12
      }
+     AllowWidthOverride 1
+     WidthOverride 224
+     AllowHeightOverride 1
+     HeightOverride 224
      {
-      FrameWidgetClass "{6A161184569548C8}" {
-       Name "FlagFrame"
-       Slot LayoutSlot "{6A161184569548E5}" {
+      OverlayWidgetClass "{6A26000200000003}" {
+       Name "SquareContent"
+       Slot AlignableSlot "{6A26000200000004}" {
        }
        {
+        ImageWidgetClass "{6A16118564B69C0A}" {
+         Name "Color"
+         Slot OverlayWidgetSlot "{6A16118FAE1C157C}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.005 0.044 0.114 1
+        }
         ScaleWidgetClass "{6A25000200000001}" {
          Name "FlagScale"
-         Slot FrameWidgetSlot "{6A25000200000002}" {
-          OffsetLeft 0
-          OffsetTop 0
-          SizeX 224
-          OffsetRight -224
-          SizeY 144
-          OffsetBottom -144
+         Slot OverlayWidgetSlot "{6A25000200000002}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 4 4 4 4
          }
          "Scale Mode" "Scale to fill"
          {
@@ -72,76 +80,91 @@ ButtonWidgetClass {
           }
          }
         }
-       }
-      }
-      FrameWidgetClass "{6A16118545566D7C}" {
-       Name "FactionNameFrame"
-       Slot LayoutSlot "{6A16118545566D91}" {
-       }
-       {
-        ImageWidgetClass "{6A16118564B69C0A}" {
-         Name "Color"
-         Slot FrameWidgetSlot "{6A16118FAE1C157C}" {
-          OffsetLeft 0
-          OffsetTop 0
-          SizeX 224
-          OffsetRight -224
-          SizeY 40
-          OffsetBottom -40
+        VerticalLayoutWidgetClass "{6A26000200000005}" {
+         Name "Information"
+         Slot OverlayWidgetSlot "{6A26000200000006}" {
+          HorizontalAlign 3
+          VerticalAlign 2
          }
-         Color 0 0.0774 0.1804 1
-        }
-        TextWidgetClass "{6A161185C71DE62B}" {
-         Name "Text"
-         Slot FrameWidgetSlot "{6A16118FAE1C1592}" {
-          PositionX 8
-          OffsetLeft 8
-          OffsetTop 0
-          SizeX 208
-          OffsetRight -216
-          SizeY 40
-          OffsetBottom -40
-         }
-         Text "US Army"
-         "Font Size" 32
-         "Min Font Size" 8
-         "Horizontal Alignment" Center
-         "Vertical Alignment" Center
-         FontProperties FontProperties "{6A1890E30603B325}" {
-          OutlineSize 2
-          OutlineColor 0 0 0 0.5896
-         }
-        }
-       }
-      }
-      FrameWidgetClass "{6A16118BE558D562}" {
-       Name "CounterFrame"
-       Slot LayoutSlot "{6A16118BE558D57A}" {
-        Padding 0 2 0 0
-       }
-       {
-        TextWidgetClass "{6A16118BE558D563}" {
-         Name "Counter"
-         Slot FrameWidgetSlot "{6A16118BE558D5A0}" {
-          Anchor 0.5 0 0.5 0
-          OffsetLeft 0
-          PositionY 0
-          OffsetTop 0
-          SizeX 224
-          OffsetRight -224
-          SizeY 30
-          OffsetBottom -30
-          Alignment 0.5 0
-          SizeToContent 1
-         }
-         Text "64 / 128"
-         "Font Size" 16
-         "Min Font Size" 16
-         "Horizontal Alignment" Center
-         "Vertical Alignment" Center
-         FontProperties FontProperties "{6A1890E2DBD453FF}" {
-          OutlineSize 2
-          OutlineColor 0 0 0 0.5882
+         {
+          FrameWidgetClass "{6A16118545566D7C}" {
+           Name "FactionNameFrame"
+           Slot LayoutSlot "{6A16118545566D91}" {
+           }
+           {
+            ImageWidgetClass "{6A26000200000007}" {
+             Name "NameBackground"
+             Slot FrameWidgetSlot "{6A26000200000008}" {
+              OffsetLeft 0
+              OffsetTop 0
+              SizeX 224
+              OffsetRight -224
+              SizeY 42
+              OffsetBottom -42
+             }
+             Color 0.008 0.012 0.014 0.86
+            }
+            TextWidgetClass "{6A161185C71DE62B}" {
+             Name "Text"
+             Slot FrameWidgetSlot "{6A16118FAE1C1592}" {
+              PositionX 12
+              OffsetLeft 12
+              OffsetTop 0
+              SizeX 200
+              OffsetRight -212
+              SizeY 42
+              OffsetBottom -42
+             }
+             Text "US Army"
+             "Font Size" 30
+             "Min Font Size" 8
+             "Horizontal Alignment" Center
+             "Vertical Alignment" Center
+             FontProperties FontProperties "{6A1890E30603B325}" {
+              OutlineSize 2
+              OutlineColor 0 0 0 0.72
+             }
+            }
+           }
+          }
+          FrameWidgetClass "{6A16118BE558D562}" {
+           Name "CounterFrame"
+           Slot LayoutSlot "{6A16118BE558D57A}" {
+           }
+           {
+            ImageWidgetClass "{6A26000200000009}" {
+             Name "CounterBackground"
+             Slot FrameWidgetSlot "{6A2600020000000A}" {
+              OffsetLeft 0
+              OffsetTop 0
+              SizeX 224
+              OffsetRight -224
+              SizeY 30
+              OffsetBottom -30
+             }
+             Color 0.008 0.012 0.014 0.72
+            }
+            TextWidgetClass "{6A16118BE558D563}" {
+             Name "Counter"
+             Slot FrameWidgetSlot "{6A16118BE558D5A0}" {
+              OffsetLeft 0
+              OffsetTop 0
+              SizeX 224
+              OffsetRight -224
+              SizeY 30
+              OffsetBottom -30
+             }
+             Text "64 / 128"
+             "Min Font Size" 12
+             "Horizontal Alignment" Center
+             "Vertical Alignment" Center
+             FontProperties FontProperties "{6A1890E2DBD453FF}" {
+              OutlineSize 2
+              OutlineColor 0 0 0 0.72
+             }
+            }
+           }
+          }
          }
         }
        }

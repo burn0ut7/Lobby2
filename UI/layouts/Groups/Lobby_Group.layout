@@ -85,7 +85,7 @@ FrameWidgetClass {
          Slot LayoutSlot "{6A25000100000010}" {
           HorizontalAlign 2
           VerticalAlign 1
-          Padding 0 18 28 18
+          Padding 0 18 28 0
           SizeMode Fill
          }
          {
@@ -116,7 +116,7 @@ FrameWidgetClass {
       ImageWidgetClass "{6A2500010000001D}" {
        Name "HeaderDivider"
        Slot LayoutSlot "{6A190729841F88C0}" {
-        Padding 0 0 6 0
+        Padding 0 2 4 4
        }
        Color 0.28 0.34 0.34 0.8
        Size 32 3
@@ -128,25 +128,19 @@ FrameWidgetClass {
         VerticalAlign 1
        }
        {
-        FrameWidgetClass "{6A25000100000017}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
-         Name "Slot1"
-         Slot LayoutSlot "{6A25000100000018}" {
-          HorizontalAlign 3
-          Padding 0 10 0 0
+        ButtonWidgetClass "{6A1A4D01D41DE3B2}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
+         Name "SlotButton0"
+         Slot LayoutSlot "{6A19072738B404F8}" {
          }
         }
-        FrameWidgetClass "{6A25000100000019}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
-         Name "Slot2"
-         Slot LayoutSlot "{6A2500010000001A}" {
-          HorizontalAlign 3
-          Padding 0 10 0 0
+        ButtonWidgetClass "{6A1A4D01D5870A82}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
+         Name "SlotButton1"
+         Slot LayoutSlot "{6A19072738B404F8}" {
          }
         }
-        FrameWidgetClass "{6A2500010000001B}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
-         Name "Slot3"
-         Slot LayoutSlot "{6A2500010000001C}" {
-          HorizontalAlign 3
-          Padding 0 10 0 0
+        ButtonWidgetClass "{6A1A4D01CCE04118}" : "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout" {
+         Name "SlotButton2"
+         Slot LayoutSlot "{6A19072738B404F8}" {
          }
         }
        }
