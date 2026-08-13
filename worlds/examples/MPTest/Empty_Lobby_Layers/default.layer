@@ -77,37 +77,38 @@ SCR_BaseGameMode GameMode_Lobby3 : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_
  }
  coords 135.297 1 123.139
 }
+SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
+ coords 132.636 1 123.2
+ m_bPlayable 1
+ m_bDeleteIfNoPlayer 0
+}
+SCR_AIGroup : "{43C7A28EEB660FF8}Prefabs/Groups/OPFOR/Group_USSR_Team_GL.et" {
+ coords 131.435 1 129.833
+ m_bPlayable 1
+ m_bDeleteIfNoPlayer 0
+}
+SCR_ChimeraCharacter : "{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et" {
+ coords 117.393 1 122.495
+}
 SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
  coords 120.258 1 129.308
 }
-$grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
- {
-  components {
-   AIFormationComponent "{507E9DC12F541FE6}" {
-    DefaultFormation "Test"
-   }
+SCR_AIGroup : "{DDF3799FA1387848}Prefabs/Groups/BLUFOR/Group_US_RifleSquad.et" {
+ coords 125.6 5.917 126.499
+ m_bPlayable 1
+ m_bDeleteIfNoPlayer 0
+}
+SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
+ components {
+  AIFormationComponent "{507E9DC12F541FE6}" {
+   DefaultFormation "Test"
   }
-  coords 127.157 1 132.377
-  angles 0 -179.265 0
-  m_aUnitPrefabSlots +{
-   "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et"
-  }
-  m_bPlayable 1
-  m_bDeleteIfNoPlayer 0
  }
- {
-  components {
-   AIFormationComponent "{507E9DC12F541FE6}" {
-    DefaultFormation "Test"
-   }
-  }
-  coords 134.495 1 129.753
-  angles 0 -179.265 0
-  m_faction "USSR"
-  m_aUnitPrefabSlots +{
-   "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et"
-  }
-  m_bPlayable 1
-  m_bDeleteIfNoPlayer 0
+ coords 127.157 1 132.377
+ angles 0 -179.265 0
+ m_aUnitPrefabSlots +{
+  "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et"
  }
+ m_bPlayable 1
+ m_bDeleteIfNoPlayer 0
 }

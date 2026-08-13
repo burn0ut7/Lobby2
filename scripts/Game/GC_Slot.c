@@ -163,8 +163,8 @@ class GC_Slot
 		m_OnChanged.Invoke(this);
 	}
 
-	//! Copies a complete server-originated slot state into this local slot.
-	//! This does not call Update(), so receiving a network update cannot rebroadcast it.
+	//! Copies a complete server-originated slot state into this local slot and notifies local listeners.
+	//! The lobby manager only rebroadcasts changes on the server authority, so proxy notification is safe.
 	void CopyFrom(GC_Slot source)
 	{
 		if (!source)
@@ -178,6 +178,7 @@ class GC_Slot
 		m_Prefab = source.m_Prefab;
 		m_pGroup = source.m_pGroup;
 		m_Entity = source.m_Entity;
+		NotifyChanged();
 	}
 
 	//! Serializes this slot as part of its owning replicated component.

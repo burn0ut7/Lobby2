@@ -1,5 +1,5 @@
 MetaFileClass {
- Name "{6A25000000000001}UI/layouts/Groups/Lobby_Group_Tactical.layout"
+ Name "{6A25000000000001}UI/layouts/Groups/Lobby_Group.layout"
  Configurations {
   LayoutResourceClass PC {
   }

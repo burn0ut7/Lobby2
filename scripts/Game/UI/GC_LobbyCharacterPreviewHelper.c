@@ -131,7 +131,7 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
     bool Update(float timeSlice, inout PreviewRenderAttributes playerRenderAttributes)
     {
-        const float rotationSensitivity = 2500;
+        const float rotationSensitivity = 10000;
         const float zoomSensitivity = -10000;
         const float interpolationAlpha = 0.15;
 
@@ -170,6 +170,11 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
         }
 
         return changesApplied;
+    }
+
+    bool IsManipulatingPreview()
+    {
+        return m_bMouseRotate || m_bMouseRoll;
     }
 
     void Destroy()

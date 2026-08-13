@@ -187,12 +187,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void OnGroupPlayerAdded(SCR_AIGroup group, int playerId)
     {
-        NotifyGroupFactionUpdated(group);
+        QueueAllRegisteredFactionUpdates();
     }
 
     protected void OnGroupPlayerRemoved(SCR_AIGroup group, int playerId)
     {
-        NotifyGroupFactionUpdated(group);
+        QueueAllRegisteredFactionUpdates();
     }
 
     protected void NotifyGroupFactionUpdated(SCR_AIGroup group)
@@ -235,9 +235,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (Replication.IsServer())
             UpdateSlot(slot);
 
-        // A slot can change groups, so notify every registered faction. Each UI
-        // view re-queries the authoritative group and slot state before drawing.
-        NotifyAllRegisteredFactions();
+        // Slot assignment and base-group membership are changed together, but
+        // their callbacks can run before both states have settled. Refresh all
+        // dependent views on the next call-queue tick so they query one
+        // consistent authoritative state.
+        QueueAllRegisteredFactionUpdates();
+    }
+
+    protected void QueueAllRegisteredFactionUpdates()
+    {
+        GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
+        GetGame().GetCallqueue().CallLater(NotifyAllRegisteredFactions);
     }
 
     protected void NotifyAllRegisteredFactions()
@@ -417,6 +425,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return m_aRegisteredFactions;
     }
 
+    //! Returns the registered base-game groups used by the lobby presentation.
+    array<SCR_AIGroup> GetRegisteredGroups()
+    {
+        return m_aGroups;
+    }
+
     array<ref GC_Slot> GetSlots()
     {
         return m_aSlots;
@@ -442,18 +456,40 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return groups;
     }
 
-    //! Counts unique base-game player IDs currently assigned to groups in the faction.
+    //! Counts unique players occupying lobby slots whose authoritative groups belong to the faction.
     int GetFactionPlayerCount(FactionKey factionKey)
     {
         array<int> playerIDs = {};
 
         foreach (SCR_AIGroup group : GetGroupsForFaction(factionKey))
         {
-            foreach (int playerID : group.GetPlayerIDs())
+            foreach (GC_Slot slot : GetSlotsForGroup(group))
             {
+                if (!slot)
+                    continue;
+
+                int playerID = slot.GetPlayerId();
                 if (playerID > 0 && !playerIDs.Contains(playerID))
                     playerIDs.Insert(playerID);
             }
+        }
+
+        return playerIDs.Count();
+    }
+
+    //! Counts unique players currently occupying lobby slots in the specified base-game group.
+    int GetGroupPlayerCount(SCR_AIGroup group)
+    {
+        array<int> playerIDs = {};
+
+        foreach (GC_Slot slot : GetSlotsForGroup(group))
+        {
+            if (!slot)
+                continue;
+
+            int playerID = slot.GetPlayerId();
+            if (playerID > 0 && !playerIDs.Contains(playerID))
+                playerIDs.Insert(playerID);
         }
 
         return playerIDs.Count();
@@ -517,6 +553,66 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return null;
     }
 
+    //! Validates and applies a player-owned slot request on the server authority.
+    bool TryAssignPlayerToSlot(int playerId, int slotId)
+    {
+        if (!Replication.IsServer() || playerId <= 0)
+            return false;
+
+        GC_Slot targetSlot = GetSlot(slotId);
+        if (!targetSlot || targetSlot.GetState() != GC_SlotState.FREE)
+            return false;
+
+        int occupyingPlayerId = targetSlot.GetPlayerId();
+        if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
+            return false;
+
+        SCR_AIGroup targetGroup = targetSlot.GetGroup();
+        if (!targetGroup || !m_aGroups.Contains(targetGroup))
+            return false;
+
+        SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+        if (!groupsManager)
+            return false;
+
+        GC_Slot currentSlot = GetSlotByPlayerId(playerId);
+        SCR_AIGroup currentGroup = groupsManager.GetPlayerGroup(playerId);
+
+        // Clicking the player's current slot toggles them back out of it.
+        if (occupyingPlayerId == playerId)
+        {
+            if (currentGroup)
+                currentGroup.RemovePlayer(playerId);
+
+            targetSlot.SetPlayer(-1);
+            PrintFormat("GC | Slot request accepted (unslotted): player=%1 slot=%2", playerId, slotId);
+            return true;
+        }
+
+        if (currentGroup != targetGroup)
+        {
+            if (currentGroup)
+                currentGroup.RemovePlayer(playerId);
+
+            targetGroup.AddPlayer(playerId);
+            if (!targetGroup.GetPlayerIDs().Contains(playerId))
+            {
+                if (currentGroup)
+                    currentGroup.AddPlayer(playerId);
+
+                PrintFormat("GC | Slot request rejected after group assignment failed: player=%1 slot=%2", playerId, slotId, level: LogLevel.WARNING);
+                return false;
+            }
+        }
+
+        if (currentSlot && currentSlot != targetSlot)
+            currentSlot.SetPlayer(-1);
+
+        targetSlot.SetPlayer(playerId);
+        PrintFormat("GC | Slot request accepted: player=%1 slot=%2", playerId, slotId);
+        return true;
+    }
+
     //! Broadcasts a complete server-authoritative slot state.
     bool UpdateSlot(GC_Slot slot)
     {
@@ -544,7 +640,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         }
 
         slot.CopyFrom(updateSlot);
-        NotifyAllRegisteredFactions();
     }
 
     GC_PlayerFormationDefinition GetFormation(string name)
@@ -560,6 +655,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     override void OnGameModeEnd(SCR_GameModeEndData data)
     {
+        GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
         UnsubscribeFromAllGroupEvents();
         UnsubscribeFromAllSlotEvents();
         m_aGroups.Clear();

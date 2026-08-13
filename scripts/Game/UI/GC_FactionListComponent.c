@@ -69,10 +69,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
             if (factionWidget)
                 factionWidget.SetFactionKey(factionKey);
 
-            Widget buttonRoot = card.FindAnyWidget("Button");
-            GC_FactionButtonComponent button;
-            if (buttonRoot)
-                button = GC_FactionButtonComponent.Cast(buttonRoot.FindHandler(GC_FactionButtonComponent));
+            GC_FactionButtonComponent button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
             if (button)
             {
                 button.SetFactionKey(factionKey);
@@ -81,7 +78,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
 
             m_aFactionCards.Insert(card);
 
-            if ((selectionStillExists && factionKey == previousSelection) || (!selectionStillExists && m_SelectedFactionKey.IsEmpty()))
+            if (selectionStillExists && factionKey == previousSelection)
                 m_SelectedFactionKey = factionKey;
         }
 
@@ -111,7 +108,11 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
 
     protected void OnFactionUpdated(Faction faction)
     {
+        FactionKey previousSelection = m_SelectedFactionKey;
         Refresh();
+
+		if (previousSelection != m_SelectedFactionKey)
+			m_OnFactionSelected.Invoke(m_SelectedFactionKey);
     }
 
     protected void OnFactionButtonClicked(SCR_ButtonBaseComponent baseButton)
@@ -120,6 +121,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
         if (!button)
             return;
 
+		PrintFormat("GC | Faction button clicked: '%1'", button.GetFactionKey());
         SetSelectedFaction(button.GetFactionKey());
     }
 
@@ -138,10 +140,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
             if (!card)
                 continue;
 
-            Widget buttonRoot = card.FindAnyWidget("Button");
-            GC_FactionButtonComponent button;
-            if (buttonRoot)
-                button = GC_FactionButtonComponent.Cast(buttonRoot.FindHandler(GC_FactionButtonComponent));
+            GC_FactionButtonComponent button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
             if (button)
                 button.SetFactionSelected(button.GetFactionKey() == m_SelectedFactionKey);
         }
@@ -154,10 +153,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
             if (!card)
                 continue;
 
-            Widget buttonRoot = card.FindAnyWidget("Button");
-            GC_FactionButtonComponent button;
-            if (buttonRoot)
-                button = GC_FactionButtonComponent.Cast(buttonRoot.FindHandler(GC_FactionButtonComponent));
+            GC_FactionButtonComponent button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
             if (button)
                 button.m_OnClicked.Remove(OnFactionButtonClicked);
 

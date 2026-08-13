@@ -8,6 +8,25 @@ modded class SCR_PlayerController : PlayerController
 {
 	protected PlayerState m_ePlayerState;
 
+	//! Sends a slot ID from the owning client to the server authority.
+	void RequestLobbySlot(int slotId)
+	{
+		if (slotId < 0)
+			return;
+
+		Rpc(RpcAsk_RequestLobbySlot, slotId);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_RequestLobbySlot(int slotId)
+	{
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager)
+			return;
+
+		lobbyManager.TryAssignPlayerToSlot(GetPlayerId(), slotId);
+	}
+
 	void SetSpectator(IEntity entity)
 	{
 		SetPlayerState(PlayerState.SPECTATOR);

@@ -6,10 +6,10 @@ FrameWidgetClass {
   OffsetLeft 0
   PositionY 0
   OffsetTop 0
-  SizeX -1820
-  OffsetRight 1820
-  SizeY -1050
-  OffsetBottom 1050
+  SizeX 0
+  OffsetRight 0
+  SizeY 0
+  OffsetBottom 0
  }
  {
   ImageWidgetClass "{6A16118EF335A54F}" {
@@ -27,31 +27,17 @@ FrameWidgetClass {
    Texture "{B98FB2CD75200E57}UI/Textures/MainMenu/MenuBackgroundBlank_UI.edds"
    Size 1920 1080
   }
-  ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
-   Name "playerRender"
-   Slot FrameWidgetSlot "{6A142E93D253C20D}" {
-    PositionX 1309.81
-    OffsetLeft 1309.81
-    PositionY 142.389
-    OffsetTop 142.389
-    SizeX 578.15
-    OffsetRight -1887.96
-    SizeY 837.637
-    OffsetBottom -980.026
-   }
-   "Ignore Cursor" 0
-  }
   VerticalLayoutWidgetClass "{6A16119E533F666C}" {
    Name "VerticalLayout"
    Slot FrameWidgetSlot "{6A16119E533F667E}" {
     Anchor 0 0 1 1
-    PositionX -1.255
-    OffsetLeft -1.255
+    PositionX 0
+    OffsetLeft 0
     PositionY 0
     OffsetTop 0
-    SizeX 0
-    OffsetRight 1.255
-    SizeY 0
+    SizeX 100
+    OffsetRight 0
+    SizeY 30
     OffsetBottom 0
    }
    {
@@ -153,68 +139,17 @@ FrameWidgetClass {
            }
            Text "Slots"
           }
-          FrameWidgetClass "{6A19076E45ED8D79}" : "{6A25000000000001}UI/layouts/Groups/Lobby_Group.layout" {
-           Name "Groups"
-           Slot LayoutSlot "{6A1A4D195EEFB975}" {
+          ScrollLayoutWidgetClass "{6A1B462DF999F787}" {
+           Name "ScrollLayout0"
+           Slot LayoutSlot "{6A1B462DF999F7A2}" {
+            SizeMode Fill
            }
            {
-            HorizontalLayoutWidgetClass "{6A19073206DD8705}" {
-             Prefab "{6A19073206DD8705}"
-             {
-              VerticalLayoutWidgetClass "{6A19072B283F0A5A}" {
-               Prefab "{6A19072B283F0A5A}"
-               {
-                HorizontalLayoutWidgetClass "{6A25000100000004}" {
-                 Prefab "{6A25000100000004}"
-                 Slot LayoutSlot "{6A190729841F8842}" {
-                  Padding 0 0 0 2
-                 }
-                 {
-                  VerticalLayoutWidgetClass "{6A2500010000000F}" {
-                   Prefab "{6A2500010000000F}"
-                   Slot LayoutSlot "{6A25000100000010}" {
-                    Padding 0 18 28 0
-                   }
-                  }
-                 }
-                }
-                VerticalLayoutWidgetClass "{6A25000100000015}" {
-                 Prefab "{6A25000100000015}"
-                 {
-                  ButtonWidgetClass "{6A1A4D01D41DE3B2}" {
-                   Prefab "{6A1A4D01D41DE3B2}"
-                   {
-                    OverlayWidgetClass "{6A24000100000004}" {
-                     Prefab "{6A24000100000004}"
-                     {
-                      SizeLayoutWidgetClass "{6A27000100000001}" {
-                       Prefab "{6A27000100000001}"
-                       {
-                        HorizontalLayoutWidgetClass "{6A18A023D7522F80}" {
-                         Prefab "{6A18A023D7522F80}"
-                         {
-                          HorizontalLayoutWidgetClass "{6A24000100000012}" {
-                           Prefab "{6A24000100000012}"
-                           {
-                            TextWidgetClass "{6A24000100000015}" {
-                             Prefab "{6A24000100000015}"
-                             Text "John Reforgerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
-                             "Font Size" 24
-                            }
-                           }
-                          }
-                         }
-                        }
-                       }
-                      }
-                     }
-                    }
-                   }
-                  }
-                 }
-                }
-               }
-              }
+            VerticalLayoutWidgetClass "{6A1B462DF999F7B0}" {
+             Name "Groups"
+             Slot AlignableSlot "{6A1B462DF999F7B1}" {
+              HorizontalAlign 3
+              VerticalAlign 0
              }
             }
            }
@@ -223,9 +158,48 @@ FrameWidgetClass {
         }
        }
       }
+      OverlayWidgetClass "{6A1B46245ACCEBD4}" {
+       Name "Loadout"
+       Slot LayoutSlot "{6A1B46245ACCEBEB}" {
+        SizeMode Fill
+       }
+       {
+        VerticalLayoutWidgetClass "{6A1C52E851C1A001}" {
+         Name "LoadoutColumn"
+         Slot OverlayWidgetSlot "{6A1C52E851C1A002}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         {
+          TextWidgetClass "{6A1C52E851C1A003}" {
+           Name "LoadoutTitle"
+           Slot LayoutSlot "{6A1C52E851C1A004}" {
+           }
+           Text "Loadout"
+          }
+          OverlayWidgetClass "{6A1C52E851C1A005}" {
+           Name "LoadoutPreview"
+           Slot LayoutSlot "{6A1C52E851C1A006}" {
+            SizeMode Fill
+           }
+           {
+            ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
+             Name "playerRender"
+             Slot OverlayWidgetSlot "{6A142E93D253C20D}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             "Ignore Cursor" 0
+            }
+           }
+          }
+         }
+       }
+      }
      }
     }
    }
   }
  }
+}
 }
