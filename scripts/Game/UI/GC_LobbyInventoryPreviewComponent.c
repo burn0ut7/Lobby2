@@ -1,5 +1,6 @@
 class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 {
+	protected static const float WEAPON_PREVIEW_ZOOM_INCREMENT = -10;
 	protected static const int WEAPON_POSITION_GRENADE = 0;
 	protected static const int WEAPON_POSITION_PRIMARY = 2;
 	protected static const int WEAPON_POSITION_SECONDARY = 3;
@@ -27,8 +28,8 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 		if (world)
 			m_PreviewManager = world.GetItemPreviewManager();
 
-		m_PrimaryWeaponPreview = CreateCellPreview("PrimaryWeapon", "WeaponPreview");
-		m_SecondaryWeaponPreview = CreateCellPreview("SecondaryWeapon", "WeaponPreview");
+		m_PrimaryWeaponPreview = CreateCellPreview("PrimaryWeapon", "WeaponPreview", WEAPON_PREVIEW_ZOOM_INCREMENT);
+		m_SecondaryWeaponPreview = CreateCellPreview("SecondaryWeapon", "WeaponPreview", WEAPON_PREVIEW_ZOOM_INCREMENT);
 		m_SidearmPreview = CreateCellPreview("Sidearm", "WeaponPreview");
 		m_GrenadePreview = CreateCellPreview("Grenade", "ItemPreview");
 		m_MapPreview = CreateCellPreview("Map", "ItemPreview");
@@ -135,7 +136,7 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 		SetCellItem(m_WatchPreview, inventoryManager.FindItemWithComponents({SCR_WristwatchComponent}, EStoragePurpose.PURPOSE_ANY));
 	}
 
-	protected GC_LobbyInventoryCellPreview CreateCellPreview(string cellName, string previewWidgetName)
+	protected GC_LobbyInventoryCellPreview CreateCellPreview(string cellName, string previewWidgetName, float cameraZoomIncrement = 0)
 	{
 		Widget cellRoot = m_wRoot.FindAnyWidget(cellName);
 		if (!cellRoot)
@@ -144,7 +145,7 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 			return null;
 		}
 
-		GC_LobbyInventoryCellPreview preview = new GC_LobbyInventoryCellPreview(cellRoot, previewWidgetName);
+		GC_LobbyInventoryCellPreview preview = new GC_LobbyInventoryCellPreview(cellRoot, previewWidgetName, cameraZoomIncrement);
 		if (!preview.IsValid())
 			PrintFormat("GC | Inventory preview widget '%1/%2' not found", cellName, previewWidgetName);
 

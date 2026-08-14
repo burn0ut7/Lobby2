@@ -94,7 +94,6 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A1A4D1F32A87031}" {
       Padding 5 0 5 0
      }
-     "Z Order" 0
      Clipping False
      {
       SizeLayoutWidgetClass "{6A1C52E851C1A010}" {
@@ -104,7 +103,6 @@ FrameWidgetClass {
         VerticalAlign 0
         Padding 935 0 0 0
        }
-       "Z Order" 0
        AllowWidthOverride 1
        WidthOverride 500
        AllowHeightOverride 1
@@ -131,7 +129,7 @@ FrameWidgetClass {
             SizeY 1036
             OffsetBottom -952
            }
-           "Ignore Cursor" 0
+           "Ignore Cursor" 1
           }
          }
         }
@@ -144,7 +142,6 @@ FrameWidgetClass {
         VerticalAlign 3
         Padding 585 0 0 0
        }
-       "Z Order" 10
        AllowWidthOverride 1
        WidthOverride 1144
        {
@@ -164,7 +161,6 @@ FrameWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       "Z Order" 20
        {
         SizeLayoutWidgetClass "{6A1D000100000003}" {
          Name "FactionsSize"
@@ -294,11 +290,12 @@ FrameWidgetClass {
                }
                Text "Loadout"
               }
-              OverlayWidgetClass "{6A1C52E851C1A005}" {
+              ButtonWidgetClass "{6A1C52E851C1A005}" {
                Name "LoadoutPreview"
                Slot LayoutSlot "{6A1C52E851C1A006}" {
                 SizeMode Fill
                }
+               Color 1 1 1 0
               }
              }
             }

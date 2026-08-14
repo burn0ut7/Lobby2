@@ -6,7 +6,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
     protected bool m_bMouseWheel;
     protected ItemPreviewWidget m_wCharacter;
 	protected Widget m_wInteractionArea;
-    protected WorkspaceWidget m_wWorkspace;
     protected float m_fZoomInput;
     protected vector m_vRotationInput = vector.Zero;
     protected float m_fLastPanX;
@@ -18,6 +17,8 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
     protected float m_fMouseDeltaY;
     protected float m_fWheelInput;
     protected bool m_bHasMouseSample;
+	protected int m_iDebugManipulationFrames;
+	protected bool m_bDebugCameraUpdateLogged;
 
     protected bool CanProcessEvent(int x, int y)
     {
@@ -31,11 +32,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
         return x >= posX && x <= posX + sizeX && y >= posY && y <= posY + sizeY;
     }
-
-	protected bool IsInteractionTarget(Widget w)
-	{
-		return w && w == m_wInteractionArea;
-	}
 
     protected void ProcessInput()
     {
@@ -66,6 +62,12 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
                 m_fLastMouseX = mouseX;
                 m_fLastMouseY = mouseY;
             }
+
+			if (m_iDebugManipulationFrames < 5)
+			{
+				PrintFormat("GC | Preview input sample frame=%1 mouse=(%2,%3) delta=(%4,%5) rotate=%6 roll=%7", m_iDebugManipulationFrames, mouseX, mouseY, m_fMouseDeltaX, m_fMouseDeltaY, m_bMouseRotate, m_bMouseRoll);
+				m_iDebugManipulationFrames++;
+			}
         }
         else
         {
@@ -106,7 +108,9 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
     override bool OnMouseButtonDown(Widget w, int x, int y, int button)
     {
-        if (!IsInteractionTarget(w) || !CanProcessEvent(x, y))
+		bool inside = CanProcessEvent(x, y);
+		PrintFormat("GC | Preview input mouse-down callback target=%1 button=%2 cursor=(%3,%4) inside=%5", w, button, x, y, inside);
+		if (!inside)
 			return false;
 
 		if (button == 0)
@@ -116,12 +120,17 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 		else
 			return false;
 
+		m_iDebugManipulationFrames = 0;
+		m_bDebugCameraUpdateLogged = false;
+		PrintFormat("GC | Preview input mouse-down accepted rotate=%1 roll=%2", m_bMouseRotate, m_bMouseRoll);
+
         return true;
     }
 
     override bool OnMouseButtonUp(Widget w, int x, int y, int button)
     {
 		bool handled = m_bMouseRotate || m_bMouseRoll;
+		PrintFormat("GC | Preview input mouse-up callback target=%1 button=%2 cursor=(%3,%4) handled=%5", w, button, x, y, handled);
         if (button == 0)
             m_bMouseRotate = false;
         else if (button == 1)
@@ -132,7 +141,8 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
     override bool OnMouseWheel(Widget w, int x, int y, int wheel)
     {
-		m_bMouseWheel = IsInteractionTarget(w) && CanProcessEvent(x, y);
+		m_bMouseWheel = CanProcessEvent(x, y);
+		PrintFormat("GC | Preview input mouse-wheel callback target=%1 wheel=%2 cursor=(%3,%4) inside=%5", w, wheel, x, y, m_bMouseWheel);
         if (m_bMouseWheel)
             m_fWheelInput += wheel;
 		return m_bMouseWheel;
@@ -178,6 +188,12 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
             changesApplied = true;
         }
 
+		if (changesApplied && !m_bDebugCameraUpdateLogged)
+		{
+			PrintFormat("GC | Preview camera update applied rotation=%1 zoom=%2", updatedRotation, zoom);
+			m_bDebugCameraUpdateLogged = true;
+		}
+
         return changesApplied;
     }
 
@@ -188,27 +204,29 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
     void Destroy()
     {
-        if (m_wWorkspace)
-        {
-            m_wWorkspace.RemoveHandler(this);
-            m_wWorkspace.RemoveFromHierarchy();
-        }
+		PrintFormat("GC | Preview input handler destroy interaction=%1", m_wInteractionArea);
+        if (m_wInteractionArea)
+            m_wInteractionArea.RemoveHandler(this);
 
-        m_wWorkspace = null;
         m_wCharacter = null;
 		m_wInteractionArea = null;
         m_InputManager = null;
     }
 
-    void GC_LobbyCharacterPreviewHelper(ItemPreviewWidget characterWidget, Widget interactionArea, WorkspaceWidget workspace)
+    void GC_LobbyCharacterPreviewHelper(ItemPreviewWidget characterWidget, Widget interactionArea)
     {
-        if (!characterWidget || !interactionArea || !workspace)
+        if (!characterWidget || !interactionArea)
             return;
 
         m_InputManager = GetGame().GetInputManager();
-        m_wWorkspace = workspace;
         m_wCharacter = characterWidget;
 		m_wInteractionArea = interactionArea;
-        m_wWorkspace.AddHandler(this);
+		m_wInteractionArea.AddHandler(this);
+
+		float sizeX, sizeY;
+		float posX, posY;
+		m_wInteractionArea.GetScreenSize(sizeX, sizeY);
+		m_wInteractionArea.GetScreenPos(posX, posY);
+		PrintFormat("GC | Preview input handler attached interaction=%1 bounds=(%2,%3 %4x%5)", m_wInteractionArea, posX, posY, sizeX, sizeY);
     }
 };

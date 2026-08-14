@@ -500,7 +500,16 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected void EnsurePreviewHelper()
 	{
 		if (m_PlayerRenderAttributes && !m_CharacterWidgetHelper)
-			m_CharacterWidgetHelper = GC_LobbyCharacterPreviewHelper(m_wPlayerRender, m_wPlayerRender, GetGame().GetWorkspace());
+		{
+			Widget interactionArea = m_wRoot.FindAnyWidget("LoadoutPreview");
+			if (!interactionArea)
+			{
+				PrintFormat("GC | Loadout preview interaction area not found");
+				return;
+			}
+
+			m_CharacterWidgetHelper = GC_LobbyCharacterPreviewHelper(m_wPlayerRender, interactionArea);
+		}
 	}
 
     protected void LoadPreviewAttributes(IEntity entity)
