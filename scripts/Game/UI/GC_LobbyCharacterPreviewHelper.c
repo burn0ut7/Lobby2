@@ -5,6 +5,7 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
     protected bool m_bMouseRoll;
     protected bool m_bMouseWheel;
     protected ItemPreviewWidget m_wCharacter;
+	protected Widget m_wInteractionArea;
     protected WorkspaceWidget m_wWorkspace;
     protected float m_fZoomInput;
     protected vector m_vRotationInput = vector.Zero;
@@ -20,16 +21,21 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
     protected bool CanProcessEvent(int x, int y)
     {
-        if (!m_wCharacter)
+        if (!m_wInteractionArea)
             return false;
 
         float sizeX, sizeY;
         float posX, posY;
-        m_wCharacter.GetScreenSize(sizeX, sizeY);
-        m_wCharacter.GetScreenPos(posX, posY);
+		m_wInteractionArea.GetScreenSize(sizeX, sizeY);
+		m_wInteractionArea.GetScreenPos(posX, posY);
 
         return x >= posX && x <= posX + sizeX && y >= posY && y <= posY + sizeY;
     }
+
+	protected bool IsInteractionTarget(Widget w)
+	{
+		return w && w == m_wInteractionArea;
+	}
 
     protected void ProcessInput()
     {
@@ -100,33 +106,36 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
     override bool OnMouseButtonDown(Widget w, int x, int y, int button)
     {
-        if (w && w.GetName() == "playerRender")
-        {
-            if (button == 0)
-                m_bMouseRotate = CanProcessEvent(x, y);
-            else if (button == 1)
-                m_bMouseRoll = CanProcessEvent(x, y);
-        }
+        if (!IsInteractionTarget(w) || !CanProcessEvent(x, y))
+			return false;
+
+		if (button == 0)
+			m_bMouseRotate = true;
+		else if (button == 1)
+			m_bMouseRoll = true;
+		else
+			return false;
 
         return true;
     }
 
     override bool OnMouseButtonUp(Widget w, int x, int y, int button)
     {
+		bool handled = m_bMouseRotate || m_bMouseRoll;
         if (button == 0)
             m_bMouseRotate = false;
         else if (button == 1)
             m_bMouseRoll = false;
 
-        return true;
+		return handled;
     }
 
     override bool OnMouseWheel(Widget w, int x, int y, int wheel)
     {
-        m_bMouseWheel = CanProcessEvent(x, y);
+		m_bMouseWheel = IsInteractionTarget(w) && CanProcessEvent(x, y);
         if (m_bMouseWheel)
             m_fWheelInput += wheel;
-        return true;
+		return m_bMouseWheel;
     }
 
     bool Update(float timeSlice, inout PreviewRenderAttributes playerRenderAttributes)
@@ -187,17 +196,19 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
         m_wWorkspace = null;
         m_wCharacter = null;
+		m_wInteractionArea = null;
         m_InputManager = null;
     }
 
-    void GC_LobbyCharacterPreviewHelper(ItemPreviewWidget characterWidget, WorkspaceWidget workspace)
+    void GC_LobbyCharacterPreviewHelper(ItemPreviewWidget characterWidget, Widget interactionArea, WorkspaceWidget workspace)
     {
-        if (!characterWidget || !workspace)
+        if (!characterWidget || !interactionArea || !workspace)
             return;
 
         m_InputManager = GetGame().GetInputManager();
         m_wWorkspace = workspace;
         m_wCharacter = characterWidget;
+		m_wInteractionArea = interactionArea;
         m_wWorkspace.AddHandler(this);
     }
 };

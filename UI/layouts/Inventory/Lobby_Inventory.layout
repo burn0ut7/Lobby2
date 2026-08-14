@@ -1,0 +1,347 @@
+OverlayWidgetClass {
+ Name "LobbyInventory"
+ Slot OverlayWidgetSlot "{6A31000000000051}" {
+  HorizontalAlign 3
+  VerticalAlign 3
+ }
+ components {
+  GC_LobbyInventoryPreviewComponent "{6A31000000000078}" {
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{6A31000000000074}" {
+   Name "InventoryBounds"
+   Slot OverlayWidgetSlot "{6A31000000000075}" {
+    HorizontalAlign 1
+    VerticalAlign 2
+    Padding 0 0 0 8
+   }
+   AllowWidthOverride 1
+   WidthOverride 450
+   AllowHeightOverride 1
+   HeightOverride 152
+   {
+    OverlayWidgetClass "{6A31000000000052}" {
+   Name "InventoryOverlay"
+   Slot AlignableSlot "{6A31000000000053}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   {
+    PanelWidgetClass "{6A31000000000054}" {
+     Name "Background"
+     Slot OverlayWidgetSlot "{6A31000000000055}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.0048 0.0048 0.0048 0.78
+     style full
+    }
+    PanelWidgetClass "{6A31000000000056}" {
+     Name "Outline"
+     Slot OverlayWidgetSlot "{6A31000000000057}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.45 0.48 0.48 0.9
+     style outline_2px
+    }
+    VerticalLayoutWidgetClass "{6A31000000000058}" {
+     Name "InventoryRows"
+     Slot OverlayWidgetSlot "{6A31000000000059}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+      Padding 4 4 4 4
+     }
+     {
+      HorizontalLayoutWidgetClass "{6A3100000000005A}" {
+       Name "WeaponsRow"
+       Slot LayoutSlot "{6A3100000000005B}" {
+       }
+       {
+        SizeLayoutWidgetClass "{6A3100000000005C}" : "{6A31000000000001}UI/layouts/Inventory/Lobby_Inventory_Weapon.layout" {
+         Name "PrimaryWeapon"
+         Slot LayoutSlot "{6A3100000000005D}" {
+          Padding 0 0 2 0
+         }
+         {
+          ButtonWidgetClass "{6A31000000000032}" {
+           Prefab "{6A31000000000032}"
+           {
+            OverlayWidgetClass "{6A31000000000034}" {
+             Prefab "{6A31000000000034}"
+             {
+              ImageWidgetClass "{6A31000000000044}" {
+               Prefab "{6A31000000000044}"
+               Texture "{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds"
+              }
+              TextWidgetClass "{6A31000000000041}" {
+               Prefab "{6A31000000000041}"
+               Text "PRIMARY"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A3100000000005E}" : "{6A31000000000001}UI/layouts/Inventory/Lobby_Inventory_Weapon.layout" {
+         Name "SecondaryWeapon"
+         Slot LayoutSlot "{6A3100000000005F}" {
+          Padding 0 0 2 0
+         }
+         {
+          ButtonWidgetClass "{6A31000000000032}" {
+           Prefab "{6A31000000000032}"
+           {
+            OverlayWidgetClass "{6A31000000000034}" {
+             Prefab "{6A31000000000034}"
+             {
+              ImageWidgetClass "{6A31000000000044}" {
+               Prefab "{6A31000000000044}"
+               Texture "{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds"
+              }
+              TextWidgetClass "{6A31000000000041}" {
+               Prefab "{6A31000000000041}"
+               Text "SECONDARY"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A31000000000060}" : "{6A31000000000001}UI/layouts/Inventory/Lobby_Inventory_Weapon.layout" {
+         Name "Sidearm"
+         Slot LayoutSlot "{6A31000000000061}" {
+          Padding 0 0 2 0
+         }
+         AllowWidthOverride 1
+         WidthOverride 72
+         {
+          ButtonWidgetClass "{6A31000000000032}" {
+           Prefab "{6A31000000000032}"
+           {
+            OverlayWidgetClass "{6A31000000000034}" {
+             Prefab "{6A31000000000034}"
+             {
+              ImageWidgetClass "{6A31000000000044}" {
+               Prefab "{6A31000000000044}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "WeaponHandgun"
+               Size 47 47
+              }
+              TextWidgetClass "{6A31000000000041}" {
+               Prefab "{6A31000000000041}"
+               Text "SIDEARM"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A31000000000074}" : "{6A31000000000002}UI/layouts/Inventory/Lobby_Inventory_Item.layout" {
+         Name "Grenade"
+         Slot LayoutSlot "{6A31000000000075}" {
+         }
+         {
+          ButtonWidgetClass "{6A31000000000012}" {
+           Prefab "{6A31000000000012}"
+           {
+            OverlayWidgetClass "{6A31000000000014}" {
+             Prefab "{6A31000000000014}"
+             {
+              ImageWidgetClass "{6A31000000000024}" {
+               Prefab "{6A31000000000024}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "Grenade"
+              }
+              TextWidgetClass "{6A31000000000021}" {
+               Prefab "{6A31000000000021}"
+               Text "GRENADE"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      HorizontalLayoutWidgetClass "{6A31000000000064}" {
+       Name "ItemsRow"
+       Slot LayoutSlot "{6A31000000000065}" {
+       }
+       {
+        SizeLayoutWidgetClass "{6A31000000000066}" : "{6A31000000000002}UI/layouts/Inventory/Lobby_Inventory_Item.layout" {
+         Name "Map"
+         Slot LayoutSlot "{6A31000000000067}" {
+          Padding 0 0 2 0
+         }
+         {
+          ButtonWidgetClass "{6A31000000000012}" {
+           Prefab "{6A31000000000012}"
+           {
+            OverlayWidgetClass "{6A31000000000014}" {
+             Prefab "{6A31000000000014}"
+             {
+              ImageWidgetClass "{6A31000000000024}" {
+               Prefab "{6A31000000000024}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "Map"
+              }
+              TextWidgetClass "{6A31000000000021}" {
+               Prefab "{6A31000000000021}"
+               Text "MAP"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A31000000000068}" : "{6A31000000000002}UI/layouts/Inventory/Lobby_Inventory_Item.layout" {
+         Name "Binoculars"
+         Slot LayoutSlot "{6A31000000000069}" {
+          Padding 0 0 2 0
+         }
+         {
+          ButtonWidgetClass "{6A31000000000012}" {
+           Prefab "{6A31000000000012}"
+           {
+            OverlayWidgetClass "{6A31000000000014}" {
+             Prefab "{6A31000000000014}"
+             {
+              ImageWidgetClass "{6A31000000000024}" {
+               Prefab "{6A31000000000024}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "Binoculars"
+              }
+              TextWidgetClass "{6A31000000000021}" {
+               Prefab "{6A31000000000021}"
+               Text "BINOCULARS"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A3100000000006A}" : "{6A31000000000002}UI/layouts/Inventory/Lobby_Inventory_Item.layout" {
+         Name "Compass"
+         Slot LayoutSlot "{6A3100000000006B}" {
+          Padding 0 0 2 0
+         }
+         {
+          ButtonWidgetClass "{6A31000000000012}" {
+           Prefab "{6A31000000000012}"
+           {
+            OverlayWidgetClass "{6A31000000000014}" {
+             Prefab "{6A31000000000014}"
+             {
+              ImageWidgetClass "{6A31000000000024}" {
+               Prefab "{6A31000000000024}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "Compas"
+              }
+              TextWidgetClass "{6A31000000000021}" {
+               Prefab "{6A31000000000021}"
+               Text "COMPASS"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A3100000000006C}" : "{6A31000000000002}UI/layouts/Inventory/Lobby_Inventory_Item.layout" {
+         Name "Light"
+         Slot LayoutSlot "{6A3100000000006D}" {
+          Padding 0 0 2 0
+         }
+         {
+          ButtonWidgetClass "{6A31000000000012}" {
+           Prefab "{6A31000000000012}"
+           {
+            OverlayWidgetClass "{6A31000000000014}" {
+             Prefab "{6A31000000000014}"
+             {
+              ImageWidgetClass "{6A31000000000024}" {
+               Prefab "{6A31000000000024}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "Flashlight"
+              }
+              TextWidgetClass "{6A31000000000021}" {
+               Prefab "{6A31000000000021}"
+               Text "LIGHT"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A3100000000006E}" : "{6A31000000000002}UI/layouts/Inventory/Lobby_Inventory_Item.layout" {
+         Name "Radio"
+         Slot LayoutSlot "{6A3100000000006F}" {
+          Padding 0 0 2 0
+         }
+         {
+          ButtonWidgetClass "{6A31000000000012}" {
+           Prefab "{6A31000000000012}"
+           {
+            OverlayWidgetClass "{6A31000000000014}" {
+             Prefab "{6A31000000000014}"
+             {
+              ImageWidgetClass "{6A31000000000024}" {
+               Prefab "{6A31000000000024}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "Radio"
+              }
+              TextWidgetClass "{6A31000000000021}" {
+               Prefab "{6A31000000000021}"
+               Text "RADIO"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A31000000000070}" : "{6A31000000000002}UI/layouts/Inventory/Lobby_Inventory_Item.layout" {
+         Name "Watch"
+         Slot LayoutSlot "{6A31000000000071}" {
+         }
+         {
+          ButtonWidgetClass "{6A31000000000012}" {
+           Prefab "{6A31000000000012}"
+           {
+            OverlayWidgetClass "{6A31000000000014}" {
+             Prefab "{6A31000000000014}"
+             {
+              ImageWidgetClass "{6A31000000000024}" {
+               Prefab "{6A31000000000024}"
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "Watch"
+              }
+              TextWidgetClass "{6A31000000000021}" {
+               Prefab "{6A31000000000021}"
+               Text "WATCH"
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+    }
+   }
+  }
+ }
+}

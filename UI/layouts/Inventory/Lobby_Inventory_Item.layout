@@ -1,0 +1,92 @@
+SizeLayoutWidgetClass {
+ Name "InventoryItem"
+ Slot LayoutSlot "{6A31000000000011}" {
+  HorizontalAlign 3
+  VerticalAlign 3
+ }
+ AllowWidthOverride 1
+ WidthOverride 72
+ AllowHeightOverride 1
+ HeightOverride 72
+ {
+  ButtonWidgetClass "{6A31000000000012}" {
+   Name "ItemButton"
+   Slot AlignableSlot "{6A31000000000013}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+    Padding 2 2 2 2
+   }
+   Color 1 1 1 0
+   {
+    OverlayWidgetClass "{6A31000000000014}" {
+     Name "ItemOverlay"
+     Slot ButtonWidgetSlot "{6A31000000000015}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      PanelWidgetClass "{6A31000000000018}" {
+       Name "Outline"
+       Slot OverlayWidgetSlot "{6A31000000000019}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.45 0.48 0.48 0.8
+       style outline_2px
+      }
+      ImageWidgetClass "{6A3100000000001A}" {
+       Name "TypeAccent"
+       Slot OverlayWidgetSlot "{6A3100000000001B}" {
+        HorizontalAlign 3
+        VerticalAlign 0
+       }
+       Color 0.76 0.39 0.08 1
+       Size 0 3
+      }
+      ImageWidgetClass "{6A31000000000024}" {
+       Name "BaseIcon"
+       Slot OverlayWidgetSlot "{6A31000000000025}" {
+        HorizontalAlign 1
+        VerticalAlign 1
+        Padding 6 6 6 14
+       }
+       Texture "{F565C4A388964DBE}UI/Textures/InventoryIcons/InventorySlot_gadget.edds"
+       Size 47 47
+       Opacity 0.55
+      }
+      ItemPreviewWidgetClass "{6A31000000000026}" {
+       Name "ItemPreview"
+       Slot OverlayWidgetSlot "{6A31000000000027}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 8 8 8 14
+       }
+       "Is Visible" 0
+       "Use Engine Scale" 0
+       xscale 3.2
+       yscale 3.2
+       Format LDR
+       "Use clear color" 1
+       "Blend mode" Blend
+      }
+      TextWidgetClass "{6A31000000000021}" {
+       Name "ItemName"
+       Slot OverlayWidgetSlot "{6A31000000000022}" {
+        HorizontalAlign 3
+        VerticalAlign 2
+        Padding 3 0 3 4
+       }
+       Text "ITEM"
+       "Font Size" 13
+       "Min Font Size" 10
+       FontProperties FontProperties "{6A31000000000023}" {
+        OutlineSize 1
+        OutlineColor 0 0 0 0.8
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

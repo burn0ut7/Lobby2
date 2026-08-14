@@ -205,6 +205,13 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 				accent.SetOpacity(0.85);
 		}
 
+		Widget statusSection = m_wRoot.FindAnyWidget("StatusSection");
+		if (statusSection)
+		{
+			bool showStatus = m_Slot && (m_Slot.GetPlayerId() >= 0 || m_Slot.GetState() != GC_SlotState.FREE);
+			statusSection.SetVisible(showStatus);
+		}
+
 		TextWidget statusText = TextWidget.Cast(m_wRoot.FindAnyWidget("StatusText"));
 		if (statusText && m_Slot)
 		{
@@ -216,6 +223,9 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			{
 				switch (m_Slot.GetState())
 				{
+					case GC_SlotState.FREE:
+						statusText.SetText("");
+						break;
 					case GC_SlotState.LOCKED:
 						statusText.SetText("Locked");
 						break;
@@ -229,7 +239,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 						statusText.SetText("Reserved");
 						break;
 					default:
-						statusText.SetText("Available");
+						statusText.SetText("");
 						break;
 				}
 			}
@@ -288,7 +298,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (!m_Slot)
 			return null;
 
-		ResourceName prefab = m_Slot.GetPrefab();
+		ResourceName prefab = m_Slot.GetAuthoredPrefab();
 		if (prefab == m_RoleInfoPrefab)
 			return m_RoleInfo;
 

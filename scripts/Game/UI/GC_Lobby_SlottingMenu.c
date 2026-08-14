@@ -7,7 +7,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 {
 	protected static const int LOADOUT_HOVER_EXIT_DELAY_MS = 100;
     protected static const ResourceName PREVIEW_MANAGER_PREFAB = "{9F18C476AB860F3B}Prefabs/World/Game/ItemPreviewManager.et";
-    protected static const ResourceName FALLBACK_CHARACTER_PREFAB = "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et";
     protected static const ResourceName GROUP_LAYOUT = "{6A25000000000001}UI/layouts/Groups/Lobby_Group.layout";
 
     protected Widget m_wRoot;
@@ -15,9 +14,12 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     protected GC_FactionListComponent m_FactionList;
     protected GC_LobbyManager m_LobbyManager;
     protected Widget m_wGroups;
+    protected ScrollLayoutWidget m_wGroupScroll;
     protected ref array<Widget> m_aGroupCards = {};
     protected FactionKey m_SelectedFactionKey;
     protected ItemPreviewWidget m_wPlayerRender;
+    protected Widget m_wLoadoutInventory;
+	protected GC_LobbyInventoryPreviewComponent m_InventoryPreview;
     protected ItemPreviewManagerEntity m_PreviewManager;
     protected PreviewRenderAttributes m_PlayerRenderAttributes;
     protected GC_LobbyCharacterPreviewHelper m_CharacterWidgetHelper;
@@ -25,6 +27,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected GC_Slot m_HoveredSlot;
 	protected GC_Slot m_PendingHoveredSlot;
 	protected bool m_bWasManipulatingPreview;
+	protected InputManager m_InputManager;
 
     override void OnMenuOpen()
     {
@@ -32,6 +35,10 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             return;
 
         PrintFormat("GC | OnMenuOpen");
+
+		m_InputManager = GetGame().GetInputManager();
+		if (m_InputManager)
+			m_InputManager.AddActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 
         m_wRoot = GetRootWidget();
 
@@ -81,7 +88,12 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
     override void OnMenuClose()
     {
+		GetGame().GetCallqueue().Remove(OpenPauseMenu);
+		if (m_InputManager)
+			m_InputManager.RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
+
 		CancelPendingLoadoutRestore();
+		CancelPendingGroupScrollReset();
 
         if (m_PlayerRenderAttributes)
             m_PlayerRenderAttributes.ResetDeltaRotation();
@@ -108,16 +120,33 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         m_PlayerRenderAttributes = null;
         m_PreviewManager = null;
         m_wPlayerRender = null;
+		m_InventoryPreview = null;
         m_wRoot = null;
         m_Header = null;
         m_FactionList = null;
 		m_LobbyManager = null;
         m_aGroupCards.Clear();
         m_wGroups = null;
+		m_wGroupScroll = null;
+		m_InputManager = null;
         m_SelectedFactionKey = string.Empty;
 
         super.OnMenuClose();
     }
+
+	protected void OnPauseMenuRequested()
+	{
+		// Defer opening until the MenuBack input event has finished. Opening it
+		// immediately would let the same Escape press close the new pause menu.
+		GetGame().GetCallqueue().Remove(OpenPauseMenu);
+		GetGame().GetCallqueue().CallLater(OpenPauseMenu, 0);
+	}
+
+	protected void OpenPauseMenu()
+	{
+		PrintFormat("GC | Opening pause menu above slotting menu");
+		ArmaReforgerScripted.OpenPauseMenu(false, true);
+	}
 
     protected void InitializeFactionList()
     {
@@ -153,10 +182,13 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     protected void OnFactionSelected(FactionKey factionKey)
     {
 		CancelPendingLoadoutRestore();
+		CancelPendingGroupScrollReset();
+		ResetGroupScrollPosition();
 		m_SelectedFactionKey = factionKey;
 		m_HoveredSlot = null;
 		m_PendingHoveredSlot = null;
 		RefreshGroupWidget();
+		GetGame().GetCallqueue().CallLater(ResetGroupScrollPosition, 0);
 		RefreshLoadoutPreview();
     }
 
@@ -172,6 +204,10 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             return;
         }
 
+		m_wGroupScroll = ScrollLayoutWidget.Cast(m_wGroups.GetParent());
+		if (!m_wGroupScroll)
+			PrintFormat("GC | Group scroll layout not found");
+
         m_LobbyManager = GC_LobbyManager.GetManager();
         if (!m_LobbyManager)
         {
@@ -179,6 +215,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             return;
         }
 
+		PrintFormat("GC | Slotting menu topology on attach: factions=%1 groups=%2 slots=%3", m_LobbyManager.GetRegisteredFactions().Count(), m_LobbyManager.GetRegisteredGroups().Count(), m_LobbyManager.GetSlots().Count());
 		m_LobbyManager.m_OnFactionUpdated.Insert(OnLobbyFactionUpdated);
 		RefreshGroupWidget();
 	}
@@ -253,6 +290,17 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		PrintFormat("GC | Created %1 lobby group cards for faction '%2'", m_aGroupCards.Count(), m_SelectedFactionKey);
 	}
 
+	protected void ResetGroupScrollPosition()
+	{
+		if (m_wGroupScroll)
+			m_wGroupScroll.SetSliderPos(0, 0);
+	}
+
+	protected void CancelPendingGroupScrollReset()
+	{
+		GetGame().GetCallqueue().Remove(ResetGroupScrollPosition);
+	}
+
 	protected void ClearGroupCards()
 	{
 		foreach (Widget groupCard : m_aGroupCards)
@@ -277,6 +325,15 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     {
         if (!m_wRoot)
             return;
+
+        m_wLoadoutInventory = m_wRoot.FindAnyWidget("LoadoutInventory");
+        if (m_wLoadoutInventory)
+		{
+            m_wLoadoutInventory.SetVisible(false);
+			m_InventoryPreview = GC_LobbyInventoryPreviewComponent.Cast(m_wLoadoutInventory.FindHandler(GC_LobbyInventoryPreviewComponent));
+			if (!m_InventoryPreview)
+				PrintFormat("GC | Lobby inventory preview component not found");
+		}
 
         m_wPlayerRender = ItemPreviewWidget.Cast(m_wRoot.FindAnyWidget("playerRender"));
         if (!m_wPlayerRender)
@@ -368,7 +425,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			return;
 		}
 
-		ShowDefaultPlayerPreview();
+		HideLoadoutPreview();
 	}
 
 	protected GC_Slot GetLocalSelectedSlot()
@@ -388,34 +445,30 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		if (!slot)
 			return;
 
-		ShowPrefabPreview(slot.GetPrefab());
-	}
-
-	protected void ShowDefaultPlayerPreview()
-	{
-		PlayerController playerController = GetGame().GetPlayerController();
-		if (playerController)
-		{
-			ChimeraCharacter player = ChimeraCharacter.Cast(playerController.GetControlledEntity());
-			if (player)
-			{
-				ShowEntityPreview(player);
-				return;
-			}
-		}
-
-		ShowPrefabPreview(FALLBACK_CHARACTER_PREFAB);
+		ShowPrefabPreview(slot.GetResolvedPrefab());
 	}
 
 	protected void ShowPrefabPreview(ResourceName prefab)
 	{
-		if (!m_PreviewManager || !m_wPlayerRender || prefab == string.Empty)
+		if (!m_PreviewManager || !m_wPlayerRender)
 			return;
 
+		if (prefab == string.Empty)
+		{
+			HideLoadoutPreview();
+			return;
+		}
+
 		ResetPreviewState();
+		m_wPlayerRender.SetVisible(true);
+		if (m_wLoadoutInventory)
+			m_wLoadoutInventory.SetVisible(true);
+
 		m_PreviewManager.SetPreviewItemFromPrefab(m_wPlayerRender, prefab, null, true);
 		m_PreviewEntity = m_PreviewManager.ResolvePreviewEntityForPrefab(prefab);
 		LoadPreviewAttributes(m_PreviewEntity);
+		if (m_InventoryPreview)
+			m_InventoryPreview.SetCharacter(m_PreviewEntity);
 
 		if (m_PreviewEntity)
 			m_PreviewManager.SetPreviewItem(m_wPlayerRender, m_PreviewEntity, m_PlayerRenderAttributes, true);
@@ -423,16 +476,16 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		EnsurePreviewHelper();
 	}
 
-	protected void ShowEntityPreview(IEntity entity)
+	protected void HideLoadoutPreview()
 	{
-		if (!m_PreviewManager || !m_wPlayerRender || !entity)
-			return;
-
 		ResetPreviewState();
-		m_PreviewEntity = entity;
-		LoadPreviewAttributes(m_PreviewEntity);
-		m_PreviewManager.SetPreviewItem(m_wPlayerRender, m_PreviewEntity, m_PlayerRenderAttributes, true);
-		EnsurePreviewHelper();
+		if (m_InventoryPreview)
+			m_InventoryPreview.ResetPreview();
+		if (m_wPlayerRender)
+			m_wPlayerRender.SetVisible(false);
+
+		if (m_wLoadoutInventory)
+			m_wLoadoutInventory.SetVisible(false);
 	}
 
 	protected void ResetPreviewState()
@@ -447,7 +500,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected void EnsurePreviewHelper()
 	{
 		if (m_PlayerRenderAttributes && !m_CharacterWidgetHelper)
-			m_CharacterWidgetHelper = GC_LobbyCharacterPreviewHelper(m_wPlayerRender, GetGame().GetWorkspace());
+			m_CharacterWidgetHelper = GC_LobbyCharacterPreviewHelper(m_wPlayerRender, m_wPlayerRender, GetGame().GetWorkspace());
 	}
 
     protected void LoadPreviewAttributes(IEntity entity)

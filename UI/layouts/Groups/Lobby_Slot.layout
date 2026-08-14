@@ -143,7 +143,7 @@ ButtonWidgetClass {
             SizeMode Fill
            }
            Color 1 1 1 1
-           Text "John Reforger"
+           Text ""
            "Font Size" 22
            "Min Font Size" 14
            "Vertical Alignment" Center

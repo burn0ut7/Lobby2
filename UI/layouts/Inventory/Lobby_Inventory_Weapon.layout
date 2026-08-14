@@ -1,0 +1,91 @@
+SizeLayoutWidgetClass {
+ Name "InventoryWeapon"
+ Slot LayoutSlot "{6A31000000000031}" {
+  HorizontalAlign 3
+  VerticalAlign 3
+ }
+ AllowWidthOverride 1
+ WidthOverride 146
+ AllowHeightOverride 1
+ HeightOverride 72
+ {
+  ButtonWidgetClass "{6A31000000000032}" {
+   Name "WeaponButton"
+   Slot AlignableSlot "{6A31000000000033}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+    Padding 2 2 2 2
+   }
+   Color 1 1 1 0
+   {
+    OverlayWidgetClass "{6A31000000000034}" {
+     Name "WeaponOverlay"
+     Slot ButtonWidgetSlot "{6A31000000000035}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      PanelWidgetClass "{6A31000000000038}" {
+       Name "Outline"
+       Slot OverlayWidgetSlot "{6A31000000000039}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.45 0.48 0.48 0.8
+       style outline_2px
+      }
+      ImageWidgetClass "{6A3100000000003A}" {
+       Name "WeaponAccent"
+       Slot OverlayWidgetSlot "{6A3100000000003B}" {
+        HorizontalAlign 3
+        VerticalAlign 0
+       }
+       Color 0.76 0.39 0.08 1
+       Size 0 3
+      }
+      ImageWidgetClass "{6A31000000000044}" {
+       Name "BaseIcon"
+       Slot OverlayWidgetSlot "{6A31000000000045}" {
+        HorizontalAlign 1
+        VerticalAlign 1
+        Padding 4 4 4 10
+       }
+       Texture "{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds"
+       Size 96 48
+       Opacity 0.55
+      }
+      ItemPreviewWidgetClass "{6A3100000000003C}" {
+       Name "WeaponPreview"
+       Slot OverlayWidgetSlot "{6A3100000000003D}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 18 10 18 13
+       }
+       "Use Engine Scale" 0
+       xscale 2.4
+       yscale 2.4
+       Format LDR
+       "Use clear color" 1
+       "Blend mode" Blend
+      }
+      TextWidgetClass "{6A31000000000041}" {
+       Name "WeaponName"
+       Slot OverlayWidgetSlot "{6A31000000000042}" {
+        HorizontalAlign 3
+        VerticalAlign 2
+        Padding 5 0 5 5
+       }
+       Text "WEAPON"
+       "Font Size" 13
+       "Min Font Size" 10
+       FontProperties FontProperties "{6A31000000000043}" {
+        OutlineSize 1
+        OutlineColor 0 0 0 0.8
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

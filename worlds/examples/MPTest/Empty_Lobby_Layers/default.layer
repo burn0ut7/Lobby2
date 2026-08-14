@@ -87,16 +87,49 @@ SCR_AIGroup : "{43C7A28EEB660FF8}Prefabs/Groups/OPFOR/Group_USSR_Team_GL.et" {
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
 }
-SCR_ChimeraCharacter : "{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et" {
- coords 117.393 1 122.495
+SCR_ChimeraCharacter : "{5B1996C05B1E51A4}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AR.et" {
+ coords 98.837 1 114.464
 }
 SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
  coords 120.258 1 129.308
 }
-SCR_AIGroup : "{DDF3799FA1387848}Prefabs/Groups/BLUFOR/Group_US_RifleSquad.et" {
- coords 125.6 5.917 126.499
+SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
+ coords 113.795 1 122.404
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
+}
+SCR_ChimeraCharacter : "{9C2A994C94376FFE}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Ammo_random.et" {
+ components {
+  SCR_EditableCharacterComponent "{520EA1D2F659C85C}" {
+   m_VariantData SCR_EditableEntityVariantData "{6A142E92A3D63BEF}" {
+    m_aVariants {
+     SCR_EditableEntityVariant "{6A142E929847B846}" {
+     }
+    }
+   }
+  }
+ }
+ coords 117.317 1 129.225
+}
+$grp SCR_AIGroup : "{DDF3799FA1387848}Prefabs/Groups/BLUFOR/Group_US_RifleSquad.et" {
+ {
+  coords 123.896 1.303 119.864
+  m_bPlayable 1
+  m_bDeleteIfNoPlayer 0
+ }
+ {
+  coords 126.802 1 120.895
+  m_bPlayable 1
+  m_bDeleteIfNoPlayer 0
+ }
+ {
+  coords 127.27 1 115.331
+  m_bPlayable 1
+  m_bDeleteIfNoPlayer 0
+ }
+}
+SCR_ChimeraCharacter : "{E398E44759DA1A43}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_TL.et" {
+ coords 98.543 1 117.099
 }
 SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
  components {

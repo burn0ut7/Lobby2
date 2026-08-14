@@ -36,15 +36,18 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
     protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
+    protected const int JIP_REFERENCE_RETRY_MS = 1000;
     
     [Attribute("", UIWidgets.Object, "Formations for player groups")]
     protected ref array<ref GC_PlayerFormationDefinition> m_aFormations;
 
     protected ref array<SCR_AIGroup> m_aGroups = {};
+    protected ref array<RplId> m_aPendingJipGroupRplIds = {};
     protected ref array<Faction> m_aRegisteredFactions = {};
     protected ref array<ref GC_Slot> m_aSlots = {};
     ref ScriptInvoker<Faction> m_OnFactionUpdated = new ScriptInvoker<Faction>();
     protected int m_iNextSlotID = 1;
+    protected int m_iJipResolveAttempt;
 
     override void OnPlayerAuditSuccess(int playerId)
     {
@@ -265,18 +268,35 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!group || !group.m_aUnitPrefabSlots)
             return;
         
-        foreach (ResourceName prefab : group.m_aUnitPrefabSlots)
+        int unitSlotCount = group.m_aUnitPrefabSlots.Count();
+        array<GC_SlotVariantPolicy> variantPolicies = {};
+        variantPolicies.Resize(unitSlotCount);
+        for (int policyIndex = 0; policyIndex < unitSlotCount; policyIndex++)
+            variantPolicies[policyIndex] = GC_SlotVariantPolicy.KEEP_VARIANT;
+
+        GC_GroupSlotVariantConfigComponent variantConfig = GC_GroupSlotVariantConfigComponent.Cast(group.FindComponent(GC_GroupSlotVariantConfigComponent));
+        if (variantConfig)
+            variantConfig.ResolvePolicies(unitSlotCount, variantPolicies);
+
+        for (int unitIndex = 0; unitIndex < unitSlotCount; unitIndex++)
         {
+            ResourceName prefab = group.m_aUnitPrefabSlots[unitIndex];
+            ResourceName resolvedPrefab = SCR_EditableEntityComponentClass.GetRandomVariant(prefab);
+            if (resolvedPrefab == string.Empty)
+                resolvedPrefab = prefab;
+
             GC_Slot slot = new GC_Slot();
             slot.SetID(m_iNextSlotID++);
-            slot.SetPrefab(prefab);
+            slot.SetAuthoredPrefab(prefab);
+            slot.SetResolvedPrefab(resolvedPrefab);
+            slot.SetVariantPolicy(variantPolicies[unitIndex]);
             slot.SetGroup(group);
             
             m_aSlots.Insert(slot);
             SubscribeToSlotEvents(slot);
 
             UpdateSlot(slot);
-            PrintFormat("GC | Registered slot: %1", m_iNextSlotID - 1);
+            PrintFormat("GC | Registered slot: id=%1 unitIndex=%2 authored=%3 resolved=%4 variantPolicy=%5", m_iNextSlotID - 1, unitIndex, prefab, resolvedPrefab, variantPolicies[unitIndex]);
         }
 
         NotifyGroupFactionUpdated(group);
@@ -287,14 +307,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     {
         int groupCount = m_aGroups.Count();
         writer.WriteInt(groupCount);
+		PrintFormat("GC | JIP save begin: groups=%1 slots=%2", groupCount, m_aSlots.Count());
 
-        foreach (SCR_AIGroup group : m_aGroups)
+        for (int groupIndex = 0; groupIndex < groupCount; groupIndex++)
         {
+            SCR_AIGroup group = m_aGroups[groupIndex];
             RplId groupRplId = RplId.Invalid();
             if (group)
                 groupRplId = Replication.FindItemId(group);
 
             writer.WriteRplId(groupRplId);
+			PrintFormat("GC | JIP save group: index=%1 rplId=%2 group=%3", groupIndex, groupRplId, group);
         }
 
         int slotCount = m_aSlots.Count();
@@ -306,19 +329,25 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
                 return false;
         }
 
+		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groupCount, slotCount);
         return true;
     }
 
     //! Deserializes the registered groups and slots from the authority.
     override protected bool RplLoad(ScriptBitReader reader)
     {
+        GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
+		m_iJipResolveAttempt = 0;
+
         int groupCount;
         if (!reader.ReadInt(groupCount) || groupCount < 0)
             return false;
+		PrintFormat("GC | JIP load begin: serializedGroups=%1", groupCount);
 
         UnsubscribeFromAllGroupEvents();
         UnsubscribeFromAllSlotEvents();
         m_aGroups.Clear();
+        m_aPendingJipGroupRplIds.Clear();
         m_aRegisteredFactions.Clear();
         for (int i = 0; i < groupCount; i++)
         {
@@ -326,24 +355,23 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             if (!reader.ReadRplId(groupRplId))
                 return false;
 
-            SCR_AIGroup group = SCR_AIGroup.Cast(Replication.FindItem(groupRplId));
-            if (group)
+			if (groupRplId == RplId.Invalid())
             {
-                m_aGroups.Insert(group);
-                SubscribeToGroupEvents(group);
-
-                Faction faction = group.GetFaction();
-                if (faction)
-                    RegisterFaction(faction.GetFactionKey());
+				PrintFormat("GC | JIP load group has invalid RplId: index=%1", i, level: LogLevel.WARNING);
+				continue;
             }
-        }
 
-        if (!m_aGroups.IsEmpty())
-            SubscribeToGroupPlayerEvents();
+			bool resolved = ResolveJipGroup(groupRplId);
+			if (!resolved)
+				m_aPendingJipGroupRplIds.Insert(groupRplId);
+
+			PrintFormat("GC | JIP load group: index=%1 rplId=%2 resolved=%3", i, groupRplId, resolved);
+        }
 
         int slotCount;
         if (!reader.ReadInt(slotCount) || slotCount < 0)
             return false;
+		PrintFormat("GC | JIP load slots: serializedSlots=%1", slotCount);
 
         m_aSlots.Clear();
         for (int i = 0; i < slotCount; i++)
@@ -356,10 +384,84 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             SubscribeToSlotEvents(slot);
         }
 
-        NotifyAllRegisteredFactions();
+		ResolvePendingJipReferences();
 
         return true;
     }
+
+	//! Resolves one serialized group ID after its proxy becomes available on a JIP client.
+	protected bool ResolveJipGroup(RplId groupRplId)
+	{
+		SCR_AIGroup group = SCR_AIGroup.Cast(Replication.FindItem(groupRplId));
+		if (!group)
+			return false;
+
+		if (!m_aGroups.Contains(group))
+		{
+			bool wasEmpty = m_aGroups.IsEmpty();
+			m_aGroups.Insert(group);
+			SubscribeToGroupEvents(group);
+			if (wasEmpty)
+				SubscribeToGroupPlayerEvents();
+		}
+
+		Faction faction = group.GetFaction();
+		if (!faction)
+			return false;
+
+		RegisterFaction(faction.GetFactionKey());
+
+		PrintFormat("GC | JIP group resolved: rplId=%1 group=%2 faction=%3", groupRplId, group, faction);
+		return true;
+	}
+
+	//! Retries cross-entity references because JIP RplLoad can run before group proxies stream in.
+	protected void ResolvePendingJipReferences()
+	{
+		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
+		m_iJipResolveAttempt++;
+
+		for (int groupIndex = m_aPendingJipGroupRplIds.Count() - 1; groupIndex >= 0; groupIndex--)
+		{
+			RplId groupRplId = m_aPendingJipGroupRplIds[groupIndex];
+			if (!ResolveJipGroup(groupRplId))
+				continue;
+
+			m_aPendingJipGroupRplIds.RemoveOrdered(groupIndex);
+		}
+
+		int pendingSlotGroups;
+		foreach (GC_Slot slot : m_aSlots)
+		{
+			if (!slot || slot.GetGroup())
+				continue;
+
+			RplId slotGroupRplId = slot.GetGroupRplId();
+			if (slotGroupRplId == RplId.Invalid())
+			{
+				PrintFormat("GC | JIP slot has invalid group RplId: slot=%1", slot.GetID(), level: LogLevel.WARNING);
+				continue;
+			}
+
+			if (!slot.ResolveReplicatedGroup())
+			{
+				pendingSlotGroups++;
+				continue;
+			}
+
+			PrintFormat("GC | JIP slot group resolved: slot=%1 groupRplId=%2 group=%3", slot.GetID(), slotGroupRplId, slot.GetGroup());
+		}
+
+		if (!m_aPendingJipGroupRplIds.IsEmpty() || pendingSlotGroups > 0)
+		{
+			PrintFormat("GC | JIP topology pending: attempt=%1 unresolvedGroups=%2 unresolvedSlotGroups=%3 resolvedGroups=%4 totalSlots=%5", m_iJipResolveAttempt, m_aPendingJipGroupRplIds.Count(), pendingSlotGroups, m_aGroups.Count(), m_aSlots.Count());
+			GetGame().GetCallqueue().CallLater(ResolvePendingJipReferences, JIP_REFERENCE_RETRY_MS);
+			return;
+		}
+
+		PrintFormat("GC | JIP topology ready: attempts=%1 groups=%2 factions=%3 slots=%4", m_iJipResolveAttempt, m_aGroups.Count(), m_aRegisteredFactions.Count(), m_aSlots.Count());
+		NotifyAllRegisteredFactions();
+	}
 
     //! Registers a faction key with the lobby manager.
     bool RegisterFaction(FactionKey factionKey)
@@ -640,6 +742,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         }
 
         slot.CopyFrom(updateSlot);
+		if (!slot.GetGroup() && slot.GetGroupRplId() != RplId.Invalid())
+			ResolvePendingJipReferences();
     }
 
     GC_PlayerFormationDefinition GetFormation(string name)
@@ -656,9 +760,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     override void OnGameModeEnd(SCR_GameModeEndData data)
     {
         GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
+		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
         UnsubscribeFromAllGroupEvents();
         UnsubscribeFromAllSlotEvents();
         m_aGroups.Clear();
+		m_aPendingJipGroupRplIds.Clear();
         m_aSlots.Clear();
 
         super.OnGameModeEnd(data);
