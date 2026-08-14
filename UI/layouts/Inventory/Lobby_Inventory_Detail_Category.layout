@@ -1,0 +1,61 @@
+SizeLayoutWidgetClass {
+ Name "InventoryDetailCategory"
+ Slot LayoutSlot "{6A32000000000051}" {
+  Padding 0 0 0 5
+ }
+ AllowHeightOverride 1
+ HeightOverride 34
+ {
+  OverlayWidgetClass "{6A32000000000052}" {
+   Name "CategoryOverlay"
+   Slot AlignableSlot "{6A32000000000053}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   {
+    PanelWidgetClass "{6A32000000000054}" {
+     Name "CategoryBackground"
+     Slot OverlayWidgetSlot "{6A32000000000055}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.08 0.09 0.09 0.9
+     style full
+    }
+    SizeLayoutWidgetClass "{6A32000000000056}" {
+     Name "CategoryAccentBounds"
+     Slot OverlayWidgetSlot "{6A32000000000057}" {
+      HorizontalAlign 0
+      VerticalAlign 3
+     }
+     AllowWidthOverride 1
+     WidthOverride 4
+     {
+      PanelWidgetClass "{6A3200000000005A}" {
+       Name "CategoryAccent"
+       Slot AlignableSlot "{6A3200000000005B}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.9 0.57 0.22 1
+       style full
+      }
+     }
+    }
+    TextWidgetClass "{6A32000000000058}" {
+     Name "CategoryName"
+     Slot OverlayWidgetSlot "{6A32000000000059}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+      Padding 12 1 8 1
+     }
+     Color 0.88 0.89 0.89 1
+     Text "CATEGORY"
+     "Font Size" 17
+     "Min Font Size" 14
+     "Vertical Alignment" Center
+    }
+   }
+  }
+ }
+}

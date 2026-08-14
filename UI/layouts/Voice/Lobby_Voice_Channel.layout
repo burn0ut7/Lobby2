@@ -1,0 +1,113 @@
+VerticalLayoutWidgetClass {
+ Name "VoiceChannel"
+ Slot LayoutSlot "{6A34000000000002}" {
+  HorizontalAlign 3
+  VerticalAlign 0
+  Padding 0 6 0 8
+ }
+ {
+  OverlayWidgetClass "{6A34000000000003}" {
+   Name "ChannelHeader"
+   Slot LayoutSlot "{6A34000000000004}" {
+    HorizontalAlign 3
+    Padding 0 0 0 4
+   }
+   {
+    ImageWidgetClass "{6A34000000000005}" {
+     Name "ChannelHeaderBackground"
+     Slot OverlayWidgetSlot "{6A34000000000006}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.012 0.018 0.02 0.88
+    }
+    SizeLayoutWidgetClass "{6A34000000000007}" {
+     Name "ChannelHeaderSize"
+     Slot OverlayWidgetSlot "{6A34000000000008}" {
+     }
+     AllowWidthOverride 1
+     WidthOverride 630
+     AllowHeightOverride 1
+     HeightOverride 56
+     {
+      HorizontalLayoutWidgetClass "{6A34000000000009}" {
+       Name "ChannelHeaderContent"
+       Slot AlignableSlot "{6A3400000000000A}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       {
+        ImageWidgetClass "{6A3400000000000B}" {
+         Name "ChannelAccent"
+         Slot LayoutSlot "{6A3400000000000C}" {
+          VerticalAlign 1
+          Padding 0 0 12 0
+         }
+         Color 0.25 0.72 0.78 1
+         Size 6 48
+        }
+        VerticalLayoutWidgetClass "{6A3400000000000D}" {
+         Name "ChannelIdentity"
+         Slot LayoutSlot "{6A3400000000000E}" {
+          VerticalAlign 1
+          Padding 0 0 16 0
+          SizeMode Fill
+         }
+         {
+          TextWidgetClass "{6A3400000000000F}" {
+           Name "ChannelName"
+           Slot LayoutSlot "{6A34000000000010}" {
+            SizeMode Fill
+           }
+           Text "PLATOON COMMAND"
+           "Font Size" 30
+           "Min Font Size" 20
+           "Vertical Alignment" Center
+           FontProperties FontProperties "{6A34000000000011}" {
+            OutlineSize 2
+            OutlineColor 0 0 0 0.75
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    ImageWidgetClass "{6A34000000000015}" {
+     Name "ChannelDivider"
+     Slot OverlayWidgetSlot "{6A34000000000016}" {
+      HorizontalAlign 3
+      VerticalAlign 2
+     }
+     Color 0.25 0.72 0.78 0.75
+     Size 32 3
+    }
+   }
+  }
+  VerticalLayoutWidgetClass "{6A34000000000017}" {
+   Name "Players"
+   Slot LayoutSlot "{6A34000000000018}" {
+    HorizontalAlign 3
+    VerticalAlign 1
+   }
+   {
+    ButtonWidgetClass "{6A34000000000019}" : "{6A33000000000001}UI/layouts/Players/Lobby_Player_Row.layout" {
+     Name "PlayerRow0"
+     Slot LayoutSlot "{6A33000000000002}" {
+     }
+    }
+    ButtonWidgetClass "{6A3400000000001A}" : "{6A33000000000001}UI/layouts/Players/Lobby_Player_Row.layout" {
+     Name "PlayerRow1"
+     Slot LayoutSlot "{6A33000000000002}" {
+     }
+    }
+    ButtonWidgetClass "{6A3400000000001B}" : "{6A33000000000001}UI/layouts/Players/Lobby_Player_Row.layout" {
+     Name "PlayerRow2"
+     Slot LayoutSlot "{6A33000000000002}" {
+     }
+    }
+   }
+  }
+ }
+}

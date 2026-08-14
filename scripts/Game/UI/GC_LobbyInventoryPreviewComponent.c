@@ -7,7 +7,10 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 	protected static const int WEAPON_POSITION_SIDEARM = 4;
 
 	protected Widget m_wRoot;
+	protected SCR_ButtonBaseComponent m_OpenButton;
+	protected GC_LobbyInventoryDetailComponent m_InventoryDetail;
 	protected ItemPreviewManagerEntity m_PreviewManager;
+	protected IEntity m_Character;
 	protected ref GC_LobbyInventoryCellPreview m_PrimaryWeaponPreview;
 	protected ref GC_LobbyInventoryCellPreview m_SecondaryWeaponPreview;
 	protected ref GC_LobbyInventoryCellPreview m_SidearmPreview;
@@ -28,6 +31,14 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 		if (world)
 			m_PreviewManager = world.GetItemPreviewManager();
 
+		Widget openButton = w.FindAnyWidget("InventoryOpenButton");
+		if (openButton)
+		{
+			m_OpenButton = SCR_ButtonBaseComponent.Cast(openButton.FindHandler(SCR_ButtonBaseComponent));
+			if (m_OpenButton)
+				m_OpenButton.m_OnClicked.Insert(OnOpenClicked);
+		}
+
 		m_PrimaryWeaponPreview = CreateCellPreview("PrimaryWeapon", "WeaponPreview", WEAPON_PREVIEW_ZOOM_INCREMENT);
 		m_SecondaryWeaponPreview = CreateCellPreview("SecondaryWeapon", "WeaponPreview", WEAPON_PREVIEW_ZOOM_INCREMENT);
 		m_SidearmPreview = CreateCellPreview("Sidearm", "WeaponPreview");
@@ -45,10 +56,22 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 
 	override void HandlerDeattached(Widget w)
 	{
+		if (m_OpenButton)
+			m_OpenButton.m_OnClicked.Remove(OnOpenClicked);
+
 		ResetPreview();
+		m_OpenButton = null;
+		m_InventoryDetail = null;
 		m_PreviewManager = null;
 		m_wRoot = null;
 		super.HandlerDeattached(w);
+	}
+
+	void SetInventoryDetail(GC_LobbyInventoryDetailComponent inventoryDetail)
+	{
+		m_InventoryDetail = inventoryDetail;
+		if (m_InventoryDetail)
+			m_InventoryDetail.SetCharacter(m_Character, m_PreviewManager);
 	}
 
 	void SetCharacter(IEntity character)
@@ -56,6 +79,8 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 		ResetPreview();
 		if (!character)
 			return;
+
+		m_Character = character;
 
 		if (!m_PreviewManager)
 		{
@@ -70,12 +95,22 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 			return;
 		}
 
+		if (m_InventoryDetail)
+			m_InventoryDetail.SetCharacter(m_Character, m_PreviewManager);
+
 		PopulateWeaponPreviews(character);
 		PopulateEquipmentPreviews(character);
 	}
 
 	void ResetPreview()
 	{
+		m_Character = null;
+		if (m_InventoryDetail)
+		{
+			m_InventoryDetail.Close();
+			m_InventoryDetail.SetCharacter(null, m_PreviewManager);
+		}
+
 		SetCellItem(m_PrimaryWeaponPreview, null);
 		SetCellItem(m_SecondaryWeaponPreview, null);
 		SetCellItem(m_SidearmPreview, null);
@@ -156,5 +191,14 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 	{
 		if (cellPreview)
 			cellPreview.SetItemEntity(m_PreviewManager, itemEntity);
+	}
+
+	protected void OnOpenClicked(SCR_ButtonBaseComponent button)
+	{
+		if (!m_InventoryDetail || !m_Character)
+			return;
+
+		PrintFormat("GC | Lobby inventory preview clicked");
+		m_InventoryDetail.Open();
 	}
 }

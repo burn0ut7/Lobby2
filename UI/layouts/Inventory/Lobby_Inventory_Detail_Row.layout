@@ -1,0 +1,6 @@
+HorizontalLayoutWidgetClass {
+ Name "InventoryDetailRow"
+ Slot LayoutSlot "{6A32000000000021}" {
+  Padding 0 0 0 8
+ }
+}

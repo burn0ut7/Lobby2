@@ -20,6 +20,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     protected ItemPreviewWidget m_wPlayerRender;
     protected Widget m_wLoadoutInventory;
 	protected GC_LobbyInventoryPreviewComponent m_InventoryPreview;
+	protected GC_LobbyInventoryDetailComponent m_InventoryDetail;
     protected ItemPreviewManagerEntity m_PreviewManager;
     protected PreviewRenderAttributes m_PlayerRenderAttributes;
     protected GC_LobbyCharacterPreviewHelper m_CharacterWidgetHelper;
@@ -68,6 +69,13 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     override void OnMenuUpdate(float tDelta)
     {
         super.OnMenuUpdate(tDelta);
+
+		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
+		{
+			m_PendingHoveredSlot = null;
+			CancelPendingLoadoutRestore();
+			return;
+		}
 
         if (!m_CharacterWidgetHelper || !m_PreviewManager || !m_PlayerRenderAttributes)
             return;
@@ -120,7 +128,10 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         m_PlayerRenderAttributes = null;
         m_PreviewManager = null;
         m_wPlayerRender = null;
+		if (m_InventoryPreview)
+			m_InventoryPreview.SetInventoryDetail(null);
 		m_InventoryPreview = null;
+		m_InventoryDetail = null;
         m_wRoot = null;
         m_Header = null;
         m_FactionList = null;
@@ -136,6 +147,12 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OnPauseMenuRequested()
 	{
+		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
+		{
+			m_InventoryDetail.Close();
+			return;
+		}
+
 		// Defer opening until the MenuBack input event has finished. Opening it
 		// immediately would let the same Escape press close the new pause menu.
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
@@ -326,6 +343,14 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         if (!m_wRoot)
             return;
 
+		Widget inventoryDetailRoot = m_wRoot.FindAnyWidget("InventoryDetail");
+		if (inventoryDetailRoot)
+		{
+			m_InventoryDetail = GC_LobbyInventoryDetailComponent.Cast(inventoryDetailRoot.FindHandler(GC_LobbyInventoryDetailComponent));
+			if (!m_InventoryDetail)
+				PrintFormat("GC | Lobby inventory detail component not found");
+		}
+
         m_wLoadoutInventory = m_wRoot.FindAnyWidget("LoadoutInventory");
         if (m_wLoadoutInventory)
 		{
@@ -333,6 +358,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			m_InventoryPreview = GC_LobbyInventoryPreviewComponent.Cast(m_wLoadoutInventory.FindHandler(GC_LobbyInventoryPreviewComponent));
 			if (!m_InventoryPreview)
 				PrintFormat("GC | Lobby inventory preview component not found");
+			else
+				m_InventoryPreview.SetInventoryDetail(m_InventoryDetail);
 		}
 
         m_wPlayerRender = ItemPreviewWidget.Cast(m_wRoot.FindAnyWidget("playerRender"));
@@ -377,6 +404,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		if (!slot)
 			return;
 
+		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
+			return;
+
 		CancelPendingLoadoutRestore();
 		if (m_CharacterWidgetHelper && m_CharacterWidgetHelper.IsManipulatingPreview())
 		{
@@ -391,6 +421,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OnSlotHoverEnded(GC_Slot slot)
 	{
+		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
+			return;
+
 		if (slot && slot == m_PendingHoveredSlot)
 			m_PendingHoveredSlot = null;
 
@@ -404,6 +437,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void RestoreSelectedLoadoutAfterHover()
 	{
+		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
+			return;
+
 		if (!m_HoveredSlot)
 			RefreshLoadoutPreview();
 	}
@@ -481,6 +517,11 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		ResetPreviewState();
 		if (m_InventoryPreview)
 			m_InventoryPreview.ResetPreview();
+		else if (m_InventoryDetail)
+		{
+			m_InventoryDetail.Close();
+			m_InventoryDetail.SetCharacter(null, m_PreviewManager);
+		}
 		if (m_wPlayerRender)
 			m_wPlayerRender.SetVisible(false);
 
@@ -536,6 +577,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
     protected void OnHeaderStateChanged(GC_HeaderComponent header)
     {
+		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
+			m_InventoryDetail.Close();
+
         int state = header.GetActiveState();
         PrintFormat("GC | Slotting header state callback: %1", state);
 

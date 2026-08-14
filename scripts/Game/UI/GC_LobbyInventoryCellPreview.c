@@ -13,6 +13,13 @@ class GC_LobbyInventoryCellPreview
 		m_fCameraZoomIncrement = cameraZoomIncrement;
 		m_wItemPreview = ItemPreviewWidget.Cast(cellRoot.FindAnyWidget(previewWidgetName));
 		m_wFallbackIcon = ImageWidget.Cast(cellRoot.FindAnyWidget("BaseIcon"));
+
+		RenderTargetWidget renderTarget = m_wItemPreview;
+		if (renderTarget)
+		{
+			renderTarget.SetClearColor(false, 0);
+			renderTarget.SetBlendMode(RenderTargetWidgetBlendMode.ALPHA_BLEND);
+		}
 	}
 
 	bool IsValid()

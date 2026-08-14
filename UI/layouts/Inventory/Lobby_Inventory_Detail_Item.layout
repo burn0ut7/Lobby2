@@ -1,0 +1,139 @@
+SizeLayoutWidgetClass {
+ Name "InventoryDetailItem"
+ AllowWidthOverride 1
+ WidthOverride 132
+ AllowHeightOverride 1
+ HeightOverride 132
+ Slot LayoutSlot "{6A32000000000031}" {
+  Padding 0 0 8 0
+ }
+ {
+  OverlayWidgetClass "{6A32000000000032}" {
+   Name "ItemOverlay"
+   Slot AlignableSlot "{6A32000000000033}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   {
+    PanelWidgetClass "{6A32000000000034}" {
+     Name "Background"
+     Slot OverlayWidgetSlot "{6A32000000000035}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.02 0.025 0.026 0.94
+     style full
+    }
+    PanelWidgetClass "{6A32000000000036}" {
+     Name "Outline"
+     Slot OverlayWidgetSlot "{6A32000000000037}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.45 0.48 0.48 0.9
+     style outline_2px
+    }
+    ItemPreviewWidgetClass "{6A32000000000038}" {
+     Name "ItemPreview"
+     Slot OverlayWidgetSlot "{6A32000000000039}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+      Padding 8 8 8 28
+     }
+     "Ignore Cursor" 1
+    }
+    SizeLayoutWidgetClass "{6A3200000000003A}" {
+     Name "LabelBounds"
+     Slot OverlayWidgetSlot "{6A3200000000003B}" {
+      HorizontalAlign 3
+      VerticalAlign 2
+     }
+     AllowHeightOverride 1
+     HeightOverride 28
+     {
+      OverlayWidgetClass "{6A32000000000046}" {
+       Name "LabelOverlay"
+       Slot AlignableSlot "{6A32000000000047}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       {
+        PanelWidgetClass "{6A3200000000003E}" {
+         Name "LabelBackground"
+         Slot OverlayWidgetSlot "{6A3200000000003F}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0 0 0 0.72
+         style full
+        }
+        TextWidgetClass "{6A3200000000003C}" {
+         Name "ItemName"
+         Slot OverlayWidgetSlot "{6A3200000000003D}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 5 1 5 1
+         }
+         Text "ITEM"
+         "Font Size" 14
+         "Min Font Size" 10
+         "Vertical Alignment" Center
+        }
+        ButtonWidgetClass "{6A32000000000048}" {
+         Name "ItemNameHoverTarget"
+         Slot OverlayWidgetSlot "{6A32000000000049}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 1 1 1 0
+         components {
+          SCR_ButtonBaseComponent "{6A3200000000004A}" {
+           m_sSoundHovered ""
+           m_sSoundClicked ""
+           m_bUseColorization 0
+           m_bShowBorderOnFocus 0
+           m_bShowBorderOnHover 1
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    OverlayWidgetClass "{6A32000000000040}" {
+     Name "ItemCountBadge"
+     Slot OverlayWidgetSlot "{6A32000000000041}" {
+      HorizontalAlign 2
+      VerticalAlign 0
+      Padding 0 5 5 0
+     }
+     "Is Visible" 0
+     {
+      PanelWidgetClass "{6A32000000000042}" {
+       Name "ItemCountBackground"
+       Slot OverlayWidgetSlot "{6A32000000000043}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0 0 0 0.9
+       style full
+      }
+      TextWidgetClass "{6A32000000000044}" {
+       Name "ItemCount"
+       Slot OverlayWidgetSlot "{6A32000000000045}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 6 2 6 2
+       }
+       Text "x2"
+       "Font Size" 17
+       "Min Font Size" 17
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

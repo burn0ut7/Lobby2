@@ -17,6 +17,7 @@ SizeLayoutWidgetClass {
     Padding 2 2 2 2
    }
    Color 1 1 1 0
+   "Ignore Cursor" 1
    {
     OverlayWidgetClass "{6A31000000000014}" {
      Name "ItemOverlay"

@@ -1,0 +1,255 @@
+OverlayWidgetClass {
+ Name "InventoryDetail"
+ Slot OverlayWidgetSlot "{6A32000000000011}" {
+  HorizontalAlign 3
+  VerticalAlign 3
+ }
+ components {
+  GC_LobbyInventoryDetailComponent "{6A32000000000012}" {
+  }
+ }
+ {
+  ButtonWidgetClass "{6A32000000000013}" {
+   Name "InventoryDismissButton"
+   Slot OverlayWidgetSlot "{6A32000000000014}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   Color 1 1 1 0
+   components {
+    SCR_ButtonBaseComponent "{6A32000000000048}" {
+     m_sSoundHovered ""
+     m_sSoundClicked ""
+     m_sSoundContainerClosed ""
+    }
+   }
+   {
+    PanelWidgetClass "{6A3200000000004C}" {
+     Name "ModalShade"
+     Slot ButtonWidgetSlot "{6A3200000000004D}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     "Ignore Cursor" 1
+     Color 0 0 0 0.62
+     style full
+    }
+   }
+  }
+  SizeLayoutWidgetClass "{6A32000000000015}" {
+   Name "InventoryDetailBounds"
+   Slot OverlayWidgetSlot "{6A32000000000016}" {
+    HorizontalAlign 1
+    VerticalAlign 1
+   }
+   AllowWidthOverride 1
+   WidthOverride 900
+   AllowHeightOverride 1
+   HeightOverride 650
+   {
+    OverlayWidgetClass "{6A32000000000017}" {
+     Name "InventoryDetailPanel"
+     Slot AlignableSlot "{6A32000000000018}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      PanelWidgetClass "{6A32000000000019}" {
+       Name "PanelBackground"
+       Slot OverlayWidgetSlot "{6A3200000000001A}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.01 0.018 0.02 0.97
+       style full
+      }
+      PanelWidgetClass "{6A3200000000001B}" {
+       Name "PanelOutline"
+       Slot OverlayWidgetSlot "{6A3200000000001C}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.45 0.48 0.48 0.95
+       style outline_2px
+      }
+      ButtonWidgetClass "{6A32000000000049}" {
+       Name "InventoryPanelInputBlocker"
+       Slot OverlayWidgetSlot "{6A3200000000004A}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 1 1 1 0
+       components {
+        SCR_ButtonBaseComponent "{6A3200000000004B}" {
+         m_sSoundHovered ""
+         m_sSoundClicked ""
+         m_sSoundContainerClosed ""
+        }
+       }
+      }
+      VerticalLayoutWidgetClass "{6A3200000000001D}" {
+       Name "InventoryDetailColumn"
+       Slot OverlayWidgetSlot "{6A3200000000001E}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 20 16 20 20
+       }
+       {
+        HorizontalLayoutWidgetClass "{6A3200000000001F}" {
+         Name "InventoryDetailHeader"
+         Slot LayoutSlot "{6A32000000000020}" {
+          Padding 0 0 0 12
+         }
+         {
+          TextWidgetClass "{6A32000000000022}" {
+           Name "InventoryDetailTitle"
+           Slot LayoutSlot "{6A32000000000023}" {
+            SizeMode Fill
+           }
+           Text "INVENTORY"
+           "Font Size" 30
+           "Min Font Size" 20
+          }
+          TextWidgetClass "{6A32000000000024}" {
+           Name "InventoryDetailReadOnly"
+           Slot LayoutSlot "{6A32000000000025}" {
+            Padding 0 8 16 0
+           }
+           Color 0.7 0.72 0.72 1
+           Text "PREVIEW ONLY"
+           "Font Size" 15
+           "Min Font Size" 12
+          }
+          ButtonWidgetClass "{6A32000000000026}" {
+           Name "CloseButton"
+           Slot LayoutSlot "{6A32000000000027}" {
+            Padding 0 0 0 0
+           }
+           Color 1 1 1 0
+           components {
+            SCR_ButtonBaseComponent "{6A32000000000028}" {
+            }
+           }
+           {
+            OverlayWidgetClass "{6A3200000000002E}" {
+             Slot ButtonWidgetSlot "{6A3200000000002F}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+              Padding 8 4 8 4
+             }
+             {
+              PanelWidgetClass "{6A32000000000040}" {
+               Slot OverlayWidgetSlot "{6A32000000000041}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               Color 0.16 0.18 0.18 0.95
+               style full
+              }
+              TextWidgetClass "{6A32000000000029}" {
+               Name "CloseText"
+               Slot OverlayWidgetSlot "{6A32000000000042}" {
+                HorizontalAlign 1
+                VerticalAlign 1
+               }
+               Text "CLOSE"
+               "Font Size" 16
+               "Min Font Size" 12
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        ScrollLayoutWidgetClass "{6A3200000000002A}" {
+         Name "InventoryDetailScroll"
+         Slot LayoutSlot "{6A3200000000002B}" {
+          SizeMode Fill
+         }
+         {
+          VerticalLayoutWidgetClass "{6A3200000000002C}" {
+           Name "InventoryDetailRows"
+           Slot AlignableSlot "{6A3200000000002D}" {
+            HorizontalAlign 3
+            VerticalAlign 0
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  FrameWidgetClass "{6A32000000000050}" {
+   Name "InventoryNameTooltipLayer"
+   Slot OverlayWidgetSlot "{6A32000000000051}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   Clipping False
+   "Ignore Cursor" 1
+   {
+    SizeLayoutWidgetClass "{6A32000000000052}" {
+     Name "InventoryNameTooltip"
+     Slot FrameWidgetSlot "{6A32000000000053}" {
+      PositionX 0
+      PositionY 0
+      SizeX 100
+      SizeY 30
+      SizeToContent 1
+     }
+     "Is Visible" 0
+     Clipping False
+     "Ignore Cursor" 1
+     AllowMaxDesiredWidth 1
+     MaxDesiredWidth 500
+     {
+      OverlayWidgetClass "{6A32000000000054}" {
+       Name "InventoryNameTooltipOverlay"
+       Slot AlignableSlot "{6A32000000000055}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       {
+        PanelWidgetClass "{6A32000000000056}" {
+         Name "InventoryNameTooltipBackground"
+         Slot OverlayWidgetSlot "{6A32000000000057}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.01 0.018 0.02 0.98
+         style full
+        }
+        PanelWidgetClass "{6A32000000000058}" {
+         Name "InventoryNameTooltipOutline"
+         Slot OverlayWidgetSlot "{6A32000000000059}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.761 0.392 0.078 1
+         style outline_2px
+        }
+        TextWidgetClass "{6A3200000000005A}" {
+         Name "InventoryNameTooltipText"
+         Slot OverlayWidgetSlot "{6A3200000000005B}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 10 7 10 7
+         }
+         Text "ITEM NAME"
+         "Font Size" 18
+         "Min Font Size" 18
+         "Vertical Alignment" Center
+         Wrap 1
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -293,6 +293,7 @@ FrameWidgetClass {
               ButtonWidgetClass "{6A1C52E851C1A005}" {
                Name "LoadoutPreview"
                Slot LayoutSlot "{6A1C52E851C1A006}" {
+                Padding 0 0 0 160
                 SizeMode Fill
                }
                Color 1 1 1 0
@@ -303,7 +304,20 @@ FrameWidgetClass {
           }
          }
         }
+        SizeLayoutWidgetClass "{6A1D181453C3E75E}" {
+         Name "PlayerListSize"
+         Slot LayoutSlot "{6A1D181453C3E77A}" {
+         }
+        }
        }
+      }
+      OverlayWidgetClass "{6A32000000000010}" : "{6A32000000000001}UI/layouts/Inventory/Lobby_Inventory_Detail.layout" {
+       Name "InventoryDetail"
+       Slot OverlayWidgetSlot "{6A3200000000000F}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Is Visible" 0
       }
      }
     }
