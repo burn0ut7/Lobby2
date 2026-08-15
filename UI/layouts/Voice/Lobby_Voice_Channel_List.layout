@@ -12,7 +12,7 @@ SizeLayoutWidgetClass {
   OverlayWidgetClass "{6A35000000000003}" {
    Name "VoiceChannelListOverlay"
    Slot AlignableSlot "{6A35000000000004}" {
-    HorizontalAlign 3
+    HorizontalAlign 0
     VerticalAlign 3
    }
    {
@@ -30,9 +30,10 @@ SizeLayoutWidgetClass {
      Slot OverlayWidgetSlot "{6A35000000000008}" {
       HorizontalAlign 3
       VerticalAlign 3
-      Padding 8 8 8 8
+      Padding 4 4 0 0
      }
      Color 1 1 1 0
+     "Scrollbar Always Visible" 1
      {
       VerticalLayoutWidgetClass "{6A35000000000009}" {
        Name "Channels"
@@ -58,6 +59,16 @@ SizeLayoutWidgetClass {
         }
         VerticalLayoutWidgetClass "{6A3500000000000E}" : "{6A34000000000001}UI/layouts/Voice/Lobby_Voice_Channel.layout" {
          Name "VoiceChannel3"
+         Slot LayoutSlot "{6A34000000000002}" {
+         }
+        }
+        VerticalLayoutWidgetClass "{6A1D1820E78A5D5B}" : "{6A34000000000001}UI/layouts/Voice/Lobby_Voice_Channel.layout" {
+         Name "VoiceChannel4"
+         Slot LayoutSlot "{6A34000000000002}" {
+         }
+        }
+        VerticalLayoutWidgetClass "{6A1D1820DB192CBD}" : "{6A34000000000001}UI/layouts/Voice/Lobby_Voice_Channel.layout" {
+         Name "VoiceChannel5"
          Slot LayoutSlot "{6A34000000000002}" {
          }
         }

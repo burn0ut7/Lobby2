@@ -266,7 +266,7 @@ FrameWidgetClass {
           VerticalAlign 0
          }
          AllowWidthOverride 1
-         WidthOverride 632
+         WidthOverride 466
          AllowHeightOverride 1
          HeightOverride 868
          {
@@ -307,6 +307,160 @@ FrameWidgetClass {
         SizeLayoutWidgetClass "{6A1D181453C3E75E}" {
          Name "PlayerListSize"
          Slot LayoutSlot "{6A1D181453C3E77A}" {
+          HorizontalAlign 2
+          VerticalAlign 0
+         }
+         WidthOverride 517
+         AllowHeightOverride 1
+         HeightOverride 868
+         {
+          VerticalLayoutWidgetClass "{6A36000000000001}" {
+           Name "PlayerListColumn"
+           Slot AlignableSlot "{6A36000000000002}" {
+            HorizontalAlign 3
+            VerticalAlign 3
+           }
+           {
+            SizeLayoutWidgetClass "{6A36000000000003}" {
+             Name "PlayerListTabsSize"
+             Slot LayoutSlot "{6A36000000000004}" {
+              VerticalAlign 0
+             }
+             AllowHeightOverride 1
+             HeightOverride 48
+             {
+              HorizontalLayoutWidgetClass "{6A36000000000005}" {
+               Name "PlayerListTabs"
+               Slot AlignableSlot "{6A36000000000006}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               {
+                ButtonWidgetClass "{6A36000000000007}" {
+                 Name "VoiceChannelsButton"
+                 Slot LayoutSlot "{6A36000000000008}" {
+                  SizeMode Fill
+                  FillWeight 1
+                 }
+                 Color 1 1 1 0
+                 {
+                  OverlayWidgetClass "{6A36000000000009}" {
+                   Name "VoiceChannelsButtonContent"
+                   Slot ButtonWidgetSlot "{6A3600000000000A}" {
+                    HorizontalAlign 3
+                    VerticalAlign 3
+                   }
+                   {
+                    ImageWidgetClass "{6A3600000000000B}" {
+                     Name "VoiceChannelsButtonBackground"
+                     Slot OverlayWidgetSlot "{6A3600000000000C}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     Color 0.36 0.44 0.47 0.95
+                    }
+                    TextWidgetClass "{6A3600000000000D}" {
+                     Name "VoiceChannelsButtonLabel"
+                     Slot OverlayWidgetSlot "{6A3600000000000E}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     Text "VOICE CHANNELS"
+                     "Font Size" 22
+                     "Min Font Size" 16
+                     "Horizontal Alignment" Center
+                     "Vertical Alignment" Center
+                     FontProperties FontProperties "{6A3600000000000F}" {
+                      OutlineSize 1
+                      OutlineColor 0 0 0 0.7
+                     }
+                    }
+                    ImageWidgetClass "{6A36000000000010}" {
+                     Name "VoiceChannelsButtonAccent"
+                     Slot OverlayWidgetSlot "{6A36000000000011}" {
+                      HorizontalAlign 3
+                      VerticalAlign 2
+                     }
+                     Color 0.25 0.72 0.78 1
+                     Size 32 3
+                    }
+                   }
+                  }
+                 }
+                }
+                ButtonWidgetClass "{6A36000000000012}" {
+                 Name "PlayerListButton"
+                 Slot LayoutSlot "{6A36000000000013}" {
+                  SizeMode Fill
+                  FillWeight 1
+                 }
+                 Color 1 1 1 0
+                 {
+                  OverlayWidgetClass "{6A36000000000014}" {
+                   Name "PlayerListButtonContent"
+                   Slot ButtonWidgetSlot "{6A36000000000015}" {
+                    HorizontalAlign 3
+                    VerticalAlign 3
+                   }
+                   {
+                    ImageWidgetClass "{6A36000000000016}" {
+                     Name "PlayerListButtonBackground"
+                     Slot OverlayWidgetSlot "{6A36000000000017}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     Color 0.07 0.1 0.11 0.95
+                    }
+                    TextWidgetClass "{6A36000000000018}" {
+                     Name "PlayerListButtonLabel"
+                     Slot OverlayWidgetSlot "{6A36000000000019}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     Color 0.82 0.84 0.84 1
+                     Text "PLAYER LIST"
+                     "Font Size" 22
+                     "Min Font Size" 16
+                     "Horizontal Alignment" Center
+                     "Vertical Alignment" Center
+                     FontProperties FontProperties "{6A3600000000001A}" {
+                      OutlineSize 1
+                      OutlineColor 0 0 0 0.7
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+            OverlayWidgetClass "{6A3600000000001B}" {
+             Name "PlayerListContent"
+             Slot LayoutSlot "{6A3600000000001C}" {
+              SizeMode Fill
+             }
+             {
+              SizeLayoutWidgetClass "{6A3600000000001D}" : "{6A35000000000001}UI/layouts/Voice/Lobby_Voice_Channel_List.layout" {
+               Name "VoiceChannelList"
+               Slot OverlayWidgetSlot "{6A35000000000002}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               AllowWidthOverride 0
+               {
+                OverlayWidgetClass "{6A35000000000003}" {
+                 Prefab "{6A35000000000003}"
+                 Slot AlignableSlot "{6A35000000000004}" {
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
          }
         }
        }

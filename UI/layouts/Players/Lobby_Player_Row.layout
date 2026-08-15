@@ -2,7 +2,7 @@ ButtonWidgetClass {
  Name "PlayerRow"
  Slot LayoutSlot "{6A33000000000002}" {
   VerticalAlign 1
-  Padding 0 0 4 4
+  Padding 0 0 0 4
  }
  "Ignore Cursor" 1
  Color 1 1 1 0
@@ -26,9 +26,9 @@ ButtonWidgetClass {
      Slot OverlayWidgetSlot "{6A33000000000008}" {
      }
      AllowWidthOverride 1
-     WidthOverride 630
+     WidthOverride 500
      AllowHeightOverride 1
-     HeightOverride 40
+     HeightOverride 36
      {
       HorizontalLayoutWidgetClass "{6A33000000000009}" {
        Name "HorizontalLayout"
@@ -99,7 +99,6 @@ ButtonWidgetClass {
            Name "PlayerName"
            Slot LayoutSlot "{6A33000000000018}" {
             VerticalAlign 1
-            Padding 2 0 10 0
             SizeMode Fill
            }
            Text "John Reforger"
@@ -117,9 +116,7 @@ ButtonWidgetClass {
          Name "GroupCallsign"
          Slot LayoutSlot "{6A3300000000001B}" {
           VerticalAlign 1
-          Padding 10 0 10 0
           SizeMode Fill
-          FillWeight 0.75
          }
          Color 0.82 0.84 0.84 1
          Text "Aktiv-22"
