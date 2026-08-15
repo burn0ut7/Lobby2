@@ -5,6 +5,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 	ref ScriptInvoker<GC_Slot> m_OnSlotHoverEnded = new ScriptInvoker<GC_Slot>();
 
 	protected Widget m_wSlots;
+	protected TextWidget m_wSquadName;
 	protected TextWidget m_wPlayerCount;
 	protected GC_LobbyManager m_LobbyManager;
 	protected SCR_AIGroup m_Group;
@@ -18,6 +19,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 			return;
 
 		m_wSlots = m_wRoot.FindAnyWidget("Slots");
+		m_wSquadName = TextWidget.Cast(m_wRoot.FindAnyWidget("SquadName"));
 		m_wPlayerCount = TextWidget.Cast(m_wRoot.FindAnyWidget("PlayerCount"));
 		m_LobbyManager = GC_LobbyManager.GetManager();
 		if (!m_wSlots || !m_LobbyManager)
@@ -36,6 +38,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_Group = null;
 		m_LobbyManager = null;
 		m_wPlayerCount = null;
+		m_wSquadName = null;
 		m_wSlots = null;
 		super.HandlerDeattached(w);
 	}
@@ -64,6 +67,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		if (!m_LobbyManager || !m_wSlots)
 			return;
 
+		UpdateGroupName();
 		UpdateFactionAccent();
 		ClearSlotWidgets();
 
@@ -95,6 +99,14 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		}
 
 		UpdatePlayerCount(slotCount);
+	}
+
+	protected void UpdateGroupName()
+	{
+		if (!m_wSquadName)
+			return;
+
+		m_wSquadName.SetText(GC_GroupCallsignHelper.GetDisplayName(m_Group));
 	}
 
 	protected void UpdatePlayerCount(int slotCount = -1)

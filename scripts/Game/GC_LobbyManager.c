@@ -37,6 +37,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 {
     protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
     protected const int JIP_REFERENCE_RETRY_MS = 1000;
+
+    //! Game-mode setting: group headers in the voice list may move an unslotted
+    //! player into that authoritative base-game group. Keeping this on the
+    //! Lobby2 game-mode component makes the behavior scenario-configurable.
+    [Attribute("1", UIWidgets.CheckBox, "Allow voice group headers to switch the player's lobby group")]
+    protected bool m_bVoiceGroupHeaderSwitchesGroup;
     
     [Attribute("", UIWidgets.Object, "Formations for player groups")]
     protected ref array<ref GC_PlayerFormationDefinition> m_aFormations;
@@ -45,7 +51,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     protected ref array<RplId> m_aPendingJipGroupRplIds = {};
     protected ref array<Faction> m_aRegisteredFactions = {};
     protected ref array<ref GC_Slot> m_aSlots = {};
+    protected ref array<ref GC_VoiceChannelAssignment> m_aVoiceAssignments = {};
     ref ScriptInvoker<Faction> m_OnFactionUpdated = new ScriptInvoker<Faction>();
+    //! Signals that connected-player or authoritative group membership data changed.
+    //! Consumers re-query PlayerManager and SCR_GroupsManagerComponent instead of
+    //! maintaining a second player roster in Lobby2.
+    ref ScriptInvoker<int> m_OnPlayerRegistryUpdated = new ScriptInvoker<int>();
     protected int m_iNextSlotID = 1;
     protected int m_iJipResolveAttempt;
 
@@ -56,7 +67,30 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         //Check if player is already existing in world
 
         //If not setup player in spectator mode
-        SetSpectator(playerId, true)
+        SetSpectator(playerId, true);
+        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+        m_OnPlayerRegistryUpdated.Invoke(playerId);
+    }
+
+    override void OnPlayerConnected(int playerId)
+    {
+        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+        m_OnPlayerRegistryUpdated.Invoke(playerId);
+        super.OnPlayerConnected(playerId);
+    }
+
+    override void OnPlayerRegistered(int playerId)
+    {
+        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+        m_OnPlayerRegistryUpdated.Invoke(playerId);
+        super.OnPlayerRegistered(playerId);
+    }
+
+    override void OnPlayerDisconnected(int playerId, KickCauseCode cause, int timeout)
+    {
+        RemovePlayerVoiceAssignment(playerId);
+        m_OnPlayerRegistryUpdated.Invoke(playerId);
+        super.OnPlayerDisconnected(playerId, cause, timeout);
     }
     
     //! Make the player enter spectator mode from the server
@@ -98,11 +132,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             SubscribeToGroupPlayerEvents();
 
         Faction faction = group.GetFaction();
+        bool factionWasRegistered = faction && m_aRegisteredFactions.Contains(faction);
         if (faction)
             RegisterFaction(faction.GetFactionKey());
 
         if (Replication.IsServer())
             RegisterGroupMembers(group);
+
+        // RegisterFaction already notifies when this is a new faction. Notify
+        // again only for an existing faction so dynamic faction/group views
+        // can discover an additional group without duplicating the new-faction
+        // callback.
+        if (faction && factionWasRegistered)
+            m_OnFactionUpdated.Invoke(faction);
     }
 
     //! Removes a group from the manager's index and its lobby-only slot records.
@@ -190,11 +232,23 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void OnGroupPlayerAdded(SCR_AIGroup group, int playerId)
     {
+        if (Replication.IsServer() && group && group.GetFaction())
+            SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
+
+        m_OnPlayerRegistryUpdated.Invoke(playerId);
         QueueAllRegisteredFactionUpdates();
     }
 
     protected void OnGroupPlayerRemoved(SCR_AIGroup group, int playerId)
     {
+        if (Replication.IsServer() && group)
+        {
+            GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
+            if (assignment && assignment.GetChannelType() == GC_VoiceChannelType.GROUP && assignment.GetGroupRplId() == Replication.FindItemId(group))
+                SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+        }
+
+        m_OnPlayerRegistryUpdated.Invoke(playerId);
         QueueAllRegisteredFactionUpdates();
     }
 
@@ -253,6 +307,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void NotifyAllRegisteredFactions()
     {
+        // A slot change can move one player between groups, and the callback can
+        // arrive before the base group event. Signal a full re-query so channel
+        // views never depend on the slot registry as their membership source.
+        m_OnPlayerRegistryUpdated.Invoke(-1);
+
         foreach (Faction faction : m_aRegisteredFactions)
         {
             if (faction)
@@ -330,6 +389,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         }
 
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groupCount, slotCount);
+
+		writer.WriteInt(m_aVoiceAssignments.Count());
+		foreach (GC_VoiceChannelAssignment assignment : m_aVoiceAssignments)
+		{
+			if (!assignment || !assignment.RplSave(writer))
+				return false;
+		}
+
         return true;
     }
 
@@ -383,6 +450,20 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             m_aSlots.Insert(slot);
             SubscribeToSlotEvents(slot);
         }
+
+		int assignmentCount;
+		if (!reader.ReadInt(assignmentCount) || assignmentCount < 0)
+			return false;
+
+		m_aVoiceAssignments.Clear();
+		for (int assignmentIndex = 0; assignmentIndex < assignmentCount; assignmentIndex++)
+		{
+			GC_VoiceChannelAssignment assignment = new GC_VoiceChannelAssignment();
+			if (!assignment.RplLoad(reader))
+				return false;
+
+			m_aVoiceAssignments.Insert(assignment);
+		}
 
 		ResolvePendingJipReferences();
 
@@ -655,6 +736,256 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return null;
     }
 
+	GC_VoiceChannelAssignment GetPlayerVoiceAssignment(int playerId)
+	{
+		foreach (GC_VoiceChannelAssignment assignment : m_aVoiceAssignments)
+		{
+			if (assignment && assignment.GetPlayerId() == playerId)
+				return assignment;
+		}
+
+		return null;
+	}
+
+	//! Validates a requested exclusive channel and applies it on the authority.
+	bool TrySetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
+	{
+		if (!Replication.IsServer() || playerId <= 0)
+			return false;
+
+		switch (channelType)
+		{
+			case GC_VoiceChannelType.GLOBAL:
+				return SetPlayerVoiceChannel(playerId, channelType);
+
+			case GC_VoiceChannelType.FACTION:
+			{
+				Faction requestedFaction = GetRegisteredFaction(factionKey);
+				if (!requestedFaction || GetPlayerFaction(playerId) != requestedFaction)
+					return false;
+
+				return SetPlayerVoiceChannel(playerId, channelType, factionKey);
+			}
+
+			case GC_VoiceChannelType.GROUP:
+				return TryJoinGroupFromVoiceHeader(playerId, groupRplId);
+		}
+
+		return false;
+	}
+
+	protected bool SetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
+	{
+		if (!Replication.IsServer() || playerId <= 0)
+			return false;
+
+		GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
+		if (!assignment)
+		{
+			assignment = new GC_VoiceChannelAssignment();
+			m_aVoiceAssignments.Insert(assignment);
+		}
+		else if (assignment.GetChannelType() == channelType && assignment.GetFactionKey() == factionKey && assignment.GetGroupRplId() == groupRplId)
+		{
+			return true;
+		}
+
+		assignment.Set(playerId, channelType, factionKey, groupRplId);
+		PrintFormat("GC | Voice assignment changed: player=%1 type=%2 faction=%3 group=%4", playerId, channelType, factionKey, groupRplId);
+		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
+		m_OnPlayerRegistryUpdated.Invoke(playerId);
+		return true;
+	}
+
+	protected void RemovePlayerVoiceAssignment(int playerId)
+	{
+		if (!Replication.IsServer())
+			return;
+
+		for (int i = m_aVoiceAssignments.Count() - 1; i >= 0; i--)
+		{
+			GC_VoiceChannelAssignment assignment = m_aVoiceAssignments[i];
+			if (!assignment || assignment.GetPlayerId() != playerId)
+				continue;
+
+			m_aVoiceAssignments.RemoveOrdered(i);
+			Rpc(RpcDo_RemoveVoiceAssignment, playerId);
+			return;
+		}
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_UpdateVoiceAssignment(GC_VoiceChannelAssignment updateAssignment)
+	{
+		if (Replication.IsServer() || !updateAssignment)
+			return;
+
+		GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(updateAssignment.GetPlayerId());
+		if (!assignment)
+		{
+			assignment = new GC_VoiceChannelAssignment();
+			m_aVoiceAssignments.Insert(assignment);
+		}
+
+		assignment.CopyFrom(updateAssignment);
+		m_OnPlayerRegistryUpdated.Invoke(assignment.GetPlayerId());
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_RemoveVoiceAssignment(int playerId)
+	{
+		if (Replication.IsServer())
+			return;
+
+		for (int i = m_aVoiceAssignments.Count() - 1; i >= 0; i--)
+		{
+			GC_VoiceChannelAssignment assignment = m_aVoiceAssignments[i];
+			if (assignment && assignment.GetPlayerId() == playerId)
+				m_aVoiceAssignments.RemoveOrdered(i);
+		}
+
+		m_OnPlayerRegistryUpdated.Invoke(playerId);
+	}
+
+    //! Resolves a registered group from the replicated identity supplied by a
+    //! client. The client never sends an object reference as authority.
+    SCR_AIGroup GetRegisteredGroupByRplId(RplId groupRplId)
+    {
+        if (groupRplId == RplId.Invalid())
+            return null;
+
+        foreach (SCR_AIGroup group : m_aGroups)
+        {
+            if (group && Replication.FindItemId(group) == groupRplId)
+                return group;
+        }
+
+        return null;
+    }
+
+    //! Returns the player's current authoritative base-game group. The groups
+    //! manager is preferred, while registered groups provide a race-safe query
+    //! of the same base-game membership when its index has not settled yet.
+    SCR_AIGroup GetPlayerGroup(int playerId)
+    {
+        foreach (SCR_AIGroup registeredGroup : m_aGroups)
+        {
+            if (registeredGroup && registeredGroup.GetPlayerIDs().Contains(playerId))
+                return registeredGroup;
+        }
+
+        SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+        if (groupsManager)
+            return groupsManager.GetPlayerGroup(playerId);
+
+        return null;
+    }
+
+    //! Returns the player's current authoritative faction, with the lobby slot
+    //! as a short-lived fallback while base-group membership is settling.
+    Faction GetPlayerFaction(int playerId)
+    {
+        SCR_AIGroup playerGroup = GetPlayerGroup(playerId);
+        if (playerGroup && playerGroup.GetFaction())
+            return playerGroup.GetFaction();
+
+        GC_Slot slot = GetSlotByPlayerId(playerId);
+        if (slot && slot.GetGroup())
+            return slot.GetGroup().GetFaction();
+
+        return null;
+    }
+
+    bool TryJoinGroupFromVoiceHeader(int playerId, RplId groupRplId)
+    {
+        PrintFormat("GC | Voice group join attempt: server=%1 player=%2 group=%3 enabled=%4", Replication.IsServer(), playerId, groupRplId, m_bVoiceGroupHeaderSwitchesGroup, level: LogLevel.WARNING);
+
+        if (!Replication.IsServer())
+        {
+            Print("GC | Voice group join rejected: request reached a non-authority instance", level: LogLevel.ERROR);
+            return false;
+        }
+
+        if (playerId <= 0)
+        {
+            PrintFormat("GC | Voice group join rejected: invalid player id=%1", playerId, level: LogLevel.ERROR);
+            return false;
+        }
+
+        if (!m_bVoiceGroupHeaderSwitchesGroup)
+        {
+            Print("GC | Voice group join rejected: voice group switching is disabled in the Lobby2 component", level: LogLevel.WARNING);
+            return false;
+        }
+
+        SCR_AIGroup targetGroup = GetRegisteredGroupByRplId(groupRplId);
+        if (!targetGroup)
+        {
+            PrintFormat("GC | Voice group join rejected: unknown group rplId=%1 player=%2", groupRplId, playerId, level: LogLevel.WARNING);
+            return false;
+        }
+
+        Faction playerFaction = GetPlayerFaction(playerId);
+        SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+        SCR_AIGroup currentGroup = GetPlayerGroup(playerId);
+
+        PrintFormat("GC | Voice group join context: player=%1 currentGroup=%2 playerFaction=%3 targetGroup=%4 targetFaction=%5", playerId, currentGroup, playerFaction, targetGroup, targetGroup.GetFaction(), level: LogLevel.WARNING);
+
+        if (!playerFaction || playerFaction != targetGroup.GetFaction())
+        {
+            PrintFormat("GC | Voice group join rejected: player=%1 faction=%2 targetFaction=%3", playerId, playerFaction, targetGroup.GetFaction(), level: LogLevel.WARNING);
+            return false;
+        }
+
+        if (!groupsManager)
+        {
+            Print("GC | Voice group join rejected: groups manager is unavailable", level: LogLevel.ERROR);
+            return false;
+        }
+
+        if (currentGroup == targetGroup)
+        {
+            PrintFormat("GC | Voice group join accepted as no-op: player=%1 already belongs to targetGroup=%2", playerId, targetGroup, level: LogLevel.WARNING);
+            return SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), groupRplId);
+        }
+
+        GC_Slot currentSlot = GetSlotByPlayerId(playerId);
+
+        if (currentGroup)
+        {
+            PrintFormat("GC | Voice group join removing player from current group: player=%1 group=%2", playerId, currentGroup, level: LogLevel.WARNING);
+            currentGroup.RemovePlayer(playerId);
+        }
+
+        PrintFormat("GC | Voice group join adding player to target group: player=%1 group=%2", playerId, targetGroup, level: LogLevel.WARNING);
+        targetGroup.AddPlayer(playerId);
+        bool targetContainsPlayer = targetGroup.GetPlayerIDs().Contains(playerId);
+        PrintFormat("GC | Voice group join membership check: player=%1 targetGroup=%2 containsPlayer=%3", playerId, targetGroup, targetContainsPlayer, level: LogLevel.WARNING);
+        if (!targetContainsPlayer)
+        {
+            if (currentGroup)
+                currentGroup.AddPlayer(playerId);
+
+            PrintFormat("GC | Voice group join failed: player=%1 targetGroup=%2", playerId, targetGroup, level: LogLevel.WARNING);
+            return false;
+        }
+
+        // Preserve the slot-derived faction until target membership is valid.
+        // Clearing it earlier can briefly collapse the client's visible voice
+        // topology to Global while group-manager replication catches up.
+        if (currentSlot)
+        {
+            PrintFormat("GC | Voice group join clearing lobby slot after membership confirmation: player=%1 slot=%2", playerId, currentSlot.GetID(), level: LogLevel.WARNING);
+            currentSlot.SetPlayer(-1);
+        }
+
+        PrintFormat("GC | Voice group join accepted: player=%1 targetGroup=%2", playerId, targetGroup);
+        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), groupRplId);
+        m_OnPlayerRegistryUpdated.Invoke(playerId);
+        QueueAllRegisteredFactionUpdates();
+        return true;
+    }
+
     //! Validates and applies a player-owned slot request on the server authority.
     bool TryAssignPlayerToSlot(int playerId, int slotId)
     {
@@ -678,7 +1009,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return false;
 
         GC_Slot currentSlot = GetSlotByPlayerId(playerId);
-        SCR_AIGroup currentGroup = groupsManager.GetPlayerGroup(playerId);
+        SCR_AIGroup currentGroup = GetPlayerGroup(playerId);
 
         // Clicking the player's current slot toggles them back out of it.
         if (occupyingPlayerId == playerId)
@@ -687,6 +1018,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
                 currentGroup.RemovePlayer(playerId);
 
             targetSlot.SetPlayer(-1);
+            SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
             PrintFormat("GC | Slot request accepted (unslotted): player=%1 slot=%2", playerId, slotId);
             return true;
         }
@@ -711,6 +1043,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             currentSlot.SetPlayer(-1);
 
         targetSlot.SetPlayer(playerId);
+        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), Replication.FindItemId(targetGroup));
         PrintFormat("GC | Slot request accepted: player=%1 slot=%2", playerId, slotId);
         return true;
     }
@@ -766,6 +1099,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         m_aGroups.Clear();
 		m_aPendingJipGroupRplIds.Clear();
         m_aSlots.Clear();
+		m_aVoiceAssignments.Clear();
 
         super.OnGameModeEnd(data);
     }

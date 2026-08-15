@@ -6,11 +6,16 @@ ButtonWidgetClass {
  }
  "Ignore Cursor" 1
  Color 1 1 1 0
+ components {
+  GC_VoicePlayerRowComponent "{6A33000000000030}" {
+  }
+ }
  "no focus" 1
  {
   OverlayWidgetClass "{6A33000000000003}" {
    Name "PlayerRowOverlay"
    Slot ButtonWidgetSlot "{6A33000000000004}" {
+    HorizontalAlign 3
    }
    {
     ImageWidgetClass "{6A33000000000005}" {
@@ -57,6 +62,7 @@ ButtonWidgetClass {
            Name "RoleIconSize"
            Slot LayoutSlot "{6A33000000000010}" {
             VerticalAlign 1
+            Padding 4 0 4 0
            }
            AllowWidthOverride 1
            WidthOverride 38
@@ -116,6 +122,7 @@ ButtonWidgetClass {
          Name "GroupCallsign"
          Slot LayoutSlot "{6A3300000000001B}" {
           VerticalAlign 1
+          Padding 0 0 4 0
           SizeMode Fill
          }
          Color 0.82 0.84 0.84 1

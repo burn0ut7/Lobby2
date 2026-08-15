@@ -1,0 +1,104 @@
+SizeLayoutWidgetClass {
+ Name "PlayerList"
+ components {
+  GC_PlayerListComponent "{6A37000000000010}" {
+  }
+ }
+ Slot LayoutSlot "{6A37000000000002}" {
+  HorizontalAlign 0
+  VerticalAlign 0
+ }
+ AllowWidthOverride 1
+ WidthOverride 517
+ AllowHeightOverride 1
+ HeightOverride 650
+ {
+  OverlayWidgetClass "{6A37000000000003}" {
+   Name "PlayerListOverlay"
+   Slot AlignableSlot "{6A37000000000004}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   {
+    ImageWidgetClass "{6A37000000000005}" {
+     Name "PlayerListBackground"
+     Slot OverlayWidgetSlot "{6A37000000000006}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.008 0.012 0.014 0.72
+    }
+    VerticalLayoutWidgetClass "{6A37000000000007}" {
+     Name "PlayerListBody"
+     Slot OverlayWidgetSlot "{6A37000000000008}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+      Padding 4 4 0 0
+     }
+     {
+      SizeLayoutWidgetClass "{6A37000000000009}" {
+       Name "PlayerSearchSize"
+       Slot LayoutSlot "{6A3700000000000A}" {
+        Padding 0 0 0 6
+       }
+       AllowHeightOverride 1
+       HeightOverride 44
+       {
+        OverlayWidgetClass "{6A3700000000000B}" {
+         Name "PlayerSearch"
+         Slot AlignableSlot "{6A3700000000000C}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         {
+          ImageWidgetClass "{6A3700000000000D}" {
+           Name "PlayerSearchBackground"
+           Slot OverlayWidgetSlot "{6A3700000000000E}" {
+            HorizontalAlign 3
+            VerticalAlign 3
+           }
+           Color 0.025 0.032 0.034 0.95
+          }
+          EditBoxWidgetClass "{6A3700000000000F}" {
+           Name "PlayerSearchEditBox"
+           Slot OverlayWidgetSlot "{6A37000000000011}" {
+            HorizontalAlign 3
+            VerticalAlign 3
+            Padding 12 0 12 0
+           }
+           components {
+            GC_PlayerSearchComponent "{6A37000000000012}" {
+            }
+           }
+           "Font Size" 20
+           "Use placeholder text" 1
+           "Placeholder color" 0.55 0.58 0.58 1
+           "Placeholder text" "Search players"
+          }
+         }
+        }
+       }
+      }
+      ScrollLayoutWidgetClass "{6A37000000000013}" {
+       Name "PlayerListScroll"
+       Slot LayoutSlot "{6A37000000000014}" {
+        SizeMode Fill
+       }
+       Color 1 1 1 0
+       "Scrollbar Always Visible" 1
+       {
+        VerticalLayoutWidgetClass "{6A37000000000015}" {
+         Name "Players"
+         Slot AlignableSlot "{6A37000000000016}" {
+          HorizontalAlign 3
+          VerticalAlign 0
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -316,6 +316,10 @@ FrameWidgetClass {
          {
           VerticalLayoutWidgetClass "{6A36000000000001}" {
            Name "PlayerListColumn"
+           components {
+            GC_PlayerListTabsComponent "{6A36000000000020}" {
+            }
+           }
            Slot AlignableSlot "{6A36000000000002}" {
             HorizontalAlign 3
             VerticalAlign 3
@@ -338,6 +342,10 @@ FrameWidgetClass {
                {
                 ButtonWidgetClass "{6A36000000000007}" {
                  Name "VoiceChannelsButton"
+                 components {
+                  SCR_ButtonBaseComponent "{6A36000000000021}" {
+                  }
+                 }
                  Slot LayoutSlot "{6A36000000000008}" {
                   SizeMode Fill
                   FillWeight 1
@@ -390,6 +398,10 @@ FrameWidgetClass {
                 }
                 ButtonWidgetClass "{6A36000000000012}" {
                  Name "PlayerListButton"
+                 components {
+                  SCR_ButtonBaseComponent "{6A36000000000022}" {
+                  }
+                 }
                  Slot LayoutSlot "{6A36000000000013}" {
                   SizeMode Fill
                   FillWeight 1
@@ -428,6 +440,16 @@ FrameWidgetClass {
                       OutlineColor 0 0 0 0.7
                      }
                     }
+                    ImageWidgetClass "{6A36000000000023}" {
+                     Name "PlayerListButtonAccent"
+                     Slot OverlayWidgetSlot "{6A36000000000024}" {
+                      HorizontalAlign 3
+                      VerticalAlign 2
+                     }
+                     "Is Visible" 0
+                     Color 0.25 0.72 0.78 1
+                     Size 32 3
+                    }
                    }
                   }
                  }
@@ -442,9 +464,9 @@ FrameWidgetClass {
               SizeMode Fill
              }
              {
-              SizeLayoutWidgetClass "{6A3600000000001D}" : "{6A35000000000001}UI/layouts/Voice/Lobby_Voice_Channel_List.layout" {
-               Name "VoiceChannelList"
-               Slot OverlayWidgetSlot "{6A35000000000002}" {
+               SizeLayoutWidgetClass "{6A3600000000001D}" : "{6A35000000000001}UI/layouts/Voice/Lobby_Voice_Channel_List.layout" {
+                Name "VoiceChannelList"
+                Slot OverlayWidgetSlot "{6A35000000000002}" {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
@@ -456,6 +478,16 @@ FrameWidgetClass {
                  }
                 }
                }
+              }
+              SizeLayoutWidgetClass "{6A36000000000025}" : "{6A37000000000001}UI/layouts/Players/Lobby_Player_List.layout" {
+               Name "PlayerList"
+               Slot OverlayWidgetSlot "{6A37000000000002}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Is Visible" 0
+               AllowWidthOverride 0
+               AllowHeightOverride 0
               }
              }
             }

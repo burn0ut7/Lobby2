@@ -368,7 +368,7 @@ class GC_Slot
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Injects an EN Network snapshot into this slot.
+	//! Injects an snapshot into this slot.
 	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, GC_Slot instance)
 	{
 		snapshot.SerializeInt(instance.m_iID);

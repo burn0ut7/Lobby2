@@ -17,6 +17,13 @@ modded class SCR_PlayerController : PlayerController
 		Rpc(RpcAsk_RequestLobbySlot, slotId);
 	}
 
+	//! Requests one exclusive active voice channel from the server authority.
+	void RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
+	{
+		PrintFormat("GC | Voice channel request sent: player=%1 type=%2 faction=%3 group=%4", GetPlayerId(), channelType, factionKey, groupRplId, level: LogLevel.WARNING);
+		Rpc(RpcAsk_RequestVoiceChannel, channelType, factionKey, groupRplId);
+	}
+
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
 	protected void RpcAsk_RequestLobbySlot(int slotId)
 	{
@@ -25,6 +32,17 @@ modded class SCR_PlayerController : PlayerController
 			return;
 
 		lobbyManager.TryAssignPlayerToSlot(GetPlayerId(), slotId);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey, RplId groupRplId)
+	{
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager)
+			return;
+
+		bool changed = lobbyManager.TrySetPlayerVoiceChannel(GetPlayerId(), channelType, factionKey, groupRplId);
+		PrintFormat("GC | Voice channel request server result: player=%1 type=%2 changed=%3", GetPlayerId(), channelType, changed, level: LogLevel.WARNING);
 	}
 
 	void SetSpectator(IEntity entity)

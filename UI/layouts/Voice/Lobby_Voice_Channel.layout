@@ -1,19 +1,36 @@
 VerticalLayoutWidgetClass {
  Name "VoiceChannel"
  Slot LayoutSlot "{6A34000000000002}" {
-  HorizontalAlign 0
+  HorizontalAlign 3
   VerticalAlign 0
   Padding 0 0 0 8
  }
+ components {
+  GC_VoiceChannelWidgetComponent "{6A34000000000020}" {
+  }
+ }
  {
-  OverlayWidgetClass "{6A34000000000003}" {
+  ButtonWidgetClass "{6A34000000000003}" {
    Name "ChannelHeader"
+   components {
+    GC_VoiceChannelHeaderComponent "{6A34000000000021}" {
+    }
+   }
    Slot LayoutSlot "{6A34000000000004}" {
     HorizontalAlign 3
     VerticalAlign 0
     Padding 0 0 0 4
    }
+   Color 1 1 1 0
+   "no focus" 1
    {
+    OverlayWidgetClass "{6A34000000000022}" {
+     Name "ChannelHeaderOverlay"
+     Slot ButtonWidgetSlot "{6A34000000000023}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
     ImageWidgetClass "{6A34000000000005}" {
      Name "ChannelHeaderBackground"
      Slot OverlayWidgetSlot "{6A34000000000006}" {
@@ -32,7 +49,7 @@ VerticalLayoutWidgetClass {
       ImageWidgetClass "{6A3400000000000B}" {
        Name "ChannelAccent"
        Slot LayoutSlot "{6A3400000000000C}" {
-        Padding 0 0 6 3
+        Padding 0 3 6 0
        }
        Color 0.25 0.72 0.78 1
        Size 3 36
@@ -66,12 +83,14 @@ VerticalLayoutWidgetClass {
      Name "ChannelDivider"
      Slot OverlayWidgetSlot "{6A34000000000016}" {
       HorizontalAlign 3
-      VerticalAlign 2
+      VerticalAlign 0
      }
-     Color 0.25 0.72 0.78 0.75
+     Color 0.25 0.72 0.78 1
      Size 32 3
     }
+    }
    }
+  }
   }
   VerticalLayoutWidgetClass "{6A34000000000017}" {
    Name "Players"

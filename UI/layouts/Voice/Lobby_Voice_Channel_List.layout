@@ -1,5 +1,9 @@
 SizeLayoutWidgetClass {
  Name "VoiceChannelList"
+ components {
+  GC_VoiceChannelListComponent "{6A35000000000010}" {
+  }
+ }
  Slot LayoutSlot "{6A35000000000002}" {
   HorizontalAlign 0
   VerticalAlign 0
@@ -9,23 +13,23 @@ SizeLayoutWidgetClass {
  AllowHeightOverride 1
  HeightOverride 650
  {
-  OverlayWidgetClass "{6A35000000000003}" {
-   Name "VoiceChannelListOverlay"
-   Slot AlignableSlot "{6A35000000000004}" {
-    HorizontalAlign 0
-    VerticalAlign 3
-   }
+   OverlayWidgetClass "{6A35000000000003}" {
+    Name "VoiceChannelListOverlay"
+    Slot AlignableSlot "{6A35000000000004}" {
+     HorizontalAlign 3
+     VerticalAlign 3
+    }
    {
-    PanelWidgetClass "{6A35000000000005}" {
+   PanelWidgetClass "{6A35000000000005}" {
      Name "VoiceChannelListBackground"
      Slot OverlayWidgetSlot "{6A35000000000006}" {
       HorizontalAlign 3
       VerticalAlign 3
      }
      Color 0.008 0.012 0.014 0.72
-     style full
-    }
-    ScrollLayoutWidgetClass "{6A35000000000007}" {
+    style full
+   }
+   ScrollLayoutWidgetClass "{6A35000000000007}" {
      Name "VoiceChannelScroll"
      Slot OverlayWidgetSlot "{6A35000000000008}" {
       HorizontalAlign 3
@@ -35,7 +39,7 @@ SizeLayoutWidgetClass {
      Color 1 1 1 0
      "Scrollbar Always Visible" 1
      {
-      VerticalLayoutWidgetClass "{6A35000000000009}" {
+     VerticalLayoutWidgetClass "{6A35000000000009}" {
        Name "Channels"
        Slot AlignableSlot "{6A3500000000000A}" {
         HorizontalAlign 3
