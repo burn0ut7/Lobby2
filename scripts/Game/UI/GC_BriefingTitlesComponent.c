@@ -3,7 +3,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
     ref ScriptInvoker<GC_BriefingTitleRowComponent> m_OnTitleSelected = new ScriptInvoker<GC_BriefingTitleRowComponent>();
 
     protected ref array<GC_BriefingTitleRowComponent> m_aRows = {};
-    protected string m_sSelectedBriefingId;
+    protected int m_iSelectedBriefingOrder;
     protected bool m_bHasConfiguredBriefings;
 
     override void HandlerAttached(Widget w)
@@ -51,9 +51,9 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
 
         bool clearSelection = selectedRow.IsSelected();
         if (clearSelection)
-            m_sSelectedBriefingId = string.Empty;
+            m_iSelectedBriefingOrder = 0;
         else
-            m_sSelectedBriefingId = selectedRow.GetBriefingId();
+            m_iSelectedBriefingOrder = selectedRow.GetBriefingOrder();
 
         for (int i = 0; i < m_aRows.Count(); i++)
             m_aRows[i].SetSelected(!clearSelection && m_aRows[i] == selectedRow);
@@ -77,7 +77,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
             if (briefings && index < briefings.Count())
             {
                 row.SetBriefingData(briefings[index]);
-                if (!m_sSelectedBriefingId.IsEmpty() && row.GetBriefingId() == m_sSelectedBriefingId)
+                if (m_iSelectedBriefingOrder > 0 && row.GetBriefingOrder() == m_iSelectedBriefingOrder)
                     selectedRow = row;
             }
             else
@@ -89,13 +89,13 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
         if (!selectedRow && selectInitialBriefing && briefings && !briefings.IsEmpty() && !m_aRows.IsEmpty())
         {
             selectedRow = m_aRows[0];
-            m_sSelectedBriefingId = selectedRow.GetBriefingId();
+            m_iSelectedBriefingOrder = selectedRow.GetBriefingOrder();
         }
-        else if (!selectedRow && !m_sSelectedBriefingId.IsEmpty())
+        else if (!selectedRow && m_iSelectedBriefingOrder > 0)
         {
             // The selected briefing was hidden, removed, or became unavailable
             // to this faction. Keep the document closed until the player chooses.
-            m_sSelectedBriefingId = string.Empty;
+            m_iSelectedBriefingOrder = 0;
         }
 
         for (int rowIndex = 0; rowIndex < m_aRows.Count(); rowIndex++)

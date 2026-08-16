@@ -1,26 +1,14 @@
-FrameWidgetClass {
+VerticalLayoutWidgetClass {
  Name "BriefingTitles"
  components {
   GC_BriefingTitlesComponent "{6A4B000000000100}" {
   }
  }
  {
-  VerticalLayoutWidgetClass "{6A4B000000000101}" {
-   Name "BriefingTitleRows"
-   Slot FrameWidgetSlot "{6A4B000000000102}" {
-    PositionX 0
-    OffsetLeft 0
-    PositionY 0
-    OffsetTop 0
-    SizeX 220
-    OffsetRight -220
-    SizeY 224
-    OffsetBottom -224
-   }
-   {
     ButtonWidgetClass "{6A4B000000000103}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
      Name "BriefingTitleRow01"
      Slot LayoutSlot "{6A4B000000000104}" {
+      HorizontalAlign 3
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
@@ -33,6 +21,7 @@ FrameWidgetClass {
     ButtonWidgetClass "{6A4B000000000106}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
      Name "BriefingTitleRow02"
      Slot LayoutSlot "{6A4B000000000107}" {
+      HorizontalAlign 3
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
@@ -45,6 +34,7 @@ FrameWidgetClass {
     ButtonWidgetClass "{6A4B000000000109}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
      Name "BriefingTitleRow03"
      Slot LayoutSlot "{6A4B00000000010A}" {
+      HorizontalAlign 3
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
@@ -57,6 +47,7 @@ FrameWidgetClass {
     ButtonWidgetClass "{6A4B00000000010C}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
      Name "BriefingTitleRow04"
      Slot LayoutSlot "{6A4B00000000010D}" {
+      HorizontalAlign 3
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
@@ -66,7 +57,5 @@ FrameWidgetClass {
       }
      }
     }
-   }
-  }
  }
 }

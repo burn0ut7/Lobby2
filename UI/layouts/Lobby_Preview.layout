@@ -28,20 +28,24 @@ FrameWidgetClass {
       }
      }
     }
+    HorizontalLayoutWidgetClass "{592A7D6B9076B6D0}" {
+     Prefab "{592A7D6B9076B6D0}"
+     "Is Visible" 0
+    }
    }
   }
   SizeLayoutWidgetClass "{6A4C000000000002}" : "{6A4C000000000001}UI/layouts/Briefing/Lobby_Briefing_View.layout" {
    Name "BriefingView"
    Slot FrameWidgetSlot "{6A4C000000000003}" {
-    Anchor 0 0.5 0 0.5
-    PositionX 20
-    OffsetLeft 20
-    PositionY -440
-    OffsetTop -440
-    SizeX 720
-    OffsetRight -740
-    SizeY 820
-    OffsetBottom -380
+    PositionX 7.361
+    OffsetLeft 7.361
+    PositionY 990.845
+    OffsetTop 990.845
+    SizeX 287
+    OffsetRight -294.361
+    SizeY 820.001
+    OffsetBottom -1810.85
+    Alignment 0 1
    }
    "Z Order" 1
   }
@@ -118,12 +122,14 @@ FrameWidgetClass {
   FrameWidgetClass "{6A1F00187EC56567}" : "{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout" {
    Name "Chat"
    Slot FrameWidgetSlot "{5D4881250D202DF3}" {
-    OffsetLeft 8
-    OffsetTop 0
+    PositionX 7.182
+    OffsetLeft 7.182
+    PositionY 4.09
+    OffsetTop 4.09
     SizeX 1920
-    OffsetRight -1928
+    OffsetRight -1927.18
     SizeY 1080
-    OffsetBottom -1080
+    OffsetBottom -1084.09
    }
   }
  }

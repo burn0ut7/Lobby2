@@ -5,30 +5,59 @@
 Design, research, and implementation-status document.
 
 The first data-backed text slice is implemented. `GC_Briefing` is an add-on-owned
-`BaseContainer` authored on `GC_LobbyManager`; it supports explicit plain or rich
-text, stable IDs and ordering, and all/specific/no-faction audiences. The manager
+`BaseContainer` authored on `GC_LobbyManager`; it supports automatic plain or rich
+text detection, one-based order/index identity, and a faction-key allowlist. The manager
 replicates the complete current set in its JIP snapshot and broadcasts reliable
 server-authoritative upserts and removals during a session. The briefing UI now
 renders this replicated data.
 
-The heterogeneous document-block model and registered action dispatcher described
-below are still future slices. Briefing data cannot currently invoke an action.
+The heterogeneous document-block model and general data-driven action definitions
+described below are still future slices. The first authored briefing is a labeled
+showcase of every currently supported native and Lobby2 formatting tag. It also
+contains an `<action id="debug_print">...</action>` proof tag inside a normal
+paragraph. The renderer turns that paragraph into wrapping text runs and overlays
+a real button on only the tagged phrase. Clicking it requests the allowlisted
+`debug_print` action and writes `GC | Briefing action clicked` to the console.
+The showcase and second briefing demonstrate `<marker name="Alpha">...</marker>`.
+It captures the authored marker name and renders an interactive phrase, but map
+movement is intentionally deferred; clicking currently writes a placeholder log.
+For this prototype, the containing paragraph must otherwise be plain text, while
+supported native rich-text formatting may be nested inside the custom tag label.
 
 ### Current backend contract
 
-- `SetBriefing(...)` creates or completely replaces a briefing on the server.
+- Authors enter one briefing-content string with no text-format enum. The UI uses
+  rich rendering only when it finds a recognized native or Lobby2 tag; otherwise
+  it falls back to normal text. Untagged text surrounding valid tags remains
+  ordinary text inside the rich document.
+
+- `SetBriefing(order, ...)` creates or completely replaces the briefing at that
+  one-based order/index on the server.
 - `UpsertBriefing(...)` accepts a populated `GC_Briefing` on the server.
-- `SetBriefingVisible(id, visible)` shows or hides an existing briefing on the
-  server without replacing its content or audience.
-- `RemoveBriefing(id)` removes a briefing on the server.
+- `SetBriefingVisible(order, visible)` shows or hides an existing briefing on the
+  server without replacing its content or faction targeting.
+- `RemoveBriefing(order)` removes a briefing on the server.
+- Authors do not provide a separate briefing ID. The authored `order` is the
+  stable lookup and selection key, while the backing array remains an
+  implementation detail whose positions may shift after removal or filtering.
 - Mutations are rejected on non-authority instances and invalid payloads are
   rejected before broadcast.
-- `ALL_FACTIONS` is visible to every player, including a player whose faction has
-  not yet resolved.
-- `SPECIFIC_FACTION` resolves and compares the current authoritative base-game
-  faction key.
-- `NO_FACTION` is visible only when the player has no authoritative base-game
-  faction.
+- An empty faction-key array is visible to every player, including factionless
+  players.
+- A populated faction-key array is visible only when the player's current
+  authoritative base-game faction key appears in that array.
+- A factionless player cannot match a populated faction-key array.
+- `Show At Game Mode State` is authored with the base-game
+  `SCR_EGameModeState` enum (`PREGAME`, `GAME`, or `POSTGAME`). By default the
+  briefing shows only during that state. `Invert Game Mode State` reverses the
+  rule so the briefing is hidden during the selected state and shown during the
+  other states.
+- The runtime visibility bool remains replicated but is intentionally hidden
+  from prefab authors. Server scripts control it through
+  `SetBriefingVisible(order, visible)`.
+- Effective visibility requires the authored game-mode state, runtime visibility,
+  and faction eligibility to all pass. Lobby2 re-queries `SCR_BaseGameMode`
+  rather than replicating a competing game-mode state.
 - UI selection is local presentation state and is not replicated.
 - Briefing title buttons use single selection. Selecting a title shows its body,
   selecting another switches the body, and selecting the active title again
@@ -44,7 +73,7 @@ below are still future slices. Briefing data cannot currently invoke an action.
   overlay: a compact topic rail opens an adjacent readable document column while
   leaving most of the map visible.
 - The reusable view owns its compact and expanded widths. With no selected topic,
-  it contracts to the 244-pixel topic rail; selecting a topic expands it to 720
+  it contracts to the 287-pixel topic rail; selecting a topic expands it to 720
   pixels for the document column, and selecting that topic again contracts it so
   the host screen regains the unused space.
 - Visibility is authored per briefing, replicated in JIP snapshots, and included
@@ -83,6 +112,13 @@ The documented formatting includes:
 - images from packaged image sets;
 - Unicode codepoints;
 - representations of configured input actions and individual keys.
+
+Lobby2 adds the common inline decorations that native RichText does not expose:
+
+- `<u>underlined text</u>`;
+- `<s>struck text</s>` or `<strike>struck text</strike>`;
+- `<size scale="1.25">scaled inline text</size>`, bounded to `0.75` through
+  `2.0` times the briefing body size.
 
 Important constraints:
 
@@ -128,6 +164,46 @@ The documented rich-text format does not provide:
 - JavaScript, CSS, or arbitrary HTML;
 - embedded Enforce Script expressions;
 - Markdown parsing.
+
+### Lobby2 interactive tags
+
+Lobby2 preprocesses its HTML-style tags before the remaining content is
+given to `RichTextWidget`. They are Lobby2 document syntax, not native Reforger
+rich-text elements:
+
+```text
+<action id="debug_print">click here</action>
+<marker name="Alpha">view marker Alpha</marker>
+<u>underlined text</u>
+<s>struck text</s>
+<size scale="1.35">larger text</size>
+```
+
+Reforger also defines a native `<action>` tag for displaying an input binding.
+The attribute disambiguates the two forms: Lobby2 preprocesses
+`<action id="...">...</action>`, while native `<action name="..." />` markup is
+left for `RichTextWidget` to render.
+
+Native formatting may be nested inside a Lobby2 label as long as the markup is
+properly nested:
+
+```text
+<action id="debug_print"><color name="orange"><b>click here</b></color></action>
+<marker name="Alpha"><color rgba="255,152,50,255">view Alpha</color></marker>
+<size scale="1.35"><u><color name="orange"><b>larger underlined text</b></color></u></size>
+```
+
+The action `id` and marker `name` are limited to 64 characters. An empty label
+uses that ID or name as its visible label. One custom inline paragraph may contain
+multiple action, marker, underline, strike, and size spans. Text between those
+spans must be plain, while native rich-text formatting may be properly nested
+inside each span. Underline, strike, and size wrappers may be nested around each
+other. Formatting elsewhere in the briefing remains supported before and after
+that paragraph. A malformed Lobby2 tag is not forwarded to Reforger's native
+rich-text parser; the view shows a safe validation message instead.
+
+`marker` is only a validated marker reference in this slice. It does not yet
+resolve a world marker, open the map, or change the local map position.
 
 `RichTextWidget` exposes content sizing, line width, line visibility, and elision behavior in addition to inherited text behavior. It does not expose a documented character-range hit-test or clicked-span callback. Deriving a clicked word from cursor coordinates would therefore be fragile and inaccessible to controller users.
 
@@ -255,9 +331,18 @@ Use real buttons styled as links. A link style should include:
 - an optional icon indicating navigation, map focus, or external navigation;
 - a tooltip or accessible label when the visible label is ambiguous.
 
-For the first implementation, place action links as their own document rows beneath the related paragraph. True word-wrapped inline links would require a custom flow renderer made from multiple widgets and are not justified for the first slice.
+The current proof supports one interactive tag inside an otherwise plain `<p>...</p>`
+paragraph. That paragraph is rendered as size-to-content word runs in a wrapping
+layout. The visible action phrase and transparent button share one bounded overlay
+run, so only the phrase is clickable. No screen coordinates or authored offsets
+determine its placement; when the phrase approaches the right edge, the wrapping
+layout moves it intact to the next line.
 
-Do not overlay invisible buttons on rich text. Such overlays become incorrect when text wraps, font scale changes, resolution changes, or localization changes.
+Do not position a button by guessing a glyph's coordinates in a monolithic rich
+text widget. A supported overlay must own both the visible marker text and the
+button in the same layout container. The implemented inline paragraph renderer
+uses that custom multi-widget flow rather than guessing positions in a monolithic
+rich-text widget.
 
 ### External URLs
 
@@ -313,6 +398,9 @@ Purely local actions should not be replicated. When all clients can derive a doc
 - Data-driven briefing sections and blocks.
 - Link-styled and conventional buttons.
 - Registered action IDs with validated parameters.
+- Lobby2 `<action>` tags with native rich-text formatting inside labels.
+- Lobby2 `<marker>` references that capture a marker name without map
+  navigation in the current slice.
 - Handlers that dispatch further Lobby2-owned events.
 - Local navigation and presentation actions.
 - Explicit, validated requests to authoritative systems.
@@ -325,7 +413,7 @@ Purely local actions should not be replicated. When all clients can derive a doc
 - Reflection-like dispatch based on authored strings.
 - Native clickable spans inside `RichTextWidget` unless a future verified engine API provides them.
 - Mouse-coordinate guessing over formatted text.
-- Invisible button overlays on words.
+- Coordinate-positioned button overlays on words inside a monolithic rich-text widget.
 - JavaScript, CSS, general HTML, or embedded webpages.
 - Remote images or arbitrary runtime resource paths.
 - Unvalidated external URLs.
@@ -345,15 +433,19 @@ Each step is intended to be a small, testable slice.
 ### Slice 2: document data model
 
 - Define add-on-owned section and block data.
-- Render text blocks in their declared plain or rich format, plus image, spacer/divider, and action blocks.
+- Render text blocks as rich text when they contain recognized tags and as plain
+  text otherwise, plus image, spacer/divider, and action blocks.
 - Preserve the existing four titles while moving their body content into the model.
 - Add validation and graceful placeholders for malformed blocks.
 
-### Slice 3: action dispatcher
+### Slice 3: action dispatcher (proof started)
 
-- Define stable action identifiers and the request/context/result model.
+- The current `debug_print` tag proves dynamic layout-owned placement,
+  lifecycle-scoped click registration, and allowlisted local dispatch from the
+  first briefing.
+- Next, define data-driven stable action identifiers and the
+  request/context/result model.
 - Add lifecycle-scoped handler registration and cleanup.
-- Implement one local proof action, such as selecting another briefing section.
 - Verify mouse, keyboard, and gamepad activation.
 
 ### Slice 4: parameterized map focus

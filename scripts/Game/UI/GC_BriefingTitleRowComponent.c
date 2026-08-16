@@ -10,7 +10,7 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
     protected bool m_bSelected;
 
     protected bool m_bHovered;
-    protected string m_sBriefingId;
+    protected int m_iBriefingOrder;
     protected TextWidget m_wOrder;
     protected TextWidget m_wTitle;
     protected ImageWidget m_wIcon;
@@ -92,9 +92,9 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
         return m_sTitle;
     }
 
-    string GetBriefingId()
+    int GetBriefingOrder()
     {
-        return m_sBriefingId;
+        return m_iBriefingOrder;
     }
 
     void SetBriefingData(GC_Briefing briefing)
@@ -105,7 +105,7 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
             return;
         }
 
-        m_sBriefingId = briefing.GetId();
+        m_iBriefingOrder = briefing.GetOrder();
         m_iOrder = briefing.GetOrder();
         m_sTitle = briefing.GetTitle();
 
@@ -121,7 +121,7 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
 
     void ClearBriefingData()
     {
-        m_sBriefingId = string.Empty;
+        m_iBriefingOrder = 0;
         m_bSelected = false;
 
         if (m_wRoot)

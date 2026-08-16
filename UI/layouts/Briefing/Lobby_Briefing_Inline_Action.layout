@@ -1,0 +1,53 @@
+OverlayWidgetClass {
+ Name "BriefingInlineAction"
+ Slot WrapLayoutWidgetSlot {
+ }
+ {
+  RichTextWidgetClass "{6A4D000000000101}" {
+   Name "BriefingInlineActionLabel"
+   Slot OverlayWidgetSlot "{6A4D000000000102}" {
+    Padding 2 0 2 0
+   }
+   Color 1 0.596 0.196 1
+   Text "click here"
+   "Font Size" 24
+   "Min Font Size" 20
+  }
+  ImageWidgetClass "{6A4D000000000106}" {
+   Name "BriefingInlineUnderline"
+   Slot OverlayWidgetSlot "{6A4D000000000107}" {
+    HorizontalAlign 3
+    VerticalAlign 2
+    Padding 2 0 2 1
+   }
+   "Is Visible" 0
+   Color 1 0.596 0.196 0.9
+   Size 1 2
+  }
+  ImageWidgetClass "{6A4D000000000108}" {
+   Name "BriefingInlineStrike"
+   Slot OverlayWidgetSlot "{6A4D000000000109}" {
+    HorizontalAlign 3
+    VerticalAlign 1
+    Padding 2 0 2 0
+   }
+   "Is Visible" 0
+   Color 1 0.596 0.196 0.9
+   Size 1 2
+  }
+  ButtonWidgetClass "{6A4D000000000103}" {
+   Name "BriefingInlineActionButton"
+   Slot OverlayWidgetSlot "{6A4D000000000104}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   Color 1 1 1 0
+   components {
+    SCR_ButtonBaseComponent "{6A4D000000000105}" {
+     m_BackgroundDefault 0 0 0 0
+     m_BackgroundHovered 1 0.596 0.196 0.12
+    }
+   }
+  }
+ }
+}

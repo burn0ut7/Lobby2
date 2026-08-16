@@ -1,10 +1,13 @@
 ButtonWidgetClass {
  Name "BriefingTitleRow"
  Slot LayoutSlot "{6A4B000000000001}" {
+  HorizontalAlign 3
  }
  Color 0 1 0.019 0
  components {
   GC_BriefingTitleRowComponent "{6A4B000000000002}" {
+   m_BackgroundDefault 0.018 0.027 0.031 1
+   m_BackgroundHovered 0.05 0.102 0.125 1
    m_iOrder 1
    m_sTitle "BRIEFING TITLE"
    m_bSelected 0
@@ -14,129 +17,124 @@ ButtonWidgetClass {
   OverlayWidgetClass "{6A4B000000000003}" {
    Name "RowOverlay"
    Slot ButtonWidgetSlot "{6A4B000000000004}" {
-    Padding 0 0 0 0
+    HorizontalAlign 3
+    VerticalAlign 3
    }
    {
-    FrameWidgetClass "{6A4B000000000005}" {
-     Name "RowFrame"
+    SizeLayoutWidgetClass "{6A4B000000000005}" {
+     Name "RowSize"
      Slot OverlayWidgetSlot "{6A4B000000000006}" {
+      HorizontalAlign 3
+      VerticalAlign 3
      }
+     AllowHeightOverride 1
+     HeightOverride 56
      {
-      ImageWidgetClass "{6A4B000000000007}" {
-       Name "Background"
-       Slot FrameWidgetSlot "{6A4B000000000008}" {
-        OffsetLeft 0
-        OffsetTop 0
-         SizeX 220
-         OffsetRight -220
-         SizeY 56
-         OffsetBottom -56
+      OverlayWidgetClass "{6A4B000000000017}" {
+       Name "RowFrame"
+       Slot AlignableSlot "{6A4B000000000018}" {
+        HorizontalAlign 3
+        VerticalAlign 3
        }
-       Color 0.018 0.027 0.031 1
-      }
-      ImageWidgetClass "{6A4B000000000009}" {
-       Name "SelectedBackground"
-       Slot FrameWidgetSlot "{6A4B00000000000A}" {
-        OffsetLeft 0
-        OffsetTop 0
-         SizeX 220
-         OffsetRight -220
-         SizeY 56
-         OffsetBottom -56
+       {
+        ImageWidgetClass "{6A4B000000000007}" {
+         Name "Background"
+         Slot OverlayWidgetSlot "{6A4B000000000008}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.018 0.027 0.031 1
+        }
+        ImageWidgetClass "{6A4B000000000009}" {
+         Name "SelectedBackground"
+         Slot OverlayWidgetSlot "{6A4B00000000000A}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Opacity 0
+         Color 1 0.596 0.196 1
+        }
+        HorizontalLayoutWidgetClass "{6A4B000000000019}" {
+         Name "RowContent"
+         Slot OverlayWidgetSlot "{6A4B00000000001A}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         {
+          ImageWidgetClass "{6A4B00000000000B}" {
+           Name "LeftAccent"
+           Slot LayoutSlot "{6A4B00000000000C}" {
+            VerticalAlign 3
+           }
+           Opacity 0
+           Color 1 0.596 0.196 1
+           Size 3 56
+          }
+          SizeLayoutWidgetClass "{6A4B00000000001B}" {
+           Name "IconSize"
+           Slot LayoutSlot "{6A4B00000000001C}" {
+            VerticalAlign 3
+           }
+           AllowWidthOverride 1
+           WidthOverride 47
+           {
+            ImageWidgetClass "{6A4B00000000000F}" {
+             Name "Icon"
+             Slot AlignableSlot "{6A4B000000000010}" {
+              HorizontalAlign 1
+              VerticalAlign 1
+             }
+             Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+             Image "scenarios"
+             Size 24 24
+            }
+           }
+          }
+          TextWidgetClass "{6A4B000000000011}" {
+           Name "Order"
+           Slot LayoutSlot "{6A4B000000000012}" {
+            VerticalAlign 3
+           }
+           Color 0.862 0.862 0.862 1
+           Text "01"
+           "Font Size" 18
+           "Min Font Size" 18
+           "Vertical Alignment" Center
+          }
+          TextWidgetClass "{6A4B000000000013}" {
+           Name "Title"
+           Slot LayoutSlot "{6A4B000000000014}" {
+            VerticalAlign 3
+            Padding 10 0 8 0
+            SizeMode Fill
+           }
+           Color 0.862 0.862 0.862 1
+           Text "BRIEFING TITLE"
+           "Font Size" 18
+           "Min Font Size" 10
+           "Vertical Alignment" Center
+          }
+          ImageWidgetClass "{6A4B00000000000D}" {
+           Name "RightAccent"
+           Slot LayoutSlot "{6A4B00000000000E}" {
+            VerticalAlign 3
+           }
+           Opacity 0
+           Color 1 0.596 0.196 1
+           Size 3 56
+          }
+         }
+        }
+        ImageWidgetClass "{6A4B000000000015}" {
+         Name "Divider"
+         Slot OverlayWidgetSlot "{6A4B000000000016}" {
+          HorizontalAlign 3
+          VerticalAlign 2
+         }
+         Color 0.08 0.1 0.11 1
+         Size 1 1
+        }
        }
-       Color 1 0.596 0.196 1
-       Opacity 0
-      }
-      ImageWidgetClass "{6A4B00000000000B}" {
-       Name "LeftAccent"
-       Slot FrameWidgetSlot "{6A4B00000000000C}" {
-        OffsetLeft 0
-        OffsetTop 0
-        SizeX 3
-        OffsetRight -3
-         SizeY 56
-         OffsetBottom -56
-       }
-       Color 1 0.596 0.196 1
-       Opacity 0
-      }
-      ImageWidgetClass "{6A4B00000000000D}" {
-       Name "RightAccent"
-       Slot FrameWidgetSlot "{6A4B00000000000E}" {
-         PositionX 217
-         OffsetLeft 217
-        OffsetTop 0
-        SizeX 3
-         OffsetRight -220
-         SizeY 56
-         OffsetBottom -56
-       }
-       Color 1 0.596 0.196 1
-       Opacity 0
-      }
-      ImageWidgetClass "{6A4B00000000000F}" {
-       Name "Icon"
-       Slot FrameWidgetSlot "{6A4B000000000010}" {
-         PositionX 12
-         OffsetLeft 12
-         PositionY 14
-         OffsetTop 14
-         SizeX 28
-         OffsetRight -40
-         SizeY 28
-         OffsetBottom -42
-       }
-       Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
-       Image "scenarios"
-        Size 24 24
-      }
-      TextWidgetClass "{6A4B000000000011}" {
-       Name "Order"
-       Slot FrameWidgetSlot "{6A4B000000000012}" {
-         PositionX 50
-         OffsetLeft 50
-        PositionY 0
-        OffsetTop 0
-         SizeX 32
-         OffsetRight -82
-         SizeY 56
-         OffsetBottom -56
-       }
-       Text "01"
-       Color 0.862 0.862 0.862 1
-        "Font Size" 18
-        "Min Font Size" 18
-       "Vertical Alignment" Center
-      }
-      TextWidgetClass "{6A4B000000000013}" {
-       Name "Title"
-       Slot FrameWidgetSlot "{6A4B000000000014}" {
-         PositionX 88
-         OffsetLeft 88
-        PositionY 0
-        OffsetTop 0
-         SizeX 116
-         OffsetRight -204
-         SizeY 56
-         OffsetBottom -56
-       }
-       Text "BRIEFING TITLE"
-       Color 0.862 0.862 0.862 1
-        "Font Size" 18
-        "Min Font Size" 14
-       "Vertical Alignment" Center
-      }
-      ImageWidgetClass "{6A4B000000000015}" {
-       Name "Divider"
-       Slot FrameWidgetSlot "{6A4B000000000016}" {
-         PositionY 55
-         OffsetTop 55
-         SizeX 220
-         OffsetRight -220
-        SizeY 1
-         OffsetBottom -56
-       }
-       Color 0.08 0.1 0.11 1
       }
      }
     }

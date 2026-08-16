@@ -1,11 +1,11 @@
 SizeLayoutWidgetClass {
  Name "BriefingView"
- AllowWidthOverride 1
- WidthOverride 720
  components {
   GC_BriefingViewComponent "{6A41000000000003}" {
   }
  }
+ AllowWidthOverride 1
+ WidthOverride 720
  {
   OverlayWidgetClass "{6A41000000000028}" {
    Name "BriefingSurface"
@@ -14,166 +14,244 @@ SizeLayoutWidgetClass {
     VerticalAlign 3
    }
    {
-  ImageWidgetClass "{6A41000000000004}" {
-   Name "BriefingBackdrop"
-   Slot OverlayWidgetSlot "{6A41000000000005}" {
-    HorizontalAlign 3
-    VerticalAlign 3
-   }
-   Color 0.008 0.014 0.017 0.96
-  }
-  HorizontalLayoutWidgetClass "{6A41000000000006}" {
-   Name "BriefingColumns"
-   Slot OverlayWidgetSlot "{6A41000000000007}" {
-    HorizontalAlign 3
-    VerticalAlign 3
-    Padding 12 12 12 12
-   }
-   {
-    SizeLayoutWidgetClass "{6A41000000000008}" {
-     Name "BriefingIndexSize"
-     Slot LayoutSlot "{6A41000000000009}" {
+    HorizontalLayoutWidgetClass "{6A41000000000006}" {
+     Name "BriefingColumns"
+     Slot OverlayWidgetSlot "{6A41000000000007}" {
+      HorizontalAlign 3
       VerticalAlign 3
-     }
-     AllowWidthOverride 1
-     WidthOverride 220
-     {
-      VerticalLayoutWidgetClass "{6A4100000000000A}" {
-       Name "BriefingIndexColumn"
-       Slot AlignableSlot "{6A4100000000000B}" {
-        HorizontalAlign 3
-        VerticalAlign 3
-       }
-       {
-        TextWidgetClass "{6A4100000000000C}" {
-         Name "BriefingIndexLabel"
-         Slot LayoutSlot "{6A4100000000000D}" {
-           Padding 12 8 0 10
-         }
-         Color 0.58 0.62 0.64 1
-         Text "BRIEFING INDEX"
-         "Font Size" 17
-         "Min Font Size" 15
-        }
-        ImageWidgetClass "{6A4100000000000E}" {
-         Name "BriefingIndexDivider"
-         Slot LayoutSlot "{6A4100000000000F}" {
-          HorizontalAlign 3
-           Padding 0 0 0 10
-         }
-         Color 0.12 0.15 0.16 1
-          Size 220 1
-        }
-        FrameWidgetClass "{6A41000000000010}" : "{6A4B000000000100}UI/layouts/Briefing/Lobby_Briefing_Titles.layout" {
-         Name "BriefingTitles"
-         Slot LayoutSlot "{6A41000000000011}" {
-          HorizontalAlign 3
-          SizeMode Fill
-         }
-        }
-       }
-      }
-     }
-    }
-    ImageWidgetClass "{6A41000000000012}" {
-     Name "BriefingColumnDivider"
-     Slot LayoutSlot "{6A41000000000013}" {
-      VerticalAlign 3
-       Padding 12 0 12 0
-     }
-     Color 0.12 0.15 0.16 1
-     Size 2 820
-    }
-    OverlayWidgetClass "{6A41000000000014}" {
-     Name "BriefingDocumentPanel"
-     Slot LayoutSlot "{6A41000000000015}" {
-      VerticalAlign 3
-      SizeMode Fill
-      FillWeight 1
+      Padding 0 0 6 6
      }
      {
-      ImageWidgetClass "{6A41000000000016}" {
-       Name "BriefingDocumentBackground"
-       Slot OverlayWidgetSlot "{6A41000000000017}" {
-        HorizontalAlign 3
-        VerticalAlign 3
+      SizeLayoutWidgetClass "{6A41000000000008}" {
+       Name "BriefingIndexSize"
+       Slot LayoutSlot "{6A41000000000009}" {
+        VerticalAlign 0
        }
-       Color 0.018 0.027 0.031 0.98
-      }
-      VerticalLayoutWidgetClass "{6A41000000000018}" {
-       Name "BriefingDocumentColumn"
-       Slot OverlayWidgetSlot "{6A41000000000019}" {
-        HorizontalAlign 3
-        VerticalAlign 3
-         Padding 24 20 24 20
-       }
+       AllowWidthOverride 1
+       WidthOverride 275
        {
-        TextWidgetClass "{6A4100000000001A}" {
-         Name "BriefingSectionTitle"
-         Slot LayoutSlot "{6A4100000000001B}" {
-         }
-         Color 0.94 0.94 0.92 1
-         Text "01  OVERVIEW"
-          "Font Size" 28
-          "Min Font Size" 22
-        }
-        ImageWidgetClass "{6A4100000000001C}" {
-         Name "BriefingSectionDivider"
-         Slot LayoutSlot "{6A4100000000001D}" {
+        OverlayWidgetClass "{6A41000000000040}" {
+         Name "BriefingIndexPanel"
+         Slot AlignableSlot "{6A4100000000000B}" {
           HorizontalAlign 3
-           Padding 0 12 0 18
+          VerticalAlign 0
          }
-         Color 0.15 0.18 0.19 1
-         Size 900 1
-        }
-        ScrollLayoutWidgetClass "{6A4100000000001E}" {
-         Name "BriefingSectionScroll"
-         Slot LayoutSlot "{6A4100000000001F}" {
-          HorizontalAlign 3
-          SizeMode Fill
-         }
-         Color 1 1 1 0
          {
-          SizeLayoutWidgetClass "{6A41000000000020}" {
-           Name "BriefingSectionContentSize"
-           Slot AlignableSlot "{6A41000000000021}" {
+          ImageWidgetClass "{6A41000000000004}" {
+           Name "BriefingIndexBackdrop"
+           Slot OverlayWidgetSlot "{6A41000000000005}" {
+            HorizontalAlign 3
+            VerticalAlign 3
+           }
+           Color 0.008 0.014 0.017 0.96
+          }
+          VerticalLayoutWidgetClass "{6A4100000000000A}" {
+           Name "BriefingIndexColumn"
+           Slot OverlayWidgetSlot "{6A41000000000041}" {
             HorizontalAlign 3
             VerticalAlign 0
+            Padding 8 8 8 8
            }
-           AllowHeightOverride 1
-           HeightOverride 1100
            {
-            OverlayWidgetClass "{6A41000000000022}" {
-             Name "BriefingSectionBodyLayer"
-             Slot LayoutSlot "{6A41000000000023}" {
+            TextWidgetClass "{6A4100000000000C}" {
+             Name "BriefingIndexLabel"
+             Slot LayoutSlot "{6A4100000000000D}" {
+              Padding 4 4 0 4
+             }
+             Color 0.58 0.62 0.64 1
+             Text "BRIEFING"
+             "Font Size" 17
+             "Min Font Size" 15
+            }
+            ImageWidgetClass "{6A4100000000000E}" {
+             Name "BriefingIndexDivider"
+             Slot LayoutSlot "{6A4100000000000F}" {
               HorizontalAlign 3
-              VerticalAlign 3
+              Padding 0 0 0 6
+             }
+             Color 0.12 0.15 0.16 1
+             Size 1 1
+            }
+            VerticalLayoutWidgetClass "{6A41000000000010}" : "{6A4B000000000100}UI/layouts/Briefing/Lobby_Briefing_Titles.layout" {
+             Name "BriefingTitles"
+             Slot LayoutSlot "{6A41000000000011}" {
              }
              {
-              TextWidgetClass "{6A41000000000024}" {
-               Name "BriefingSectionPlainBody"
-               Slot OverlayWidgetSlot "{6A41000000000025}" {
-                HorizontalAlign 3
-                VerticalAlign 3
+              ButtonWidgetClass "{6A4B000000000103}" {
+               Prefab "{6A4B000000000103}"
+               {
+                OverlayWidgetClass "{6A4B000000000003}" {
+                 Prefab "{6A4B000000000003}"
+                 {
+                  SizeLayoutWidgetClass "{6A4B000000000005}" {
+                   Prefab "{6A4B000000000005}"
+                   {
+                    OverlayWidgetClass "{6A4B000000000017}" {
+                     Prefab "{6A4B000000000017}"
+                     {
+                      HorizontalLayoutWidgetClass "{6A4B000000000019}" {
+                       Prefab "{6A4B000000000019}"
+                       {
+                        TextWidgetClass "{6A4B000000000011}" {
+                         Prefab "{6A4B000000000011}"
+                         Slot LayoutSlot "{6A4B000000000012}" {
+                          Padding -10 0 0 0
+                         }
+                        }
+                        TextWidgetClass "{6A4B000000000013}" {
+                         Prefab "{6A4B000000000013}"
+                         "Min Font Size" 12
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
                }
-               "Is Visible" 0
-               Color 0.82 0.84 0.84 1
-               Text "Plain briefing content"
-               "Font Size" 24
-               "Min Font Size" 20
-               Wrap 1
               }
-              RichTextWidgetClass "{6A41000000000026}" {
-               Name "BriefingSectionRichBody"
-               Slot OverlayWidgetSlot "{6A41000000000027}" {
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      OverlayWidgetClass "{6A41000000000014}" {
+       Name "BriefingDocumentPanel"
+       Slot LayoutSlot "{6A41000000000015}" {
+        VerticalAlign 3
+        Padding 6 0 0 0
+        SizeMode Fill
+        FillWeight 1
+       }
+       {
+        ImageWidgetClass "{6A41000000000042}" {
+         Name "BriefingDocumentBackdrop"
+         Slot OverlayWidgetSlot "{6A41000000000043}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.008 0.014 0.017 0.96
+        }
+        VerticalLayoutWidgetClass "{6A41000000000018}" {
+         Name "BriefingDocumentColumn"
+         Slot OverlayWidgetSlot "{6A41000000000019}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 24 20 24 20
+         }
+         {
+          TextWidgetClass "{6A4100000000001A}" {
+           Name "BriefingSectionTitle"
+           Slot LayoutSlot "{6A4100000000001B}" {
+           }
+           Color 0.94 0.94 0.92 1
+           Text "01  OVERVIEW"
+           "Font Size" 28
+           "Min Font Size" 22
+          }
+          ImageWidgetClass "{6A4100000000001C}" {
+           Name "BriefingSectionDivider"
+           Slot LayoutSlot "{6A4100000000001D}" {
+            HorizontalAlign 3
+            Padding 0 12 0 18
+           }
+           Color 0.15 0.18 0.19 1
+           Size 900 1
+          }
+          ScrollLayoutWidgetClass "{6A4100000000001E}" {
+           Name "BriefingSectionScroll"
+           Slot LayoutSlot "{6A4100000000001F}" {
+            HorizontalAlign 3
+            SizeMode Fill
+           }
+           Color 1 1 1 0
+           {
+            SizeLayoutWidgetClass "{6A41000000000020}" {
+             Name "BriefingSectionContentSize"
+             Slot AlignableSlot "{6A41000000000021}" {
+              HorizontalAlign 3
+              VerticalAlign 0
+             }
+             AllowHeightOverride 1
+             HeightOverride 1100
+             {
+              OverlayWidgetClass "{6A41000000000022}" {
+               Name "BriefingSectionBodyLayer"
+               Slot LayoutSlot "{6A41000000000023}" {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
-               Color 0.82 0.84 0.84 1
-               Text "Rich briefing content"
-               "Font Size" 24
-               "Min Font Size" 20
-               Wrap 1
+               {
+                TextWidgetClass "{6A41000000000024}" {
+                 Name "BriefingSectionPlainBody"
+                 Slot OverlayWidgetSlot "{6A41000000000025}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 "Is Visible" 0
+                 Color 0.82 0.84 0.84 1
+                 Text "Plain briefing content"
+                 "Font Size" 24
+                 "Min Font Size" 20
+                 Wrap 1
+                }
+                RichTextWidgetClass "{6A41000000000026}" {
+                 Name "BriefingSectionRichBody"
+                 Slot OverlayWidgetSlot "{6A41000000000027}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.82 0.84 0.84 1
+                 Text "Rich briefing content"
+                 "Font Size" 24
+                 "Min Font Size" 20
+                 Wrap 1
+                }
+                VerticalLayoutWidgetClass "{6A41000000000035}" {
+                 Name "BriefingActionMarkerFlow"
+                 Slot OverlayWidgetSlot "{6A41000000000036}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 "Is Visible" 0
+                 {
+                  RichTextWidgetClass "{6A41000000000037}" {
+                   Name "BriefingActionMarkerBefore"
+                   Slot LayoutSlot "{6A41000000000038}" {
+                    HorizontalAlign 3
+                   }
+                   Color 0.82 0.84 0.84 1
+                   Text "Content before action marker"
+                   "Font Size" 24
+                   "Min Font Size" 20
+                   Wrap 1
+                  }
+                  WrapLayoutWidgetClass "{6A4100000000002A}" {
+                   Name "BriefingActionInlineFlow"
+                   Slot LayoutSlot "{6A4100000000002B}" {
+                    HorizontalAlign 3
+                    Padding 0 2 0 2
+                   }
+                  }
+                  RichTextWidgetClass "{6A41000000000039}" {
+                   Name "BriefingActionMarkerAfter"
+                   Slot LayoutSlot "{6A4100000000003A}" {
+                    HorizontalAlign 3
+                   }
+                   Color 0.82 0.84 0.84 1
+                   Text "Content after action marker"
+                   "Font Size" 24
+                   "Min Font Size" 20
+                   Wrap 1
+                  }
+                 }
+                }
+               }
               }
              }
             }
@@ -187,7 +265,5 @@ SizeLayoutWidgetClass {
     }
    }
   }
- }
-}
  }
 }
