@@ -1,6 +1,7 @@
 ButtonWidgetClass {
  Name "PlayerRow"
  Slot LayoutSlot "{6A33000000000002}" {
+  HorizontalAlign 3
   VerticalAlign 1
   Padding 0 0 0 4
  }
@@ -29,9 +30,9 @@ ButtonWidgetClass {
     SizeLayoutWidgetClass "{6A33000000000007}" {
      Name "RowSize"
      Slot OverlayWidgetSlot "{6A33000000000008}" {
+      HorizontalAlign 3
+      VerticalAlign 3
      }
-     AllowWidthOverride 1
-     WidthOverride 500
      AllowHeightOverride 1
      HeightOverride 36
      {
@@ -147,16 +148,37 @@ ButtonWidgetClass {
          AllowHeightOverride 1
          HeightOverride 34
          {
-          ImageWidgetClass "{6A3300000000001F}" {
-           Name "VoiceIcon"
-           Slot AlignableSlot "{6A33000000000020}" {
-            HorizontalAlign 1
-            VerticalAlign 1
+          OverlayWidgetClass "{6A33000000000023}" {
+           Name "VoiceIconOverlay"
+           Slot AlignableSlot "{6A33000000000024}" {
+            HorizontalAlign 3
+            VerticalAlign 3
            }
-           Opacity 0.38
-           Color 1 1 1 1
-           Texture "{929445F7EC83C1B3}UI/Textures/QuickMenu/Icons/microphone-open.edds"
-           Size 26 26
+           {
+            ImageWidgetClass "{6A3300000000001F}" {
+             Name "VoiceIcon"
+             Slot OverlayWidgetSlot "{6A33000000000020}" {
+              HorizontalAlign 1
+              VerticalAlign 1
+             }
+             Opacity 0.38
+             Color 1 1 1 1
+             Texture "{929445F7EC83C1B3}UI/Textures/QuickMenu/Icons/microphone-open.edds"
+             Size 26 26
+            }
+            ImageWidgetClass "{6A33000000000021}" {
+             Name "VoiceDeafenedIcon"
+             Slot OverlayWidgetSlot "{6A33000000000022}" {
+              HorizontalAlign 1
+              VerticalAlign 1
+             }
+             "Is Visible" 0
+             Color 1 1 1 1
+             Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+             Image "VoNDisabled"
+             Size 26 26
+            }
+           }
           }
          }
         }

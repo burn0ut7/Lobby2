@@ -25,7 +25,6 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 		m_LobbyManager.m_OnFactionUpdated.Insert(OnLobbyRegistryUpdated);
 		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnLobbyPlayerRegistryUpdated);
-		PrintFormat("GC | Voice channel list attached: factions=%1 groups=%2", m_LobbyManager.GetRegisteredFactions().Count(), m_LobbyManager.GetRegisteredGroups().Count());
 		Refresh();
 	}
 
@@ -73,7 +72,6 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 		RefreshPlayers();
 
-		PrintFormat("GC | Voice channel list refreshed: localFaction=%1 visibleChannels=%2", localFaction, m_aChannelWidgets.Count());
 	}
 
 	protected Faction GetLocalPlayerFaction()
@@ -133,7 +131,6 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 		array<int> connectedPlayers = {};
 		GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
-		PrintFormat("GC | Voice channel player refresh begin: connected=%1 channelWidgets=%2", connectedPlayers.Count(), m_aChannelWidgets.Count());
 
 		int totalRows;
 		foreach (Widget channelWidget : m_aChannelWidgets)
@@ -150,7 +147,6 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 			totalRows += members.Count();
 		}
 
-		PrintFormat("GC | Voice channel players refreshed: connected=%1 channels=%2 rows=%3", connectedPlayers.Count(), m_aChannelWidgets.Count(), totalRows);
 	}
 
 	protected array<int> GetChannelMembers(GC_VoiceChannelType channelType, Faction faction, SCR_AIGroup group, array<int> connectedPlayers)

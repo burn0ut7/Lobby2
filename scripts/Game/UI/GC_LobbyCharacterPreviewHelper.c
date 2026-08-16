@@ -17,8 +17,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
     protected float m_fMouseDeltaY;
     protected float m_fWheelInput;
     protected bool m_bHasMouseSample;
-	protected int m_iDebugManipulationFrames;
-	protected bool m_bDebugCameraUpdateLogged;
 
     protected bool CanProcessEvent(int x, int y)
     {
@@ -63,11 +61,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
                 m_fLastMouseY = mouseY;
             }
 
-			if (m_iDebugManipulationFrames < 5)
-			{
-				PrintFormat("GC | Preview input sample frame=%1 mouse=(%2,%3) delta=(%4,%5) rotate=%6 roll=%7", m_iDebugManipulationFrames, mouseX, mouseY, m_fMouseDeltaX, m_fMouseDeltaY, m_bMouseRotate, m_bMouseRoll);
-				m_iDebugManipulationFrames++;
-			}
         }
         else
         {
@@ -109,7 +102,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
     override bool OnMouseButtonDown(Widget w, int x, int y, int button)
     {
 		bool inside = CanProcessEvent(x, y);
-		PrintFormat("GC | Preview input mouse-down callback target=%1 button=%2 cursor=(%3,%4) inside=%5", w, button, x, y, inside);
 		if (!inside)
 			return false;
 
@@ -120,9 +112,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 		else
 			return false;
 
-		m_iDebugManipulationFrames = 0;
-		m_bDebugCameraUpdateLogged = false;
-		PrintFormat("GC | Preview input mouse-down accepted rotate=%1 roll=%2", m_bMouseRotate, m_bMouseRoll);
 
         return true;
     }
@@ -130,7 +119,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
     override bool OnMouseButtonUp(Widget w, int x, int y, int button)
     {
 		bool handled = m_bMouseRotate || m_bMouseRoll;
-		PrintFormat("GC | Preview input mouse-up callback target=%1 button=%2 cursor=(%3,%4) handled=%5", w, button, x, y, handled);
         if (button == 0)
             m_bMouseRotate = false;
         else if (button == 1)
@@ -142,7 +130,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
     override bool OnMouseWheel(Widget w, int x, int y, int wheel)
     {
 		m_bMouseWheel = CanProcessEvent(x, y);
-		PrintFormat("GC | Preview input mouse-wheel callback target=%1 wheel=%2 cursor=(%3,%4) inside=%5", w, wheel, x, y, m_bMouseWheel);
         if (m_bMouseWheel)
             m_fWheelInput += wheel;
 		return m_bMouseWheel;
@@ -188,11 +175,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
             changesApplied = true;
         }
 
-		if (changesApplied && !m_bDebugCameraUpdateLogged)
-		{
-			PrintFormat("GC | Preview camera update applied rotation=%1 zoom=%2", updatedRotation, zoom);
-			m_bDebugCameraUpdateLogged = true;
-		}
 
         return changesApplied;
     }
@@ -204,7 +186,6 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 
     void Destroy()
     {
-		PrintFormat("GC | Preview input handler destroy interaction=%1", m_wInteractionArea);
         if (m_wInteractionArea)
             m_wInteractionArea.RemoveHandler(this);
 
@@ -227,6 +208,5 @@ class GC_LobbyCharacterPreviewHelper : ScriptedWidgetComponent
 		float posX, posY;
 		m_wInteractionArea.GetScreenSize(sizeX, sizeY);
 		m_wInteractionArea.GetScreenPos(posX, posY);
-		PrintFormat("GC | Preview input handler attached interaction=%1 bounds=(%2,%3 %4x%5)", m_wInteractionArea, posX, posY, sizeX, sizeY);
     }
 };

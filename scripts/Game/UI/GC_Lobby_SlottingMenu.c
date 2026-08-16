@@ -29,25 +29,30 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected GC_Slot m_PendingHoveredSlot;
 	protected bool m_bWasManipulatingPreview;
 	protected InputManager m_InputManager;
+    protected Widget m_wLobbyBody;
+    protected Widget m_wPreviewFrameSize;
+    protected Widget m_wBriefingView;
 
     override void OnMenuOpen()
     {
         if (SCR_Global.IsEditMode())
             return;
 
-        PrintFormat("GC | OnMenuOpen");
 
 		m_InputManager = GetGame().GetInputManager();
 		if (m_InputManager)
 			m_InputManager.AddActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 
         m_wRoot = GetRootWidget();
+        m_wLobbyBody = m_wRoot.FindAnyWidget("Body");
+        m_wPreviewFrameSize = m_wRoot.FindAnyWidget("PreviewFrameSize");
+        m_wBriefingView = m_wRoot.FindAnyWidget("BriefingView");
 
         InitializeFactionList();
         InitializeGroupWidget();
         InitializePlayerPreview();
 
-        Widget headerRoot = m_wRoot.FindAnyWidget("Frame");
+        Widget headerRoot = m_wRoot.FindAnyWidget("MenuBar");
         if (!headerRoot)
         {
             PrintFormat("GC | Header root not found");
@@ -63,7 +68,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
         m_Header.m_OnStateChanged.Insert(OnHeaderStateChanged);
         m_Header.SetActiveState(0);
-        PrintFormat("GC | Slotting menu subscribed to header state changes");
     }
 
     override void OnMenuUpdate(float tDelta)
@@ -140,6 +144,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         m_wGroups = null;
 		m_wGroupScroll = null;
 		m_InputManager = null;
+        m_wLobbyBody = null;
+        m_wPreviewFrameSize = null;
+        m_wBriefingView = null;
         m_SelectedFactionKey = string.Empty;
 
         super.OnMenuClose();
@@ -161,7 +168,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OpenPauseMenu()
 	{
-		PrintFormat("GC | Opening pause menu above slotting menu");
 		ArmaReforgerScripted.OpenPauseMenu(false, true);
 	}
 
@@ -193,7 +199,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
         m_FactionList.m_OnFactionSelected.Insert(OnFactionSelected);
         m_SelectedFactionKey = m_FactionList.GetSelectedFactionKey();
-        PrintFormat("GC | Slotting menu subscribed to faction selection");
     }
 
     protected void OnFactionSelected(FactionKey factionKey)
@@ -232,7 +237,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             return;
         }
 
-		PrintFormat("GC | Slotting menu topology on attach: factions=%1 groups=%2 slots=%3", m_LobbyManager.GetRegisteredFactions().Count(), m_LobbyManager.GetRegisteredGroups().Count(), m_LobbyManager.GetSlots().Count());
 		m_LobbyManager.m_OnFactionUpdated.Insert(OnLobbyFactionUpdated);
 		RefreshGroupWidget();
 	}
@@ -278,7 +282,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 		if (!m_wGroups || !m_LobbyManager || m_SelectedFactionKey.IsEmpty())
 		{
-			PrintFormat("GC | No faction selected; lobby group list is empty");
 			return;
 		}
 
@@ -304,7 +307,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             m_aGroupCards.Insert(groupCard);
         }
 
-		PrintFormat("GC | Created %1 lobby group cards for faction '%2'", m_aGroupCards.Count(), m_SelectedFactionKey);
 	}
 
 	protected void ResetGroupScrollPosition()
@@ -581,7 +583,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			m_InventoryDetail.Close();
 
         int state = header.GetActiveState();
-        PrintFormat("GC | Slotting header state callback: %1", state);
 
         switch (state)
         {
@@ -608,32 +609,46 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
     protected void MissionPreview()
     {
-        PrintFormat("GC | Mission Preview state selected");
-        // Put the actual mission-preview transition here.
+		SetBriefingVisible(false);
     }
 
     protected void LobbyState()
     {
-        PrintFormat("GC | Lobby state selected");
+        SetBriefingVisible(false);
     }
 
     protected void BriefingState()
     {
-        PrintFormat("GC | Briefing state selected");
+        SetBriefingVisible(true);
     }
 
     protected void GameState()
     {
-        PrintFormat("GC | Game state selected");
+        SetBriefingVisible(false);
     }
 
     protected void DebriefState()
     {
-        PrintFormat("GC | Debrief state selected");
+        SetBriefingVisible(false);
     }
 
     protected void ClearHeaderState()
     {
-        PrintFormat("GC | Header state cleared");
+        SetBriefingVisible(false);
+    }
+
+    protected void SetBriefingVisible(bool visible)
+    {
+        if (m_wBriefingView)
+            m_wBriefingView.SetVisible(visible);
+
+        if (m_wLobbyBody)
+            m_wLobbyBody.SetVisible(!visible);
+
+        if (m_wPreviewFrameSize)
+            m_wPreviewFrameSize.SetVisible(!visible);
+
+        if (visible && m_wLoadoutInventory)
+            m_wLoadoutInventory.SetVisible(false);
     }
 }

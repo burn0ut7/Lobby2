@@ -12,6 +12,7 @@ class GC_VoiceChannelAssignment
 	protected GC_VoiceChannelType m_eChannelType = GC_VoiceChannelType.GLOBAL;
 	protected string m_sFactionKey;
 	protected RplId m_GroupRplId = RplId.Invalid();
+	protected bool m_bDeafened;
 
 	int GetPlayerId()
 	{
@@ -33,6 +34,16 @@ class GC_VoiceChannelAssignment
 		return m_GroupRplId;
 	}
 
+	bool IsDeafened()
+	{
+		return m_bDeafened;
+	}
+
+	void SetDeafened(bool deafened)
+	{
+		m_bDeafened = deafened;
+	}
+
 	void Set(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
 	{
 		m_iPlayerId = playerId;
@@ -47,6 +58,7 @@ class GC_VoiceChannelAssignment
 			return;
 
 		Set(source.m_iPlayerId, source.m_eChannelType, source.m_sFactionKey, source.m_GroupRplId);
+		m_bDeafened = source.m_bDeafened;
 	}
 
 	bool RplSave(ScriptBitWriter writer)
@@ -55,6 +67,7 @@ class GC_VoiceChannelAssignment
 		writer.WriteIntRange(m_eChannelType, GC_VoiceChannelType.GLOBAL, GC_VoiceChannelType.GROUP);
 		writer.WriteString(m_sFactionKey);
 		writer.WriteRplId(m_GroupRplId);
+		writer.WriteBool(m_bDeafened);
 		return true;
 	}
 
@@ -68,6 +81,8 @@ class GC_VoiceChannelAssignment
 			return false;
 		if (!reader.ReadRplId(m_GroupRplId))
 			return false;
+		if (!reader.ReadBool(m_bDeafened))
+			return false;
 
 		return true;
 	}
@@ -79,6 +94,7 @@ class GC_VoiceChannelAssignment
 		snapshot.SerializeString(instance.m_sFactionKey);
 		RplId groupRplId = instance.m_GroupRplId;
 		snapshot.SerializeBytes(groupRplId, 4);
+		snapshot.SerializeBool(instance.m_bDeafened);
 		return true;
 	}
 
@@ -90,6 +106,7 @@ class GC_VoiceChannelAssignment
 		instance.m_eChannelType = channelType;
 		snapshot.SerializeString(instance.m_sFactionKey);
 		snapshot.SerializeBytes(instance.m_GroupRplId, 4);
+		snapshot.SerializeBool(instance.m_bDeafened);
 		return true;
 	}
 
@@ -101,6 +118,7 @@ class GC_VoiceChannelAssignment
 		RplId groupRplId;
 		snapshot.SerializeBytes(groupRplId, 4);
 		packet.Serialize(groupRplId, 32);
+		snapshot.EncodeBool(packet);
 	}
 
 	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
@@ -111,6 +129,7 @@ class GC_VoiceChannelAssignment
 		RplId groupRplId;
 		packet.Serialize(groupRplId, 32);
 		snapshot.SerializeBytes(groupRplId, 4);
+		snapshot.DecodeBool(packet);
 		return true;
 	}
 
@@ -119,6 +138,7 @@ class GC_VoiceChannelAssignment
 		return lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareStringSnapshots(rhs)
+			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4);
 	}
 
@@ -127,6 +147,7 @@ class GC_VoiceChannelAssignment
 		return snapshot.CompareInt(instance.m_iPlayerId)
 			&& snapshot.CompareInt(instance.m_eChannelType)
 			&& snapshot.CompareString(instance.m_sFactionKey)
-			&& snapshot.Compare(instance.m_GroupRplId, 4);
+			&& snapshot.Compare(instance.m_GroupRplId, 4)
+			&& snapshot.CompareBool(instance.m_bDeafened);
 	}
 }

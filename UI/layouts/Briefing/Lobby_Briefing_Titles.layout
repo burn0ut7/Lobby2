@@ -1,0 +1,72 @@
+FrameWidgetClass {
+ Name "BriefingTitles"
+ components {
+  GC_BriefingTitlesComponent "{6A4B000000000100}" {
+  }
+ }
+ {
+  VerticalLayoutWidgetClass "{6A4B000000000101}" {
+   Name "BriefingTitleRows"
+   Slot FrameWidgetSlot "{6A4B000000000102}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 720
+    OffsetRight -720
+    SizeY 288
+    OffsetBottom -288
+   }
+   {
+    ButtonWidgetClass "{6A4B000000000103}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
+     Name "BriefingTitleRow01"
+     Slot LayoutSlot "{6A4B000000000104}" {
+     }
+     components {
+      GC_BriefingTitleRowComponent "{6A4B000000000002}" {
+       m_iOrder 1
+       m_sTitle "OVERVIEW"
+       m_bSelected 1
+      }
+     }
+    }
+    ButtonWidgetClass "{6A4B000000000106}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
+     Name "BriefingTitleRow02"
+     Slot LayoutSlot "{6A4B000000000107}" {
+     }
+     components {
+      GC_BriefingTitleRowComponent "{6A4B000000000002}" {
+       m_iOrder 2
+       m_sTitle "SITUATION"
+       m_bSelected 0
+      }
+     }
+    }
+    ButtonWidgetClass "{6A4B000000000109}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
+     Name "BriefingTitleRow03"
+     Slot LayoutSlot "{6A4B00000000010A}" {
+     }
+     components {
+      GC_BriefingTitleRowComponent "{6A4B000000000002}" {
+       m_iOrder 3
+       m_sTitle "MISSION"
+       m_bSelected 0
+      }
+     }
+    }
+    ButtonWidgetClass "{6A4B00000000010C}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
+     Name "BriefingTitleRow04"
+     Slot LayoutSlot "{6A4B00000000010D}" {
+     }
+     components {
+      GC_BriefingTitleRowComponent "{6A4B000000000002}" {
+       m_iOrder 4
+       m_sTitle "OBJECTIVES"
+       m_bSelected 0
+      }
+     }
+    }
+   }
+  }
+ }
+}

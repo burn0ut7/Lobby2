@@ -40,7 +40,6 @@ class GC_LobbyInventoryCellPreview
 			{
 				previewAttributes.ZoomCamera(m_fCameraZoomIncrement, 20, 20);
 				m_aZoomedItems.Insert(itemEntity);
-				PrintFormat("GC | Inventory weapon preview zoom applied: item=%1 fov=20", itemEntity);
 			}
 
 			previewManager.SetPreviewItem(m_wItemPreview, itemEntity, previewAttributes, true);

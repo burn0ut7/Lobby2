@@ -35,7 +35,6 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         SetActiveState(0);
         SetCanChangeState(false);
         RefreshAdminPermission();
-        PrintFormat("GC | Header initialized: buttons=%1", m_aButtons.Count());
     }
 
     protected void RefreshAdminPermission()
@@ -119,7 +118,6 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
         }
 
-        PrintFormat("GC | Header button clicked: state=%1 active=%2", button.GetHeaderState(), m_iActiveState);
 
         if (!m_bCanChangeState)
         {

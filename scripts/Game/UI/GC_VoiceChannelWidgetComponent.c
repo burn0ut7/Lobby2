@@ -96,7 +96,7 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 				continue;
 			}
 
-			row.SetPlayer(playerId, lobbyManager.GetSlotByPlayerId(playerId), m_Group);
+			row.SetPlayer(playerId, lobbyManager.GetSlotByPlayerId(playerId));
 			m_aPlayerRows.Insert(rowWidget);
 		}
 	}
@@ -116,8 +116,23 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 				channelName.SetText("GLOBAL");
 				break;
 			case GC_VoiceChannelType.FACTION:
-				channelName.SetText("FACTION");
+			{
+				string factionName;
+				if (m_Faction)
+				{
+					UIInfo factionUIInfo = m_Faction.GetUIInfo();
+					if (factionUIInfo)
+						factionName = WidgetManager.Translate(factionUIInfo.GetName());
+					else
+						factionName = WidgetManager.Translate(m_Faction.GetFactionName());
+				}
+
+				if (factionName.IsEmpty())
+					channelName.SetText("FACTION HQ");
+				else
+					channelName.SetTextFormat("%1 HQ", factionName);
 				break;
+			}
 			case GC_VoiceChannelType.GROUP:
 				channelName.SetText(GC_GroupCallsignHelper.GetDisplayName(m_Group));
 				break;

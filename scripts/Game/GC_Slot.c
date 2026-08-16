@@ -325,8 +325,7 @@ class GC_Slot
 			return false;
 
 		m_pGroup = null;
-		bool groupResolved = ResolveReplicatedGroup();
-		PrintFormat("GC | JIP slot load: slot=%1 groupRplId=%2 resolved=%3", m_iID, m_GroupRplId, groupResolved);
+		ResolveReplicatedGroup();
 
 		RplId entityRplId;
 		if (!reader.ReadRplId(entityRplId))

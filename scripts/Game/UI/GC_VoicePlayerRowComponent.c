@@ -1,5 +1,4 @@
-//! Populates one reusable voice-channel player row from authoritative player,
-//! group, and Lobby2 slot data.
+//! Populates one reusable player row from authoritative player and Lobby2 slot data.
 class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 {
     protected int m_iPlayerId = -1;
@@ -8,18 +7,13 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
     protected ResourceName m_RoleInfoPrefab;
     protected ref SCR_UIInfo m_RoleInfo;
 
-    void SetPlayer(int playerId, GC_Slot slot = null, SCR_AIGroup channelGroup = null)
+    void SetPlayer(int playerId, GC_Slot slot = null)
     {
         m_iPlayerId = playerId;
         m_Slot = slot;
-        m_Group = channelGroup;
-
-        if (!m_Group && m_iPlayerId >= 0)
-        {
-            SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
-            if (groupsManager)
-                m_Group = groupsManager.GetPlayerGroup(m_iPlayerId);
-        }
+        m_Group = null;
+        if (m_Slot)
+            m_Group = m_Slot.GetGroup();
 
         Refresh();
     }
@@ -50,6 +44,45 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 
         UpdateFactionAccent();
         UpdateRoleVisuals();
+        UpdateVoiceVisuals();
+        UpdateLocalPlayerBackground();
+    }
+
+    //! Recolors this row only for the player represented by the local client.
+    //! The same row layout is used by both the player and voice-channel lists.
+    protected void UpdateLocalPlayerBackground()
+    {
+        Widget background = m_wRoot.FindAnyWidget("Background");
+        if (!background)
+            return;
+
+        bool isLocalPlayer;
+        PlayerController playerController = GetGame().GetPlayerController();
+        if (playerController)
+            isLocalPlayer = playerController.GetPlayerId() == m_iPlayerId;
+
+        if (isLocalPlayer)
+            background.SetColor(Color.FromRGBA(194, 100, 20, 20));
+        else
+            background.SetColor(Color.FromRGBA(1, 1, 1, 158));
+    }
+
+    //! Shows the replicated lobby presentation state. The normal microphone
+    //! remains the fallback until talking/muted VoN states are implemented.
+    protected void UpdateVoiceVisuals()
+    {
+        Widget voiceIcon = m_wRoot.FindAnyWidget("VoiceIcon");
+        Widget deafenedIcon = m_wRoot.FindAnyWidget("VoiceDeafenedIcon");
+        if (!voiceIcon || !deafenedIcon)
+            return;
+
+        bool deafened;
+        GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+        if (lobbyManager)
+            deafened = lobbyManager.IsPlayerVoiceDeafened(m_iPlayerId);
+
+        voiceIcon.SetVisible(!deafened);
+        deafenedIcon.SetVisible(deafened);
     }
 
     protected void UpdateFactionAccent()
@@ -70,8 +103,9 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         }
     }
 
-    //! Resolve the player's current faction instead of using the channel's
-    //! faction as presentation state. This keeps Global rows correct too.
+    //! Resolve the player's current faction instead of using the voice
+    //! channel's faction as presentation state. This keeps Global rows
+    //! correct too.
     protected Faction ResolvePlayerFaction()
     {
         if (m_iPlayerId >= 0)

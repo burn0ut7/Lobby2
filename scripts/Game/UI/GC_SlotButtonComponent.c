@@ -304,7 +304,6 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 
 		m_RoleInfoPrefab = prefab;
 		m_RoleInfo = null;
-		PrintFormat("[GC_SlotButtonComponent] Resolving role metadata for prefab '%1'", prefab, level: LogLevel.WARNING);
 
 		Resource prefabResource = Resource.Load(prefab);
 		if (!prefabResource || !prefabResource.IsValid())
@@ -320,43 +319,14 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			return null;
 		}
 
-		PrintComponentMetadata(editableCharacterSource, prefab);
-
 		BaseContainer uiInfoContainer = editableCharacterSource.GetObject("m_UIInfo");
 		if (uiInfoContainer)
 			m_RoleInfo = SCR_UIInfo.Cast(BaseContainerTools.CreateInstanceFromContainer(uiInfoContainer));
 
 		if (!m_RoleInfo)
 			PrintFormat("[GC_SlotButtonComponent] Editable-character source has no UI info on '%1'", prefab, level: LogLevel.ERROR);
-		else
-			PrintFormat("[GC_SlotButtonComponent] Role UI info resolved: name='%1', iconSet='%2', icon='%3'", m_RoleInfo.GetName(), m_RoleInfo.GetIconSetName(), m_RoleInfo.GetIcon(), level: LogLevel.WARNING);
 
 		return m_RoleInfo;
-	}
-
-	protected void PrintComponentMetadata(IEntityComponentSource componentSource, ResourceName prefab)
-	{
-		BaseContainer container = componentSource;
-		int depth;
-		while (container)
-		{
-			BaseContainer uiInfo = container.GetObject("m_UIInfo");
-			string uiInfoClass = "<none>";
-			if (uiInfo)
-				uiInfoClass = uiInfo.GetClassName();
-
-			PrintFormat("[GC_SlotButtonComponent] Character component prefab='%1' depth=%2 class='%3' name='%4' vars=%5 m_UIInfoSet=%6 m_UIInfoDirect=%7 m_UIInfoClass='%8'", prefab, depth, container.GetClassName(), container.GetName(), container.GetNumVars(), container.IsVariableSet("m_UIInfo"), container.IsVariableSetDirectly("m_UIInfo"), uiInfoClass, level: LogLevel.WARNING);
-
-			for (int i = 0; i < container.GetNumVars(); i++)
-			{
-				string variableName = container.GetVarName(i);
-				if (variableName.Contains("Info") || variableName.Contains("Icon") || variableName.Contains("Name"))
-					PrintFormat("[GC_SlotButtonComponent]   field[%1] '%2' type=%3 set=%4 direct=%5", i, variableName, container.GetDataVarType(i), container.IsVariableSet(variableName), container.IsVariableSetDirectly(variableName), level: LogLevel.WARNING);
-			}
-
-			container = container.GetAncestor();
-			depth++;
-		}
 	}
 
 	protected void OnSlotChanged(GC_Slot slot)

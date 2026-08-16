@@ -86,7 +86,6 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 			m_aPlayerRows.Insert(rowWidget);
 		}
 
-		PrintFormat("GC | Player list refreshed: connected=%1 visible=%2 search='%3'", connectedPlayers.Count(), m_aPlayerRows.Count(), m_sSearchText);
 	}
 
 	protected bool MatchesSearch(string playerName, string searchNeedle)
@@ -157,6 +156,8 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 {
 	protected SCR_ButtonBaseComponent m_VoiceChannelsButton;
 	protected SCR_ButtonBaseComponent m_PlayerListButton;
+	protected SCR_ButtonBaseComponent m_DeafenButton;
+	protected GC_LobbyManager m_LobbyManager;
 	protected Widget m_wVoiceChannelList;
 	protected Widget m_wPlayerList;
 	protected bool m_bInitialized;
@@ -179,9 +180,15 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 			m_VoiceChannelsButton.m_OnClicked.Remove(OnTabClicked);
 		if (m_PlayerListButton)
 			m_PlayerListButton.m_OnClicked.Remove(OnTabClicked);
+		if (m_DeafenButton)
+			m_DeafenButton.m_OnClicked.Remove(OnDeafenClicked);
+		if (m_LobbyManager)
+			m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnVoiceStateUpdated);
 
 		m_VoiceChannelsButton = null;
 		m_PlayerListButton = null;
+		m_DeafenButton = null;
+		m_LobbyManager = null;
 		m_wVoiceChannelList = null;
 		m_wPlayerList = null;
 		super.HandlerDeattached(w);
@@ -194,28 +201,70 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 
 		Widget voiceButtonWidget = m_wRoot.FindAnyWidget("VoiceChannelsButton");
 		Widget playerButtonWidget = m_wRoot.FindAnyWidget("PlayerListButton");
+		Widget deafenButtonWidget = m_wRoot.FindAnyWidget("DeafenButton");
 		if (voiceButtonWidget)
 			m_VoiceChannelsButton = SCR_ButtonBaseComponent.Cast(voiceButtonWidget.FindHandler(SCR_ButtonBaseComponent));
 		if (playerButtonWidget)
 			m_PlayerListButton = SCR_ButtonBaseComponent.Cast(playerButtonWidget.FindHandler(SCR_ButtonBaseComponent));
+		if (deafenButtonWidget)
+			m_DeafenButton = SCR_ButtonBaseComponent.Cast(deafenButtonWidget.FindHandler(SCR_ButtonBaseComponent));
 
+		m_LobbyManager = GC_LobbyManager.GetManager();
 		m_wVoiceChannelList = m_wRoot.FindAnyWidget("VoiceChannelList");
 		m_wPlayerList = m_wRoot.FindAnyWidget("PlayerList");
-		if (!m_VoiceChannelsButton || !m_PlayerListButton || !m_wVoiceChannelList || !m_wPlayerList)
+		if (!m_VoiceChannelsButton || !m_PlayerListButton || !m_DeafenButton || !m_LobbyManager || !m_wVoiceChannelList || !m_wPlayerList)
 		{
-			PrintFormat("GC | Player list tabs attach failed: voiceButton=%1 playerButton=%2 voicePanel=%3 playerPanel=%4", m_VoiceChannelsButton != null, m_PlayerListButton != null, m_wVoiceChannelList != null, m_wPlayerList != null, level: LogLevel.ERROR);
+			PrintFormat("GC | Player list tabs attach failed: voiceButton=%1 playerButton=%2 deafenButton=%3 lobbyManager=%4 voicePanel=%5 playerPanel=%6", m_VoiceChannelsButton != null, m_PlayerListButton != null, m_DeafenButton != null, m_LobbyManager != null, m_wVoiceChannelList != null, m_wPlayerList != null, level: LogLevel.ERROR);
 			return;
 		}
 
 		m_bInitialized = true;
 		m_VoiceChannelsButton.m_OnClicked.Insert(OnTabClicked);
 		m_PlayerListButton.m_OnClicked.Insert(OnTabClicked);
+		m_DeafenButton.m_OnClicked.Insert(OnDeafenClicked);
+		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnVoiceStateUpdated);
 		SetPlayerListActive(false);
+		RefreshDeafenVisuals();
 	}
 
 	protected void OnTabClicked(SCR_ButtonBaseComponent button)
 	{
 		SetPlayerListActive(button == m_PlayerListButton);
+	}
+
+	protected void OnDeafenClicked(SCR_ButtonBaseComponent button)
+	{
+		SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (!playerController || !m_LobbyManager)
+			return;
+
+		int playerId = playerController.GetPlayerId();
+		playerController.RequestVoiceDeafened(!m_LobbyManager.IsPlayerVoiceDeafened(playerId));
+	}
+
+	protected void OnVoiceStateUpdated(int playerId)
+	{
+		SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (!playerController || (playerId >= 0 && playerId != playerController.GetPlayerId()))
+			return;
+
+		RefreshDeafenVisuals();
+	}
+
+	protected void RefreshDeafenVisuals()
+	{
+		Widget hearingIcon = m_wRoot.FindAnyWidget("DeafenHearingIcon");
+		Widget deafenedIcon = m_wRoot.FindAnyWidget("DeafenDisabledIcon");
+		if (!hearingIcon || !deafenedIcon || !m_LobbyManager)
+			return;
+
+		SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		bool deafened;
+		if (playerController)
+			deafened = m_LobbyManager.IsPlayerVoiceDeafened(playerController.GetPlayerId());
+
+		hearingIcon.SetVisible(!deafened);
+		deafenedIcon.SetVisible(deafened);
 	}
 
 	protected void SetPlayerListActive(bool playerListActive)

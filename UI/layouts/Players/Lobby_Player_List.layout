@@ -39,6 +39,7 @@ SizeLayoutWidgetClass {
       SizeLayoutWidgetClass "{6A37000000000009}" {
        Name "PlayerSearchSize"
        Slot LayoutSlot "{6A3700000000000A}" {
+        HorizontalAlign 3
         Padding 0 0 0 6
        }
        AllowHeightOverride 1
@@ -82,6 +83,7 @@ SizeLayoutWidgetClass {
       ScrollLayoutWidgetClass "{6A37000000000013}" {
        Name "PlayerListScroll"
        Slot LayoutSlot "{6A37000000000014}" {
+        HorizontalAlign 3
         SizeMode Fill
        }
        Color 1 1 1 0

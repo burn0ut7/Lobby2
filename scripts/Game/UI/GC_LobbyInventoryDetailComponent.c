@@ -110,7 +110,6 @@ class GC_LobbyInventoryDetailComponent : ScriptedWidgetComponent
 		Refresh();
 		m_wRoot.SetVisible(true);
 		ResetScrollPosition("open");
-		PrintFormat("GC | Lobby inventory detail opened for %1", m_Character);
 	}
 
 	void Close()
@@ -121,7 +120,6 @@ class GC_LobbyInventoryDetailComponent : ScriptedWidgetComponent
 		ResetScrollPosition("close");
 		m_wRoot.SetVisible(false);
 		ClearRows();
-		PrintFormat("GC | Lobby inventory detail closed");
 	}
 
 	bool IsOpen()
@@ -218,7 +216,6 @@ class GC_LobbyInventoryDetailComponent : ScriptedWidgetComponent
 			}
 		}
 
-		PrintFormat("GC | Lobby inventory detail populated %1 categorized item groups from %2 unique entities and %3 storage entries; filtered %4 internal equipment attachments and skipped %5 duplicate references", groupedItems.Count(), uniqueItems.Count(), items.Count(), internalEquipmentAttachmentCount, duplicateReferenceCount);
 	}
 
 	protected int GetItemCategory(IEntity item)
@@ -463,7 +460,6 @@ class GC_LobbyInventoryDetailComponent : ScriptedWidgetComponent
 		m_wScroll.GetSliderPos(previousX, previousY);
 		m_wScroll.SetSliderPos(0, 0);
 		if (previousX > 0.001 || previousY > 0.001)
-			PrintFormat("GC | Lobby inventory detail scroll reset (%1): (%2, %3) -> (0, 0)", reason, previousX, previousY);
 	}
 
 	protected void OnCloseClicked(SCR_ButtonBaseComponent button)

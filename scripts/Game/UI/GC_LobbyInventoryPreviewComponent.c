@@ -51,7 +51,6 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 		m_WatchPreview = CreateCellPreview("Watch", "ItemPreview");
 
 		ResetPreview();
-		PrintFormat("GC | Lobby inventory preview attached");
 	}
 
 	override void HandlerDeattached(Widget w)
@@ -139,7 +138,6 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 		SetCellItem(m_SidearmPreview, GetWeaponEntityAt(weaponSlots, WEAPON_POSITION_SIDEARM));
 		SetCellItem(m_GrenadePreview, GetWeaponEntityAt(weaponSlots, WEAPON_POSITION_GRENADE));
 
-		PrintFormat("GC | Inventory preview resolved %1 weapon slots", weaponSlots.Count());
 	}
 
 	protected IEntity GetWeaponEntityAt(array<WeaponSlotComponent> weaponSlots, int position)
@@ -198,7 +196,6 @@ class GC_LobbyInventoryPreviewComponent : ScriptedWidgetComponent
 		if (!m_InventoryDetail || !m_Character)
 			return;
 
-		PrintFormat("GC | Lobby inventory preview clicked");
 		m_InventoryDetail.Open();
 	}
 }

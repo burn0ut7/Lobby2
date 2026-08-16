@@ -21,7 +21,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
         if (!m_wContent || !m_LobbyManager)
             return;
 
-		PrintFormat("GC | Faction list attached: factions=%1 groups=%2 slots=%3", m_LobbyManager.GetRegisteredFactions().Count(), m_LobbyManager.GetRegisteredGroups().Count(), m_LobbyManager.GetSlots().Count());
         m_LobbyManager.m_OnFactionUpdated.Insert(OnFactionUpdated);
         Refresh();
     }
@@ -44,7 +43,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
             return;
 
         array<Faction> factions = m_LobbyManager.GetRegisteredFactions();
-		PrintFormat("GC | Faction list refresh: replicatedFactions=%1", factions.Count());
         FactionKey previousSelection = m_SelectedFactionKey;
 
         ClearCards();
@@ -85,7 +83,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
         }
 
         UpdateSelectionVisuals();
-		PrintFormat("GC | Faction list refresh complete: cards=%1 selectedFaction='%2'", m_aFactionCards.Count(), m_SelectedFactionKey);
     }
 
     FactionKey GetSelectedFactionKey()
@@ -124,7 +121,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
         if (!button)
             return;
 
-		PrintFormat("GC | Faction button clicked: '%1'", button.GetFactionKey());
         SetSelectedFaction(button.GetFactionKey());
     }
 

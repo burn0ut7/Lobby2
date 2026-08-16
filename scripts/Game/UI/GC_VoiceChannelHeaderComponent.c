@@ -19,7 +19,6 @@ class GC_VoiceChannelHeaderComponent : SCR_ButtonBaseComponent
         if (channelRoot)
             m_Channel = GC_VoiceChannelWidgetComponent.Cast(channelRoot.FindHandler(GC_VoiceChannelWidgetComponent));
 
-        PrintFormat("GC | Voice header attached: root=%1 parent=%2 channel=%3", m_wRoot, channelRoot, m_Channel != null, level: LogLevel.WARNING);
     }
 
     //! The owning channel widget supplies this explicitly because FindHandler
@@ -27,16 +26,12 @@ class GC_VoiceChannelHeaderComponent : SCR_ButtonBaseComponent
     void SetChannel(GC_VoiceChannelWidgetComponent channel)
     {
         m_Channel = channel;
-        PrintFormat("GC | Voice header channel bound: root=%1 channel=%2", m_wRoot, m_Channel != null, level: LogLevel.WARNING);
     }
 
     override bool OnClick(Widget w, int x, int y, int button)
     {
-        PrintFormat("GC | Voice header click: button=%1 channel=%2", button, m_Channel != null, level: LogLevel.WARNING);
-
         if (button != 0)
         {
-            PrintFormat("GC | Voice header click ignored: unsupported mouse button=%1", button, level: LogLevel.WARNING);
             return true;
         }
 
@@ -68,7 +63,6 @@ class GC_VoiceChannelHeaderComponent : SCR_ButtonBaseComponent
             factionKey = m_Channel.GetFaction().GetFactionKey();
 
         PlaySound(SCR_SoundEvent.CLICK);
-        PrintFormat("GC | Voice header click dispatching: player=%1 type=%2 faction=%3 group=%4", playerController.GetPlayerId(), m_Channel.GetChannelType(), factionKey, groupRplId, level: LogLevel.WARNING);
         playerController.RequestVoiceChannel(m_Channel.GetChannelType(), factionKey, groupRplId);
         return true;
     }

@@ -13,7 +13,7 @@ FrameWidgetClass {
  }
  {
   ImageWidgetClass "{6A16118EF335A54F}" {
-   Name "Image0"
+   Name "Background"
    Slot FrameWidgetSlot "{6A16118EF335A565}" {
     Anchor 0 0 1 1
     PositionX 0
@@ -307,27 +307,28 @@ FrameWidgetClass {
         SizeLayoutWidgetClass "{6A1D181453C3E75E}" {
          Name "PlayerListSize"
          Slot LayoutSlot "{6A1D181453C3E77A}" {
-          HorizontalAlign 2
           VerticalAlign 0
+          Padding 50 0 0 0
+          SizeMode Fill
          }
-         WidthOverride 517
          AllowHeightOverride 1
          HeightOverride 868
          {
           VerticalLayoutWidgetClass "{6A36000000000001}" {
            Name "PlayerListColumn"
-           components {
-            GC_PlayerListTabsComponent "{6A36000000000020}" {
-            }
-           }
            Slot AlignableSlot "{6A36000000000002}" {
             HorizontalAlign 3
             VerticalAlign 3
+           }
+           components {
+            GC_PlayerListTabsComponent "{6A36000000000020}" {
+            }
            }
            {
             SizeLayoutWidgetClass "{6A36000000000003}" {
              Name "PlayerListTabsSize"
              Slot LayoutSlot "{6A36000000000004}" {
+              HorizontalAlign 3
               VerticalAlign 0
              }
              AllowHeightOverride 1
@@ -342,15 +343,15 @@ FrameWidgetClass {
                {
                 ButtonWidgetClass "{6A36000000000007}" {
                  Name "VoiceChannelsButton"
-                 components {
-                  SCR_ButtonBaseComponent "{6A36000000000021}" {
-                  }
-                 }
                  Slot LayoutSlot "{6A36000000000008}" {
                   SizeMode Fill
                   FillWeight 1
                  }
                  Color 1 1 1 0
+                 components {
+                  SCR_ButtonBaseComponent "{6A36000000000021}" {
+                  }
+                 }
                  {
                   OverlayWidgetClass "{6A36000000000009}" {
                    Name "VoiceChannelsButtonContent"
@@ -398,15 +399,15 @@ FrameWidgetClass {
                 }
                 ButtonWidgetClass "{6A36000000000012}" {
                  Name "PlayerListButton"
-                 components {
-                  SCR_ButtonBaseComponent "{6A36000000000022}" {
-                  }
-                 }
                  Slot LayoutSlot "{6A36000000000013}" {
                   SizeMode Fill
                   FillWeight 1
                  }
                  Color 1 1 1 0
+                 components {
+                  SCR_ButtonBaseComponent "{6A36000000000022}" {
+                  }
+                 }
                  {
                   OverlayWidgetClass "{6A36000000000014}" {
                    Name "PlayerListButtonContent"
@@ -454,6 +455,71 @@ FrameWidgetClass {
                   }
                  }
                 }
+                SizeLayoutWidgetClass "{6A36000000000026}" {
+                 Name "DeafenButtonSize"
+                 Slot LayoutSlot "{6A36000000000027}" {
+                  VerticalAlign 1
+                  Padding 2 0 0 0
+                 }
+                 AllowWidthOverride 1
+                 WidthOverride 56
+                 AllowHeightOverride 1
+                 HeightOverride 48
+                 {
+                  ButtonWidgetClass "{6A36000000000028}" {
+                   Name "DeafenButton"
+                   Slot LayoutSlot "{6A36000000000029}" {
+                    HorizontalAlign 3
+                    VerticalAlign 3
+                   }
+                   Color 1 1 1 0
+                   components {
+                    SCR_ButtonBaseComponent "{6A3600000000002A}" {
+                    }
+                   }
+                   {
+                    OverlayWidgetClass "{6A3600000000002B}" {
+                     Name "DeafenButtonContent"
+                     Slot ButtonWidgetSlot "{6A3600000000002C}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     {
+                      ImageWidgetClass "{6A3600000000002D}" {
+                       Name "DeafenButtonBackground"
+                       Slot OverlayWidgetSlot "{6A3600000000002E}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 0.07 0.1 0.11 0.95
+                      }
+                      ImageWidgetClass "{6A3600000000002F}" {
+                       Name "DeafenHearingIcon"
+                       Slot OverlayWidgetSlot "{6A36000000000030}" {
+                        HorizontalAlign 1
+                        VerticalAlign 1
+                       }
+                       Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+                       Image "VoNDirect"
+                       Size 32 32
+                      }
+                      ImageWidgetClass "{6A36000000000031}" {
+                       Name "DeafenDisabledIcon"
+                       Slot OverlayWidgetSlot "{6A36000000000032}" {
+                        HorizontalAlign 1
+                        VerticalAlign 1
+                       }
+                       "Is Visible" 0
+                       Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+                       Image "VoNDisabled"
+                       Size 32 32
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
                }
               }
              }
@@ -461,16 +527,18 @@ FrameWidgetClass {
             OverlayWidgetClass "{6A3600000000001B}" {
              Name "PlayerListContent"
              Slot LayoutSlot "{6A3600000000001C}" {
+              HorizontalAlign 3
               SizeMode Fill
              }
              {
-               SizeLayoutWidgetClass "{6A3600000000001D}" : "{6A35000000000001}UI/layouts/Voice/Lobby_Voice_Channel_List.layout" {
-                Name "VoiceChannelList"
-                Slot OverlayWidgetSlot "{6A35000000000002}" {
+              SizeLayoutWidgetClass "{6A3600000000001D}" : "{6A35000000000001}UI/layouts/Voice/Lobby_Voice_Channel_List.layout" {
+               Name "VoiceChannelList"
+               Slot OverlayWidgetSlot "{6A35000000000002}" {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
                AllowWidthOverride 0
+               AllowHeightOverride 0
                {
                 OverlayWidgetClass "{6A35000000000003}" {
                  Prefab "{6A35000000000003}"
@@ -497,6 +565,172 @@ FrameWidgetClass {
         }
        }
       }
+      OverlayWidgetClass "{6A41000000000001}" {
+       Name "BriefingView"
+       Slot OverlayWidgetSlot "{6A41000000000002}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 35 30 35 35
+       }
+       "Is Visible" 0
+       components {
+        GC_BriefingViewComponent "{6A41000000000003}" {
+        }
+       }
+       {
+        ImageWidgetClass "{6A41000000000004}" {
+         Name "BriefingBackdrop"
+         Slot OverlayWidgetSlot "{6A41000000000005}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.008 0.014 0.017 0.96
+        }
+        HorizontalLayoutWidgetClass "{6A41000000000006}" {
+         Name "BriefingColumns"
+         Slot OverlayWidgetSlot "{6A41000000000007}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 22 22 22 22
+         }
+         {
+          SizeLayoutWidgetClass "{6A41000000000008}" {
+           Name "BriefingIndexSize"
+           Slot LayoutSlot "{6A41000000000009}" {
+            VerticalAlign 3
+           }
+           AllowWidthOverride 1
+           WidthOverride 720
+           {
+            VerticalLayoutWidgetClass "{6A4100000000000A}" {
+             Name "BriefingIndexColumn"
+             Slot AlignableSlot "{6A4100000000000B}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             {
+              TextWidgetClass "{6A4100000000000C}" {
+               Name "BriefingIndexLabel"
+               Slot LayoutSlot "{6A4100000000000D}" {
+                Padding 20 10 0 16
+               }
+               Color 0.58 0.62 0.64 1
+               Text "BRIEFING INDEX"
+               "Font Size" 17
+               "Min Font Size" 15
+              }
+              ImageWidgetClass "{6A4100000000000E}" {
+               Name "BriefingIndexDivider"
+               Slot LayoutSlot "{6A4100000000000F}" {
+                HorizontalAlign 3
+                Padding 0 0 0 16
+               }
+               Color 0.12 0.15 0.16 1
+               Size 720 1
+              }
+              FrameWidgetClass "{6A41000000000010}" : "{6A4B000000000100}UI/layouts/Briefing/Lobby_Briefing_Titles.layout" {
+               Name "BriefingTitles"
+               Slot LayoutSlot "{6A41000000000011}" {
+                HorizontalAlign 3
+                SizeMode Fill
+               }
+              }
+             }
+            }
+           }
+          }
+          ImageWidgetClass "{6A41000000000012}" {
+           Name "BriefingColumnDivider"
+           Slot LayoutSlot "{6A41000000000013}" {
+            VerticalAlign 3
+            Padding 22 0 22 0
+           }
+           Color 0.12 0.15 0.16 1
+           Size 2 820
+          }
+          OverlayWidgetClass "{6A41000000000014}" {
+           Name "BriefingDocumentPanel"
+           Slot LayoutSlot "{6A41000000000015}" {
+            VerticalAlign 3
+            SizeMode Fill
+            FillWeight 1
+           }
+           {
+            ImageWidgetClass "{6A41000000000016}" {
+             Name "BriefingDocumentBackground"
+             Slot OverlayWidgetSlot "{6A41000000000017}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 0.018 0.027 0.031 0.98
+            }
+            VerticalLayoutWidgetClass "{6A41000000000018}" {
+             Name "BriefingDocumentColumn"
+             Slot OverlayWidgetSlot "{6A41000000000019}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+              Padding 40 32 40 32
+             }
+             {
+              TextWidgetClass "{6A4100000000001A}" {
+               Name "BriefingSectionTitle"
+               Slot LayoutSlot "{6A4100000000001B}" {
+               }
+               Color 0.94 0.94 0.92 1
+               Text "01  OVERVIEW"
+               "Font Size" 32
+               "Min Font Size" 24
+              }
+              ImageWidgetClass "{6A4100000000001C}" {
+               Name "BriefingSectionDivider"
+               Slot LayoutSlot "{6A4100000000001D}" {
+                HorizontalAlign 3
+                Padding 0 18 0 24
+               }
+               Color 0.15 0.18 0.19 1
+               Size 900 1
+              }
+              ScrollLayoutWidgetClass "{6A4100000000001E}" {
+               Name "BriefingSectionScroll"
+               Slot LayoutSlot "{6A4100000000001F}" {
+                HorizontalAlign 3
+                SizeMode Fill
+               }
+               Color 1 1 1 0
+               {
+                SizeLayoutWidgetClass "{6A41000000000020}" {
+                 Name "BriefingSectionContentSize"
+                 Slot AlignableSlot "{6A41000000000021}" {
+                  HorizontalAlign 3
+                  VerticalAlign 0
+                 }
+                 AllowHeightOverride 1
+                 HeightOverride 1100
+                 {
+                  RichTextWidgetClass "{6A41000000000022}" {
+                   Name "BriefingSectionBody"
+                   Slot LayoutSlot "{6A41000000000023}" {
+                    HorizontalAlign 3
+                    VerticalAlign 3
+                   }
+                   Color 0.82 0.84 0.84 1
+                   Text "Briefing content"
+                   "Font Size" 24
+                   "Min Font Size" 20
+                   Wrap 1
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
       OverlayWidgetClass "{6A32000000000010}" : "{6A32000000000001}UI/layouts/Inventory/Lobby_Inventory_Detail.layout" {
        Name "InventoryDetail"
        Slot OverlayWidgetSlot "{6A3200000000000F}" {
@@ -508,6 +742,12 @@ FrameWidgetClass {
      }
     }
    }
+  }
+  FrameWidgetClass "{6A1F001886A5B812}" : "{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout" {
+   Name "Chat0"
+   Slot FrameWidgetSlot "{5D4881250D202DF3}" {
+   }
+   "Is Visible" 0
   }
  }
 }
