@@ -27,10 +27,10 @@ ButtonWidgetClass {
        Slot FrameWidgetSlot "{6A4B000000000008}" {
         OffsetLeft 0
         OffsetTop 0
-        SizeX 720
-        OffsetRight -720
-        SizeY 72
-        OffsetBottom -72
+         SizeX 220
+         OffsetRight -220
+         SizeY 56
+         OffsetBottom -56
        }
        Color 0.018 0.027 0.031 1
       }
@@ -39,10 +39,10 @@ ButtonWidgetClass {
        Slot FrameWidgetSlot "{6A4B00000000000A}" {
         OffsetLeft 0
         OffsetTop 0
-        SizeX 720
-        OffsetRight -720
-        SizeY 72
-        OffsetBottom -72
+         SizeX 220
+         OffsetRight -220
+         SizeY 56
+         OffsetBottom -56
        }
        Color 1 0.596 0.196 1
        Opacity 0
@@ -54,8 +54,8 @@ ButtonWidgetClass {
         OffsetTop 0
         SizeX 3
         OffsetRight -3
-        SizeY 72
-        OffsetBottom -72
+         SizeY 56
+         OffsetBottom -56
        }
        Color 1 0.596 0.196 1
        Opacity 0
@@ -63,13 +63,13 @@ ButtonWidgetClass {
       ImageWidgetClass "{6A4B00000000000D}" {
        Name "RightAccent"
        Slot FrameWidgetSlot "{6A4B00000000000E}" {
-        PositionX 717
-        OffsetLeft 717
+         PositionX 217
+         OffsetLeft 217
         OffsetTop 0
         SizeX 3
-        OffsetRight -720
-        SizeY 72
-        OffsetBottom -72
+         OffsetRight -220
+         SizeY 56
+         OffsetBottom -56
        }
        Color 1 0.596 0.196 1
        Opacity 0
@@ -77,64 +77,64 @@ ButtonWidgetClass {
       ImageWidgetClass "{6A4B00000000000F}" {
        Name "Icon"
        Slot FrameWidgetSlot "{6A4B000000000010}" {
-        PositionX 20
-        OffsetLeft 20
-        PositionY 18
-        OffsetTop 18
-        SizeX 36
-        OffsetRight -56
-        SizeY 36
-        OffsetBottom -54
+         PositionX 12
+         OffsetLeft 12
+         PositionY 14
+         OffsetTop 14
+         SizeX 28
+         OffsetRight -40
+         SizeY 28
+         OffsetBottom -42
        }
        Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
        Image "scenarios"
-       Size 32 32
+        Size 24 24
       }
       TextWidgetClass "{6A4B000000000011}" {
        Name "Order"
        Slot FrameWidgetSlot "{6A4B000000000012}" {
-        PositionX 76
-        OffsetLeft 76
+         PositionX 50
+         OffsetLeft 50
         PositionY 0
         OffsetTop 0
-        SizeX 48
-        OffsetRight -124
-        SizeY 72
-        OffsetBottom -72
+         SizeX 32
+         OffsetRight -82
+         SizeY 56
+         OffsetBottom -56
        }
        Text "01"
        Color 0.862 0.862 0.862 1
-       "Font Size" 20
-       "Min Font Size" 20
+        "Font Size" 18
+        "Min Font Size" 18
        "Vertical Alignment" Center
       }
       TextWidgetClass "{6A4B000000000013}" {
        Name "Title"
        Slot FrameWidgetSlot "{6A4B000000000014}" {
-        PositionX 136
-        OffsetLeft 136
+         PositionX 88
+         OffsetLeft 88
         PositionY 0
         OffsetTop 0
-        SizeX 560
-        OffsetRight -696
-        SizeY 72
-        OffsetBottom -72
+         SizeX 116
+         OffsetRight -204
+         SizeY 56
+         OffsetBottom -56
        }
        Text "BRIEFING TITLE"
        Color 0.862 0.862 0.862 1
-       "Font Size" 20
-       "Min Font Size" 16
+        "Font Size" 18
+        "Min Font Size" 14
        "Vertical Alignment" Center
       }
       ImageWidgetClass "{6A4B000000000015}" {
        Name "Divider"
        Slot FrameWidgetSlot "{6A4B000000000016}" {
-        PositionY 71
-        OffsetTop 71
-        SizeX 720
-        OffsetRight -720
+         PositionY 55
+         OffsetTop 55
+         SizeX 220
+         OffsetRight -220
         SizeY 1
-        OffsetBottom -72
+         OffsetBottom -56
        }
        Color 0.08 0.1 0.11 1
       }

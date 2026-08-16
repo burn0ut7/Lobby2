@@ -1,16 +1,28 @@
 class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 {
+    protected static const float COMPACT_WIDTH = 244;
+    protected static const float EXPANDED_WIDTH = 720;
+
     protected GC_BriefingTitlesComponent m_Titles;
+    protected GC_LobbyManager m_LobbyManager;
+    protected SizeLayoutWidget m_wViewSize;
+    protected Widget m_wColumnDivider;
+    protected Widget m_wDocumentPanel;
     protected TextWidget m_wSectionTitle;
-    protected RichTextWidget m_wSectionBody;
+    protected TextWidget m_wPlainSectionBody;
+    protected RichTextWidget m_wRichSectionBody;
     protected ScrollLayoutWidget m_wSectionScroll;
 
     override void HandlerAttached(Widget w)
     {
         super.HandlerAttached(w);
 
+        m_wViewSize = SizeLayoutWidget.Cast(w);
+        m_wColumnDivider = w.FindAnyWidget("BriefingColumnDivider");
+        m_wDocumentPanel = w.FindAnyWidget("BriefingDocumentPanel");
         m_wSectionTitle = TextWidget.Cast(w.FindAnyWidget("BriefingSectionTitle"));
-        m_wSectionBody = RichTextWidget.Cast(w.FindAnyWidget("BriefingSectionBody"));
+        m_wPlainSectionBody = TextWidget.Cast(w.FindAnyWidget("BriefingSectionPlainBody"));
+        m_wRichSectionBody = RichTextWidget.Cast(w.FindAnyWidget("BriefingSectionRichBody"));
         m_wSectionScroll = ScrollLayoutWidget.Cast(w.FindAnyWidget("BriefingSectionScroll"));
 
         Widget titlesRoot = w.FindAnyWidget("BriefingTitles");
@@ -20,7 +32,14 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         if (m_Titles)
             m_Titles.m_OnTitleSelected.Insert(OnTitleSelected);
 
-        ShowSection(1, "OVERVIEW");
+        m_LobbyManager = GC_LobbyManager.GetManager();
+        if (m_LobbyManager)
+        {
+            m_LobbyManager.m_OnBriefingsChanged.Insert(OnBriefingsChanged);
+            m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnPlayerRegistryChanged);
+        }
+
+        RefreshBriefings();
     }
 
     override void HandlerDeattached(Widget w)
@@ -28,9 +47,20 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         if (m_Titles)
             m_Titles.m_OnTitleSelected.Remove(OnTitleSelected);
 
+        if (m_LobbyManager)
+        {
+            m_LobbyManager.m_OnBriefingsChanged.Remove(OnBriefingsChanged);
+            m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnPlayerRegistryChanged);
+        }
+
         m_Titles = null;
+        m_LobbyManager = null;
+        m_wViewSize = null;
+        m_wColumnDivider = null;
+        m_wDocumentPanel = null;
         m_wSectionTitle = null;
-        m_wSectionBody = null;
+        m_wPlainSectionBody = null;
+        m_wRichSectionBody = null;
         m_wSectionScroll = null;
 
         super.HandlerDeattached(w);
@@ -38,73 +68,123 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 
     protected void OnTitleSelected(GC_BriefingTitleRowComponent row)
     {
-        if (!row)
+        if (!row || !row.IsSelected())
+        {
+            ShowBriefing(null);
             return;
+        }
 
-        ShowSection(row.GetOrder(), row.GetTitle());
+        GC_Briefing briefing;
+        if (m_LobbyManager)
+            briefing = m_LobbyManager.GetBriefing(row.GetBriefingId());
+
+        ShowBriefing(briefing);
     }
 
-    protected void ShowSection(int order, string title)
+    protected void OnBriefingsChanged(int revision)
     {
-        if (m_wSectionTitle)
-            m_wSectionTitle.SetText(order.ToString(2) + "  " + title);
+        RefreshBriefings();
+    }
 
-        if (m_wSectionBody)
-            m_wSectionBody.SetText(GetSectionContent(order));
+    protected void OnPlayerRegistryChanged(int playerId)
+    {
+        RefreshBriefings();
+    }
+
+    protected void RefreshBriefings()
+    {
+        if (!m_Titles || !m_LobbyManager)
+        {
+            ShowBriefing(null);
+            return;
+        }
+
+        PlayerController playerController = GetGame().GetPlayerController();
+        if (!playerController)
+        {
+            ShowBriefing(null);
+            return;
+        }
+
+        array<ref GC_Briefing> briefings = m_LobbyManager.GetBriefingsForPlayer(playerController.GetPlayerId());
+        GC_BriefingTitleRowComponent selectedRow = m_Titles.ConfigureBriefings(briefings);
+        if (!selectedRow)
+        {
+            ShowBriefing(null);
+            return;
+        }
+
+        ShowBriefing(m_LobbyManager.GetBriefing(selectedRow.GetBriefingId()));
+    }
+
+    protected void ShowBriefing(GC_Briefing briefing)
+    {
+        if (!briefing)
+        {
+            SetViewWidth(COMPACT_WIDTH);
+
+            if (m_wColumnDivider)
+                m_wColumnDivider.SetVisible(false);
+
+            if (m_wDocumentPanel)
+                m_wDocumentPanel.SetVisible(false);
+
+            if (m_wSectionTitle)
+                m_wSectionTitle.SetText(string.Empty);
+
+            if (m_wPlainSectionBody)
+            {
+                m_wPlainSectionBody.SetText(string.Empty);
+                m_wPlainSectionBody.SetVisible(true);
+            }
+
+            if (m_wRichSectionBody)
+            {
+                m_wRichSectionBody.SetText(string.Empty);
+                m_wRichSectionBody.SetVisible(false);
+            }
+
+            return;
+        }
+
+        SetViewWidth(EXPANDED_WIDTH);
+
+        if (m_wColumnDivider)
+            m_wColumnDivider.SetVisible(true);
+
+        if (m_wDocumentPanel)
+            m_wDocumentPanel.SetVisible(true);
+
+        if (m_wSectionTitle)
+            m_wSectionTitle.SetText(briefing.GetOrder().ToString(2) + "  " + briefing.GetTitle());
+
+        bool isRichText = briefing.GetTextFormat() == GC_BriefingTextFormat.RICH;
+        if (m_wPlainSectionBody)
+        {
+            m_wPlainSectionBody.SetText(briefing.GetContent());
+            m_wPlainSectionBody.SetVisible(!isRichText);
+        }
+
+        if (m_wRichSectionBody)
+        {
+            m_wRichSectionBody.SetText(briefing.GetContent());
+            m_wRichSectionBody.SetVisible(isRichText);
+        }
 
         if (m_wSectionScroll)
             m_wSectionScroll.SetSliderPos(0, 0);
     }
 
-    protected string GetSectionContent(int order)
+    protected void SetViewWidth(float width)
     {
-        switch (order)
-        {
-            case 2:
-                return GetSituationContent();
-            case 3:
-                return GetMissionContent();
-            case 4:
-                return GetObjectivesContent();
-        }
+        if (!m_wViewSize)
+            return;
 
-        return GetOverviewContent();
-    }
+        m_wViewSize.SetWidthOverride(width);
 
-    protected string GetOverviewContent()
-    {
-        return "<p>Assault and secure key positions across the area of operations to establish control and degrade enemy capabilities.</p>"
-            + "<p>Both sides have established strong defensive positions. Expect contact throughout the area.</p>"
-            + "<p>Civilian activity is minimal. Maintain mission focus and minimize collateral damage.</p>"
-            + "<br /><color rgba=\"255,152,50,255\"><b>KEY INFORMATION</b></color><br />"
-            + "<color rgba=\"150,160,164,255\">AREA OF OPERATIONS</color><br />Everon, Baltic Sea<br /><br />"
-            + "<color rgba=\"150,160,164,255\">PLAYERS</color><br />Two opposing forces<br /><br />"
-            + "<color rgba=\"150,160,164,255\">EST. DURATION</color><br />60 minutes<br /><br />"
-            + "<color rgba=\"150,160,164,255\">VICTORY CONDITION</color><br />Complete the assigned objectives and preserve friendly combat power.";
-    }
-
-    protected string GetSituationContent()
-    {
-        return "<p>Enemy forces control several strategically important positions and are prepared to reinforce them.</p>"
-            + "<p>Friendly elements are assembling in protected staging areas. Reconnaissance is limited, so unit leaders should confirm routes before movement.</p>"
-            + "<br /><color rgba=\"255,152,50,255\"><b>COMMANDER'S NOTE</b></color><br />"
-            + "Maintain communications, identify targets before engagement, and report meaningful changes in enemy disposition.";
-    }
-
-    protected string GetMissionContent()
-    {
-        return "<p>Friendly forces will seize the designated objectives, prevent an organized enemy counterattack, and establish control of the area.</p>"
-            + "<p>Leaders retain freedom of maneuver within their assigned tasks. Coordinate supporting fires and avoid isolating individual groups.</p>"
-            + "<br /><color rgba=\"255,152,50,255\"><b>END STATE</b></color><br />"
-            + "All required objectives are secure, enemy combat effectiveness is reduced, and friendly forces are prepared for follow-on operations.";
-    }
-
-    protected string GetObjectivesContent()
-    {
-        return "<color rgba=\"255,152,50,255\"><b>PRIMARY OBJECTIVES</b></color><br /><br />"
-            + "<b>01</b>  Secure the assigned area of operations.<br /><br />"
-            + "<b>02</b>  Disrupt enemy command and reinforcement routes.<br /><br />"
-            + "<b>03</b>  Retain sufficient combat power to hold captured positions.<br /><br />"
-            + "<color rgba=\"150,160,164,255\">Additional objectives may be issued by mission leadership as the situation develops.</color>";
+        // A FrameWidgetSlot owns the instantiated view's final dimensions and
+        // otherwise keeps the authored 720-pixel width despite the size override.
+        if (FrameWidget.Cast(m_wViewSize.GetParent()))
+            FrameSlot.SetSizeX(m_wViewSize, width);
     }
 }

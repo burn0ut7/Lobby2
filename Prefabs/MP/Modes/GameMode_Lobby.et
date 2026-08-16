@@ -6,6 +6,40 @@ SCR_BaseGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
     GC_PlayerFormationDefinition "{6A137A391367F905}" {
     }
    }
+   m_aBriefings {
+    GC_Briefing "{6A42000000000001}" {
+     m_sId "overview"
+     m_iOrder 1
+     m_sTitle "OVERVIEW"
+     m_sContent "<p>Assault and secure key positions across the area of operations to establish control and degrade enemy capabilities.</p><p>Both sides have established strong defensive positions. Expect contact throughout the area.</p><p>Civilian activity is minimal. Maintain mission focus and minimize collateral damage.</p><br /><color rgba=\"255,152,50,255\"><b>KEY INFORMATION</b></color><br /><color rgba=\"150,160,164,255\">AREA OF OPERATIONS</color><br />Everon, Baltic Sea<br /><br /><color rgba=\"150,160,164,255\">EST. DURATION</color><br />60 minutes<br /><br /><color rgba=\"150,160,164,255\">VICTORY CONDITION</color><br />Complete the assigned objectives and preserve friendly combat power."
+     m_eTextFormat 1
+     m_eAudience 0
+    }
+    GC_Briefing "{6A42000000000002}" {
+     m_sId "situation"
+     m_iOrder 2
+     m_sTitle "SITUATION"
+     m_sContent "<p>Enemy forces control several strategically important positions and are prepared to reinforce them.</p><p>Friendly elements are assembling in protected staging areas. Reconnaissance is limited, so unit leaders should confirm routes before movement.</p><br /><color rgba=\"255,152,50,255\"><b>COMMANDER'S NOTE</b></color><br />Maintain communications, identify targets before engagement, and report meaningful changes in enemy disposition."
+     m_eTextFormat 1
+     m_eAudience 0
+    }
+    GC_Briefing "{6A42000000000003}" {
+     m_sId "mission"
+     m_iOrder 3
+     m_sTitle "MISSION"
+     m_sContent "<p>Friendly forces will seize the designated objectives, prevent an organized enemy counterattack, and establish control of the area.</p><p>Leaders retain freedom of maneuver within their assigned tasks. Coordinate supporting fires and avoid isolating individual groups.</p><br /><color rgba=\"255,152,50,255\"><b>END STATE</b></color><br />All required objectives are secure, enemy combat effectiveness is reduced, and friendly forces are prepared for follow-on operations."
+     m_eTextFormat 1
+     m_eAudience 0
+    }
+    GC_Briefing "{6A42000000000004}" {
+     m_sId "objectives"
+     m_iOrder 4
+     m_sTitle "OBJECTIVES"
+     m_sContent "<color rgba=\"255,152,50,255\"><b>PRIMARY OBJECTIVES</b></color><br /><br /><b>01</b>  Secure the assigned area of operations.<br /><br /><b>02</b>  Disrupt enemy command and reinforcement routes.<br /><br /><b>03</b>  Retain sufficient combat power to hold captured positions.<br /><br /><color rgba=\"150,160,164,255\">Additional objectives may be issued by mission leadership as the situation develops.</color>"
+     m_eTextFormat 1
+     m_eAudience 0
+    }
+   }
   }
   GC_TestComp "{6A14271439D18FEA}" {
   }

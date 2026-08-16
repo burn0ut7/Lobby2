@@ -12,10 +12,10 @@ FrameWidgetClass {
     OffsetLeft 0
     PositionY 0
     OffsetTop 0
-    SizeX 720
-    OffsetRight -720
-    SizeY 288
-    OffsetBottom -288
+    SizeX 220
+    OffsetRight -220
+    SizeY 224
+    OffsetBottom -224
    }
    {
     ButtonWidgetClass "{6A4B000000000103}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {

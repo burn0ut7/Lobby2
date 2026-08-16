@@ -29,9 +29,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected GC_Slot m_PendingHoveredSlot;
 	protected bool m_bWasManipulatingPreview;
 	protected InputManager m_InputManager;
-    protected Widget m_wLobbyBody;
-    protected Widget m_wPreviewFrameSize;
-    protected Widget m_wBriefingView;
 
     override void OnMenuOpen()
     {
@@ -44,9 +41,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			m_InputManager.AddActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 
         m_wRoot = GetRootWidget();
-        m_wLobbyBody = m_wRoot.FindAnyWidget("Body");
-        m_wPreviewFrameSize = m_wRoot.FindAnyWidget("PreviewFrameSize");
-        m_wBriefingView = m_wRoot.FindAnyWidget("BriefingView");
 
         InitializeFactionList();
         InitializeGroupWidget();
@@ -66,7 +60,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             return;
         }
 
-        m_Header.m_OnStateChanged.Insert(OnHeaderStateChanged);
         m_Header.SetActiveState(0);
     }
 
@@ -116,9 +109,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             m_CharacterWidgetHelper = null;
         }
 
-        if (m_Header)
-            m_Header.m_OnStateChanged.Remove(OnHeaderStateChanged);
-
         if (m_FactionList)
             m_FactionList.m_OnFactionSelected.Remove(OnFactionSelected);
 
@@ -144,9 +134,6 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         m_wGroups = null;
 		m_wGroupScroll = null;
 		m_InputManager = null;
-        m_wLobbyBody = null;
-        m_wPreviewFrameSize = null;
-        m_wBriefingView = null;
         m_SelectedFactionKey = string.Empty;
 
         super.OnMenuClose();
@@ -577,78 +564,4 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         m_PreviewManager.SetPreviewItem(m_wPlayerRender, m_PreviewEntity, m_PlayerRenderAttributes);
     }
 
-    protected void OnHeaderStateChanged(GC_HeaderComponent header)
-    {
-		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
-			m_InventoryDetail.Close();
-
-        int state = header.GetActiveState();
-
-        switch (state)
-        {
-            case 0:
-                MissionPreview();
-                break;
-            case 1:
-                LobbyState();
-                break;
-            case 2:
-                BriefingState();
-                break;
-            case 3:
-                GameState();
-                break;
-            case 4:
-                DebriefState();
-                break;
-            default:
-                ClearHeaderState();
-                break;
-        }
-    }
-
-    protected void MissionPreview()
-    {
-		SetBriefingVisible(false);
-    }
-
-    protected void LobbyState()
-    {
-        SetBriefingVisible(false);
-    }
-
-    protected void BriefingState()
-    {
-        SetBriefingVisible(true);
-    }
-
-    protected void GameState()
-    {
-        SetBriefingVisible(false);
-    }
-
-    protected void DebriefState()
-    {
-        SetBriefingVisible(false);
-    }
-
-    protected void ClearHeaderState()
-    {
-        SetBriefingVisible(false);
-    }
-
-    protected void SetBriefingVisible(bool visible)
-    {
-        if (m_wBriefingView)
-            m_wBriefingView.SetVisible(visible);
-
-        if (m_wLobbyBody)
-            m_wLobbyBody.SetVisible(!visible);
-
-        if (m_wPreviewFrameSize)
-            m_wPreviewFrameSize.SetVisible(!visible);
-
-        if (visible && m_wLoadoutInventory)
-            m_wLoadoutInventory.SetVisible(false);
-    }
 }

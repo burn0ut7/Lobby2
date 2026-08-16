@@ -2,7 +2,56 @@
 
 ## Status
 
-Design and research document. This does not implement the briefing body or action dispatcher.
+Design, research, and implementation-status document.
+
+The first data-backed text slice is implemented. `GC_Briefing` is an add-on-owned
+`BaseContainer` authored on `GC_LobbyManager`; it supports explicit plain or rich
+text, stable IDs and ordering, and all/specific/no-faction audiences. The manager
+replicates the complete current set in its JIP snapshot and broadcasts reliable
+server-authoritative upserts and removals during a session. The briefing UI now
+renders this replicated data.
+
+The heterogeneous document-block model and registered action dispatcher described
+below are still future slices. Briefing data cannot currently invoke an action.
+
+### Current backend contract
+
+- `SetBriefing(...)` creates or completely replaces a briefing on the server.
+- `UpsertBriefing(...)` accepts a populated `GC_Briefing` on the server.
+- `SetBriefingVisible(id, visible)` shows or hides an existing briefing on the
+  server without replacing its content or audience.
+- `RemoveBriefing(id)` removes a briefing on the server.
+- Mutations are rejected on non-authority instances and invalid payloads are
+  rejected before broadcast.
+- `ALL_FACTIONS` is visible to every player, including a player whose faction has
+  not yet resolved.
+- `SPECIFIC_FACTION` resolves and compares the current authoritative base-game
+  faction key.
+- `NO_FACTION` is visible only when the player has no authoritative base-game
+  faction.
+- UI selection is local presentation state and is not replicated.
+- Briefing title buttons use single selection. Selecting a title shows its body,
+  selecting another switches the body, and selecting the active title again
+  collapses the view to its topic rail without changing replicated briefing
+  visibility.
+- The briefing view is authored as a reusable layout and instantiated by the
+  separate `Lobby_Preview.layout`. It is not owned by `Lobby_Slotting.layout`.
+- The reusable view is host-screen agnostic: it resolves only widgets inside its
+  own layout root and subscribes directly to the Lobby2 briefing backend. Preview,
+  a future dedicated Briefing screen, or another Lobby2 screen may instance the
+  same layout without adding briefing behavior to that screen's menu class.
+- Preview hosts the view as a bounded left-side panel rather than a fullscreen
+  overlay: a compact topic rail opens an adjacent readable document column while
+  leaving most of the map visible.
+- The reusable view owns its compact and expanded widths. With no selected topic,
+  it contracts to the 244-pixel topic rail; selecting a topic expands it to 720
+  pixels for the document column, and selecting that topic again contracts it so
+  the host screen regains the unused space.
+- Visibility is authored per briefing, replicated in JIP snapshots, and included
+  in reliable mid-session briefing updates. Hidden briefings remain replicated but
+  are omitted from the visible UI list.
+- The backend currently accepts up to 32 briefings; the first UI slice has four
+  authored title-row slots and displays the first four visible entries.
 
 ## Goal
 

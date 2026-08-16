@@ -30,6 +30,21 @@ FrameWidgetClass {
     }
    }
   }
+  SizeLayoutWidgetClass "{6A4C000000000002}" : "{6A4C000000000001}UI/layouts/Briefing/Lobby_Briefing_View.layout" {
+   Name "BriefingView"
+   Slot FrameWidgetSlot "{6A4C000000000003}" {
+    Anchor 0 0.5 0 0.5
+    PositionX 20
+    OffsetLeft 20
+    PositionY -440
+    OffsetTop -440
+    SizeX 720
+    OffsetRight -740
+    SizeY 820
+    OffsetBottom -380
+   }
+   "Z Order" 1
+  }
   FrameWidgetClass "{6604C04D653ECB55}" {
    Name "ToolMenu"
    Slot FrameWidgetSlot "{59107CDEE98682C5}" {

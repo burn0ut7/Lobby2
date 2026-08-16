@@ -19,7 +19,7 @@ class GC_TestComp : ScriptComponent
 		if (SCR_Global.IsEditMode())
 			return;
 
-		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu);
+		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
     }
 }
 
@@ -31,6 +31,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 {
     protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
     protected const int JIP_REFERENCE_RETRY_MS = 1000;
+    protected const int MAX_BRIEFINGS = 32;
+    protected const int MAX_BRIEFING_ID_LENGTH = 64;
+    protected const int MAX_BRIEFING_TITLE_LENGTH = 128;
+    protected const int MAX_BRIEFING_CONTENT_LENGTH = 16384;
 
     //! Game-mode setting: group headers in the voice list may be selectable
     //! without changing the player's lobby slot or base-game group.
@@ -39,6 +43,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     
     [Attribute("", UIWidgets.Object, "Formations for player groups")]
     protected ref array<ref GC_PlayerFormationDefinition> m_aFormations;
+
+    [Attribute("", UIWidgets.Object, "Server-authoritative briefing definitions")]
+    protected ref array<ref GC_Briefing> m_aBriefings;
 
     protected ref array<SCR_AIGroup> m_aGroups = {};
     protected ref array<RplId> m_aPendingJipGroupRplIds = {};
@@ -50,8 +57,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Consumers re-query PlayerManager and SCR_GroupsManagerComponent instead of
     //! maintaining a second player roster in Lobby2.
     ref ScriptInvoker<int> m_OnPlayerRegistryUpdated = new ScriptInvoker<int>();
+    //! Signals that the complete local briefing view changed. Consumers re-query
+    //! this manager and current authoritative faction state.
+    ref ScriptInvoker<int> m_OnBriefingsChanged = new ScriptInvoker<int>();
     protected int m_iNextSlotID = 1;
     protected int m_iJipResolveAttempt;
+    protected int m_iBriefingRevision;
 
     override void OnPlayerAuditSuccess(int playerId)
     {
@@ -388,6 +399,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return false;
 		}
 
+		writer.WriteInt(m_iBriefingRevision);
+		writer.WriteInt(m_aBriefings.Count());
+		foreach (GC_Briefing briefing : m_aBriefings)
+		{
+			if (!briefing || !briefing.RplSave(writer))
+				return false;
+		}
+
         return true;
     }
 
@@ -454,6 +473,25 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 			m_aVoiceAssignments.Insert(assignment);
 		}
+
+		if (!reader.ReadInt(m_iBriefingRevision))
+			return false;
+
+		int briefingCount;
+		if (!reader.ReadInt(briefingCount) || briefingCount < 0 || briefingCount > MAX_BRIEFINGS)
+			return false;
+
+		m_aBriefings.Clear();
+		for (int briefingIndex = 0; briefingIndex < briefingCount; briefingIndex++)
+		{
+			GC_Briefing briefing = new GC_Briefing();
+			if (!briefing.RplLoad(reader))
+				return false;
+
+			m_aBriefings.Insert(briefing);
+		}
+
+		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
 
 		ResolvePendingJipReferences();
 
@@ -916,6 +954,188 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return null;
     }
 
+    //! Returns one briefing by its stable ID.
+    GC_Briefing GetBriefing(string briefingId)
+    {
+        if (briefingId.IsEmpty())
+            return null;
+
+        foreach (GC_Briefing briefing : m_aBriefings)
+        {
+            if (briefing && briefing.GetId() == briefingId)
+                return briefing;
+        }
+
+        return null;
+    }
+
+    //! Returns the complete local replicated briefing snapshot.
+    array<ref GC_Briefing> GetBriefings()
+    {
+        return m_aBriefings;
+    }
+
+    //! Derives a player's visible briefing list from current base-game faction state.
+    array<ref GC_Briefing> GetBriefingsForPlayer(int playerId)
+    {
+        array<ref GC_Briefing> result = {};
+        Faction faction = GetPlayerFaction(playerId);
+
+        foreach (GC_Briefing briefing : m_aBriefings)
+        {
+            if (briefing && briefing.IsVisibleToFaction(faction))
+                result.Insert(briefing);
+        }
+
+        return result;
+    }
+
+    //! Server-only upsert used by mission systems when briefing data changes.
+    bool UpsertBriefing(GC_Briefing update)
+    {
+        if (!Replication.IsServer() || !ValidateBriefing(update))
+            return false;
+
+        GC_Briefing briefing = GetBriefing(update.GetId());
+        if (!briefing)
+        {
+            if (m_aBriefings.Count() >= MAX_BRIEFINGS)
+                return false;
+
+            briefing = new GC_Briefing();
+            m_aBriefings.Insert(briefing);
+        }
+
+        briefing.CopyFrom(update);
+        briefing.SetRevision(++m_iBriefingRevision);
+        m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+        Rpc(RpcDo_UpsertBriefing, briefing);
+        return true;
+    }
+
+    //! Convenience server API for creating a complete replacement payload.
+    bool SetBriefing(string id, int order, string title, string content, GC_BriefingTextFormat textFormat = GC_BriefingTextFormat.PLAIN, GC_BriefingAudience audience = GC_BriefingAudience.ALL_FACTIONS, string factionKey = "", bool visible = true)
+    {
+        GC_Briefing update = new GC_Briefing();
+        update.Set(id, order, title, content, textFormat, audience, factionKey, visible);
+        return UpsertBriefing(update);
+    }
+
+    //! Server-only visibility mutation that preserves the rest of the briefing payload.
+    bool SetBriefingVisible(string briefingId, bool visible)
+    {
+        if (!Replication.IsServer())
+            return false;
+
+        GC_Briefing briefing = GetBriefing(briefingId);
+        if (!briefing || briefing.IsVisible() == visible)
+            return briefing != null;
+
+        GC_Briefing update = new GC_Briefing();
+        update.Set(
+            briefing.GetId(),
+            briefing.GetOrder(),
+            briefing.GetTitle(),
+            briefing.GetContent(),
+            briefing.GetTextFormat(),
+            briefing.GetAudience(),
+            briefing.GetFactionKey(),
+            visible);
+        return UpsertBriefing(update);
+    }
+
+    //! Server-only removal. Reliable RPC ordering keeps proxies on the same revision.
+    bool RemoveBriefing(string briefingId)
+    {
+        if (!Replication.IsServer() || briefingId.IsEmpty())
+            return false;
+
+        for (int index = 0; index < m_aBriefings.Count(); index++)
+        {
+            GC_Briefing briefing = m_aBriefings[index];
+            if (!briefing || briefing.GetId() != briefingId)
+                continue;
+
+            m_aBriefings.RemoveOrdered(index);
+            m_iBriefingRevision++;
+            m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+            Rpc(RpcDo_RemoveBriefing, briefingId, m_iBriefingRevision);
+            return true;
+        }
+
+        return false;
+    }
+
+    protected bool ValidateBriefing(GC_Briefing briefing)
+    {
+        if (!briefing || briefing.GetId().IsEmpty())
+            return false;
+
+        if (briefing.GetId().Length() > MAX_BRIEFING_ID_LENGTH
+            || briefing.GetTitle().Length() > MAX_BRIEFING_TITLE_LENGTH
+            || briefing.GetContent().Length() > MAX_BRIEFING_CONTENT_LENGTH)
+            return false;
+
+        if (briefing.GetAudience() == GC_BriefingAudience.SPECIFIC_FACTION)
+        {
+            if (briefing.GetFactionKey().IsEmpty())
+                return false;
+
+            FactionManager factionManager = GetGame().GetFactionManager();
+            if (!factionManager || !factionManager.GetFactionByKey(briefing.GetFactionKey()))
+                return false;
+        }
+        else if (!briefing.GetFactionKey().IsEmpty())
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    [RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+    protected void RpcDo_UpsertBriefing(GC_Briefing update)
+    {
+        if (Replication.IsServer() || !update)
+            return;
+
+        GC_Briefing briefing = GetBriefing(update.GetId());
+        if (briefing && update.GetRevision() <= briefing.GetRevision())
+            return;
+
+        if (!briefing)
+        {
+            if (m_aBriefings.Count() >= MAX_BRIEFINGS)
+                return;
+
+            briefing = new GC_Briefing();
+            m_aBriefings.Insert(briefing);
+        }
+
+        briefing.CopyFrom(update);
+        if (update.GetRevision() > m_iBriefingRevision)
+            m_iBriefingRevision = update.GetRevision();
+
+        m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+    }
+
+    [RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+    protected void RpcDo_RemoveBriefing(string briefingId, int revision)
+    {
+        if (Replication.IsServer() || revision <= m_iBriefingRevision)
+            return;
+
+        for (int index = m_aBriefings.Count() - 1; index >= 0; index--)
+        {
+            GC_Briefing briefing = m_aBriefings[index];
+            if (briefing && briefing.GetId() == briefingId)
+                m_aBriefings.RemoveOrdered(index);
+        }
+
+        m_iBriefingRevision = revision;
+        m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+    }
+
     bool TryJoinGroupFromVoiceHeader(int playerId, RplId groupRplId)
     {
         if (!Replication.IsServer())
@@ -1073,6 +1293,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_aPendingJipGroupRplIds.Clear();
         m_aSlots.Clear();
 		m_aVoiceAssignments.Clear();
+		m_aBriefings.Clear();
 
         super.OnGameModeEnd(data);
     }
