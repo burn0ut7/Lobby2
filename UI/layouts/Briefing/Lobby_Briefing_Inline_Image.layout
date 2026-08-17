@@ -1,0 +1,19 @@
+SizeLayoutWidgetClass {
+ Name "BriefingInlineImageSize"
+ Slot WrapLayoutWidgetSlot {
+  Padding 2 0 4 0
+ }
+ AllowWidthOverride 1
+ WidthOverride 24
+ AllowHeightOverride 1
+ HeightOverride 24
+ {
+  ImageWidgetClass {
+   Name "BriefingInlineImage"
+   Slot AlignableSlot {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+  }
+ }
+}

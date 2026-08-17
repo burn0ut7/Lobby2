@@ -39,13 +39,13 @@ FrameWidgetClass {
    Slot FrameWidgetSlot "{6A4C000000000003}" {
     PositionX 7.361
     OffsetLeft 7.361
-    PositionY 990.845
-    OffsetTop 990.845
+    PositionY 170.844
+    OffsetTop 170.844
     SizeX 287
     OffsetRight -294.361
     SizeY 820.001
-    OffsetBottom -1810.85
-    Alignment 0 1
+    OffsetBottom -990.845
+    Alignment 0 0
    }
    "Z Order" 1
   }

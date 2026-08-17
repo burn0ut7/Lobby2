@@ -19,10 +19,70 @@ paragraph. The renderer turns that paragraph into wrapping text runs and overlay
 a real button on only the tagged phrase. Clicking it requests the allowlisted
 `debug_print` action and writes `GC | Briefing action clicked` to the console.
 The showcase and second briefing demonstrate `<marker name="Alpha">...</marker>`.
-It captures the authored marker name and renders an interactive phrase, but map
-movement is intentionally deferred; clicking currently writes a placeholder log.
+It captures the marker entity name and renders an interactive phrase. Clicking
+first pans to the visible replicated marker, then zooms after that pan completes.
 For this prototype, the containing paragraph must otherwise be plain text, while
 supported native rich-text formatting may be nested inside the custom tag label.
+
+### Current scrolling contract
+
+- The body content height is measured from the active plain, rich, or interactive
+  renderer; it is not padded with a fixed scrollable height.
+- Mouse-wheel input over the briefing body is consumed by its scroll component
+  and never propagates to map zoom.
+- A bottom `V` indicator is visible only while content overflows and additional
+  content remains below the current scroll position.
+- A non-overflowing body is locked and reset to the top.
+
+### Current image contract
+
+- Reforger's native `<image set="..." name="..." scale="..." />` tag remains
+  available for small inline imageset icons. Its scale is relative to the text
+  line height, so it flows with surrounding glyphs.
+- Lobby2's existing `<img ... />` syntax can also join an inline paragraph by
+  adding `inline="true"`. This supports packaged textures and imageset quads:
+  `<p><img resource="{GUID}path/icon.edds" inline="true" width="24" /> Text beside the icon.</p>`.
+  Inline width and height are optional bounds from 16 through 96. With neither,
+  the image is fitted to a 24-unit line-height icon. The aspect ratio is always
+  preserved, and the icon wraps with the surrounding paragraph content.
+- Lobby2 adds `<img ... />` for larger block images placed between rich-text
+  sections. Multiple block images may appear in one briefing body.
+- A packaged texture uses
+  `<img resource="{GUID}path/image.edds" width="512" height="256" />`.
+- An imageset quad uses
+  `<img resource="{GUID}path/icons.imageset" name="QuadName" width="128" height="128" />`.
+- Width and height are optional layout-unit bounds from 16 through 2048. With
+  neither value, the native image size is used. With one value, aspect ratio is
+  preserved from that dimension. With both, the image fits inside the requested
+  box without distortion. Every image is additionally clamped to the current
+  document width and centered with vertical separation from adjacent text.
+- Block-image bodies retain native rich-text formatting before, between, and
+  after images. They cannot yet contain Lobby2 custom interactive/decoration
+  spans (`action`, `marker`, `link`, `u`, `s`, `strike`, or `size`) in the same body;
+  malformed or unsupported combinations show a safe validation message.
+- Images must resolve to packaged Resource Database assets. Remote URLs and local
+  filesystem paths are not loaded.
+
+### Current dynamic scenario contract
+
+- The reserved Lobby2 body token `<scenario />` renders the default `SCENARIO`
+  briefing tab.
+- `GC_BriefingScenarioComponent` owns Scenario row creation, environment
+  formatting, icons, change subscriptions, fallback timing, and teardown. The
+  parent briefing view only selects the renderer and measures its content.
+- It reads the base-game time-and-weather manager for current weather name and
+  description, wind speed and direction, date, military time, sunrise, sunset,
+  and moon phase.
+- Pre-match weather, wind, and date-time preview changes refresh immediately
+  through the base-game time-and-weather change invokers. Weather transitions
+  and wind override changes use the corresponding replicated invokers.
+- A 30-second fallback updates minute-level clock progression and catches
+  naturally changing wind values. It runs only while the Scenario tab is
+  selected in the attached lobby UI; selecting another briefing or leaving the
+  lobby removes both the callback subscriptions and timer.
+- Unchanged row text and icons are not reassigned during fallback checks.
+  Missing icons use a temporary generic scenario icon without changing the
+  authoritative scenario state.
 
 ### Current backend contract
 
@@ -173,7 +233,8 @@ rich-text elements:
 
 ```text
 <action id="debug_print">click here</action>
-<marker name="Alpha">view marker Alpha</marker>
+<marker name="Alpha">view entity Alpha</marker>
+<link url="https://community.bistudio.com/wiki/Arma_Reforger">Arma Reforger Wiki</link>
 <u>underlined text</u>
 <s>struck text</s>
 <size scale="1.35">larger text</size>
@@ -189,21 +250,20 @@ properly nested:
 
 ```text
 <action id="debug_print"><color name="orange"><b>click here</b></color></action>
-<marker name="Alpha"><color rgba="255,152,50,255">view Alpha</color></marker>
+<marker name="Alpha"><color rgba="255,152,50,255">view entity Alpha</color></marker>
 <size scale="1.35"><u><color name="orange"><b>larger underlined text</b></color></u></size>
 ```
 
-The action `id` and marker `name` are limited to 64 characters. An empty label
-uses that ID or name as its visible label. One custom inline paragraph may contain
-multiple action, marker, underline, strike, and size spans. Text between those
+The action `id` and marker `name` are limited to 64 characters. Link URLs are
+limited to 512 characters and must use `http://` or `https://`, without spaces,
+control characters, quotes, angle brackets, or backslashes. An empty label uses
+the associated value as its visible label. One custom inline paragraph may contain
+multiple action, marker, link, underline, strike, and size spans. Text between those
 spans must be plain, while native rich-text formatting may be properly nested
 inside each span. Underline, strike, and size wrappers may be nested around each
 other. Formatting elsewhere in the briefing remains supported before and after
 that paragraph. A malformed Lobby2 tag is not forwarded to Reforger's native
 rich-text parser; the view shows a safe validation message instead.
-
-`marker` is only a validated marker reference in this slice. It does not yet
-resolve a world marker, open the map, or change the local map position.
 
 `RichTextWidget` exposes content sizing, line width, line visibility, and elision behavior in addition to inherited text behavior. It does not expose a documented character-range hit-test or clicked-span callback. Deriving a clicked word from cursor coordinates would therefore be fragile and inaccessible to controller users.
 
@@ -211,7 +271,9 @@ resolve a world marker, open the map, or change the local map position.
 
 The engine declaration `PlatformService.OpenBrowser(string url)` is available. The base game uses it from `SCR_BrowserLinkComponent`, which can resolve a backend link item or open a configured URL from a button component.
 
-External links are therefore possible through explicit interactive widgets, subject to platform availability and policy. They are not native rich-text hyperlinks.
+Lobby2 therefore renders `<link>` labels as explicit inline button widgets and
+opens validated addresses through the platform browser service. They visually
+flow with the surrounding rich text but are not native rich-text hyperlinks.
 
 ### Current Lobby2 briefing surface
 
@@ -399,8 +461,8 @@ Purely local actions should not be replicated. When all clients can derive a doc
 - Link-styled and conventional buttons.
 - Registered action IDs with validated parameters.
 - Lobby2 `<action>` tags with native rich-text formatting inside labels.
-- Lobby2 `<marker>` references that capture a marker name without map
-  navigation in the current slice.
+- Lobby2 `<marker>` references that resolve a marker visible to the current
+  player, pan to it, and then zoom to frame its authored-size footprint.
 - Handlers that dispatch further Lobby2-owned events.
 - Local navigation and presentation actions.
 - Explicit, validated requests to authoritative systems.

@@ -3,9 +3,13 @@ SizeLayoutWidgetClass {
  components {
   GC_BriefingViewComponent "{6A41000000000003}" {
   }
+  GC_BriefingMarkerLayerComponent "{6A41000000000044}" {
+  }
  }
  AllowWidthOverride 1
- WidthOverride 720
+ WidthOverride 893.2
+ AllowHeightOverride 1
+ HeightOverride 820
  {
   OverlayWidgetClass "{6A41000000000028}" {
    Name "BriefingSurface"
@@ -72,49 +76,53 @@ SizeLayoutWidgetClass {
              Color 0.12 0.15 0.16 1
              Size 1 1
             }
-            VerticalLayoutWidgetClass "{6A41000000000010}" : "{6A4B000000000100}UI/layouts/Briefing/Lobby_Briefing_Titles.layout" {
-             Name "BriefingTitles"
+            SizeLayoutWidgetClass "{6A41000000000048}" {
+             Name "BriefingTitlesViewportSize"
              Slot LayoutSlot "{6A41000000000011}" {
+              HorizontalAlign 3
              }
+             AllowHeightOverride 1
+             HeightOverride 1
              {
-              ButtonWidgetClass "{6A4B000000000103}" {
-               Prefab "{6A4B000000000103}"
-               {
-                OverlayWidgetClass "{6A4B000000000003}" {
-                 Prefab "{6A4B000000000003}"
-                 {
-                  SizeLayoutWidgetClass "{6A4B000000000005}" {
-                   Prefab "{6A4B000000000005}"
-                   {
-                    OverlayWidgetClass "{6A4B000000000017}" {
-                     Prefab "{6A4B000000000017}"
-                     {
-                      HorizontalLayoutWidgetClass "{6A4B000000000019}" {
-                       Prefab "{6A4B000000000019}"
-                       {
-                        TextWidgetClass "{6A4B000000000011}" {
-                         Prefab "{6A4B000000000011}"
-                         Slot LayoutSlot "{6A4B000000000012}" {
-                          Padding -10 0 0 0
-                         }
-                        }
-                        TextWidgetClass "{6A4B000000000013}" {
-                         Prefab "{6A4B000000000013}"
-                         "Min Font Size" 12
-                        }
-                       }
-                      }
-                     }
-                    }
-                   }
-                  }
-                 }
+              ScrollLayoutWidgetClass "{6A41000000000049}" {
+               Name "BriefingTitlesScroll"
+               components {
+                GC_BriefingScrollComponent "{6A4100000000004A}" {
+                 m_sContentWidgetName "BriefingTitles"
+                 m_sOverflowIndicatorWidgetName "BriefingTitlesOverflowIndicator"
                 }
                }
+               Slot AlignableSlot "{6A4100000000004B}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Scrollbar Always Visible" 0
+               {
+                VerticalLayoutWidgetClass "{6A41000000000010}" : "{6A4B000000000100}UI/layouts/Briefing/Lobby_Briefing_Titles.layout" {
+                 Name "BriefingTitles"
+                 Slot AlignableSlot "{6A4100000000004C}" {
+                  HorizontalAlign 3
+                  VerticalAlign 0
+                 }
+                }
               }
              }
             }
+            }
            }
+          }
+          TextWidgetClass "{6A4100000000004D}" {
+           Name "BriefingTitlesOverflowIndicator"
+           Slot OverlayWidgetSlot "{6A4100000000004E}" {
+            HorizontalAlign 1
+            VerticalAlign 2
+            Padding 0 0 0 3
+           }
+           "Is Visible" 0
+           Color 1 0.6 0.2 0.9
+           Text "V"
+           "Font Size" 18
+           "Min Font Size" 16
           }
          }
         }
@@ -165,6 +173,12 @@ SizeLayoutWidgetClass {
           }
           ScrollLayoutWidgetClass "{6A4100000000001E}" {
            Name "BriefingSectionScroll"
+            components {
+             GC_BriefingScrollComponent "{6A41000000000045}" {
+              m_sScrollbarTrackWidgetName "BriefingBodyScrollbarTrack"
+              m_sScrollbarThumbWidgetName "BriefingBodyScrollbarThumb"
+             }
+            }
            Slot LayoutSlot "{6A4100000000001F}" {
             HorizontalAlign 3
             SizeMode Fill
@@ -178,7 +192,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 0
              }
              AllowHeightOverride 1
-             HeightOverride 1100
+             HeightOverride 1
              {
               OverlayWidgetClass "{6A41000000000022}" {
                Name "BriefingSectionBodyLayer"
@@ -187,7 +201,7 @@ SizeLayoutWidgetClass {
                 VerticalAlign 3
                }
                {
-                TextWidgetClass "{6A41000000000024}" {
+                RichTextWidgetClass "{6A41000000000024}" {
                  Name "BriefingSectionPlainBody"
                  Slot OverlayWidgetSlot "{6A41000000000025}" {
                   HorizontalAlign 3
@@ -212,7 +226,7 @@ SizeLayoutWidgetClass {
                  "Min Font Size" 20
                  Wrap 1
                 }
-                VerticalLayoutWidgetClass "{6A41000000000035}" {
+                 VerticalLayoutWidgetClass "{6A41000000000035}" {
                  Name "BriefingActionMarkerFlow"
                  Slot OverlayWidgetSlot "{6A41000000000036}" {
                   HorizontalAlign 3
@@ -249,8 +263,20 @@ SizeLayoutWidgetClass {
                    "Min Font Size" 20
                    Wrap 1
                   }
+                  }
                  }
-                }
+                 VerticalLayoutWidgetClass "{6A4100000000004F}" {
+                  Name "BriefingBlockImageFlow"
+                  components {
+                   GC_BriefingScenarioComponent "{6A41000000000051}" {
+                   }
+                  }
+                  Slot OverlayWidgetSlot "{6A41000000000050}" {
+                   HorizontalAlign 3
+                   VerticalAlign 3
+                  }
+                  "Is Visible" 0
+                 }
                }
               }
              }
@@ -258,7 +284,54 @@ SizeLayoutWidgetClass {
            }
           }
          }
-        }
+         }
+         FrameWidgetClass "{6A41000000000052}" {
+          Name "BriefingBodyScrollbarLayer"
+          Slot OverlayWidgetSlot "{6A41000000000053}" {
+           HorizontalAlign 3
+           VerticalAlign 3
+          }
+          "Ignore Cursor" 1
+          {
+           ImageWidgetClass "{6A41000000000054}" {
+            Name "BriefingBodyScrollbarTrack"
+            Slot FrameWidgetSlot "{6A41000000000055}" {
+             PositionX 0
+             PositionY 0
+             SizeX 5
+             SizeY 100
+            }
+            "Is Visible" 0
+            "Ignore Cursor" 1
+            Color 0.55 0.58 0.58 0.28
+           }
+           ImageWidgetClass "{6A41000000000056}" {
+            Name "BriefingBodyScrollbarThumb"
+            Slot FrameWidgetSlot "{6A41000000000057}" {
+             PositionX 0
+             PositionY 0
+             SizeX 5
+             SizeY 36
+            }
+            "Is Visible" 0
+            "Ignore Cursor" 1
+            Color 1 0.6 0.2 0.9
+           }
+          }
+         }
+         TextWidgetClass "{6A41000000000046}" {
+          Name "BriefingOverflowIndicator"
+          Slot OverlayWidgetSlot "{6A41000000000047}" {
+           HorizontalAlign 1
+           VerticalAlign 2
+           Padding 0 0 0 6
+          }
+          "Is Visible" 0
+          Color 1 0.6 0.2 0.9
+          Text "V"
+          "Font Size" 22
+          "Min Font Size" 18
+         }
        }
       }
      }

@@ -13,13 +13,44 @@ SCR_BaseGameMode GameMode_Lobby2 : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_aBriefings {
+    GC_Briefing "{6A42000000000015}" {
+     m_iOrder 1
+     m_sTitle "SCENARIO"
+     m_sContent "<scenario />"
+     m_eShowAtGameModeState GAME
+    }
     GC_Briefing "{6A42000000000001}" {
      m_sContent "<p>Assault and secure key positions across the area of operations to establish control and degrade enemy capabilities. To test the briefing action, <action id=\"debug_print\"><color rgba=\"255,0,255,255\"><b>click the action here</b></color></action> and watch the Workbench console.</p><p>Both sides have established strong defensive positions. Expect contact throughout the area.</p><p>Civilian activity is minimal. Maintain mission focus and minimize collateral damage.</p><br /><color rgba=\"255,152,50,255\"><b>KEY INFORMATION</b></color><br /><color rgba=\"150,160,164,255\">AREA OF OPERATIONS</color><br />Everon, Baltic Sea<br /><br /><color rgba=\"150,160,164,255\">EST. DURATION</color><br />60 minutes<br /><br /><color rgba=\"150,160,164,255\">VICTORY CONDITION</color><br />Complete the assigned objectives and preserve friendly combat power."
+     m_eShowAtGameModeState GAME
+    }
+    GC_Briefing "{6A42000000000002}" {
+     m_sContent "<p><img resource=\"{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds\" inline=\"true\" height=\"24\" /> Enemy forces control several strategically important positions and are prepared to reinforce them. Map focus can reference <marker name=\"marker2\"><color name=\"orange\"><b>marker Alpha</b></color></marker> by its entity name. Reference: <link url=\"https://community.bistudio.com/wiki/Arma_Reforger\"><b>Arma Reforger Wiki</b></link>.</p><p>Friendly elements are assembling in protected staging areas. Reconnaissance is limited, so unit leaders should confirm routes before movement.</p><br /><color rgba=\"255,152,50,255\"><b>COMMANDER'S NOTE</b></color><br />Maintain communications, identify targets before engagement, and report meaningful changes in enemy disposition."
+     m_eShowAtGameModeState GAME
+    }
+    GC_Briefing "{6A42000000000003}" {
+     m_eShowAtGameModeState GAME
+    }
+    GC_Briefing "{6A42000000000004}" {
+     m_eShowAtGameModeState GAME
     }
    }
   }
  }
  coords 1194.457 39 2723.129
+}
+GenericEntity marker2 {
+ components {
+  GC_BriefingMarkerComponent "{6A208289DCAA4649}" {
+   m_sImageSetOrImage "{8479B3B5347DF5CF}UI/Imagesets/MilitarySymbol/ID_D.imageset"
+   m_sQuadName "System_Bcg"
+   m_fSize 50
+   m_Color 1 0 0 1
+   m_sDescription "testttt"
+   m_eShowAtGameModeState GAME
+  }
+ }
+ coords 1204.868 39 2721.345
+ angles 0 92.154 0
 }
 SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
  coords 1198.979 39 2734.366

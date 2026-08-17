@@ -1,0 +1,20 @@
+SizeLayoutWidgetClass {
+ Name "BriefingBlockImageSize"
+ Slot LayoutSlot {
+  HorizontalAlign 1
+  Padding 0 8 0 8
+ }
+ AllowWidthOverride 1
+ WidthOverride 256
+ AllowHeightOverride 1
+ HeightOverride 128
+ {
+  ImageWidgetClass {
+   Name "BriefingBlockImage"
+   Slot AlignableSlot {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+  }
+ }
+}

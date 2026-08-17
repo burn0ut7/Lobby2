@@ -18,7 +18,7 @@ class GC_Briefing
 	[Attribute("", UIWidgets.EditBox, "Authoritative base-game faction keys. Empty shows the briefing to everyone")]
 	protected ref array<string> m_aFactionKeys;
 
-	[Attribute("1", UIWidgets.ComboBox, "Game-mode state in which this briefing is shown", enumType: SCR_EGameModeState)]
+	[Attribute("0", UIWidgets.ComboBox, "Game-mode state in which this briefing is shown", enumType: SCR_EGameModeState)]
 	protected SCR_EGameModeState m_eShowAtGameModeState;
 
 	[Attribute("0", UIWidgets.CheckBox, "Invert the selected state rule. Off: show only during the selected state. On: hide during the selected state and show during all other states")]

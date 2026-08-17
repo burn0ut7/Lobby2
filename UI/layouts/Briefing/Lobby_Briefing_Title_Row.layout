@@ -90,16 +90,28 @@ ButtonWidgetClass {
             }
            }
           }
-          TextWidgetClass "{6A4B000000000011}" {
-           Name "Order"
+          SizeLayoutWidgetClass "{6A4B00000000001D}" {
+           Name "OrderSize"
            Slot LayoutSlot "{6A4B000000000012}" {
             VerticalAlign 3
            }
-           Color 0.862 0.862 0.862 1
-           Text "01"
-           "Font Size" 18
-           "Min Font Size" 18
-           "Vertical Alignment" Center
+           AllowWidthOverride 1
+           WidthOverride 28
+           {
+            TextWidgetClass "{6A4B000000000011}" {
+             Name "Order"
+             Slot AlignableSlot "{6A4B00000000001E}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 0.862 0.862 0.862 1
+             Text "01"
+             "Font Size" 18
+             "Min Font Size" 18
+             "Horizontal Alignment" Left
+             "Vertical Alignment" Center
+            }
+           }
           }
           TextWidgetClass "{6A4B000000000013}" {
            Name "Title"
@@ -113,6 +125,7 @@ ButtonWidgetClass {
            "Font Size" 18
            "Min Font Size" 10
            "Vertical Alignment" Center
+           Wrap 0
           }
           ImageWidgetClass "{6A4B00000000000D}" {
            Name "RightAccent"

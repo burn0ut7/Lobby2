@@ -40,6 +40,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     protected const int MAX_BRIEFINGS = 32;
     protected const int MAX_BRIEFING_TITLE_LENGTH = 128;
     protected const int MAX_BRIEFING_CONTENT_LENGTH = 16384;
+	protected const int MAX_BRIEFING_MARKERS = 256;
+	protected const int MAX_MARKER_NAME_LENGTH = 128;
+	protected const int MAX_MARKER_DESCRIPTION_LENGTH = 512;
 
     //! Game-mode setting: group headers in the voice list may be selectable
     //! without changing the player's lobby slot or base-game group.
@@ -51,6 +54,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     [Attribute("", UIWidgets.Object, "Server-authoritative briefing definitions")]
     protected ref array<ref GC_Briefing> m_aBriefings;
+
+	//! Runtime list populated on the server by GC_BriefingMarkerComponent entities.
+	//! The replicated snapshots are independent of entity streaming for JIP safety.
+	protected ref array<ref GC_BriefingMarker> m_aBriefingMarkers = {};
 
     protected ref array<SCR_AIGroup> m_aGroups = {};
     protected ref array<RplId> m_aPendingJipGroupRplIds = {};
@@ -65,9 +72,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Signals that the complete local briefing view changed. Consumers re-query
     //! this manager and current authoritative faction state.
     ref ScriptInvoker<int> m_OnBriefingsChanged = new ScriptInvoker<int>();
+	ref ScriptInvoker<int> m_OnBriefingMarkersChanged = new ScriptInvoker<int>();
     protected int m_iNextSlotID = 1;
     protected int m_iJipResolveAttempt;
     protected int m_iBriefingRevision;
+	protected int m_iBriefingMarkerRevision;
 
 	//! Re-evaluate briefing presentation on every machine when the authoritative
 	//! base-game phase changes. The phase itself remains owned and replicated by
@@ -75,6 +84,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	override void OnGameStateChanged(SCR_EGameModeState state)
 	{
 		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
 	}
 
     override void OnPlayerAuditSuccess(int playerId)
@@ -420,6 +430,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return false;
 		}
 
+		writer.WriteInt(m_iBriefingMarkerRevision);
+		writer.WriteInt(m_aBriefingMarkers.Count());
+		foreach (GC_BriefingMarker marker : m_aBriefingMarkers)
+		{
+			if (!marker || !marker.RplSave(writer))
+				return false;
+		}
+
         return true;
     }
 
@@ -505,6 +523,23 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+
+		if (!reader.ReadInt(m_iBriefingMarkerRevision))
+			return false;
+
+		int briefingMarkerCount;
+		if (!reader.ReadInt(briefingMarkerCount) || briefingMarkerCount < 0 || briefingMarkerCount > MAX_BRIEFING_MARKERS)
+			return false;
+
+		m_aBriefingMarkers.Clear();
+		for (int markerIndex; markerIndex < briefingMarkerCount; markerIndex++)
+		{
+			GC_BriefingMarker marker = new GC_BriefingMarker();
+			if (!marker.RplLoad(reader))
+				return false;
+			m_aBriefingMarkers.Insert(marker);
+		}
+		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
 
 		ResolvePendingJipReferences();
 
@@ -1164,6 +1199,201 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
     }
 
+	//! Registers the authored entity snapshot on the server. The entity name is
+	//! the marker name used by briefing <marker name="..."> links.
+	bool RegisterBriefingMarker(GC_BriefingMarkerComponent component)
+	{
+		if (!Replication.IsServer() || !component)
+			return false;
+
+		GC_BriefingMarker marker = component.CreateMarkerSnapshot();
+		if (UpsertBriefingMarker(marker))
+			return true;
+
+		string markerName;
+		if (marker)
+			markerName = marker.GetName();
+		PrintFormat("GC | Briefing marker component registration rejected: marker=%1", markerName, level: LogLevel.WARNING);
+		return false;
+	}
+
+	GC_BriefingMarker GetBriefingMarker(string markerName)
+	{
+		foreach (GC_BriefingMarker marker : m_aBriefingMarkers)
+		{
+			if (marker && marker.GetName() == markerName)
+				return marker;
+		}
+		return null;
+	}
+
+	array<ref GC_BriefingMarker> GetBriefingMarkers()
+	{
+		return m_aBriefingMarkers;
+	}
+
+	array<ref GC_BriefingMarker> GetBriefingMarkersForPlayer(int playerId)
+	{
+		array<ref GC_BriefingMarker> result = {};
+		Faction faction = GetPlayerFaction(playerId);
+		SCR_EGameModeState gameModeState = SCR_EGameModeState.GAME;
+		SCR_BaseGameMode gameMode = GetGameMode();
+		if (gameMode)
+			gameModeState = gameMode.GetState();
+
+		foreach (GC_BriefingMarker marker : m_aBriefingMarkers)
+		{
+			if (marker && marker.IsVisibleToFaction(faction, gameModeState))
+				result.Insert(marker);
+		}
+		return result;
+	}
+
+	//! Server-only complete marker replacement used by mission scripts.
+	bool UpsertBriefingMarker(GC_BriefingMarker update)
+	{
+		if (!Replication.IsServer() || !ValidateBriefingMarker(update))
+			return false;
+
+		GC_BriefingMarker marker = GetBriefingMarker(update.GetName());
+		if (!marker)
+		{
+			if (m_aBriefingMarkers.Count() >= MAX_BRIEFING_MARKERS)
+				return false;
+			marker = new GC_BriefingMarker();
+			m_aBriefingMarkers.Insert(marker);
+		}
+
+		marker.CopyFrom(update);
+		marker.SetRevision(++m_iBriefingMarkerRevision);
+		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+		Rpc(RpcDo_UpsertBriefingMarker, marker);
+		return true;
+	}
+
+	bool SetBriefingMarker(string markerName, ResourceName image, string quadName, vector worldPosition,
+		float rotation, bool worldScale, float size, string description, array<string> factionKeys = null,
+		SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
+		bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
+	{
+		GC_BriefingMarker update = new GC_BriefingMarker();
+		update.Set(markerName, image, quadName, worldPosition, rotation, worldScale, size,
+			description, factionKeys, showAtGameModeState, invertGameModeState, visible, color);
+		return UpsertBriefingMarker(update);
+	}
+
+	bool SetBriefingMarkerVisible(string markerName, bool visible)
+	{
+		if (!Replication.IsServer())
+			return false;
+
+		GC_BriefingMarker marker = GetBriefingMarker(markerName);
+		if (!marker || marker.IsVisible() == visible)
+			return marker != null;
+
+		return SetBriefingMarker(marker.GetName(), marker.GetImage(), marker.GetQuadName(),
+			marker.GetWorldPosition(), marker.GetRotation(), marker.IsWorldScale(), marker.GetSize(),
+			marker.GetDescription(), marker.GetFactionKeys(), marker.GetShowAtGameModeState(),
+			marker.IsGameModeStateInverted(), visible, marker.GetColor());
+	}
+
+	bool RemoveBriefingMarker(string markerName)
+	{
+		if (!Replication.IsServer() || markerName.IsEmpty())
+			return false;
+
+		for (int markerIndex; markerIndex < m_aBriefingMarkers.Count(); markerIndex++)
+		{
+			GC_BriefingMarker marker = m_aBriefingMarkers[markerIndex];
+			if (!marker || marker.GetName() != markerName)
+				continue;
+
+			m_aBriefingMarkers.RemoveOrdered(markerIndex);
+			m_iBriefingMarkerRevision++;
+			m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+			Rpc(RpcDo_RemoveBriefingMarker, markerName, m_iBriefingMarkerRevision);
+			return true;
+		}
+		return false;
+	}
+
+	protected bool ValidateBriefingMarker(GC_BriefingMarker marker)
+	{
+		if (!marker || marker.GetName().IsEmpty() || marker.GetName().Length() > MAX_MARKER_NAME_LENGTH
+			|| marker.GetImage().IsEmpty() || marker.GetDescription().Length() > MAX_MARKER_DESCRIPTION_LENGTH
+			|| marker.GetSize() <= 0)
+			return false;
+
+		bool isImageSet = marker.GetImage().EndsWith(".imageset");
+		if (isImageSet && marker.GetQuadName().IsEmpty())
+			return false;
+
+		if (marker.GetShowAtGameModeState() < SCR_EGameModeState.PREGAME
+			|| marker.GetShowAtGameModeState() > SCR_EGameModeState.POSTGAME)
+			return false;
+
+		array<string> factionKeys = marker.GetFactionKeys();
+		if (!factionKeys || factionKeys.Count() > GC_BriefingMarker.MAX_FACTION_KEYS)
+			return false;
+
+		FactionManager factionManager;
+		if (!factionKeys.IsEmpty())
+		{
+			factionManager = GetGame().GetFactionManager();
+			if (!factionManager)
+				return false;
+		}
+
+		array<string> validatedFactionKeys = {};
+		foreach (string factionKey : factionKeys)
+		{
+			if (factionKey.IsEmpty() || validatedFactionKeys.Contains(factionKey)
+				|| !factionManager.GetFactionByKey(factionKey))
+				return false;
+			validatedFactionKeys.Insert(factionKey);
+		}
+		return true;
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_UpsertBriefingMarker(GC_BriefingMarker update)
+	{
+		if (Replication.IsServer() || !update)
+			return;
+
+		GC_BriefingMarker marker = GetBriefingMarker(update.GetName());
+		if (marker && update.GetRevision() <= marker.GetRevision())
+			return;
+		if (!marker)
+		{
+			if (m_aBriefingMarkers.Count() >= MAX_BRIEFING_MARKERS)
+				return;
+			marker = new GC_BriefingMarker();
+			m_aBriefingMarkers.Insert(marker);
+		}
+
+		marker.CopyFrom(update);
+		if (update.GetRevision() > m_iBriefingMarkerRevision)
+			m_iBriefingMarkerRevision = update.GetRevision();
+		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_RemoveBriefingMarker(string markerName, int revision)
+	{
+		if (Replication.IsServer() || revision <= m_iBriefingMarkerRevision)
+			return;
+
+		for (int markerIndex = m_aBriefingMarkers.Count() - 1; markerIndex >= 0; markerIndex--)
+		{
+			GC_BriefingMarker marker = m_aBriefingMarkers[markerIndex];
+			if (marker && marker.GetName() == markerName)
+				m_aBriefingMarkers.RemoveOrdered(markerIndex);
+		}
+		m_iBriefingMarkerRevision = revision;
+		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+	}
+
     bool TryJoinGroupFromVoiceHeader(int playerId, RplId groupRplId)
     {
         if (!Replication.IsServer())
@@ -1322,6 +1552,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         m_aSlots.Clear();
 		m_aVoiceAssignments.Clear();
 		m_aBriefings.Clear();
+		m_aBriefingMarkers.Clear();
 
         super.OnGameModeEnd(data);
     }

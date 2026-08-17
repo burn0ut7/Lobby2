@@ -1,0 +1,11 @@
+RichTextWidgetClass {
+ Name "BriefingBlockText"
+ Slot LayoutSlot {
+  HorizontalAlign 3
+ }
+ Color 0.82 0.84 0.84 1
+ Text "Briefing block text"
+ "Font Size" 24
+ "Min Font Size" 20
+ Wrap 1
+}
