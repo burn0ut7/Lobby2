@@ -67,6 +67,41 @@ FrameWidgetClass {
        Texture "{DBDAC86F71E7B0EB}UI/Textures/map_texture2.edds"
        Size 10 400
       }
+      HorizontalLayoutWidgetClass "{6A145B24392C23D4}" {
+       Prefab "{6A145B24392C23D4}"
+       {
+        ButtonWidgetClass "{6A145B26CB88A0BC}" {
+         Prefab "{6A145B26CB88A0BC}"
+         {
+          SizeLayoutWidgetClass "{557098260F312277}" {
+           Prefab "{557098260F312277}"
+           {
+            OverlayWidgetClass "{557098260F312272}" {
+             Prefab "{557098260F312272}"
+             {
+              HorizontalLayoutWidgetClass "{557098267862A738}" {
+               Prefab "{557098267862A738}"
+               {
+                ScaleWidgetClass "{557478C2A0AF4E50}" {
+                 Prefab "{557478C2A0AF4E50}"
+                 {
+                  ImageWidgetClass "{557098267D2A9494}" {
+                   Prefab "{557098267D2A9494}"
+                   Texture "{7A25136F895BBDC5}UI/Textures/Editor/EditableEntities/Factions/Faction-Icons.imageset"
+                   Image "Show"
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
       VerticalLayoutWidgetClass "{6A1577A7F771EB46}" {
        Prefab "{6A1577A7F771EB46}"
        Slot FrameWidgetSlot "{6A1577A7F771EB5A}" {

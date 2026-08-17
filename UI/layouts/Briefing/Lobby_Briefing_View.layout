@@ -175,16 +175,15 @@ SizeLayoutWidgetClass {
            Name "BriefingSectionScroll"
             components {
              GC_BriefingScrollComponent "{6A41000000000045}" {
-              m_sScrollbarTrackWidgetName "BriefingBodyScrollbarTrack"
-              m_sScrollbarThumbWidgetName "BriefingBodyScrollbarThumb"
              }
             }
            Slot LayoutSlot "{6A4100000000001F}" {
             HorizontalAlign 3
             SizeMode Fill
-           }
-           Color 1 1 1 0
-           {
+            Padding 0 0 8 0
+            }
+            "Scrollbar Always Visible" 0
+            {
             SizeLayoutWidgetClass "{6A41000000000020}" {
              Name "BriefingSectionContentSize"
              Slot AlignableSlot "{6A41000000000021}" {
@@ -281,43 +280,9 @@ SizeLayoutWidgetClass {
               }
              }
             }
-           }
+            }
           }
          }
-         }
-         FrameWidgetClass "{6A41000000000052}" {
-          Name "BriefingBodyScrollbarLayer"
-          Slot OverlayWidgetSlot "{6A41000000000053}" {
-           HorizontalAlign 3
-           VerticalAlign 3
-          }
-          "Ignore Cursor" 1
-          {
-           ImageWidgetClass "{6A41000000000054}" {
-            Name "BriefingBodyScrollbarTrack"
-            Slot FrameWidgetSlot "{6A41000000000055}" {
-             PositionX 0
-             PositionY 0
-             SizeX 5
-             SizeY 100
-            }
-            "Is Visible" 0
-            "Ignore Cursor" 1
-            Color 0.55 0.58 0.58 0.28
-           }
-           ImageWidgetClass "{6A41000000000056}" {
-            Name "BriefingBodyScrollbarThumb"
-            Slot FrameWidgetSlot "{6A41000000000057}" {
-             PositionX 0
-             PositionY 0
-             SizeX 5
-             SizeY 36
-            }
-            "Is Visible" 0
-            "Ignore Cursor" 1
-            Color 1 0.6 0.2 0.9
-           }
-          }
          }
          TextWidgetClass "{6A41000000000046}" {
           Name "BriefingOverflowIndicator"

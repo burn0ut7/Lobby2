@@ -12,6 +12,10 @@ class GC_TestComp : ScriptComponent
 			return;
 
 		GetGame().GetCallqueue().CallLater(CheckSlots, 1);
+
+		SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+		
+		PrintFormat("GC | Game state:%1",gm.GetState());
     }
 	
 	void CheckSlots()

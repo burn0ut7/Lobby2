@@ -91,7 +91,7 @@ FrameWidgetClass {
      }
      components {
       GC_HeaderButtonComponent "{5548F0143AE99095}" {
-       m_sText "MISSION PREVIEW"
+       m_sText "PREVIEW"
        m_iHeaderState 0
       }
      }
@@ -115,7 +115,8 @@ FrameWidgetClass {
              {
               ImageWidgetClass "{557098267D2A9494}" {
                Prefab "{557098267D2A9494}"
-               Image "gameMaster"
+               Texture "{7A25136F895BBDC5}UI/Textures/Editor/EditableEntities/Factions/Faction-Icons.imageset"
+               Image "Show"
               }
              }
             }
