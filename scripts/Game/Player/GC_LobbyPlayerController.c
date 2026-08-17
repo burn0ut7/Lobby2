@@ -72,15 +72,50 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	void SetLobbySpectator(IEntity entity)
 	{
+		SetLobbyControlledEntity(entity, true);
+	}
+
+	//! Assigns a Lobby2-owned main entity through the base controller lifecycle.
+	//! This is authority-only and intentionally avoids temporary possession when
+	//! the player has no pre-existing main entity.
+	bool SetLobbyControlledEntity(IEntity entity, bool spectator)
+	{
+		if (!entity)
+			return false;
+
+		SetInitialMainEntity(entity);
+		if (GetControlledEntity() != entity)
+		{
+			PrintFormat("GC | Lifecycle | controller assignment failed: player=%1 entity=%2", GetPlayerId(), entity, level: LogLevel.WARNING);
+			return false;
+		}
+
+		if (spectator)
+			SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
+		else
+			SetLobbyPlayerState(GC_ELobbyPlayerState.PLAYING);
+		Rpc(RpcDo_SetLobbySpectator, spectator);
+		return true;
+	}
+
+	GC_ELobbyPlayerState GetLobbyPlayerState()
+	{
+		return m_eLobbyPlayerState;
+	}
+
+	void SetLobbySpectatorState()
+	{
 		SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
-		SetPossessedEntity(entity);
-		Rpc(RpcDo_SetLobbySpectator);
+		Rpc(RpcDo_SetLobbySpectator, true);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_SetLobbySpectator()
+	protected void RpcDo_SetLobbySpectator(bool spectator)
 	{
-		SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
+		if (spectator)
+			SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
+		else
+			SetLobbyPlayerState(GC_ELobbyPlayerState.PLAYING);
 
 		RplComponent replication = RplComponent.Cast(FindComponent(RplComponent));
 		if (replication && replication.IsOwner())

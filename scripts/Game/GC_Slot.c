@@ -40,6 +40,9 @@ class GC_Slot
 	//! Concrete character prefab selected once by the server for this slot lifetime.
 	protected ResourceName m_ResolvedPrefab;
 
+	//! Stable index into the owning group's authored unit-prefab array.
+	protected int m_iGroupSlotIndex = -1;
+
 	//! Per-unit policy reserved for the future respawn system.
 	protected GC_SlotVariantPolicy m_eVariantPolicy = GC_SlotVariantPolicy.KEEP_VARIANT;
 
@@ -52,6 +55,9 @@ class GC_Slot
 	//! Entity spawned for and currently represented by this slot.
 	protected IEntity m_Entity;
 
+	//! Replicated entity reference retained while the proxy streams in.
+	protected RplId m_EntityRplId = RplId.Invalid();
+
 	int GetID()
 	{
 		return m_iID;
@@ -60,6 +66,20 @@ class GC_Slot
 	void SetID(int id)
 	{
 		m_iID = id;
+	}
+
+	int GetGroupSlotIndex()
+	{
+		return m_iGroupSlotIndex;
+	}
+
+	void SetGroupSlotIndex(int index)
+	{
+		if (m_iGroupSlotIndex == index)
+			return;
+
+		m_iGroupSlotIndex = index;
+		NotifyChanged();
 	}
 
 	int GetPlayerId()
@@ -89,6 +109,16 @@ class GC_Slot
 
 		m_eState = state;
 		NotifyChanged();
+	}
+
+	bool HasClaim()
+	{
+		return !m_PlayerUUID.IsEmpty();
+	}
+
+	bool IsKIA()
+	{
+		return m_eState == GC_SlotState.KIA;
 	}
 
 	ResourceName GetAuthoredPrefab()
@@ -195,6 +225,21 @@ class GC_Slot
 			return;
 
 		m_Entity = entity;
+		if (entity)
+		{
+			RplComponent rplComponent = SCR_EntityHelper.GetEntityRplComponent(entity);
+			if (rplComponent)
+				m_EntityRplId = rplComponent.Id();
+		}
+		NotifyChanged();
+	}
+
+	//! Clears the live entity reference while optionally preserving its RplId for diagnostics.
+	void ClearEntityReference(bool preserveRplId = true)
+	{
+		m_Entity = null;
+		if (!preserveRplId)
+			m_EntityRplId = RplId.Invalid();
 		NotifyChanged();
 	}
 
@@ -202,17 +247,34 @@ class GC_Slot
 	RplId GetEntityRplId()
 	{
 		if (!m_Entity)
-			return RplId.Invalid();
+			return m_EntityRplId;
 
 		RplComponent rplComponent = SCR_EntityHelper.GetEntityRplComponent(m_Entity);
 		if (!rplComponent)
-			return RplId.Invalid();
+			return m_EntityRplId;
 
-		return rplComponent.Id();
+		m_EntityRplId = rplComponent.Id();
+		return m_EntityRplId;
 	}
 
-	//! Sets the complete player assignment from the current server player ID.
-	//! An invalid player ID clears the int, UUID, and cached name.
+	//! Resolves a slot entity that was unavailable during the first JIP pass.
+	bool ResolveReplicatedEntity()
+	{
+		if (m_Entity)
+			return true;
+
+		if (m_EntityRplId == RplId.Invalid())
+			return false;
+
+		RplComponent entityRplComponent = RplComponent.Cast(Replication.FindItem(m_EntityRplId));
+		if (!entityRplComponent)
+			return false;
+
+		m_Entity = entityRplComponent.GetEntity();
+		return m_Entity != null;
+	}
+
+	//! Assigns a connected player and persists the identity used for reconnects.
 	void SetPlayer(int playerId)
 	{
 		int previousPlayerId = m_iPlayerId;
@@ -222,8 +284,6 @@ class GC_Slot
 		if (playerId < 0)
 		{
 			m_iPlayerId = -1;
-			m_PlayerUUID = "";
-			m_sCachedPlayerName = "";
 		}
 		else
 		{
@@ -237,6 +297,60 @@ class GC_Slot
 
 		if (previousPlayerId != m_iPlayerId || previousUUID != m_PlayerUUID || previousPlayerName != m_sCachedPlayerName)
 			NotifyChanged();
+	}
+
+	//! Clears only the live session identifier while preserving the reservation identity.
+	void MarkDisconnected()
+	{
+		if (m_eState != GC_SlotState.KIA)
+			m_eState = GC_SlotState.DISCONNECTED;
+
+		m_iPlayerId = -1;
+		NotifyChanged();
+	}
+
+	//! Rebinds a reconnecting player and restores the state implied by the entity.
+	void ReconnectPlayer(int playerId)
+	{
+		if (playerId < 0)
+			return;
+
+		m_iPlayerId = playerId;
+		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		if (!identity.IsEmpty())
+			m_PlayerUUID = identity;
+
+		m_sCachedPlayerName = GetGame().GetPlayerManager().GetPlayerNameByIdentity(m_PlayerUUID);
+		if (!m_sCachedPlayerName)
+			m_sCachedPlayerName = GetGame().GetPlayerManager().GetPlayerName(playerId);
+
+		if (m_eState == GC_SlotState.DISCONNECTED)
+		{
+			if (m_Entity)
+				m_eState = GC_SlotState.LOCKED;
+			else
+				m_eState = GC_SlotState.RESERVED;
+		}
+
+		NotifyChanged();
+	}
+
+	//! Releases a reservation while retaining KIA state and the dead entity reference.
+	void ReleaseClaim()
+	{
+		m_iPlayerId = -1;
+		m_PlayerUUID = "";
+		m_sCachedPlayerName = "";
+		if (m_eState != GC_SlotState.KIA)
+			m_eState = GC_SlotState.FREE;
+		NotifyChanged();
+	}
+
+	//! Marks the represented character as dead for the current match.
+	void MarkKIA()
+	{
+		m_eState = GC_SlotState.KIA;
+		NotifyChanged();
 	}
 
 	protected void NotifyChanged()
@@ -258,10 +372,12 @@ class GC_Slot
 		m_eState = source.m_eState;
 		m_Prefab = source.m_Prefab;
 		m_ResolvedPrefab = source.m_ResolvedPrefab;
+		m_iGroupSlotIndex = source.m_iGroupSlotIndex;
 		m_eVariantPolicy = source.m_eVariantPolicy;
 		m_pGroup = source.m_pGroup;
 		m_GroupRplId = source.m_GroupRplId;
 		m_Entity = source.m_Entity;
+		m_EntityRplId = source.m_EntityRplId;
 		NotifyChanged();
 	}
 
@@ -283,6 +399,7 @@ class GC_Slot
 		writer.WriteIntRange(m_eState, GC_SlotState.FREE, GC_SlotState.RESERVED);
 		writer.WriteResourceName(m_Prefab);
 		writer.WriteResourceName(m_ResolvedPrefab);
+		writer.WriteInt(m_iGroupSlotIndex);
 		writer.WriteIntRange(m_eVariantPolicy, GC_SlotVariantPolicy.KEEP_VARIANT, GC_SlotVariantPolicy.REROLL_ON_RESPAWN);
 
 		writer.WriteRplId(GetGroupRplId());
@@ -318,6 +435,8 @@ class GC_Slot
 			return false;
 		if (!reader.ReadResourceName(m_ResolvedPrefab))
 			return false;
+		if (!reader.ReadInt(m_iGroupSlotIndex))
+			return false;
 		if (!reader.ReadIntRange(m_eVariantPolicy, GC_SlotVariantPolicy.KEEP_VARIANT, GC_SlotVariantPolicy.REROLL_ON_RESPAWN))
 			return false;
 
@@ -327,15 +446,11 @@ class GC_Slot
 		m_pGroup = null;
 		ResolveReplicatedGroup();
 
-		RplId entityRplId;
-		if (!reader.ReadRplId(entityRplId))
+		if (!reader.ReadRplId(m_EntityRplId))
 			return false;
 
-		RplComponent entityRplComponent = RplComponent.Cast(Replication.FindItem(entityRplId));
-		if (entityRplComponent)
-			m_Entity = entityRplComponent.GetEntity();
-		else
-			m_Entity = null;
+		m_Entity = null;
+		ResolveReplicatedEntity();
 
 		return true;
 	}
@@ -356,6 +471,7 @@ class GC_Slot
 		snapshot.SerializeString(prefab);
 		ResourceName resolvedPrefab = instance.m_ResolvedPrefab;
 		snapshot.SerializeString(resolvedPrefab);
+		snapshot.SerializeInt(instance.m_iGroupSlotIndex);
 		snapshot.SerializeInt(instance.m_eVariantPolicy);
 
 		RplId groupRplId = instance.GetGroupRplId();
@@ -388,6 +504,7 @@ class GC_Slot
 		ResourceName resolvedPrefab;
 		snapshot.SerializeString(resolvedPrefab);
 		instance.m_ResolvedPrefab = resolvedPrefab;
+		snapshot.SerializeInt(instance.m_iGroupSlotIndex);
 
 		int variantPolicy;
 		snapshot.SerializeInt(variantPolicy);
@@ -401,11 +518,9 @@ class GC_Slot
 
 		RplId entityRplId;
 		snapshot.SerializeBytes(entityRplId, 4);
-		RplComponent entityRplComponent = RplComponent.Cast(Replication.FindItem(entityRplId));
-		if (entityRplComponent)
-			instance.m_Entity = entityRplComponent.GetEntity();
-		else
-			instance.m_Entity = null;
+		instance.m_EntityRplId = entityRplId;
+		instance.m_Entity = null;
+		instance.ResolveReplicatedEntity();
 
 		return true;
 	}
@@ -421,6 +536,7 @@ class GC_Slot
 		snapshot.EncodeInt(packet);
 		snapshot.EncodeString(packet);
 		snapshot.EncodeString(packet);
+		snapshot.EncodeInt(packet);
 		snapshot.EncodeInt(packet);
 
 		RplId groupRplId;
@@ -443,6 +559,7 @@ class GC_Slot
 		snapshot.DecodeInt(packet);
 		snapshot.DecodeString(packet);
 		snapshot.DecodeString(packet);
+		snapshot.DecodeInt(packet);
 		snapshot.DecodeInt(packet);
 
 		RplId groupRplId;
@@ -478,6 +595,7 @@ class GC_Slot
 		string uuid = instance.m_PlayerUUID;
 		ResourceName prefab = instance.m_Prefab;
 		ResourceName resolvedPrefab = instance.m_ResolvedPrefab;
+		int groupSlotIndex = instance.m_iGroupSlotIndex;
 		RplId groupRplId = instance.GetGroupRplId();
 		RplId entityRplId = instance.GetEntityRplId();
 
@@ -488,6 +606,7 @@ class GC_Slot
 			&& snapshot.CompareInt(instance.m_eState)
 			&& snapshot.CompareString(prefab)
 			&& snapshot.CompareString(resolvedPrefab)
+			&& snapshot.CompareInt(groupSlotIndex)
 			&& snapshot.CompareInt(instance.m_eVariantPolicy)
 			&& snapshot.Compare(groupRplId, 4)
 			&& snapshot.Compare(entityRplId, 4);

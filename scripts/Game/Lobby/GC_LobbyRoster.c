@@ -105,6 +105,34 @@ class GC_LobbyRoster
 		return null;
 	}
 
+	GC_Slot GetSlotByUUID(UUID identity)
+	{
+		if (identity.IsEmpty())
+			return null;
+
+		foreach (GC_Slot slot : m_aSlots)
+		{
+			if (slot && slot.GetUUID() == identity)
+				return slot;
+		}
+
+		return null;
+	}
+
+	GC_Slot GetSlotByEntity(IEntity entity)
+	{
+		if (!entity)
+			return null;
+
+		foreach (GC_Slot slot : m_aSlots)
+		{
+			if (slot && slot.GetEntity() == entity)
+				return slot;
+		}
+
+		return null;
+	}
+
 	array<SCR_AIGroup> GetGroupsForFaction(FactionKey factionKey)
 	{
 		array<SCR_AIGroup> groups = {};

@@ -4,16 +4,20 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
-    protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
-    protected const int JIP_REFERENCE_RETRY_MS = 1000;
+	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
+	protected const int JIP_REFERENCE_RETRY_MS = 1000;
+	protected const int PLAYER_CATCHUP_RETRY_MS = 250;
+	protected const int PLAYER_CATCHUP_MAX_RETRIES = 8;
+	protected const int BRIEFING_SPAWN_BATCH_SIZE = 4;
 
     //! Game-mode setting: group headers in the voice list may be selectable
     //! without changing the player's lobby slot or base-game group.
     [Attribute("1", UIWidgets.CheckBox, "Allow group voice-channel selection")]
     protected bool m_bVoiceGroupHeaderSwitchesGroup;
-    
-    [Attribute("", UIWidgets.Object, "Formations for player groups")]
-    protected ref array<ref GC_PlayerFormationDefinition> m_aFormations;
+
+	//! Server-side grace period for reconnecting to a claimed slot.
+	[Attribute("120", UIWidgets.EditBox, "Slot reservation timeout in seconds")]
+	protected int m_iSlotReservationTimeoutSeconds;
 
 	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
@@ -32,6 +36,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	ref ScriptInvoker<GC_ELobbyPhase> m_OnLobbyPhaseChanged = new ScriptInvoker<GC_ELobbyPhase>();
 	protected ref GC_LobbyPhaseMachine m_PhaseMachine = new GC_LobbyPhaseMachine();
 	protected bool m_bShutdown;
+	protected ref map<int, IEntity> m_mLobbySpectators = new map<int, IEntity>();
+	protected ref map<UUID, IEntity> m_mReservedSpectators = new map<UUID, IEntity>();
+	protected ref array<GC_Slot> m_aPendingBriefingSpawns = {};
+	protected ref array<int> m_aPendingPlayerCatchUps = {};
+	protected ref map<int, int> m_mPlayerCatchUpAttempts = new map<int, int>();
+	protected bool m_bBriefingSpawnQueued;
+	protected bool m_bCatchUpQueued;
 
 	//! Re-evaluate briefing presentation on every machine when the authoritative
 	//! base-game phase changes. The phase itself remains owned and replicated by
@@ -61,6 +72,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				ApplyLobbyPhase(GC_ELobbyPhase.POSTGAME);
 		}
 
+		if (state == SCR_EGameModeState.GAME && Replication.IsServer())
+			QueueCatchUpClaimedPlayers();
+
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
 	}
@@ -85,6 +99,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		return "UNKNOWN";
+	}
+
+	int GetSlotReservationTimeoutSeconds()
+	{
+		return Math.Max(0, m_iSlotReservationTimeoutSeconds);
 	}
 
 	//! Validates and applies an admin-owned request on the server authority.
@@ -147,6 +166,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return false;
 			}
 
+			// Give every claimed slot one final authority-side spawn attempt before
+			// the base game begins. A failed prefab does not block the mission; the
+			// affected player remains a spectator and the error is logged.
+			ForceSpawnClaimedSlots();
+
 			PrintFormat("GC | Phase | invoking native StartGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
 			gameMode.StartGameMode();
 			if (gameMode.GetState() != SCR_EGameModeState.GAME)
@@ -161,6 +185,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		PublishLobbyPhase(GC_ELobbyPhase.BRIEFING);
+		QueueBriefingSlotSpawns();
 		return true;
 	}
 
@@ -257,33 +282,37 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     override void OnPlayerAuditSuccess(int playerId)
     {
         PrintFormat("GC | OnPlayerAuditSuccess: %1, connected!", playerId);
-    
-        //Check if player is already existing in world
 
-        //If not setup player in spectator mode
-        SetSpectator(playerId, true);
-        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
-        m_OnPlayerRegistryUpdated.Invoke(playerId);
+		if (Replication.IsServer())
+			QueuePlayerCatchUp(playerId);
+
+		m_OnPlayerRegistryUpdated.Invoke(playerId);
     }
 
     override void OnPlayerConnected(int playerId)
     {
-        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
         m_OnPlayerRegistryUpdated.Invoke(playerId);
         super.OnPlayerConnected(playerId);
     }
 
     override void OnPlayerRegistered(int playerId)
     {
-        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
         m_OnPlayerRegistryUpdated.Invoke(playerId);
         super.OnPlayerRegistered(playerId);
     }
 
     override void OnPlayerDisconnected(int playerId, KickCauseCode cause, int timeout)
     {
-        RemovePlayerVoiceAssignment(playerId);
-        m_OnPlayerRegistryUpdated.Invoke(playerId);
+		const KickCauseGroup2 causeGroup = KickCauseCodeAPI.GetGroup(cause);
+		bool isShutdown = causeGroup == RplKickCauseGroup.REPLICATION && KickCauseCodeAPI.GetReason(cause) == RplError.SHUTDOWN;
+		if (Replication.IsServer() && !isShutdown)
+			HandlePlayerDisconnected(playerId);
+
+		if (!isShutdown)
+		{
+			RemovePlayerVoiceAssignment(playerId);
+			m_OnPlayerRegistryUpdated.Invoke(playerId);
+		}
         super.OnPlayerDisconnected(playerId, cause, timeout);
     }
     
@@ -295,20 +324,420 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
         if (state)
         {
+			PrintFormat("GC | Lifecycle | spectator requested: player=%1", playerId);
+			GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (!playerController)
+			{
+				PrintFormat("GC | Lifecycle | spectator controller unavailable: player=%1", playerId, level: LogLevel.WARNING);
+				return;
+			}
+
+			IEntity existingSpectator = m_mLobbySpectators.Get(playerId);
+			if (!existingSpectator)
+			{
+				UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+				existingSpectator = m_mReservedSpectators.Get(identity);
+				if (existingSpectator)
+					m_mReservedSpectators.Remove(identity);
+			}
+			if (existingSpectator)
+			{
+				if (playerController.SetLobbyControlledEntity(existingSpectator, true))
+				{
+					m_mLobbySpectators.Set(playerId, existingSpectator);
+					return;
+				}
+
+				SCR_EntityHelper.DeleteEntityAndChildren(existingSpectator);
+				m_mLobbySpectators.Remove(playerId);
+			}
+
             EntitySpawnParams params = new EntitySpawnParams();
             params.Transform[3] = "1194.457 39 2723.129";
-            IEntity spectator = GetGame().SpawnEntityPrefab(Resource.Load(SPECTATOR_PREFAB), null, params);
+            Resource spectatorPrefab = Resource.Load(SPECTATOR_PREFAB);
+			PrintFormat("GC | Lifecycle | spectator prefab loaded: valid=%1", spectatorPrefab != null);
+			if (!spectatorPrefab)
+			{
+				PrintFormat("GC | Lifecycle | spectator prefab unavailable: %1", SPECTATOR_PREFAB, level: LogLevel.ERROR);
+				return;
+			}
+			IEntity spectator = GetGame().SpawnEntityPrefab(spectatorPrefab, null, params);
+			PrintFormat("GC | Lifecycle | spectator spawned: valid=%1", spectator != null);
 
-            GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
-            if (playerController)
-                playerController.SetLobbySpectator(spectator);
-        }
-        else
-        {
-            
+			if (!spectator || !playerController.SetLobbyControlledEntity(spectator, true))
+			{
+				PrintFormat("GC | Lifecycle | spectator assignment failed: player=%1", playerId, level: LogLevel.WARNING);
+				return;
+			}
+
+			m_mLobbySpectators.Set(playerId, spectator);
+			UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+			if (!identity.IsEmpty())
+				m_mReservedSpectators.Remove(identity);
         }
 
     }
+
+	protected void HandlePlayerDisconnected(int playerId)
+	{
+		UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		IEntity spectator = m_mLobbySpectators.Get(playerId);
+		if (spectator && !identity.IsEmpty())
+			m_mReservedSpectators.Set(identity, spectator);
+		m_mLobbySpectators.Remove(playerId);
+
+		GC_Slot slot = m_Roster.GetSlotByPlayerId(playerId);
+		if (!slot)
+			return;
+
+		slot.MarkDisconnected();
+		UpdateSlot(slot);
+	}
+
+	void OnLobbyReservationExpired(UUID identity, IEntity reservedEntity)
+	{
+		if (!Replication.IsServer() || identity.IsEmpty())
+			return;
+
+		GC_Slot slot = m_Roster.GetSlotByUUID(identity);
+		IEntity spectator = m_mReservedSpectators.Get(identity);
+		if (spectator && spectator == reservedEntity)
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(spectator);
+			m_mReservedSpectators.Remove(identity);
+		}
+
+		if (!slot)
+			return;
+
+		slot.ReleaseClaim();
+		UpdateSlot(slot);
+		PrintFormat("GC | Lifecycle | slot reservation expired: slot=%1", slot.GetID());
+	}
+
+	protected void CatchUpPlayer(int playerId)
+	{
+		if (!Replication.IsServer() || playerId <= 0)
+			return;
+
+		UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		PrintFormat("GC | Lifecycle | catch-up begin: player=%1 uuid=%2 phase=%3", playerId, identity, GetPhaseName(GetLobbyPhase()));
+		SCR_ReconnectComponent reconnect = SCR_ReconnectComponent.GetInstance();
+		if (reconnect)
+			reconnect.HandlePlayerReconnect(playerId);
+
+		GC_Slot slot = m_Roster.GetSlotByUUID(identity);
+		if (!slot)
+		{
+			PrintFormat("GC | Lifecycle | catch-up unassigned spectator: player=%1", playerId);
+			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+			SetSpectator(playerId, true);
+			return;
+		}
+
+		slot.ReconnectPlayer(playerId);
+		SCR_AIGroup group = slot.GetGroup();
+		if (group && !group.GetPlayerIDs().Contains(playerId))
+			group.AddPlayer(playerId);
+
+		if (group && group.GetFaction())
+			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
+		else
+			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+
+		if (slot.IsKIA())
+		{
+			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+			SetSpectator(playerId, true);
+			return;
+		}
+
+		GC_ELobbyPhase phase = GetLobbyPhase();
+		if (phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING)
+		{
+			if (phase == GC_ELobbyPhase.BRIEFING)
+				SpawnSlotEntity(slot, false);
+			SetSpectator(playerId, true);
+			return;
+		}
+
+		if (phase == GC_ELobbyPhase.GAME)
+		{
+			if (!slot.GetEntity())
+				SpawnSlotEntity(slot, true);
+
+			if (slot.GetEntity() && AssignSlotEntity(playerId, slot))
+				return;
+
+			PrintFormat("GC | Lifecycle | GAME catch-up fell back to spectator: player=%1 slot=%2", playerId, slot.GetID(), level: LogLevel.WARNING);
+		}
+
+		SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+		SetSpectator(playerId, true);
+	}
+
+	protected void QueuePlayerCatchUp(int playerId)
+	{
+		if (!Replication.IsServer() || playerId <= 0 || m_bShutdown)
+			return;
+
+		if (!m_aPendingPlayerCatchUps.Contains(playerId))
+			m_aPendingPlayerCatchUps.Insert(playerId);
+
+		if (m_bCatchUpQueued)
+			return;
+
+		m_bCatchUpQueued = true;
+		GetGame().GetCallqueue().CallLater(ProcessPlayerCatchUps, 0);
+	}
+
+	protected void ProcessPlayerCatchUps()
+	{
+		m_bCatchUpQueued = false;
+		if (m_bShutdown || !Replication.IsServer())
+		{
+			m_aPendingPlayerCatchUps.Clear();
+			m_mPlayerCatchUpAttempts.Clear();
+			return;
+		}
+
+		array<int> retry = {};
+		PrintFormat("GC | Lifecycle | processing catch-up queue: count=%1", m_aPendingPlayerCatchUps.Count());
+		foreach (int playerId : m_aPendingPlayerCatchUps)
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (!controller)
+			{
+				int attempts = m_mPlayerCatchUpAttempts.Get(playerId) + 1;
+				if (attempts < PLAYER_CATCHUP_MAX_RETRIES)
+				{
+					m_mPlayerCatchUpAttempts.Set(playerId, attempts);
+					retry.Insert(playerId);
+				}
+				else
+				{
+					m_mPlayerCatchUpAttempts.Remove(playerId);
+					PrintFormat("GC | Lifecycle | player catch-up abandoned after retries: player=%1", playerId, level: LogLevel.WARNING);
+				}
+				continue;
+			}
+
+			m_mPlayerCatchUpAttempts.Remove(playerId);
+			CatchUpPlayer(playerId);
+		}
+
+		m_aPendingPlayerCatchUps = retry;
+		if (!m_aPendingPlayerCatchUps.IsEmpty())
+		{
+			m_bCatchUpQueued = true;
+			GetGame().GetCallqueue().CallLater(ProcessPlayerCatchUps, PLAYER_CATCHUP_RETRY_MS);
+		}
+	}
+
+	protected bool AssignSlotEntity(int playerId, GC_Slot slot)
+	{
+		if (!slot || !slot.GetEntity())
+			return false;
+
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		if (!controller || !controller.SetLobbyControlledEntity(slot.GetEntity(), false))
+			return false;
+
+		IEntity spectator = m_mLobbySpectators.Get(playerId);
+		if (spectator && spectator != slot.GetEntity())
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(spectator);
+			m_mLobbySpectators.Remove(playerId);
+		}
+
+		slot.SetState(GC_SlotState.LOCKED);
+		UpdateSlot(slot);
+		return true;
+	}
+
+	protected bool SpawnSlotEntity(GC_Slot slot, bool force)
+	{
+		if (!Replication.IsServer() || !slot || slot.IsKIA())
+			return false;
+
+		if (slot.GetEntity())
+			return true;
+
+		SCR_AIGroup group = slot.GetGroup();
+		Resource prefab = Resource.Load(slot.GetResolvedPrefab());
+		if (!group || !prefab)
+		{
+			PrintFormat("GC | Lifecycle | slot spawn failed: slot=%1 group=%2 prefab=%3 force=%4", slot.GetID(), group != null, slot.GetResolvedPrefab(), force, level: LogLevel.ERROR);
+			return false;
+		}
+
+		EntitySpawnParams params = new EntitySpawnParams();
+		params.TransformMode = ETransformMode.WORLD;
+		group.GetWorldTransform(params.Transform);
+		vector offset = Vector(slot.GetGroupSlotIndex() * 2, 0, 0);
+		AIFormationComponent formation = AIFormationComponent.Cast(group.FindComponent(AIFormationComponent));
+		if (formation && formation.GetFormation())
+			offset = formation.GetFormation().GetOffsetPosition(slot.GetGroupSlotIndex());
+		params.Transform[3] = group.CoordToParent(offset);
+		vector terrainPosition = params.Transform[3];
+		terrainPosition[1] = SCR_TerrainHelper.GetTerrainY(terrainPosition, GetGame().GetWorld());
+		params.Transform[3] = terrainPosition;
+
+		IEntity entity = GetGame().SpawnEntityPrefab(prefab, null, params);
+		if (!entity)
+		{
+			PrintFormat("GC | Lifecycle | slot spawn returned null: slot=%1 force=%2", slot.GetID(), force, level: LogLevel.ERROR);
+			return false;
+		}
+
+		Faction faction = group.GetFaction();
+		if (faction)
+		{
+			FactionAffiliationComponent affiliation = FactionAffiliationComponent.Cast(entity.FindComponent(FactionAffiliationComponent));
+			if (affiliation)
+				affiliation.SetAffiliatedFactionByKey(faction.GetFactionKey());
+		}
+
+		group.AddAIEntityToGroup(entity);
+		AIControlComponent aiControl = AIControlComponent.Cast(entity.FindComponent(AIControlComponent));
+		if (aiControl)
+			aiControl.DeactivateAI();
+
+		slot.SetEntity(entity);
+		if (slot.HasClaim())
+			slot.SetState(GC_SlotState.LOCKED);
+		else
+			slot.SetState(GC_SlotState.FREE);
+		UpdateSlot(slot);
+		return true;
+	}
+
+	protected void QueueBriefingSlotSpawns()
+	{
+		if (!Replication.IsServer())
+			return;
+
+		m_aPendingBriefingSpawns.Clear();
+		foreach (GC_Slot slot : m_Roster.GetSlots())
+		{
+			if (slot && slot.HasClaim() && !slot.IsKIA() && !slot.GetEntity())
+				m_aPendingBriefingSpawns.Insert(slot);
+		}
+
+		GetGame().GetCallqueue().Remove(ProcessBriefingSlotSpawns);
+		if (!m_aPendingBriefingSpawns.IsEmpty())
+		{
+			m_bBriefingSpawnQueued = true;
+			GetGame().GetCallqueue().CallLater(ProcessBriefingSlotSpawns, 0);
+		}
+	}
+
+	protected void ProcessBriefingSlotSpawns()
+	{
+		if (m_bShutdown || GetLobbyPhase() != GC_ELobbyPhase.BRIEFING)
+		{
+			m_aPendingBriefingSpawns.Clear();
+			m_bBriefingSpawnQueued = false;
+			return;
+		}
+
+		int count;
+		while (count < BRIEFING_SPAWN_BATCH_SIZE && !m_aPendingBriefingSpawns.IsEmpty())
+		{
+			GC_Slot slot = m_aPendingBriefingSpawns[0];
+			m_aPendingBriefingSpawns.Remove(0);
+			SpawnSlotEntity(slot, false);
+			count++;
+		}
+
+		if (!m_aPendingBriefingSpawns.IsEmpty())
+			GetGame().GetCallqueue().CallLater(ProcessBriefingSlotSpawns, 0);
+		else
+			m_bBriefingSpawnQueued = false;
+	}
+
+	protected void ForceSpawnClaimedSlots()
+	{
+		foreach (GC_Slot slot : m_Roster.GetSlots())
+		{
+			if (slot && slot.HasClaim() && !slot.IsKIA() && !slot.GetEntity())
+				SpawnSlotEntity(slot, true);
+		}
+	}
+
+	protected void QueueCatchUpClaimedPlayers()
+	{
+		foreach (GC_Slot slot : m_Roster.GetSlots())
+		{
+			if (slot && slot.GetPlayerId() > 0)
+				QueuePlayerCatchUp(slot.GetPlayerId());
+		}
+	}
+
+	override void OnControllableDestroyed(notnull SCR_InstigatorContextData instigatorContextData)
+	{
+		super.OnControllableDestroyed(instigatorContextData);
+
+		if (!Replication.IsServer())
+			return;
+
+		GC_Slot slot = m_Roster.GetSlotByEntity(instigatorContextData.GetVictimEntity());
+		if (!slot)
+			return;
+
+		if (GetLobbyPhase() == GC_ELobbyPhase.GAME)
+		{
+			slot.MarkKIA();
+			int playerId = slot.GetPlayerId();
+			if (playerId > 0)
+			{
+				SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+				SetSpectator(playerId, true);
+			}
+		}
+		else
+		{
+			slot.ClearEntityReference(false);
+			if (slot.HasClaim())
+			{
+				slot.SetState(GC_SlotState.RESERVED);
+				if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
+					SpawnSlotEntity(slot, false);
+			}
+		}
+
+		UpdateSlot(slot);
+	}
+
+	override void OnControllableDeleted(IEntity entity)
+	{
+		super.OnControllableDeleted(entity);
+
+		if (!Replication.IsServer())
+			return;
+
+		GC_Slot slot = m_Roster.GetSlotByEntity(entity);
+		if (!slot)
+			return;
+
+		if (GetLobbyPhase() == GC_ELobbyPhase.GAME)
+		{
+			slot.ClearEntityReference(true);
+			slot.MarkKIA();
+		}
+		else
+		{
+			slot.ClearEntityReference(false);
+			if (slot.HasClaim())
+			{
+				slot.SetState(GC_SlotState.RESERVED);
+				if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
+					SpawnSlotEntity(slot, false);
+			}
+		}
+
+		UpdateSlot(slot);
+	}
 
     void RegisterGroup(SCR_AIGroup group)
     {
@@ -539,6 +968,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
             GC_Slot slot = new GC_Slot();
             slot.SetID(m_Roster.AllocateSlotId());
+            slot.SetGroupSlotIndex(unitIndex);
             slot.SetAuthoredPrefab(prefab);
             slot.SetResolvedPrefab(resolvedPrefab);
             slot.SetVariantPolicy(variantPolicies[unitIndex]);
@@ -688,23 +1118,30 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		int pendingSlotGroups;
+		int pendingSlotEntities;
 		foreach (GC_Slot slot : m_Roster.GetSlots())
 		{
-			if (!slot || slot.GetGroup())
+			if (!slot)
 				continue;
 
-			RplId slotGroupRplId = slot.GetGroupRplId();
-			if (slotGroupRplId == RplId.Invalid())
+			if (!slot.GetGroup())
 			{
-				PrintFormat("GC | JIP slot has invalid group RplId: slot=%1", slot.GetID(), level: LogLevel.WARNING);
-				continue;
+				RplId slotGroupRplId = slot.GetGroupRplId();
+				if (slotGroupRplId == RplId.Invalid())
+				{
+					PrintFormat("GC | JIP slot has invalid group RplId: slot=%1", slot.GetID(), level: LogLevel.WARNING);
+				}
+				else if (!slot.ResolveReplicatedGroup())
+				{
+					pendingSlotGroups++;
+				}
 			}
 
-			if (!slot.ResolveReplicatedGroup())
-				pendingSlotGroups++;
+			if (slot.GetEntityRplId() != RplId.Invalid() && !slot.ResolveReplicatedEntity())
+				pendingSlotEntities++;
 		}
 
-		if (!pendingGroups.IsEmpty() || pendingSlotGroups > 0)
+		if (!pendingGroups.IsEmpty() || pendingSlotGroups > 0 || pendingSlotEntities > 0)
 		{
 			GetGame().GetCallqueue().CallLater(ResolvePendingJipReferences, JIP_REFERENCE_RETRY_MS);
 			return;
@@ -760,6 +1197,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     int GetFactionSlotCount(FactionKey factionKey) { return m_Roster.GetFactionSlotCount(factionKey); }
     GC_Slot GetSlot(int id) { return m_Roster.GetSlot(id); }
     GC_Slot GetSlotByPlayerId(int playerId) { return m_Roster.GetSlotByPlayerId(playerId); }
+	GC_Slot GetSlotByUUID(UUID identity) { return m_Roster.GetSlotByUUID(identity); }
+	GC_Slot GetSlotByEntity(IEntity entity) { return m_Roster.GetSlotByEntity(entity); }
     SCR_AIGroup GetRegisteredGroupByRplId(RplId groupRplId) { return m_Roster.GetGroupByRplId(groupRplId); }
     SCR_AIGroup GetPlayerGroup(int playerId) { return m_Roster.GetPlayerGroup(playerId); }
     Faction GetPlayerFaction(int playerId) { return m_Roster.GetPlayerFaction(playerId); }
@@ -1137,11 +1576,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!Replication.IsServer() || playerId <= 0)
             return false;
 
+		GC_ELobbyPhase phase = GetLobbyPhase();
+		if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+			return false;
+
         GC_Slot targetSlot = GetSlot(slotId);
-        if (!targetSlot || targetSlot.GetState() != GC_SlotState.FREE)
+        if (!targetSlot)
             return false;
 
         int occupyingPlayerId = targetSlot.GetPlayerId();
+		if (targetSlot.GetState() != GC_SlotState.FREE && !(phase == GC_ELobbyPhase.PREGAME && occupyingPlayerId == playerId))
+			return false;
+
         if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
             return false;
 
@@ -1156,17 +1602,27 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         GC_Slot currentSlot = GetSlotByPlayerId(playerId);
         SCR_AIGroup currentGroup = GetPlayerGroup(playerId);
 
-        // Clicking the player's current slot toggles them back out of it.
+        // In PREGAME, clicking the current slot toggles the player out. Once
+        // briefing begins, a selected slot is committed and cannot be cleared.
         if (occupyingPlayerId == playerId)
         {
+			if (phase == GC_ELobbyPhase.BRIEFING)
+				return false;
+
             if (currentGroup)
                 currentGroup.RemovePlayer(playerId);
 
-            targetSlot.SetPlayer(-1);
+			targetSlot.ReleaseClaim();
             SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
             PrintFormat("GC | Slot request accepted (unslotted): player=%1 slot=%2", playerId, slotId);
             return true;
         }
+
+		if (phase == GC_ELobbyPhase.BRIEFING && currentGroup && currentGroup.GetFaction() != targetGroup.GetFaction())
+		{
+			PrintFormat("GC | Slot request rejected: cross-faction briefing switch player=%1 slot=%2", playerId, slotId, level: LogLevel.WARNING);
+			return false;
+		}
 
         if (currentGroup != targetGroup)
         {
@@ -1185,10 +1641,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         }
 
         if (currentSlot && currentSlot != targetSlot)
-            currentSlot.SetPlayer(-1);
+            currentSlot.ReleaseClaim();
 
-        targetSlot.SetPlayer(playerId);
+		targetSlot.SetPlayer(playerId);
+		if (phase == GC_ELobbyPhase.PREGAME)
+			targetSlot.SetState(GC_SlotState.RESERVED);
+		else if (targetSlot.GetEntity())
+			targetSlot.SetState(GC_SlotState.LOCKED);
+		else
+			targetSlot.SetState(GC_SlotState.RESERVED);
         SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), Replication.FindItemId(targetGroup));
+		if (phase == GC_ELobbyPhase.BRIEFING)
+			SpawnSlotEntity(targetSlot, false);
         PrintFormat("GC | Slot request accepted: player=%1 slot=%2", playerId, slotId);
         return true;
     }
@@ -1224,17 +1688,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			ResolvePendingJipReferences();
     }
 
-    GC_PlayerFormationDefinition GetFormation(string name)
-    {
-        foreach (ref GC_PlayerFormationDefinition formation : m_aFormations)
-        {
-            if (formation.m_sName == name)
-                return formation;
-        }
-        
-        return null;
-    }
-
     override void OnGameModeEnd(SCR_GameModeEndData data)
     {
 		Shutdown();
@@ -1253,8 +1706,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
-        GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
+		GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
+		GetGame().GetCallqueue().Remove(ProcessBriefingSlotSpawns);
+		GetGame().GetCallqueue().Remove(ProcessPlayerCatchUps);
+		m_aPendingBriefingSpawns.Clear();
+		m_aPendingPlayerCatchUps.Clear();
+		m_mPlayerCatchUpAttempts.Clear();
+		m_mLobbySpectators.Clear();
+		m_mReservedSpectators.Clear();
         UnsubscribeFromAllGroupEvents();
         UnsubscribeFromAllSlotEvents();
 		m_Roster.Clear();

@@ -98,15 +98,19 @@ Small related value types may share a file. Large classes should not become fold
 - `scripts/Game/GC_LobbyManager.c`
   - Server-authoritative façade and integration coordinator.
   - `GetManager()` resolves the manager only through `GC_LobbyGameMode.GetGameMode()`.
-  - Owns RPC publication, request validation, base-game transition calls, lifecycle integration, and UI invokers.
+  - Owns RPC publication, request validation, base-game transition calls, slot/player lifecycle reconciliation, and UI invokers.
   - Delegates domain storage to focused modules.
 
 ### Domain state
 
 - `scripts/Game/Lobby/GC_LobbyRoster.c`
   - Derived indexes of base-game factions and groups.
-  - Lobby-only slots and pending JIP references.
+  - Lobby-only slots, UUID/entity lookup helpers, and pending JIP references.
   - Queries authoritative group membership before slot fallback.
+- `scripts/Game/GameMode/GC_LobbyReconnectComponent.c`
+  - Lobby2-owned reconnect policy installed only on `GameMode_Lobby.et`.
+  - Preserves UUID, slot entity, and cached claimant data for the configured reservation timeout.
+  - Delegates expiry cleanup and phase catch-up to `GC_LobbyManager`.
 - `scripts/Game/Voice/GC_LobbyVoiceState.c`
   - Lobby voice presentation assignments and serialization.
   - Does not replace the base voice/audio system.
@@ -236,6 +240,30 @@ Guidelines:
 - Do not serialize copied base-game ownership relationships.
 - Reliable updates must be idempotent; stale phase updates must not revert local state.
 - When changing snapshot layout, update save and load together and retest every JIP phase.
+
+## Slot lifecycle and phase reconciliation
+
+`GC_LobbyManager` is the lifecycle coordinator. `GC_Slot` owns slot transitions and is the only API that changes claimant identity: `SetPlayer`, `MarkDisconnected`, `ReconnectPlayer`, `ReleaseClaim`, `SetEntity`, and `MarkKIA`. The roster lookup helpers are derived discovery indexes; base-game group and player APIs remain authoritative.
+
+Slot states have these meanings:
+
+- `FREE`: claimable; an existing living entity may remain dormant.
+- `RESERVED`: claimed but not currently spawned.
+- `LOCKED`: claimed with a living spawned entity.
+- `DISCONNECTED`: a non-KIA UUID reservation awaiting reconnect.
+- `KIA`: the character died during `GAME` and is unavailable for the match.
+
+Player catch-up is idempotent and runs after identity registration, reconnect, and relevant phase notifications:
+
+- No UUID reservation: global voice and spectator assignment.
+- `PREGAME`: restore slot/group claim, remain spectator.
+- `BRIEFING`: stage the exact slot prefab in bounded batches, keep the player spectator, and deactivate staged AI.
+- `GAME`: force-spawn a missing living slot when possible and assign its entity through `SetInitialMainEntity`; failed assignments remain spectators.
+- `KIA` or `POSTGAME`: spectator behavior without altering match results.
+
+Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). Expiry clears claimant identity, preserves living slot entities as dormant, deletes only non-slot lobby spectators, and keeps KIA slots unavailable. Shutdown is owned by world teardown and must not create reconnect reservations.
+
+Tracked controllable destruction is phase-sensitive: before `GAME`, a claimed slot is restaged; during `GAME`, it becomes `KIA` and any connected claimant moves to spectator. Repeated callbacks must be harmless. All authoritative transitions use the existing reliable slot update path, and queued JIP/spawn callbacks are removed during shutdown.
 
 ## Lifecycle and cleanup
 
