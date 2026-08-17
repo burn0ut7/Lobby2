@@ -2,7 +2,14 @@ enum GC_VoiceChannelType
 {
 	GLOBAL = 0,
 	FACTION = 1,
-	GROUP = 2
+	GROUP = 2,
+	PERSONAL = 3
+}
+
+enum GC_EBriefingVoiceChannel
+{
+	GROUP = 0,
+	FACTION_HQ = 1
 }
 
 //! One server-authoritative active voice channel for one connected player.
@@ -12,6 +19,7 @@ class GC_VoiceChannelAssignment
 	protected GC_VoiceChannelType m_eChannelType = GC_VoiceChannelType.GLOBAL;
 	protected string m_sFactionKey;
 	protected RplId m_GroupRplId = RplId.Invalid();
+	protected UUID m_PersonalOwnerIdentity;
 	protected bool m_bDeafened;
 
 	int GetPlayerId()
@@ -34,6 +42,11 @@ class GC_VoiceChannelAssignment
 		return m_GroupRplId;
 	}
 
+	UUID GetPersonalOwnerIdentity()
+	{
+		return m_PersonalOwnerIdentity;
+	}
+
 	bool IsDeafened()
 	{
 		return m_bDeafened;
@@ -44,12 +57,13 @@ class GC_VoiceChannelAssignment
 		m_bDeafened = deafened;
 	}
 
-	void Set(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
+	void Set(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
 	{
 		m_iPlayerId = playerId;
 		m_eChannelType = channelType;
 		m_sFactionKey = factionKey;
 		m_GroupRplId = groupRplId;
+		m_PersonalOwnerIdentity = personalOwnerIdentity;
 	}
 
 	void CopyFrom(GC_VoiceChannelAssignment source)
@@ -57,16 +71,18 @@ class GC_VoiceChannelAssignment
 		if (!source)
 			return;
 
-		Set(source.m_iPlayerId, source.m_eChannelType, source.m_sFactionKey, source.m_GroupRplId);
+		Set(source.m_iPlayerId, source.m_eChannelType, source.m_sFactionKey, source.m_GroupRplId, source.m_PersonalOwnerIdentity);
 		m_bDeafened = source.m_bDeafened;
 	}
 
 	bool RplSave(ScriptBitWriter writer)
 	{
 		writer.WriteInt(m_iPlayerId);
-		writer.WriteIntRange(m_eChannelType, GC_VoiceChannelType.GLOBAL, GC_VoiceChannelType.GROUP);
+		writer.WriteIntRange(m_eChannelType, GC_VoiceChannelType.GLOBAL, GC_VoiceChannelType.PERSONAL);
 		writer.WriteString(m_sFactionKey);
 		writer.WriteRplId(m_GroupRplId);
+		string personalOwnerIdentity = m_PersonalOwnerIdentity;
+		writer.WriteString(personalOwnerIdentity);
 		writer.WriteBool(m_bDeafened);
 		return true;
 	}
@@ -75,12 +91,16 @@ class GC_VoiceChannelAssignment
 	{
 		if (!reader.ReadInt(m_iPlayerId))
 			return false;
-		if (!reader.ReadIntRange(m_eChannelType, GC_VoiceChannelType.GLOBAL, GC_VoiceChannelType.GROUP))
+		if (!reader.ReadIntRange(m_eChannelType, GC_VoiceChannelType.GLOBAL, GC_VoiceChannelType.PERSONAL))
 			return false;
 		if (!reader.ReadString(m_sFactionKey))
 			return false;
 		if (!reader.ReadRplId(m_GroupRplId))
 			return false;
+		string personalOwnerIdentity;
+		if (!reader.ReadString(personalOwnerIdentity))
+			return false;
+		m_PersonalOwnerIdentity = personalOwnerIdentity;
 		if (!reader.ReadBool(m_bDeafened))
 			return false;
 
@@ -94,6 +114,8 @@ class GC_VoiceChannelAssignment
 		snapshot.SerializeString(instance.m_sFactionKey);
 		RplId groupRplId = instance.m_GroupRplId;
 		snapshot.SerializeBytes(groupRplId, 4);
+		string personalOwnerIdentity = instance.m_PersonalOwnerIdentity;
+		snapshot.SerializeString(personalOwnerIdentity);
 		snapshot.SerializeBool(instance.m_bDeafened);
 		return true;
 	}
@@ -106,6 +128,9 @@ class GC_VoiceChannelAssignment
 		instance.m_eChannelType = channelType;
 		snapshot.SerializeString(instance.m_sFactionKey);
 		snapshot.SerializeBytes(instance.m_GroupRplId, 4);
+		string personalOwnerIdentity;
+		snapshot.SerializeString(personalOwnerIdentity);
+		instance.m_PersonalOwnerIdentity = personalOwnerIdentity;
 		snapshot.SerializeBool(instance.m_bDeafened);
 		return true;
 	}
@@ -118,6 +143,7 @@ class GC_VoiceChannelAssignment
 		RplId groupRplId;
 		snapshot.SerializeBytes(groupRplId, 4);
 		packet.Serialize(groupRplId, 32);
+		snapshot.EncodeString(packet);
 		snapshot.EncodeBool(packet);
 	}
 
@@ -129,6 +155,7 @@ class GC_VoiceChannelAssignment
 		RplId groupRplId;
 		packet.Serialize(groupRplId, 32);
 		snapshot.SerializeBytes(groupRplId, 4);
+		snapshot.DecodeString(packet);
 		snapshot.DecodeBool(packet);
 		return true;
 	}
@@ -139,6 +166,7 @@ class GC_VoiceChannelAssignment
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareStringSnapshots(rhs)
 			&& lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareStringSnapshots(rhs)
 			&& lhs.CompareSnapshots(rhs, 4);
 	}
 
@@ -148,6 +176,7 @@ class GC_VoiceChannelAssignment
 			&& snapshot.CompareInt(instance.m_eChannelType)
 			&& snapshot.CompareString(instance.m_sFactionKey)
 			&& snapshot.Compare(instance.m_GroupRplId, 4)
+			&& snapshot.CompareString(instance.m_PersonalOwnerIdentity)
 			&& snapshot.CompareBool(instance.m_bDeafened);
 	}
 }

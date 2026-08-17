@@ -136,6 +136,7 @@ SizeLayoutWidgetClass {
         SizeMode Fill
         FillWeight 1
        }
+       "Is Visible" 0
        {
         ImageWidgetClass "{6A41000000000042}" {
          Name "BriefingDocumentBackdrop"

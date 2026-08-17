@@ -25,6 +25,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 		m_LobbyManager.m_OnFactionUpdated.Insert(OnLobbyRegistryUpdated);
 		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnLobbyPlayerRegistryUpdated);
+		m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
 		Refresh();
 	}
 
@@ -34,6 +35,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		{
 			m_LobbyManager.m_OnFactionUpdated.Remove(OnLobbyRegistryUpdated);
 			m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnLobbyPlayerRegistryUpdated);
+			m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
 		}
 
 		ClearChannelWidgets();
@@ -42,17 +44,20 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		super.HandlerDeattached(w);
 	}
 
-	//! Rebuilds Global, faction, and group channel cards from current registry state.
+	//! Rebuilds shared channels first, followed by discoverable personal channels.
 	void Refresh()
 	{
 		if (!m_wChannels || !m_LobbyManager)
 			return;
 
 		ClearChannelWidgets();
-		CreateChannel(GC_VoiceChannelType.GLOBAL);
+		if (m_LobbyManager.GetLobbyPhase() != GC_ELobbyPhase.BRIEFING)
+			CreateChannel(GC_VoiceChannelType.GLOBAL);
 
 		array<Faction> factions = m_LobbyManager.GetRegisteredFactions();
 		array<SCR_AIGroup> groups = m_LobbyManager.GetRegisteredGroups();
+		array<int> connectedPlayers = {};
+		GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
 		Faction localFaction = GetLocalPlayerFaction();
 
 		// Keep each faction's channel beside its group channels so the list reads
@@ -68,6 +73,21 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 				if (group && group.GetFaction() == faction)
 					CreateChannel(GC_VoiceChannelType.GROUP, faction, group);
 			}
+		}
+
+		int localPlayerId = GetLocalPlayerId();
+		foreach (int ownerPlayerId : connectedPlayers)
+		{
+			UUID ownerIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(ownerPlayerId);
+			if (ownerPlayerId != localPlayerId && m_LobbyManager.CanAccessPersonalVoiceChannel(localPlayerId, ownerIdentity))
+				CreateChannel(GC_VoiceChannelType.PERSONAL, m_LobbyManager.GetPersonalVoiceChannelFaction(ownerIdentity), null, ownerIdentity, ownerPlayerId);
+		}
+
+		// The local player's unopened channel remains private and is always last.
+		if (localPlayerId > 0)
+		{
+			UUID localIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(localPlayerId);
+			CreateChannel(GC_VoiceChannelType.PERSONAL, m_LobbyManager.GetPersonalVoiceChannelFaction(localIdentity), null, localIdentity, localPlayerId);
 		}
 
 		RefreshPlayers();
@@ -86,36 +106,28 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		return m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
 	}
 
+	protected int GetLocalPlayerId()
+	{
+		SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (!playerController)
+			return -1;
+
+		return playerController.GetPlayerId();
+	}
+
 	protected void OnLobbyRegistryUpdated(Faction faction)
 	{
-		if (!HasCurrentTopology())
-		{
-			Refresh();
-			return;
-		}
-
-		foreach (Widget channelWidget : m_aChannelWidgets)
-		{
-			if (!channelWidget)
-				continue;
-
-			GC_VoiceChannelWidgetComponent channel = GC_VoiceChannelWidgetComponent.Cast(channelWidget.FindHandler(GC_VoiceChannelWidgetComponent));
-			if (channel)
-				channel.RefreshFactionColor();
-		}
-
-		RefreshPlayers();
+		Refresh();
 	}
 
 	protected void OnLobbyPlayerRegistryUpdated(int playerId)
 	{
-		if (!HasCurrentTopology())
-		{
-			Refresh();
-			return;
-		}
+		Refresh();
+	}
 
-		RefreshPlayers();
+	protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+	{
+		Refresh();
 	}
 
 	//! Global contains every connected player. Faction and group membership are
@@ -142,14 +154,14 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 			if (!channel)
 				continue;
 
-			array<int> members = GetChannelMembers(channel.GetChannelType(), channel.GetFaction(), channel.GetGroup(), connectedPlayers);
+			array<int> members = GetChannelMembers(channel.GetChannelType(), channel.GetFaction(), channel.GetGroup(), channel.GetPersonalOwnerIdentity(), connectedPlayers);
 			channel.SetPlayers(members, m_LobbyManager);
 			totalRows += members.Count();
 		}
 
 	}
 
-	protected array<int> GetChannelMembers(GC_VoiceChannelType channelType, Faction faction, SCR_AIGroup group, array<int> connectedPlayers)
+	protected array<int> GetChannelMembers(GC_VoiceChannelType channelType, Faction faction, SCR_AIGroup group, UUID personalOwnerIdentity, array<int> connectedPlayers)
 	{
 		array<int> members = {};
 
@@ -172,65 +184,14 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 				members.Insert(playerId);
 			else if (channelType == GC_VoiceChannelType.GROUP && group && assignment.GetGroupRplId() == Replication.FindItemId(group))
 				members.Insert(playerId);
+			else if (channelType == GC_VoiceChannelType.PERSONAL && assignment.GetPersonalOwnerIdentity() == personalOwnerIdentity)
+				members.Insert(playerId);
 		}
 
 		return members;
 	}
 
-	protected bool HasCurrentTopology()
-	{
-		if (!m_LobbyManager)
-			return m_aChannelWidgets.IsEmpty();
-
-		Faction localFaction = GetLocalPlayerFaction();
-		int expectedCount = 1;
-		if (localFaction)
-		{
-			expectedCount++;
-			foreach (SCR_AIGroup group : m_LobbyManager.GetRegisteredGroups())
-			{
-				if (group && group.GetFaction() == localFaction)
-					expectedCount++;
-			}
-		}
-		if (expectedCount != m_aChannelWidgets.Count())
-			return false;
-
-		int index;
-		array<SCR_AIGroup> groups = m_LobbyManager.GetRegisteredGroups();
-
-		Widget globalWidget = m_aChannelWidgets[index];
-		GC_VoiceChannelWidgetComponent globalChannel = GC_VoiceChannelWidgetComponent.Cast(globalWidget.FindHandler(GC_VoiceChannelWidgetComponent));
-		if (!globalChannel || globalChannel.GetChannelType() != GC_VoiceChannelType.GLOBAL)
-			return false;
-		index++;
-		if (!localFaction)
-			return index == m_aChannelWidgets.Count();
-
-		Widget factionWidget = m_aChannelWidgets[index];
-		GC_VoiceChannelWidgetComponent factionChannel = GC_VoiceChannelWidgetComponent.Cast(factionWidget.FindHandler(GC_VoiceChannelWidgetComponent));
-		if (!factionChannel || factionChannel.GetChannelType() != GC_VoiceChannelType.FACTION || factionChannel.GetFaction() != localFaction || factionChannel.GetGroup())
-			return false;
-		index++;
-
-		foreach (SCR_AIGroup group : groups)
-		{
-			if (!group || group.GetFaction() != localFaction)
-				continue;
-			if (index >= m_aChannelWidgets.Count())
-				return false;
-
-			Widget groupWidget = m_aChannelWidgets[index];
-			GC_VoiceChannelWidgetComponent groupChannel = GC_VoiceChannelWidgetComponent.Cast(groupWidget.FindHandler(GC_VoiceChannelWidgetComponent));
-			if (!groupChannel || groupChannel.GetChannelType() != GC_VoiceChannelType.GROUP || groupChannel.GetGroup() != group || groupChannel.GetFaction() != localFaction)
-				return false;
-			index++;
-		}
-
-		return index == m_aChannelWidgets.Count();
-	}
-
-	protected void CreateChannel(GC_VoiceChannelType channelType, Faction faction = null, SCR_AIGroup group = null)
+	protected void CreateChannel(GC_VoiceChannelType channelType, Faction faction = null, SCR_AIGroup group = null, UUID personalOwnerIdentity = "", int personalOwnerPlayerId = -1)
 	{
 		Widget channelWidget = GetGame().GetWorkspace().CreateWidgets(CHANNEL_LAYOUT, m_wChannels);
 		if (!channelWidget)
@@ -250,6 +211,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		channel.SetChannelType(channelType);
 		channel.SetFaction(faction);
 		channel.SetGroup(group);
+		channel.SetPersonalOwner(personalOwnerIdentity, personalOwnerPlayerId);
 		m_aChannelWidgets.Insert(channelWidget);
 	}
 

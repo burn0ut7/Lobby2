@@ -51,6 +51,14 @@ class GC_LobbyPhaseMachine
 			|| phase == GC_ELobbyPhase.POSTGAME;
 	}
 
+	static bool IsAtOrAfter(GC_ELobbyPhase phase, GC_ELobbyPhase threshold)
+	{
+		if (!IsValid(phase) || !IsValid(threshold))
+			return false;
+
+		return GetOrdinal(phase) >= GetOrdinal(threshold);
+	}
+
 	static string GetName(GC_ELobbyPhase phase)
 	{
 		switch (phase)

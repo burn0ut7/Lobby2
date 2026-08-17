@@ -161,6 +161,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 	protected Widget m_wVoiceChannelList;
 	protected Widget m_wPlayerList;
 	protected bool m_bInitialized;
+	protected bool m_bPlayerListDefault;
 
 	override void HandlerAttached(Widget w)
 	{
@@ -223,8 +224,35 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		m_PlayerListButton.m_OnClicked.Insert(OnTabClicked);
 		m_DeafenButton.m_OnClicked.Insert(OnDeafenClicked);
 		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnVoiceStateUpdated);
-		SetPlayerListActive(false);
+		SetPlayerListActive(m_bPlayerListDefault);
 		RefreshDeafenVisuals();
+	}
+
+	void SetPlayerListDefault(bool playerListDefault)
+	{
+		m_bPlayerListDefault = playerListDefault;
+		if (m_bInitialized)
+			SetPlayerListActive(m_bPlayerListDefault);
+	}
+
+	void SetDarkBackground(bool darkBackground)
+	{
+		Widget voiceBackground = m_wRoot.FindAnyWidget("VoiceChannelListBackground");
+		Widget playerBackground = m_wRoot.FindAnyWidget("PlayerListBackground");
+		if (darkBackground)
+		{
+			if (voiceBackground)
+				voiceBackground.SetColor(Color.FromRGBA(2, 4, 4, 245));
+			if (playerBackground)
+				playerBackground.SetColor(Color.FromRGBA(2, 4, 4, 245));
+		}
+		else
+		{
+			if (voiceBackground)
+				voiceBackground.SetColor(Color.FromRGBA(2, 3, 4, 184));
+			if (playerBackground)
+				playerBackground.SetColor(Color.FromRGBA(2, 3, 4, 184));
+		}
 	}
 
 	protected void OnTabClicked(SCR_ButtonBaseComponent button)

@@ -22,9 +22,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		Rpc(RpcAsk_RequestLobbySlot, slotId);
 	}
 
-	void RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
+	void RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
 	{
-		Rpc(RpcAsk_RequestVoiceChannel, channelType, factionKey, groupRplId);
+		Rpc(RpcAsk_RequestVoiceChannel, channelType, factionKey, groupRplId, personalOwnerIdentity);
 	}
 
 	void RequestVoiceDeafened(bool deafened)
@@ -47,11 +47,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey, RplId groupRplId)
+	protected void RpcAsk_RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey, RplId groupRplId, string personalOwnerIdentity)
 	{
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
 		if (lobbyManager)
-			lobbyManager.TrySetPlayerVoiceChannel(GetPlayerId(), channelType, factionKey, groupRplId);
+			lobbyManager.TrySetPlayerVoiceChannel(GetPlayerId(), channelType, factionKey, groupRplId, personalOwnerIdentity);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]

@@ -19,6 +19,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     [Attribute("1", UIWidgets.CheckBox, "Allow group voice-channel selection")]
     protected bool m_bVoiceGroupHeaderSwitchesGroup;
 
+	//! Game-mode setting: faction-assigned players who are still in Global when
+	//! briefing begins are moved to their base-game group by default, or to HQ.
+	[Attribute("0", UIWidgets.ComboBox, "Default faction voice channel during briefing", enumType: GC_EBriefingVoiceChannel)]
+	protected GC_EBriefingVoiceChannel m_eBriefingDefaultVoiceChannel;
+
 	//! Server-side grace period for reconnecting to a claimed slot.
 	[Attribute("120", UIWidgets.EditBox, "Slot reservation timeout in seconds")]
 	protected int m_iSlotReservationTimeoutSeconds;
@@ -353,6 +358,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			role = "authority";
 
 		PrintFormat("GC | Phase | applied: role=%1 lobby=%2 -> %3 base=%4", role, GetPhaseName(previousPhase), GetPhaseName(phase), baseState);
+		if (Replication.IsServer() && phase == GC_ELobbyPhase.BRIEFING)
+			ReconcileBriefingVoiceAssignments();
+
 		m_OnLobbyPhaseChanged.Invoke(phase);
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
@@ -500,7 +508,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!slot)
 			return;
 
-		slot.ReleaseClaim();
+		ReleaseSlotClaim(slot);
 		UpdateSlot(slot);
 		PrintFormat("GC | Lifecycle | slot reservation expired: slot=%1", slot.GetID());
 	}
@@ -511,6 +519,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		GC_ELobbyPhase phase = GetLobbyPhase();
+		RegisterPlayerPersonalVoiceChannel(playerId, identity);
 		PrintFormat("GC | Lifecycle | catch-up begin: player=%1 uuid=%2 phase=%3", playerId, identity, GetPhaseName(GetLobbyPhase()));
 		SCR_ReconnectComponent reconnect = SCR_ReconnectComponent.GetInstance();
 		if (reconnect)
@@ -530,7 +540,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (group && !group.GetPlayerIDs().Contains(playerId))
 			group.AddPlayer(playerId);
 
-		if (group && group.GetFaction())
+		if (group && group.GetFaction() && phase == GC_ELobbyPhase.BRIEFING)
+			AssignPlayerToBriefingVoiceChannel(playerId);
+		else if (group && group.GetFaction())
 			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
 		else
 			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
@@ -542,7 +554,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 		}
 
-		GC_ELobbyPhase phase = GetLobbyPhase();
 		if (phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING)
 		{
 			if (phase == GC_ELobbyPhase.BRIEFING)
@@ -741,6 +752,29 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return true;
 	}
 
+	//! Releases lobby ownership and removes any staged character while the match
+	//! has not started. GAME and POSTGAME entities are match records and must not
+	//! be deleted by lobby slot changes or reservation expiry.
+	protected void ReleaseSlotClaim(GC_Slot slot)
+	{
+		if (!slot)
+			return;
+
+		GC_ELobbyPhase phase = GetLobbyPhase();
+		bool deleteStagedEntity = phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING;
+		IEntity stagedEntity = slot.GetEntity();
+		if (deleteStagedEntity && stagedEntity)
+			slot.ClearEntityReference(false);
+
+		slot.ReleaseClaim();
+
+		if (deleteStagedEntity && stagedEntity)
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(stagedEntity);
+			PrintFormat("GC | Lifecycle | removed released pre-game slot entity: slot=%1 phase=%2", slot.GetID(), GetPhaseName(phase));
+		}
+	}
+
 	//! Resolves the authored group for a slot without trusting a transient live
 	//! pointer. The replicated RplId remains stable across the briefing spawn
 	//! queue and is resolved through the roster's authoritative group index.
@@ -831,7 +865,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		{
 			GC_Slot slot = m_aPendingBriefingSpawns[0];
 			m_aPendingBriefingSpawns.Remove(0);
-			SpawnSlotEntity(slot, false);
+			if (slot && slot.HasClaim() && !slot.IsKIA() && !slot.GetEntity())
+				SpawnSlotEntity(slot, false);
 			count++;
 		}
 
@@ -1049,8 +1084,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void OnGroupPlayerAdded(SCR_AIGroup group, int playerId)
     {
-        if (Replication.IsServer() && group && group.GetFaction())
-            SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
+		if (Replication.IsServer() && group && group.GetFaction())
+		{
+			if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
+				AssignPlayerToBriefingVoiceChannel(playerId);
+			else
+				SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
+		}
 
         m_OnPlayerRegistryUpdated.Invoke(playerId);
         QueueAllRegisteredFactionUpdates();
@@ -1060,9 +1100,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     {
         if (Replication.IsServer() && group)
         {
-            GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
-            if (assignment && assignment.GetChannelType() == GC_VoiceChannelType.GROUP && assignment.GetGroupRplId() == Replication.FindItemId(group))
-                SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+			GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
+			if (assignment && assignment.GetChannelType() == GC_VoiceChannelType.GROUP && assignment.GetGroupRplId() == Replication.FindItemId(group))
+			{
+				if (GetLobbyPhase() != GC_ELobbyPhase.BRIEFING || !AssignPlayerToBriefingVoiceChannel(playerId))
+					SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+			}
         }
 
         m_OnPlayerRegistryUpdated.Invoke(playerId);
@@ -1416,7 +1459,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return true;
 	}
 
-	bool TrySetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
+	bool TrySetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
 	{
 		if (!Replication.IsServer() || playerId <= 0)
 			return false;
@@ -1424,6 +1467,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		switch (channelType)
 		{
 			case GC_VoiceChannelType.GLOBAL:
+				if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING && GetPlayerFaction(playerId))
+					return false;
 				return SetPlayerVoiceChannel(playerId, channelType);
 			case GC_VoiceChannelType.FACTION:
 			{
@@ -1434,29 +1479,179 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			}
 			case GC_VoiceChannelType.GROUP:
 				return TryJoinGroupFromVoiceHeader(playerId, groupRplId);
+			case GC_VoiceChannelType.PERSONAL:
+				if (!CanAccessPersonalVoiceChannel(playerId, personalOwnerIdentity))
+					return false;
+				return SetPlayerVoiceChannel(playerId, channelType, "", RplId.Invalid(), personalOwnerIdentity);
 		}
 
 		return false;
 	}
 
-	protected bool SetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
+	//! Applies the configured briefing policy using authoritative base-game
+	//! faction/group membership. HQ is the safe fallback if a group is not yet
+	//! replicated, so a faction-assigned player never remains in Global.
+	protected bool AssignPlayerToBriefingVoiceChannel(int playerId)
 	{
 		if (!Replication.IsServer() || playerId <= 0)
 			return false;
 
+		Faction faction = GetPlayerFaction(playerId);
+		if (!faction)
+			return false;
+
+		if (m_eBriefingDefaultVoiceChannel == GC_EBriefingVoiceChannel.GROUP)
+		{
+			SCR_AIGroup group = GetPlayerGroup(playerId);
+			if (group && group.GetFaction() == faction)
+			{
+				RplId groupRplId = Replication.FindItemId(group);
+				if (groupRplId != RplId.Invalid())
+					return SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, faction.GetFactionKey(), groupRplId);
+			}
+
+			PrintFormat("GC | Voice briefing group unavailable; using faction HQ: player=%1 faction=%2", playerId, faction.GetFactionKey(), level: LogLevel.WARNING);
+		}
+
+		return SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.FACTION, faction.GetFactionKey());
+	}
+
+	//! Reconciles only implicit/explicit Global assignments. Same-faction
+	//! personal channels remain valid and deliberate player selections.
+	protected void ReconcileBriefingVoiceAssignments()
+	{
+		array<int> connectedPlayers = {};
+		GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
+		foreach (int playerId : connectedPlayers)
+		{
+			GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
+			if (assignment && assignment.GetChannelType() != GC_VoiceChannelType.GLOBAL)
+				continue;
+
+			AssignPlayerToBriefingVoiceChannel(playerId);
+		}
+	}
+
+	protected bool SetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
+	{
+		if (!Replication.IsServer() || playerId <= 0)
+			return false;
+
+		GC_VoiceChannelAssignment previousAssignment = m_VoiceState.Get(playerId);
+		UUID playerIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		bool wasOpenPersonalOwner = previousAssignment && previousAssignment.GetChannelType() == GC_VoiceChannelType.PERSONAL && previousAssignment.GetPersonalOwnerIdentity() == playerIdentity;
+
 		GC_VoiceChannelAssignment assignment;
-		if (!m_VoiceState.SetChannel(playerId, channelType, factionKey, groupRplId, assignment))
+		if (!m_VoiceState.SetChannel(playerId, channelType, factionKey, groupRplId, personalOwnerIdentity, assignment))
 			return assignment != null;
 
-		PrintFormat("GC | Voice assignment changed: player=%1 type=%2 faction=%3 group=%4", playerId, channelType, factionKey, groupRplId);
+		PrintFormat("GC | Voice assignment changed: player=%1 type=%2 faction=%3 group=%4 personalOwner=%5", playerId, channelType, factionKey, groupRplId, personalOwnerIdentity);
 		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
 		m_OnPlayerRegistryUpdated.Invoke(playerId);
+
+		if (wasOpenPersonalOwner && (channelType != GC_VoiceChannelType.PERSONAL || personalOwnerIdentity != playerIdentity))
+			ClosePersonalVoiceChannel(playerIdentity);
 		return true;
+	}
+
+	//! The owner always sees their channel. Other players may discover and join
+	//! it only while the owner is inside it and both players share the same
+	//! authoritative faction scope (or both are unassigned spectators).
+	bool CanAccessPersonalVoiceChannel(int playerId, UUID ownerIdentity)
+	{
+		if (playerId <= 0 || ownerIdentity.IsEmpty() || !m_VoiceState.HasPersonalChannel(ownerIdentity))
+			return false;
+
+		int ownerPlayerId = GetConnectedPlayerIdByIdentity(ownerIdentity);
+		if (!GetGame().GetPlayerManager().IsPlayerConnected(playerId) || ownerPlayerId <= 0)
+			return false;
+		if (SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId) == ownerIdentity)
+			return true;
+
+		GC_VoiceChannelAssignment ownerAssignment = m_VoiceState.Get(ownerPlayerId);
+		if (!ownerAssignment || ownerAssignment.GetChannelType() != GC_VoiceChannelType.PERSONAL || ownerAssignment.GetPersonalOwnerIdentity() != ownerIdentity)
+			return false;
+
+		Faction playerFaction = GetPlayerFaction(playerId);
+		Faction ownerFaction = GetPersonalVoiceChannelFaction(ownerIdentity);
+		if (!playerFaction || !ownerFaction)
+			return !playerFaction && !ownerFaction;
+
+		return playerFaction == ownerFaction;
+	}
+
+	//! A personal channel follows its owner's authoritative faction. Connected
+	//! base-group membership wins; a UUID-reserved lobby slot preserves the same
+	//! faction while the player is reconnecting.
+	Faction GetPersonalVoiceChannelFaction(UUID ownerIdentity)
+	{
+		int ownerPlayerId = GetConnectedPlayerIdByIdentity(ownerIdentity);
+		if (ownerPlayerId > 0)
+		{
+			Faction playerFaction = GetPlayerFaction(ownerPlayerId);
+			if (playerFaction)
+				return playerFaction;
+		}
+
+		GC_Slot ownerSlot = GetSlotByUUID(ownerIdentity);
+		if (ownerSlot && ownerSlot.GetGroup())
+			return ownerSlot.GetGroup().GetFaction();
+
+		return null;
+	}
+
+	int GetConnectedPlayerIdByIdentity(UUID identity)
+	{
+		if (identity.IsEmpty())
+			return -1;
+
+		array<int> connectedPlayers = {};
+		GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
+		foreach (int playerId : connectedPlayers)
+		{
+			if (SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId) == identity)
+				return playerId;
+		}
+
+		return -1;
+	}
+
+	protected void RegisterPlayerPersonalVoiceChannel(int playerId, UUID identity)
+	{
+		if (!Replication.IsServer() || !m_VoiceState.RegisterPersonalChannel(identity))
+			return;
+
+		PrintFormat("GC | Voice personal channel registered: player=%1 identity=%2", playerId, identity);
+		Rpc(RpcDo_RegisterPersonalVoiceChannel, identity);
+		m_OnPlayerRegistryUpdated.Invoke(playerId);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_RegisterPersonalVoiceChannel(string ownerIdentity)
+	{
+		if (Replication.IsServer() || !m_VoiceState.RegisterPersonalChannel(ownerIdentity))
+			return;
+
+		m_OnPlayerRegistryUpdated.Invoke(GetConnectedPlayerIdByIdentity(ownerIdentity));
+	}
+
+	protected void ClosePersonalVoiceChannel(UUID ownerIdentity)
+	{
+		array<int> members = m_VoiceState.GetPersonalChannelMembers(ownerIdentity);
+		foreach (int memberPlayerId : members)
+		{
+			if (SCR_PlayerIdentityUtils.GetPlayerIdentityId(memberPlayerId) != ownerIdentity)
+				SetPlayerVoiceChannel(memberPlayerId, GC_VoiceChannelType.GLOBAL);
+		}
 	}
 
 	protected void RemovePlayerVoiceAssignment(int playerId)
 	{
-		if (!Replication.IsServer() || !m_VoiceState.Remove(playerId))
+		if (!Replication.IsServer())
+			return;
+
+		ClosePersonalVoiceChannel(SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId));
+		if (!m_VoiceState.Remove(playerId))
 			return;
 
 		Rpc(RpcDo_RemoveVoiceAssignment, playerId);
@@ -1780,7 +1975,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return false;
 
         int occupyingPlayerId = targetSlot.GetPlayerId();
-		if (targetSlot.GetState() != GC_SlotState.FREE && !(phase == GC_ELobbyPhase.PREGAME && occupyingPlayerId == playerId))
+		if (targetSlot.GetState() != GC_SlotState.FREE && occupyingPlayerId != playerId)
 			return false;
 
         if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
@@ -1805,18 +2000,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         GC_Slot currentSlot = GetSlotByPlayerId(playerId);
         SCR_AIGroup currentGroup = GetPlayerGroup(playerId);
 
-        // In PREGAME, clicking the current slot toggles the player out. Once
-        // briefing begins, a selected slot is committed and cannot be cleared.
-        if (occupyingPlayerId == playerId)
-        {
-			if (phase == GC_ELobbyPhase.BRIEFING)
-				return false;
+		// Clicking the current slot toggles the player out before GAME. During
+		// BRIEFING this also removes the staged entity through ReleaseSlotClaim.
+		if (occupyingPlayerId == playerId)
+		{
+			if (currentGroup)
+				currentGroup.RemovePlayer(playerId);
 
-            if (currentGroup)
-                currentGroup.RemovePlayer(playerId);
-
-			targetSlot.ReleaseClaim();
-            SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+			ReleaseSlotClaim(targetSlot);
+			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
             PrintFormat("GC | Slot request accepted (unslotted): player=%1 slot=%2", playerId, slotId);
             return true;
         }
@@ -1843,8 +2035,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             }
         }
 
-        if (currentSlot && currentSlot != targetSlot)
-            currentSlot.ReleaseClaim();
+		if (currentSlot && currentSlot != targetSlot)
+			ReleaseSlotClaim(currentSlot);
 
 		targetSlot.SetPlayer(playerId);
 		if (phase == GC_ELobbyPhase.PREGAME)

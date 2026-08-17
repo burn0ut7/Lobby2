@@ -51,7 +51,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 			PrintFormat("GC | Phase | startup: lobby=%1 base=%2", GC_LobbyManager.GetPhaseName(lobbyManager.GetLobbyPhase()), GC_LobbyManager.GetBaseStateName(GetState()));
 		}
 
-		if (lobbyManager.GetLobbyPhase() != GC_ELobbyPhase.PREGAME)
+		GC_ELobbyPhase phase = lobbyManager.GetLobbyPhase();
+		if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
 			return;
 
 		if (!GetGame().GetPlayerController())
@@ -62,7 +63,12 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		}
 
 		MenuManager menuManager = GetGame().GetMenuManager();
-		if (menuManager)
+		if (!menuManager)
+			return;
+
+		if (phase == GC_ELobbyPhase.BRIEFING)
+			menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu);
+		else
 			menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
 	}
 

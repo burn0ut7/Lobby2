@@ -49,6 +49,25 @@ FrameWidgetClass {
    }
    "Z Order" 1
   }
+  SizeLayoutWidgetClass "{6A38000000000037}" : "{6A38000000000001}UI/layouts/Players/Lobby_Player_List_Panel.layout" {
+   Name "PlayerListPanel"
+   Slot FrameWidgetSlot "{6A38000000000038}" {
+    Anchor 1 0 1 0
+    PositionX -7
+    OffsetLeft -7
+    PositionY 170.844
+    OffsetTop 170.8
+    SizeX 375
+    OffsetRight -368
+    SizeY 820.001
+    OffsetBottom -990.8
+    Alignment 1 0
+   }
+   "Z Order" 1
+   AllowWidthOverride 0
+   WidthOverride 500
+   AllowHeightOverride 0
+  }
   FrameWidgetClass "{6604C04D653ECB55}" {
    Name "ToolMenu"
    Slot FrameWidgetSlot "{59107CDEE98682C5}" {

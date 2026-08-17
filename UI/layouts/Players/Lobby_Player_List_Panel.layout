@@ -1,0 +1,255 @@
+SizeLayoutWidgetClass {
+ Name "PlayerListPanel"
+ Slot LayoutSlot "{6A38000000000002}" {
+  HorizontalAlign 0
+  VerticalAlign 0
+ }
+ components {
+  GC_PlayerListTabsComponent "{6A38000000000003}" {
+  }
+ }
+ AllowWidthOverride 1
+ WidthOverride 660
+ AllowHeightOverride 1
+ HeightOverride 868
+ {
+  VerticalLayoutWidgetClass "{6A38000000000004}" {
+   Name "PlayerListColumn"
+   Slot AlignableSlot "{6A38000000000005}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   {
+    SizeLayoutWidgetClass "{6A38000000000006}" {
+     Name "PlayerListTabsSize"
+     Slot LayoutSlot "{6A38000000000007}" {
+      HorizontalAlign 3
+      VerticalAlign 0
+     }
+     AllowHeightOverride 1
+     HeightOverride 48
+     {
+      HorizontalLayoutWidgetClass "{6A38000000000008}" {
+       Name "PlayerListTabs"
+       Slot AlignableSlot "{6A38000000000009}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       {
+        ButtonWidgetClass "{6A3800000000000A}" {
+         Name "VoiceChannelsButton"
+         Slot LayoutSlot "{6A3800000000000B}" {
+          SizeMode Fill
+          FillWeight 1
+         }
+         Color 1 1 1 0
+         components {
+          SCR_ButtonBaseComponent "{6A3800000000000C}" {
+          }
+         }
+         {
+          OverlayWidgetClass "{6A3800000000000D}" {
+           Name "VoiceChannelsButtonContent"
+           Slot ButtonWidgetSlot "{6A3800000000000E}" {
+            HorizontalAlign 3
+            VerticalAlign 3
+           }
+           {
+            ImageWidgetClass "{6A3800000000000F}" {
+             Name "VoiceChannelsButtonBackground"
+             Slot OverlayWidgetSlot "{6A38000000000010}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 0.36 0.44 0.47 0.95
+            }
+            TextWidgetClass "{6A38000000000011}" {
+             Name "VoiceChannelsButtonLabel"
+             Slot OverlayWidgetSlot "{6A38000000000012}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+              Padding 12 0 12 0
+             }
+             Text "VOICE CHANNELS"
+             "Font Size" 22
+             "Min Font Size" 12
+             "Horizontal Alignment" Center
+             "Vertical Alignment" Center
+             FontProperties FontProperties "{6A38000000000013}" {
+              OutlineSize 1
+              OutlineColor 0 0 0 0.7
+             }
+            }
+            ImageWidgetClass "{6A38000000000014}" {
+             Name "VoiceChannelsButtonAccent"
+             Slot OverlayWidgetSlot "{6A38000000000015}" {
+              HorizontalAlign 3
+              VerticalAlign 2
+             }
+             Color 0.25 0.72 0.78 1
+             Size 32 3
+            }
+           }
+          }
+         }
+        }
+        ButtonWidgetClass "{6A38000000000016}" {
+         Name "PlayerListButton"
+         Slot LayoutSlot "{6A38000000000017}" {
+          SizeMode Fill
+          FillWeight 1
+         }
+         Color 1 1 1 0
+         components {
+          SCR_ButtonBaseComponent "{6A38000000000018}" {
+          }
+         }
+         {
+          OverlayWidgetClass "{6A38000000000019}" {
+           Name "PlayerListButtonContent"
+           Slot ButtonWidgetSlot "{6A3800000000001A}" {
+            HorizontalAlign 3
+            VerticalAlign 3
+           }
+           {
+            ImageWidgetClass "{6A3800000000001B}" {
+             Name "PlayerListButtonBackground"
+             Slot OverlayWidgetSlot "{6A3800000000001C}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 0.07 0.1 0.11 0.95
+            }
+            TextWidgetClass "{6A3800000000001D}" {
+             Name "PlayerListButtonLabel"
+             Slot OverlayWidgetSlot "{6A3800000000001E}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+              Padding 12 0 12 0
+             }
+             Color 0.82 0.84 0.84 1
+             Text "PLAYER LIST"
+             "Font Size" 22
+             "Min Font Size" 12
+             "Horizontal Alignment" Center
+             "Vertical Alignment" Center
+             FontProperties FontProperties "{6A3800000000001F}" {
+              OutlineSize 1
+              OutlineColor 0 0 0 0.7
+             }
+            }
+            ImageWidgetClass "{6A38000000000020}" {
+             Name "PlayerListButtonAccent"
+             Slot OverlayWidgetSlot "{6A38000000000021}" {
+              HorizontalAlign 3
+              VerticalAlign 2
+             }
+             "Is Visible" 0
+             Color 0.25 0.72 0.78 1
+             Size 32 3
+            }
+           }
+          }
+         }
+        }
+        SizeLayoutWidgetClass "{6A38000000000022}" {
+         Name "DeafenButtonSize"
+         Slot LayoutSlot "{6A38000000000023}" {
+          VerticalAlign 1
+          Padding 2 0 0 0
+         }
+         AllowWidthOverride 1
+         WidthOverride 56
+         AllowHeightOverride 1
+         HeightOverride 48
+         {
+          ButtonWidgetClass "{6A38000000000024}" {
+           Name "DeafenButton"
+           Slot LayoutSlot "{6A38000000000025}" {
+            HorizontalAlign 3
+            VerticalAlign 3
+           }
+           Color 1 1 1 0
+           components {
+            SCR_ButtonBaseComponent "{6A38000000000026}" {
+            }
+           }
+           {
+            OverlayWidgetClass "{6A38000000000027}" {
+             Name "DeafenButtonContent"
+             Slot ButtonWidgetSlot "{6A38000000000028}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             {
+              ImageWidgetClass "{6A38000000000029}" {
+               Name "DeafenButtonBackground"
+               Slot OverlayWidgetSlot "{6A3800000000002A}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               Color 0.07 0.1 0.11 0.95
+              }
+              ImageWidgetClass "{6A3800000000002B}" {
+               Name "DeafenHearingIcon"
+               Slot OverlayWidgetSlot "{6A3800000000002C}" {
+                HorizontalAlign 1
+                VerticalAlign 1
+               }
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "VoNDirect"
+               Size 32 32
+              }
+              ImageWidgetClass "{6A3800000000002D}" {
+               Name "DeafenDisabledIcon"
+               Slot OverlayWidgetSlot "{6A3800000000002E}" {
+                HorizontalAlign 1
+                VerticalAlign 1
+               }
+               "Is Visible" 0
+               Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+               Image "VoNDisabled"
+               Size 32 32
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+    OverlayWidgetClass "{6A3800000000002F}" {
+     Name "PlayerListContent"
+     Slot LayoutSlot "{6A38000000000030}" {
+      HorizontalAlign 3
+      SizeMode Fill
+     }
+     {
+      SizeLayoutWidgetClass "{6A38000000000031}" : "{6A35000000000001}UI/layouts/Voice/Lobby_Voice_Channel_List.layout" {
+      Name "VoiceChannelList"
+       Slot OverlayWidgetSlot "{6A38000000000032}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       AllowWidthOverride 0
+       AllowHeightOverride 0
+      }
+      SizeLayoutWidgetClass "{6A38000000000033}" : "{6A37000000000001}UI/layouts/Players/Lobby_Player_List.layout" {
+      Name "PlayerList"
+       Slot OverlayWidgetSlot "{6A38000000000034}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Is Visible" 0
+       AllowWidthOverride 0
+       AllowHeightOverride 0
+      }
+     }
+    }
+   }
+  }
+ }
+}

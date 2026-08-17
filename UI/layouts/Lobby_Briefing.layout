@@ -1,0 +1,155 @@
+FrameWidgetClass "{6A233D0B6063CA4A}" {
+ Name "rootFrame"
+ {
+  FrameWidgetClass "{6A233D0B6063CA4B}" : "{0651202E9F2646DE}UI/layouts/Map/Map.layout" {
+   Name "MapFrame"
+   Slot FrameWidgetSlot "{58731DB204D943BC}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 0
+    OffsetBottom 0
+   }
+   "Ignore Cursor" 0
+   {
+    HorizontalLayoutWidgetClass "{000000001FC52976}" {
+     Prefab "{000000001FC52976}"
+     {
+      ImageWidgetClass "{000000002766140D}" {
+       Prefab "{000000002766140D}"
+       Slot LayoutSlot "{52DA9C9935318517}" {
+        Padding 0 0 0 0
+        FillWeight 1
+       }
+      }
+     }
+    }
+    HorizontalLayoutWidgetClass "{592A7D6B9076B6D0}" {
+     Prefab "{592A7D6B9076B6D0}"
+     "Is Visible" 0
+    }
+   }
+  }
+  SizeLayoutWidgetClass "{6A233D0B6063CA51}" : "{6A4C000000000001}UI/layouts/Briefing/Lobby_Briefing_View.layout" {
+   Name "BriefingView"
+   Slot FrameWidgetSlot "{6A4C000000000003}" {
+    PositionX 7.361
+    OffsetLeft 7.361
+    PositionY 170.844
+    OffsetTop 170.844
+    SizeX 287
+    OffsetRight -294.361
+    SizeY 820.001
+    OffsetBottom -990.845
+    Alignment 0 0
+   }
+   "Z Order" 1
+  }
+  SizeLayoutWidgetClass "{6A233D0B6063CA56}" : "{6A38000000000001}UI/layouts/Players/Lobby_Player_List_Panel.layout" {
+   Name "PlayerListPanel"
+   Slot FrameWidgetSlot "{6A38000000000038}" {
+    Anchor 1 0 1 0
+    PositionX -7
+    OffsetLeft -7
+    PositionY 170.844
+    OffsetTop 170.8
+    SizeX 375
+    OffsetRight -368
+    SizeY 820.001
+    OffsetBottom -990.8
+    Alignment 1 0
+   }
+   "Z Order" 1
+   AllowWidthOverride 0
+   WidthOverride 500
+   AllowHeightOverride 0
+  }
+  FrameWidgetClass "{6A233D0B6063CA58}" {
+   Name "ToolMenu"
+   Slot FrameWidgetSlot "{59107CDEE98682C5}" {
+    OffsetLeft 0
+    PositionY -100
+    OffsetTop -100
+    SizeX -100
+    OffsetRight 100
+    SizeY 30
+    OffsetBottom 70
+    Alignment 0.5 0
+    SizeToContent 1
+   }
+   "Z Order" 1
+   Clipping False
+   {
+    FrameWidgetClass "{6A233D0B6063CA59}" {
+     Name "ToolMenuBar"
+     Slot FrameWidgetSlot "{59107CC3B4EFA8B6}" {
+      OffsetLeft 0
+      OffsetTop 0
+      SizeX 30
+      OffsetRight -30
+      OffsetBottom -30
+      SizeToContent 1
+     }
+     Clipping True
+     {
+      ImageWidgetClass "{6A233D0B6063CA5A}" {
+       Name "MenuBackground"
+       Slot FrameWidgetSlot "{59107CDD6A9F6BD3}" {
+        Anchor 0 0 1 1
+        PositionX 0
+        OffsetLeft 0
+        PositionY 0
+        OffsetTop 0
+        SizeX 0
+        OffsetRight 0
+        SizeY 0
+        OffsetBottom 0
+        SizeToContent 1
+       }
+       Opacity 0.98
+       Color 0 0 0 1
+       Image ""
+       Size 40 40
+      }
+      HorizontalLayoutWidgetClass "{6A233D0B6063CA5B}" {
+       Name "ToolMenuHoriz"
+       Slot FrameWidgetSlot "{59107CC3B4EFA879}" {
+        PositionX 0
+        OffsetLeft 0
+        PositionY 0
+        OffsetTop 0
+        SizeX 0
+        OffsetRight 0
+        SizeY 0
+        OffsetBottom 0
+        SizeToContent 1
+       }
+      }
+     }
+    }
+   }
+  }
+  FrameWidgetClass "{6A233D0B6063A325}" : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" {
+   Name "MenuBar"
+   Slot FrameWidgetSlot "{6A14348964DA4CFD}" {
+   }
+  }
+  FrameWidgetClass "{6A233D0B6063A31E}" : "{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout" {
+   Name "Chat"
+   Slot FrameWidgetSlot "{5D4881250D202DF3}" {
+    PositionX 7.182
+    OffsetLeft 7.182
+    PositionY 4.09
+    OffsetTop 4.09
+    SizeX 1920
+    OffsetRight -1927.18
+    SizeY 1080
+    OffsetBottom -1084.09
+   }
+  }
+ }
+}

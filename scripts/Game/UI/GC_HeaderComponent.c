@@ -275,8 +275,10 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
         if (view == VIEW_LOBBY)
             SwitchToLobbyMenu();
-        else if (view == VIEW_PREVIEW || view == VIEW_BRIEFING)
+        else if (view == VIEW_PREVIEW)
             SwitchToPreviewMenu();
+        else if (view == VIEW_BRIEFING)
+            SwitchToBriefingMenu();
     }
 
     protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
@@ -286,10 +288,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
         if (phase == GC_ELobbyPhase.BRIEFING)
         {
-            if (m_iActiveState == VIEW_PREVIEW)
-                SetActiveState(VIEW_BRIEFING);
-            else
-                SwitchToPreviewMenu();
+            SetActiveState(VIEW_BRIEFING);
+            SwitchToBriefingMenu();
 
             return;
         }
@@ -313,6 +313,12 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         GetGame().GetCallqueue().CallLater(OpenLobbyMenu, 0);
     }
 
+    protected void SwitchToBriefingMenu()
+    {
+        CloseCurrentMenu();
+        GetGame().GetCallqueue().CallLater(OpenBriefingMenu, 0);
+    }
+
     protected void CloseCurrentMenu()
     {
         MenuManager menuManager = GetGame().GetMenuManager();
@@ -331,10 +337,19 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
 
         GC_ELobbyPhase phase = lobbyManager.GetLobbyPhase();
-        if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+        if (phase != GC_ELobbyPhase.PREGAME)
             return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu, 0, true);
+    }
+
+    protected void OpenBriefingMenu()
+    {
+        GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+        if (!lobbyManager || lobbyManager.GetLobbyPhase() != GC_ELobbyPhase.BRIEFING)
+            return;
+
+        GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu, 0, true);
     }
 
     protected void OpenLobbyMenu()

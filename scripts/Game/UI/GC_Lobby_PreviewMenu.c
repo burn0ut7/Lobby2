@@ -1,8 +1,15 @@
 class GC_Lobby_PreviewMenu : ChimeraMenuBase
 {
+	protected static const string INPUT_CONTEXT = "GC_Lobby_Preview";
+	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
+
     protected SCR_MapEntity m_MapEntity;
     protected SCR_ChatPanel m_ChatPanel;
 	protected GC_HeaderComponent m_Header;
+	protected GC_LobbyManager m_LobbyManager;
+	protected GC_PlayerListTabsComponent m_PlayerListTabs;
+	protected SCR_EditorManagerEntity m_EditorManager;
+	protected int m_iEditorManagerAttachAttempts;
 
     override void OnMenuInit()
     {
@@ -23,14 +30,21 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		if (headerRoot)
 			m_Header = GC_HeaderComponent.Cast(headerRoot.FindHandler(GC_HeaderComponent));
 
-		if (m_Header)
+		Widget playerListPanel = GetRootWidget().FindAnyWidget("PlayerListPanel");
+		if (playerListPanel)
+			m_PlayerListTabs = GC_PlayerListTabsComponent.Cast(playerListPanel.FindHandler(GC_PlayerListTabsComponent));
+
+		m_LobbyManager = GC_LobbyManager.GetManager();
+		GC_ELobbyPhase phase = GC_ELobbyPhase.PREGAME;
+		if (m_LobbyManager)
 		{
-			GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-			if (lobbyManager && lobbyManager.GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
-				m_Header.SetActiveState(2);
-			else
-				m_Header.SetActiveState(0);
+			phase = m_LobbyManager.GetLobbyPhase();
+			m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
 		}
+
+		ApplyPhasePresentation(phase);
+		m_iEditorManagerAttachAttempts = 0;
+		AttachEditorManager();
 
         GetGame().GetInputManager().AddActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
 
@@ -47,6 +61,13 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 
     override void OnMenuClose()
     {
+		if (m_LobbyManager)
+			m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
+		if (m_EditorManager)
+			m_EditorManager.GetOnClosed().Remove(OnEditorClosed);
+
+		GetGame().GetCallqueue().Remove(AttachEditorManager);
+		GetGame().GetCallqueue().Remove(RestoreMapActionsAfterEditor);
         GetGame().GetCallqueue().Remove(OpenMap);
         GetGame().GetCallqueue().Remove(OpenMapNow);
         GetGame().GetCallqueue().Remove(ToggleChatWrap);
@@ -60,8 +81,77 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
             m_MapEntity.CloseMap();
 
 		m_Header = null;
+		m_EditorManager = null;
+		m_LobbyManager = null;
+		m_PlayerListTabs = null;
 		m_ChatPanel = null;
     }
+
+	protected void AttachEditorManager()
+	{
+		if (m_EditorManager)
+			return;
+
+		m_EditorManager = SCR_EditorManagerEntity.GetInstance();
+		if (m_EditorManager)
+		{
+			m_EditorManager.GetOnClosed().Insert(OnEditorClosed);
+			return;
+		}
+
+		m_iEditorManagerAttachAttempts++;
+		if (m_iEditorManagerAttachAttempts < EDITOR_MANAGER_ATTACH_RETRIES)
+			GetGame().GetCallqueue().CallLater(AttachEditorManager, 250);
+	}
+
+	protected void OnEditorClosed()
+	{
+		GetGame().GetCallqueue().Remove(RestoreMapActionsAfterEditor);
+		GetGame().GetCallqueue().CallLater(RestoreMapActionsAfterEditor, 0);
+	}
+
+	protected void RestoreMapActionsAfterEditor()
+	{
+		InputManager inputManager = GetGame().GetInputManager();
+		if (!inputManager)
+		{
+			Print("GC | Cannot restore map actions after editor close: input manager is null", LogLevel.WARNING);
+			return;
+		}
+
+		inputManager.ActivateContext(INPUT_CONTEXT);
+		if (!inputManager.IsContextActive(INPUT_CONTEXT))
+		{
+			PrintFormat("GC | Failed to restore map action context '%1' after editor close", INPUT_CONTEXT, level: LogLevel.WARNING);
+			return;
+		}
+
+		PrintFormat("GC | Restored map action context '%1' after editor close", INPUT_CONTEXT);
+	}
+
+	protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+	{
+		ApplyPhasePresentation(phase);
+	}
+
+	protected void ApplyPhasePresentation(GC_ELobbyPhase phase)
+	{
+		bool isBriefing = phase == GC_ELobbyPhase.BRIEFING;
+
+		if (m_Header)
+		{
+			if (isBriefing)
+				m_Header.SetActiveState(2);
+			else
+				m_Header.SetActiveState(0);
+		}
+
+		if (m_PlayerListTabs)
+		{
+			m_PlayerListTabs.SetPlayerListDefault(!isBriefing);
+			m_PlayerListTabs.SetDarkBackground(!isBriefing);
+		}
+	}
 
     protected void Action_OnChatToggleAction()
     {

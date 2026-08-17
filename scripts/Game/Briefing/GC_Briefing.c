@@ -18,10 +18,10 @@ class GC_Briefing
 	[Attribute("", UIWidgets.EditBox, "Authoritative base-game faction keys. Empty shows the briefing to everyone")]
 	protected ref array<string> m_aFactionKeys;
 
-	[Attribute("0", UIWidgets.ComboBox, "Lobby2 phase in which this briefing is shown", enumType: GC_ELobbyPhase)]
+	[Attribute("0", UIWidgets.ComboBox, "Earliest Lobby2 phase from which this briefing is shown", enumType: GC_ELobbyPhase)]
 	protected GC_ELobbyPhase m_eShowAtGameModeState;
 
-	[Attribute("0", UIWidgets.CheckBox, "Invert the selected state rule. Off: show only during the selected state. On: hide during the selected state and show during all other states")]
+	[Attribute("0", UIWidgets.CheckBox, "Invert the phase threshold. Off: show from the selected phase onward. On: hide from the selected phase onward")]
 	protected bool m_bInvertGameModeState;
 
 	//! Runtime-only visibility gate. Mission scripts mutate this through
@@ -102,17 +102,32 @@ class GC_Briefing
 
 	bool IsVisibleToFaction(Faction faction, GC_ELobbyPhase gameModeState)
 	{
-		bool stateMatches = gameModeState == m_eShowAtGameModeState;
+		bool stateMatches = GC_LobbyPhaseMachine.IsAtOrAfter(gameModeState, m_eShowAtGameModeState);
 		if (m_bInvertGameModeState)
 			stateMatches = !stateMatches;
 
 		if (!m_bVisible || !stateMatches)
 			return false;
 
-		if (!m_aFactionKeys || m_aFactionKeys.Count() == 0)
+		if (!m_aFactionKeys || m_aFactionKeys.IsEmpty())
 			return true;
 
-		return faction && m_aFactionKeys.Contains(faction.GetFactionKey());
+		FactionKey playerFactionKey;
+		if (faction)
+			playerFactionKey = faction.GetFactionKey();
+
+		bool hasFactionRestriction;
+		foreach (string allowedFactionKey : m_aFactionKeys)
+		{
+			if (allowedFactionKey.IsEmpty())
+				continue;
+
+			hasFactionRestriction = true;
+			if (faction && allowedFactionKey == playerFactionKey)
+				return true;
+		}
+
+		return !hasFactionRestriction;
 	}
 
 	void CopyFrom(GC_Briefing source)

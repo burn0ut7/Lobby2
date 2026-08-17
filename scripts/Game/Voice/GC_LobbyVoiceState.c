@@ -3,6 +3,21 @@
 class GC_LobbyVoiceState
 {
 	protected ref array<ref GC_VoiceChannelAssignment> m_aAssignments = {};
+	protected ref array<UUID> m_aPersonalChannelOwners = {};
+
+	bool RegisterPersonalChannel(UUID ownerIdentity)
+	{
+		if (ownerIdentity.IsEmpty() || m_aPersonalChannelOwners.Contains(ownerIdentity))
+			return false;
+
+		m_aPersonalChannelOwners.Insert(ownerIdentity);
+		return true;
+	}
+
+	bool HasPersonalChannel(UUID ownerIdentity)
+	{
+		return !ownerIdentity.IsEmpty() && m_aPersonalChannelOwners.Contains(ownerIdentity);
+	}
 
 	GC_VoiceChannelAssignment Get(int playerId)
 	{
@@ -38,7 +53,7 @@ class GC_LobbyVoiceState
 		return true;
 	}
 
-	bool SetChannel(int playerId, GC_VoiceChannelType channelType, string factionKey, RplId groupRplId, out GC_VoiceChannelAssignment changed)
+	bool SetChannel(int playerId, GC_VoiceChannelType channelType, string factionKey, RplId groupRplId, UUID personalOwnerIdentity, out GC_VoiceChannelAssignment changed)
 	{
 		changed = Get(playerId);
 		if (!changed)
@@ -46,15 +61,27 @@ class GC_LobbyVoiceState
 			changed = new GC_VoiceChannelAssignment();
 			m_aAssignments.Insert(changed);
 		}
-		else if (changed.GetChannelType() == channelType && changed.GetFactionKey() == factionKey && changed.GetGroupRplId() == groupRplId)
+		else if (changed.GetChannelType() == channelType && changed.GetFactionKey() == factionKey && changed.GetGroupRplId() == groupRplId && changed.GetPersonalOwnerIdentity() == personalOwnerIdentity)
 		{
 			return false;
 		}
 
 		bool deafened = changed.IsDeafened();
-		changed.Set(playerId, channelType, factionKey, groupRplId);
+		changed.Set(playerId, channelType, factionKey, groupRplId, personalOwnerIdentity);
 		changed.SetDeafened(deafened);
 		return true;
+	}
+
+	array<int> GetPersonalChannelMembers(UUID ownerIdentity)
+	{
+		array<int> members = {};
+		foreach (GC_VoiceChannelAssignment assignment : m_aAssignments)
+		{
+			if (assignment && assignment.GetChannelType() == GC_VoiceChannelType.PERSONAL && assignment.GetPersonalOwnerIdentity() == ownerIdentity)
+				members.Insert(assignment.GetPlayerId());
+		}
+
+		return members;
 	}
 
 	bool Remove(int playerId)
@@ -90,6 +117,13 @@ class GC_LobbyVoiceState
 
 	bool Save(ScriptBitWriter writer)
 	{
+		writer.WriteInt(m_aPersonalChannelOwners.Count());
+		foreach (UUID ownerIdentity : m_aPersonalChannelOwners)
+		{
+			string serializedIdentity = ownerIdentity;
+			writer.WriteString(serializedIdentity);
+		}
+
 		writer.WriteInt(m_aAssignments.Count());
 		foreach (GC_VoiceChannelAssignment assignment : m_aAssignments)
 		{
@@ -102,6 +136,19 @@ class GC_LobbyVoiceState
 
 	bool Load(ScriptBitReader reader)
 	{
+		int personalChannelCount;
+		if (!reader.ReadInt(personalChannelCount) || personalChannelCount < 0)
+			return false;
+
+		m_aPersonalChannelOwners.Clear();
+		for (int personalChannelIndex; personalChannelIndex < personalChannelCount; personalChannelIndex++)
+		{
+			string ownerIdentity;
+			if (!reader.ReadString(ownerIdentity))
+				return false;
+			m_aPersonalChannelOwners.Insert(ownerIdentity);
+		}
+
 		int assignmentCount;
 		if (!reader.ReadInt(assignmentCount) || assignmentCount < 0)
 			return false;
@@ -122,5 +169,6 @@ class GC_LobbyVoiceState
 	void Clear()
 	{
 		m_aAssignments.Clear();
+		m_aPersonalChannelOwners.Clear();
 	}
 }

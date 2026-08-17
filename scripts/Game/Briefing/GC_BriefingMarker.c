@@ -64,7 +64,7 @@ class GC_BriefingMarker
 
 	bool IsVisibleToFaction(Faction faction, GC_ELobbyPhase gameModeState)
 	{
-		bool stateMatches = gameModeState == m_eShowAtGameModeState;
+		bool stateMatches = GC_LobbyPhaseMachine.IsAtOrAfter(gameModeState, m_eShowAtGameModeState);
 		if (m_bInvertGameModeState)
 			stateMatches = !stateMatches;
 
@@ -74,7 +74,22 @@ class GC_BriefingMarker
 		if (m_aFactionKeys.IsEmpty())
 			return true;
 
-		return faction && m_aFactionKeys.Contains(faction.GetFactionKey());
+		FactionKey playerFactionKey;
+		if (faction)
+			playerFactionKey = faction.GetFactionKey();
+
+		bool hasFactionRestriction;
+		foreach (string allowedFactionKey : m_aFactionKeys)
+		{
+			if (allowedFactionKey.IsEmpty())
+				continue;
+
+			hasFactionRestriction = true;
+			if (faction && allowedFactionKey == playerFactionKey)
+				return true;
+		}
+
+		return !hasFactionRestriction;
 	}
 
 	void CopyFrom(GC_BriefingMarker source)

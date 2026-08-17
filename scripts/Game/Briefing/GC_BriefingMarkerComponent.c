@@ -31,10 +31,10 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.Object, "Authoritative base-game faction keys. Empty shows the marker to everyone")]
 	protected ref array<string> m_aFactionKeys;
 
-	[Attribute("0", UIWidgets.ComboBox, "Lobby2 phase in which this marker is shown", enumType: GC_ELobbyPhase)]
+	[Attribute("0", UIWidgets.ComboBox, "Earliest Lobby2 phase from which this marker is shown", enumType: GC_ELobbyPhase)]
 	protected GC_ELobbyPhase m_eShowAtGameModeState;
 
-	[Attribute("0", UIWidgets.CheckBox, "Invert Game Mode State. Off: show only during the selected state. On: hide during the selected state and show during all other states")]
+	[Attribute("0", UIWidgets.CheckBox, "Invert the phase threshold. Off: show from the selected phase onward. On: hide from the selected phase onward")]
 	protected bool m_bInvertGameModeState;
 
 	override protected void OnPostInit(IEntity owner)

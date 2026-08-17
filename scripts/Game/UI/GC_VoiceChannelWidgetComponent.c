@@ -6,6 +6,8 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 	protected GC_VoiceChannelType m_ChannelType;
 	protected Faction m_Faction;
 	protected SCR_AIGroup m_Group;
+	protected UUID m_PersonalOwnerIdentity;
+	protected int m_iPersonalOwnerPlayerId = -1;
 	protected Widget m_wPlayers;
 	protected ref array<Widget> m_aPlayerRows = {};
 
@@ -69,6 +71,18 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 	SCR_AIGroup GetGroup()
 	{
 		return m_Group;
+	}
+
+	void SetPersonalOwner(UUID ownerIdentity, int playerId)
+	{
+		m_PersonalOwnerIdentity = ownerIdentity;
+		m_iPersonalOwnerPlayerId = playerId;
+		Refresh();
+	}
+
+	UUID GetPersonalOwnerIdentity()
+	{
+		return m_PersonalOwnerIdentity;
 	}
 
 	//! Replaces the card's player rows from a fresh authoritative membership query.
@@ -136,6 +150,15 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 			case GC_VoiceChannelType.GROUP:
 				channelName.SetText(GC_GroupCallsignHelper.GetDisplayName(m_Group));
 				break;
+			case GC_VoiceChannelType.PERSONAL:
+			{
+				string ownerName = GetGame().GetPlayerManager().GetPlayerName(m_iPersonalOwnerPlayerId);
+				if (ownerName.IsEmpty())
+					channelName.SetText("PERSONAL CHANNEL");
+				else
+					channelName.SetTextFormat("%1'S CHANNEL", ownerName);
+				break;
+			}
 		}
 
 		RefreshFactionColor();

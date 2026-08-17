@@ -275,7 +275,9 @@ Player catch-up is idempotent and runs after identity registration, reconnect, a
 - `GAME`: force-spawn a missing living slot when possible and assign its entity through `SetInitialMainEntity`; failed assignments remain spectators.
 - `KIA` or `POSTGAME`: spectator behavior without altering match results.
 
-Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). Expiry clears claimant identity, preserves living slot entities as dormant, deletes only non-slot lobby spectators, and keeps KIA slots unavailable. Shutdown is owned by world teardown and must not create reconnect reservations.
+Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
+
+Briefing slot requests are server-authoritative and JIP-safe: claiming a free slot spawns its staged entity immediately, changing slots deletes the previously staged entity before spawning the new one, and toggling out deletes the staged entity. Pending briefing spawn batches must re-check the claim before spawning so a released slot cannot be materialized by a stale queue entry.
 
 Tracked controllable destruction is phase-sensitive: before `GAME`, a claimed slot is restaged; during `GAME`, it becomes `KIA` and any connected claimant moves to spectator. Repeated callbacks must be harmless. All authoritative transitions use the existing reliable slot update path, and queued JIP/spawn callbacks are removed during shutdown.
 

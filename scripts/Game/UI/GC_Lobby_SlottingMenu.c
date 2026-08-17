@@ -39,6 +39,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
         InitializeFactionList();
         InitializeGroupWidget();
+        SelectLocalPlayerFaction();
         InitializePlayerPreview();
 
         Widget headerRoot = m_wRoot.FindAnyWidget("MenuBar");
@@ -197,6 +198,22 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		RefreshLoadoutPreview();
     }
 
+	protected void SelectLocalPlayerFaction()
+	{
+		if (!m_FactionList || !m_LobbyManager)
+			return;
+
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (!playerController)
+			return;
+
+		Faction playerFaction = m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
+		if (!playerFaction)
+			return;
+
+		m_FactionList.SetSelectedFaction(playerFaction.GetFactionKey());
+	}
+
     protected void InitializeGroupWidget()
     {
         if (!m_wRoot)
@@ -226,6 +243,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OnLobbyFactionUpdated(Faction faction)
 	{
+		if (m_SelectedFactionKey.IsEmpty())
+			SelectLocalPlayerFaction();
+
 		if (!faction || faction.GetFactionKey() != m_SelectedFactionKey)
 			return;
 

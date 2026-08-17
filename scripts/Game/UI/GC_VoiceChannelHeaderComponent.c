@@ -63,7 +63,7 @@ class GC_VoiceChannelHeaderComponent : SCR_ButtonBaseComponent
             factionKey = m_Channel.GetFaction().GetFactionKey();
 
         PlaySound(SCR_SoundEvent.CLICK);
-        playerController.RequestVoiceChannel(m_Channel.GetChannelType(), factionKey, groupRplId);
+        playerController.RequestVoiceChannel(m_Channel.GetChannelType(), factionKey, groupRplId, m_Channel.GetPersonalOwnerIdentity());
         return true;
     }
 }

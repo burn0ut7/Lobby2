@@ -8,7 +8,6 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
 
     protected ref array<GC_BriefingTitleRowComponent> m_aRows = {};
     protected int m_iSelectedBriefingOrder;
-    protected bool m_bHasConfiguredBriefings;
     protected SizeLayoutWidget m_wViewportSize;
     protected ScrollLayoutWidget m_wScroll;
     protected GC_BriefingScrollComponent m_ScrollComponent;
@@ -185,8 +184,6 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
     GC_BriefingTitleRowComponent ConfigureBriefings(array<ref GC_Briefing> briefings)
     {
         GC_BriefingTitleRowComponent selectedRow;
-        bool selectInitialBriefing = !m_bHasConfiguredBriefings;
-        m_bHasConfiguredBriefings = true;
 
         if (briefings)
             EnsureRowCapacity(briefings.Count());
@@ -209,12 +206,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
             }
         }
 
-        if (!selectedRow && selectInitialBriefing && briefings && !briefings.IsEmpty() && !m_aRows.IsEmpty())
-        {
-            selectedRow = m_aRows[0];
-            m_iSelectedBriefingOrder = selectedRow.GetBriefingOrder();
-        }
-        else if (!selectedRow && m_iSelectedBriefingOrder > 0)
+        if (!selectedRow && m_iSelectedBriefingOrder > 0)
         {
             // The selected briefing was hidden, removed, or became unavailable
             // to this faction. Keep the document closed until the player chooses.
