@@ -1,6 +1,3 @@
-SCR_AIWorld : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
- coords 1195.902 39 2719.574
-}
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  coords 1195.314 39 2720.544
 }
@@ -57,9 +54,14 @@ SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  m_bDeleteIfNoPlayer 0
 }
 SCR_AIGroup : "{CB58D90EA14430AD}Prefabs/Groups/OPFOR/Group_USSR_SentryTeam.et" {
- coords 1196.44 39 2741.894
+ components {
+  AIFormationComponent "{507E9DC12F541FE6}" {
+   DefaultFormation "Line"
+  }
+ }
+ coords 1194.042 43.597 2710.892
+ angles 0 -14.618 0
  m_bPlayable 1
- m_bDeleteIfNoPlayer 0
 }
 SCR_AIGroup : "{D807C7047E818488}Prefabs/Groups/BLUFOR/Group_US_SniperTeam.et" {
  coords 1196.259 40.347 2726.05

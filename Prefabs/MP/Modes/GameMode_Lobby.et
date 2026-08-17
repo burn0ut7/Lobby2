@@ -4,10 +4,6 @@ GC_LobbyGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_BriefingCatalog GC_LobbyBriefingCatalog "{6A4D100000000013}" {
    }
-   m_aFormations {
-    GC_PlayerFormationDefinition "{6A137A391367F905}" {
-    }
-   }
   }
   SCR_RespawnSystemComponent "{56B2B4793051E7C9}" {
    m_SpawnLogic SCR_SpawnLogic "{6A1418033F1AD000}" {

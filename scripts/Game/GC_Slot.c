@@ -195,7 +195,12 @@ class GC_Slot
 
 	RplId GetGroupRplId()
 	{
-		if (m_pGroup)
+		// The RplId is the stable association for this slot. Do not refresh it
+		// from the live pointer here: during phase transitions a transient group
+		// reference can be present while the authored group is still the slot's
+		// authoritative owner. Recomputing here would overwrite the association
+		// during replication/save and make queued spawns use the wrong origin.
+		if (m_GroupRplId == RplId.Invalid() && m_pGroup)
 			m_GroupRplId = Replication.FindItemId(m_pGroup);
 
 		return m_GroupRplId;

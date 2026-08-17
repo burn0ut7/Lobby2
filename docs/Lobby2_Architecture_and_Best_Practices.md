@@ -99,6 +99,9 @@ Small related value types may share a file. Large classes should not become fold
   - Server-authoritative façade and integration coordinator.
   - `GetManager()` resolves the manager only through `GC_LobbyGameMode.GetGameMode()`.
   - Owns RPC publication, request validation, base-game transition calls, slot/player lifecycle reconciliation, and UI invokers.
+  - Loads the configured AI-world formation resource once on authority and retains only Lobby2-owned name/offset data.
+  - Captures each playable group's authored world transform at registration; runtime group recentering from player membership never changes the slot-spawn anchor.
+  - Honors the base group's authored terrain-snap policy when converting formation positions into final member positions.
   - Delegates domain storage to focused modules.
 
 ### Domain state
@@ -107,6 +110,10 @@ Small related value types may share a file. Large classes should not become fold
   - Derived indexes of base-game factions and groups.
   - Lobby-only slots, UUID/entity lookup helpers, and pending JIP references.
   - Queries authoritative group membership before slot fallback.
+- `scripts/Game/Lobby/GC_PlayerFormationCatalog.c`
+  - Reads formation names and offset vectors once from the configured AI-world resource.
+  - Retains no `Resource`, `BaseContainer`, or native AI formation object after extraction.
+  - Provides server-local spawn geometry and is not replicated or serialized.
 - `scripts/Game/GameMode/GC_LobbyReconnectComponent.c`
   - Lobby2-owned reconnect policy installed only on `GameMode_Lobby.et`.
   - Preserves UUID, slot entity, and cached claimant data for the configured reservation timeout.
@@ -127,8 +134,15 @@ Small related value types may share a file. Large classes should not become fold
   - Is selected only by the Lobby2 player-controller prefab.
 - `scripts/Game/modded/Entities/SCR_AIGroup_M.c`
   - Calls `super` for every base group lifecycle event.
-  - Registers playable groups and suppresses playable-group unit spawning only while the active mode is `GC_LobbyGameMode`.
-  - Unrelated game modes retain the original `SCR_AIGroup` behavior because the manager cast returns `null`.
+  - Registers playable groups and suppresses both queued `RequestSpawn()` and direct `SpawnUnits()` only while the active mode is `GC_LobbyGameMode`.
+  - Preserves empty playable group entities for Lobby2 respawn and slot reuse regardless of their authored native delete-when-empty setting, while retaining native empty-event and dormant behavior.
+  - In Workbench edit mode, materializes transient previews for every playable group from the cached formation data, including worlds without an AI-world entity.
+  - Unrelated runtime game modes retain the original `SCR_AIGroup` behavior because the manager cast returns `null`.
+  - The editor-only playable preview is an explicit global Workbench exception and never changes runtime behavior.
+- `scripts/Game/modded/Groups/SCR_GroupsManagerComponent_M.c`
+  - Preserves empty authored playable groups while Lobby2 is active, even when their native delete-if-no-player setting is enabled.
+  - Routes the exception through the native empty-group cleanup branch and restores the authored setting afterward.
+  - Calls native behavior unchanged for non-playable groups and every group outside Lobby2.
 - `scripts/Game/Briefing/GC_BriefingMarkerComponent.c`
   - Registers authored markers with bounded retries.
   - Cancels retries and unregisters during deletion.
