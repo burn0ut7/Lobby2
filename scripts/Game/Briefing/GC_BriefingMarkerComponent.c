@@ -8,6 +8,7 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	protected const int MAX_REGISTRATION_ATTEMPTS = 20;
 	protected const int REGISTRATION_RETRY_MS = 100;
 	protected int m_iRegistrationAttempts;
+	protected bool m_bRegistered;
 
 	[Attribute("", UIWidgets.ResourcePickerThumbnail, "Texture or image-set resource used by the briefing marker", params: "imageset edds png")]
 	protected ResourceName m_sImageSetOrImage;
@@ -30,8 +31,8 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.Object, "Authoritative base-game faction keys. Empty shows the marker to everyone")]
 	protected ref array<string> m_aFactionKeys;
 
-	[Attribute("0", UIWidgets.ComboBox, "Show At Game Mode State: state in which this marker is shown", enumType: SCR_EGameModeState)]
-	protected SCR_EGameModeState m_eShowAtGameModeState;
+	[Attribute("0", UIWidgets.ComboBox, "Lobby2 phase in which this marker is shown", enumType: GC_ELobbyPhase)]
+	protected GC_ELobbyPhase m_eShowAtGameModeState;
 
 	[Attribute("0", UIWidgets.CheckBox, "Invert Game Mode State. Off: show only during the selected state. On: hide during the selected state and show during all other states")]
 	protected bool m_bInvertGameModeState;
@@ -52,12 +53,26 @@ class GC_BriefingMarkerComponent : ScriptComponent
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (manager)
 		{
-			manager.RegisterBriefingMarker(this);
+			m_bRegistered = manager.RegisterBriefingMarker(this);
 			return;
 		}
 
 		if (m_iRegistrationAttempts < MAX_REGISTRATION_ATTEMPTS)
 			GetGame().GetCallqueue().CallLater(RegisterWithManager, REGISTRATION_RETRY_MS);
+	}
+
+	override void OnDelete(IEntity owner)
+	{
+		GetGame().GetCallqueue().Remove(RegisterWithManager);
+		if (m_bRegistered && owner)
+		{
+			GC_LobbyManager manager = GC_LobbyManager.GetManager();
+			if (manager)
+				manager.RemoveBriefingMarker(owner.GetName());
+		}
+
+		m_bRegistered = false;
+		super.OnDelete(owner);
 	}
 
 	GC_BriefingMarker CreateMarkerSnapshot()

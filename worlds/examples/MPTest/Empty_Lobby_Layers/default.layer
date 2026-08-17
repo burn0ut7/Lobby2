@@ -4,7 +4,7 @@ SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  coords 131.957 1 135.807
 }
-SCR_BaseGameMode GameMode_Lobby3 : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
+GC_LobbyGameMode GameMode_Lobby3 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_aFormations {

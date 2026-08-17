@@ -1,32 +1,29 @@
 SCR_AIWorld : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
  coords 1195.902 39 2719.574
 }
-SCR_FactionManager FactionManager_Lobby1 : "{4D1750C5F5444560}Prefabs/MP/Managers/Factions/FactionManager_Lobby.et" {
- coords 1192.241 39 2717.502
- Factions {
-  SCR_Faction "{6A141800911A0D0B}" {
-   FactionKey "USss"
-  }
- }
+SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
+ coords 1195.314 39 2720.544
 }
-SCR_BaseGameMode GameMode_Lobby2 : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
+GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
-   m_aBriefings {
-    GC_Briefing "{6A42000000000015}" {
-     m_iOrder 1
-     m_sTitle "SCENARIO"
-     m_sContent "<scenario />"
-    }
-    GC_Briefing "{6A42000000000001}" {
-     m_sContent "<p>Assault and secure key positions across the area of operations to establish control and degrade enemy capabilities. To test the briefing action, <action id=\"debug_print\"><color rgba=\"255,0,255,255\"><b>click the action here</b></color></action> and watch the Workbench console.</p><p>Both sides have established strong defensive positions. Expect contact throughout the area.</p><p>Civilian activity is minimal. Maintain mission focus and minimize collateral damage.</p><br /><color rgba=\"255,152,50,255\"><b>KEY INFORMATION</b></color><br /><color rgba=\"150,160,164,255\">AREA OF OPERATIONS</color><br />Everon, Baltic Sea<br /><br /><color rgba=\"150,160,164,255\">EST. DURATION</color><br />60 minutes<br /><br /><color rgba=\"150,160,164,255\">VICTORY CONDITION</color><br />Complete the assigned objectives and preserve friendly combat power."
-    }
-    GC_Briefing "{6A42000000000002}" {
-     m_sContent "<p><img resource=\"{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds\" inline=\"true\" height=\"24\" /> Enemy forces control several strategically important positions and are prepared to reinforce them. Map focus can reference <marker name=\"marker2\"><color name=\"orange\"><b>marker Alpha</b></color></marker> by its entity name. Reference: <link url=\"https://community.bistudio.com/wiki/Arma_Reforger\"><b>Arma Reforger Wiki</b></link>.</p><p>Friendly elements are assembling in protected staging areas. Reconnaissance is limited, so unit leaders should confirm routes before movement.</p><br /><color rgba=\"255,152,50,255\"><b>COMMANDER'S NOTE</b></color><br />Maintain communications, identify targets before engagement, and report meaningful changes in enemy disposition."
-    }
-    GC_Briefing "{6A42000000000003}" {
-    }
-    GC_Briefing "{6A42000000000004}" {
+   m_BriefingCatalog GC_LobbyBriefingCatalog "{6A4D100000000012}" {
+    m_aBriefings {
+     GC_Briefing "{6A42000000000015}" {
+      m_iOrder 1
+      m_sTitle "SCENARIO"
+      m_sContent "<scenario />"
+     }
+     GC_Briefing "{6A42000000000001}" {
+      m_sContent "<p>Assault and secure key positions across the area of operations to establish control and degrade enemy capabilities. To test the briefing action, <action id=\"debug_print\"><color rgba=\"255,0,255,255\"><b>click the action here</b></color></action> and watch the Workbench console.</p><p>Both sides have established strong defensive positions. Expect contact throughout the area.</p><p>Civilian activity is minimal. Maintain mission focus and minimize collateral damage.</p><br /><color rgba=\"255,152,50,255\"><b>KEY INFORMATION</b></color><br /><color rgba=\"150,160,164,255\">AREA OF OPERATIONS</color><br />Everon, Baltic Sea<br /><br /><color rgba=\"150,160,164,255\">EST. DURATION</color><br />60 minutes<br /><br /><color rgba=\"150,160,164,255\">VICTORY CONDITION</color><br />Complete the assigned objectives and preserve friendly combat power."
+     }
+     GC_Briefing "{6A42000000000002}" {
+      m_sContent "<p><img resource=\"{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds\" inline=\"true\" height=\"24\" /> Enemy forces control several strategically important positions and are prepared to reinforce them. Map focus can reference <marker name=\"marker2\"><color name=\"orange\"><b>marker Alpha</b></color></marker> by its entity name. Reference: <link url=\"https://community.bistudio.com/wiki/Arma_Reforger\"><b>Arma Reforger Wiki</b></link>.</p><p>Friendly elements are assembling in protected staging areas. Reconnaissance is limited, so unit leaders should confirm routes before movement.</p><br /><color rgba=\"255,152,50,255\"><b>COMMANDER'S NOTE</b></color><br />Maintain communications, identify targets before engagement, and report meaningful changes in enemy disposition."
+     }
+     GC_Briefing "{6A42000000000003}" {
+     }
+     GC_Briefing "{6A42000000000004}" {
+     }
     }
    }
   }
@@ -41,7 +38,6 @@ GenericEntity marker2 {
    m_fSize 50
    m_Color 1 0 0 1
    m_sDescription "testttt"
-   m_eShowAtGameModeState GAME
   }
  }
  coords 1204.868 39 2721.345
@@ -52,8 +48,8 @@ SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.e
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
 }
-SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
- coords 1188.026 39 2716.793
+SCR_ChimeraCharacter : "{836E7E39AAC5888B}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Base.et" {
+ coords 1200.616 38.961 2691.476
 }
 SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  coords 1197.625 39 2738.455

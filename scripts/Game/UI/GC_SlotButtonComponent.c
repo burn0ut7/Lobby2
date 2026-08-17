@@ -44,7 +44,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (button != 0 || !CanInteract())
 			return true;
 
-		SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (!playerController || !m_Slot)
 			return true;
 

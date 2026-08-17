@@ -1,5 +1,9 @@
 # Lobby2 Agent Instructions
 
+## Architecture reference
+
+Before changing Lobby2 lifecycle, multiplayer state, game-mode integration, controllers, groups, briefings, or menu behavior, read [`docs/Lobby2_Architecture_and_Best_Practices.md`](docs/Lobby2_Architecture_and_Best_Practices.md). It is the project design reference and records established module boundaries and lessons learned. This `AGENTS.md` remains authoritative if the documents conflict.
+
 ## Project
 
 This add-on is for an Arma Reforger game mode inspired by Arma 3 and Arma 2:

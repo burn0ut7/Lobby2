@@ -1,64 +1,3 @@
-#define GC_LOBBY
-
-class GC_TestCompClass : ScriptComponentClass
-{
-}
-
-class GC_TestComp : ScriptComponent
-{
-    override protected void OnPostInit(IEntity owner)
-    { 	
-		if (SCR_Global.IsEditMode())
-			return;
-
-		GetGame().GetCallqueue().CallLater(CheckSlots, 1);
-
-		SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
-		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (gm && lobbyManager)
-			PrintFormat("GC | Phase | startup: lobby=%1 base=%2", GC_LobbyManager.GetPhaseName(lobbyManager.GetLobbyPhase()), GC_LobbyManager.GetPhaseName(gm.GetState()));
-		else
-			PrintFormat("GC | Phase | startup unavailable: gameMode=%1 lobbyManager=%2", gm != null, lobbyManager != null, level: LogLevel.WARNING);
-    }
-	
-	void CheckSlots()
-	{
-		if (SCR_Global.IsEditMode())
-			return;
-
-		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
-    }
-}
-
-//! Add-on-owned game-mode root used only by GameMode_Lobby.et. Other game modes
-//! continue to instantiate SCR_BaseGameMode and retain all original behavior.
-class GC_LobbyGameModeClass : SCR_BaseGameModeClass
-{
-}
-
-class GC_LobbyGameMode : SCR_BaseGameMode
-{
-	override protected bool CanStartGameMode()
-	{
-		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (!lobbyManager)
-			return super.CanStartGameMode();
-
-		// Lobby2 advances explicitly after BRIEFING. If a restored/synchronized
-		// Lobby2 phase is already GAME, retain the base game's normal checks.
-		if (lobbyManager.GetLobbyPhase() == SCR_EGameModeState.GAME)
-			return super.CanStartGameMode();
-
-		return false;
-	}
-}
-
-
-modded enum SCR_EGameModeState
-{
-	BRIEFING
-}
-
 class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 {
 }
@@ -67,12 +6,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 {
     protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
     protected const int JIP_REFERENCE_RETRY_MS = 1000;
-    protected const int MAX_BRIEFINGS = 32;
-    protected const int MAX_BRIEFING_TITLE_LENGTH = 128;
-    protected const int MAX_BRIEFING_CONTENT_LENGTH = 16384;
-	protected const int MAX_BRIEFING_MARKERS = 256;
-	protected const int MAX_MARKER_NAME_LENGTH = 128;
-	protected const int MAX_MARKER_DESCRIPTION_LENGTH = 512;
 
     //! Game-mode setting: group headers in the voice list may be selectable
     //! without changing the player's lobby slot or base-game group.
@@ -82,18 +15,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     [Attribute("", UIWidgets.Object, "Formations for player groups")]
     protected ref array<ref GC_PlayerFormationDefinition> m_aFormations;
 
-    [Attribute("", UIWidgets.Object, "Server-authoritative briefing definitions")]
-    protected ref array<ref GC_Briefing> m_aBriefings;
+	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog")]
+	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
 
-	//! Runtime list populated on the server by GC_BriefingMarkerComponent entities.
-	//! The replicated snapshots are independent of entity streaming for JIP safety.
-	protected ref array<ref GC_BriefingMarker> m_aBriefingMarkers = {};
-
-    protected ref array<SCR_AIGroup> m_aGroups = {};
-    protected ref array<RplId> m_aPendingJipGroupRplIds = {};
-    protected ref array<Faction> m_aRegisteredFactions = {};
-    protected ref array<ref GC_Slot> m_aSlots = {};
-    protected ref array<ref GC_VoiceChannelAssignment> m_aVoiceAssignments = {};
+	protected ref GC_LobbyRoster m_Roster = new GC_LobbyRoster();
+	protected ref GC_LobbyVoiceState m_VoiceState = new GC_LobbyVoiceState();
     ref ScriptInvoker<Faction> m_OnFactionUpdated = new ScriptInvoker<Faction>();
     //! Signals that connected-player or authoritative group membership data changed.
     //! Consumers re-query PlayerManager and SCR_GroupsManagerComponent instead of
@@ -103,12 +29,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! this manager and current authoritative faction state.
     ref ScriptInvoker<int> m_OnBriefingsChanged = new ScriptInvoker<int>();
 	ref ScriptInvoker<int> m_OnBriefingMarkersChanged = new ScriptInvoker<int>();
-	ref ScriptInvoker<SCR_EGameModeState> m_OnLobbyPhaseChanged = new ScriptInvoker<SCR_EGameModeState>();
-    protected int m_iNextSlotID = 1;
-    protected int m_iJipResolveAttempt;
-    protected int m_iBriefingRevision;
-	protected int m_iBriefingMarkerRevision;
-	protected SCR_EGameModeState m_eLobbyPhase = SCR_EGameModeState.PREGAME;
+	ref ScriptInvoker<GC_ELobbyPhase> m_OnLobbyPhaseChanged = new ScriptInvoker<GC_ELobbyPhase>();
+	protected ref GC_LobbyPhaseMachine m_PhaseMachine = new GC_LobbyPhaseMachine();
+	protected bool m_bShutdown;
 
 	//! Re-evaluate briefing presentation on every machine when the authoritative
 	//! base-game phase changes. The phase itself remains owned and replicated by
@@ -119,40 +42,44 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer())
 			role = "authority";
 
-		PrintFormat("GC | Phase | base state event: base=%1 lobbyBefore=%2 role=%3", GetPhaseName(state), GetPhaseName(m_eLobbyPhase), role);
+		PrintFormat("GC | Phase | base state event: base=%1 lobbyBefore=%2 role=%3", GetBaseStateName(state), GetPhaseName(GetLobbyPhase()), role);
 
 		// Keep the Lobby2 phase aligned if trusted server game logic invokes the
 		// native base-game transition API directly.
-		if (state == SCR_EGameModeState.GAME && m_eLobbyPhase == SCR_EGameModeState.BRIEFING)
+		if (state == SCR_EGameModeState.GAME && GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
 		{
 			if (Replication.IsServer())
-				PublishLobbyPhase(SCR_EGameModeState.GAME);
+				PublishLobbyPhase(GC_ELobbyPhase.GAME);
 			else
-				ApplyLobbyPhase(SCR_EGameModeState.GAME);
+				ApplyLobbyPhase(GC_ELobbyPhase.GAME);
 		}
-		else if (state == SCR_EGameModeState.POSTGAME && m_eLobbyPhase == SCR_EGameModeState.GAME)
+		else if (state == SCR_EGameModeState.POSTGAME && GetLobbyPhase() == GC_ELobbyPhase.GAME)
 		{
 			if (Replication.IsServer())
-				PublishLobbyPhase(SCR_EGameModeState.POSTGAME);
+				PublishLobbyPhase(GC_ELobbyPhase.POSTGAME);
 			else
-				ApplyLobbyPhase(SCR_EGameModeState.POSTGAME);
+				ApplyLobbyPhase(GC_ELobbyPhase.POSTGAME);
 		}
 
-		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
-		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
+		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
 	}
 
-	SCR_EGameModeState GetLobbyPhase()
+	GC_ELobbyPhase GetLobbyPhase()
 	{
-		return m_eLobbyPhase;
+		return m_PhaseMachine.GetCurrent();
 	}
 
-	static string GetPhaseName(SCR_EGameModeState phase)
+	static string GetPhaseName(GC_ELobbyPhase phase)
 	{
-		switch (phase)
+		return GC_LobbyPhaseMachine.GetName(phase);
+	}
+
+	static string GetBaseStateName(SCR_EGameModeState state)
+	{
+		switch (state)
 		{
 			case SCR_EGameModeState.PREGAME: return "PREGAME";
-			case SCR_EGameModeState.BRIEFING: return "BRIEFING";
 			case SCR_EGameModeState.GAME: return "GAME";
 			case SCR_EGameModeState.POSTGAME: return "POSTGAME";
 		}
@@ -160,42 +87,22 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return "UNKNOWN";
 	}
 
-	//! Returns the only legal successor without relying on the enum's numeric order.
-	protected SCR_EGameModeState GetNextLobbyPhase(SCR_EGameModeState phase)
+	//! Validates and applies an admin-owned request on the server authority.
+	bool TryAdvanceLobbyPhase(int playerId, GC_ELobbyPhase requestedPhase)
 	{
-		switch (phase)
+		if (m_bShutdown)
 		{
-			case SCR_EGameModeState.PREGAME:
-				return SCR_EGameModeState.BRIEFING;
-
-			case SCR_EGameModeState.BRIEFING:
-				return SCR_EGameModeState.GAME;
-
-			case SCR_EGameModeState.GAME:
-				return SCR_EGameModeState.POSTGAME;
+			Print("GC | Phase | request rejected: Lobby2 manager is shutting down", LogLevel.WARNING);
+			return false;
 		}
 
-		return -1;
-	}
-
-	protected bool IsLobbyPhase(SCR_EGameModeState phase)
-	{
-		return phase == SCR_EGameModeState.PREGAME
-			|| phase == SCR_EGameModeState.BRIEFING
-			|| phase == SCR_EGameModeState.GAME
-			|| phase == SCR_EGameModeState.POSTGAME;
-	}
-
-	//! Validates and applies an admin-owned request on the server authority.
-	bool TryAdvanceLobbyPhase(int playerId, SCR_EGameModeState requestedPhase)
-	{
 		if (!Replication.IsServer())
 		{
 			Print("GC | Phase | request rejected: handler is not running on authority", LogLevel.ERROR);
 			return false;
 		}
 
-		PrintFormat("GC | Phase | request received: player=%1 current=%2 requested=%3 requestedValue=%4", playerId, GetPhaseName(m_eLobbyPhase), GetPhaseName(requestedPhase), requestedPhase);
+		PrintFormat("GC | Phase | request received: player=%1 current=%2 requested=%3 requestedValue=%4", playerId, GetPhaseName(GetLobbyPhase()), GetPhaseName(requestedPhase), requestedPhase);
 
 		if (playerId <= 0)
 		{
@@ -203,7 +110,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		if (!IsLobbyPhase(requestedPhase))
+		if (!GC_LobbyPhaseMachine.IsValid(requestedPhase))
 		{
 			PrintFormat("GC | Phase | request rejected: invalid target value=%1", requestedPhase, level: LogLevel.WARNING);
 			return false;
@@ -215,14 +122,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		SCR_EGameModeState nextPhase = GetNextLobbyPhase(m_eLobbyPhase);
-		if (requestedPhase != nextPhase)
+		GC_ELobbyPhase nextPhase = GC_LobbyPhaseMachine.GetNext(GetLobbyPhase());
+		if (!m_PhaseMachine.CanAdvanceTo(requestedPhase))
 		{
-			PrintFormat("GC | Phase | request rejected: player=%1 current=%2 requested=%3 expected=%4", playerId, GetPhaseName(m_eLobbyPhase), GetPhaseName(requestedPhase), GetPhaseName(nextPhase), level: LogLevel.WARNING);
+			PrintFormat("GC | Phase | request rejected: player=%1 current=%2 requested=%3 expected=%4", playerId, GetPhaseName(GetLobbyPhase()), GetPhaseName(requestedPhase), GetPhaseName(nextPhase), level: LogLevel.WARNING);
 			return false;
 		}
 
-		if (requestedPhase == SCR_EGameModeState.POSTGAME)
+		if (requestedPhase == GC_ELobbyPhase.POSTGAME)
 			return EnterPostGame(null);
 
 		SCR_BaseGameMode gameMode = GetGameMode();
@@ -232,45 +139,51 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		if (requestedPhase == SCR_EGameModeState.GAME)
+		if (requestedPhase == GC_ELobbyPhase.GAME)
 		{
 			if (gameMode.GetState() != SCR_EGameModeState.PREGAME)
 			{
-				PrintFormat("GC | Phase | GAME transition rejected: expected base=PREGAME actual=%1", GetPhaseName(gameMode.GetState()), level: LogLevel.ERROR);
+				PrintFormat("GC | Phase | GAME transition rejected: expected base=PREGAME actual=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
 				return false;
 			}
 
-			PrintFormat("GC | Phase | invoking native StartGameMode: lobby=%1 base=%2", GetPhaseName(m_eLobbyPhase), GetPhaseName(gameMode.GetState()));
+			PrintFormat("GC | Phase | invoking native StartGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
 			gameMode.StartGameMode();
 			if (gameMode.GetState() != SCR_EGameModeState.GAME)
 			{
-				PrintFormat("GC | Phase | native StartGameMode failed: base=%1", GetPhaseName(gameMode.GetState()), level: LogLevel.ERROR);
+				PrintFormat("GC | Phase | native StartGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
 				return false;
 			}
 
 			// OnGameStateChanged normally publishes this synchronously.
-			PublishLobbyPhase(SCR_EGameModeState.GAME);
+			PublishLobbyPhase(GC_ELobbyPhase.GAME);
 			return true;
 		}
 
-		PublishLobbyPhase(SCR_EGameModeState.BRIEFING);
+		PublishLobbyPhase(GC_ELobbyPhase.BRIEFING);
 		return true;
 	}
 
 	//! Shared authority entry point for admin overrides and normal mission logic.
 	bool EnterPostGame(SCR_GameModeEndData endData)
 	{
+		if (m_bShutdown)
+		{
+			Print("GC | Phase | POSTGAME entry rejected: Lobby2 manager is shutting down", LogLevel.WARNING);
+			return false;
+		}
+
 		if (!Replication.IsServer())
 		{
 			Print("GC | Phase | POSTGAME entry rejected: caller is not authority", LogLevel.ERROR);
 			return false;
 		}
 
-		PrintFormat("GC | Phase | POSTGAME entry requested: lobby=%1 endDataProvided=%2", GetPhaseName(m_eLobbyPhase), endData != null);
+		PrintFormat("GC | Phase | POSTGAME entry requested: lobby=%1 endDataProvided=%2", GetPhaseName(GetLobbyPhase()), endData != null);
 
-		if (m_eLobbyPhase != SCR_EGameModeState.GAME)
+		if (GetLobbyPhase() != GC_ELobbyPhase.GAME)
 		{
-			PrintFormat("GC | Phase | POSTGAME entry rejected: expected lobby=GAME actual=%1", GetPhaseName(m_eLobbyPhase), level: LogLevel.WARNING);
+			PrintFormat("GC | Phase | POSTGAME entry rejected: expected lobby=GAME actual=%1", GetPhaseName(GetLobbyPhase()), level: LogLevel.WARNING);
 			return false;
 		}
 
@@ -279,7 +192,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		{
 			string baseState = "UNAVAILABLE";
 			if (gameMode)
-				baseState = GetPhaseName(gameMode.GetState());
+				baseState = GetBaseStateName(gameMode.GetState());
 
 			PrintFormat("GC | Phase | POSTGAME entry rejected: gameMode=%1 base=%2", gameMode != null, baseState, level: LogLevel.ERROR);
 			return false;
@@ -288,20 +201,20 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!endData)
 			endData = SCR_GameModeEndData.CreateSimple();
 
-		PrintFormat("GC | Phase | invoking native EndGameMode: lobby=%1 base=%2", GetPhaseName(m_eLobbyPhase), GetPhaseName(gameMode.GetState()));
+		PrintFormat("GC | Phase | invoking native EndGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
 		gameMode.EndGameMode(endData);
 		if (gameMode.GetState() != SCR_EGameModeState.POSTGAME)
 		{
-			PrintFormat("GC | Phase | native EndGameMode failed: base=%1", GetPhaseName(gameMode.GetState()), level: LogLevel.ERROR);
+			PrintFormat("GC | Phase | native EndGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
 			return false;
 		}
 
 		// OnGameStateChanged normally publishes this synchronously.
-		PublishLobbyPhase(SCR_EGameModeState.POSTGAME);
+		PublishLobbyPhase(GC_ELobbyPhase.POSTGAME);
 		return true;
 	}
 
-	protected void PublishLobbyPhase(SCR_EGameModeState phase)
+	protected void PublishLobbyPhase(GC_ELobbyPhase phase)
 	{
 		if (!Replication.IsServer() || !ApplyLobbyPhase(phase))
 			return;
@@ -309,17 +222,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		Rpc(RpcDo_SetLobbyPhase, phase);
 	}
 
-	protected bool ApplyLobbyPhase(SCR_EGameModeState phase)
+	protected bool ApplyLobbyPhase(GC_ELobbyPhase phase)
 	{
-		if (!IsLobbyPhase(phase) || m_eLobbyPhase == phase)
+		GC_ELobbyPhase previousPhase;
+		if (!m_PhaseMachine.Apply(phase, previousPhase))
 			return false;
 
-		SCR_EGameModeState previousPhase = m_eLobbyPhase;
-		m_eLobbyPhase = phase;
 		SCR_BaseGameMode gameMode = GetGameMode();
 		string baseState = "UNAVAILABLE";
 		if (gameMode)
-			baseState = GetPhaseName(gameMode.GetState());
+			baseState = GetBaseStateName(gameMode.GetState());
 
 		string role = "proxy";
 		if (Replication.IsServer())
@@ -327,43 +239,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		PrintFormat("GC | Phase | applied: role=%1 lobby=%2 -> %3 base=%4", role, GetPhaseName(previousPhase), GetPhaseName(phase), baseState);
 		m_OnLobbyPhaseChanged.Invoke(phase);
-		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
-		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
+		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
 		return true;
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_SetLobbyPhase(SCR_EGameModeState phase)
+	protected void RpcDo_SetLobbyPhase(GC_ELobbyPhase phase)
 	{
 		if (Replication.IsServer())
 			return;
 
 		PrintFormat("GC | Phase RPC | broadcast received: target=%1 value=%2", GetPhaseName(phase), phase);
 		ApplyLobbyPhase(phase);
-	}
-
-	protected int EncodeLobbyPhase(SCR_EGameModeState phase)
-	{
-		switch (phase)
-		{
-			case SCR_EGameModeState.BRIEFING: return 1;
-			case SCR_EGameModeState.GAME: return 2;
-			case SCR_EGameModeState.POSTGAME: return 3;
-		}
-
-		return 0;
-	}
-
-	protected SCR_EGameModeState DecodeLobbyPhase(int phaseOrdinal)
-	{
-		switch (phaseOrdinal)
-		{
-			case 1: return SCR_EGameModeState.BRIEFING;
-			case 2: return SCR_EGameModeState.GAME;
-			case 3: return SCR_EGameModeState.POSTGAME;
-		}
-
-		return SCR_EGameModeState.PREGAME;
 	}
 
     override void OnPlayerAuditSuccess(int playerId)
@@ -411,8 +299,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             params.Transform[3] = "1194.457 39 2723.129";
             IEntity spectator = GetGame().SpawnEntityPrefab(Resource.Load(SPECTATOR_PREFAB), null, params);
 
-            SCR_PlayerController pc = SCR_PlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
-            pc.SetSpectator(spectator);
+            GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+            if (playerController)
+                playerController.SetLobbySpectator(spectator);
         }
         else
         {
@@ -427,18 +316,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!group)
             return;
         
-        if (m_aGroups.Contains(group))
+        bool wasEmpty;
+        if (!m_Roster.AddGroup(group, wasEmpty))
             return;
 
-        bool wasEmpty = m_aGroups.IsEmpty();
-        m_aGroups.Insert(group);
         SubscribeToGroupEvents(group);
 
         if (wasEmpty)
             SubscribeToGroupPlayerEvents();
 
         Faction faction = group.GetFaction();
-        bool factionWasRegistered = faction && m_aRegisteredFactions.Contains(faction);
+        bool factionWasRegistered = faction && m_Roster.GetFactions().Contains(faction);
         if (faction)
             RegisterFaction(faction.GetFactionKey());
 
@@ -459,25 +347,24 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!group)
             return false;
 
-        int groupIndex = m_aGroups.Find(group);
-        if (groupIndex < 0)
+        if (!m_Roster.ContainsGroup(group))
             return false;
 
         Faction faction = group.GetFaction();
         UnsubscribeFromGroupEvents(group);
-        m_aGroups.RemoveOrdered(groupIndex);
+        m_Roster.RemoveGroup(group);
 
-        for (int i = m_aSlots.Count() - 1; i >= 0; i--)
+        for (int i = m_Roster.GetSlots().Count() - 1; i >= 0; i--)
         {
-            GC_Slot slot = m_aSlots[i];
+            GC_Slot slot = m_Roster.GetSlots()[i];
             if (slot && slot.GetGroup() == group)
             {
                 UnsubscribeFromSlotEvents(slot);
-                m_aSlots.RemoveOrdered(i);
+                m_Roster.RemoveSlot(slot);
             }
         }
 
-        if (m_aGroups.IsEmpty())
+        if (!m_Roster.HasGroups())
             UnsubscribeFromGroupPlayerEvents();
 
         if (faction)
@@ -516,7 +403,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void UnsubscribeFromAllGroupEvents()
     {
-        foreach (SCR_AIGroup group : m_aGroups)
+        foreach (SCR_AIGroup group : m_Roster.GetGroups())
             UnsubscribeFromGroupEvents(group);
 
         UnsubscribeFromGroupPlayerEvents();
@@ -524,12 +411,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void OnGroupFactionChanged(Faction faction)
     {
-        if (faction && !m_aRegisteredFactions.Contains(faction))
-            m_aRegisteredFactions.Insert(faction);
+        if (faction)
+            m_Roster.AddFaction(faction);
 
         // The event does not identify which group changed. Notify all registered
         // faction views so each view re-queries the authoritative group state.
-        foreach (Faction registeredFaction : m_aRegisteredFactions)
+        foreach (Faction registeredFaction : m_Roster.GetFactions())
         {
             if (registeredFaction)
                 m_OnFactionUpdated.Invoke(registeredFaction);
@@ -560,7 +447,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void NotifyGroupFactionUpdated(SCR_AIGroup group)
     {
-        if (!group || !m_aGroups.Contains(group))
+        if (!group || !m_Roster.GetGroups().Contains(group))
             return;
 
         Faction faction = group.GetFaction();
@@ -586,13 +473,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void UnsubscribeFromAllSlotEvents()
     {
-        foreach (GC_Slot slot : m_aSlots)
+        foreach (GC_Slot slot : m_Roster.GetSlots())
             UnsubscribeFromSlotEvents(slot);
     }
 
     protected void OnSlotChanged(GC_Slot slot)
     {
-        if (!slot || !m_aSlots.Contains(slot))
+        if (!slot || !m_Roster.GetSlots().Contains(slot))
             return;
 
         if (Replication.IsServer())
@@ -618,7 +505,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         // views never depend on the slot registry as their membership source.
         m_OnPlayerRegistryUpdated.Invoke(-1);
 
-        foreach (Faction faction : m_aRegisteredFactions)
+        foreach (Faction faction : m_Roster.GetFactions())
         {
             if (faction)
                 m_OnFactionUpdated.Invoke(faction);
@@ -651,13 +538,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
                 resolvedPrefab = prefab;
 
             GC_Slot slot = new GC_Slot();
-            slot.SetID(m_iNextSlotID++);
+            slot.SetID(m_Roster.AllocateSlotId());
             slot.SetAuthoredPrefab(prefab);
             slot.SetResolvedPrefab(resolvedPrefab);
             slot.SetVariantPolicy(variantPolicies[unitIndex]);
             slot.SetGroup(group);
             
-            m_aSlots.Insert(slot);
+            m_Roster.AddSlot(slot);
             SubscribeToSlotEvents(slot);
 
             UpdateSlot(slot);
@@ -666,19 +553,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         NotifyGroupFactionUpdated(group);
     }
 
-    //! Serializes the registered groups and slots for initial replication and JIP.
+    //! Serializes Lobby2's replicated snapshot. Save and load order must match.
     override protected bool RplSave(ScriptBitWriter writer)
     {
-		writer.WriteIntRange(EncodeLobbyPhase(m_eLobbyPhase), 0, 3);
-		PrintFormat("GC | Phase JIP | saving snapshot: lobby=%1 ordinal=%2", GetPhaseName(m_eLobbyPhase), EncodeLobbyPhase(m_eLobbyPhase));
+		GC_ELobbyPhase phase = GetLobbyPhase();
+		writer.WriteIntRange(phase, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME);
+		PrintFormat("GC | Phase JIP | saving snapshot: lobby=%1 ordinal=%2", GetPhaseName(phase), phase);
 
-        int groupCount = m_aGroups.Count();
-        writer.WriteInt(groupCount);
-		PrintFormat("GC | JIP save begin: groups=%1 slots=%2", groupCount, m_aSlots.Count());
+		array<SCR_AIGroup> groups = m_Roster.GetGroups();
+        writer.WriteInt(groups.Count());
+		PrintFormat("GC | JIP save begin: groups=%1 slots=%2", groups.Count(), m_Roster.GetSlots().Count());
 
-        for (int groupIndex = 0; groupIndex < groupCount; groupIndex++)
+        foreach (SCR_AIGroup group : groups)
         {
-            SCR_AIGroup group = m_aGroups[groupIndex];
             RplId groupRplId = RplId.Invalid();
             if (group)
                 groupRplId = Replication.FindItemId(group);
@@ -686,166 +573,93 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             writer.WriteRplId(groupRplId);
         }
 
-        int slotCount = m_aSlots.Count();
-        writer.WriteInt(slotCount);
-
-        foreach (GC_Slot slot : m_aSlots)
+		array<ref GC_Slot> slots = m_Roster.GetSlots();
+        writer.WriteInt(slots.Count());
+        foreach (GC_Slot slot : slots)
         {
             if (!slot || !slot.RplSave(writer))
                 return false;
         }
 
-		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groupCount, slotCount);
+		if (!m_VoiceState.Save(writer) || !m_BriefingCatalog.Save(writer))
+			return false;
 
-		writer.WriteInt(m_aVoiceAssignments.Count());
-		foreach (GC_VoiceChannelAssignment assignment : m_aVoiceAssignments)
-		{
-			if (!assignment || !assignment.RplSave(writer))
-				return false;
-		}
-
-		writer.WriteInt(m_iBriefingRevision);
-		writer.WriteInt(m_aBriefings.Count());
-		foreach (GC_Briefing briefing : m_aBriefings)
-		{
-			if (!briefing || !briefing.RplSave(writer))
-				return false;
-		}
-
-		writer.WriteInt(m_iBriefingMarkerRevision);
-		writer.WriteInt(m_aBriefingMarkers.Count());
-		foreach (GC_BriefingMarker marker : m_aBriefingMarkers)
-		{
-			if (!marker || !marker.RplSave(writer))
-				return false;
-		}
-
+		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
         return true;
     }
 
-    //! Deserializes the registered groups and slots from the authority.
+    //! Deserializes Lobby2's snapshot from the authority.
     override protected bool RplLoad(ScriptBitReader reader)
     {
 		int phaseOrdinal;
-		if (!reader.ReadIntRange(phaseOrdinal, 0, 3))
+		if (!reader.ReadIntRange(phaseOrdinal, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME))
 			return false;
 
-		PrintFormat("GC | Phase JIP | loading snapshot: lobby=%1 ordinal=%2", GetPhaseName(DecodeLobbyPhase(phaseOrdinal)), phaseOrdinal);
-		ApplyLobbyPhase(DecodeLobbyPhase(phaseOrdinal));
+		GC_ELobbyPhase phase = phaseOrdinal;
+		PrintFormat("GC | Phase JIP | loading snapshot: lobby=%1 ordinal=%2", GetPhaseName(phase), phaseOrdinal);
+		ApplyLobbyPhase(phase);
 
-        GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
-		m_iJipResolveAttempt = 0;
+		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
+		m_Roster.ResetJipAttempts();
 
-        int groupCount;
-        if (!reader.ReadInt(groupCount) || groupCount < 0)
-            return false;
+		int groupCount;
+		if (!reader.ReadInt(groupCount) || groupCount < 0)
+			return false;
+
 		PrintFormat("GC | JIP load begin: serializedGroups=%1", groupCount);
+		UnsubscribeFromAllGroupEvents();
+		UnsubscribeFromAllSlotEvents();
+		m_Roster.Clear();
 
-        UnsubscribeFromAllGroupEvents();
-        UnsubscribeFromAllSlotEvents();
-        m_aGroups.Clear();
-        m_aPendingJipGroupRplIds.Clear();
-        m_aRegisteredFactions.Clear();
-        for (int i = 0; i < groupCount; i++)
-        {
-            RplId groupRplId;
-            if (!reader.ReadRplId(groupRplId))
-                return false;
+		for (int groupIndex; groupIndex < groupCount; groupIndex++)
+		{
+			RplId groupRplId;
+			if (!reader.ReadRplId(groupRplId))
+				return false;
 
 			if (groupRplId == RplId.Invalid())
-            {
-				PrintFormat("GC | JIP load group has invalid RplId: index=%1", i, level: LogLevel.WARNING);
+			{
+				PrintFormat("GC | JIP load group has invalid RplId: index=%1", groupIndex, level: LogLevel.WARNING);
 				continue;
-            }
+			}
 
-			bool resolved = ResolveJipGroup(groupRplId);
-			if (!resolved)
-				m_aPendingJipGroupRplIds.Insert(groupRplId);
+			if (!ResolveJipGroup(groupRplId))
+				m_Roster.GetPendingGroupIds().Insert(groupRplId);
+		}
 
-        }
+		int slotCount;
+		if (!reader.ReadInt(slotCount) || slotCount < 0)
+			return false;
 
-        int slotCount;
-        if (!reader.ReadInt(slotCount) || slotCount < 0)
-            return false;
 		PrintFormat("GC | JIP load slots: serializedSlots=%1", slotCount);
-
-        m_aSlots.Clear();
-        for (int i = 0; i < slotCount; i++)
-        {
-            GC_Slot slot = new GC_Slot();
-            if (!slot.RplLoad(reader))
-                return false;
-
-            m_aSlots.Insert(slot);
-            SubscribeToSlotEvents(slot);
-        }
-
-		int assignmentCount;
-		if (!reader.ReadInt(assignmentCount) || assignmentCount < 0)
-			return false;
-
-		m_aVoiceAssignments.Clear();
-		for (int assignmentIndex = 0; assignmentIndex < assignmentCount; assignmentIndex++)
+		for (int slotIndex; slotIndex < slotCount; slotIndex++)
 		{
-			GC_VoiceChannelAssignment assignment = new GC_VoiceChannelAssignment();
-			if (!assignment.RplLoad(reader))
+			GC_Slot slot = new GC_Slot();
+			if (!slot.RplLoad(reader))
 				return false;
 
-			m_aVoiceAssignments.Insert(assignment);
+			m_Roster.AddSlot(slot);
+			SubscribeToSlotEvents(slot);
 		}
 
-		if (!reader.ReadInt(m_iBriefingRevision))
+		if (!m_VoiceState.Load(reader) || !m_BriefingCatalog.Load(reader))
 			return false;
 
-		int briefingCount;
-		if (!reader.ReadInt(briefingCount) || briefingCount < 0 || briefingCount > MAX_BRIEFINGS)
-			return false;
-
-		m_aBriefings.Clear();
-		for (int briefingIndex = 0; briefingIndex < briefingCount; briefingIndex++)
-		{
-			GC_Briefing briefing = new GC_Briefing();
-			if (!briefing.RplLoad(reader))
-				return false;
-
-			m_aBriefings.Insert(briefing);
-		}
-
-		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
-
-		if (!reader.ReadInt(m_iBriefingMarkerRevision))
-			return false;
-
-		int briefingMarkerCount;
-		if (!reader.ReadInt(briefingMarkerCount) || briefingMarkerCount < 0 || briefingMarkerCount > MAX_BRIEFING_MARKERS)
-			return false;
-
-		m_aBriefingMarkers.Clear();
-		for (int markerIndex; markerIndex < briefingMarkerCount; markerIndex++)
-		{
-			GC_BriefingMarker marker = new GC_BriefingMarker();
-			if (!marker.RplLoad(reader))
-				return false;
-			m_aBriefingMarkers.Insert(marker);
-		}
-		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
-
+		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
+		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
 		ResolvePendingJipReferences();
-
-        return true;
+		return true;
     }
 
-	//! Resolves one serialized group ID after its proxy becomes available on a JIP client.
 	protected bool ResolveJipGroup(RplId groupRplId)
 	{
 		SCR_AIGroup group = SCR_AIGroup.Cast(Replication.FindItem(groupRplId));
 		if (!group)
 			return false;
 
-		if (!m_aGroups.Contains(group))
+		bool wasEmpty;
+		if (m_Roster.AddGroup(group, wasEmpty))
 		{
-			bool wasEmpty = m_aGroups.IsEmpty();
-			m_aGroups.Insert(group);
 			SubscribeToGroupEvents(group);
 			if (wasEmpty)
 				SubscribeToGroupPlayerEvents();
@@ -856,27 +670,25 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 
 		RegisterFaction(faction.GetFactionKey());
-
 		return true;
 	}
 
-	//! Retries cross-entity references because JIP RplLoad can run before group proxies stream in.
 	protected void ResolvePendingJipReferences()
 	{
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
-		m_iJipResolveAttempt++;
+		int attempt = m_Roster.IncrementJipAttempt();
+		array<RplId> pendingGroups = m_Roster.GetPendingGroupIds();
 
-		for (int groupIndex = m_aPendingJipGroupRplIds.Count() - 1; groupIndex >= 0; groupIndex--)
+		for (int groupIndex = pendingGroups.Count() - 1; groupIndex >= 0; groupIndex--)
 		{
-			RplId groupRplId = m_aPendingJipGroupRplIds[groupIndex];
-			if (!ResolveJipGroup(groupRplId))
+			if (!ResolveJipGroup(pendingGroups[groupIndex]))
 				continue;
 
-			m_aPendingJipGroupRplIds.RemoveOrdered(groupIndex);
+			pendingGroups.RemoveOrdered(groupIndex);
 		}
 
 		int pendingSlotGroups;
-		foreach (GC_Slot slot : m_aSlots)
+		foreach (GC_Slot slot : m_Roster.GetSlots())
 		{
 			if (!slot || slot.GetGroup())
 				continue;
@@ -889,258 +701,87 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			}
 
 			if (!slot.ResolveReplicatedGroup())
-			{
 				pendingSlotGroups++;
-				continue;
-			}
-
 		}
 
-		if (!m_aPendingJipGroupRplIds.IsEmpty() || pendingSlotGroups > 0)
+		if (!pendingGroups.IsEmpty() || pendingSlotGroups > 0)
 		{
 			GetGame().GetCallqueue().CallLater(ResolvePendingJipReferences, JIP_REFERENCE_RETRY_MS);
 			return;
 		}
 
-		PrintFormat("GC | JIP topology ready: attempts=%1 groups=%2 factions=%3 slots=%4", m_iJipResolveAttempt, m_aGroups.Count(), m_aRegisteredFactions.Count(), m_aSlots.Count());
+		PrintFormat("GC | JIP topology ready: attempts=%1 groups=%2 factions=%3 slots=%4", attempt,
+			m_Roster.GetGroups().Count(), m_Roster.GetFactions().Count(), m_Roster.GetSlots().Count());
 		NotifyAllRegisteredFactions();
 	}
 
-    //! Registers a faction key with the lobby manager.
     bool RegisterFaction(FactionKey factionKey)
     {
-        if (factionKey == "")
-            return false;
+		if (factionKey.IsEmpty())
+			return false;
 
-        Faction faction = GetGame().GetFactionManager().GetFactionByKey(factionKey);
-        if (!faction  || m_aRegisteredFactions.Contains(faction))
-            return false;
+		FactionManager factionManager = GetGame().GetFactionManager();
+		if (!factionManager)
+			return false;
 
-        m_aRegisteredFactions.Insert(faction);
-        m_OnFactionUpdated.Invoke(faction);
-        return true;
+		Faction faction = factionManager.GetFactionByKey(factionKey);
+		if (!m_Roster.AddFaction(faction))
+			return false;
+
+		m_OnFactionUpdated.Invoke(faction);
+		return true;
     }
 
-    //! Removes a faction key from the lobby manager.
     bool UnregisterFaction(FactionKey factionKey)
     {
-        if (factionKey == "")
-            return false;
+		Faction faction = m_Roster.GetFaction(factionKey);
+		if (!m_Roster.RemoveFaction(faction))
+			return false;
 
-        Faction faction;
-        for (int i = 0; i < m_aRegisteredFactions.Count(); i++)
-        {
-            faction = m_aRegisteredFactions[i];
-            if (!faction || faction.GetFactionKey() != factionKey)
-                continue;
-
-            m_aRegisteredFactions.RemoveOrdered(i);
-            m_OnFactionUpdated.Invoke(faction);
-            return true;
-        }
-
-        return false;
+		m_OnFactionUpdated.Invoke(faction);
+		return true;
     }
 
-    //! Returns whether a faction key is currently registered.
-    Faction GetRegisteredFaction(FactionKey factionKey)
-    {
-        Faction faction = GetGame().GetFactionManager().GetFactionByKey(factionKey);
-        if (!faction)
-            return null;
+    Faction GetRegisteredFaction(FactionKey factionKey) { return m_Roster.GetFaction(factionKey); }
 
-        if (!m_aRegisteredFactions.Contains(faction))
-            return null;
-
-        return faction;
-    }
-
-    //! Notifies subscribed UI when an already registered faction changes.
     void NotifyFactionUpdated(Faction faction)
     {
-        if (!faction || !m_aRegisteredFactions.Contains(faction))
-            return;
-
-        m_OnFactionUpdated.Invoke(faction);
+		if (m_Roster.ContainsFaction(faction))
+			m_OnFactionUpdated.Invoke(faction);
     }
 
-    //! Returns the faction keys currently registered with the lobby manager.
-    array<Faction> GetRegisteredFactions()
-    {
-        return m_aRegisteredFactions;
-    }
+    array<Faction> GetRegisteredFactions() { return m_Roster.GetFactions(); }
+    array<SCR_AIGroup> GetRegisteredGroups() { return m_Roster.GetGroups(); }
+    array<ref GC_Slot> GetSlots() { return m_Roster.GetSlots(); }
+    array<SCR_AIGroup> GetGroupsForFaction(FactionKey factionKey) { return m_Roster.GetGroupsForFaction(factionKey); }
+    int GetFactionPlayerCount(FactionKey factionKey) { return m_Roster.GetFactionPlayerCount(factionKey); }
+    int GetGroupPlayerCount(SCR_AIGroup group) { return m_Roster.GetGroupPlayerCount(group); }
+    array<ref GC_Slot> GetSlotsForGroup(SCR_AIGroup group) { return m_Roster.GetSlotsForGroup(group); }
+    int GetFactionSlotCount(FactionKey factionKey) { return m_Roster.GetFactionSlotCount(factionKey); }
+    GC_Slot GetSlot(int id) { return m_Roster.GetSlot(id); }
+    GC_Slot GetSlotByPlayerId(int playerId) { return m_Roster.GetSlotByPlayerId(playerId); }
+    SCR_AIGroup GetRegisteredGroupByRplId(RplId groupRplId) { return m_Roster.GetGroupByRplId(groupRplId); }
+    SCR_AIGroup GetPlayerGroup(int playerId) { return m_Roster.GetPlayerGroup(playerId); }
+    Faction GetPlayerFaction(int playerId) { return m_Roster.GetPlayerFaction(playerId); }
 
-    //! Returns the registered base-game groups used by the lobby presentation.
-    array<SCR_AIGroup> GetRegisteredGroups()
-    {
-        return m_aGroups;
-    }
+	GC_VoiceChannelAssignment GetPlayerVoiceAssignment(int playerId) { return m_VoiceState.Get(playerId); }
+	bool IsPlayerVoiceDeafened(int playerId) { return m_VoiceState.IsDeafened(playerId); }
 
-    array<ref GC_Slot> GetSlots()
-    {
-        return m_aSlots;
-    }
-
-    //! Returns registered groups whose current base-game faction matches the key.
-    array<SCR_AIGroup> GetGroupsForFaction(FactionKey factionKey)
-    {
-        array<SCR_AIGroup> groups = {};
-        if (factionKey == "")
-            return groups;
-
-        foreach (SCR_AIGroup group : m_aGroups)
-        {
-            if (!group)
-                continue;
-
-            Faction faction = group.GetFaction();
-            if (faction && faction.GetFactionKey() == factionKey)
-                groups.Insert(group);
-        }
-
-        return groups;
-    }
-
-    //! Counts unique players occupying lobby slots whose authoritative groups belong to the faction.
-    int GetFactionPlayerCount(FactionKey factionKey)
-    {
-        array<int> playerIDs = {};
-
-        foreach (SCR_AIGroup group : GetGroupsForFaction(factionKey))
-        {
-            foreach (GC_Slot slot : GetSlotsForGroup(group))
-            {
-                if (!slot)
-                    continue;
-
-                int playerID = slot.GetPlayerId();
-                if (playerID > 0 && !playerIDs.Contains(playerID))
-                    playerIDs.Insert(playerID);
-            }
-        }
-
-        return playerIDs.Count();
-    }
-
-    //! Counts unique players currently occupying lobby slots in the specified base-game group.
-    int GetGroupPlayerCount(SCR_AIGroup group)
-    {
-        array<int> playerIDs = {};
-
-        foreach (GC_Slot slot : GetSlotsForGroup(group))
-        {
-            if (!slot)
-                continue;
-
-            int playerID = slot.GetPlayerId();
-            if (playerID > 0 && !playerIDs.Contains(playerID))
-                playerIDs.Insert(playerID);
-        }
-
-        return playerIDs.Count();
-    }
-
-    //! Returns lobby slot records belonging to the specified base-game group.
-    array<ref GC_Slot> GetSlotsForGroup(SCR_AIGroup group)
-    {
-        array<ref GC_Slot> slots = {};
-        if (!group)
-            return slots;
-
-        foreach (GC_Slot slot : m_aSlots)
-        {
-            if (slot && slot.GetGroup() == group)
-                slots.Insert(slot);
-        }
-
-        return slots;
-    }
-
-    //! Counts lobby slots belonging to groups whose authoritative faction matches the key.
-    int GetFactionSlotCount(FactionKey factionKey)
-    {
-        int slotCount;
-
-        foreach (SCR_AIGroup group : GetGroupsForFaction(factionKey))
-        {
-            foreach (GC_Slot slot : GetSlotsForGroup(group))
-            {
-                if (slot)
-                    slotCount++;
-            }
-        }
-
-        return slotCount;
-    }
-
-    GC_Slot GetSlot(int id)
-    {
-        foreach (ref GC_Slot slot : m_aSlots)
-        {
-            if (slot && slot.GetID() == id)
-                return slot;
-        }
-
-        return null;
-    }
-
-    GC_Slot GetSlotByPlayerId(int playerId)
-    {
-        if (playerId < 0)
-            return null;
-
-        foreach (ref GC_Slot slot : m_aSlots)
-        {
-            if (slot && slot.GetPlayerId() == playerId)
-                return slot;
-        }
-
-        return null;
-    }
-
-	GC_VoiceChannelAssignment GetPlayerVoiceAssignment(int playerId)
-	{
-		foreach (GC_VoiceChannelAssignment assignment : m_aVoiceAssignments)
-		{
-			if (assignment && assignment.GetPlayerId() == playerId)
-				return assignment;
-		}
-
-		return null;
-	}
-
-	bool IsPlayerVoiceDeafened(int playerId)
-	{
-		GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
-		return assignment && assignment.IsDeafened();
-	}
-
-	//! Applies presentation-only deafen state on the server. Actual VoN audio
-	//! routing is intentionally outside this lobby UI slice.
 	bool TrySetPlayerVoiceDeafened(int playerId, bool deafened)
 	{
 		if (!Replication.IsServer() || playerId <= 0)
 			return false;
 
-		GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
-		if (!assignment)
-		{
-			assignment = new GC_VoiceChannelAssignment();
-			assignment.Set(playerId, GC_VoiceChannelType.GLOBAL);
-			m_aVoiceAssignments.Insert(assignment);
-		}
+		GC_VoiceChannelAssignment assignment;
+		if (!m_VoiceState.SetDeafened(playerId, deafened, assignment))
+			return assignment != null;
 
-		if (assignment.IsDeafened() == deafened)
-			return true;
-
-		assignment.SetDeafened(deafened);
 		PrintFormat("GC | Voice deafen state changed: player=%1 deafened=%2", playerId, deafened);
 		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
 		m_OnPlayerRegistryUpdated.Invoke(playerId);
 		return true;
 	}
 
-	//! Validates a requested exclusive channel and applies it on the authority.
 	bool TrySetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
 	{
 		if (!Replication.IsServer() || playerId <= 0)
@@ -1150,16 +791,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		{
 			case GC_VoiceChannelType.GLOBAL:
 				return SetPlayerVoiceChannel(playerId, channelType);
-
 			case GC_VoiceChannelType.FACTION:
 			{
 				Faction requestedFaction = GetRegisteredFaction(factionKey);
 				if (!requestedFaction || GetPlayerFaction(playerId) != requestedFaction)
 					return false;
-
 				return SetPlayerVoiceChannel(playerId, channelType, factionKey);
 			}
-
 			case GC_VoiceChannelType.GROUP:
 				return TryJoinGroupFromVoiceHeader(playerId, groupRplId);
 		}
@@ -1172,20 +810,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!Replication.IsServer() || playerId <= 0)
 			return false;
 
-		GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
-		if (!assignment)
-		{
-			assignment = new GC_VoiceChannelAssignment();
-			m_aVoiceAssignments.Insert(assignment);
-		}
-		else if (assignment.GetChannelType() == channelType && assignment.GetFactionKey() == factionKey && assignment.GetGroupRplId() == groupRplId)
-		{
-			return true;
-		}
+		GC_VoiceChannelAssignment assignment;
+		if (!m_VoiceState.SetChannel(playerId, channelType, factionKey, groupRplId, assignment))
+			return assignment != null;
 
-		bool deafened = assignment.IsDeafened();
-		assignment.Set(playerId, channelType, factionKey, groupRplId);
-		assignment.SetDeafened(deafened);
 		PrintFormat("GC | Voice assignment changed: player=%1 type=%2 faction=%3 group=%4", playerId, channelType, factionKey, groupRplId);
 		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
 		m_OnPlayerRegistryUpdated.Invoke(playerId);
@@ -1194,36 +822,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected void RemovePlayerVoiceAssignment(int playerId)
 	{
-		if (!Replication.IsServer())
+		if (!Replication.IsServer() || !m_VoiceState.Remove(playerId))
 			return;
 
-		for (int i = m_aVoiceAssignments.Count() - 1; i >= 0; i--)
-		{
-			GC_VoiceChannelAssignment assignment = m_aVoiceAssignments[i];
-			if (!assignment || assignment.GetPlayerId() != playerId)
-				continue;
-
-			m_aVoiceAssignments.RemoveOrdered(i);
-			Rpc(RpcDo_RemoveVoiceAssignment, playerId);
-			return;
-		}
+		Rpc(RpcDo_RemoveVoiceAssignment, playerId);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
 	protected void RpcDo_UpdateVoiceAssignment(GC_VoiceChannelAssignment updateAssignment)
 	{
-		if (Replication.IsServer() || !updateAssignment)
+		if (Replication.IsServer() || !m_VoiceState.Apply(updateAssignment))
 			return;
 
-		GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(updateAssignment.GetPlayerId());
-		if (!assignment)
-		{
-			assignment = new GC_VoiceChannelAssignment();
-			m_aVoiceAssignments.Insert(assignment);
-		}
-
-		assignment.CopyFrom(updateAssignment);
-		m_OnPlayerRegistryUpdated.Invoke(assignment.GetPlayerId());
+		m_OnPlayerRegistryUpdated.Invoke(updateAssignment.GetPlayerId());
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
@@ -1232,134 +843,47 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer())
 			return;
 
-		for (int i = m_aVoiceAssignments.Count() - 1; i >= 0; i--)
-		{
-			GC_VoiceChannelAssignment assignment = m_aVoiceAssignments[i];
-			if (assignment && assignment.GetPlayerId() == playerId)
-				m_aVoiceAssignments.RemoveOrdered(i);
-		}
-
+		m_VoiceState.Remove(playerId);
 		m_OnPlayerRegistryUpdated.Invoke(playerId);
 	}
-
-    //! Resolves a registered group from the replicated identity supplied by a
-    //! client. The client never sends an object reference as authority.
-    SCR_AIGroup GetRegisteredGroupByRplId(RplId groupRplId)
-    {
-        if (groupRplId == RplId.Invalid())
-            return null;
-
-        foreach (SCR_AIGroup group : m_aGroups)
-        {
-            if (group && Replication.FindItemId(group) == groupRplId)
-                return group;
-        }
-
-        return null;
-    }
-
-    //! Returns the player's current authoritative base-game group. The groups
-    //! manager is preferred, while registered groups provide a race-safe query
-    //! of the same base-game membership when its index has not settled yet.
-    SCR_AIGroup GetPlayerGroup(int playerId)
-    {
-        foreach (SCR_AIGroup registeredGroup : m_aGroups)
-        {
-            if (registeredGroup && registeredGroup.GetPlayerIDs().Contains(playerId))
-                return registeredGroup;
-        }
-
-        SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
-        if (groupsManager)
-            return groupsManager.GetPlayerGroup(playerId);
-
-        return null;
-    }
-
-    //! Returns the player's current authoritative faction, with the lobby slot
-    //! as a short-lived fallback while base-group membership is settling.
-    Faction GetPlayerFaction(int playerId)
-    {
-        SCR_AIGroup playerGroup = GetPlayerGroup(playerId);
-        if (playerGroup && playerGroup.GetFaction())
-            return playerGroup.GetFaction();
-
-        GC_Slot slot = GetSlotByPlayerId(playerId);
-        if (slot && slot.GetGroup())
-            return slot.GetGroup().GetFaction();
-
-        return null;
-    }
 
     //! Returns one briefing by its one-based authored order/index.
     GC_Briefing GetBriefing(int briefingOrder)
     {
-        if (briefingOrder <= 0)
-            return null;
-
-        foreach (GC_Briefing briefing : m_aBriefings)
-        {
-            if (briefing && briefing.GetOrder() == briefingOrder)
-                return briefing;
-        }
-
-        return null;
+        return m_BriefingCatalog.GetBriefing(briefingOrder);
     }
 
-    //! Returns the complete local replicated briefing snapshot.
     array<ref GC_Briefing> GetBriefings()
     {
-        return m_aBriefings;
+        return m_BriefingCatalog.GetBriefings();
     }
 
-    //! Derives a player's visible briefing list from current base-game faction state.
     array<ref GC_Briefing> GetBriefingsForPlayer(int playerId)
     {
-        array<ref GC_Briefing> result = {};
-        Faction faction = GetPlayerFaction(playerId);
-		SCR_EGameModeState gameModeState = m_eLobbyPhase;
-
-        foreach (GC_Briefing briefing : m_aBriefings)
-        {
-            if (briefing && briefing.IsVisibleToFaction(faction, gameModeState))
-                result.Insert(briefing);
-        }
-
-        return result;
+        return m_BriefingCatalog.GetBriefingsFor(GetPlayerFaction(playerId), GetLobbyPhase());
     }
 
-    //! Server-only upsert used by mission systems when briefing data changes.
     bool UpsertBriefing(GC_Briefing update)
     {
         if (!Replication.IsServer() || !ValidateBriefing(update))
             return false;
 
-        GC_Briefing briefing = GetBriefing(update.GetOrder());
-        if (!briefing)
-        {
-            if (m_aBriefings.Count() >= MAX_BRIEFINGS)
-                return false;
+        GC_Briefing briefing;
+        if (!m_BriefingCatalog.UpsertBriefing(update, briefing))
+            return false;
 
-            briefing = new GC_Briefing();
-            m_aBriefings.Insert(briefing);
-        }
-
-        briefing.CopyFrom(update);
-        briefing.SetRevision(++m_iBriefingRevision);
-        m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+        m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
         Rpc(RpcDo_UpsertBriefing, briefing);
         return true;
     }
 
-    //! Convenience server API for creating a complete replacement payload.
-    bool SetBriefing(int order, string title, string content, array<string> factionKeys = null, SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME, bool invertGameModeState = false, bool visible = true)
+    bool SetBriefing(int order, string title, string content, array<string> factionKeys = null, GC_ELobbyPhase showAtGameModeState = GC_ELobbyPhase.GAME, bool invertGameModeState = false, bool visible = true)
     {
         GC_Briefing update = new GC_Briefing();
         update.Set(order, title, content, factionKeys, showAtGameModeState, invertGameModeState, visible);
         return UpsertBriefing(update);
     }
 
-    //! Server-only visibility mutation that preserves the rest of the briefing payload.
     bool SetBriefingVisible(int briefingOrder, bool visible)
     {
         if (!Replication.IsServer())
@@ -1369,70 +893,54 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!briefing || briefing.IsVisible() == visible)
             return briefing != null;
 
-        GC_Briefing update = new GC_Briefing();
-        update.Set(
-            briefing.GetOrder(),
-            briefing.GetTitle(),
-            briefing.GetContent(),
-			briefing.GetFactionKeys(),
-			briefing.GetShowAtGameModeState(),
-			briefing.IsGameModeStateInverted(),
-            visible);
-        return UpsertBriefing(update);
+        return SetBriefing(briefing.GetOrder(), briefing.GetTitle(), briefing.GetContent(),
+            briefing.GetFactionKeys(), briefing.GetShowAtGameModeState(),
+            briefing.IsGameModeStateInverted(), visible);
     }
 
-    //! Server-only removal. Reliable RPC ordering keeps proxies on the same revision.
     bool RemoveBriefing(int briefingOrder)
     {
         if (!Replication.IsServer() || briefingOrder <= 0)
             return false;
 
-        for (int index = 0; index < m_aBriefings.Count(); index++)
-        {
-            GC_Briefing briefing = m_aBriefings[index];
-            if (!briefing || briefing.GetOrder() != briefingOrder)
-                continue;
+        int revision;
+        if (!m_BriefingCatalog.RemoveBriefing(briefingOrder, revision))
+            return false;
 
-            m_aBriefings.RemoveOrdered(index);
-            m_iBriefingRevision++;
-            m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
-            Rpc(RpcDo_RemoveBriefing, briefingOrder, m_iBriefingRevision);
-            return true;
-        }
-
-        return false;
+        m_OnBriefingsChanged.Invoke(revision);
+        Rpc(RpcDo_RemoveBriefing, briefingOrder, revision);
+        return true;
     }
 
     protected bool ValidateBriefing(GC_Briefing briefing)
     {
-        if (!briefing || briefing.GetOrder() <= 0 || briefing.GetOrder() > MAX_BRIEFINGS)
+        if (!briefing || briefing.GetOrder() <= 0 || briefing.GetOrder() > GC_LobbyBriefingCatalog.MAX_BRIEFINGS)
             return false;
 
-        if (briefing.GetTitle().Length() > MAX_BRIEFING_TITLE_LENGTH
-            || briefing.GetContent().Length() > MAX_BRIEFING_CONTENT_LENGTH)
+        if (briefing.GetTitle().Length() > GC_LobbyBriefingCatalog.MAX_BRIEFING_TITLE_LENGTH
+            || briefing.GetContent().Length() > GC_LobbyBriefingCatalog.MAX_BRIEFING_CONTENT_LENGTH
+            || !GC_LobbyPhaseMachine.IsValid(briefing.GetShowAtGameModeState()))
             return false;
 
-		if (briefing.GetShowAtGameModeState() < SCR_EGameModeState.PREGAME
-			|| briefing.GetShowAtGameModeState() > SCR_EGameModeState.POSTGAME)
-			return false;
+        return ValidateFactionKeys(briefing.GetFactionKeys(), GC_Briefing.MAX_FACTION_KEYS);
+    }
 
-        array<string> factionKeys = briefing.GetFactionKeys();
-        if (!factionKeys || factionKeys.Count() > GC_Briefing.MAX_FACTION_KEYS)
+    protected bool ValidateFactionKeys(array<string> factionKeys, int maximumCount)
+    {
+        if (!factionKeys || factionKeys.Count() > maximumCount)
             return false;
 
-        FactionManager factionManager;
-        if (factionKeys.Count() > 0)
-        {
-            factionManager = GetGame().GetFactionManager();
-            if (!factionManager)
-                return false;
-        }
+        if (factionKeys.IsEmpty())
+            return true;
+
+        FactionManager factionManager = GetGame().GetFactionManager();
+        if (!factionManager)
+            return false;
 
         array<string> validatedFactionKeys = {};
         foreach (string factionKey : factionKeys)
         {
-            if (factionKey.IsEmpty()
-                || validatedFactionKeys.Contains(factionKey)
+            if (factionKey.IsEmpty() || validatedFactionKeys.Contains(factionKey)
                 || !factionManager.GetFactionByKey(factionKey))
                 return false;
 
@@ -1445,237 +953,140 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     [RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
     protected void RpcDo_UpsertBriefing(GC_Briefing update)
     {
-        if (Replication.IsServer() || !update)
+        if (Replication.IsServer() || !m_BriefingCatalog.ApplyBriefing(update))
             return;
 
-        GC_Briefing briefing = GetBriefing(update.GetOrder());
-        if (briefing && update.GetRevision() <= briefing.GetRevision())
-            return;
-
-        if (!briefing)
-        {
-            if (m_aBriefings.Count() >= MAX_BRIEFINGS)
-                return;
-
-            briefing = new GC_Briefing();
-            m_aBriefings.Insert(briefing);
-        }
-
-        briefing.CopyFrom(update);
-        if (update.GetRevision() > m_iBriefingRevision)
-            m_iBriefingRevision = update.GetRevision();
-
-        m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+        m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
     }
 
     [RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
     protected void RpcDo_RemoveBriefing(int briefingOrder, int revision)
     {
-        if (Replication.IsServer() || revision <= m_iBriefingRevision)
+        if (Replication.IsServer() || !m_BriefingCatalog.ApplyBriefingRemoval(briefingOrder, revision))
             return;
 
-        for (int index = m_aBriefings.Count() - 1; index >= 0; index--)
-        {
-            GC_Briefing briefing = m_aBriefings[index];
-            if (briefing && briefing.GetOrder() == briefingOrder)
-                m_aBriefings.RemoveOrdered(index);
-        }
-
-        m_iBriefingRevision = revision;
-        m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+        m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
     }
 
-	//! Registers the authored entity snapshot on the server. The entity name is
-	//! the marker name used by briefing <marker name="..."> links.
-	bool RegisterBriefingMarker(GC_BriefingMarkerComponent component)
-	{
-		if (!Replication.IsServer() || !component)
-			return false;
+    bool RegisterBriefingMarker(GC_BriefingMarkerComponent component)
+    {
+        if (!Replication.IsServer() || !component)
+            return false;
 
-		GC_BriefingMarker marker = component.CreateMarkerSnapshot();
-		if (UpsertBriefingMarker(marker))
-			return true;
+        GC_BriefingMarker marker = component.CreateMarkerSnapshot();
+        if (UpsertBriefingMarker(marker))
+            return true;
 
-		string markerName;
-		if (marker)
-			markerName = marker.GetName();
-		PrintFormat("GC | Briefing marker component registration rejected: marker=%1", markerName, level: LogLevel.WARNING);
-		return false;
-	}
+        string markerName;
+        if (marker)
+            markerName = marker.GetName();
 
-	GC_BriefingMarker GetBriefingMarker(string markerName)
-	{
-		foreach (GC_BriefingMarker marker : m_aBriefingMarkers)
-		{
-			if (marker && marker.GetName() == markerName)
-				return marker;
-		}
-		return null;
-	}
+        PrintFormat("GC | Briefing marker component registration rejected: marker=%1", markerName, level: LogLevel.WARNING);
+        return false;
+    }
 
-	array<ref GC_BriefingMarker> GetBriefingMarkers()
-	{
-		return m_aBriefingMarkers;
-	}
+    GC_BriefingMarker GetBriefingMarker(string markerName)
+    {
+        return m_BriefingCatalog.GetMarker(markerName);
+    }
 
-	array<ref GC_BriefingMarker> GetBriefingMarkersForPlayer(int playerId)
-	{
-		array<ref GC_BriefingMarker> result = {};
-		Faction faction = GetPlayerFaction(playerId);
-		SCR_EGameModeState gameModeState = m_eLobbyPhase;
+    array<ref GC_BriefingMarker> GetBriefingMarkers()
+    {
+        return m_BriefingCatalog.GetMarkers();
+    }
 
-		foreach (GC_BriefingMarker marker : m_aBriefingMarkers)
-		{
-			if (marker && marker.IsVisibleToFaction(faction, gameModeState))
-				result.Insert(marker);
-		}
-		return result;
-	}
+    array<ref GC_BriefingMarker> GetBriefingMarkersForPlayer(int playerId)
+    {
+        return m_BriefingCatalog.GetMarkersFor(GetPlayerFaction(playerId), GetLobbyPhase());
+    }
 
-	//! Server-only complete marker replacement used by mission scripts.
-	bool UpsertBriefingMarker(GC_BriefingMarker update)
-	{
-		if (!Replication.IsServer() || !ValidateBriefingMarker(update))
-			return false;
+    bool UpsertBriefingMarker(GC_BriefingMarker update)
+    {
+        if (!Replication.IsServer() || !ValidateBriefingMarker(update))
+            return false;
 
-		GC_BriefingMarker marker = GetBriefingMarker(update.GetName());
-		if (!marker)
-		{
-			if (m_aBriefingMarkers.Count() >= MAX_BRIEFING_MARKERS)
-				return false;
-			marker = new GC_BriefingMarker();
-			m_aBriefingMarkers.Insert(marker);
-		}
+        GC_BriefingMarker marker;
+        if (!m_BriefingCatalog.UpsertMarker(update, marker))
+            return false;
 
-		marker.CopyFrom(update);
-		marker.SetRevision(++m_iBriefingMarkerRevision);
-		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
-		Rpc(RpcDo_UpsertBriefingMarker, marker);
-		return true;
-	}
+        m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
+        Rpc(RpcDo_UpsertBriefingMarker, marker);
+        return true;
+    }
 
-	bool SetBriefingMarker(string markerName, ResourceName image, string quadName, vector worldPosition,
-		float rotation, bool worldScale, float size, string description, array<string> factionKeys = null,
-		SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
-		bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
-	{
-		GC_BriefingMarker update = new GC_BriefingMarker();
-		update.Set(markerName, image, quadName, worldPosition, rotation, worldScale, size,
-			description, factionKeys, showAtGameModeState, invertGameModeState, visible, color);
-		return UpsertBriefingMarker(update);
-	}
+    bool SetBriefingMarker(string markerName, ResourceName image, string quadName, vector worldPosition,
+        float rotation, bool worldScale, float size, string description, array<string> factionKeys = null,
+        GC_ELobbyPhase showAtGameModeState = GC_ELobbyPhase.GAME,
+        bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
+    {
+        GC_BriefingMarker update = new GC_BriefingMarker();
+        update.Set(markerName, image, quadName, worldPosition, rotation, worldScale, size,
+            description, factionKeys, showAtGameModeState, invertGameModeState, visible, color);
+        return UpsertBriefingMarker(update);
+    }
 
-	bool SetBriefingMarkerVisible(string markerName, bool visible)
-	{
-		if (!Replication.IsServer())
-			return false;
+    bool SetBriefingMarkerVisible(string markerName, bool visible)
+    {
+        if (!Replication.IsServer())
+            return false;
 
-		GC_BriefingMarker marker = GetBriefingMarker(markerName);
-		if (!marker || marker.IsVisible() == visible)
-			return marker != null;
+        GC_BriefingMarker marker = GetBriefingMarker(markerName);
+        if (!marker || marker.IsVisible() == visible)
+            return marker != null;
 
-		return SetBriefingMarker(marker.GetName(), marker.GetImage(), marker.GetQuadName(),
-			marker.GetWorldPosition(), marker.GetRotation(), marker.IsWorldScale(), marker.GetSize(),
-			marker.GetDescription(), marker.GetFactionKeys(), marker.GetShowAtGameModeState(),
-			marker.IsGameModeStateInverted(), visible, marker.GetColor());
-	}
+        return SetBriefingMarker(marker.GetName(), marker.GetImage(), marker.GetQuadName(),
+            marker.GetWorldPosition(), marker.GetRotation(), marker.IsWorldScale(), marker.GetSize(),
+            marker.GetDescription(), marker.GetFactionKeys(), marker.GetShowAtGameModeState(),
+            marker.IsGameModeStateInverted(), visible, marker.GetColor());
+    }
 
-	bool RemoveBriefingMarker(string markerName)
-	{
-		if (!Replication.IsServer() || markerName.IsEmpty())
-			return false;
+    bool RemoveBriefingMarker(string markerName)
+    {
+        if (!Replication.IsServer() || markerName.IsEmpty())
+            return false;
 
-		for (int markerIndex; markerIndex < m_aBriefingMarkers.Count(); markerIndex++)
-		{
-			GC_BriefingMarker marker = m_aBriefingMarkers[markerIndex];
-			if (!marker || marker.GetName() != markerName)
-				continue;
+        int revision;
+        if (!m_BriefingCatalog.RemoveMarker(markerName, revision))
+            return false;
 
-			m_aBriefingMarkers.RemoveOrdered(markerIndex);
-			m_iBriefingMarkerRevision++;
-			m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
-			Rpc(RpcDo_RemoveBriefingMarker, markerName, m_iBriefingMarkerRevision);
-			return true;
-		}
-		return false;
-	}
+        m_OnBriefingMarkersChanged.Invoke(revision);
+        Rpc(RpcDo_RemoveBriefingMarker, markerName, revision);
+        return true;
+    }
 
-	protected bool ValidateBriefingMarker(GC_BriefingMarker marker)
-	{
-		if (!marker || marker.GetName().IsEmpty() || marker.GetName().Length() > MAX_MARKER_NAME_LENGTH
-			|| marker.GetImage().IsEmpty() || marker.GetDescription().Length() > MAX_MARKER_DESCRIPTION_LENGTH
-			|| marker.GetSize() <= 0)
-			return false;
+    protected bool ValidateBriefingMarker(GC_BriefingMarker marker)
+    {
+        if (!marker || marker.GetName().IsEmpty()
+            || marker.GetName().Length() > GC_LobbyBriefingCatalog.MAX_MARKER_NAME_LENGTH
+            || marker.GetImage().IsEmpty()
+            || marker.GetDescription().Length() > GC_LobbyBriefingCatalog.MAX_MARKER_DESCRIPTION_LENGTH
+            || marker.GetSize() <= 0
+            || !GC_LobbyPhaseMachine.IsValid(marker.GetShowAtGameModeState()))
+            return false;
 
-		bool isImageSet = marker.GetImage().EndsWith(".imageset");
-		if (isImageSet && marker.GetQuadName().IsEmpty())
-			return false;
+        if (marker.GetImage().EndsWith(".imageset") && marker.GetQuadName().IsEmpty())
+            return false;
 
-		if (marker.GetShowAtGameModeState() < SCR_EGameModeState.PREGAME
-			|| marker.GetShowAtGameModeState() > SCR_EGameModeState.POSTGAME)
-			return false;
+        return ValidateFactionKeys(marker.GetFactionKeys(), GC_BriefingMarker.MAX_FACTION_KEYS);
+    }
 
-		array<string> factionKeys = marker.GetFactionKeys();
-		if (!factionKeys || factionKeys.Count() > GC_BriefingMarker.MAX_FACTION_KEYS)
-			return false;
+    [RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+    protected void RpcDo_UpsertBriefingMarker(GC_BriefingMarker update)
+    {
+        if (Replication.IsServer() || !m_BriefingCatalog.ApplyMarker(update))
+            return;
 
-		FactionManager factionManager;
-		if (!factionKeys.IsEmpty())
-		{
-			factionManager = GetGame().GetFactionManager();
-			if (!factionManager)
-				return false;
-		}
+        m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
+    }
 
-		array<string> validatedFactionKeys = {};
-		foreach (string factionKey : factionKeys)
-		{
-			if (factionKey.IsEmpty() || validatedFactionKeys.Contains(factionKey)
-				|| !factionManager.GetFactionByKey(factionKey))
-				return false;
-			validatedFactionKeys.Insert(factionKey);
-		}
-		return true;
-	}
+    [RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+    protected void RpcDo_RemoveBriefingMarker(string markerName, int revision)
+    {
+        if (Replication.IsServer() || !m_BriefingCatalog.ApplyMarkerRemoval(markerName, revision))
+            return;
 
-	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_UpsertBriefingMarker(GC_BriefingMarker update)
-	{
-		if (Replication.IsServer() || !update)
-			return;
-
-		GC_BriefingMarker marker = GetBriefingMarker(update.GetName());
-		if (marker && update.GetRevision() <= marker.GetRevision())
-			return;
-		if (!marker)
-		{
-			if (m_aBriefingMarkers.Count() >= MAX_BRIEFING_MARKERS)
-				return;
-			marker = new GC_BriefingMarker();
-			m_aBriefingMarkers.Insert(marker);
-		}
-
-		marker.CopyFrom(update);
-		if (update.GetRevision() > m_iBriefingMarkerRevision)
-			m_iBriefingMarkerRevision = update.GetRevision();
-		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
-	}
-
-	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_RemoveBriefingMarker(string markerName, int revision)
-	{
-		if (Replication.IsServer() || revision <= m_iBriefingMarkerRevision)
-			return;
-
-		for (int markerIndex = m_aBriefingMarkers.Count() - 1; markerIndex >= 0; markerIndex--)
-		{
-			GC_BriefingMarker marker = m_aBriefingMarkers[markerIndex];
-			if (marker && marker.GetName() == markerName)
-				m_aBriefingMarkers.RemoveOrdered(markerIndex);
-		}
-		m_iBriefingMarkerRevision = revision;
-		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
-	}
+        m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
+    }
 
     bool TryJoinGroupFromVoiceHeader(int playerId, RplId groupRplId)
     {
@@ -1735,7 +1146,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return false;
 
         SCR_AIGroup targetGroup = targetSlot.GetGroup();
-        if (!targetGroup || !m_aGroups.Contains(targetGroup))
+        if (!targetGroup || !m_Roster.GetGroups().Contains(targetGroup))
             return false;
 
         SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
@@ -1785,7 +1196,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Broadcasts a complete server-authoritative slot state.
     bool UpdateSlot(GC_Slot slot)
     {
-        if (!Replication.IsServer() || !slot || !m_aSlots.Contains(slot))
+        if (!Replication.IsServer() || !slot || !m_Roster.GetSlots().Contains(slot))
             return false;
 
         Rpc(RpcDo_UpdateSlot, slot);
@@ -1804,7 +1215,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         {
             slot = new GC_Slot();
             slot.SetID(slotId);
-            m_aSlots.Insert(slot);
+            m_Roster.AddSlot(slot);
             SubscribeToSlotEvents(slot);
         }
 
@@ -1826,28 +1237,38 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     override void OnGameModeEnd(SCR_GameModeEndData data)
     {
+		Shutdown();
+		super.OnGameModeEnd(data);
+	}
+
+	override void OnGameEnd()
+	{
+		Shutdown();
+		super.OnGameEnd();
+	}
+
+	protected void Shutdown()
+	{
+		if (m_bShutdown)
+			return;
+
+		m_bShutdown = true;
         GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
         UnsubscribeFromAllGroupEvents();
         UnsubscribeFromAllSlotEvents();
-        m_aGroups.Clear();
-		m_aPendingJipGroupRplIds.Clear();
-        m_aSlots.Clear();
-		m_aVoiceAssignments.Clear();
-		m_aBriefings.Clear();
-		m_aBriefingMarkers.Clear();
-
-        super.OnGameModeEnd(data);
+		m_Roster.Clear();
+		m_VoiceState.Clear();
+		m_BriefingCatalog.Clear();
+		Print("GC | Lifecycle | Lobby2 manager shutdown complete");
     }
 
-    static GC_LobbyManager GetManager()
-    {
-        if (SCR_Global.IsEditMode())
-            return null;
+	static GC_LobbyManager GetManager()
+	{
+		GC_LobbyGameMode lobbyGameMode = GC_LobbyGameMode.GetGameMode();
+		if (!lobbyGameMode)
+			return null;
 
-        if (!GetGame().GetGameMode())
-            return null;
-
-        return GC_LobbyManager.Cast(GetGame().GetGameMode().FindComponent(GC_LobbyManager));
-    }
+		return GC_LobbyManager.Cast(lobbyGameMode.FindComponent(GC_LobbyManager));
+	}
 }

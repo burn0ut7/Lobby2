@@ -163,7 +163,8 @@ ButtonWidgetClass {
              }
              Opacity 0.38
              Color 1 1 1 1
-             Texture "{929445F7EC83C1B3}UI/Textures/QuickMenu/Icons/microphone-open.edds"
+             Texture "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset"
+             Image "VoNIdle"
              Size 26 26
             }
             ImageWidgetClass "{6A33000000000021}" {

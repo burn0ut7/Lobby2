@@ -18,8 +18,8 @@ class GC_Briefing
 	[Attribute("", UIWidgets.EditBox, "Authoritative base-game faction keys. Empty shows the briefing to everyone")]
 	protected ref array<string> m_aFactionKeys;
 
-	[Attribute("0", UIWidgets.ComboBox, "Game-mode state in which this briefing is shown", enumType: SCR_EGameModeState)]
-	protected SCR_EGameModeState m_eShowAtGameModeState;
+	[Attribute("0", UIWidgets.ComboBox, "Lobby2 phase in which this briefing is shown", enumType: GC_ELobbyPhase)]
+	protected GC_ELobbyPhase m_eShowAtGameModeState;
 
 	[Attribute("0", UIWidgets.CheckBox, "Invert the selected state rule. Off: show only during the selected state. On: hide during the selected state and show during all other states")]
 	protected bool m_bInvertGameModeState;
@@ -54,7 +54,7 @@ class GC_Briefing
 		return m_aFactionKeys;
 	}
 
-	SCR_EGameModeState GetShowAtGameModeState()
+	GC_ELobbyPhase GetShowAtGameModeState()
 	{
 		return m_eShowAtGameModeState;
 	}
@@ -80,7 +80,7 @@ class GC_Briefing
 	}
 
 	//! Creates or replaces the editable payload before it is submitted to the authority.
-	void Set(int order, string title, string content, array<string> factionKeys = null, SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME, bool invertGameModeState = false, bool visible = true)
+	void Set(int order, string title, string content, array<string> factionKeys = null, GC_ELobbyPhase showAtGameModeState = GC_ELobbyPhase.GAME, bool invertGameModeState = false, bool visible = true)
 	{
 		m_iOrder = order;
 		m_sTitle = title;
@@ -100,7 +100,7 @@ class GC_Briefing
 		m_bVisible = visible;
 	}
 
-	bool IsVisibleToFaction(Faction faction, SCR_EGameModeState gameModeState)
+	bool IsVisibleToFaction(Faction faction, GC_ELobbyPhase gameModeState)
 	{
 		bool stateMatches = gameModeState == m_eShowAtGameModeState;
 		if (m_bInvertGameModeState)
@@ -155,7 +155,7 @@ class GC_Briefing
 				writer.WriteString(factionKey);
 		}
 
-		writer.WriteIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.BRIEFING);
+		writer.WriteIntRange(m_eShowAtGameModeState, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME);
 		writer.WriteBool(m_bInvertGameModeState);
 		writer.WriteBool(m_bVisible);
 		writer.WriteInt(m_iRevision);
@@ -187,7 +187,7 @@ class GC_Briefing
 			m_aFactionKeys.Insert(factionKey);
 		}
 
-		if (!reader.ReadIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.BRIEFING))
+		if (!reader.ReadIntRange(m_eShowAtGameModeState, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME))
 			return false;
 		if (!reader.ReadBool(m_bInvertGameModeState))
 			return false;

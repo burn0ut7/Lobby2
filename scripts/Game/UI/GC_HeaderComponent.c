@@ -91,6 +91,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
     protected void RefreshAdminPermission()
     {
+		GetGame().GetCallqueue().Remove(RefreshAdminPermission);
         PlayerController playerController = GetGame().GetPlayerController();
         if (!playerController)
         {
@@ -105,6 +106,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         m_iAdminCheckAttempts = 0;
         m_bIsAdmin = SCR_Global.IsAdmin();
         RefreshButtonStates();
+		GetGame().GetCallqueue().CallLater(RefreshAdminPermission, 1000);
     }
 
     protected void RegisterButton(string buttonName)
@@ -172,63 +174,63 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (selected || !m_LobbyManager)
             return false;
 
-        SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
+        GC_ELobbyPhase phase = m_LobbyManager.GetLobbyPhase();
         if (CanNavigateToView(view, phase))
             return true;
 
         return m_bIsAdmin && IsNextPhaseView(view, phase);
     }
 
-    protected bool CanNavigateToView(int view, SCR_EGameModeState phase)
+    protected bool CanNavigateToView(int view, GC_ELobbyPhase phase)
     {
         switch (phase)
         {
-            case SCR_EGameModeState.PREGAME:
+            case GC_ELobbyPhase.PREGAME:
                 return view == VIEW_PREVIEW || view == VIEW_LOBBY;
 
-            case SCR_EGameModeState.BRIEFING:
+            case GC_ELobbyPhase.BRIEFING:
                 return view == VIEW_LOBBY || view == VIEW_BRIEFING;
         }
 
         return false;
     }
 
-    protected bool IsNextPhaseView(int view, SCR_EGameModeState phase)
+    protected bool IsNextPhaseView(int view, GC_ELobbyPhase phase)
     {
         switch (phase)
         {
-            case SCR_EGameModeState.PREGAME:
+            case GC_ELobbyPhase.PREGAME:
                 return view == VIEW_BRIEFING;
 
-            case SCR_EGameModeState.BRIEFING:
+            case GC_ELobbyPhase.BRIEFING:
                 return view == VIEW_GAME;
 
-            case SCR_EGameModeState.GAME:
+            case GC_ELobbyPhase.GAME:
                 return view == VIEW_DEBRIEF;
         }
 
         return false;
     }
 
-    protected SCR_EGameModeState GetRequestedPhase(int view)
+    protected GC_ELobbyPhase GetRequestedPhase(int view)
     {
         switch (view)
         {
-            case VIEW_BRIEFING: return SCR_EGameModeState.BRIEFING;
-            case VIEW_GAME: return SCR_EGameModeState.GAME;
-            case VIEW_DEBRIEF: return SCR_EGameModeState.POSTGAME;
+            case VIEW_BRIEFING: return GC_ELobbyPhase.BRIEFING;
+            case VIEW_GAME: return GC_ELobbyPhase.GAME;
+            case VIEW_DEBRIEF: return GC_ELobbyPhase.POSTGAME;
         }
 
         return -1;
     }
 
-    protected int GetPhaseView(SCR_EGameModeState phase)
+    protected int GetPhaseView(GC_ELobbyPhase phase)
     {
         switch (phase)
         {
-            case SCR_EGameModeState.BRIEFING: return VIEW_BRIEFING;
-            case SCR_EGameModeState.GAME: return VIEW_GAME;
-            case SCR_EGameModeState.POSTGAME: return VIEW_DEBRIEF;
+            case GC_ELobbyPhase.BRIEFING: return VIEW_BRIEFING;
+            case GC_ELobbyPhase.GAME: return VIEW_GAME;
+            case GC_ELobbyPhase.POSTGAME: return VIEW_DEBRIEF;
         }
 
         return VIEW_PREVIEW;
@@ -247,7 +249,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!IsButtonInteractive(view, selected))
             return;
 
-        SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
+        GC_ELobbyPhase phase = m_LobbyManager.GetLobbyPhase();
         if (CanNavigateToView(view, phase))
         {
 			PrintFormat("GC | Phase UI | navigation selected: phase=%1 fromView=%2 toView=%3", GC_LobbyManager.GetPhaseName(phase), m_iActiveState, view);
@@ -258,7 +260,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!m_bIsAdmin || !IsNextPhaseView(view, phase))
             return;
 
-        SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+        GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
         if (!playerController)
             return;
 
@@ -277,12 +279,12 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             SwitchToPreviewMenu();
     }
 
-    protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
+    protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
     {
 		PrintFormat("GC | Phase UI | replicated phase update: phase=%1 activeView=%2", GC_LobbyManager.GetPhaseName(phase), m_iActiveState);
         RefreshButtonStates();
 
-        if (phase == SCR_EGameModeState.BRIEFING)
+        if (phase == GC_ELobbyPhase.BRIEFING)
         {
             if (m_iActiveState == VIEW_PREVIEW)
                 SetActiveState(VIEW_BRIEFING);
@@ -292,7 +294,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
         }
 
-        if (phase == SCR_EGameModeState.GAME || phase == SCR_EGameModeState.POSTGAME)
+        if (phase == GC_ELobbyPhase.GAME || phase == GC_ELobbyPhase.POSTGAME)
         {
             SetActiveState(GetPhaseView(phase));
             CloseCurrentMenu();
@@ -328,8 +330,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!lobbyManager)
             return;
 
-        SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
-        if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.BRIEFING)
+        GC_ELobbyPhase phase = lobbyManager.GetLobbyPhase();
+        if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
             return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu, 0, true);
@@ -341,8 +343,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!lobbyManager)
             return;
 
-        SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
-        if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.BRIEFING)
+        GC_ELobbyPhase phase = lobbyManager.GetLobbyPhase();
+        if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
             return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);

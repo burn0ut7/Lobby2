@@ -41,7 +41,7 @@ class GC_VoiceChannelHeaderComponent : SCR_ButtonBaseComponent
             return true;
         }
 
-        SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+        GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
         if (!playerController)
         {
             Print("GC | Voice header click rejected: local SCR_PlayerController was not found", level: LogLevel.ERROR);

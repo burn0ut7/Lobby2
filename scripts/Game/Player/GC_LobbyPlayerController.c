@@ -1,14 +1,19 @@
-enum PlayerState
+enum GC_ELobbyPlayerState
 {
-    SPECTATOR,
-    PLAYING
+	SPECTATOR,
+	PLAYING
 }
 
-modded class SCR_PlayerController : PlayerController
+class GC_LobbyPlayerControllerClass : SCR_PlayerControllerClass
 {
-	protected PlayerState m_ePlayerState;
+}
 
-	//! Sends a slot ID from the owning client to the server authority.
+//! Lobby2-only owning controller. The Lobby2 game-mode prefab selects a
+//! dedicated player-controller prefab using this class.
+class GC_LobbyPlayerController : SCR_PlayerController
+{
+	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
+
 	void RequestLobbySlot(int slotId)
 	{
 		if (slotId < 0)
@@ -17,20 +22,17 @@ modded class SCR_PlayerController : PlayerController
 		Rpc(RpcAsk_RequestLobbySlot, slotId);
 	}
 
-	//! Requests one exclusive active voice channel from the server authority.
 	void RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid())
 	{
 		Rpc(RpcAsk_RequestVoiceChannel, channelType, factionKey, groupRplId);
 	}
 
-	//! Requests replicated lobby presentation state only; this does not alter VoN audio.
 	void RequestVoiceDeafened(bool deafened)
 	{
 		Rpc(RpcAsk_RequestVoiceDeafened, deafened);
 	}
 
-	//! Requests one exact next Lobby2 phase from the owning client.
-	void RequestLobbyPhaseAdvance(SCR_EGameModeState requestedPhase)
+	void RequestLobbyPhaseAdvance(GC_ELobbyPhase requestedPhase)
 	{
 		PrintFormat("GC | Phase RPC | request queued: player=%1 target=%2 value=%3", GetPlayerId(), GC_LobbyManager.GetPhaseName(requestedPhase), requestedPhase);
 		Rpc(RpcAsk_RequestLobbyPhaseAdvance, requestedPhase);
@@ -40,68 +42,58 @@ modded class SCR_PlayerController : PlayerController
 	protected void RpcAsk_RequestLobbySlot(int slotId)
 	{
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (!lobbyManager)
-			return;
-
-		lobbyManager.TryAssignPlayerToSlot(GetPlayerId(), slotId);
+		if (lobbyManager)
+			lobbyManager.TryAssignPlayerToSlot(GetPlayerId(), slotId);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
 	protected void RpcAsk_RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey, RplId groupRplId)
 	{
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (!lobbyManager)
-			return;
-
-		lobbyManager.TrySetPlayerVoiceChannel(GetPlayerId(), channelType, factionKey, groupRplId);
+		if (lobbyManager)
+			lobbyManager.TrySetPlayerVoiceChannel(GetPlayerId(), channelType, factionKey, groupRplId);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
 	protected void RpcAsk_RequestVoiceDeafened(bool deafened)
 	{
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (!lobbyManager)
-			return;
-
-		lobbyManager.TrySetPlayerVoiceDeafened(GetPlayerId(), deafened);
+		if (lobbyManager)
+			lobbyManager.TrySetPlayerVoiceDeafened(GetPlayerId(), deafened);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_RequestLobbyPhaseAdvance(SCR_EGameModeState requestedPhase)
+	protected void RpcAsk_RequestLobbyPhaseAdvance(GC_ELobbyPhase requestedPhase)
 	{
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (!lobbyManager)
-			return;
-
-		lobbyManager.TryAdvanceLobbyPhase(GetPlayerId(), requestedPhase);
+		if (lobbyManager)
+			lobbyManager.TryAdvanceLobbyPhase(GetPlayerId(), requestedPhase);
 	}
 
-	void SetSpectator(IEntity entity)
+	void SetLobbySpectator(IEntity entity)
 	{
-		SetPlayerState(PlayerState.SPECTATOR);
+		SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
 		SetPossessedEntity(entity);
-		Rpc(RplDo_SpectatorBrodcast);
+		Rpc(RpcDo_SetLobbySpectator);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	void RplDo_SpectatorBrodcast()
+	protected void RpcDo_SetLobbySpectator()
 	{
-		SetPlayerState(PlayerState.SPECTATOR);
+		SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
 
-		RplComponent rpl = RplComponent.Cast(FindComponent(RplComponent));
-		if (rpl && rpl.IsOwner())
+		RplComponent replication = RplComponent.Cast(FindComponent(RplComponent));
+		if (replication && replication.IsOwner())
 		{
-			//Do camera shit
+			// Lobby spectator camera behavior is added by the future camera slice.
 		}
 	}
 
-	void SetPlayerState(PlayerState state)
+	protected void SetLobbyPlayerState(GC_ELobbyPlayerState state)
 	{
-		if(m_ePlayerState == state)
+		if (m_eLobbyPlayerState == state)
 			return;
-		
-		m_ePlayerState = state;
 
-		//OnPlayerStateChanged
+		m_eLobbyPlayerState = state;
 	}
 }

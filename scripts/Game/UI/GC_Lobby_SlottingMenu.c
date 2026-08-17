@@ -1,8 +1,3 @@
-modded enum ChimeraMenuPreset
-{
-    GC_Lobby_SlottingMenu
-};
-
 class GC_Lobby_SlottingMenu : ChimeraMenuBase
 {
 	protected static const int LOADOUT_HOVER_EXIT_DELAY_MS = 100;

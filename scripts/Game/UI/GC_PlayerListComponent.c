@@ -234,7 +234,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnDeafenClicked(SCR_ButtonBaseComponent button)
 	{
-		SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (!playerController || !m_LobbyManager)
 			return;
 

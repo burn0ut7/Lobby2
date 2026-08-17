@@ -1,8 +1,3 @@
-modded enum ChimeraMenuPreset
-{
-    GC_Lobby_PreviewMenu
-};
-
 class GC_Lobby_PreviewMenu : ChimeraMenuBase
 {
     protected SCR_MapEntity m_MapEntity;
@@ -31,7 +26,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		if (m_Header)
 		{
 			GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-			if (lobbyManager && lobbyManager.GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
+			if (lobbyManager && lobbyManager.GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
 				m_Header.SetActiveState(2);
 			else
 				m_Header.SetActiveState(0);
@@ -119,7 +114,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 			return;
 		}
 
-        BaseGameMode gameMode = GetGame().GetGameMode();
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
 		if (!gameMode)
 		{
 			Print("GC | OpenMap aborted: game mode is null", LogLevel.ERROR);
