@@ -4,6 +4,17 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
 {
     protected static const ResourceName ROW_LAYOUT = "{6A4D000000000006}UI/layouts/Briefing/Lobby_Briefing_Scenario_Row.layout";
     protected static const ResourceName FALLBACK_ICON_SET = "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset";
+    protected static const ResourceName TIME_ICON_MIDNIGHT = "{5E793A7B8DA84847}UI/Textures/Editor/Attributes/Time/Attribute_Time_Midnight.edds";
+    protected static const ResourceName TIME_ICON_EARLY_MORNING = "{94B936AA2CE13242}UI/Textures/Editor/Attributes/Time/Attribute_Time_EarlyMorning.edds";
+    protected static const ResourceName TIME_ICON_MORNING = "{FF96EE66370C0CBB}UI/Textures/Editor/Attributes/Time/Attribute_Time_Morning.edds";
+    protected static const ResourceName TIME_ICON_MIDDAY = "{1F170BA4B611B7D6}UI/Textures/Editor/Attributes/Time/Attribute_Time_Midday.edds";
+    protected static const ResourceName TIME_ICON_AFTERNOON = "{F63FE753B10DD0F0}UI/Textures/Editor/Attributes/Time/Attribute_Time_Afternoon.edds";
+    protected static const ResourceName TIME_ICON_EVENING = "{59ABC4E5F1CC0755}UI/Textures/Editor/Attributes/Time/Attribute_Time_Evening.edds";
+    protected static const ResourceName DATE_ICON = "{90DDF7300CC992DC}UI/Textures/Editor/Clock/Clock_Date.edds";
+    protected static const ResourceName WIND_ICON_NONE = "{A97717F1D9E0BE0C}UI/Textures/Icons/no_wind_clean_1024.edds";
+    protected static const ResourceName WIND_ICON_LOW = "{19467CC797576B18}UI/Textures/Icons/low_wind_clean_1024.edds";
+    protected static const ResourceName WIND_ICON_MEDIUM = "{B1F271C0C1BC8EB5}UI/Textures/Icons/medium_wind_clean_1024.edds";
+    protected static const ResourceName WIND_ICON_HEAVY = "{68C97BEE966A0505}UI/Textures/Icons/heavy_wind_clean_1024.edds";
     protected static const string FALLBACK_ICON_NAME = "scenarios";
     protected static const int REFRESH_INTERVAL = 30000;
     protected static const int ROW_COUNT = 7;
@@ -128,9 +139,7 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
             if (SetRowText(0, "WEATHER", weatherName, weatherDescription))
             {
                 ResourceName weatherIcon = weatherState.GetIconPath();
-                if (!weatherIcon.IsEmpty())
-                    m_aIcons[0].LoadImageTexture(0, weatherIcon);
-                else
+                if (weatherIcon.IsEmpty() || !m_aIcons[0].LoadImageTexture(0, weatherIcon))
                     SetFallbackIcon(0);
             }
         }
@@ -161,48 +170,42 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
             }
         }
 
-        bool windChanged = SetRowText(1, "WIND", string.Format("%1 MPH FROM %2 (%3 DEG)",
+        SetRowText(1, "WIND", string.Format("%1 MPH FROM %2 (%3 DEG)",
             roundedWindSpeedMph, windDirectionName, roundedWindDirection.ToString(3)));
-        if (windChanged)
-        {
-            if (windUIInfo)
-                windUIInfo.SetIconTo(m_aIcons[1]);
-            else
-                SetFallbackIcon(1);
-        }
+        SetTextureIcon(1, GetWindIcon(windSpeedMph));
 
         int year;
         int month;
         int day;
         weatherManager.GetDate(year, month, day);
-        SetRowText(2, "DATE", string.Format("%1 %2 %3", day.ToString(2), GetMonthAbbreviation(month), year));
+        if (SetRowText(2, "DATE", string.Format("%1 %2 %3", day.ToString(2), GetMonthAbbreviation(month), year)))
+            SetTextureIcon(2, DATE_ICON);
 
         int hours;
         int minutes;
         int seconds;
         weatherManager.GetHoursMinutesSeconds(hours, minutes, seconds);
-        SCR_UIInfo dayTimeUIInfo;
-        weatherManager.GetCurrentDayTimeUIInfoAndPhase(dayTimeUIInfo);
         bool dayTimeChanged = SetRowText(3, "TIME OF DAY", string.Format("%1%2 HOURS", hours.ToString(2), minutes.ToString(2)));
         if (dayTimeChanged)
-        {
-            if (dayTimeUIInfo)
-                dayTimeUIInfo.SetIconTo(m_aIcons[3]);
-            else
-                SetFallbackIcon(3);
-        }
+            SetTextureIcon(3, GetTimeIcon(hours + minutes / 60.0));
 
         float sunriseHour;
+        bool sunriseChanged;
         if (weatherManager.GetSunriseHour(sunriseHour))
-            SetRowText(4, "SUNRISE", FormatMilitaryTime(sunriseHour) + " HOURS");
+            sunriseChanged = SetRowText(4, "SUNRISE", FormatMilitaryTime(sunriseHour) + " HOURS");
         else
-            SetRowText(4, "SUNRISE", "NOT AVAILABLE");
+            sunriseChanged = SetRowText(4, "SUNRISE", "NOT AVAILABLE");
+        if (sunriseChanged)
+            SetTextureIcon(4, TIME_ICON_MORNING);
 
         float sunsetHour;
+        bool sunsetChanged;
         if (weatherManager.GetSunsetHour(sunsetHour))
-            SetRowText(5, "SUNSET", FormatMilitaryTime(sunsetHour) + " HOURS");
+            sunsetChanged = SetRowText(5, "SUNSET", FormatMilitaryTime(sunsetHour) + " HOURS");
         else
-            SetRowText(5, "SUNSET", "NOT AVAILABLE");
+            sunsetChanged = SetRowText(5, "SUNSET", "NOT AVAILABLE");
+        if (sunsetChanged)
+            SetTextureIcon(5, TIME_ICON_AFTERNOON);
 
         SCR_MoonPhaseUIInfo moonPhase = weatherManager.GetCurrentMoonPhaseInfoForDate();
         if (moonPhase)
@@ -315,6 +318,45 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
             return;
 
         m_aIcons[index].LoadImageFromSet(0, FALLBACK_ICON_SET, FALLBACK_ICON_NAME);
+    }
+
+    protected void SetTextureIcon(int index, ResourceName texture)
+    {
+        if (index < 0 || index >= m_aIcons.Count() || !m_aIcons[index])
+            return;
+
+        if (texture.IsEmpty() || !m_aIcons[index].LoadImageTexture(0, texture))
+            SetFallbackIcon(index);
+    }
+
+    protected ResourceName GetTimeIcon(float hour24)
+    {
+        int segment = hour24 / 3;
+        switch (segment)
+        {
+            case 1: return TIME_ICON_EARLY_MORNING;
+            case 2: return TIME_ICON_MORNING;
+            case 3:
+            case 4: return TIME_ICON_MIDDAY;
+            case 5: return TIME_ICON_AFTERNOON;
+            case 6: return TIME_ICON_EVENING;
+        }
+
+        return TIME_ICON_MIDNIGHT;
+    }
+
+    protected ResourceName GetWindIcon(float windSpeedMph)
+    {
+        if (windSpeedMph < 1.0)
+            return WIND_ICON_NONE;
+
+        if (windSpeedMph <= 5.0)
+            return WIND_ICON_LOW;
+
+        if (windSpeedMph <= 10.0)
+            return WIND_ICON_MEDIUM;
+
+        return WIND_ICON_HEAVY;
     }
 
     protected string FormatMilitaryTime(float hour24)

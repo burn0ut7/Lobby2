@@ -29,6 +29,13 @@ modded class SCR_PlayerController : PlayerController
 		Rpc(RpcAsk_RequestVoiceDeafened, deafened);
 	}
 
+	//! Requests one exact next Lobby2 phase from the owning client.
+	void RequestLobbyPhaseAdvance(SCR_EGameModeState requestedPhase)
+	{
+		PrintFormat("GC | Phase RPC | request queued: player=%1 target=%2 value=%3", GetPlayerId(), GC_LobbyManager.GetPhaseName(requestedPhase), requestedPhase);
+		Rpc(RpcAsk_RequestLobbyPhaseAdvance, requestedPhase);
+	}
+
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
 	protected void RpcAsk_RequestLobbySlot(int slotId)
 	{
@@ -57,6 +64,16 @@ modded class SCR_PlayerController : PlayerController
 			return;
 
 		lobbyManager.TrySetPlayerVoiceDeafened(GetPlayerId(), deafened);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_RequestLobbyPhaseAdvance(SCR_EGameModeState requestedPhase)
+	{
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager)
+			return;
+
+		lobbyManager.TryAdvanceLobbyPhase(GetPlayerId(), requestedPhase);
 	}
 
 	void SetSpectator(IEntity entity)

@@ -14,8 +14,11 @@ class GC_TestComp : ScriptComponent
 		GetGame().GetCallqueue().CallLater(CheckSlots, 1);
 
 		SCR_BaseGameMode gm = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
-		
-		PrintFormat("GC | Game state:%1",gm.GetState());
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (gm && lobbyManager)
+			PrintFormat("GC | Phase | startup: lobby=%1 base=%2", GC_LobbyManager.GetPhaseName(lobbyManager.GetLobbyPhase()), GC_LobbyManager.GetPhaseName(gm.GetState()));
+		else
+			PrintFormat("GC | Phase | startup unavailable: gameMode=%1 lobbyManager=%2", gm != null, lobbyManager != null, level: LogLevel.WARNING);
     }
 	
 	void CheckSlots()
@@ -25,6 +28,29 @@ class GC_TestComp : ScriptComponent
 
 		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
     }
+}
+
+//! Add-on-owned game-mode root used only by GameMode_Lobby.et. Other game modes
+//! continue to instantiate SCR_BaseGameMode and retain all original behavior.
+class GC_LobbyGameModeClass : SCR_BaseGameModeClass
+{
+}
+
+class GC_LobbyGameMode : SCR_BaseGameMode
+{
+	override protected bool CanStartGameMode()
+	{
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager)
+			return super.CanStartGameMode();
+
+		// Lobby2 advances explicitly after BRIEFING. If a restored/synchronized
+		// Lobby2 phase is already GAME, retain the base game's normal checks.
+		if (lobbyManager.GetLobbyPhase() == SCR_EGameModeState.GAME)
+			return super.CanStartGameMode();
+
+		return false;
+	}
 }
 
 
@@ -77,18 +103,267 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! this manager and current authoritative faction state.
     ref ScriptInvoker<int> m_OnBriefingsChanged = new ScriptInvoker<int>();
 	ref ScriptInvoker<int> m_OnBriefingMarkersChanged = new ScriptInvoker<int>();
+	ref ScriptInvoker<SCR_EGameModeState> m_OnLobbyPhaseChanged = new ScriptInvoker<SCR_EGameModeState>();
     protected int m_iNextSlotID = 1;
     protected int m_iJipResolveAttempt;
     protected int m_iBriefingRevision;
 	protected int m_iBriefingMarkerRevision;
+	protected SCR_EGameModeState m_eLobbyPhase = SCR_EGameModeState.PREGAME;
 
 	//! Re-evaluate briefing presentation on every machine when the authoritative
 	//! base-game phase changes. The phase itself remains owned and replicated by
 	//! SCR_BaseGameMode.
 	override void OnGameStateChanged(SCR_EGameModeState state)
 	{
+		string role = "proxy";
+		if (Replication.IsServer())
+			role = "authority";
+
+		PrintFormat("GC | Phase | base state event: base=%1 lobbyBefore=%2 role=%3", GetPhaseName(state), GetPhaseName(m_eLobbyPhase), role);
+
+		// Keep the Lobby2 phase aligned if trusted server game logic invokes the
+		// native base-game transition API directly.
+		if (state == SCR_EGameModeState.GAME && m_eLobbyPhase == SCR_EGameModeState.BRIEFING)
+		{
+			if (Replication.IsServer())
+				PublishLobbyPhase(SCR_EGameModeState.GAME);
+			else
+				ApplyLobbyPhase(SCR_EGameModeState.GAME);
+		}
+		else if (state == SCR_EGameModeState.POSTGAME && m_eLobbyPhase == SCR_EGameModeState.GAME)
+		{
+			if (Replication.IsServer())
+				PublishLobbyPhase(SCR_EGameModeState.POSTGAME);
+			else
+				ApplyLobbyPhase(SCR_EGameModeState.POSTGAME);
+		}
+
 		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
 		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+	}
+
+	SCR_EGameModeState GetLobbyPhase()
+	{
+		return m_eLobbyPhase;
+	}
+
+	static string GetPhaseName(SCR_EGameModeState phase)
+	{
+		switch (phase)
+		{
+			case SCR_EGameModeState.PREGAME: return "PREGAME";
+			case SCR_EGameModeState.BRIEFING: return "BRIEFING";
+			case SCR_EGameModeState.GAME: return "GAME";
+			case SCR_EGameModeState.POSTGAME: return "POSTGAME";
+		}
+
+		return "UNKNOWN";
+	}
+
+	//! Returns the only legal successor without relying on the enum's numeric order.
+	protected SCR_EGameModeState GetNextLobbyPhase(SCR_EGameModeState phase)
+	{
+		switch (phase)
+		{
+			case SCR_EGameModeState.PREGAME:
+				return SCR_EGameModeState.BRIEFING;
+
+			case SCR_EGameModeState.BRIEFING:
+				return SCR_EGameModeState.GAME;
+
+			case SCR_EGameModeState.GAME:
+				return SCR_EGameModeState.POSTGAME;
+		}
+
+		return -1;
+	}
+
+	protected bool IsLobbyPhase(SCR_EGameModeState phase)
+	{
+		return phase == SCR_EGameModeState.PREGAME
+			|| phase == SCR_EGameModeState.BRIEFING
+			|| phase == SCR_EGameModeState.GAME
+			|| phase == SCR_EGameModeState.POSTGAME;
+	}
+
+	//! Validates and applies an admin-owned request on the server authority.
+	bool TryAdvanceLobbyPhase(int playerId, SCR_EGameModeState requestedPhase)
+	{
+		if (!Replication.IsServer())
+		{
+			Print("GC | Phase | request rejected: handler is not running on authority", LogLevel.ERROR);
+			return false;
+		}
+
+		PrintFormat("GC | Phase | request received: player=%1 current=%2 requested=%3 requestedValue=%4", playerId, GetPhaseName(m_eLobbyPhase), GetPhaseName(requestedPhase), requestedPhase);
+
+		if (playerId <= 0)
+		{
+			PrintFormat("GC | Phase | request rejected: invalid player id=%1", playerId, level: LogLevel.WARNING);
+			return false;
+		}
+
+		if (!IsLobbyPhase(requestedPhase))
+		{
+			PrintFormat("GC | Phase | request rejected: invalid target value=%1", requestedPhase, level: LogLevel.WARNING);
+			return false;
+		}
+
+		if (!SCR_Global.IsAdmin(playerId))
+		{
+			PrintFormat("GC | Phase | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
+			return false;
+		}
+
+		SCR_EGameModeState nextPhase = GetNextLobbyPhase(m_eLobbyPhase);
+		if (requestedPhase != nextPhase)
+		{
+			PrintFormat("GC | Phase | request rejected: player=%1 current=%2 requested=%3 expected=%4", playerId, GetPhaseName(m_eLobbyPhase), GetPhaseName(requestedPhase), GetPhaseName(nextPhase), level: LogLevel.WARNING);
+			return false;
+		}
+
+		if (requestedPhase == SCR_EGameModeState.POSTGAME)
+			return EnterPostGame(null);
+
+		SCR_BaseGameMode gameMode = GetGameMode();
+		if (!gameMode)
+		{
+			Print("GC | Phase | request rejected: SCR_BaseGameMode is unavailable", LogLevel.ERROR);
+			return false;
+		}
+
+		if (requestedPhase == SCR_EGameModeState.GAME)
+		{
+			if (gameMode.GetState() != SCR_EGameModeState.PREGAME)
+			{
+				PrintFormat("GC | Phase | GAME transition rejected: expected base=PREGAME actual=%1", GetPhaseName(gameMode.GetState()), level: LogLevel.ERROR);
+				return false;
+			}
+
+			PrintFormat("GC | Phase | invoking native StartGameMode: lobby=%1 base=%2", GetPhaseName(m_eLobbyPhase), GetPhaseName(gameMode.GetState()));
+			gameMode.StartGameMode();
+			if (gameMode.GetState() != SCR_EGameModeState.GAME)
+			{
+				PrintFormat("GC | Phase | native StartGameMode failed: base=%1", GetPhaseName(gameMode.GetState()), level: LogLevel.ERROR);
+				return false;
+			}
+
+			// OnGameStateChanged normally publishes this synchronously.
+			PublishLobbyPhase(SCR_EGameModeState.GAME);
+			return true;
+		}
+
+		PublishLobbyPhase(SCR_EGameModeState.BRIEFING);
+		return true;
+	}
+
+	//! Shared authority entry point for admin overrides and normal mission logic.
+	bool EnterPostGame(SCR_GameModeEndData endData)
+	{
+		if (!Replication.IsServer())
+		{
+			Print("GC | Phase | POSTGAME entry rejected: caller is not authority", LogLevel.ERROR);
+			return false;
+		}
+
+		PrintFormat("GC | Phase | POSTGAME entry requested: lobby=%1 endDataProvided=%2", GetPhaseName(m_eLobbyPhase), endData != null);
+
+		if (m_eLobbyPhase != SCR_EGameModeState.GAME)
+		{
+			PrintFormat("GC | Phase | POSTGAME entry rejected: expected lobby=GAME actual=%1", GetPhaseName(m_eLobbyPhase), level: LogLevel.WARNING);
+			return false;
+		}
+
+		SCR_BaseGameMode gameMode = GetGameMode();
+		if (!gameMode || gameMode.GetState() != SCR_EGameModeState.GAME)
+		{
+			string baseState = "UNAVAILABLE";
+			if (gameMode)
+				baseState = GetPhaseName(gameMode.GetState());
+
+			PrintFormat("GC | Phase | POSTGAME entry rejected: gameMode=%1 base=%2", gameMode != null, baseState, level: LogLevel.ERROR);
+			return false;
+		}
+
+		if (!endData)
+			endData = SCR_GameModeEndData.CreateSimple();
+
+		PrintFormat("GC | Phase | invoking native EndGameMode: lobby=%1 base=%2", GetPhaseName(m_eLobbyPhase), GetPhaseName(gameMode.GetState()));
+		gameMode.EndGameMode(endData);
+		if (gameMode.GetState() != SCR_EGameModeState.POSTGAME)
+		{
+			PrintFormat("GC | Phase | native EndGameMode failed: base=%1", GetPhaseName(gameMode.GetState()), level: LogLevel.ERROR);
+			return false;
+		}
+
+		// OnGameStateChanged normally publishes this synchronously.
+		PublishLobbyPhase(SCR_EGameModeState.POSTGAME);
+		return true;
+	}
+
+	protected void PublishLobbyPhase(SCR_EGameModeState phase)
+	{
+		if (!Replication.IsServer() || !ApplyLobbyPhase(phase))
+			return;
+
+		Rpc(RpcDo_SetLobbyPhase, phase);
+	}
+
+	protected bool ApplyLobbyPhase(SCR_EGameModeState phase)
+	{
+		if (!IsLobbyPhase(phase) || m_eLobbyPhase == phase)
+			return false;
+
+		SCR_EGameModeState previousPhase = m_eLobbyPhase;
+		m_eLobbyPhase = phase;
+		SCR_BaseGameMode gameMode = GetGameMode();
+		string baseState = "UNAVAILABLE";
+		if (gameMode)
+			baseState = GetPhaseName(gameMode.GetState());
+
+		string role = "proxy";
+		if (Replication.IsServer())
+			role = "authority";
+
+		PrintFormat("GC | Phase | applied: role=%1 lobby=%2 -> %3 base=%4", role, GetPhaseName(previousPhase), GetPhaseName(phase), baseState);
+		m_OnLobbyPhaseChanged.Invoke(phase);
+		m_OnBriefingsChanged.Invoke(m_iBriefingRevision);
+		m_OnBriefingMarkersChanged.Invoke(m_iBriefingMarkerRevision);
+		return true;
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_SetLobbyPhase(SCR_EGameModeState phase)
+	{
+		if (Replication.IsServer())
+			return;
+
+		PrintFormat("GC | Phase RPC | broadcast received: target=%1 value=%2", GetPhaseName(phase), phase);
+		ApplyLobbyPhase(phase);
+	}
+
+	protected int EncodeLobbyPhase(SCR_EGameModeState phase)
+	{
+		switch (phase)
+		{
+			case SCR_EGameModeState.BRIEFING: return 1;
+			case SCR_EGameModeState.GAME: return 2;
+			case SCR_EGameModeState.POSTGAME: return 3;
+		}
+
+		return 0;
+	}
+
+	protected SCR_EGameModeState DecodeLobbyPhase(int phaseOrdinal)
+	{
+		switch (phaseOrdinal)
+		{
+			case 1: return SCR_EGameModeState.BRIEFING;
+			case 2: return SCR_EGameModeState.GAME;
+			case 3: return SCR_EGameModeState.POSTGAME;
+		}
+
+		return SCR_EGameModeState.PREGAME;
 	}
 
     override void OnPlayerAuditSuccess(int playerId)
@@ -394,6 +669,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Serializes the registered groups and slots for initial replication and JIP.
     override protected bool RplSave(ScriptBitWriter writer)
     {
+		writer.WriteIntRange(EncodeLobbyPhase(m_eLobbyPhase), 0, 3);
+		PrintFormat("GC | Phase JIP | saving snapshot: lobby=%1 ordinal=%2", GetPhaseName(m_eLobbyPhase), EncodeLobbyPhase(m_eLobbyPhase));
+
         int groupCount = m_aGroups.Count();
         writer.WriteInt(groupCount);
 		PrintFormat("GC | JIP save begin: groups=%1 slots=%2", groupCount, m_aSlots.Count());
@@ -448,6 +726,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Deserializes the registered groups and slots from the authority.
     override protected bool RplLoad(ScriptBitReader reader)
     {
+		int phaseOrdinal;
+		if (!reader.ReadIntRange(phaseOrdinal, 0, 3))
+			return false;
+
+		PrintFormat("GC | Phase JIP | loading snapshot: lobby=%1 ordinal=%2", GetPhaseName(DecodeLobbyPhase(phaseOrdinal)), phaseOrdinal);
+		ApplyLobbyPhase(DecodeLobbyPhase(phaseOrdinal));
+
         GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
 		m_iJipResolveAttempt = 0;
 
@@ -1032,10 +1317,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     {
         array<ref GC_Briefing> result = {};
         Faction faction = GetPlayerFaction(playerId);
-		SCR_EGameModeState gameModeState = SCR_EGameModeState.GAME;
-		SCR_BaseGameMode gameMode = GetGameMode();
-		if (gameMode)
-			gameModeState = gameMode.GetState();
+		SCR_EGameModeState gameModeState = m_eLobbyPhase;
 
         foreach (GC_Briefing briefing : m_aBriefings)
         {
@@ -1240,10 +1522,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		array<ref GC_BriefingMarker> result = {};
 		Faction faction = GetPlayerFaction(playerId);
-		SCR_EGameModeState gameModeState = SCR_EGameModeState.GAME;
-		SCR_BaseGameMode gameMode = GetGameMode();
-		if (gameMode)
-			gameModeState = gameMode.GetState();
+		SCR_EGameModeState gameModeState = m_eLobbyPhase;
 
 		foreach (GC_BriefingMarker marker : m_aBriefingMarkers)
 		{

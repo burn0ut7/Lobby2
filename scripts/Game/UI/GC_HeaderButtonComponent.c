@@ -106,6 +106,8 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
         m_bHeaderPermissionLocked = !enabled;
         if (!enabled)
             m_bHeaderHovered = false;
+
+		UpdateHeaderVisuals();
     }
 
     protected void UpdateHeaderVisuals()

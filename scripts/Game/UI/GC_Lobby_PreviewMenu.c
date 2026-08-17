@@ -7,6 +7,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 {
     protected SCR_MapEntity m_MapEntity;
     protected SCR_ChatPanel m_ChatPanel;
+	protected GC_HeaderComponent m_Header;
 
     override void OnMenuInit()
     {
@@ -22,6 +23,19 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
         Widget wChatPanel = GetRootWidget().FindAnyWidget("ChatPanel");
         if (wChatPanel)
             m_ChatPanel = SCR_ChatPanel.Cast(wChatPanel.FindHandler(SCR_ChatPanel));
+
+		Widget headerRoot = GetRootWidget().FindAnyWidget("MenuBar");
+		if (headerRoot)
+			m_Header = GC_HeaderComponent.Cast(headerRoot.FindHandler(GC_HeaderComponent));
+
+		if (m_Header)
+		{
+			GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+			if (lobbyManager && lobbyManager.GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
+				m_Header.SetActiveState(2);
+			else
+				m_Header.SetActiveState(0);
+		}
 
         GetGame().GetInputManager().AddActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
 
@@ -49,6 +63,9 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 
         if (m_MapEntity)
             m_MapEntity.CloseMap();
+
+		m_Header = null;
+		m_ChatPanel = null;
     }
 
     protected void Action_OnChatToggleAction()

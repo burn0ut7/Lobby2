@@ -104,7 +104,7 @@ class GC_BriefingMarker
 		foreach (string factionKey : m_aFactionKeys)
 			writer.WriteString(factionKey);
 
-		writer.WriteIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.POSTGAME);
+		writer.WriteIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.BRIEFING);
 		writer.WriteBool(m_bInvertGameModeState);
 		writer.WriteBool(m_bVisible);
 		writer.WriteInt(m_iRevision);
@@ -134,7 +134,7 @@ class GC_BriefingMarker
 			m_aFactionKeys.Insert(factionKey);
 		}
 
-		if (!reader.ReadIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.POSTGAME))
+		if (!reader.ReadIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.BRIEFING))
 			return false;
 		if (!reader.ReadBool(m_bInvertGameModeState) || !reader.ReadBool(m_bVisible) || !reader.ReadInt(m_iRevision))
 			return false;

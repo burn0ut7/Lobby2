@@ -60,7 +60,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
             return;
         }
 
-        m_Header.SetActiveState(0);
+		// LOBBY is a local view, not a game-mode phase.
+        m_Header.SetActiveState(1);
     }
 
     override void OnMenuUpdate(float tDelta)

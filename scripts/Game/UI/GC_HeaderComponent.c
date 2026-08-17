@@ -2,11 +2,19 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 {
     ref ScriptInvoker<GC_HeaderComponent> m_OnStateChanged = new ScriptInvoker<GC_HeaderComponent>();
 
+    protected const int VIEW_PREVIEW = 0;
+    protected const int VIEW_LOBBY = 1;
+    protected const int VIEW_BRIEFING = 2;
+    protected const int VIEW_GAME = 3;
+    protected const int VIEW_DEBRIEF = 4;
+
     protected ref array<GC_HeaderButtonComponent> m_aButtons = {};
+    protected GC_LobbyManager m_LobbyManager;
     protected int m_iActiveState = -1;
-    protected bool m_bCanChangeState;
+    protected bool m_bIsAdmin;
     protected bool m_bInitialized;
     protected int m_iAdminCheckAttempts;
+    protected int m_iManagerCheckAttempts;
 
     override void HandlerAttached(Widget w)
     {
@@ -16,6 +24,27 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
 
         GetGame().GetCallqueue().CallLater(InitializeHeader, 0);
+    }
+
+    override void HandlerDeattached(Widget w)
+    {
+        GetGame().GetCallqueue().Remove(InitializeHeader);
+        GetGame().GetCallqueue().Remove(RefreshAdminPermission);
+        GetGame().GetCallqueue().Remove(AttachLobbyManager);
+
+        if (m_LobbyManager)
+            m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
+
+        foreach (GC_HeaderButtonComponent button : m_aButtons)
+        {
+            if (button)
+                button.m_OnClicked.Remove(OnButtonClicked);
+        }
+
+        m_aButtons.Clear();
+        m_LobbyManager = null;
+        m_bInitialized = false;
+        super.HandlerDeattached(w);
     }
 
     protected void InitializeHeader()
@@ -31,10 +60,33 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         RegisterButton("Game Button");
         RegisterButton("Debrief Button");
 
-        // Mission Preview is the default header state.
-        SetActiveState(0);
-        SetCanChangeState(false);
+        AttachLobbyManager();
         RefreshAdminPermission();
+        RefreshButtonStates();
+    }
+
+    protected void AttachLobbyManager()
+    {
+        if (m_LobbyManager)
+            return;
+
+        m_LobbyManager = GC_LobbyManager.GetManager();
+        if (!m_LobbyManager)
+        {
+            if (m_iManagerCheckAttempts++ < 20)
+                GetGame().GetCallqueue().CallLater(AttachLobbyManager, 250);
+
+            RefreshButtonStates();
+            return;
+        }
+
+        m_iManagerCheckAttempts = 0;
+        m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
+
+        if (m_iActiveState < 0)
+            m_iActiveState = GetPhaseView(m_LobbyManager.GetLobbyPhase());
+
+        RefreshButtonStates();
     }
 
     protected void RefreshAdminPermission()
@@ -42,16 +94,17 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         PlayerController playerController = GetGame().GetPlayerController();
         if (!playerController)
         {
-            // Layout previews and early menu construction do not have a local player yet.
-            // Retry briefly so a real game session can apply the permission when it becomes available.
+            m_bIsAdmin = false;
             if (m_iAdminCheckAttempts++ < 20)
                 GetGame().GetCallqueue().CallLater(RefreshAdminPermission, 250);
 
+            RefreshButtonStates();
             return;
         }
 
         m_iAdminCheckAttempts = 0;
-        SetCanChangeState(SCR_Global.IsAdmin());
+        m_bIsAdmin = SCR_Global.IsAdmin();
+        RefreshButtonStates();
     }
 
     protected void RegisterButton(string buttonName)
@@ -63,8 +116,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
         }
 
-        GC_HeaderButtonComponent button =
-            GC_HeaderButtonComponent.Cast(buttonRoot.FindHandler(GC_HeaderButtonComponent));
+        GC_HeaderButtonComponent button = GC_HeaderButtonComponent.Cast(buttonRoot.FindHandler(GC_HeaderButtonComponent));
         if (!button)
         {
             PrintFormat("GC | Header component missing on button: %1", buttonName);
@@ -77,31 +129,19 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
     void SetCanChangeState(bool canChange)
     {
-        m_bCanChangeState = canChange;
-
-        for (int i = 0; i < m_aButtons.Count(); i++)
-            m_aButtons[i].SetHeaderEnabled(canChange);
+        m_bIsAdmin = canChange;
+        RefreshButtonStates();
     }
 
     bool CanChangeState()
     {
-        return m_bCanChangeState;
+        return m_bIsAdmin;
     }
 
     void SetActiveState(int state)
     {
         m_iActiveState = state;
-
-        for (int i = 0; i < m_aButtons.Count(); i++)
-        {
-            bool selected = m_aButtons[i].GetHeaderState() == m_iActiveState;
-            m_aButtons[i].SetHeaderSelected(selected);
-            m_aButtons[i].SetHeaderLocked(selected);
-
-            // The selected button is a state indicator, not a hover target.
-            if (selected)
-                m_aButtons[i].SetHeaderHovered(false);
-        }
+        RefreshButtonStates();
     }
 
     int GetActiveState()
@@ -109,31 +149,202 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         return m_iActiveState;
     }
 
+    protected void RefreshButtonStates()
+    {
+        foreach (GC_HeaderButtonComponent button : m_aButtons)
+        {
+            if (!button)
+                continue;
+
+            bool selected = button.GetHeaderState() == m_iActiveState;
+            bool interactive = IsButtonInteractive(button.GetHeaderState(), selected);
+            button.SetHeaderSelected(selected);
+            button.SetHeaderLocked(selected);
+            button.SetHeaderEnabled(interactive);
+
+            if (!interactive)
+                button.SetHeaderHovered(false);
+        }
+    }
+
+    protected bool IsButtonInteractive(int view, bool selected)
+    {
+        if (selected || !m_LobbyManager)
+            return false;
+
+        SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
+        if (CanNavigateToView(view, phase))
+            return true;
+
+        return m_bIsAdmin && IsNextPhaseView(view, phase);
+    }
+
+    protected bool CanNavigateToView(int view, SCR_EGameModeState phase)
+    {
+        switch (phase)
+        {
+            case SCR_EGameModeState.PREGAME:
+                return view == VIEW_PREVIEW || view == VIEW_LOBBY;
+
+            case SCR_EGameModeState.BRIEFING:
+                return view == VIEW_LOBBY || view == VIEW_BRIEFING;
+        }
+
+        return false;
+    }
+
+    protected bool IsNextPhaseView(int view, SCR_EGameModeState phase)
+    {
+        switch (phase)
+        {
+            case SCR_EGameModeState.PREGAME:
+                return view == VIEW_BRIEFING;
+
+            case SCR_EGameModeState.BRIEFING:
+                return view == VIEW_GAME;
+
+            case SCR_EGameModeState.GAME:
+                return view == VIEW_DEBRIEF;
+        }
+
+        return false;
+    }
+
+    protected SCR_EGameModeState GetRequestedPhase(int view)
+    {
+        switch (view)
+        {
+            case VIEW_BRIEFING: return SCR_EGameModeState.BRIEFING;
+            case VIEW_GAME: return SCR_EGameModeState.GAME;
+            case VIEW_DEBRIEF: return SCR_EGameModeState.POSTGAME;
+        }
+
+        return -1;
+    }
+
+    protected int GetPhaseView(SCR_EGameModeState phase)
+    {
+        switch (phase)
+        {
+            case SCR_EGameModeState.BRIEFING: return VIEW_BRIEFING;
+            case SCR_EGameModeState.GAME: return VIEW_GAME;
+            case SCR_EGameModeState.POSTGAME: return VIEW_DEBRIEF;
+        }
+
+        return VIEW_PREVIEW;
+    }
+
     protected void OnButtonClicked(SCR_ButtonBaseComponent baseButton)
     {
         GC_HeaderButtonComponent button = GC_HeaderButtonComponent.Cast(baseButton);
-        if (!button)
+        if (!button || !m_LobbyManager)
+            return;
+
+        RefreshAdminPermission();
+
+        int view = button.GetHeaderState();
+        bool selected = view == m_iActiveState;
+        if (!IsButtonInteractive(view, selected))
+            return;
+
+        SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
+        if (CanNavigateToView(view, phase))
         {
-            PrintFormat("GC | Header click received from an unexpected button component");
+			PrintFormat("GC | Phase UI | navigation selected: phase=%1 fromView=%2 toView=%3", GC_LobbyManager.GetPhaseName(phase), m_iActiveState, view);
+            NavigateToView(view);
             return;
         }
 
-
-        if (!m_bCanChangeState)
-        {
-            RefreshAdminPermission();
-            PrintFormat("GC | Header input rejected: local player is not an admin");
-            return;
-        }
-
-        // The active state is sticky. Select another button to change state;
-        // clicking the active button again does nothing.
-        if (m_iActiveState == button.GetHeaderState())
+        if (!m_bIsAdmin || !IsNextPhaseView(view, phase))
             return;
 
-        SetActiveState(button.GetHeaderState());
+        SCR_PlayerController playerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+        if (!playerController)
+            return;
 
-        m_OnStateChanged.Invoke(this);
+		PrintFormat("GC | Phase UI | admin advance selected: player=%1 current=%2 target=%3", playerController.GetPlayerId(), GC_LobbyManager.GetPhaseName(phase), GC_LobbyManager.GetPhaseName(GetRequestedPhase(view)));
+        playerController.RequestLobbyPhaseAdvance(GetRequestedPhase(view));
     }
 
+    protected void NavigateToView(int view)
+    {
+        SetActiveState(view);
+        m_OnStateChanged.Invoke(this);
+
+        if (view == VIEW_LOBBY)
+            SwitchToLobbyMenu();
+        else if (view == VIEW_PREVIEW || view == VIEW_BRIEFING)
+            SwitchToPreviewMenu();
+    }
+
+    protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
+    {
+		PrintFormat("GC | Phase UI | replicated phase update: phase=%1 activeView=%2", GC_LobbyManager.GetPhaseName(phase), m_iActiveState);
+        RefreshButtonStates();
+
+        if (phase == SCR_EGameModeState.BRIEFING)
+        {
+            if (m_iActiveState == VIEW_PREVIEW)
+                SetActiveState(VIEW_BRIEFING);
+            else
+                SwitchToPreviewMenu();
+
+            return;
+        }
+
+        if (phase == SCR_EGameModeState.GAME || phase == SCR_EGameModeState.POSTGAME)
+        {
+            SetActiveState(GetPhaseView(phase));
+            CloseCurrentMenu();
+        }
+    }
+
+    protected void SwitchToPreviewMenu()
+    {
+        CloseCurrentMenu();
+        GetGame().GetCallqueue().CallLater(OpenPreviewMenu, 0);
+    }
+
+    protected void SwitchToLobbyMenu()
+    {
+        CloseCurrentMenu();
+        GetGame().GetCallqueue().CallLater(OpenLobbyMenu, 0);
+    }
+
+    protected void CloseCurrentMenu()
+    {
+        MenuManager menuManager = GetGame().GetMenuManager();
+        if (!menuManager)
+            return;
+
+        MenuBase currentMenu = menuManager.GetTopMenu();
+        if (currentMenu)
+            currentMenu.Close();
+    }
+
+    protected void OpenPreviewMenu()
+    {
+        GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+        if (!lobbyManager)
+            return;
+
+        SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
+        if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.BRIEFING)
+            return;
+
+        GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu, 0, true);
+    }
+
+    protected void OpenLobbyMenu()
+    {
+        GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+        if (!lobbyManager)
+            return;
+
+        SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
+        if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.BRIEFING)
+            return;
+
+        GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
+    }
 }

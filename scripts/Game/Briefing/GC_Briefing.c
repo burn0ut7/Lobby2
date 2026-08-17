@@ -155,7 +155,7 @@ class GC_Briefing
 				writer.WriteString(factionKey);
 		}
 
-		writer.WriteIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.POSTGAME);
+		writer.WriteIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.BRIEFING);
 		writer.WriteBool(m_bInvertGameModeState);
 		writer.WriteBool(m_bVisible);
 		writer.WriteInt(m_iRevision);
@@ -187,7 +187,7 @@ class GC_Briefing
 			m_aFactionKeys.Insert(factionKey);
 		}
 
-		if (!reader.ReadIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.POSTGAME))
+		if (!reader.ReadIntRange(m_eShowAtGameModeState, SCR_EGameModeState.PREGAME, SCR_EGameModeState.BRIEFING))
 			return false;
 		if (!reader.ReadBool(m_bInvertGameModeState))
 			return false;
