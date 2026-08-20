@@ -5,7 +5,7 @@ ButtonWidgetClass {
   VerticalAlign 1
   Padding 0 0 0 4
  }
- "Ignore Cursor" 1
+ "Ignore Cursor" 0
  Color 1 1 1 0
  components {
   GC_VoicePlayerRowComponent "{6A33000000000030}" {

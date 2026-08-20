@@ -163,6 +163,19 @@ Small related value types may share a file. Large classes should not become fold
 - `GC_BriefingMapFocusController`
   - Owns asynchronous map pan/zoom state and event cleanup.
 
+### Shared context-menu UI
+
+- `GC_ContextMenuContext`
+  - Holds one temporary local target reference for a faction, group, slot, player, controlled entity, or voice channel.
+  - Re-queries base-game player and entity state when deriving presentation labels; it is never replicated or retained as ownership state.
+- `GC_ContextMenuActionRegistry`
+  - Provides the shared action catalogue for every Lobby2 screen and spectator presentation.
+  - Registered action scripts decide visibility and executability from the target plus requesting player and must be unregistered by their owning component when detached.
+- `GC_ContextMenuComponent`
+  - Creates one top-level popup at the cursor, clamps it to the viewport, and owns input-listener cleanup and dismissal.
+  - Presentation is shared between the two-dimensional lobby/briefing screens and spectator rather than implemented as separate context systems.
+  - Context actions may initiate intent, but authoritative game-state mutations must still use the owning player-controller RPC and manager validation path.
+
 ## Resource ownership
 
 ### Production resources

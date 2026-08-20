@@ -1,3 +1,23 @@
+//! Right-click target for the header of one slotting group card.
+class GC_GroupHeaderContextComponent : SCR_ScriptedWidgetComponent
+{
+	protected SCR_AIGroup m_Group;
+
+	void SetGroup(SCR_AIGroup group)
+	{
+		m_Group = group;
+	}
+
+	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+	{
+		if (button != 1 || !m_Group)
+			return false;
+
+		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForGroup(m_Group), m_wRoot);
+		return true;
+	}
+}
+
 class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 {
 	protected static const ResourceName SLOT_LAYOUT = "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout";
@@ -7,6 +27,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 	protected Widget m_wSlots;
 	protected TextWidget m_wSquadName;
 	protected TextWidget m_wPlayerCount;
+	protected GC_GroupHeaderContextComponent m_GroupHeaderContext;
 	protected GC_LobbyManager m_LobbyManager;
 	protected SCR_AIGroup m_Group;
 	protected ref array<Widget> m_aSlotWidgets = {};
@@ -21,6 +42,9 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_wSlots = m_wRoot.FindAnyWidget("Slots");
 		m_wSquadName = TextWidget.Cast(m_wRoot.FindAnyWidget("SquadName"));
 		m_wPlayerCount = TextWidget.Cast(m_wRoot.FindAnyWidget("PlayerCount"));
+		Widget groupHeader = m_wRoot.FindAnyWidget("SquadHeader");
+		if (groupHeader)
+			m_GroupHeaderContext = GC_GroupHeaderContextComponent.Cast(groupHeader.FindHandler(GC_GroupHeaderContextComponent));
 		m_LobbyManager = GC_LobbyManager.GetManager();
 		if (!m_wSlots || !m_LobbyManager)
 			return;
@@ -39,6 +63,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_LobbyManager = null;
 		m_wPlayerCount = null;
 		m_wSquadName = null;
+		m_GroupHeaderContext = null;
 		m_wSlots = null;
 		super.HandlerDeattached(w);
 	}
@@ -53,6 +78,8 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		}
 
 		m_Group = group;
+		if (m_GroupHeaderContext)
+			m_GroupHeaderContext.SetGroup(group);
 		Refresh();
 	}
 

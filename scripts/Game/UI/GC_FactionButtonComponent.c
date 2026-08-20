@@ -21,6 +21,12 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
 
     override bool OnClick(Widget w, int x, int y, int button)
     {
+		if (button == 1)
+		{
+			GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForFaction(m_FactionKey), m_wRoot);
+			return true;
+		}
+
         if (button != 0 || m_bFactionSelected)
             return true;
 

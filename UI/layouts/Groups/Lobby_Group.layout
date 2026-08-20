@@ -46,18 +46,25 @@ VerticalLayoutWidgetClass {
        {
         HorizontalLayoutWidgetClass "{6A25000100000004}" {
          Name "SquadHeader"
+         "Ignore Cursor" 0
+         components {
+          GC_GroupHeaderContextComponent "{6A30000100000003}" {
+          }
+         }
          Slot LayoutSlot "{6A190729841F8842}" {
           Padding 0 6 0 0
          }
          {
           VerticalLayoutWidgetClass "{6A25000100000008}" {
            Name "SquadIdentity"
+           "Ignore Cursor" 1
            Slot LayoutSlot "{6A25000100000009}" {
             VerticalAlign 1
            }
            {
             TextWidgetClass "{6A2500010000000A}" {
              Name "SquadName"
+             "Ignore Cursor" 1
              Slot LayoutSlot "{6A2500010000000B}" {
              }
              Text "Aktiv-22"
@@ -71,6 +78,7 @@ VerticalLayoutWidgetClass {
             }
             TextWidgetClass "{6A2500010000000D}" {
              Name "SquadDescription"
+             "Ignore Cursor" 1
              Slot LayoutSlot "{6A2500010000000E}" {
              }
              Color 0.62 0.65 0.63 1
@@ -82,6 +90,7 @@ VerticalLayoutWidgetClass {
           }
           VerticalLayoutWidgetClass "{6A2500010000000F}" {
            Name "PlayerCounter"
+           "Ignore Cursor" 1
            Slot LayoutSlot "{6A25000100000010}" {
             HorizontalAlign 2
             VerticalAlign 1
@@ -91,6 +100,7 @@ VerticalLayoutWidgetClass {
            {
             TextWidgetClass "{6A25000100000011}" {
              Name "PlayerCount"
+             "Ignore Cursor" 1
              Slot LayoutSlot "{6A25000100000012}" {
               HorizontalAlign 2
              }
@@ -101,6 +111,7 @@ VerticalLayoutWidgetClass {
             }
             TextWidgetClass "{6A25000100000013}" {
              Name "PlayerCountLabel"
+             "Ignore Cursor" 1
              Slot LayoutSlot "{6A25000100000014}" {
               HorizontalAlign 2
              }

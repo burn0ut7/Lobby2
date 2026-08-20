@@ -18,6 +18,20 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         Refresh();
     }
 
+	override bool OnClick(Widget w, int x, int y, int button)
+	{
+		if (button != 1 || m_iPlayerId < 0)
+			return false;
+
+		IEntity controlledEntity;
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (playerManager)
+			controlledEntity = playerManager.GetPlayerControlledEntity(m_iPlayerId);
+
+		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForPlayer(m_iPlayerId, controlledEntity), m_wRoot);
+		return true;
+	}
+
     protected void Refresh()
     {
         if (!m_wRoot || m_iPlayerId < 0)

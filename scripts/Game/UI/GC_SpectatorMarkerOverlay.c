@@ -126,6 +126,15 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		return true;
 	}
 
+	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+	{
+		if (button != 1 || !m_Entity || !m_Entity.GetOwner())
+			return false;
+
+		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForEntity(m_Entity.GetOwner()), GetWidget());
+		return true;
+	}
+
 	override void OnRefresh(SCR_EditableEntityBaseSlotUIComponent slot)
 	{
 		if (m_Entity)
@@ -280,6 +289,15 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		RemoveMemberPopup();
+		return true;
+	}
+
+	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+	{
+		if (button != 1 || !m_Group)
+			return false;
+
+		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForGroup(m_Group), GetWidget());
 		return true;
 	}
 

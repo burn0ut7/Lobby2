@@ -1,0 +1,73 @@
+ButtonWidgetClass {
+ Name "LobbyContextAction"
+ Slot LayoutSlot "{6A57000000000031}" {
+  HorizontalAlign 3
+  VerticalAlign 0
+ }
+ Color 1 1 1 0
+ components {
+  GC_ContextMenuActionButtonComponent "{6A57000000000032}" {
+   m_bUseColorization 1
+   m_BackgroundDefault 0 0 0 0
+   m_BackgroundHovered 0.18 0.2 0.2 0.85
+   m_BackgroundSelected 0.76 0.39 0.08 0.35
+   m_BackgroundSelectedHovered 0.76 0.39 0.08 0.45
+   m_BackgroundClicked 0.76 0.39 0.08 0.55
+   m_bShowBorderOnFocus 0
+  }
+ }
+ "no focus" 1
+ {
+  SizeLayoutWidgetClass "{6A57000000000033}" {
+   Name "ContextActionSize"
+   Slot ButtonWidgetSlot "{6A57000000000034}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   AllowHeightOverride 1
+   HeightOverride 36
+   {
+    OverlayWidgetClass "{6A57000000000035}" {
+     Name "ContextActionOverlay"
+     Slot AlignableSlot "{6A57000000000036}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      ImageWidgetClass "{6A57000000000037}" {
+       Name "Background"
+       Slot OverlayWidgetSlot "{6A57000000000038}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.025 0.032 0.034 0.82
+       Size 272 36
+      }
+      ImageWidgetClass "{6A57000000000039}" {
+       Name "ContextActionIcon"
+       Slot OverlayWidgetSlot "{6A5700000000003A}" {
+        HorizontalAlign 0
+        VerticalAlign 1
+        Padding 6 0 0 0
+       }
+       "Is Visible" 0
+       Size 24 24
+      }
+      TextWidgetClass "{6A5700000000003B}" {
+       Name "ContextActionLabel"
+       Slot OverlayWidgetSlot "{6A5700000000003C}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 38 0 8 0
+       }
+       Text "PRINT TEST"
+       "Font Size" 18
+       "Min Font Size" 14
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

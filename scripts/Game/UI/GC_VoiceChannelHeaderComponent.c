@@ -30,7 +30,7 @@ class GC_VoiceChannelHeaderComponent : SCR_ButtonBaseComponent
 
     override bool OnClick(Widget w, int x, int y, int button)
     {
-        if (button != 0)
+        if (button != 0 && button != 1)
         {
             return true;
         }
@@ -40,6 +40,31 @@ class GC_VoiceChannelHeaderComponent : SCR_ButtonBaseComponent
             Print("GC | Voice header click rejected: channel component was not resolved", level: LogLevel.ERROR);
             return true;
         }
+
+		if (button == 1)
+		{
+			if (m_Channel.GetChannelType() == GC_VoiceChannelType.GROUP && m_Channel.GetGroup())
+			{
+				GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForGroup(m_Channel.GetGroup()), m_wRoot);
+				return true;
+			}
+
+			FactionKey contextFactionKey;
+			if (m_Channel.GetFaction())
+				contextFactionKey = m_Channel.GetFaction().GetFactionKey();
+
+			GC_ContextMenuComponent.Open(
+				GC_ContextMenuContext.ForVoiceChannel(
+					m_Channel.GetChannelType(),
+					contextFactionKey,
+					m_Channel.GetGroup(),
+					m_Channel.GetPersonalOwnerIdentity(),
+					m_Channel.GetPersonalOwnerPlayerId()
+				),
+				m_wRoot
+			);
+			return true;
+		}
 
         GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
         if (!playerController)

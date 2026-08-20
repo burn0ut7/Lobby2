@@ -1,0 +1,89 @@
+OverlayWidgetClass {
+ Name "LobbyContextMenu"
+ Slot FrameWidgetSlot "{6A57000000000011}" {
+  SizeToContent 1
+ }
+ "Z Order" 10000
+ "Ignore Cursor" 0
+ components {
+  GC_ContextMenuComponent "{6A57000000000012}" {
+  }
+ }
+ {
+  ImageWidgetClass "{6A57000000000013}" {
+   Name "ContextBackground"
+   Slot OverlayWidgetSlot "{6A57000000000014}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   Color 0 0 0 0.92
+   "Ignore Cursor" 0
+   Size 280 78
+  }
+  VerticalLayoutWidgetClass "{6A57000000000015}" {
+   Name "ContextContent"
+   Slot OverlayWidgetSlot "{6A57000000000016}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+    Padding 4 4 4 4
+   }
+   "Ignore Cursor" 0
+   {
+    SizeLayoutWidgetClass "{6A57000000000017}" {
+     Name "ContextHeaderSize"
+     Slot LayoutSlot "{6A57000000000018}" {
+      HorizontalAlign 3
+      VerticalAlign 0
+     }
+     AllowHeightOverride 1
+     HeightOverride 34
+     "Ignore Cursor" 0
+     {
+      OverlayWidgetClass "{6A57000000000019}" {
+       Name "ContextHeader"
+       Slot AlignableSlot "{6A5700000000001A}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Ignore Cursor" 0
+       {
+        ImageWidgetClass "{6A5700000000001B}" {
+         Name "ContextHeaderBackground"
+         Slot OverlayWidgetSlot "{6A5700000000001C}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.76 0.39 0.08 1
+         "Ignore Cursor" 0
+         Size 272 34
+        }
+        TextWidgetClass "{6A5700000000001D}" {
+         Name "ContextHeaderText"
+         Slot OverlayWidgetSlot "{6A5700000000001E}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 8 0 8 0
+         }
+         Color 0 0 0 1
+         Text "CONTEXT"
+         "Font Size" 18
+         "Min Font Size" 14
+         "Vertical Alignment" Center
+         "Ignore Cursor" 0
+        }
+       }
+      }
+     }
+    }
+    VerticalLayoutWidgetClass "{6A5700000000001F}" {
+     Name "ContextActions"
+     Slot LayoutSlot "{6A57000000000020}" {
+      HorizontalAlign 3
+      VerticalAlign 0
+     }
+     "Ignore Cursor" 0
+    }
+   }
+  }
+ }
+}

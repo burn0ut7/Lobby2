@@ -85,6 +85,11 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		return m_PersonalOwnerIdentity;
 	}
 
+	int GetPersonalOwnerPlayerId()
+	{
+		return m_iPersonalOwnerPlayerId;
+	}
+
 	//! Replaces the card's player rows from a fresh authoritative membership query.
 	void SetPlayers(array<int> playerIds, GC_LobbyManager lobbyManager)
 	{

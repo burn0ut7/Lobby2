@@ -41,6 +41,12 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
+		if (button == 1)
+		{
+			GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForSlot(m_Slot), m_wRoot);
+			return true;
+		}
+
 		if (button != 0 || !CanInteract())
 			return true;
 
