@@ -1,0 +1,77 @@
+FrameWidgetClass {
+ Name "LobbySpectatorMarkerFrame"
+ Clipping False
+ "Ignore Cursor" 1
+ {
+  PanelWidgetClass "{5EE8948F20BE168B}" {
+   Name "LobbySpectatorMarkerLabel"
+   "Ignore Cursor" 1
+   Slot FrameWidgetSlot "{5EE8948F20BE16F5}" {
+    SizeToContent 1
+   }
+   Color 0 0 0 0
+   style pixel_outline
+   {
+    OverlayWidgetClass "{5EE89488CCB4B28D}" {
+     Name "LobbySpectatorMarkerLabelOverlay"
+     "Ignore Cursor" 1
+     Slot FrameWidgetSlot "{5EE89488CCB4B2FF}" {
+      OffsetLeft 0
+      OffsetTop 0
+      SizeX 100
+      OffsetRight -100
+      SizeY 30
+      OffsetBottom -30
+      SizeToContent 1
+     }
+     {
+      RichTextWidgetClass "{5EE8948EAC337C76}" {
+       Name "LobbySpectatorMarkerLabelText"
+       "Ignore Cursor" 1
+       Slot OverlayWidgetSlot "{5EE89488FD3D84DE}" {
+        Padding 4 4 4 4
+       }
+       Text ""
+       "Font Size" 32
+       "Min Font Size" 32
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+  ImageWidgetClass "{5EE8948EC9B919B8}" {
+   Name "LobbySpectatorMarkerRoleIcon"
+   Slot FrameWidgetSlot "{5EE8948CA93791EA}" {
+    OffsetLeft 0
+    OffsetTop 0
+    SizeX 64
+    OffsetRight -64
+    SizeY 64
+    OffsetBottom -64
+   }
+   "Ignore Cursor" 0
+   Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
+   Image "LobbySpectatorCircle"
+   Size 64 64
+  }
+  ImageWidgetClass "{649EF2A1B610A1A3}" {
+   Name "LobbySpectatorMarkerSelectedIcon"
+   Slot FrameWidgetSlot "{5EE8948CA93791EA}" {
+    OffsetLeft 0
+    OffsetTop 0
+    SizeX 64
+    OffsetRight -64
+    SizeY 64
+    OffsetBottom -64
+   }
+   Opacity 0
+   "Ignore Cursor" 1
+   Color 0.761 0.386 0.078 1
+   Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
+   Image "LobbySpectatorCircle"
+   Size 64 64
+  }
+ }
+}

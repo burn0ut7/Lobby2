@@ -1,5 +1,9 @@
 class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
 {
+    protected static const ResourceName ICON_SET = "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset";
+    protected static const string DEFAULT_ICON = "scenarios";
+    protected static const string SCENARIO_ICON = "vegetation";
+
     [Attribute("1", UIWidgets.EditBox, "One-based order displayed with a leading zero")]
     protected int m_iOrder;
 
@@ -8,6 +12,9 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
 
     [Attribute("0", UIWidgets.CheckBox, "Show this row as the active briefing section")]
     protected bool m_bSelected;
+
+    [Attribute("scenarios", UIWidgets.EditBox, "Image name from the briefing icon set")]
+    protected string m_sIconName;
 
     protected bool m_bHovered;
     protected int m_iBriefingOrder;
@@ -28,6 +35,8 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
         m_wSelectedBackground = ImageWidget.Cast(w.FindAnyWidget("SelectedBackground"));
         m_wLeftAccent = ImageWidget.Cast(w.FindAnyWidget("LeftAccent"));
         m_wRightAccent = ImageWidget.Cast(w.FindAnyWidget("RightAccent"));
+
+        SetIcon(m_sIconName);
 
         if (m_wOrder)
             m_wOrder.SetText(m_iOrder.ToString(2));
@@ -82,9 +91,23 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
         return m_bSelected;
     }
 
-    int GetOrder()
+    int GetDisplayOrder()
     {
         return m_iOrder;
+    }
+
+    void SetDisplayOrder(int order)
+    {
+        m_iOrder = order;
+        if (m_wOrder)
+            m_wOrder.SetText(m_iOrder.ToString(2));
+    }
+
+    void SetIcon(string iconName)
+    {
+        m_sIconName = iconName;
+        if (m_wIcon)
+            m_wIcon.LoadImageFromSet(0, ICON_SET, m_sIconName);
     }
 
     string GetTitle()
@@ -108,6 +131,10 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
         m_iBriefingOrder = briefing.GetOrder();
         m_iOrder = briefing.GetOrder();
         m_sTitle = briefing.GetTitle();
+        if (GC_BriefingParser.HasScenarioTag(briefing.GetContent()))
+            SetIcon(SCENARIO_ICON);
+        else
+            SetIcon(DEFAULT_ICON);
 
         if (m_wOrder)
             m_wOrder.SetText(m_iOrder.ToString(2));

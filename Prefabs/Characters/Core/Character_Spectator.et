@@ -1,6 +1,8 @@
 SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  ID "520EC961A090B1EE"
  components {
+	GC_LobbySpectatorBodyComponent "{6A1C000000000001}" {
+	}
   SCR_CharacterInventoryStorageComponent "{520EA1D2DB118DAC}" {
    components {
     SCR_EquipmentStorageComponent "{56B49DA9722B635D}" {

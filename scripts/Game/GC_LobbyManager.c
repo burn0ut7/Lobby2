@@ -37,6 +37,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
 
+	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values")]
+	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
+
 	protected ref GC_LobbyRoster m_Roster = new GC_LobbyRoster();
 	protected ref GC_LobbyVoiceState m_VoiceState = new GC_LobbyVoiceState();
     ref ScriptInvoker<Faction> m_OnFactionUpdated = new ScriptInvoker<Faction>();
@@ -49,6 +52,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     ref ScriptInvoker<int> m_OnBriefingsChanged = new ScriptInvoker<int>();
 	ref ScriptInvoker<int> m_OnBriefingMarkersChanged = new ScriptInvoker<int>();
 	ref ScriptInvoker<GC_ELobbyPhase> m_OnLobbyPhaseChanged = new ScriptInvoker<GC_ELobbyPhase>();
+	ref ScriptInvoker<int> m_OnScenarioParametersChanged = new ScriptInvoker<int>();
 	protected ref GC_LobbyPhaseMachine m_PhaseMachine = new GC_LobbyPhaseMachine();
 	protected ref GC_PlayerFormationCatalog m_FormationCatalog = new GC_PlayerFormationCatalog();
 	protected ref array<ref GC_PlayerGroupSpawnTransform> m_aGroupSpawnTransforms = {};
@@ -70,6 +74,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (Replication.IsServer() && !SCR_Global.IsEditMode())
 			EnsureFormationCatalog();
+
+		EnsureParameterCatalog();
+	}
+
+	protected bool EnsureParameterCatalog()
+	{
+		if (!m_ParameterCatalog)
+			m_ParameterCatalog = new GC_LobbyParameterCatalog();
+
+		return m_ParameterCatalog.Initialize();
 	}
 
 	protected bool EnsureFormationCatalog()
@@ -168,7 +182,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		if (state == SCR_EGameModeState.GAME && Replication.IsServer())
-			QueueCatchUpClaimedPlayers();
+			QueueCatchUpConnectedPlayers();
 
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
@@ -360,6 +374,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		PrintFormat("GC | Phase | applied: role=%1 lobby=%2 -> %3 base=%4", role, GetPhaseName(previousPhase), GetPhaseName(phase), baseState);
 		if (Replication.IsServer() && phase == GC_ELobbyPhase.BRIEFING)
 			ReconcileBriefingVoiceAssignments();
+		else if (Replication.IsServer() && phase == GC_ELobbyPhase.POSTGAME)
+		{
+			array<int> connectedPlayers = {};
+			GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
+			foreach (int playerId : connectedPlayers)
+			{
+				GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+				if (controller && controller.GetLobbyPlayerState() == GC_ELobbyPlayerState.SPECTATOR)
+					controller.SetLobbySpectatorState(false);
+			}
+		}
 
 		m_OnLobbyPhaseChanged.Invoke(phase);
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
@@ -420,15 +445,23 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!Replication.IsServer())
             return;
 
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		if (!playerController)
+		{
+			PrintFormat("GC | Lifecycle | spectator controller unavailable: player=%1", playerId, level: LogLevel.WARNING);
+			return;
+		}
+
+		if (!state)
+		{
+			playerController.SetLobbyPlayingState();
+			return;
+		}
+
         if (state)
         {
 			PrintFormat("GC | Lifecycle | spectator requested: player=%1", playerId);
-			GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
-			if (!playerController)
-			{
-				PrintFormat("GC | Lifecycle | spectator controller unavailable: player=%1", playerId, level: LogLevel.WARNING);
-				return;
-			}
+			bool activateCamera = GetLobbyPhase() == GC_ELobbyPhase.GAME;
 
 			IEntity existingSpectator = m_mLobbySpectators.Get(playerId);
 			if (!existingSpectator)
@@ -440,7 +473,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			}
 			if (existingSpectator)
 			{
-				if (playerController.SetLobbyControlledEntity(existingSpectator, true))
+				if (playerController.SetLobbySpectator(existingSpectator, activateCamera))
 				{
 					m_mLobbySpectators.Set(playerId, existingSpectator);
 					return;
@@ -462,7 +495,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			IEntity spectator = GetGame().SpawnEntityPrefab(spectatorPrefab, null, params);
 			PrintFormat("GC | Lifecycle | spectator spawned: valid=%1", spectator != null);
 
-			if (!spectator || !playerController.SetLobbyControlledEntity(spectator, true))
+			if (!spectator || !playerController.SetLobbySpectator(spectator, activateCamera))
 			{
 				PrintFormat("GC | Lifecycle | spectator assignment failed: player=%1", playerId, level: LogLevel.WARNING);
 				return;
@@ -885,13 +918,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 	}
 
-	protected void QueueCatchUpClaimedPlayers()
+	protected void QueueCatchUpConnectedPlayers()
 	{
-		foreach (GC_Slot slot : m_Roster.GetSlots())
-		{
-			if (slot && slot.GetPlayerId() > 0)
-				QueuePlayerCatchUp(slot.GetPlayerId());
-		}
+		array<int> connectedPlayers = {};
+		GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
+		foreach (int playerId : connectedPlayers)
+			QueuePlayerCatchUp(playerId);
 	}
 
 	override void OnControllableDestroyed(notnull SCR_InstigatorContextData instigatorContextData)
@@ -1249,7 +1281,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
                 return false;
         }
 
-		if (!m_VoiceState.Save(writer) || !m_BriefingCatalog.Save(writer))
+		if (!m_VoiceState.Save(writer) || !m_BriefingCatalog.Save(writer) || !m_ParameterCatalog.Save(writer))
 			return false;
 
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
@@ -1310,11 +1342,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			SubscribeToSlotEvents(slot);
 		}
 
-		if (!m_VoiceState.Load(reader) || !m_BriefingCatalog.Load(reader))
+		if (!m_VoiceState.Load(reader) || !m_BriefingCatalog.Load(reader) || !m_ParameterCatalog.Load(reader))
 			return false;
 
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
+		m_OnScenarioParametersChanged.Invoke(m_ParameterCatalog.GetRevision());
 		ResolvePendingJipReferences();
 		return true;
     }
@@ -1677,12 +1710,173 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
     //! Returns one briefing by its one-based authored order/index.
-    GC_Briefing GetBriefing(int briefingOrder)
-    {
-        return m_BriefingCatalog.GetBriefing(briefingOrder);
-    }
+	GC_Briefing GetBriefing(int briefingOrder)
+	{
+		return m_BriefingCatalog.GetBriefing(briefingOrder);
+	}
 
-    array<ref GC_Briefing> GetBriefings()
+	GC_LobbyParameterCatalog GetScenarioParameterCatalog()
+	{
+		EnsureParameterCatalog();
+		return m_ParameterCatalog;
+	}
+
+	array<ref GC_LobbyParameterDefinition> GetScenarioParameterDefinitions()
+	{
+		if (!GetScenarioParameterCatalog())
+			return {};
+
+		return m_ParameterCatalog.GetDefinitions();
+	}
+
+	array<ref GC_LobbyParameterValue> GetScenarioParameterValues()
+	{
+		if (!GetScenarioParameterCatalog())
+			return {};
+
+		return m_ParameterCatalog.GetValues();
+	}
+
+	int GetScenarioParameterRevision()
+	{
+		if (!GetScenarioParameterCatalog())
+			return 0;
+
+		return m_ParameterCatalog.GetRevision();
+	}
+
+	bool HasScenarioParameters()
+	{
+		return GetScenarioParameterCatalog() && m_ParameterCatalog.HasDefinitions();
+	}
+
+	bool IsScenarioParameterCatalogValid()
+	{
+		return GetScenarioParameterCatalog() && m_ParameterCatalog.IsValid();
+	}
+
+	//! Returns whether this admin may change one definition. Visibility is a
+	//! separate presentation concern and is intentionally not checked here.
+	bool CanModifyScenarioParameter(int playerId, int definitionIndex)
+	{
+		if (!IsScenarioParameterCatalogValid() || !SCR_Global.IsAdmin(playerId))
+			return false;
+
+		GC_LobbyParameterDefinition definition = m_ParameterCatalog.FindDefinition(definitionIndex);
+		if (!definition)
+			return false;
+
+		string ownerFactionKey = definition.GetOwnerFactionKey();
+		Faction playerFaction = GetPlayerFaction(playerId);
+		if (!playerFaction)
+			return true;
+
+		return playerFaction.GetFactionKey() == ownerFactionKey;
+	}
+
+	//! Applies one complete client draft atomically on the server. The player id
+	//! is derived by GC_LobbyPlayerController from the owning RPC endpoint.
+	bool TryApplyScenarioParameters(int playerId, int baseRevision, array<ref GC_LobbyParameterValue> values)
+	{
+		if (m_bShutdown || !Replication.IsServer())
+		{
+			Print("GC | Parameters | request rejected: manager inactive or caller is not authority", LogLevel.WARNING);
+			return false;
+		}
+
+		if (playerId <= 0 || !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
+		{
+			PrintFormat("GC | Parameters | request rejected: invalid player=%1", playerId, level: LogLevel.WARNING);
+			return false;
+		}
+
+		if (!SCR_Global.IsAdmin(playerId))
+		{
+			PrintFormat("GC | Parameters | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
+			return false;
+		}
+
+		GC_ELobbyPhase phase = GetLobbyPhase();
+		if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+		{
+			PrintFormat("GC | Parameters | request rejected: parameters locked in lobby=%1", GetPhaseName(phase), level: LogLevel.WARNING);
+			return false;
+		}
+
+		if (!IsScenarioParameterCatalogValid() || baseRevision != GetScenarioParameterRevision())
+		{
+			PrintFormat("GC | Parameters | request rejected: stale or invalid catalog player=%1 baseRevision=%2 currentRevision=%3", playerId, baseRevision, GetScenarioParameterRevision(), level: LogLevel.WARNING);
+			return false;
+		}
+
+		if (!m_ParameterCatalog.ValidateValues(values))
+		{
+			PrintFormat("GC | Parameters | request rejected: invalid complete batch player=%1", playerId, level: LogLevel.WARNING);
+			return false;
+		}
+
+		foreach (GC_LobbyParameterValue value : values)
+		{
+			GC_LobbyParameterValue currentValue = m_ParameterCatalog.FindValue(value.GetDefinitionIndex());
+			if (!currentValue || GC_LobbyParameterCatalog.AreValuesEqual(currentValue, value))
+				continue;
+
+			if (!CanModifyScenarioParameter(playerId, value.GetDefinitionIndex()))
+			{
+				GC_LobbyParameterDefinition definition = m_ParameterCatalog.FindDefinition(value.GetDefinitionIndex());
+				string escapedLabel = definition.GetLabel();
+				escapedLabel.Replace("\\", "\\\\");
+				escapedLabel.Replace("\"", "\\\"");
+				escapedLabel.Replace("\n", "\\n");
+				escapedLabel.Replace("\r", "\\r");
+				PrintFormat("GC | Parameters | request rejected: owner mismatch player=%1 index=%2 label=\"%3\"", playerId, value.GetDefinitionIndex(), escapedLabel, level: LogLevel.WARNING);
+				return false;
+			}
+		}
+
+		if (!m_ParameterCatalog.ApplyValues(values))
+			return false;
+
+		int revision = m_ParameterCatalog.GetRevision();
+		m_OnScenarioParametersChanged.Invoke(revision);
+		PrintScenarioParameterValues(playerId);
+		Rpc(RpcDo_SetScenarioParameters, revision, m_ParameterCatalog.GetValues());
+		return true;
+	}
+
+	protected void PrintScenarioParameterValues(int playerId)
+	{
+		foreach (GC_LobbyParameterValue value : m_ParameterCatalog.GetValues())
+		{
+			if (!value)
+				continue;
+
+			string normalized = value.GetNormalizedValue();
+			normalized.Replace("\\", "\\\\");
+			normalized.Replace("\"", "\\\"");
+			normalized.Replace("\n", "\\n");
+			normalized.Replace("\r", "\\r");
+			GC_LobbyParameterDefinition definition = m_ParameterCatalog.FindDefinition(value.GetDefinitionIndex());
+			string escapedLabel = definition.GetLabel();
+			escapedLabel.Replace("\\", "\\\\");
+			escapedLabel.Replace("\"", "\\\"");
+			escapedLabel.Replace("\n", "\\n");
+			escapedLabel.Replace("\r", "\\r");
+			PrintFormat("GC | Parameters | player=%1 revision=%2 index=%3 label=\"%4\" value=\"%5\"", playerId, m_ParameterCatalog.GetRevision(), value.GetDefinitionIndex(), escapedLabel, normalized);
+		}
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_SetScenarioParameters(int revision, array<ref GC_LobbyParameterValue> values)
+	{
+		if (Replication.IsServer() || !m_ParameterCatalog)
+			return;
+
+		if (m_ParameterCatalog.ApplySnapshot(revision, values))
+			m_OnScenarioParametersChanged.Invoke(revision);
+	}
+
+	array<ref GC_Briefing> GetBriefings()
     {
         return m_BriefingCatalog.GetBriefings();
     }
@@ -2118,6 +2312,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_Roster.Clear();
 		m_VoiceState.Clear();
 		m_BriefingCatalog.Clear();
+		if (m_ParameterCatalog)
+			m_ParameterCatalog.Clear();
 		Print("GC | Lifecycle | Lobby2 manager shutdown complete");
     }
 

@@ -1,3 +1,6 @@
+SCR_AIWorld : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
+ coords 1167.303 38.01 2786.272
+}
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  coords 1195.314 39 2720.544
 }
@@ -21,6 +24,43 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_
      }
      GC_Briefing "{6A42000000000004}" {
      }
+     GC_Briefing "{6A42000000000006}" {
+      m_eShowAtGameModeState PREGAME
+     }
+     GC_Briefing "{6A42000000000007}" {
+      m_eShowAtGameModeState BRIEFING
+     }
+     GC_Briefing "{6A42000000000008}" {
+      m_eShowAtGameModeState PREGAME
+     }
+    }
+   }
+   m_ParameterCatalog GC_LobbyParameterCatalog "{6A4D100000000015}" {
+    m_aDefinitions {
+     GC_LobbySelectionParameterDefinition "{6A4D100000000024}" {
+      m_aOptions {
+       GC_LobbyParameterOption "{6A2881E8AFE4E2C9}" {
+        m_sLabel "STANDARD"
+        m_sKey "standard1"
+        m_sPayload "variant.standard"
+       }
+       GC_LobbyParameterOption "{6A2881E8AF2FBCB6}" {
+        m_sLabel "STANDARD"
+        m_sKey "standard2"
+        m_sPayload "variant.standard"
+       }
+       GC_LobbyParameterOption "{6A2881E8AE1F5F44}" {
+        m_sLabel "STANDARD"
+        m_sKey "standard3"
+        m_sPayload "variant.standard"
+       }
+       GC_LobbyParameterOption "{6A2881E8AD79BB18}" {
+        m_sLabel "STANDARD"
+        m_sKey "standard4"
+        m_sPayload "variant.standard"
+       }
+      }
+     }
     }
    }
   }
@@ -38,12 +78,15 @@ GenericEntity marker2 {
   }
  }
  coords 1204.868 39 2721.345
- angles 0 92.154 0
+ angles 0 144.276 0
 }
 SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
  coords 1198.979 39 2734.366
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
+}
+SCR_ChimeraCharacter : "{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et" {
+ coords 1165.576 38.113 2778.917
 }
 SCR_ChimeraCharacter : "{836E7E39AAC5888B}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Base.et" {
  coords 1200.616 38.961 2691.476
@@ -112,5 +155,8 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
   angles 0 -13.511 0
   m_bPlayable 1
   m_bDeleteIfNoPlayer 0
+ }
+ {
+  coords 1202.769 38.688 2775.924
  }
 }

@@ -46,7 +46,6 @@ class GC_BriefingInteractiveRenderer
 	protected Widget m_wActionInlineFlow;
 	protected RichTextWidget m_wActionMarkerAfter;
 	protected GC_LobbyManager m_LobbyManager;
-	protected SizeLayoutWidget m_wViewSize;
 	protected GC_BriefingMapFocusController m_MapFocusController;
 	protected ref array<SCR_ButtonBaseComponent> m_aInlineButtons = {};
 	protected ref array<string> m_aInlineActionIds = {};
@@ -61,10 +60,9 @@ class GC_BriefingInteractiveRenderer
 		m_wActionMarkerAfter = after;
 	}
 
-	bool Configure(string content, GC_LobbyManager lobbyManager, SizeLayoutWidget viewSize, GC_BriefingMapFocusController mapFocusController)
+	bool Configure(string content, GC_LobbyManager lobbyManager, GC_BriefingMapFocusController mapFocusController)
 	{
 		m_LobbyManager = lobbyManager;
-		m_wViewSize = viewSize;
 		m_MapFocusController = mapFocusController;
 	    Clear();
 
@@ -507,7 +505,6 @@ class GC_BriefingInteractiveRenderer
 		m_wActionInlineFlow = null;
 		m_wActionMarkerAfter = null;
 		m_LobbyManager = null;
-		m_wViewSize = null;
 		m_MapFocusController = null;
 	}
 
@@ -527,7 +524,7 @@ class GC_BriefingInteractiveRenderer
 	    string markerName = m_aInlineMarkerNames[buttonIndex];
 	    if (!markerName.IsEmpty())
 	    {
-	        m_MapFocusController.Focus(markerName, m_LobbyManager, m_wViewSize);
+	        m_MapFocusController.Focus(markerName, m_LobbyManager);
 	        return;
 	    }
 

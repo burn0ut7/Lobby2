@@ -1,0 +1,30 @@
+ImageSetClass {
+ RefSize 2048 2048
+ Textures {
+  ImageSetTextureClass {
+   screenSize FHD
+   size 2048 2048
+   path "{6A56000000000006}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass LobbySpectatorPlayer {
+   Name "LobbySpectatorPlayer"
+   Pos 128 64
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass LobbySpectatorCircle {
+   Name "LobbySpectatorCircle"
+   Pos 192 128
+   Size 64 64
+   Flags 0
+  }
+  ImageSetDefClass LobbySpectatorWounded {
+   Name "LobbySpectatorWounded"
+   Pos 1344 64
+   Size 64 64
+   Flags 0
+  }
+ }
+}

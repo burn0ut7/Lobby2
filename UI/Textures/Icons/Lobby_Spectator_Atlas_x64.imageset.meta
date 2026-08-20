@@ -1,0 +1,15 @@
+MetaFileClass {
+ Name "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
+ Configurations {
+  ImageSetResourceClass PC {
+  }
+  ImageSetResourceClass XBOX_ONE : PC {
+  }
+  ImageSetResourceClass XBOX_SERIES : PC {
+  }
+  ImageSetResourceClass PS4 : PC {
+  }
+  ImageSetResourceClass HEADLESS : PC {
+  }
+ }
+}

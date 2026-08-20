@@ -1,0 +1,63 @@
+ButtonWidgetClass {
+ Name "ParameterOption"
+ Slot LayoutSlot {
+  HorizontalAlign 3
+ }
+ Color 1 1 1 0
+ components {
+  SCR_ButtonTextComponent "{6A4D00000000001B}" {
+   m_bCanBeToggled 1
+   m_BackgroundDefault 0.025 0.032 0.034 0.98
+   m_BackgroundHovered 0.16 0.18 0.18 1
+   m_BackgroundSelected 0.761 0.392 0.078 0.9
+   m_BackgroundSelectedHovered 0.898 0.541 0.184 1
+   m_BackgroundClicked 0.898 0.541 0.184 1
+   m_bShowBorderOnFocus 0
+   m_bUseTextColorization 1
+   m_TextDefault 0.94 0.94 0.92 1
+   m_TextToggled 1 1 1 1
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{6A4D00000000001C}" {
+   Slot ButtonWidgetSlot {
+    HorizontalAlign 3
+   }
+   AllowHeightOverride 1
+   HeightOverride 40
+   "Ignore Cursor" 1
+   {
+    OverlayWidgetClass "{6A4D00000000001D}" {
+     Slot AlignableSlot {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      PanelWidgetClass "{6A4D00000000001E}" {
+       Name "Background"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.025 0.032 0.034 0.98
+       style full
+      }
+      TextWidgetClass "{6A4D00000000001F}" {
+       Name "Text"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 12 0 12 0
+       }
+       "Ignore Cursor" 1
+       Color 0.94 0.94 0.92 1
+       Text "OPTION"
+       "Font Size" 18
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

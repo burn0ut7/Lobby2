@@ -1,0 +1,110 @@
+FrameWidgetClass : "{6A56000000000008}UI/layouts/Spectator/Lobby_Spectator_Marker_Base.layout" {
+ components {
+  GC_SpectatorCharacterEditableEntityUIComponent "{5F3693B25C31E98D}" {
+   m_sIconWidgetName "LobbySpectatorMarkerRoleIcon"
+  }
+ }
+ {
+  ButtonWidgetClass "{61CB0492818382EF}" {
+   Name "LobbySpectatorMarkerButton"
+   Slot FrameWidgetSlot "{61CB0492818382D3}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 64
+    OffsetRight -64
+    SizeY 64
+    OffsetBottom -64
+   }
+   "Ignore Cursor" 1
+   Color 1 1 1 0
+   {
+    OverlayWidgetClass "{60DB071976551894}" {
+     Name "LobbySpectatorMarkerBackgroundOverlay"
+     "Ignore Cursor" 1
+     Slot ButtonWidgetSlot "{646933DC04B37065}" {
+     }
+     {
+      ImageWidgetClass "{60DCA24F25DC2EF8}" {
+       Name "LobbySpectatorMarkerSmallBackground"
+       Slot OverlayWidgetSlot "{60DB07187FD3FD8A}" {
+       }
+       Opacity 0.75
+       "Ignore Cursor" 1
+       Texture "{8479B3B5347DF5CF}UI/Imagesets/MilitarySymbol/ID_D.imageset"
+       Image "Friend_SeaSurface_Bcg"
+       Size 16 16
+      }
+      OverlayWidgetClass "{60DCA2489B9D5917}" {
+       Name "LobbySpectatorMarkerCircleOverlay"
+       "Ignore Cursor" 1
+       Slot OverlayWidgetSlot "{60DCA2489B9D597D}" {
+       }
+       {
+        ImageWidgetClass "{60DB07187E8C4DF4}" {
+         Name "LobbySpectatorMarkerBackground"
+         Slot OverlayWidgetSlot "{60DB071F89457600}" {
+         }
+         Color 0 0 0 1
+         "Ignore Cursor" 1
+         Texture "{8479B3B5347DF5CF}UI/Imagesets/MilitarySymbol/ID_D.imageset"
+         Image "Character_Bcg"
+         Size 64 64
+        }
+        ImageWidgetClass "{60DB07187FD3FDF7}" {
+         Name "LobbySpectatorMarkerOutline"
+         "Ignore Cursor" 1
+         Slot OverlayWidgetSlot "{60DB07187FD3FD8A}" {
+         }
+         Texture "{8479B3B5347DF5CF}UI/Imagesets/MilitarySymbol/ID_D.imageset"
+         Image "Character"
+         Size 64 64
+        }
+        ImageWidgetClass "{60DB7BB025C1EAD7}" {
+         Name "LobbySpectatorMarkerWoundedIcon"
+         Slot OverlayWidgetSlot "{60DB07187FD3FD8A}" {
+          HorizontalAlign 0
+          VerticalAlign 0
+          Padding -8 -8 0 0
+         }
+         "Z Order" 25
+         "Is Visible" 0
+         "Ignore Cursor" 1
+         Color 0.855 0.641 0 1
+         Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
+         Image "LobbySpectatorWounded"
+         Size 32 32
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  PanelWidgetClass "{5EE8948F20BE168B}" {
+   Prefab "{5EE8948F20BE168B}"
+   {
+    OverlayWidgetClass "{5EE89488CCB4B28D}" {
+     Prefab "{5EE89488CCB4B28D}"
+     {
+      RichTextWidgetClass "{5EE8948EAC337C76}" {
+       Prefab "{5EE8948EAC337C76}"
+       "Font Size" 16
+       "Min Font Size" 16
+       FontProperties FontProperties "{60DB071CCF92F13F}" {
+        Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt"
+        OutlineSize 3
+       }
+      }
+     }
+    }
+   }
+  }
+  ImageWidgetClass "{5EE8948EC9B919B8}" {
+   Prefab "{5EE8948EC9B919B8}"
+   Image "LobbySpectatorPlayer"
+   Size 64 64
+  }
+ }
+}

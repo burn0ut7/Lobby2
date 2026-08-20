@@ -1,0 +1,56 @@
+SizeLayoutWidgetClass {
+ Name "LobbySpectatorGroupMemberRow"
+ Slot LayoutSlot "{6A560000000000A1}" {
+  HorizontalAlign 3
+  VerticalAlign 0
+ }
+ AllowWidthOverride 1
+ WidthOverride 204
+ AllowHeightOverride 1
+ HeightOverride 30
+ "Ignore Cursor" 1
+ {
+  FrameWidgetClass "{6A560000000000A2}" {
+   Name "LobbySpectatorGroupMemberFrame"
+   Slot AlignableSlot "{6A560000000000A3}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   "Ignore Cursor" 1
+   {
+    ImageWidgetClass "{6A560000000000A4}" {
+     Name "LobbySpectatorGroupMemberRoleIcon"
+     Slot FrameWidgetSlot "{6A560000000000A5}" {
+      PositionX 0
+      OffsetLeft 0
+      PositionY 3
+      OffsetTop 3
+      SizeX 24
+      OffsetRight -24
+      SizeY 24
+      OffsetBottom -27
+     }
+     "Ignore Cursor" 1
+     Size 24 24
+    }
+    RichTextWidgetClass "{6A560000000000A6}" {
+     Name "LobbySpectatorGroupMemberName"
+     Slot FrameWidgetSlot "{6A560000000000A7}" {
+      Anchor 0 0 1 1
+      PositionX 32
+      OffsetLeft 32
+      PositionY 0
+      OffsetTop 0
+      OffsetRight 0
+      OffsetBottom 0
+     }
+     "Ignore Cursor" 1
+     Text ""
+     "Font Size" 16
+     "Min Font Size" 14
+     "Vertical Alignment" Center
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,54 @@
+FrameWidgetClass {
+ Name "LobbySpectatorGroupHover"
+ Clipping False
+ Slot FrameWidgetSlot "{6A56000000000091}" {
+  PositionX -110
+  OffsetLeft -110
+  PositionY -84
+  OffsetTop -84
+  SizeX 220
+  OffsetRight -110
+  SizeY 68
+  OffsetBottom -152
+ }
+ "Ignore Cursor" 1
+ {
+  ImageWidgetClass "{6A56000000000096}" {
+   Name "LobbySpectatorGroupHoverFill"
+   Slot FrameWidgetSlot "{6A56000000000097}" {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   Color 0 0 0 0.78
+   "Ignore Cursor" 1
+   Size 1 1
+  }
+  PanelWidgetClass "{6A56000000000092}" {
+   Name "LobbySpectatorGroupHoverBackground"
+   Slot FrameWidgetSlot "{6A56000000000093}" {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   Color 0.22 0.24 0.24 0.85
+   style pixel_outline
+   "Ignore Cursor" 1
+  }
+  VerticalLayoutWidgetClass "{6A56000000000094}" {
+   Name "LobbySpectatorGroupMembers"
+   Slot FrameWidgetSlot "{6A56000000000095}" {
+    Anchor 0 0 1 1
+    OffsetLeft 8
+    OffsetTop 8
+    OffsetRight -8
+    OffsetBottom -8
+   }
+   "Ignore Cursor" 1
+  }
+ }
+}

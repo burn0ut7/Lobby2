@@ -2,6 +2,91 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
  ID "6A4D100000000011"
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
+   m_ParameterCatalog GC_LobbyParameterCatalog "{6A4D100000000015}" {
+    m_aDefinitions {
+     GC_LobbyBoolParameterDefinition "{6A4D100000000020}" {
+      m_sLabel "ENABLE REINFORCEMENTS"
+      m_sDescription "Allow the scenario to use reinforcement behavior."
+      m_sOwnerFactionKey "US"
+      m_bDefaultValue 1
+     }
+     GC_LobbyIntegerParameterDefinition "{6A4D100000000021}" {
+      m_sLabel "REINFORCEMENT DELAY"
+      m_sDescription "Delay in seconds before reinforcement behavior is available."
+      m_sOwnerFactionKey "US"
+      m_iDefaultValue 300
+      m_iMinimum 0
+      m_iMaximum 900
+      m_iStep 30
+      m_ePresentation SLIDER
+     }
+     GC_LobbyIntegerParameterDefinition "{6A4D100000000027}" {
+      m_sLabel "PATROL COUNT"
+      m_sDescription "Editable integer example for future scenario logic."
+      m_sOwnerFactionKey "US"
+      m_iDefaultValue 4
+      m_iMinimum 0
+      m_iMaximum 16
+      m_iStep 1
+      m_ePresentation EDIT_BOX
+     }
+     GC_LobbyIntegerParameterDefinition "{6A4D100000000028}" {
+      m_sLabel "RESERVE COUNT"
+      m_sDescription "Spin-box integer example for future scenario logic."
+      m_sOwnerFactionKey "US"
+      m_iDefaultValue 2
+      m_iMinimum 0
+      m_iMaximum 8
+      m_iStep 1
+      m_ePresentation SPIN_BOX
+     }
+     GC_LobbyFloatParameterDefinition "{6A4D100000000022}" {
+      m_sLabel "WEATHER INTENSITY"
+      m_sDescription "Future slice input for weather control."
+      m_sOwnerFactionKey "US"
+      m_fDefaultValue 0.5
+      m_fMinimum 0
+      m_fMaximum 1
+      m_fStep 0.1
+      m_ePresentation SLIDER
+     }
+     GC_LobbyFloatParameterDefinition "{6A4D100000000029}" {
+      m_sLabel "VISIBILITY DISTANCE"
+      m_sDescription "Editable float example for future scenario logic."
+      m_sOwnerFactionKey "US"
+      m_fDefaultValue 1000
+      m_fMinimum 0
+      m_fMaximum 5000
+      m_fStep 100
+      m_ePresentation EDIT_BOX
+     }
+     GC_LobbyStringParameterDefinition "{6A4D100000000023}" {
+      m_sLabel "OPERATION CODENAME"
+      m_sDescription "Future slice input for scenario script selection."
+      m_sOwnerFactionKey "US"
+      m_sDefaultValue "SILENT THUNDER"
+      m_iMaximumLength 64
+     }
+     GC_LobbySelectionParameterDefinition "{6A4D100000000024}" {
+      m_sLabel "OPERATION VARIANT"
+      m_sDescription "Stable option key for future scenario logic."
+      m_sOwnerFactionKey "US"
+      m_sDefaultKey "standard"
+      m_aOptions {
+       GC_LobbyParameterOption "{6A4D100000000025}" {
+        m_sLabel "STANDARD"
+        m_sKey "standard"
+        m_sPayload "variant.standard"
+       }
+       GC_LobbyParameterOption "{6A4D100000000026}" {
+        m_sLabel "HIGH INTENSITY"
+        m_sKey "high_intensity"
+        m_sPayload "variant.high_intensity"
+       }
+      }
+     }
+    }
+   }
    m_BriefingCatalog GC_LobbyBriefingCatalog "{6A4D100000000012}" {
      m_aBriefings {
       GC_Briefing "{6A42000000000015}" {

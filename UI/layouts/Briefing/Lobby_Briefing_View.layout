@@ -154,14 +154,24 @@ SizeLayoutWidgetClass {
           Padding 24 20 24 20
          }
          {
-          TextWidgetClass "{6A4100000000001A}" {
-           Name "BriefingSectionTitle"
+          HorizontalLayoutWidgetClass "{6A4100000000001A}" {
+           Name "BriefingSectionHeader"
            Slot LayoutSlot "{6A4100000000001B}" {
+            HorizontalAlign 3
            }
-           Color 0.94 0.94 0.92 1
-           Text "01  OVERVIEW"
-           "Font Size" 28
-           "Min Font Size" 22
+           {
+            TextWidgetClass "{6A41000000000052}" {
+             Name "BriefingSectionTitle"
+             Slot LayoutSlot "{6A41000000000053}" {
+              SizeMode Fill
+              FillWeight 1
+             }
+             Color 0.94 0.94 0.92 1
+             Text "01  OVERVIEW"
+             "Font Size" 28
+             "Min Font Size" 22
+            }
+           }
           }
           ImageWidgetClass "{6A4100000000001C}" {
            Name "BriefingSectionDivider"
@@ -276,10 +286,10 @@ SizeLayoutWidgetClass {
                    VerticalAlign 3
                   }
                   "Is Visible" 0
-                 }
-               }
+                }
               }
-             }
+            }
+           }
             }
             }
           }
@@ -300,9 +310,19 @@ SizeLayoutWidgetClass {
          }
        }
       }
-     }
-    }
+      OverlayWidgetClass "{6A50000000000210}" : "{6A50000000000001}UI/layouts/Lobby_Parameters.layout" {
+       Name "BriefingParametersPanel"
+       Slot LayoutSlot "{6A50000000000211}" {
+        VerticalAlign 3
+        Padding 6 0 0 0
+        SizeMode Fill
+        FillWeight 1
+       }
+       "Is Visible" 0
+      }
    }
   }
+  }
  }
+}
 }

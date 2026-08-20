@@ -12,6 +12,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
     protected ScrollLayoutWidget m_wScroll;
     protected GC_BriefingScrollComponent m_ScrollComponent;
     protected Widget m_wBriefingView;
+    protected Widget m_wBriefingEntryRows;
 
     override void HandlerAttached(Widget w)
     {
@@ -21,6 +22,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
         RegisterRow("BriefingTitleRow02");
         RegisterRow("BriefingTitleRow03");
         RegisterRow("BriefingTitleRow04");
+        m_wBriefingEntryRows = w.FindAnyWidget("BriefingEntryRows");
 
         m_wScroll = ScrollLayoutWidget.Cast(w.GetParent());
         if (m_wScroll)
@@ -33,7 +35,6 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
         m_wBriefingView = w;
         while (m_wBriefingView && m_wBriefingView.GetName() != "BriefingView")
             m_wBriefingView = m_wBriefingView.GetParent();
-
         ScheduleLayoutRefresh();
     }
 
@@ -51,6 +52,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
         m_wScroll = null;
         m_ScrollComponent = null;
         m_wBriefingView = null;
+        m_wBriefingEntryRows = null;
         super.HandlerDeattached(w);
     }
 
@@ -80,12 +82,12 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
     protected void EnsureRowCapacity(int requiredCount)
     {
         WorkspaceWidget workspace = GetGame().GetWorkspace();
-        if (!workspace || !m_wRoot)
+        if (!workspace || !m_wBriefingEntryRows)
             return;
 
         while (m_aRows.Count() < requiredCount)
         {
-            Widget rowRoot = workspace.CreateWidgets(TITLE_ROW_LAYOUT, m_wRoot);
+            Widget rowRoot = workspace.CreateWidgets(TITLE_ROW_LAYOUT, m_wBriefingEntryRows);
             if (!rowRoot)
                 return;
 
@@ -180,6 +182,21 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
         m_OnTitleSelected.Invoke(selectedRow);
     }
 
+    void ClearSelection()
+    {
+        m_iSelectedBriefingOrder = 0;
+        for (int i = 0; i < m_aRows.Count(); i++)
+        {
+            if (m_aRows[i])
+                m_aRows[i].SetSelected(false);
+        }
+    }
+
+    void RefreshLayout()
+    {
+        ScheduleLayoutRefresh();
+    }
+
     //! Applies the current local audience-filtered snapshot, adding reusable rows as needed.
     GC_BriefingTitleRowComponent ConfigureBriefings(array<ref GC_Briefing> briefings)
     {
@@ -197,6 +214,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
             if (briefings && index < briefings.Count())
             {
                 row.SetBriefingData(briefings[index]);
+                row.SetDisplayOrder(index + 1);
                 if (m_iSelectedBriefingOrder > 0 && row.GetBriefingOrder() == m_iSelectedBriefingOrder)
                     selectedRow = row;
             }

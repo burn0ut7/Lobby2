@@ -45,6 +45,11 @@ class GC_BriefingParser
 		return content.Contains(SIZE_TAG_PREFIX);
 	}
 
+	static bool HasScenarioTag(string content)
+	{
+		return content.Contains(SCENARIO_TAG);
+	}
+
 	static bool HasInlineImageTag(string content)
 	{
 		int cursor;

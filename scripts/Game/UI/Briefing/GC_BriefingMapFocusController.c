@@ -4,16 +4,13 @@ class GC_BriefingMapFocusController
 	protected static const float PAN_DURATION = 0.4;
 	protected static const float ZOOM_DURATION = 0.7;
 	protected static const float TARGET_SCREEN_FRACTION = 0.34;
-	protected static const float PANEL_MARGIN_FRACTION = 0.015;
-	protected static const float MIN_AVAILABLE_WIDTH_FRACTION = 0.25;
-	protected static const float DESCRIPTION_HEIGHT = 30;
 
 	protected SCR_MapEntity m_MarkerFocusMap;
 	protected vector m_vMarkerFocusWorld;
 	protected float m_fMarkerFocusZoom;
 	protected string m_sMarkerFocusName;
 
-	void Focus(string markerName, GC_LobbyManager lobbyManager, SizeLayoutWidget viewSize)
+	void Focus(string markerName, GC_LobbyManager lobbyManager)
 	{
 	    PlayerController playerController = GetGame().GetPlayerController();
 	    if (!lobbyManager || !playerController)
@@ -56,11 +53,8 @@ class GC_BriefingMapFocusController
 	        return;
 	    }
 
-	    float mapX;
-	    float mapY;
 	    float mapWidth;
 	    float mapHeight;
-	    mapFrame.GetScreenPos(mapX, mapY);
 	    mapFrame.GetScreenSize(mapWidth, mapHeight);
 	    if (mapWidth <= 0 || mapHeight <= 0)
 	    {
@@ -68,44 +62,9 @@ class GC_BriefingMapFocusController
 	        return;
 	    }
 
-	    float availableLeft = mapX;
-	    float availableRight = mapX + mapWidth;
-	    float availableTop = mapY;
-	    float availableBottom = mapY + mapHeight;
-	    float mapCenterX = mapX + mapWidth * 0.5;
-	    float mapCenterY = mapY + mapHeight * 0.5;
-
-	    if (viewSize)
-	    {
-	        float panelX;
-	        float panelY;
-	        float panelWidth;
-	        float panelHeight;
-	        viewSize.GetScreenPos(panelX, panelY);
-	        viewSize.GetScreenSize(panelWidth, panelHeight);
-
-	        bool overlapsVertically = panelY < mapY + mapHeight && panelY + panelHeight > mapY;
-	        bool overlapsHorizontally = panelX < mapX + mapWidth && panelX + panelWidth > mapX;
-	        if (overlapsVertically && overlapsHorizontally)
-	        {
-	            float margin = mapWidth * PANEL_MARGIN_FRACTION;
-	            if (panelX + panelWidth * 0.5 <= mapCenterX)
-	                availableLeft = panelX + panelWidth + margin;
-	            else
-	                availableRight = panelX - margin;
-
-	            if (availableRight - availableLeft < mapWidth * MIN_AVAILABLE_WIDTH_FRACTION)
-	            {
-	                availableLeft = mapX;
-	                availableRight = mapX + mapWidth;
-	            }
-	        }
-	    }
-
-	    float availableWidth = availableRight - availableLeft;
-	    float availableShortSide = availableWidth;
-	    if (mapHeight < availableShortSide)
-	        availableShortSide = mapHeight;
+	    float mapShortSide = mapWidth;
+	    if (mapHeight < mapShortSide)
+	        mapShortSide = mapHeight;
 
 	    float currentZoom = mapEntity.GetCurrentZoom();
 	    if (currentZoom <= 0)
@@ -138,7 +97,7 @@ class GC_BriefingMapFocusController
 	            rotationFootprint = 1;
 
 	        float currentVisualPixels = currentMarkerPixels * rotationFootprint;
-	        float targetVisualPixels = availableShortSide * TARGET_SCREEN_FRACTION;
+	        float targetVisualPixels = mapShortSide * TARGET_SCREEN_FRACTION;
 	        targetZoom = currentZoom * targetVisualPixels / currentVisualPixels;
 
 	        if (targetZoom < mapEntity.GetMinZoom())
@@ -147,30 +106,16 @@ class GC_BriefingMapFocusController
 	            targetZoom = mapEntity.GetMaxZoom();
 	    }
 
-	    float focusScreenX = (availableLeft + availableRight) * 0.5;
-	    WorkspaceWidget workspace = GetGame().GetWorkspace();
-	    float descriptionOffset;
-	    if (workspace && !focusMarker.GetDescription().IsEmpty())
-	        descriptionOffset = workspace.DPIScale(DESCRIPTION_HEIGHT * 0.5);
-	    float focusScreenY = (availableTop + availableBottom) * 0.5 - descriptionOffset;
-	    float horizontalScreenOffset = focusScreenX - mapCenterX;
-	    float verticalScreenOffset = focusScreenY - mapCenterY;
 	    vector markerPosition = focusMarker.GetWorldPosition();
 
-	    float currentFocusWorldX = markerPosition[0] - horizontalScreenOffset / currentZoom;
-	    float currentFocusWorldZ = markerPosition[2] + verticalScreenOffset / currentZoom;
 	    int currentPanX;
 	    int currentPanY;
-	    mapEntity.WorldToScreen(currentFocusWorldX, currentFocusWorldZ, currentPanX, currentPanY, false);
+	    mapEntity.WorldToScreen(markerPosition[0], markerPosition[2], currentPanX, currentPanY, false);
 
 	    Cancel();
 	    m_MarkerFocusMap = mapEntity;
 	    m_fMarkerFocusZoom = targetZoom;
-	    m_vMarkerFocusWorld = {
-	        markerPosition[0] - horizontalScreenOffset / targetZoom,
-	        markerPosition[1],
-	        markerPosition[2] + verticalScreenOffset / targetZoom
-	    };
+	    m_vMarkerFocusWorld = markerPosition;
 	    m_sMarkerFocusName = markerName;
 	    SCR_MapEntity.GetOnMapPanEnd().Insert(OnMarkerFocusPanComplete);
 	    mapEntity.PanSmooth(currentPanX, currentPanY, PAN_DURATION);
@@ -234,4 +179,3 @@ class GC_BriefingMapFocusController
 	}
 
 }
-

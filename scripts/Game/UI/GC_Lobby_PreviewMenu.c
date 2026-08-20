@@ -10,6 +10,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 	protected GC_PlayerListTabsComponent m_PlayerListTabs;
 	protected SCR_EditorManagerEntity m_EditorManager;
 	protected int m_iEditorManagerAttachAttempts;
+	protected InputManager m_InputManager;
 
     override void OnMenuInit()
     {
@@ -46,7 +47,12 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		m_iEditorManagerAttachAttempts = 0;
 		AttachEditorManager();
 
-        GetGame().GetInputManager().AddActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
+		m_InputManager = GetGame().GetInputManager();
+		if (m_InputManager)
+		{
+			m_InputManager.AddActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
+			m_InputManager.AddActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
+		}
 
         // Match the shipped preview-menu pattern: let the menu layout finish
         // creating, then open the map on the following frame.
@@ -69,10 +75,15 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
 		GetGame().GetCallqueue().Remove(RestoreMapActionsAfterEditor);
         GetGame().GetCallqueue().Remove(OpenMap);
-        GetGame().GetCallqueue().Remove(OpenMapNow);
-        GetGame().GetCallqueue().Remove(ToggleChatWrap);
+		GetGame().GetCallqueue().Remove(OpenMapNow);
+		GetGame().GetCallqueue().Remove(ToggleChatWrap);
+		GetGame().GetCallqueue().Remove(OpenPauseMenu);
 
-        GetGame().GetInputManager().RemoveActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
+		if (m_InputManager)
+		{
+			m_InputManager.RemoveActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
+			m_InputManager.RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
+		}
 
         if (m_ChatPanel && m_ChatPanel.IsOpen())
             SCR_ChatPanelManager.GetInstance().CloseChatPanel(m_ChatPanel);
@@ -85,7 +96,21 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		m_LobbyManager = null;
 		m_PlayerListTabs = null;
 		m_ChatPanel = null;
+		m_InputManager = null;
     }
+
+	protected void OnPauseMenuRequested()
+	{
+		// Let the MenuBack event finish before opening the pause menu, otherwise
+		// the same Escape press can immediately close the menu it just opened.
+		GetGame().GetCallqueue().Remove(OpenPauseMenu);
+		GetGame().GetCallqueue().CallLater(OpenPauseMenu, 0);
+	}
+
+	protected void OpenPauseMenu()
+	{
+		ArmaReforgerScripted.OpenPauseMenu(false, true);
+	}
 
 	protected void AttachEditorManager()
 	{

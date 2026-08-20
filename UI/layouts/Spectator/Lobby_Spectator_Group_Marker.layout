@@ -1,0 +1,21 @@
+OverlayWidgetClass {
+ Name "LobbySpectatorGroupOverlay"
+ Clipping False
+ components {
+  GC_SpectatorGroupEditableEntityUIComponent "{6A56000000000050}" {
+  }
+  SCR_MilitarySymbolUIComponent "{6A56000000000057}" {
+  }
+ }
+ Slot FrameWidgetSlot "{6A56000000000052}" {
+  PositionX -24
+  OffsetLeft -24
+  PositionY -24
+  OffsetTop -24
+  SizeX 48
+  OffsetRight -24
+  SizeY 48
+  OffsetBottom -24
+ }
+ "Ignore Cursor" 0
+}

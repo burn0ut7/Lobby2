@@ -17,7 +17,6 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
     protected static const string SIZE_TAG_CLOSE = "</size>";
     protected static const string BLOCK_IMAGE_TAG_PREFIX = "<img ";
     protected static const string BLOCK_IMAGE_TAG_CLOSE = "/>";
-    protected static const string SCENARIO_TAG = "<scenario />";
     protected static const string TAG_ATTRIBUTE_CLOSE = "\">";
     protected static const string INVALID_INTERACTIVE_TAG_TEXT = "Invalid Lobby2 briefing interaction tag.";
     protected static const string INVALID_BLOCK_IMAGE_TAG_TEXT = "Invalid Lobby2 briefing image tag.";
@@ -48,6 +47,7 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
     protected static const float MIN_INLINE_FONT_SCALE = 0.75;
     protected static const float MAX_INLINE_FONT_SCALE = 2.0;
     protected static const float COMPACT_WIDTH = 287;
+    protected static const float PARAMETERS_WIDTH = 1240;
     protected static const int SECTION_LAYOUT_SETTLE_DELAY = 50;
 
     protected GC_BriefingTitlesComponent m_Titles;
@@ -55,6 +55,9 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
     protected SizeLayoutWidget m_wViewSize;
     protected Widget m_wIndexPanel;
     protected Widget m_wDocumentPanel;
+    protected Widget m_wParametersPanel;
+    protected Widget m_wParametersTabRoot;
+    protected GC_BriefingTitleRowComponent m_ParametersTab;
     protected TextWidget m_wSectionTitle;
     protected RichTextWidget m_wPlainSectionBody;
     protected RichTextWidget m_wRichSectionBody;
@@ -86,6 +89,12 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 
         m_wIndexPanel = w.FindAnyWidget("BriefingIndexPanel");
         m_wDocumentPanel = w.FindAnyWidget("BriefingDocumentPanel");
+        m_wParametersPanel = w.FindAnyWidget("BriefingParametersPanel");
+        m_wParametersTabRoot = w.FindAnyWidget("BriefingParametersTab");
+        if (m_wParametersTabRoot)
+            m_ParametersTab = GC_BriefingTitleRowComponent.Cast(m_wParametersTabRoot.FindHandler(GC_BriefingTitleRowComponent));
+        if (m_ParametersTab)
+            m_ParametersTab.m_OnClicked.Insert(OnParametersTabClicked);
         m_wSectionTitle = TextWidget.Cast(w.FindAnyWidget("BriefingSectionTitle"));
         m_wPlainSectionBody = RichTextWidget.Cast(w.FindAnyWidget("BriefingSectionPlainBody"));
         m_wRichSectionBody = RichTextWidget.Cast(w.FindAnyWidget("BriefingSectionRichBody"));
@@ -115,6 +124,8 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         {
             m_LobbyManager.m_OnBriefingsChanged.Insert(OnBriefingsChanged);
             m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnPlayerRegistryChanged);
+            m_LobbyManager.m_OnScenarioParametersChanged.Insert(OnScenarioParametersChanged);
+            m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
         }
 
         RefreshBriefings();
@@ -130,11 +141,15 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 
         if (m_Titles)
             m_Titles.m_OnTitleSelected.Remove(OnTitleSelected);
+        if (m_ParametersTab)
+            m_ParametersTab.m_OnClicked.Remove(OnParametersTabClicked);
 
         if (m_LobbyManager)
         {
             m_LobbyManager.m_OnBriefingsChanged.Remove(OnBriefingsChanged);
             m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnPlayerRegistryChanged);
+            m_LobbyManager.m_OnScenarioParametersChanged.Remove(OnScenarioParametersChanged);
+            m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
         }
 
         m_Titles = null;
@@ -142,6 +157,9 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         m_wViewSize = null;
         m_wIndexPanel = null;
         m_wDocumentPanel = null;
+        m_wParametersPanel = null;
+        m_wParametersTabRoot = null;
+        m_ParametersTab = null;
         m_wSectionTitle = null;
         m_wPlainSectionBody = null;
         m_wRichSectionBody = null;
@@ -160,9 +178,12 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 
     protected void OnTitleSelected(GC_BriefingTitleRowComponent row)
     {
+        if (m_ParametersTab)
+            m_ParametersTab.SetSelected(false);
+
         if (!row || !row.IsSelected())
         {
-            ShowBriefing(null);
+            ShowBriefing(null, 0);
             return;
         }
 
@@ -170,7 +191,23 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         if (m_LobbyManager)
             briefing = m_LobbyManager.GetBriefing(row.GetBriefingOrder());
 
-        ShowBriefing(briefing);
+        ShowBriefing(briefing, row.GetDisplayOrder());
+    }
+
+    protected void OnParametersTabClicked(SCR_ButtonBaseComponent button)
+    {
+        if (!m_ParametersTab || button != m_ParametersTab)
+            return;
+
+        bool selectParameters = !m_ParametersTab.IsSelected();
+        if (m_Titles)
+            m_Titles.ClearSelection();
+
+        m_ParametersTab.SetSelected(selectParameters);
+        if (selectParameters)
+            ShowParameters();
+        else
+            ShowBriefing(null, 0);
     }
 
     protected void OnBriefingsChanged(int revision)
@@ -183,34 +220,125 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         RefreshBriefings();
     }
 
+    protected void OnScenarioParametersChanged(int revision)
+    {
+        RefreshParametersTab();
+    }
+
+    protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+    {
+        RefreshParametersTab();
+    }
+
     protected void RefreshBriefings()
     {
+        RefreshParametersTab();
+
         if (!m_Titles || !m_LobbyManager)
         {
-            ShowBriefing(null);
+            ShowBriefing(null, 0);
             return;
         }
 
         PlayerController playerController = GetGame().GetPlayerController();
         if (!playerController)
         {
-            ShowBriefing(null);
+            ShowBriefing(null, 0);
             return;
         }
 
-        array<ref GC_Briefing> briefings = m_LobbyManager.GetBriefingsForPlayer(playerController.GetPlayerId());
+        array<ref GC_Briefing> briefings = OrderBriefingsForIndex(
+            m_LobbyManager.GetBriefingsForPlayer(playerController.GetPlayerId()));
         GC_BriefingTitleRowComponent selectedRow = m_Titles.ConfigureBriefings(briefings);
+        if (m_ParametersTab)
+            m_ParametersTab.SetDisplayOrder(briefings.Count() + 1);
+
+        if (m_ParametersTab && m_ParametersTab.IsSelected())
+        {
+            ShowParameters();
+            return;
+        }
+
         if (!selectedRow)
         {
-            ShowBriefing(null);
+            ShowBriefing(null, 0);
             return;
         }
 
-        ShowBriefing(m_LobbyManager.GetBriefing(selectedRow.GetBriefingOrder()));
+        ShowBriefing(
+            m_LobbyManager.GetBriefing(selectedRow.GetBriefingOrder()),
+            selectedRow.GetDisplayOrder());
     }
 
-    protected void ShowBriefing(GC_Briefing briefing)
+    protected array<ref GC_Briefing> OrderBriefingsForIndex(array<ref GC_Briefing> briefings)
     {
+        array<ref GC_Briefing> ordered = {};
+        if (!briefings)
+            return ordered;
+
+        foreach (GC_Briefing briefing : briefings)
+        {
+            if (briefing && !GC_BriefingParser.HasScenarioTag(briefing.GetContent()))
+                ordered.Insert(briefing);
+        }
+
+        foreach (GC_Briefing scenarioBriefing : briefings)
+        {
+            if (scenarioBriefing && GC_BriefingParser.HasScenarioTag(scenarioBriefing.GetContent()))
+                ordered.Insert(scenarioBriefing);
+        }
+
+        return ordered;
+    }
+
+    protected void RefreshParametersTab()
+    {
+        bool hasParameters;
+        bool isBriefingPhase = m_LobbyManager && m_LobbyManager.GetLobbyPhase() == GC_ELobbyPhase.BRIEFING;
+        bool catalogValid = isBriefingPhase && m_LobbyManager.IsScenarioParameterCatalogValid();
+        int definitionCount;
+        if (catalogValid)
+        {
+            array<ref GC_LobbyParameterDefinition> definitions = m_LobbyManager.GetScenarioParameterDefinitions();
+            if (definitions)
+                definitionCount = definitions.Count();
+            hasParameters = definitionCount > 0;
+        }
+
+        bool visibilityChanged = m_wParametersTabRoot && m_wParametersTabRoot.IsVisible() != hasParameters;
+        if (m_wParametersTabRoot)
+            m_wParametersTabRoot.SetVisible(hasParameters);
+        if (visibilityChanged && m_Titles)
+            m_Titles.RefreshLayout();
+
+        if (!hasParameters && m_ParametersTab && m_ParametersTab.IsSelected())
+        {
+            m_ParametersTab.SetSelected(false);
+            ShowBriefing(null, 0);
+        }
+    }
+
+    protected void ShowParameters()
+    {
+        GetGame().GetCallqueue().Remove(PrepareSectionLayout);
+        GetGame().GetCallqueue().Remove(CommitSectionLayout);
+        CancelMarkerFocus();
+        SetViewWidth(PARAMETERS_WIDTH);
+        SetViewHeight(m_fMaxViewHeight);
+
+        if (m_wDocumentPanel)
+            m_wDocumentPanel.SetVisible(false);
+        if (m_wParametersPanel)
+            m_wParametersPanel.SetVisible(true);
+        if (m_Titles)
+            m_Titles.RefreshLayout();
+    }
+
+    protected void ShowBriefing(GC_Briefing briefing, int displayOrder)
+    {
+        if (m_wParametersPanel)
+            m_wParametersPanel.SetVisible(false);
+
         if (!briefing)
         {
             SetViewWidth(COMPACT_WIDTH);
@@ -255,10 +383,10 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         }
 
         if (m_wSectionTitle)
-            m_wSectionTitle.SetText(briefing.GetOrder().ToString(2) + "  " + briefing.GetTitle());
+            m_wSectionTitle.SetText(displayOrder.ToString(2) + "  " + briefing.GetTitle());
 
         string content = briefing.GetContent();
-        bool hasScenario = content.Contains(SCENARIO_TAG);
+        bool hasScenario = GC_BriefingParser.HasScenarioTag(content);
         bool isRichText = HasSupportedRichTextTag(content);
         bool hasInlineImage = HasInlineImageTag(content);
         bool hasBlockImage = HasBlockImageTag(content);
@@ -483,7 +611,7 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 
     protected bool ConfigureInteractiveTag(string content)
     {
-        return m_InteractiveRenderer.Configure(content, m_LobbyManager, m_wViewSize, m_MapFocusController);
+        return m_InteractiveRenderer.Configure(content, m_LobbyManager, m_MapFocusController);
     }
 
     protected void ClearActionMarker()

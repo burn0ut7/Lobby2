@@ -5,6 +5,18 @@ VerticalLayoutWidgetClass {
   }
  }
  {
+  VerticalLayoutWidgetClass {
+   Name "BriefingRows"
+   Slot LayoutSlot {
+    HorizontalAlign 3
+   }
+   {
+    VerticalLayoutWidgetClass {
+     Name "BriefingEntryRows"
+     Slot LayoutSlot {
+      HorizontalAlign 3
+     }
+     {
     ButtonWidgetClass "{6A4B000000000103}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
      Name "BriefingTitleRow01"
      Slot LayoutSlot "{6A4B000000000104}" {
@@ -56,6 +68,25 @@ VerticalLayoutWidgetClass {
        m_bSelected 0
       }
      }
+     }
     }
+    }
+    ButtonWidgetClass "{6A50000000000200}" : "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout" {
+     Name "BriefingParametersTab"
+     Slot LayoutSlot "{6A50000000000201}" {
+      HorizontalAlign 3
+     }
+     "Is Visible" 0
+     components {
+      GC_BriefingTitleRowComponent "{6A4B000000000002}" {
+       m_iOrder 1
+       m_sTitle "PARAMETERS"
+       m_bSelected 0
+       m_sIconName "settings"
+      }
+     }
+    }
+   }
+  }
  }
 }

@@ -1,0 +1,5 @@
+FrameWidgetClass {
+ Name "SpectatorMarkerOverlay"
+ "Z Order" 20
+ "Ignore Cursor" 1
+}

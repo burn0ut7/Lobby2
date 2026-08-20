@@ -1,0 +1,13 @@
+FrameWidgetClass {
+ Name "SpectatorEditableEntitySlot"
+ Clipping False
+ Slot FrameWidgetSlot {
+  SizeX 0
+  SizeY 0
+ }
+ components {
+  SCR_EditableEntitySceneSlotUIComponent "{6A56000000000040}" {
+  }
+ }
+ "Ignore Cursor" 1
+}

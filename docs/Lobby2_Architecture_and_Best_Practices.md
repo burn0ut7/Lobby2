@@ -132,6 +132,7 @@ Small related value types may share a file. Large classes should not become fold
 - `scripts/Game/Player/GC_LobbyPlayerController.c`
   - Owns Lobby2 request RPCs.
   - Is selected only by the Lobby2 player-controller prefab.
+  - Receives reliable owner-only spectator enter/leave RPCs. The owning client alone creates and deletes the local manual camera; the server never spawns or replicates that camera.
 - `scripts/Game/modded/Entities/SCR_AIGroup_M.c`
   - Calls `super` for every base group lifecycle event.
   - Registers playable groups and suppresses both queued `RequestSpawn()` and direct `SpawnUnits()` only while the active mode is `GC_LobbyGameMode`.
@@ -274,6 +275,8 @@ Player catch-up is idempotent and runs after identity registration, reconnect, a
 - `BRIEFING`: stage the exact slot prefab in bounded batches, keep the player spectator, and deactivate staged AI.
 - `GAME`: force-spawn a missing living slot when possible and assign its entity through `SetInitialMainEntity`; failed assignments remain spectators.
 - `KIA` or `POSTGAME`: spectator behavior without altering match results.
+
+The Lobby2 spectator body and spectator camera have separate lifetimes. The server spawns and possesses the replicated invisible spectator body during initial pregame/briefing catch-up, but no manual camera is created then. When `GAME` begins, every connected player is reconciled: players without a living assigned slot receive an owner-only enter RPC and locally spawn `{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et`; players assigned a character receive the leave RPC. KIA uses the same entry path. Entering `POSTGAME` removes any remaining local spectator camera while preserving the authoritative spectator body/state.
 
 Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
 
