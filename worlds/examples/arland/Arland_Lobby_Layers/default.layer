@@ -5,67 +5,10 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
  coords 1195.314 39 2720.544
 }
 GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
- components {
-  GC_LobbyManager "{6A137A39106A4973}" {
-   m_BriefingCatalog GC_LobbyBriefingCatalog "{6A4D100000000012}" {
-    m_aBriefings {
-     GC_Briefing "{6A42000000000015}" {
-      m_iOrder 1
-      m_sTitle "SCENARIO"
-      m_sContent "<scenario />"
-     }
-     GC_Briefing "{6A42000000000001}" {
-      m_sContent "<p>Assault and secure key positions across the area of operations to establish control and degrade enemy capabilities. To test the briefing action, <action id=\"debug_print\"><color rgba=\"255,0,255,255\"><b>click the action here</b></color></action> and watch the Workbench console.</p><p>Both sides have established strong defensive positions. Expect contact throughout the area.</p><p>Civilian activity is minimal. Maintain mission focus and minimize collateral damage.</p><br /><color rgba=\"255,152,50,255\"><b>KEY INFORMATION</b></color><br /><color rgba=\"150,160,164,255\">AREA OF OPERATIONS</color><br />Everon, Baltic Sea<br /><br /><color rgba=\"150,160,164,255\">EST. DURATION</color><br />60 minutes<br /><br /><color rgba=\"150,160,164,255\">VICTORY CONDITION</color><br />Complete the assigned objectives and preserve friendly combat power."
-     }
-     GC_Briefing "{6A42000000000002}" {
-      m_sContent "<p><img resource=\"{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds\" inline=\"true\" height=\"24\" /> Enemy forces control several strategically important positions and are prepared to reinforce them. Map focus can reference <marker name=\"marker2\"><color name=\"orange\"><b>marker Alpha</b></color></marker> by its entity name. Reference: <link url=\"https://community.bistudio.com/wiki/Arma_Reforger\"><b>Arma Reforger Wiki</b></link>.</p><p>Friendly elements are assembling in protected staging areas. Reconnaissance is limited, so unit leaders should confirm routes before movement.</p><br /><color rgba=\"255,152,50,255\"><b>COMMANDER'S NOTE</b></color><br />Maintain communications, identify targets before engagement, and report meaningful changes in enemy disposition."
-     }
-     GC_Briefing "{6A42000000000003}" {
-     }
-     GC_Briefing "{6A42000000000004}" {
-     }
-     GC_Briefing "{6A42000000000006}" {
-      m_eShowAtGameModeState PREGAME
-     }
-     GC_Briefing "{6A42000000000007}" {
-      m_eShowAtGameModeState BRIEFING
-     }
-     GC_Briefing "{6A42000000000008}" {
-      m_eShowAtGameModeState PREGAME
-     }
-    }
-   }
-   m_ParameterCatalog GC_LobbyParameterCatalog "{6A4D100000000015}" {
-    m_aDefinitions {
-     GC_LobbySelectionParameterDefinition "{6A4D100000000024}" {
-      m_aOptions {
-       GC_LobbyParameterOption "{6A2881E8AFE4E2C9}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard1"
-        m_sPayload "variant.standard"
-       }
-       GC_LobbyParameterOption "{6A2881E8AF2FBCB6}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard2"
-        m_sPayload "variant.standard"
-       }
-       GC_LobbyParameterOption "{6A2881E8AE1F5F44}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard3"
-        m_sPayload "variant.standard"
-       }
-       GC_LobbyParameterOption "{6A2881E8AD79BB18}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard4"
-        m_sPayload "variant.standard"
-       }
-      }
-     }
-    }
-   }
-  }
- }
  coords 1194.457 39 2723.129
+}
+RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
+ coords 1205.665 38.911 2686.31
 }
 GenericEntity marker2 {
  components {
@@ -77,7 +20,7 @@ GenericEntity marker2 {
    m_sDescription "testttt"
   }
  }
- coords 1204.868 39 2721.345
+ coords 1225.552 39 2736.949
  angles 0 144.276 0
 }
 SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
@@ -85,11 +28,8 @@ SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.e
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
 }
-SCR_ChimeraCharacter : "{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et" {
- coords 1165.576 38.113 2778.917
-}
-SCR_ChimeraCharacter : "{836E7E39AAC5888B}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Base.et" {
- coords 1200.616 38.961 2691.476
+SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
+ coords 1198.357 38.853 2682.561
 }
 SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  coords 1197.625 39 2738.455

@@ -21,24 +21,31 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	{
 		super.EOnInit(owner);
 
-		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (!manager || !m_bPlayable)
+		if (!m_bPlayable)
 			return;
 
-		manager.RegisterGroup(this);
+		if (GC_LobbyGameMode.GetGameMode())
+		{
+			ChimeraAIWorld aiWorld = ChimeraAIWorld.Cast(GetGame().GetAIWorld());
+			if (aiWorld)
+				aiWorld.PurgeSpawnRequestsForGroup(this);
+		}
+
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			manager.RegisterGroup(this);
 	}
 
 	void ~SCR_AIGroup()
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (manager)
-		manager.UnregisterGroup(this);
+			manager.UnregisterGroup(this);
 	}
 
 	override void RequestSpawn(int slotsWanted = -1, float observerRange = 0)
 	{
-		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (manager && m_bPlayable && !GetWorld().IsEditMode())
+		if (GC_LobbyGameMode.GetGameMode() && m_bPlayable && !GetWorld().IsEditMode())
 			return;
 
 		super.RequestSpawn(slotsWanted, observerRange);
@@ -68,21 +75,43 @@ modded class SCR_AIGroup : ChimeraAIGroup
 		if (GetWorld().IsEditMode() && m_bPlayable)
 		{
 #ifdef WORKBENCH
-			SpawnWorkbenchPreview();
+			if (WorkbenchWorldHasLobbyGameMode())
+				DestroyEntities(m_aSceneGroupUnitInstances);
+			else
+				SpawnWorkbenchPreview();
 #else
 			super.SpawnUnits();
 #endif
 			return;
 		}
 
-		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (manager && m_bPlayable && !GetWorld().IsEditMode())
+		if (GC_LobbyGameMode.GetGameMode() && m_bPlayable && !GetWorld().IsEditMode())
 			return;
 
 		super.SpawnUnits();
 	}
 
 #ifdef WORKBENCH
+	protected bool WorkbenchWorldHasLobbyGameMode()
+	{
+		WorldEditor worldEditor = Workbench.GetModule(WorldEditor);
+		if (!worldEditor)
+			return false;
+
+		WorldEditorAPI worldEditorAPI = worldEditor.GetApi();
+		if (!worldEditorAPI)
+			return false;
+
+		for (int index = 0; index < worldEditorAPI.GetEditorEntityCount(); index++)
+		{
+			IEntitySource entitySource = worldEditorAPI.GetEditorEntity(index);
+			if (entitySource && entitySource.GetClassName() == "GC_LobbyGameMode")
+				return true;
+		}
+
+		return false;
+	}
+
 	protected GC_PlayerFormationCatalog GetWorkbenchFormationCatalog()
 	{
 		if (!s_WorkbenchFormationCatalog)

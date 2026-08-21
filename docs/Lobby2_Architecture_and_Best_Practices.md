@@ -8,29 +8,33 @@ Read this document before changing game-mode lifecycle, phase behavior, replicat
 
 ## Product model
 
-Lobby2 implements four ordered mission phases:
+Lobby2 implements five ordered mission phases:
 
-`PREGAME → BRIEFING → GAME → POSTGAME`
+`PREGAME → SLOTTING → BRIEFING → GAME → POSTGAME`
 
-- `PREGAME` covers mission preview and role selection.
+- `PREGAME` is the mission preview phase.
+- `SLOTTING` is the lobby and role-selection phase.
 - `BRIEFING` covers the authoritative mission briefing phase.
 - `GAME` is the active match.
 - `POSTGAME` is the completed match and future after-action-report phase.
-- `LOBBY` is a local menu view, not a fifth mission phase.
 - A phase may advance only to its explicit successor and may never move backward.
 
-Lobby2 owns this sequence through `GC_ELobbyPhase`. Do not extend or reinterpret `SCR_EGameModeState` to represent Lobby2-only phases.
+The active `GC_LobbyGameMode` owns this sequence through the base
+`SCR_EGameModeState` domain. Lobby2 adds `SLOTTING` and `BRIEFING` with a
+`modded enum`; it does not maintain a parallel phase value.
 
 ### Base-game state mapping
 
-| Lobby2 phase | Base `SCR_BaseGameMode` state | Transition behavior |
-|---|---|---|
-| `PREGAME` | `PREGAME` | Lobby2 prevents automatic base-game start. |
-| `BRIEFING` | `PREGAME` | Lobby2 changes only its replicated phase. |
-| `GAME` | `GAME` | Authority calls native `StartGameMode()` and verifies success. |
-| `POSTGAME` | `POSTGAME` | Authority calls native `EndGameMode()` and verifies success. |
+| Game-mode state | Transition behavior |
+|---|---|
+| `PREGAME` | Native initial state; Lobby2 prevents automatic start. |
+| `SLOTTING` | Guarded Lobby2 transition updates the base game-mode state. |
+| `BRIEFING` | Guarded Lobby2 transition updates the base game-mode state. |
+| `GAME` | Authority calls native `StartGameMode()` and verifies success. |
+| `POSTGAME` | Authority calls native `EndGameMode()` and verifies success. |
 
-The base game remains authoritative for its own match lifecycle. Lobby2 coordinates with it instead of maintaining a competing replacement.
+The base game-mode state property remains the single automatically replicated
+authority used by Lobby2 and other game-mode systems.
 
 ## Architectural principles
 
@@ -39,9 +43,9 @@ The base game remains authoritative for its own match lifecycle. Lobby2 coordina
 Lobby2 must be safe while another game mode is selected.
 
 - Use `GC_LobbyGameMode` and `GC_LobbyPlayerController` only in Lobby2-owned resources and worlds.
-- The one shared integration exception is `modded SCR_AIGroup` in `scripts/Game/modded/Entities/SCR_AIGroup_M.c`. It calls the base implementation and immediately exits unless `GC_LobbyManager.GetManager()` can cast the active mode to `GC_LobbyGameMode`.
+- The one shared integration exception is `modded SCR_AIGroup` in `scripts/Game/modded/Entities/SCR_AIGroup_M.c`. Playable spawn suppression is guarded directly by the active `GC_LobbyGameMode` so AI-world startup cannot race manager-component discovery; registration and lobby-owned lifecycle work still require `GC_LobbyManager.GetManager()`.
 - Do not use an unguarded `modded class` to change `SCR_BaseGameMode`, `SCR_PlayerController`, `SCR_AIGroup`, or another shared runtime class.
-- A harmless enum registration such as Lobby2 menu preset names may extend a shared enum, but it must not alter existing values or behavior.
+- Harmless enum registration may extend a shared enum with explicit unique values, but must not alter existing values or unrelated behavior.
 - `GC_LobbyManager.GetManager()` returning `null` is a normal condition outside Lobby2. Callers must tolerate it.
 - Never let Lobby2 callbacks, static subscriptions, UI, or replicated requests remain active after its owning mode is gone.
 
@@ -52,7 +56,7 @@ The base game owns players, factions, groups, group membership, characters, and 
 Lobby2 may keep derived indexes for discovery and presentation, but it must re-query authoritative APIs when answering ownership or membership questions. Lobby2 owns only data that the base game does not provide, including:
 
 - Lobby slot selection and slot presentation metadata.
-- The Lobby2 phase.
+- The two add-on-defined members of the base game-mode state domain.
 - Briefing content and marker snapshots.
 - Lobby-specific voice-channel presentation state.
 - Local menu view selection.
@@ -65,8 +69,8 @@ Do not turn `GC_LobbyRoster` into a competing player, faction, or group authorit
 - An owning `GC_LobbyPlayerController` RPC derives the requesting player ID from the controller.
 - `GC_LobbyManager` validates authority, lifecycle, administration status, current phase, and exact successor.
 - Clients never update phase optimistically.
-- Reliable authority broadcasts and JIP snapshots update local phase state.
-- UI observes replicated state and derives interaction permissions from it.
+- `SCR_BaseGameMode`'s automatically replicated state is the only phase transport for live transitions and JIP.
+- UI observes `GC_LobbyGameMode.GetState()` and derives presentation and interaction permissions from it.
 
 ### 4. Prefer deep modules
 
@@ -88,13 +92,12 @@ Small related value types may share a file. Large classes should not become fold
 - `scripts/Game/GameMode/GC_LobbyGameMode.c`
   - Lobby2-only game-mode root.
   - `GetGameMode()` is the single guarded lookup for the active Lobby2 mode.
-  - Prevents automatic base-game start while Lobby2 is in pregame or briefing.
-  - Opens the initial local lobby view with bounded controller-readiness retries.
-  - Removes pending callbacks when destroyed.
+  - Prevents automatic base-game start throughout Lobby2's preview, slotting, and briefing phases.
+  - Exposes one phase-presentation function that reads the replicated base state; both player-controller initialization and later state changes call it directly.
+  - Does not poll, retry, or gate the initial menu on a separate registration/readiness flag.
 - `scripts/Game/GameMode/GC_LobbyPhase.c`
-  - Defines `GC_ELobbyPhase`.
-  - Encodes legal successors, validity, names, and explicit ordering.
-  - Rejects duplicate and backward applications, including stale proxy updates.
+  - Adds `SLOTTING` and `BRIEFING` to `SCR_EGameModeState` with explicit unique values.
+  - Encodes Lobby2's legal successors, validity, names, and explicit ordering without storing state.
 - `scripts/Game/GC_LobbyManager.c`
   - Server-authoritative façade and integration coordinator.
   - `GetManager()` resolves the manager only through `GC_LobbyGameMode.GetGameMode()`.
@@ -124,22 +127,26 @@ Small related value types may share a file. Large classes should not become fold
 - `scripts/Game/Briefing/GC_LobbyBriefingCatalog.c`
   - Authored briefings, runtime marker snapshots, revisions, filtering, and serialization.
   - Keeps JIP snapshots independent of entity streaming order.
-- `GC_LobbyPhaseMachine`
-  - Stores the current phase and enforces monotonic application.
+- `GC_LobbyPhase`
+  - Validates the five supported base game-mode states and their explicit order.
+- `scripts/Game/modded/GameMode/SCR_BaseGameMode_M.c`
+  - Adds one guarded setter for `SLOTTING` and `BRIEFING`.
+  - Rejects unrelated game modes and cannot replace native `GAME` or `POSTGAME` transitions.
 
 ### Opt-in engine integration
 
 - `scripts/Game/Player/GC_LobbyPlayerController.c`
   - Owns Lobby2 request RPCs.
   - Is selected only by the Lobby2 player-controller prefab.
+  - Applies the current phase menu directly from `OnInit` on every non-dedicated local runtime.
   - Receives reliable owner-only spectator enter/leave RPCs. The owning client alone creates and deletes the local manual camera; the server never spawns or replicates that camera.
 - `scripts/Game/modded/Entities/SCR_AIGroup_M.c`
   - Calls `super` for every base group lifecycle event.
-  - Registers playable groups and suppresses both queued `RequestSpawn()` and direct `SpawnUnits()` only while the active mode is `GC_LobbyGameMode`.
+  - Purges any AI-world request queued by native initialization, registers playable groups through the lobby manager, and suppresses later queued `RequestSpawn()` and direct `SpawnUnits()` calls whenever the active mode is `GC_LobbyGameMode`.
   - Preserves empty playable group entities for Lobby2 respawn and slot reuse regardless of their authored native delete-when-empty setting, while retaining native empty-event and dormant behavior.
-  - In Workbench edit mode, materializes transient previews for every playable group from the cached formation data, including worlds without an AI-world entity.
+  - In Workbench edit mode outside a Lobby2 world, materializes transient previews for playable groups from the cached formation data. An authored `GC_LobbyGameMode` suppresses those previews as well as runtime playable spawning.
   - Unrelated runtime game modes retain the original `SCR_AIGroup` behavior because the manager cast returns `null`.
-  - The editor-only playable preview is an explicit global Workbench exception and never changes runtime behavior.
+  - The editor-only playable preview is an explicit guarded Workbench exception and never changes runtime behavior.
 - `scripts/Game/modded/Groups/SCR_GroupsManagerComponent_M.c`
   - Preserves empty authored playable groups while Lobby2 is active, even when their native delete-if-no-player setting is enabled.
   - Routes the exception through the native empty-group cleanup branch and restores the authored setting afterward.
@@ -219,8 +226,8 @@ When adding test content:
    - The player is currently an admin.
    - The target is exactly the next phase.
 6. The authority performs the corresponding native transition when required.
-7. The authority publishes the accepted Lobby2 phase reliably.
-8. UI reacts only after the authority update arrives.
+7. The authority changes the base game-mode state and bumps its existing replicated property.
+8. `SCR_BaseGameMode.OnGameStateChanged` updates components and local UI on authority, proxies, and JIP.
 
 ### Mission completion path
 
@@ -232,12 +239,13 @@ Backward, skipped, duplicate, stale, non-admin, invalid-enum, non-authority, and
 
 ## UI state rules
 
-Mission phase and local menu view are separate concepts.
+Each pre-match Lobby2 phase has one authoritative menu presentation.
 
-| Mission phase | Normal navigation | Admin-only successor | Locked |
+| Mission phase | Presented view | Admin-only successor | Locked |
 |---|---|---|---|
-| `PREGAME` | Preview, Lobby | Briefing | Game, Debrief |
-| `BRIEFING` | Lobby, Briefing | Game | Preview, Debrief |
+| `PREGAME` | Preview | Slotting | Briefing, Game, Debrief |
+| `SLOTTING` | Lobby/Slotting | Briefing | Preview, Game, Debrief |
+| `BRIEFING` | Briefing | Game | Preview, Slotting, Debrief |
 | `GAME` | None | Debrief | Earlier views and current Game |
 | `POSTGAME` | None | None | All controls |
 
@@ -251,17 +259,20 @@ Mission phase and local menu view are separate concepts.
 
 ## Replication and JIP
 
-Keep save and load order identical. The current snapshot order is:
+The base `SCR_BaseGameMode` state is the phase authority and is not duplicated
+in Lobby2's custom snapshot. Keep the remaining save and load order identical:
 
-1. Lobby2 phase.
-2. Registered group replication IDs.
-3. Lobby slots.
-4. Voice presentation state.
-5. Briefing and marker catalog.
+1. Registered group replication IDs.
+2. Lobby slots.
+3. Voice presentation state.
+4. Briefing and marker catalog.
+5. Scenario parameters.
 
 Guidelines:
 
-- Use bounded enum ranges that include every `GC_ELobbyPhase` value.
+- Modded game-mode enum values are intentionally non-contiguous. Serialize
+  Lobby2 phase-bearing records as integers, validate them through
+  `GC_LobbyPhase.IsValid`, and never infer lifecycle order from their values.
 - Treat entity replication IDs as references that may not resolve during the first JIP load pass.
 - Retry cross-entity resolution through a bounded or lifecycle-owned callback.
 - Remove retry callbacks during shutdown.
@@ -285,15 +296,16 @@ Player catch-up is idempotent and runs after identity registration, reconnect, a
 
 - No UUID reservation: global voice and spectator assignment.
 - `PREGAME`: restore slot/group claim, remain spectator.
+- `SLOTTING`: restore slot/group claim, remain spectator, and allow authoritative slot changes.
 - `BRIEFING`: stage the exact slot prefab in bounded batches, keep the player spectator, and deactivate staged AI.
 - `GAME`: force-spawn a missing living slot when possible and assign its entity through `SetInitialMainEntity`; failed assignments remain spectators.
 - `KIA` or `POSTGAME`: spectator behavior without altering match results.
 
-The Lobby2 spectator body and spectator camera have separate lifetimes. The server spawns and possesses the replicated invisible spectator body during initial pregame/briefing catch-up, but no manual camera is created then. When `GAME` begins, every connected player is reconciled: players without a living assigned slot receive an owner-only enter RPC and locally spawn `{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et`; players assigned a character receive the leave RPC. KIA uses the same entry path. Entering `POSTGAME` removes any remaining local spectator camera while preserving the authoritative spectator body/state.
+The Lobby2 spectator body and spectator camera have separate lifetimes. The server spawns and possesses the replicated invisible spectator body during initial preview/slotting/briefing catch-up, but no manual camera is created then. When `GAME` begins, every connected player is reconciled: players without a living assigned slot receive an owner-only enter RPC and locally spawn `{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et`; players assigned a character receive the leave RPC. KIA uses the same entry path. Entering `POSTGAME` removes any remaining local spectator camera while preserving the authoritative spectator body/state.
 
 Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
 
-Briefing slot requests are server-authoritative and JIP-safe: claiming a free slot spawns its staged entity immediately, changing slots deletes the previously staged entity before spawning the new one, and toggling out deletes the staged entity. Pending briefing spawn batches must re-check the claim before spawning so a released slot cannot be materialized by a stale queue entry.
+Slotting requests are server-authoritative and JIP-safe. Claims, changes, and toggling out are accepted only during `SLOTTING` and remain `RESERVED`. Entering `BRIEFING` stages every claimed slot in bounded batches; each pending spawn must re-check the claim so a released slot cannot be materialized by a stale queue entry. Slot changes are locked once briefing begins.
 
 Tracked controllable destruction is phase-sensitive: before `GAME`, a claimed slot is restaged; during `GAME`, it becomes `KIA` and any connected claimant moves to spectator. Repeated callbacks must be harmless. All authoritative transitions use the existing reliable slot update path, and queued JIP/spawn callbacks are removed during shutdown.
 
@@ -333,9 +345,15 @@ A global `modded class SCR_PlayerController` or an unguarded `SCR_AIGroup` exten
 
 Lobby2's automatic-start policy belongs on `GC_LobbyGameMode`. Native manual `StartGameMode()` remains available because base `CanStartGameMode()` governs automatic pregame advancement, not explicit authority calls.
 
-### Added base enum members create hidden serialization bugs
+### A parallel phase authority creates JIP divergence
 
-Extending a shared phase enum caused ordering and range assumptions to leak into unrelated systems. An add-on-owned enum makes the complete phase model explicit and allows independent serialization.
+The base game mode already replicates `m_eGameState` and invokes
+`OnGameStateChanged` for JIP. A second Lobby2 phase property can arrive or be
+presented in a different order, leaving clients on a stale or missing menu.
+Lobby2 therefore extends `SCR_EGameModeState` and uses the base property as the
+only authority. The added enum values are explicit and non-contiguous, so
+Lobby2-owned serialization validates raw integer values and uses a separate
+ordering function.
 
 ### Prefab and world declarations must migrate together
 
@@ -366,7 +384,7 @@ Before implementing a slice:
 - Trace prefab ancestry and world instances for changed root classes or attributed fields.
 - Identify every subscription, callback, dynamic widget, and replicated reference that needs cleanup.
 - Define the server request, validation, publication, and JIP paths.
-- Keep local view state separate from mission state.
+- Derive the phase menu directly from the replicated base game-mode state.
 
 Before calling a slice complete:
 
@@ -384,8 +402,8 @@ Before calling a slice complete:
 
 New behavior should generally fit one of these locations:
 
-- New authoritative transition policy: `GC_LobbyManager` plus the phase machine if ordering changes.
-- New Lobby2-owned phase data: a focused domain object serialized through the manager snapshot.
+- New authoritative transition policy: `GC_LobbyManager` plus `GC_LobbyPhase` if ordering changes.
+- New phase state: extend the base enum only when base-game consumers must observe it; do not add another replicated phase property.
 - New player-originated request: `GC_LobbyPlayerController` RPC with server-side manager validation.
 - New group behavior: extend the guarded `SCR_AIGroup` integration only when the behavior is required for every base group inside `GC_LobbyGameMode`; otherwise use an add-on-owned component on a narrower Lobby2 resource.
 - New briefing syntax: parser first, renderer second, action handler only if it creates a side effect.

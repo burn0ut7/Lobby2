@@ -230,8 +230,9 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	protected static const float CLOSE_FADE_START = 20.0;
 	protected static const float CLOSE_FADE_END = 10.0;
 	protected static const float HOVER_WIDTH = 220.0;
+	protected static const float HOVER_HEADER_HEIGHT = 34.0;
 	protected static const float HOVER_ROW_HEIGHT = 30.0;
-	protected static const float HOVER_VERTICAL_PADDING = 8.0;
+	protected static const float HOVER_OUTER_PADDING = 4.0;
 	protected static const float HOVER_ICON_GAP = 8.0;
 
 	protected Widget m_wGroupOverlay;
@@ -277,7 +278,11 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		else if (distance < CLOSE_FADE_START)
 			opacity = (distance - CLOSE_FADE_END) / (CLOSE_FADE_START - CLOSE_FADE_END);
 
-		GetWidget().SetOpacity(opacity);
+		bool isVisible = opacity > 0.0;
+		m_wGroupOverlay.SetVisible(isVisible);
+		m_wGroupOverlay.SetOpacity(opacity);
+		if (!isVisible)
+			RemoveMemberPopup();
 	}
 
 	override bool OnMouseEnter(Widget w, int x, int y)
@@ -325,6 +330,15 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 			return;
 		}
 
+		TextWidget groupName = TextWidget.Cast(m_wMemberPopup.FindAnyWidget("LobbySpectatorGroupHeaderText"));
+		if (groupName)
+			groupName.SetText(GC_GroupCallsignHelper.GetDisplayName(m_Group));
+
+		Widget headerBackground = m_wMemberPopup.FindAnyWidget("LobbySpectatorGroupHeaderBackground");
+		Faction faction = m_Group.GetFaction();
+		if (headerBackground && faction)
+			headerBackground.SetColor(faction.GetFactionColor());
+
 		PlayerManager playerManager = GetGame().GetPlayerManager();
 		int memberCount;
 		if (playerManager)
@@ -365,7 +379,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 			return;
 		}
 
-		m_fPopupHeight = memberCount * HOVER_ROW_HEIGHT + HOVER_VERTICAL_PADDING * 2.0;
+		m_fPopupHeight = HOVER_HEADER_HEIGHT + memberCount * HOVER_ROW_HEIGHT + HOVER_OUTER_PADDING * 2.0;
 		FrameSlot.SetSize(m_wMemberPopup, HOVER_WIDTH, m_fPopupHeight);
 		PositionMemberPopup();
 		m_wMemberPopup.SetZOrder(100);

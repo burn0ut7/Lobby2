@@ -15,7 +15,7 @@ class GC_BriefingMarker
 	protected int m_iColor = Color.WHITE;
 	protected string m_sDescription;
 	protected ref array<string> m_aFactionKeys = {};
-	protected GC_ELobbyPhase m_eShowAtGameModeState;
+	protected SCR_EGameModeState m_eShowAtGameModeState;
 	protected bool m_bInvertGameModeState;
 	protected bool m_bVisible = true;
 	protected int m_iRevision;
@@ -30,7 +30,7 @@ class GC_BriefingMarker
 	int GetColor() { return m_iColor; }
 	string GetDescription() { return m_sDescription; }
 	array<string> GetFactionKeys() { return m_aFactionKeys; }
-	GC_ELobbyPhase GetShowAtGameModeState() { return m_eShowAtGameModeState; }
+	SCR_EGameModeState GetShowAtGameModeState() { return m_eShowAtGameModeState; }
 	bool IsGameModeStateInverted() { return m_bInvertGameModeState; }
 	bool IsVisible() { return m_bVisible; }
 	int GetRevision() { return m_iRevision; }
@@ -38,7 +38,7 @@ class GC_BriefingMarker
 
 	void Set(string name, ResourceName image, string quadName, vector worldPosition, float rotation, bool worldScale,
 		float size, string description, array<string> factionKeys = null,
-		GC_ELobbyPhase showAtGameModeState = GC_ELobbyPhase.GAME,
+		SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
 		bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
 	{
 		m_sName = name;
@@ -62,9 +62,9 @@ class GC_BriefingMarker
 		m_bVisible = visible;
 	}
 
-	bool IsVisibleToFaction(Faction faction, GC_ELobbyPhase gameModeState)
+	bool IsVisibleToFaction(Faction faction, SCR_EGameModeState gameModeState)
 	{
-		bool stateMatches = GC_LobbyPhaseMachine.IsAtOrAfter(gameModeState, m_eShowAtGameModeState);
+		bool stateMatches = GC_LobbyPhase.IsAtOrAfter(gameModeState, m_eShowAtGameModeState);
 		if (m_bInvertGameModeState)
 			stateMatches = !stateMatches;
 
@@ -119,7 +119,7 @@ class GC_BriefingMarker
 		foreach (string factionKey : m_aFactionKeys)
 			writer.WriteString(factionKey);
 
-		writer.WriteIntRange(m_eShowAtGameModeState, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME);
+		writer.WriteInt(m_eShowAtGameModeState);
 		writer.WriteBool(m_bInvertGameModeState);
 		writer.WriteBool(m_bVisible);
 		writer.WriteInt(m_iRevision);
@@ -149,8 +149,10 @@ class GC_BriefingMarker
 			m_aFactionKeys.Insert(factionKey);
 		}
 
-		if (!reader.ReadIntRange(m_eShowAtGameModeState, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME))
+		int showAtGameModeState;
+		if (!reader.ReadInt(showAtGameModeState) || !GC_LobbyPhase.IsValid(showAtGameModeState))
 			return false;
+		m_eShowAtGameModeState = showAtGameModeState;
 		if (!reader.ReadBool(m_bInvertGameModeState) || !reader.ReadBool(m_bVisible) || !reader.ReadInt(m_iRevision))
 			return false;
 
@@ -216,7 +218,11 @@ class GC_BriefingMarker
 			if (factionIndex < factionCount)
 				instance.m_aFactionKeys.Insert(factionKey);
 		}
-		snapshot.SerializeInt(instance.m_eShowAtGameModeState);
+		int showAtGameModeState;
+		snapshot.SerializeInt(showAtGameModeState);
+		if (!GC_LobbyPhase.IsValid(showAtGameModeState))
+			return false;
+		instance.m_eShowAtGameModeState = showAtGameModeState;
 		snapshot.SerializeBool(instance.m_bInvertGameModeState);
 		snapshot.SerializeBool(instance.m_bVisible);
 		snapshot.SerializeInt(instance.m_iRevision);

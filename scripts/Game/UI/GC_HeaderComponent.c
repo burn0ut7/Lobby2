@@ -174,63 +174,71 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (selected || !m_LobbyManager)
             return false;
 
-        GC_ELobbyPhase phase = m_LobbyManager.GetLobbyPhase();
+        SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
         if (CanNavigateToView(view, phase))
             return true;
 
         return m_bIsAdmin && IsNextPhaseView(view, phase);
     }
 
-    protected bool CanNavigateToView(int view, GC_ELobbyPhase phase)
+    protected bool CanNavigateToView(int view, SCR_EGameModeState phase)
     {
         switch (phase)
         {
-            case GC_ELobbyPhase.PREGAME:
-                return view == VIEW_PREVIEW || view == VIEW_LOBBY;
+            case SCR_EGameModeState.PREGAME:
+				return view == VIEW_PREVIEW;
 
-            case GC_ELobbyPhase.BRIEFING:
-                return view == VIEW_LOBBY || view == VIEW_BRIEFING;
+			case SCR_EGameModeState.SLOTTING:
+				return view == VIEW_LOBBY;
+
+            case SCR_EGameModeState.BRIEFING:
+				return view == VIEW_BRIEFING;
         }
 
         return false;
     }
 
-    protected bool IsNextPhaseView(int view, GC_ELobbyPhase phase)
+    protected bool IsNextPhaseView(int view, SCR_EGameModeState phase)
     {
         switch (phase)
         {
-            case GC_ELobbyPhase.PREGAME:
-                return view == VIEW_BRIEFING;
+            case SCR_EGameModeState.PREGAME:
+				return view == VIEW_LOBBY;
 
-            case GC_ELobbyPhase.BRIEFING:
+			case SCR_EGameModeState.SLOTTING:
+				return view == VIEW_BRIEFING;
+
+            case SCR_EGameModeState.BRIEFING:
                 return view == VIEW_GAME;
 
-            case GC_ELobbyPhase.GAME:
+            case SCR_EGameModeState.GAME:
                 return view == VIEW_DEBRIEF;
         }
 
         return false;
     }
 
-    protected GC_ELobbyPhase GetRequestedPhase(int view)
+    protected SCR_EGameModeState GetRequestedPhase(int view)
     {
         switch (view)
         {
-            case VIEW_BRIEFING: return GC_ELobbyPhase.BRIEFING;
-            case VIEW_GAME: return GC_ELobbyPhase.GAME;
-            case VIEW_DEBRIEF: return GC_ELobbyPhase.POSTGAME;
+			case VIEW_LOBBY: return SCR_EGameModeState.SLOTTING;
+            case VIEW_BRIEFING: return SCR_EGameModeState.BRIEFING;
+            case VIEW_GAME: return SCR_EGameModeState.GAME;
+            case VIEW_DEBRIEF: return SCR_EGameModeState.POSTGAME;
         }
 
         return -1;
     }
 
-    protected int GetPhaseView(GC_ELobbyPhase phase)
+    protected int GetPhaseView(SCR_EGameModeState phase)
     {
         switch (phase)
         {
-            case GC_ELobbyPhase.BRIEFING: return VIEW_BRIEFING;
-            case GC_ELobbyPhase.GAME: return VIEW_GAME;
-            case GC_ELobbyPhase.POSTGAME: return VIEW_DEBRIEF;
+			case SCR_EGameModeState.SLOTTING: return VIEW_LOBBY;
+            case SCR_EGameModeState.BRIEFING: return VIEW_BRIEFING;
+            case SCR_EGameModeState.GAME: return VIEW_GAME;
+            case SCR_EGameModeState.POSTGAME: return VIEW_DEBRIEF;
         }
 
         return VIEW_PREVIEW;
@@ -249,7 +257,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!IsButtonInteractive(view, selected))
             return;
 
-        GC_ELobbyPhase phase = m_LobbyManager.GetLobbyPhase();
+        SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
         if (CanNavigateToView(view, phase))
         {
 			PrintFormat("GC | Phase UI | navigation selected: phase=%1 fromView=%2 toView=%3", GC_LobbyManager.GetPhaseName(phase), m_iActiveState, view);
@@ -281,24 +289,13 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             SwitchToBriefingMenu();
     }
 
-    protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+    protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
     {
 		PrintFormat("GC | Phase UI | replicated phase update: phase=%1 activeView=%2", GC_LobbyManager.GetPhaseName(phase), m_iActiveState);
-        RefreshButtonStates();
-
-        if (phase == GC_ELobbyPhase.BRIEFING)
-        {
-            SetActiveState(VIEW_BRIEFING);
-            SwitchToBriefingMenu();
-
-            return;
-        }
-
-        if (phase == GC_ELobbyPhase.GAME || phase == GC_ELobbyPhase.POSTGAME)
-        {
-            SetActiveState(GetPhaseView(phase));
-            CloseCurrentMenu();
-        }
+		// GC_LobbyGameMode owns authoritative phase presentation so transitions
+		// still apply when no header exists yet, including JIP. The header only
+		// reflects that phase and handles local navigation within it.
+		SetActiveState(GetPhaseView(phase));
     }
 
     protected void SwitchToPreviewMenu()
@@ -336,8 +333,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!lobbyManager)
             return;
 
-        GC_ELobbyPhase phase = lobbyManager.GetLobbyPhase();
-        if (phase != GC_ELobbyPhase.PREGAME)
+        SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
+        if (phase != SCR_EGameModeState.PREGAME)
             return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu, 0, true);
@@ -346,7 +343,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
     protected void OpenBriefingMenu()
     {
         GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-        if (!lobbyManager || lobbyManager.GetLobbyPhase() != GC_ELobbyPhase.BRIEFING)
+        if (!lobbyManager || lobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
             return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu, 0, true);
@@ -358,8 +355,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!lobbyManager)
             return;
 
-        GC_ELobbyPhase phase = lobbyManager.GetLobbyPhase();
-        if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+        SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
+		if (phase != SCR_EGameModeState.SLOTTING)
             return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);

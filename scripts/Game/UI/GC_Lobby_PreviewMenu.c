@@ -23,6 +23,12 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
         if (SCR_Global.IsEditMode())
             return;
 
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		string phaseName = "NO_GAME_MODE";
+		if (gameMode)
+			phaseName = GC_LobbyManager.GetPhaseName(gameMode.GetState());
+		PrintFormat("GC | Phase UI | preview/briefing menu opened: menu=%1 state=%2", this, phaseName);
+
         Widget wChatPanel = GetRootWidget().FindAnyWidget("ChatPanel");
         if (wChatPanel)
             m_ChatPanel = SCR_ChatPanel.Cast(wChatPanel.FindHandler(SCR_ChatPanel));
@@ -36,7 +42,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 			m_PlayerListTabs = GC_PlayerListTabsComponent.Cast(playerListPanel.FindHandler(GC_PlayerListTabsComponent));
 
 		m_LobbyManager = GC_LobbyManager.GetManager();
-		GC_ELobbyPhase phase = GC_ELobbyPhase.PREGAME;
+		SCR_EGameModeState phase = SCR_EGameModeState.PREGAME;
 		if (m_LobbyManager)
 		{
 			phase = m_LobbyManager.GetLobbyPhase();
@@ -67,6 +73,12 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 
     override void OnMenuClose()
     {
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		string phaseName = "NO_GAME_MODE";
+		if (gameMode)
+			phaseName = GC_LobbyManager.GetPhaseName(gameMode.GetState());
+		PrintFormat("GC | Phase UI | preview/briefing menu closed: menu=%1 state=%2", this, phaseName);
+
 		if (m_LobbyManager)
 			m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
 		if (m_EditorManager)
@@ -154,14 +166,14 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		PrintFormat("GC | Restored map action context '%1' after editor close", INPUT_CONTEXT);
 	}
 
-	protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+	protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
 	{
 		ApplyPhasePresentation(phase);
 	}
 
-	protected void ApplyPhasePresentation(GC_ELobbyPhase phase)
+	protected void ApplyPhasePresentation(SCR_EGameModeState phase)
 	{
-		bool isBriefing = phase == GC_ELobbyPhase.BRIEFING;
+		bool isBriefing = phase == SCR_EGameModeState.BRIEFING;
 
 		if (m_Header)
 		{

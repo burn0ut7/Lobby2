@@ -4,8 +4,6 @@ SizeLayoutWidgetClass {
   HorizontalAlign 3
   VerticalAlign 0
  }
- AllowWidthOverride 1
- WidthOverride 204
  AllowHeightOverride 1
  HeightOverride 30
  "Ignore Cursor" 1

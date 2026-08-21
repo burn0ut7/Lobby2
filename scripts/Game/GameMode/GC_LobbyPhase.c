@@ -1,57 +1,38 @@
-enum GC_ELobbyPhase
+//! Lobby2 extends the base game-mode phase domain so every base-game consumer
+//! observes the same automatically replicated state. Explicit large values
+//! avoid collisions with base-game or other add-on enum members.
+modded enum SCR_EGameModeState
 {
-	PREGAME = 0,
-	BRIEFING = 1,
-	GAME = 2,
-	POSTGAME = 3
+	SLOTTING = 1787356801,
+	BRIEFING = 1787356802
 }
 
-//! Owns Lobby2's ordered mission phase independently from the base game-mode enum.
-class GC_LobbyPhaseMachine
+//! Encodes Lobby2's legal ordering without storing a second phase value.
+class GC_LobbyPhase
 {
-	protected GC_ELobbyPhase m_eCurrent = GC_ELobbyPhase.PREGAME;
-
-	GC_ELobbyPhase GetCurrent()
-	{
-		return m_eCurrent;
-	}
-
-	bool CanAdvanceTo(GC_ELobbyPhase target)
-	{
-		return target == GetNext(m_eCurrent);
-	}
-
-	bool Apply(GC_ELobbyPhase target, out GC_ELobbyPhase previous)
-	{
-		if (!IsValid(target) || GetOrdinal(target) <= GetOrdinal(m_eCurrent))
-			return false;
-
-		previous = m_eCurrent;
-		m_eCurrent = target;
-		return true;
-	}
-
-	static GC_ELobbyPhase GetNext(GC_ELobbyPhase phase)
+	static SCR_EGameModeState GetNext(SCR_EGameModeState phase)
 	{
 		switch (phase)
 		{
-			case GC_ELobbyPhase.PREGAME: return GC_ELobbyPhase.BRIEFING;
-			case GC_ELobbyPhase.BRIEFING: return GC_ELobbyPhase.GAME;
-			case GC_ELobbyPhase.GAME: return GC_ELobbyPhase.POSTGAME;
+			case SCR_EGameModeState.PREGAME: return SCR_EGameModeState.SLOTTING;
+			case SCR_EGameModeState.SLOTTING: return SCR_EGameModeState.BRIEFING;
+			case SCR_EGameModeState.BRIEFING: return SCR_EGameModeState.GAME;
+			case SCR_EGameModeState.GAME: return SCR_EGameModeState.POSTGAME;
 		}
 
 		return -1;
 	}
 
-	static bool IsValid(GC_ELobbyPhase phase)
+	static bool IsValid(SCR_EGameModeState phase)
 	{
-		return phase == GC_ELobbyPhase.PREGAME
-			|| phase == GC_ELobbyPhase.BRIEFING
-			|| phase == GC_ELobbyPhase.GAME
-			|| phase == GC_ELobbyPhase.POSTGAME;
+		return phase == SCR_EGameModeState.PREGAME
+			|| phase == SCR_EGameModeState.SLOTTING
+			|| phase == SCR_EGameModeState.BRIEFING
+			|| phase == SCR_EGameModeState.GAME
+			|| phase == SCR_EGameModeState.POSTGAME;
 	}
 
-	static bool IsAtOrAfter(GC_ELobbyPhase phase, GC_ELobbyPhase threshold)
+	static bool IsAtOrAfter(SCR_EGameModeState phase, SCR_EGameModeState threshold)
 	{
 		if (!IsValid(phase) || !IsValid(threshold))
 			return false;
@@ -59,28 +40,31 @@ class GC_LobbyPhaseMachine
 		return GetOrdinal(phase) >= GetOrdinal(threshold);
 	}
 
-	static string GetName(GC_ELobbyPhase phase)
+	static string GetName(SCR_EGameModeState phase)
 	{
 		switch (phase)
 		{
-			case GC_ELobbyPhase.PREGAME: return "PREGAME";
-			case GC_ELobbyPhase.BRIEFING: return "BRIEFING";
-			case GC_ELobbyPhase.GAME: return "GAME";
-			case GC_ELobbyPhase.POSTGAME: return "POSTGAME";
+			case SCR_EGameModeState.PREGAME: return "PREGAME";
+			case SCR_EGameModeState.SLOTTING: return "SLOTTING";
+			case SCR_EGameModeState.BRIEFING: return "BRIEFING";
+			case SCR_EGameModeState.GAME: return "GAME";
+			case SCR_EGameModeState.POSTGAME: return "POSTGAME";
 		}
 
 		return "UNKNOWN";
 	}
 
-	//! Explicit ordering keeps transition logic independent from enum storage values.
-	protected static int GetOrdinal(GC_ELobbyPhase phase)
+	//! Explicit ordering is required because modded enum storage values are
+	//! intentionally non-contiguous and must never define lifecycle order.
+	protected static int GetOrdinal(SCR_EGameModeState phase)
 	{
 		switch (phase)
 		{
-			case GC_ELobbyPhase.PREGAME: return 0;
-			case GC_ELobbyPhase.BRIEFING: return 1;
-			case GC_ELobbyPhase.GAME: return 2;
-			case GC_ELobbyPhase.POSTGAME: return 3;
+			case SCR_EGameModeState.PREGAME: return 0;
+			case SCR_EGameModeState.SLOTTING: return 1;
+			case SCR_EGameModeState.BRIEFING: return 2;
+			case SCR_EGameModeState.GAME: return 3;
+			case SCR_EGameModeState.POSTGAME: return 4;
 		}
 
 		return -1;

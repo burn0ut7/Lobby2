@@ -1,3 +1,8 @@
 SCR_ChimeraCharacter {
  ID "520EC961A090B1EE"
+ components {
+  SCR_VoNComponent "{520EA1D2F659C856}" {
+   Filename "{70E169FEC4068D2E}Sounds/VON/von2.acp"
+  }
+ }
 }

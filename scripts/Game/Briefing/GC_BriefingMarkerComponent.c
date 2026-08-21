@@ -31,8 +31,8 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.Object, "Authoritative base-game faction keys. Empty shows the marker to everyone")]
 	protected ref array<string> m_aFactionKeys;
 
-	[Attribute("0", UIWidgets.ComboBox, "Earliest Lobby2 phase from which this marker is shown", enumType: GC_ELobbyPhase)]
-	protected GC_ELobbyPhase m_eShowAtGameModeState;
+	[Attribute("0", UIWidgets.ComboBox, "Earliest game-mode phase from which this marker is shown", enumType: SCR_EGameModeState)]
+	protected SCR_EGameModeState m_eShowAtGameModeState;
 
 	[Attribute("0", UIWidgets.CheckBox, "Invert the phase threshold. Off: show from the selected phase onward. On: hide from the selected phase onward")]
 	protected bool m_bInvertGameModeState;

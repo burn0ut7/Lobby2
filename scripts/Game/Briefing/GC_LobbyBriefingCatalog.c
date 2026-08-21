@@ -44,7 +44,7 @@ class GC_LobbyBriefingCatalog
 		return m_aBriefings;
 	}
 
-	array<ref GC_Briefing> GetBriefingsFor(Faction faction, GC_ELobbyPhase phase)
+	array<ref GC_Briefing> GetBriefingsFor(Faction faction, SCR_EGameModeState phase)
 	{
 		array<ref GC_Briefing> result = {};
 		foreach (GC_Briefing briefing : GetBriefings())
@@ -147,7 +147,7 @@ class GC_LobbyBriefingCatalog
 		return m_aMarkers;
 	}
 
-	array<ref GC_BriefingMarker> GetMarkersFor(Faction faction, GC_ELobbyPhase phase)
+	array<ref GC_BriefingMarker> GetMarkersFor(Faction faction, SCR_EGameModeState phase)
 	{
 		array<ref GC_BriefingMarker> result = {};
 		foreach (GC_BriefingMarker marker : m_aMarkers)

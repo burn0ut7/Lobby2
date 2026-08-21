@@ -295,11 +295,18 @@ class GC_LobbyParameterValue
 			|| !reader.ReadFloat(m_fFloatValue)
 			|| !reader.ReadString(m_sStringValue)
 			|| !reader.ReadString(m_sSelectionKey))
+		{
+			Print("GC | JIP load parameter value failed: decode", level: LogLevel.ERROR);
 			return false;
+		}
 		if (m_iDefinitionIndex < 0 || m_iDefinitionIndex >= GC_LobbyParameterCatalog.MAX_PARAMETERS
 			|| m_sStringValue.Length() > GC_LobbyParameterCatalog.MAX_STRING_VALUE_LENGTH
 			|| m_sSelectionKey.Length() > GC_LobbyParameterDefinition.MAX_KEY_LENGTH)
+		{
+			PrintFormat("GC | JIP load parameter value failed: index=%1 type=%2 stringLength=%3 selectionLength=%4", m_iDefinitionIndex,
+				m_eType, m_sStringValue.Length(), m_sSelectionKey.Length(), level: LogLevel.ERROR);
 			return false;
+		}
 
 		return true;
 	}
@@ -794,15 +801,36 @@ class GC_LobbyParameterCatalog
 	{
 		int revision;
 		int valueCount;
-		if (!reader.ReadInt(revision) || revision < 0 || !reader.ReadInt(valueCount) || valueCount < 0 || valueCount > MAX_PARAMETERS)
+		if (!reader.ReadInt(revision))
+		{
+			Print("GC | JIP load parameters failed: field=revision", level: LogLevel.ERROR);
 			return false;
+		}
+		if (revision < 0)
+		{
+			PrintFormat("GC | JIP load parameters failed: invalid revision=%1", revision, level: LogLevel.ERROR);
+			return false;
+		}
+		if (!reader.ReadInt(valueCount))
+		{
+			Print("GC | JIP load parameters failed: field=valueCount", level: LogLevel.ERROR);
+			return false;
+		}
+		if (valueCount < 0 || valueCount > MAX_PARAMETERS)
+		{
+			PrintFormat("GC | JIP load parameters failed: invalid valueCount=%1", valueCount, level: LogLevel.ERROR);
+			return false;
+		}
 
 		array<ref GC_LobbyParameterValue> values = {};
 		for (int index; index < valueCount; index++)
 		{
 			GC_LobbyParameterValue value = new GC_LobbyParameterValue();
 			if (!value.RplLoad(reader))
+			{
+				PrintFormat("GC | JIP load parameters failed: value=%1 count=%2", index, valueCount, level: LogLevel.ERROR);
 				return false;
+			}
 
 			values.Insert(value);
 		}
@@ -814,8 +842,25 @@ class GC_LobbyParameterCatalog
 			return true;
 		}
 
-		if (!ValidateValues(values))
+		if (values.Count() != GetDefinitions().Count())
+		{
+			PrintFormat("GC | JIP load parameters failed: valueCount=%1 definitionCount=%2 catalogValid=%3", values.Count(),
+				GetDefinitions().Count(), m_bValid, level: LogLevel.ERROR);
 			return false;
+		}
+
+		if (!ValidateValues(values))
+		{
+			foreach (GC_LobbyParameterValue value : values)
+			{
+				GC_LobbyParameterDefinition definition;
+				if (value)
+					definition = FindDefinition(value.GetDefinitionIndex());
+				PrintFormat("GC | JIP load parameters rejected: index=%1 type=%2 definition=%3 valueValid=%4", value.GetDefinitionIndex(),
+					value.GetType(), definition != null, definition && ValidateValue(definition, value), level: LogLevel.ERROR);
+			}
+			return false;
+		}
 
 		m_aValues = values;
 		m_iRevision = revision;

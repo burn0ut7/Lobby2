@@ -107,17 +107,16 @@ supported native rich-text formatting may be nested inside the custom tag label.
 - A populated faction-key array is visible only when the player's current
   authoritative base-game faction key appears in that array.
 - A factionless player cannot match a populated faction-key array.
-- `Show At Game Mode State` is authored with the base-game
-  `SCR_EGameModeState` enum (`PREGAME`, `GAME`, or `POSTGAME`). By default the
-  briefing shows only during that state. `Invert Game Mode State` reverses the
-  rule so the briefing is hidden during the selected state and shown during the
-  other states.
+- `Show At Game Mode State` is authored with the extended `SCR_EGameModeState` enum
+  (`PREGAME`, `SLOTTING`, `BRIEFING`, `GAME`, or `POSTGAME`). It is the earliest
+  phase from which the briefing is shown. `Invert Game Mode State` reverses that
+  threshold rule.
 - The runtime visibility bool remains replicated but is intentionally hidden
   from prefab authors. Server scripts control it through
   `SetBriefingVisible(order, visible)`.
 - Effective visibility requires the authored game-mode state, runtime visibility,
-  and faction eligibility to all pass. Lobby2 re-queries `SCR_BaseGameMode`
-  rather than replicating a competing game-mode state.
+  and faction eligibility to all pass. The replicated base game-mode state is
+  the authoritative visibility input.
 - UI selection is local presentation state and is not replicated.
 - Briefing title buttons use single selection. Selecting a title shows its body,
   selecting another switches the body, and selecting the active title again
@@ -127,8 +126,8 @@ supported native rich-text formatting may be nested inside the custom tag label.
   separate `Lobby_Preview.layout`. It is not owned by `Lobby_Slotting.layout`.
 - The reusable view is host-screen agnostic: it resolves only widgets inside its
   own layout root and subscribes directly to the Lobby2 briefing backend. Preview,
-  a future dedicated Briefing screen, or another Lobby2 screen may instance the
-  same layout without adding briefing behavior to that screen's menu class.
+  the dedicated Briefing screen, or another Lobby2 screen may instance the same
+  layout without adding briefing behavior to that screen's menu class.
 - Preview hosts the view as a bounded left-side panel rather than a fullscreen
   overlay: a compact topic rail opens an adjacent readable document column while
   leaving most of the map visible.

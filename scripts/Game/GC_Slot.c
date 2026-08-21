@@ -416,7 +416,10 @@ class GC_Slot
 	bool RplLoad(ScriptBitReader reader)
 	{
 		if (!reader.ReadInt(m_iID))
+		{
+			Print("GC | JIP load slot failed: field=id", level: LogLevel.ERROR);
 			return false;
+		}
 
 		return RplLoadData(reader);
 	}
@@ -425,34 +428,64 @@ class GC_Slot
 	bool RplLoadData(ScriptBitReader reader)
 	{
 		if (!reader.ReadInt(m_iPlayerId))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=playerId", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 
 		string uuid;
 		if (!reader.ReadString(uuid))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=uuid", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 		m_PlayerUUID = uuid;
 
 		if (!reader.ReadString(m_sCachedPlayerName))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=cachedPlayerName", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 		if (!reader.ReadIntRange(m_eState, GC_SlotState.FREE, GC_SlotState.RESERVED))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=state", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 		if (!reader.ReadResourceName(m_Prefab))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=authoredPrefab", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 		if (!reader.ReadResourceName(m_ResolvedPrefab))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=resolvedPrefab", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 		if (!reader.ReadInt(m_iGroupSlotIndex))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=groupSlotIndex", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 		if (!reader.ReadIntRange(m_eVariantPolicy, GC_SlotVariantPolicy.KEEP_VARIANT, GC_SlotVariantPolicy.REROLL_ON_RESPAWN))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=variantPolicy", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 
 		if (!reader.ReadRplId(m_GroupRplId))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=groupRplId", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 
 		m_pGroup = null;
 		ResolveReplicatedGroup();
 
 		if (!reader.ReadRplId(m_EntityRplId))
+		{
+			PrintFormat("GC | JIP load slot failed: slot=%1 field=entityRplId", m_iID, level: LogLevel.ERROR);
 			return false;
+		}
 
 		m_Entity = null;
 		ResolveReplicatedEntity();

@@ -174,7 +174,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (m_Slot.GetState() != GC_SlotState.FREE)
 		{
 			PlayerController currentController = GetGame().GetPlayerController();
-			return lobbyManager && currentController && lobbyManager.GetLobbyPhase() == GC_ELobbyPhase.PREGAME && occupyingPlayerId == currentController.GetPlayerId();
+			return lobbyManager && currentController && lobbyManager.GetLobbyPhase() == SCR_EGameModeState.SLOTTING && occupyingPlayerId == currentController.GetPlayerId();
 		}
 
 		if (occupyingPlayerId < 0)

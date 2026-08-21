@@ -51,9 +51,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! this manager and current authoritative faction state.
     ref ScriptInvoker<int> m_OnBriefingsChanged = new ScriptInvoker<int>();
 	ref ScriptInvoker<int> m_OnBriefingMarkersChanged = new ScriptInvoker<int>();
-	ref ScriptInvoker<GC_ELobbyPhase> m_OnLobbyPhaseChanged = new ScriptInvoker<GC_ELobbyPhase>();
+	ref ScriptInvoker<SCR_EGameModeState> m_OnLobbyPhaseChanged = new ScriptInvoker<SCR_EGameModeState>();
 	ref ScriptInvoker<int> m_OnScenarioParametersChanged = new ScriptInvoker<int>();
-	protected ref GC_LobbyPhaseMachine m_PhaseMachine = new GC_LobbyPhaseMachine();
 	protected ref GC_PlayerFormationCatalog m_FormationCatalog = new GC_PlayerFormationCatalog();
 	protected ref array<ref GC_PlayerGroupSpawnTransform> m_aGroupSpawnTransforms = {};
 	protected bool m_bShutdown;
@@ -162,40 +161,42 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer())
 			role = "authority";
 
-		PrintFormat("GC | Phase | base state event: base=%1 lobbyBefore=%2 role=%3", GetBaseStateName(state), GetPhaseName(GetLobbyPhase()), role);
+		PrintFormat("GC | Phase | base state event: state=%1 role=%2", GetPhaseName(state), role);
 
-		// Keep the Lobby2 phase aligned if trusted server game logic invokes the
-		// native base-game transition API directly.
-		if (state == SCR_EGameModeState.GAME && GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
+		if (Replication.IsServer() && state == SCR_EGameModeState.BRIEFING)
+			ReconcileBriefingVoiceAssignments();
+		else if (Replication.IsServer() && state == SCR_EGameModeState.POSTGAME)
 		{
-			if (Replication.IsServer())
-				PublishLobbyPhase(GC_ELobbyPhase.GAME);
-			else
-				ApplyLobbyPhase(GC_ELobbyPhase.GAME);
-		}
-		else if (state == SCR_EGameModeState.POSTGAME && GetLobbyPhase() == GC_ELobbyPhase.GAME)
-		{
-			if (Replication.IsServer())
-				PublishLobbyPhase(GC_ELobbyPhase.POSTGAME);
-			else
-				ApplyLobbyPhase(GC_ELobbyPhase.POSTGAME);
+			array<int> connectedPlayers = {};
+			GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
+			foreach (int playerId : connectedPlayers)
+			{
+				GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+				if (controller && controller.GetLobbyPlayerState() == GC_ELobbyPlayerState.SPECTATOR)
+					controller.SetLobbySpectatorState(false);
+			}
 		}
 
 		if (state == SCR_EGameModeState.GAME && Replication.IsServer())
 			QueueCatchUpConnectedPlayers();
 
+		m_OnLobbyPhaseChanged.Invoke(state);
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
 	}
 
-	GC_ELobbyPhase GetLobbyPhase()
+	SCR_EGameModeState GetLobbyPhase()
 	{
-		return m_PhaseMachine.GetCurrent();
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		if (!gameMode)
+			return SCR_EGameModeState.PREGAME;
+
+		return gameMode.GetState();
 	}
 
-	static string GetPhaseName(GC_ELobbyPhase phase)
+	static string GetPhaseName(SCR_EGameModeState phase)
 	{
-		return GC_LobbyPhaseMachine.GetName(phase);
+		return GC_LobbyPhase.GetName(phase);
 	}
 
 	static string GetBaseStateName(SCR_EGameModeState state)
@@ -203,6 +204,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		switch (state)
 		{
 			case SCR_EGameModeState.PREGAME: return "PREGAME";
+			case SCR_EGameModeState.SLOTTING: return "SLOTTING";
+			case SCR_EGameModeState.BRIEFING: return "BRIEFING";
 			case SCR_EGameModeState.GAME: return "GAME";
 			case SCR_EGameModeState.POSTGAME: return "POSTGAME";
 		}
@@ -216,7 +219,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//! Validates and applies an admin-owned request on the server authority.
-	bool TryAdvanceLobbyPhase(int playerId, GC_ELobbyPhase requestedPhase)
+	bool TryAdvanceLobbyPhase(int playerId, SCR_EGameModeState requestedPhase)
 	{
 		if (m_bShutdown)
 		{
@@ -238,7 +241,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		if (!GC_LobbyPhaseMachine.IsValid(requestedPhase))
+		if (!GC_LobbyPhase.IsValid(requestedPhase))
 		{
 			PrintFormat("GC | Phase | request rejected: invalid target value=%1", requestedPhase, level: LogLevel.WARNING);
 			return false;
@@ -250,14 +253,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		GC_ELobbyPhase nextPhase = GC_LobbyPhaseMachine.GetNext(GetLobbyPhase());
-		if (!m_PhaseMachine.CanAdvanceTo(requestedPhase))
+		SCR_EGameModeState nextPhase = GC_LobbyPhase.GetNext(GetLobbyPhase());
+		if (requestedPhase != nextPhase)
 		{
 			PrintFormat("GC | Phase | request rejected: player=%1 current=%2 requested=%3 expected=%4", playerId, GetPhaseName(GetLobbyPhase()), GetPhaseName(requestedPhase), GetPhaseName(nextPhase), level: LogLevel.WARNING);
 			return false;
 		}
 
-		if (requestedPhase == GC_ELobbyPhase.POSTGAME)
+		if (requestedPhase == SCR_EGameModeState.POSTGAME)
 			return EnterPostGame(null);
 
 		SCR_BaseGameMode gameMode = GetGameMode();
@@ -267,11 +270,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		if (requestedPhase == GC_ELobbyPhase.GAME)
+		if (requestedPhase == SCR_EGameModeState.GAME)
 		{
-			if (gameMode.GetState() != SCR_EGameModeState.PREGAME)
+			if (gameMode.GetState() != SCR_EGameModeState.BRIEFING)
 			{
-				PrintFormat("GC | Phase | GAME transition rejected: expected base=PREGAME actual=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
+				PrintFormat("GC | Phase | GAME transition rejected: expected state=BRIEFING actual=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
 				return false;
 			}
 
@@ -288,13 +291,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return false;
 			}
 
-			// OnGameStateChanged normally publishes this synchronously.
-			PublishLobbyPhase(GC_ELobbyPhase.GAME);
 			return true;
 		}
 
-		PublishLobbyPhase(GC_ELobbyPhase.BRIEFING);
-		QueueBriefingSlotSpawns();
+		if (!gameMode.GC_SetLobbyState(requestedPhase))
+		{
+			PrintFormat("GC | Phase | custom pre-match transition failed: requested=%1", GetPhaseName(requestedPhase), level: LogLevel.ERROR);
+			return false;
+		}
+
+		if (requestedPhase == SCR_EGameModeState.BRIEFING)
+			QueueBriefingSlotSpawns();
 		return true;
 	}
 
@@ -315,7 +322,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		PrintFormat("GC | Phase | POSTGAME entry requested: lobby=%1 endDataProvided=%2", GetPhaseName(GetLobbyPhase()), endData != null);
 
-		if (GetLobbyPhase() != GC_ELobbyPhase.GAME)
+		if (GetLobbyPhase() != SCR_EGameModeState.GAME)
 		{
 			PrintFormat("GC | Phase | POSTGAME entry rejected: expected lobby=GAME actual=%1", GetPhaseName(GetLobbyPhase()), level: LogLevel.WARNING);
 			return false;
@@ -343,63 +350,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		// OnGameStateChanged normally publishes this synchronously.
-		PublishLobbyPhase(GC_ELobbyPhase.POSTGAME);
 		return true;
-	}
-
-	protected void PublishLobbyPhase(GC_ELobbyPhase phase)
-	{
-		if (!Replication.IsServer() || !ApplyLobbyPhase(phase))
-			return;
-
-		Rpc(RpcDo_SetLobbyPhase, phase);
-	}
-
-	protected bool ApplyLobbyPhase(GC_ELobbyPhase phase)
-	{
-		GC_ELobbyPhase previousPhase;
-		if (!m_PhaseMachine.Apply(phase, previousPhase))
-			return false;
-
-		SCR_BaseGameMode gameMode = GetGameMode();
-		string baseState = "UNAVAILABLE";
-		if (gameMode)
-			baseState = GetBaseStateName(gameMode.GetState());
-
-		string role = "proxy";
-		if (Replication.IsServer())
-			role = "authority";
-
-		PrintFormat("GC | Phase | applied: role=%1 lobby=%2 -> %3 base=%4", role, GetPhaseName(previousPhase), GetPhaseName(phase), baseState);
-		if (Replication.IsServer() && phase == GC_ELobbyPhase.BRIEFING)
-			ReconcileBriefingVoiceAssignments();
-		else if (Replication.IsServer() && phase == GC_ELobbyPhase.POSTGAME)
-		{
-			array<int> connectedPlayers = {};
-			GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
-			foreach (int playerId : connectedPlayers)
-			{
-				GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
-				if (controller && controller.GetLobbyPlayerState() == GC_ELobbyPlayerState.SPECTATOR)
-					controller.SetLobbySpectatorState(false);
-			}
-		}
-
-		m_OnLobbyPhaseChanged.Invoke(phase);
-		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
-		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
-		return true;
-	}
-
-	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_SetLobbyPhase(GC_ELobbyPhase phase)
-	{
-		if (Replication.IsServer())
-			return;
-
-		PrintFormat("GC | Phase RPC | broadcast received: target=%1 value=%2", GetPhaseName(phase), phase);
-		ApplyLobbyPhase(phase);
 	}
 
     override void OnPlayerAuditSuccess(int playerId)
@@ -461,7 +412,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (state)
         {
 			PrintFormat("GC | Lifecycle | spectator requested: player=%1", playerId);
-			bool activateCamera = GetLobbyPhase() == GC_ELobbyPhase.GAME;
+			bool activateCamera = GetLobbyPhase() == SCR_EGameModeState.GAME;
 
 			IEntity existingSpectator = m_mLobbySpectators.Get(playerId);
 			if (!existingSpectator)
@@ -484,7 +435,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			}
 
             EntitySpawnParams params = new EntitySpawnParams();
-            params.Transform[3] = "1194.457 39 2723.129";
+            params.Transform[3] = GetOwner().GetOrigin();
             Resource spectatorPrefab = Resource.Load(SPECTATOR_PREFAB);
 			PrintFormat("GC | Lifecycle | spectator prefab loaded: valid=%1", spectatorPrefab != null);
 			if (!spectatorPrefab)
@@ -552,7 +503,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
-		GC_ELobbyPhase phase = GetLobbyPhase();
+		SCR_EGameModeState phase = GetLobbyPhase();
 		RegisterPlayerPersonalVoiceChannel(playerId, identity);
 		PrintFormat("GC | Lifecycle | catch-up begin: player=%1 uuid=%2 phase=%3", playerId, identity, GetPhaseName(GetLobbyPhase()));
 		SCR_ReconnectComponent reconnect = SCR_ReconnectComponent.GetInstance();
@@ -573,7 +524,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (group && !group.GetPlayerIDs().Contains(playerId))
 			group.AddPlayer(playerId);
 
-		if (group && group.GetFaction() && phase == GC_ELobbyPhase.BRIEFING)
+		if (group && group.GetFaction() && phase == SCR_EGameModeState.BRIEFING)
 			AssignPlayerToBriefingVoiceChannel(playerId);
 		else if (group && group.GetFaction())
 			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
@@ -587,15 +538,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 		}
 
-		if (phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING)
+		if (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING)
 		{
-			if (phase == GC_ELobbyPhase.BRIEFING)
+			if (phase == SCR_EGameModeState.BRIEFING)
 				SpawnSlotEntity(slot, false);
 			SetSpectator(playerId, true);
 			return;
 		}
 
-		if (phase == GC_ELobbyPhase.GAME)
+		if (phase == SCR_EGameModeState.GAME)
 		{
 			if (!slot.GetEntity())
 				SpawnSlotEntity(slot, true);
@@ -793,8 +744,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!slot)
 			return;
 
-		GC_ELobbyPhase phase = GetLobbyPhase();
-		bool deleteStagedEntity = phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING;
+		SCR_EGameModeState phase = GetLobbyPhase();
+		bool deleteStagedEntity = phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING;
 		IEntity stagedEntity = slot.GetEntity();
 		if (deleteStagedEntity && stagedEntity)
 			slot.ClearEntityReference(false);
@@ -886,7 +837,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected void ProcessBriefingSlotSpawns()
 	{
-		if (m_bShutdown || GetLobbyPhase() != GC_ELobbyPhase.BRIEFING)
+		if (m_bShutdown || GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
 		{
 			m_aPendingBriefingSpawns.Clear();
 			m_bBriefingSpawnQueued = false;
@@ -937,7 +888,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!slot)
 			return;
 
-		if (GetLobbyPhase() == GC_ELobbyPhase.GAME)
+		if (GetLobbyPhase() == SCR_EGameModeState.GAME)
 		{
 			slot.MarkKIA();
 			int playerId = slot.GetPlayerId();
@@ -953,7 +904,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (slot.HasClaim())
 			{
 				slot.SetState(GC_SlotState.RESERVED);
-				if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
+				if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
 					SpawnSlotEntity(slot, false);
 			}
 		}
@@ -972,7 +923,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!slot)
 			return;
 
-		if (GetLobbyPhase() == GC_ELobbyPhase.GAME)
+		if (GetLobbyPhase() == SCR_EGameModeState.GAME)
 		{
 			slot.ClearEntityReference(true);
 			slot.MarkKIA();
@@ -983,7 +934,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (slot.HasClaim())
 			{
 				slot.SetState(GC_SlotState.RESERVED);
-				if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
+				if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
 					SpawnSlotEntity(slot, false);
 			}
 		}
@@ -1118,7 +1069,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     {
 		if (Replication.IsServer() && group && group.GetFaction())
 		{
-			if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING)
+			if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
 				AssignPlayerToBriefingVoiceChannel(playerId);
 			else
 				SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
@@ -1135,7 +1086,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
 			if (assignment && assignment.GetChannelType() == GC_VoiceChannelType.GROUP && assignment.GetGroupRplId() == Replication.FindItemId(group))
 			{
-				if (GetLobbyPhase() != GC_ELobbyPhase.BRIEFING || !AssignPlayerToBriefingVoiceChannel(playerId))
+				if (GetLobbyPhase() != SCR_EGameModeState.BRIEFING || !AssignPlayerToBriefingVoiceChannel(playerId))
 					SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
 			}
         }
@@ -1256,10 +1207,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Serializes Lobby2's replicated snapshot. Save and load order must match.
     override protected bool RplSave(ScriptBitWriter writer)
     {
-		GC_ELobbyPhase phase = GetLobbyPhase();
-		writer.WriteIntRange(phase, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME);
-		PrintFormat("GC | Phase JIP | saving snapshot: lobby=%1 ordinal=%2", GetPhaseName(phase), phase);
-
 		array<SCR_AIGroup> groups = m_Roster.GetGroups();
         writer.WriteInt(groups.Count());
 		PrintFormat("GC | JIP save begin: groups=%1 slots=%2", groups.Count(), m_Roster.GetSlots().Count());
@@ -1291,14 +1238,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Deserializes Lobby2's snapshot from the authority.
     override protected bool RplLoad(ScriptBitReader reader)
     {
-		int phaseOrdinal;
-		if (!reader.ReadIntRange(phaseOrdinal, GC_ELobbyPhase.PREGAME, GC_ELobbyPhase.POSTGAME))
-			return false;
-
-		GC_ELobbyPhase phase = phaseOrdinal;
-		PrintFormat("GC | Phase JIP | loading snapshot: lobby=%1 ordinal=%2", GetPhaseName(phase), phaseOrdinal);
-		ApplyLobbyPhase(phase);
-
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
 		m_Roster.ResetJipAttempts();
 
@@ -1336,21 +1275,42 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		{
 			GC_Slot slot = new GC_Slot();
 			if (!slot.RplLoad(reader))
+			{
+				PrintFormat("GC | JIP load failed: domain=slots index=%1 count=%2", slotIndex, slotCount, level: LogLevel.ERROR);
 				return false;
+			}
 
 			m_Roster.AddSlot(slot);
 			SubscribeToSlotEvents(slot);
 		}
 
-		if (!m_VoiceState.Load(reader) || !m_BriefingCatalog.Load(reader) || !m_ParameterCatalog.Load(reader))
+		if (!m_VoiceState.Load(reader))
+		{
+			Print("GC | JIP load failed: domain=voice", level: LogLevel.ERROR);
 			return false;
+		}
+		if (!m_BriefingCatalog.Load(reader))
+		{
+			Print("GC | JIP load failed: domain=briefing", level: LogLevel.ERROR);
+			return false;
+		}
+		if (!m_ParameterCatalog.Load(reader))
+		{
+			Print("GC | JIP load failed: domain=parameters", level: LogLevel.ERROR);
+			return false;
+		}
 
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
 		m_OnScenarioParametersChanged.Invoke(m_ParameterCatalog.GetRevision());
 		ResolvePendingJipReferences();
+		// The RplProp callback can run before the rest of the snapshot is available,
+		// and PREGAME is a no-op on a fresh proxy. Publish one idempotent refresh
+		// after every snapshot-owned domain has loaded so presentation can re-read
+		// the complete replicated state.
+		m_OnLobbyPhaseChanged.Invoke(GetLobbyPhase());
 		return true;
-    }
+	}
 
 	protected bool ResolveJipGroup(RplId groupRplId)
 	{
@@ -1475,6 +1435,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     Faction GetPlayerFaction(int playerId) { return m_Roster.GetPlayerFaction(playerId); }
 
 	GC_VoiceChannelAssignment GetPlayerVoiceAssignment(int playerId) { return m_VoiceState.Get(playerId); }
+	UUID GetPlayerVoiceIdentity(int playerId) { return m_VoiceState.GetPlayerIdentity(playerId); }
 	bool IsPlayerVoiceDeafened(int playerId) { return m_VoiceState.IsDeafened(playerId); }
 
 	bool TrySetPlayerVoiceDeafened(int playerId, bool deafened)
@@ -1500,7 +1461,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		switch (channelType)
 		{
 			case GC_VoiceChannelType.GLOBAL:
-				if (GetLobbyPhase() == GC_ELobbyPhase.BRIEFING && GetPlayerFaction(playerId))
+				if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING && GetPlayerFaction(playerId))
 					return false;
 				return SetPlayerVoiceChannel(playerId, channelType);
 			case GC_VoiceChannelType.FACTION:
@@ -1598,7 +1559,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		int ownerPlayerId = GetConnectedPlayerIdByIdentity(ownerIdentity);
 		if (!GetGame().GetPlayerManager().IsPlayerConnected(playerId) || ownerPlayerId <= 0)
 			return false;
-		if (SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId) == ownerIdentity)
+		if (m_VoiceState.GetPlayerIdentity(playerId) == ownerIdentity)
 			return true;
 
 		GC_VoiceChannelAssignment ownerAssignment = m_VoiceState.Get(ownerPlayerId);
@@ -1638,25 +1599,35 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (identity.IsEmpty())
 			return -1;
 
-		array<int> connectedPlayers = {};
-		GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
-		foreach (int playerId : connectedPlayers)
-		{
-			if (SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId) == identity)
-				return playerId;
-		}
+		int playerId = m_VoiceState.GetPlayerIdByIdentity(identity);
+		if (playerId > 0 && GetGame().GetPlayerManager().IsPlayerConnected(playerId))
+			return playerId;
 
 		return -1;
 	}
 
 	protected void RegisterPlayerPersonalVoiceChannel(int playerId, UUID identity)
 	{
-		if (!Replication.IsServer() || !m_VoiceState.RegisterPersonalChannel(identity))
+		if (!Replication.IsServer() || playerId <= 0 || identity.IsEmpty())
 			return;
 
-		PrintFormat("GC | Voice personal channel registered: player=%1 identity=%2", playerId, identity);
-		Rpc(RpcDo_RegisterPersonalVoiceChannel, identity);
-		m_OnPlayerRegistryUpdated.Invoke(playerId);
+		bool changed;
+		GC_VoiceChannelAssignment identityAssignment;
+		if (m_VoiceState.SetPlayerIdentity(playerId, identity, identityAssignment))
+		{
+			Rpc(RpcDo_UpdateVoiceAssignment, identityAssignment);
+			changed = true;
+		}
+
+		if (m_VoiceState.RegisterPersonalChannel(identity))
+		{
+			PrintFormat("GC | Voice personal channel registered: player=%1 identity=%2", playerId, identity);
+			Rpc(RpcDo_RegisterPersonalVoiceChannel, identity);
+			changed = true;
+		}
+
+		if (changed)
+			m_OnPlayerRegistryUpdated.Invoke(playerId);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
@@ -1673,7 +1644,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		array<int> members = m_VoiceState.GetPersonalChannelMembers(ownerIdentity);
 		foreach (int memberPlayerId : members)
 		{
-			if (SCR_PlayerIdentityUtils.GetPlayerIdentityId(memberPlayerId) != ownerIdentity)
+			if (m_VoiceState.GetPlayerIdentity(memberPlayerId) != ownerIdentity)
 				SetPlayerVoiceChannel(memberPlayerId, GC_VoiceChannelType.GLOBAL);
 		}
 	}
@@ -1683,7 +1654,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!Replication.IsServer())
 			return;
 
-		ClosePersonalVoiceChannel(SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId));
+		ClosePersonalVoiceChannel(m_VoiceState.GetPlayerIdentity(playerId));
 		if (!m_VoiceState.Remove(playerId))
 			return;
 
@@ -1796,8 +1767,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		GC_ELobbyPhase phase = GetLobbyPhase();
-		if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+		SCR_EGameModeState phase = GetLobbyPhase();
+		if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
 		{
 			PrintFormat("GC | Parameters | request rejected: parameters locked in lobby=%1", GetPhaseName(phase), level: LogLevel.WARNING);
 			return false;
@@ -1900,7 +1871,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return true;
     }
 
-    bool SetBriefing(int order, string title, string content, array<string> factionKeys = null, GC_ELobbyPhase showAtGameModeState = GC_ELobbyPhase.GAME, bool invertGameModeState = false, bool visible = true)
+    bool SetBriefing(int order, string title, string content, array<string> factionKeys = null, SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME, bool invertGameModeState = false, bool visible = true)
     {
         GC_Briefing update = new GC_Briefing();
         update.Set(order, title, content, factionKeys, showAtGameModeState, invertGameModeState, visible);
@@ -1942,7 +1913,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
         if (briefing.GetTitle().Length() > GC_LobbyBriefingCatalog.MAX_BRIEFING_TITLE_LENGTH
             || briefing.GetContent().Length() > GC_LobbyBriefingCatalog.MAX_BRIEFING_CONTENT_LENGTH
-            || !GC_LobbyPhaseMachine.IsValid(briefing.GetShowAtGameModeState()))
+            || !GC_LobbyPhase.IsValid(briefing.GetShowAtGameModeState()))
             return false;
 
         return ValidateFactionKeys(briefing.GetFactionKeys(), GC_Briefing.MAX_FACTION_KEYS);
@@ -2039,7 +2010,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     bool SetBriefingMarker(string markerName, ResourceName image, string quadName, vector worldPosition,
         float rotation, bool worldScale, float size, string description, array<string> factionKeys = null,
-        GC_ELobbyPhase showAtGameModeState = GC_ELobbyPhase.GAME,
+        SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
         bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
     {
         GC_BriefingMarker update = new GC_BriefingMarker();
@@ -2084,7 +2055,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             || marker.GetImage().IsEmpty()
             || marker.GetDescription().Length() > GC_LobbyBriefingCatalog.MAX_MARKER_DESCRIPTION_LENGTH
             || marker.GetSize() <= 0
-            || !GC_LobbyPhaseMachine.IsValid(marker.GetShowAtGameModeState()))
+            || !GC_LobbyPhase.IsValid(marker.GetShowAtGameModeState()))
             return false;
 
         if (marker.GetImage().EndsWith(".imageset") && marker.GetQuadName().IsEmpty())
@@ -2160,8 +2131,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!Replication.IsServer() || playerId <= 0)
             return false;
 
-		GC_ELobbyPhase phase = GetLobbyPhase();
-		if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+		SCR_EGameModeState phase = GetLobbyPhase();
+		if (phase != SCR_EGameModeState.SLOTTING)
 			return false;
 
         GC_Slot targetSlot = GetSlot(slotId);
@@ -2194,8 +2165,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         GC_Slot currentSlot = GetSlotByPlayerId(playerId);
         SCR_AIGroup currentGroup = GetPlayerGroup(playerId);
 
-		// Clicking the current slot toggles the player out before GAME. During
-		// BRIEFING this also removes the staged entity through ReleaseSlotClaim.
+		// Clicking the current slot toggles the player out during SLOTTING.
 		if (occupyingPlayerId == playerId)
 		{
 			if (currentGroup)
@@ -2206,12 +2176,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             PrintFormat("GC | Slot request accepted (unslotted): player=%1 slot=%2", playerId, slotId);
             return true;
         }
-
-		if (phase == GC_ELobbyPhase.BRIEFING && currentGroup && currentGroup.GetFaction() != targetGroup.GetFaction())
-		{
-			PrintFormat("GC | Slot request rejected: cross-faction briefing switch player=%1 slot=%2", playerId, slotId, level: LogLevel.WARNING);
-			return false;
-		}
 
         if (currentGroup != targetGroup)
         {
@@ -2233,15 +2197,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			ReleaseSlotClaim(currentSlot);
 
 		targetSlot.SetPlayer(playerId);
-		if (phase == GC_ELobbyPhase.PREGAME)
-			targetSlot.SetState(GC_SlotState.RESERVED);
-		else if (targetSlot.GetEntity())
-			targetSlot.SetState(GC_SlotState.LOCKED);
-		else
-			targetSlot.SetState(GC_SlotState.RESERVED);
+		targetSlot.SetState(GC_SlotState.RESERVED);
         SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), Replication.FindItemId(targetGroup));
-		if (phase == GC_ELobbyPhase.BRIEFING)
-			SpawnSlotEntity(targetSlot, false, targetGroup);
         PrintFormat("GC | Slot request accepted: player=%1 slot=%2", playerId, slotId);
         return true;
     }

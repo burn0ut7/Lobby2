@@ -38,6 +38,34 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 	}
 
+	//! The controller is the local UI lifecycle boundary. As soon as it loads,
+	//! apply the menu that corresponds to the already-replicated game state.
+	override protected void OnInit(IEntity owner)
+	{
+		super.OnInit(owner);
+		PrintFormat("GC | Phase UI Trace | player controller initialized: this=%1 player=%2 server=%3 rplMode=%4 publishedController=%5 gameMode=%6 menuManager=%7", this, GetPlayerId(), Replication.IsServer(), RplSession.Mode(), GetGame().GetPlayerController(), GC_LobbyGameMode.GetGameMode(), GetGame().GetMenuManager());
+		if (!GetGame().InPlayMode() || RplSession.Mode() == RplMode.Dedicated)
+		{
+			PrintFormat("GC | Phase UI Trace | controller presentation stopped: player=%1 inPlayMode=%2 rplMode=%3", GetPlayerId(), GetGame().InPlayMode(), RplSession.Mode());
+			return;
+		}
+
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		if (!gameMode)
+		{
+			PrintFormat("GC | Phase UI Trace | controller presentation stopped: player=%1 reason=no-lobby-game-mode", GetPlayerId(), level: LogLevel.ERROR);
+			return;
+		}
+
+		gameMode.UpdateLocalPhasePresentation(this, "controller-init");
+	}
+
+	override protected void OnOwnershipChanged(bool changing, bool becameOwner)
+	{
+		super.OnOwnershipChanged(changing, becameOwner);
+		PrintFormat("GC | Phase UI Trace | player controller ownership: this=%1 player=%2 changing=%3 becameOwner=%4 server=%5 publishedController=%6", this, GetPlayerId(), changing, becameOwner, Replication.IsServer(), GetGame().GetPlayerController());
+	}
+
 	void RequestLobbySlot(int slotId)
 	{
 		if (slotId < 0)
@@ -56,7 +84,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		Rpc(RpcAsk_RequestVoiceDeafened, deafened);
 	}
 
-	void RequestLobbyPhaseAdvance(GC_ELobbyPhase requestedPhase)
+	void RequestLobbyPhaseAdvance(SCR_EGameModeState requestedPhase)
 	{
 		PrintFormat("GC | Phase RPC | request queued: player=%1 target=%2 value=%3", GetPlayerId(), GC_LobbyManager.GetPhaseName(requestedPhase), requestedPhase);
 		Rpc(RpcAsk_RequestLobbyPhaseAdvance, requestedPhase);
@@ -98,7 +126,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_RequestLobbyPhaseAdvance(GC_ELobbyPhase requestedPhase)
+	protected void RpcAsk_RequestLobbyPhaseAdvance(SCR_EGameModeState requestedPhase)
 	{
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
 		if (lobbyManager)

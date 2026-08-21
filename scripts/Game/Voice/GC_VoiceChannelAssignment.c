@@ -16,6 +16,8 @@ enum GC_EBriefingVoiceChannel
 class GC_VoiceChannelAssignment
 {
 	protected int m_iPlayerId = -1;
+	//! Server-resolved base-game identity reference used by client presentation.
+	protected UUID m_PlayerIdentity;
 	protected GC_VoiceChannelType m_eChannelType = GC_VoiceChannelType.GLOBAL;
 	protected string m_sFactionKey;
 	protected RplId m_GroupRplId = RplId.Invalid();
@@ -25,6 +27,11 @@ class GC_VoiceChannelAssignment
 	int GetPlayerId()
 	{
 		return m_iPlayerId;
+	}
+
+	UUID GetPlayerIdentity()
+	{
+		return m_PlayerIdentity;
 	}
 
 	GC_VoiceChannelType GetChannelType()
@@ -57,6 +64,11 @@ class GC_VoiceChannelAssignment
 		m_bDeafened = deafened;
 	}
 
+	void SetPlayerIdentity(UUID playerIdentity)
+	{
+		m_PlayerIdentity = playerIdentity;
+	}
+
 	void Set(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
 	{
 		m_iPlayerId = playerId;
@@ -72,12 +84,15 @@ class GC_VoiceChannelAssignment
 			return;
 
 		Set(source.m_iPlayerId, source.m_eChannelType, source.m_sFactionKey, source.m_GroupRplId, source.m_PersonalOwnerIdentity);
+		m_PlayerIdentity = source.m_PlayerIdentity;
 		m_bDeafened = source.m_bDeafened;
 	}
 
 	bool RplSave(ScriptBitWriter writer)
 	{
 		writer.WriteInt(m_iPlayerId);
+		string playerIdentity = m_PlayerIdentity;
+		writer.WriteString(playerIdentity);
 		writer.WriteIntRange(m_eChannelType, GC_VoiceChannelType.GLOBAL, GC_VoiceChannelType.PERSONAL);
 		writer.WriteString(m_sFactionKey);
 		writer.WriteRplId(m_GroupRplId);
@@ -91,6 +106,10 @@ class GC_VoiceChannelAssignment
 	{
 		if (!reader.ReadInt(m_iPlayerId))
 			return false;
+		string playerIdentity;
+		if (!reader.ReadString(playerIdentity))
+			return false;
+		m_PlayerIdentity = playerIdentity;
 		if (!reader.ReadIntRange(m_eChannelType, GC_VoiceChannelType.GLOBAL, GC_VoiceChannelType.PERSONAL))
 			return false;
 		if (!reader.ReadString(m_sFactionKey))
@@ -110,6 +129,8 @@ class GC_VoiceChannelAssignment
 	static bool Extract(GC_VoiceChannelAssignment instance, ScriptCtx ctx, SSnapSerializerBase snapshot)
 	{
 		snapshot.SerializeInt(instance.m_iPlayerId);
+		string playerIdentity = instance.m_PlayerIdentity;
+		snapshot.SerializeString(playerIdentity);
 		snapshot.SerializeInt(instance.m_eChannelType);
 		snapshot.SerializeString(instance.m_sFactionKey);
 		RplId groupRplId = instance.m_GroupRplId;
@@ -123,6 +144,9 @@ class GC_VoiceChannelAssignment
 	static bool Inject(SSnapSerializerBase snapshot, ScriptCtx ctx, GC_VoiceChannelAssignment instance)
 	{
 		snapshot.SerializeInt(instance.m_iPlayerId);
+		string playerIdentity;
+		snapshot.SerializeString(playerIdentity);
+		instance.m_PlayerIdentity = playerIdentity;
 		int channelType;
 		snapshot.SerializeInt(channelType);
 		instance.m_eChannelType = channelType;
@@ -138,6 +162,7 @@ class GC_VoiceChannelAssignment
 	static void Encode(SSnapSerializerBase snapshot, ScriptCtx ctx, ScriptBitSerializer packet)
 	{
 		snapshot.EncodeInt(packet);
+		snapshot.EncodeString(packet);
 		snapshot.EncodeInt(packet);
 		snapshot.EncodeString(packet);
 		RplId groupRplId;
@@ -150,6 +175,7 @@ class GC_VoiceChannelAssignment
 	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
 	{
 		snapshot.DecodeInt(packet);
+		snapshot.DecodeString(packet);
 		snapshot.DecodeInt(packet);
 		snapshot.DecodeString(packet);
 		RplId groupRplId;
@@ -163,6 +189,7 @@ class GC_VoiceChannelAssignment
 	static bool SnapCompare(SSnapSerializerBase lhs, SSnapSerializerBase rhs, ScriptCtx ctx)
 	{
 		return lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareStringSnapshots(rhs)
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareStringSnapshots(rhs)
 			&& lhs.CompareSnapshots(rhs, 4)
@@ -173,6 +200,7 @@ class GC_VoiceChannelAssignment
 	static bool PropCompare(GC_VoiceChannelAssignment instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
 	{
 		return snapshot.CompareInt(instance.m_iPlayerId)
+			&& snapshot.CompareString(instance.m_PlayerIdentity)
 			&& snapshot.CompareInt(instance.m_eChannelType)
 			&& snapshot.CompareString(instance.m_sFactionKey)
 			&& snapshot.Compare(instance.m_GroupRplId, 4)

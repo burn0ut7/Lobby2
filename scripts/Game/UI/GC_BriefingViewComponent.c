@@ -225,7 +225,7 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         RefreshParametersTab();
     }
 
-    protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+    protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
     {
         RefreshParametersTab();
     }
@@ -294,7 +294,7 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
     protected void RefreshParametersTab()
     {
         bool hasParameters;
-        bool isBriefingPhase = m_LobbyManager && m_LobbyManager.GetLobbyPhase() == GC_ELobbyPhase.BRIEFING;
+        bool isBriefingPhase = m_LobbyManager && m_LobbyManager.GetLobbyPhase() == SCR_EGameModeState.BRIEFING;
         bool catalogValid = isBriefingPhase && m_LobbyManager.IsScenarioParameterCatalogValid();
         int definitionCount;
         if (catalogValid)

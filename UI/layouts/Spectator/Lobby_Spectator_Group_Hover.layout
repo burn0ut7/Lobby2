@@ -1,4 +1,4 @@
-FrameWidgetClass {
+OverlayWidgetClass {
  Name "LobbySpectatorGroupHover"
  Clipping False
  Slot FrameWidgetSlot "{6A56000000000091}" {
@@ -15,12 +15,9 @@ FrameWidgetClass {
  {
   ImageWidgetClass "{6A56000000000096}" {
    Name "LobbySpectatorGroupHoverFill"
-   Slot FrameWidgetSlot "{6A56000000000097}" {
-    Anchor 0 0 1 1
-    OffsetLeft 0
-    OffsetTop 0
-    OffsetRight 0
-    OffsetBottom 0
+   Slot OverlayWidgetSlot "{6A56000000000097}" {
+    HorizontalAlign 3
+    VerticalAlign 3
    }
    Color 0 0 0 0.78
    "Ignore Cursor" 1
@@ -28,27 +25,81 @@ FrameWidgetClass {
   }
   PanelWidgetClass "{6A56000000000092}" {
    Name "LobbySpectatorGroupHoverBackground"
-   Slot FrameWidgetSlot "{6A56000000000093}" {
-    Anchor 0 0 1 1
-    OffsetLeft 0
-    OffsetTop 0
-    OffsetRight 0
-    OffsetBottom 0
+   Slot OverlayWidgetSlot "{6A56000000000093}" {
+    HorizontalAlign 3
+    VerticalAlign 3
    }
    Color 0.22 0.24 0.24 0.85
    style pixel_outline
    "Ignore Cursor" 1
   }
   VerticalLayoutWidgetClass "{6A56000000000094}" {
-   Name "LobbySpectatorGroupMembers"
-   Slot FrameWidgetSlot "{6A56000000000095}" {
-    Anchor 0 0 1 1
-    OffsetLeft 8
-    OffsetTop 8
-    OffsetRight -8
-    OffsetBottom -8
+   Name "LobbySpectatorGroupHoverContent"
+   Slot OverlayWidgetSlot "{6A56000000000095}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+    Padding 4 4 4 4
    }
    "Ignore Cursor" 1
+   {
+    SizeLayoutWidgetClass "{6A56000000000098}" {
+     Name "LobbySpectatorGroupHeaderSize"
+     Slot LayoutSlot "{6A56000000000099}" {
+      HorizontalAlign 3
+      VerticalAlign 0
+     }
+     AllowHeightOverride 1
+     HeightOverride 34
+     "Ignore Cursor" 1
+     {
+      OverlayWidgetClass "{6A5600000000009A}" {
+       Name "LobbySpectatorGroupHeader"
+       Slot AlignableSlot "{6A5600000000009B}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Ignore Cursor" 1
+       {
+        ImageWidgetClass "{6A5600000000009C}" {
+         Name "LobbySpectatorGroupHeaderBackground"
+         Slot OverlayWidgetSlot "{6A5600000000009D}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.76 0.39 0.08 1
+         "Ignore Cursor" 1
+        }
+        TextWidgetClass "{6A5600000000009E}" {
+         Name "LobbySpectatorGroupHeaderText"
+         Slot OverlayWidgetSlot "{6A5600000000009F}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 8 0 8 0
+         }
+         Color 1 1 1 1
+         Text "GROUP"
+         "Font Size" 18
+         "Min Font Size" 14
+         "Vertical Alignment" Center
+         "Ignore Cursor" 1
+         FontProperties FontProperties "{6A560000000000B2}" {
+          OutlineSize 2
+          OutlineColor 0 0 0 1
+         }
+        }
+       }
+      }
+     }
+    }
+    VerticalLayoutWidgetClass "{6A560000000000B0}" {
+     Name "LobbySpectatorGroupMembers"
+     Slot LayoutSlot "{6A560000000000B1}" {
+      HorizontalAlign 3
+      VerticalAlign 0
+     }
+     "Ignore Cursor" 1
+    }
+   }
   }
  }
 }

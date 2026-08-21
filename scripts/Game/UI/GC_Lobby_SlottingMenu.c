@@ -30,6 +30,11 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         if (SCR_Global.IsEditMode())
             return;
 
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		string phaseName = "NO_GAME_MODE";
+		if (gameMode)
+			phaseName = GC_LobbyManager.GetPhaseName(gameMode.GetState());
+		PrintFormat("GC | Phase UI | slotting menu opened: menu=%1 state=%2", this, phaseName);
 
 		m_InputManager = GetGame().GetInputManager();
 		if (m_InputManager)
@@ -90,6 +95,12 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
     override void OnMenuClose()
     {
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		string phaseName = "NO_GAME_MODE";
+		if (gameMode)
+			phaseName = GC_LobbyManager.GetPhaseName(gameMode.GetState());
+		PrintFormat("GC | Phase UI | slotting menu closed: menu=%1 state=%2", this, phaseName);
+
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
 		if (m_InputManager)
 			m_InputManager.RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);

@@ -30,6 +30,50 @@ class GC_LobbyVoiceState
 		return null;
 	}
 
+	UUID GetPlayerIdentity(int playerId)
+	{
+		GC_VoiceChannelAssignment assignment = Get(playerId);
+		if (!assignment)
+			return UUID.NULL_UUID;
+
+		return assignment.GetPlayerIdentity();
+	}
+
+	int GetPlayerIdByIdentity(UUID identity)
+	{
+		if (identity.IsEmpty())
+			return -1;
+
+		foreach (GC_VoiceChannelAssignment assignment : m_aAssignments)
+		{
+			if (assignment && assignment.GetPlayerIdentity() == identity)
+				return assignment.GetPlayerId();
+		}
+
+		return -1;
+	}
+
+	bool SetPlayerIdentity(int playerId, UUID identity, out GC_VoiceChannelAssignment changed)
+	{
+		changed = Get(playerId);
+		if (playerId <= 0 || identity.IsEmpty())
+			return false;
+
+		if (!changed)
+		{
+			changed = new GC_VoiceChannelAssignment();
+			changed.Set(playerId, GC_VoiceChannelType.GLOBAL);
+			m_aAssignments.Insert(changed);
+		}
+		else if (changed.GetPlayerIdentity() == identity)
+		{
+			return false;
+		}
+
+		changed.SetPlayerIdentity(identity);
+		return true;
+	}
+
 	bool IsDeafened(int playerId)
 	{
 		GC_VoiceChannelAssignment assignment = Get(playerId);

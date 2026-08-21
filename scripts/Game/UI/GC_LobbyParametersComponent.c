@@ -98,8 +98,8 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 
 		m_iInitializeAttempts = 0;
 		m_bAdmin = SCR_Global.IsAdmin(playerController.GetPlayerId());
-		GC_ELobbyPhase phase = m_LobbyManager.GetLobbyPhase();
-		m_bEditable = m_bAdmin && (phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING);
+		SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
+		m_bEditable = m_bAdmin && (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING);
 		m_bDirty = false;
 		m_bStale = false;
 		m_iBaseRevision = m_LobbyManager.GetScenarioParameterRevision();
@@ -221,7 +221,7 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		{
 			if (m_bStale)
 				m_wStatus.SetText("Parameters changed on the server. Leave and reopen this view to continue.");
-			else if (m_LobbyManager.GetLobbyPhase() == GC_ELobbyPhase.GAME || m_LobbyManager.GetLobbyPhase() == GC_ELobbyPhase.POSTGAME)
+			else if (m_LobbyManager.GetLobbyPhase() == SCR_EGameModeState.GAME || m_LobbyManager.GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
 				m_wStatus.SetText("Parameters are locked after the briefing phase.");
 			else if (!selectedFaction)
 				m_wStatus.SetText("Select a faction to view its parameters.");
@@ -259,8 +259,8 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		m_bDirty = true;
 		if (m_wStatus && m_LobbyManager && !m_bStale)
 		{
-			GC_ELobbyPhase phase = m_LobbyManager.GetLobbyPhase();
-			if (phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING)
+			SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
+			if (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING)
 				m_wStatus.SetText(string.Empty);
 		}
 		if (m_ApplyButton)
@@ -286,9 +286,9 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		}
 	}
 
-	protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+	protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
 	{
-		m_bEditable = m_bAdmin && (phase == GC_ELobbyPhase.PREGAME || phase == GC_ELobbyPhase.BRIEFING);
+		m_bEditable = m_bAdmin && (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING);
 		m_iEditableRowCount = 0;
 		PlayerController playerController = GetGame().GetPlayerController();
 		int playerId = -1;
@@ -309,7 +309,7 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 				m_iEditableRowCount++;
 		}
 
-		if (m_wStatus && phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+		if (m_wStatus && phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
 			m_wStatus.SetText("Parameters are locked after the briefing phase.");
 		if (m_ApplyButton)
 			m_ApplyButton.SetEnabled(m_bEditable && m_bDirty && !m_bStale && m_iEditableRowCount > 0);
@@ -320,8 +320,8 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		if (!m_bEditable || !m_bDirty || m_bStale || !m_LobbyManager)
 			return;
 
-		GC_ELobbyPhase phase = m_LobbyManager.GetLobbyPhase();
-		if (phase != GC_ELobbyPhase.PREGAME && phase != GC_ELobbyPhase.BRIEFING)
+		SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
+		if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
 			return;
 
 		array<ref GC_LobbyParameterValue> values = {};

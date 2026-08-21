@@ -51,7 +51,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 			return;
 
 		ClearChannelWidgets();
-		if (m_LobbyManager.GetLobbyPhase() != GC_ELobbyPhase.BRIEFING)
+		if (m_LobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
 			CreateChannel(GC_VoiceChannelType.GLOBAL);
 
 		array<Faction> factions = m_LobbyManager.GetRegisteredFactions();
@@ -78,7 +78,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		int localPlayerId = GetLocalPlayerId();
 		foreach (int ownerPlayerId : connectedPlayers)
 		{
-			UUID ownerIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(ownerPlayerId);
+			UUID ownerIdentity = m_LobbyManager.GetPlayerVoiceIdentity(ownerPlayerId);
 			if (ownerPlayerId != localPlayerId && m_LobbyManager.CanAccessPersonalVoiceChannel(localPlayerId, ownerIdentity))
 				CreateChannel(GC_VoiceChannelType.PERSONAL, m_LobbyManager.GetPersonalVoiceChannelFaction(ownerIdentity), null, ownerIdentity, ownerPlayerId);
 		}
@@ -86,8 +86,9 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		// The local player's unopened channel remains private and is always last.
 		if (localPlayerId > 0)
 		{
-			UUID localIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(localPlayerId);
-			CreateChannel(GC_VoiceChannelType.PERSONAL, m_LobbyManager.GetPersonalVoiceChannelFaction(localIdentity), null, localIdentity, localPlayerId);
+			UUID localIdentity = m_LobbyManager.GetPlayerVoiceIdentity(localPlayerId);
+			if (!localIdentity.IsEmpty())
+				CreateChannel(GC_VoiceChannelType.PERSONAL, m_LobbyManager.GetPersonalVoiceChannelFaction(localIdentity), null, localIdentity, localPlayerId);
 		}
 
 		RefreshPlayers();
@@ -125,7 +126,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		Refresh();
 	}
 
-	protected void OnLobbyPhaseChanged(GC_ELobbyPhase phase)
+	protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
 	{
 		Refresh();
 	}
