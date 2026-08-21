@@ -49,6 +49,28 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 	{
 		m_Faction = faction;
 		RefreshFactionColor();
+		RefreshAdminNamePresentation();
+	}
+
+	void RefreshAdminNamePresentation()
+	{
+		if (!m_wRoot)
+			return;
+
+		int presentedPlayerId = -1;
+		if (m_ChannelType == GC_VoiceChannelType.PERSONAL)
+			presentedPlayerId = m_iPersonalOwnerPlayerId;
+		GC_PlayerNamePresentation.Apply(m_wRoot.FindAnyWidget("ChannelName"), presentedPlayerId);
+
+		foreach (Widget rowWidget : m_aPlayerRows)
+		{
+			if (!rowWidget)
+				continue;
+
+			GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
+			if (row)
+				row.RefreshAdminNamePresentation();
+		}
 	}
 
 	//! Retains the authoritative group represented by this group channel.
@@ -167,6 +189,7 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		}
 
 		RefreshFactionColor();
+		RefreshAdminNamePresentation();
 	}
 
 	//! Applies the faction manager's actual faction color to both channel marks.

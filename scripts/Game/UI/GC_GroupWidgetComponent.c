@@ -136,6 +136,19 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_wSquadName.SetText(GC_GroupCallsignHelper.GetDisplayName(m_Group));
 	}
 
+	void RefreshAdminNamePresentation()
+	{
+		foreach (Widget slotWidget : m_aSlotWidgets)
+		{
+			if (!slotWidget)
+				continue;
+
+			GC_SlotButtonComponent slotButton = GC_SlotButtonComponent.Cast(slotWidget.FindHandler(GC_SlotButtonComponent));
+			if (slotButton)
+				slotButton.RefreshAdminNamePresentation();
+		}
+	}
+
 	protected void UpdatePlayerCount(int slotCount = -1)
 	{
 		if (!m_wPlayerCount)

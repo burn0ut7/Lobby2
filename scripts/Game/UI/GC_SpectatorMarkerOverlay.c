@@ -141,6 +141,8 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			RefreshFaction(m_Entity.GetFaction());
 
 		RefreshCharacterState();
+		if (m_bHovered)
+			RefreshHoverLabel();
 	}
 
 	void RefreshCharacterState()
@@ -179,12 +181,14 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			return false;
 
 		string displayName = m_sFallbackName;
+		int presentedPlayerId = -1;
 		PlayerManager playerManager = GetGame().GetPlayerManager();
 		if (playerManager)
 		{
 			int playerId = playerManager.GetPlayerIdFromControlledEntity(m_Entity.GetOwner());
 			if (playerId > 0)
 			{
+				presentedPlayerId = playerId;
 				string playerName = playerManager.GetPlayerName(playerId);
 				if (!playerName.IsEmpty())
 					displayName = playerName;
@@ -192,6 +196,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		}
 
 		m_wLabelText.SetText(displayName);
+		GC_PlayerNamePresentation.Apply(m_wLabelText, presentedPlayerId);
 		return !displayName.IsEmpty();
 	}
 
@@ -350,7 +355,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 				if (!playerEntity)
 					continue;
 
-				if (CreateMemberRow(workspace, playerEntity, playerManager.GetPlayerName(playerId)))
+				if (CreateMemberRow(workspace, playerEntity, playerManager.GetPlayerName(playerId), playerId))
 					memberCount++;
 			}
 		}
@@ -385,7 +390,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		m_wMemberPopup.SetZOrder(100);
 	}
 
-	protected bool CreateMemberRow(WorkspaceWidget workspace, IEntity controlledEntity, string playerName)
+	protected bool CreateMemberRow(WorkspaceWidget workspace, IEntity controlledEntity, string playerName, int playerId = -1)
 	{
 		SCR_EditableEntityComponent editableEntity = SCR_EditableEntityComponent.GetEditableEntity(controlledEntity);
 		if (!editableEntity)
@@ -416,7 +421,10 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 
 		RichTextWidget memberName = RichTextWidget.Cast(row.FindAnyWidget("LobbySpectatorGroupMemberName"));
 		if (memberName)
+		{
 			memberName.SetText(displayName);
+			GC_PlayerNamePresentation.Apply(memberName, playerId);
+		}
 
 		return true;
 	}

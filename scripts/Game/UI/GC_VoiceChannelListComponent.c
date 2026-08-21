@@ -6,6 +6,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 	protected Widget m_wChannels;
 	protected GC_LobbyManager m_LobbyManager;
+	protected GC_LobbyGameMode m_LobbyGameMode;
 	protected ref array<Widget> m_aChannelWidgets = {};
 
 	override void HandlerAttached(Widget w)
@@ -26,6 +27,9 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		m_LobbyManager.m_OnFactionUpdated.Insert(OnLobbyRegistryUpdated);
 		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnLobbyPlayerRegistryUpdated);
 		m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
+		m_LobbyGameMode = GC_LobbyGameMode.GetGameMode();
+		if (m_LobbyGameMode)
+			m_LobbyGameMode.GetOnPlayerRoleChange().Insert(OnPlayerRoleChanged);
 		Refresh();
 	}
 
@@ -37,11 +41,32 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 			m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnLobbyPlayerRegistryUpdated);
 			m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
 		}
+		if (m_LobbyGameMode)
+			m_LobbyGameMode.GetOnPlayerRoleChange().Remove(OnPlayerRoleChanged);
 
 		ClearChannelWidgets();
 		m_LobbyManager = null;
+		m_LobbyGameMode = null;
 		m_wChannels = null;
 		super.HandlerDeattached(w);
+	}
+
+	protected void RefreshAdminNamePresentation()
+	{
+		foreach (Widget channelWidget : m_aChannelWidgets)
+		{
+			if (!channelWidget)
+				continue;
+
+			GC_VoiceChannelWidgetComponent channel = GC_VoiceChannelWidgetComponent.Cast(channelWidget.FindHandler(GC_VoiceChannelWidgetComponent));
+			if (channel)
+				channel.RefreshAdminNamePresentation();
+		}
+	}
+
+	protected void OnPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+	{
+		RefreshAdminNamePresentation();
 	}
 
 	//! Rebuilds shared channels first, followed by discoverable personal channels.

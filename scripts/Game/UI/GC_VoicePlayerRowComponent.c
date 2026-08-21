@@ -45,6 +45,7 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
                 name = m_Slot.GetCachedPlayerName();
 
             playerName.SetText(name);
+			GC_PlayerNamePresentation.Apply(playerName, m_iPlayerId);
         }
 
         TextWidget groupCallsign = TextWidget.Cast(m_wRoot.FindAnyWidget("GroupCallsign"));
@@ -61,6 +62,14 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         UpdateVoiceVisuals();
         UpdateLocalPlayerBackground();
     }
+
+	void RefreshAdminNamePresentation()
+	{
+		if (!m_wRoot)
+			return;
+
+		GC_PlayerNamePresentation.Apply(m_wRoot.FindAnyWidget("PlayerName"), m_iPlayerId);
+	}
 
     //! Recolors this row only for the player represented by the local client.
     //! The same row layout is used by both the player and voice-channel lists.

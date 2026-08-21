@@ -36,6 +36,17 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		UpdateLocalPhasePresentation(null, "game-state-changed");
 	}
 
+	override protected void OnPlayerRoleChange(int playerId, EPlayerRole roleFlags)
+	{
+		PlayerController localController = GetGame().GetPlayerController();
+		int localPlayerId = -1;
+		if (localController)
+			localPlayerId = localController.GetPlayerId();
+
+		PrintFormat("GC | Admin Trace | game-mode role callback: server=%1 rplMode=%2 changedPlayer=%3 localPlayer=%4 roleFlags=%5 flagsAdmin=%6 queriedAdmin=%7", Replication.IsServer(), RplSession.Mode(), playerId, localPlayerId, roleFlags, SCR_Global.IsAdminRole(roleFlags), SCR_Global.IsAdmin(playerId));
+		super.OnPlayerRoleChange(playerId, roleFlags);
+	}
+
 	//! The local player controller calls this from OnInit. State changes call the
 	//! same function so initial and subsequent presentation cannot diverge.
 	void UpdateLocalPhasePresentation(PlayerController localController = null, string source = "unspecified")

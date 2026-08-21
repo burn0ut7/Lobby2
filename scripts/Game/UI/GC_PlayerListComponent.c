@@ -5,6 +5,7 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 
 	protected Widget m_wPlayers;
 	protected GC_LobbyManager m_LobbyManager;
+	protected GC_LobbyGameMode m_LobbyGameMode;
 	protected string m_sSearchText;
 	protected ref array<Widget> m_aPlayerRows = {};
 
@@ -24,6 +25,9 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 		}
 
 		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnPlayerRegistryUpdated);
+		m_LobbyGameMode = GC_LobbyGameMode.GetGameMode();
+		if (m_LobbyGameMode)
+			m_LobbyGameMode.GetOnPlayerRoleChange().Insert(OnPlayerRoleChanged);
 		Refresh();
 	}
 
@@ -31,11 +35,32 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 	{
 		if (m_LobbyManager)
 			m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnPlayerRegistryUpdated);
+		if (m_LobbyGameMode)
+			m_LobbyGameMode.GetOnPlayerRoleChange().Remove(OnPlayerRoleChanged);
 
 		ClearPlayerRows();
 		m_LobbyManager = null;
+		m_LobbyGameMode = null;
 		m_wPlayers = null;
 		super.HandlerDeattached(w);
+	}
+
+	protected void RefreshAdminNamePresentation()
+	{
+		foreach (Widget rowWidget : m_aPlayerRows)
+		{
+			if (!rowWidget)
+				continue;
+
+			GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
+			if (row)
+				row.RefreshAdminNamePresentation();
+		}
+	}
+
+	protected void OnPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+	{
+		RefreshAdminNamePresentation();
 	}
 
 	void SetSearchText(string searchText)

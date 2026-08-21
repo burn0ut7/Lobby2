@@ -252,7 +252,8 @@ Each pre-match Lobby2 phase has one authoritative menu presentation.
 - Selected controls do not hover or accept clicks.
 - Locked controls do not hover, focus-highlight, click, or play sounds.
 - Non-admin players still see the immediate successor but cannot interact with it.
-- Administration status may change during a session, so permission presentation must refresh and clean up its polling callback on detach.
+- Administration status may change during a session. Never cache it as UI authority: every admin-gated presentation refresh and interaction must query the base player manager through `SCR_Global.IsAdmin`, while player-role events may only prompt an immediate refresh. A lifecycle-owned periodic refresh must cover dedicated-client role events that are not delivered to the local game-mode proxy, and must be removed on detach. Server authority must independently re-check the requesting player's current role for every mutation.
+- Every Lobby2 widget that presents a player-derived name uses the shared player-name presentation rule: current administrators are yellow and all other player names use the normal white. Player and voice lists refresh from the base game mode's player-role event, then query `SCR_Global.IsAdmin(playerId)` live; they do not poll or store parallel role state.
 - Entering `GAME` closes lobby UI.
 - `POSTGAME` currently closes the UI without opening a debrief screen.
 - Every widget component must unsubscribe invokers and remove queued callbacks in `HandlerDeattached`.
@@ -330,6 +331,7 @@ Use structured prefixes so multiplayer logs can be filtered quickly:
 - `GC | Phase |` for accepted state changes and validation failures.
 - `GC | Phase RPC |` for request and broadcast boundaries.
 - `GC | Phase JIP |` for snapshot phase serialization.
+- `GC | Admin Trace |` for initial role reads, role-change propagation, UI permission state, blocked controls, and server-side role observations.
 - `GC | Lifecycle |` for startup and teardown.
 - `GC | JIP` for topology/reference resolution.
 

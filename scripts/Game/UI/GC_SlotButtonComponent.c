@@ -228,9 +228,11 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			if (m_Slot.GetPlayerId() >= 0 && !m_Slot.GetCachedPlayerName().IsEmpty())
 			{
 				statusText.SetText(m_Slot.GetCachedPlayerName());
+				GC_PlayerNamePresentation.Apply(statusText, m_Slot.GetPlayerId());
 			}
 			else
 			{
+				GC_PlayerNamePresentation.Apply(statusText, -1);
 				switch (m_Slot.GetState())
 				{
 					case GC_SlotState.FREE:
@@ -254,6 +256,16 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 				}
 			}
 		}
+	}
+
+	void RefreshAdminNamePresentation()
+	{
+		if (!m_wRoot || !m_Slot)
+			return;
+
+		TextWidget statusText = TextWidget.Cast(m_wRoot.FindAnyWidget("StatusText"));
+		if (statusText)
+			GC_PlayerNamePresentation.Apply(statusText, m_Slot.GetPlayerId());
 	}
 
 	protected void UpdateFactionAccent(ImageWidget accent)

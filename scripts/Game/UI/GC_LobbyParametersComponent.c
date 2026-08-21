@@ -10,10 +10,10 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 	protected TextWidget m_wStatus;
 	protected SCR_ButtonBaseComponent m_ApplyButton;
 	protected GC_LobbyManager m_LobbyManager;
+	protected GC_LobbyGameMode m_LobbyGameMode;
 	protected ref array<GC_BriefingParameterRowComponent> m_aRows = {};
 	protected FactionKey m_SelectedFactionKey;
 	protected int m_iBaseRevision;
-	protected bool m_bAdmin;
 	protected bool m_bEditable;
 	protected bool m_bDirty;
 	protected bool m_bStale;
@@ -46,17 +46,24 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 			m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
 		}
 
+		m_LobbyGameMode = GC_LobbyGameMode.GetGameMode();
+		if (m_LobbyGameMode)
+			m_LobbyGameMode.GetOnPlayerRoleChange().Insert(OnPlayerRoleChanged);
+
 		GetGame().GetCallqueue().CallLater(InitializeView, 0);
 	}
 
 	override void HandlerDeattached(Widget w)
 	{
 		GetGame().GetCallqueue().Remove(InitializeView);
+		GetGame().GetCallqueue().Remove(RefreshAdminPresentation);
 		if (m_LobbyManager)
 		{
 			m_LobbyManager.m_OnScenarioParametersChanged.Remove(OnParametersChanged);
 			m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
 		}
+		if (m_LobbyGameMode)
+			m_LobbyGameMode.GetOnPlayerRoleChange().Remove(OnPlayerRoleChanged);
 		if (m_FactionList)
 			m_FactionList.m_OnFactionSelected.Remove(OnFactionSelected);
 		if (m_ApplyButton)
@@ -65,6 +72,7 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		ClearRows();
 		m_FactionList = null;
 		m_LobbyManager = null;
+		m_LobbyGameMode = null;
 		m_wRows = null;
 		m_wScroll = null;
 		m_wStatus = null;
@@ -97,9 +105,11 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		}
 
 		m_iInitializeAttempts = 0;
-		m_bAdmin = SCR_Global.IsAdmin(playerController.GetPlayerId());
+		EPlayerRole roleFlags = GetGame().GetPlayerManager().GetPlayerRoles(playerController.GetPlayerId());
+		bool isAdmin = SCR_Global.IsAdmin(playerController.GetPlayerId());
 		SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
-		m_bEditable = m_bAdmin && (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING);
+		m_bEditable = isAdmin && (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING);
+		PrintFormat("GC | Admin Trace | parameters initial permission: player=%1 roleFlags=%2 flagsAdmin=%3 queriedAdmin=%4 phase=%5 editable=%6", playerController.GetPlayerId(), roleFlags, SCR_Global.IsAdminRole(roleFlags), isAdmin, GC_LobbyManager.GetPhaseName(phase), m_bEditable);
 		m_bDirty = false;
 		m_bStale = false;
 		m_iBaseRevision = m_LobbyManager.GetScenarioParameterRevision();
@@ -126,6 +136,16 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 			m_FactionList.SetSelectedFaction(m_SelectedFactionKey, false);
 
 		RefreshRows();
+		GetGame().GetCallqueue().CallLater(RefreshAdminPresentation, 250);
+	}
+
+	protected void RefreshAdminPresentation()
+	{
+		GetGame().GetCallqueue().Remove(RefreshAdminPresentation);
+		if (m_LobbyManager && GetGame().GetPlayerController())
+			OnLobbyPhaseChanged(m_LobbyManager.GetLobbyPhase());
+
+		GetGame().GetCallqueue().CallLater(RefreshAdminPresentation, 250);
 	}
 
 	protected void OnFactionSelected(FactionKey factionKey)
@@ -227,7 +247,7 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 				m_wStatus.SetText("Select a faction to view its parameters.");
 			else if (visibleCount == 0)
 				m_wStatus.SetText("No parameters are available for the selected faction.");
-			else if (m_bAdmin && m_iEditableRowCount == 0)
+			else if (playerController && SCR_Global.IsAdmin(playerId) && m_iEditableRowCount == 0)
 				m_wStatus.SetText("No parameters can be modified for the selected faction.");
 			else if (!m_bEditable)
 				m_wStatus.SetText("Read-only parameter snapshot.");
@@ -288,12 +308,13 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
 	{
-		m_bEditable = m_bAdmin && (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING);
-		m_iEditableRowCount = 0;
 		PlayerController playerController = GetGame().GetPlayerController();
 		int playerId = -1;
 		if (playerController)
 			playerId = playerController.GetPlayerId();
+		m_bEditable = playerController && SCR_Global.IsAdmin(playerId)
+			&& (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING);
+		m_iEditableRowCount = 0;
 
 		foreach (GC_BriefingParameterRowComponent row : m_aRows)
 		{
@@ -309,15 +330,43 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 				m_iEditableRowCount++;
 		}
 
-		if (m_wStatus && phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
-			m_wStatus.SetText("Parameters are locked after the briefing phase.");
+		if (m_wStatus && !m_bStale)
+		{
+			if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
+				m_wStatus.SetText("Parameters are locked after the briefing phase.");
+			else if (!m_bEditable)
+				m_wStatus.SetText("Read-only parameter snapshot.");
+			else if (m_iEditableRowCount == 0)
+				m_wStatus.SetText("No parameters can be modified for the selected faction.");
+			else
+				m_wStatus.SetText(string.Empty);
+		}
 		if (m_ApplyButton)
 			m_ApplyButton.SetEnabled(m_bEditable && m_bDirty && !m_bStale && m_iEditableRowCount > 0);
 	}
 
+	protected void OnPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+	{
+		PlayerController playerController = GetGame().GetPlayerController();
+		int localPlayerId = -1;
+		if (playerController)
+			localPlayerId = playerController.GetPlayerId();
+
+		bool queriedAdmin = playerController && SCR_Global.IsAdmin(localPlayerId);
+		PrintFormat("GC | Admin Trace | parameters role event: changedPlayer=%1 localPlayer=%2 roleFlags=%3 flagsAdmin=%4 queriedAdmin=%5 isLocal=%6 manager=%7", playerId, localPlayerId, roleFlags, SCR_Global.IsAdminRole(roleFlags), queriedAdmin, localPlayerId == playerId, m_LobbyManager);
+		if (!playerController || localPlayerId != playerId || !m_LobbyManager)
+			return;
+
+		OnLobbyPhaseChanged(m_LobbyManager.GetLobbyPhase());
+		PrintFormat("GC | Admin Trace | parameters role applied: player=%1 admin=%2 phase=%3 editable=%4 editableRows=%5 dirty=%6 stale=%7", playerId, SCR_Global.IsAdmin(localPlayerId), GC_LobbyManager.GetPhaseName(m_LobbyManager.GetLobbyPhase()), m_bEditable, m_iEditableRowCount, m_bDirty, m_bStale);
+	}
+
 	protected void OnApplyClicked(SCR_ButtonBaseComponent button)
 	{
-		if (!m_bEditable || !m_bDirty || m_bStale || !m_LobbyManager)
+		PlayerController playerController = GetGame().GetPlayerController();
+		bool isAdmin = playerController && SCR_Global.IsAdmin(playerController.GetPlayerId());
+		PrintFormat("GC | Admin Trace | parameters apply dispatched: admin=%1 editable=%2 dirty=%3 stale=%4 editableRows=%5 manager=%6", isAdmin, m_bEditable, m_bDirty, m_bStale, m_iEditableRowCount, m_LobbyManager);
+		if (!isAdmin || !m_bEditable || !m_bDirty || m_bStale || !m_LobbyManager)
 			return;
 
 		SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();

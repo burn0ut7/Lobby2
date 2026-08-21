@@ -10,10 +10,10 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
     protected ref array<GC_HeaderButtonComponent> m_aButtons = {};
     protected GC_LobbyManager m_LobbyManager;
+    protected GC_LobbyGameMode m_LobbyGameMode;
     protected int m_iActiveState = -1;
-    protected bool m_bIsAdmin;
     protected bool m_bInitialized;
-    protected int m_iAdminCheckAttempts;
+    protected bool m_bAdminPermissionLogged;
     protected int m_iManagerCheckAttempts;
 
     override void HandlerAttached(Widget w)
@@ -35,6 +35,9 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (m_LobbyManager)
             m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
 
+        if (m_LobbyGameMode)
+            m_LobbyGameMode.GetOnPlayerRoleChange().Remove(OnPlayerRoleChanged);
+
         foreach (GC_HeaderButtonComponent button : m_aButtons)
         {
             if (button)
@@ -43,7 +46,9 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
         m_aButtons.Clear();
         m_LobbyManager = null;
+        m_LobbyGameMode = null;
         m_bInitialized = false;
+        m_bAdminPermissionLogged = false;
         super.HandlerDeattached(w);
     }
 
@@ -83,6 +88,10 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         m_iManagerCheckAttempts = 0;
         m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
 
+        m_LobbyGameMode = GC_LobbyGameMode.GetGameMode();
+        if (m_LobbyGameMode)
+            m_LobbyGameMode.GetOnPlayerRoleChange().Insert(OnPlayerRoleChanged);
+
         if (m_iActiveState < 0)
             m_iActiveState = GetPhaseView(m_LobbyManager.GetLobbyPhase());
 
@@ -95,18 +104,39 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         PlayerController playerController = GetGame().GetPlayerController();
         if (!playerController)
         {
-            m_bIsAdmin = false;
-            if (m_iAdminCheckAttempts++ < 20)
-                GetGame().GetCallqueue().CallLater(RefreshAdminPermission, 250);
-
             RefreshButtonStates();
+            GetGame().GetCallqueue().CallLater(RefreshAdminPermission, 250);
             return;
         }
 
-        m_iAdminCheckAttempts = 0;
-        m_bIsAdmin = SCR_Global.IsAdmin();
+        if (!m_bAdminPermissionLogged)
+        {
+            m_bAdminPermissionLogged = true;
+            EPlayerRole roleFlags = GetGame().GetPlayerManager().GetPlayerRoles(playerController.GetPlayerId());
+            string phaseName = "UNAVAILABLE";
+            if (m_LobbyManager)
+                phaseName = GC_LobbyManager.GetPhaseName(m_LobbyManager.GetLobbyPhase());
+            PrintFormat("GC | Admin Trace | header initial permission: player=%1 roleFlags=%2 flagsAdmin=%3 queriedAdmin=%4 manager=%5 phase=%6", playerController.GetPlayerId(), roleFlags, SCR_Global.IsAdminRole(roleFlags), SCR_Global.IsAdmin(playerController.GetPlayerId()), m_LobbyManager, phaseName);
+        }
+
         RefreshButtonStates();
-		GetGame().GetCallqueue().CallLater(RefreshAdminPermission, 1000);
+        GetGame().GetCallqueue().CallLater(RefreshAdminPermission, 250);
+    }
+
+    protected void OnPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+    {
+        PlayerController playerController = GetGame().GetPlayerController();
+        int localPlayerId = -1;
+        if (playerController)
+            localPlayerId = playerController.GetPlayerId();
+
+        bool queriedAdmin = playerController && SCR_Global.IsAdmin(localPlayerId);
+        PrintFormat("GC | Admin Trace | header role event: changedPlayer=%1 localPlayer=%2 roleFlags=%3 flagsAdmin=%4 queriedAdmin=%5 isLocal=%6", playerId, localPlayerId, roleFlags, SCR_Global.IsAdminRole(roleFlags), queriedAdmin, localPlayerId == playerId);
+        if (!playerController || localPlayerId != playerId)
+            return;
+
+        RefreshButtonStates();
+        TraceButtonStates("role-event");
     }
 
     protected void RegisterButton(string buttonName)
@@ -127,17 +157,6 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
         m_aButtons.Insert(button);
         button.m_OnClicked.Insert(OnButtonClicked);
-    }
-
-    void SetCanChangeState(bool canChange)
-    {
-        m_bIsAdmin = canChange;
-        RefreshButtonStates();
-    }
-
-    bool CanChangeState()
-    {
-        return m_bIsAdmin;
     }
 
     void SetActiveState(int state)
@@ -169,6 +188,22 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         }
     }
 
+    protected void TraceButtonStates(string source)
+    {
+        SCR_EGameModeState phase = -1;
+        if (m_LobbyManager)
+            phase = m_LobbyManager.GetLobbyPhase();
+
+        foreach (GC_HeaderButtonComponent button : m_aButtons)
+        {
+            if (!button)
+                continue;
+
+            bool selected = button.GetHeaderState() == m_iActiveState;
+            PrintFormat("GC | Admin Trace | header button state: source=%1 playerAdmin=%2 phase=%3 activeView=%4 buttonView=%5 selected=%6 interactive=%7", source, IsLocalAdmin(), GC_LobbyManager.GetPhaseName(phase), m_iActiveState, button.GetHeaderState(), selected, IsButtonInteractive(button.GetHeaderState(), selected));
+        }
+    }
+
     protected bool IsButtonInteractive(int view, bool selected)
     {
         if (selected || !m_LobbyManager)
@@ -178,7 +213,13 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (CanNavigateToView(view, phase))
             return true;
 
-        return m_bIsAdmin && IsNextPhaseView(view, phase);
+        return IsLocalAdmin() && IsNextPhaseView(view, phase);
+    }
+
+    protected bool IsLocalAdmin()
+    {
+        PlayerController playerController = GetGame().GetPlayerController();
+        return playerController && SCR_Global.IsAdmin(playerController.GetPlayerId());
     }
 
     protected bool CanNavigateToView(int view, SCR_EGameModeState phase)
@@ -250,11 +291,11 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!button || !m_LobbyManager)
             return;
 
-        RefreshAdminPermission();
-
         int view = button.GetHeaderState();
         bool selected = view == m_iActiveState;
-        if (!IsButtonInteractive(view, selected))
+        bool interactive = IsButtonInteractive(view, selected);
+        PrintFormat("GC | Admin Trace | header click dispatched: playerAdmin=%1 phase=%2 activeView=%3 buttonView=%4 selected=%5 interactive=%6", IsLocalAdmin(), GC_LobbyManager.GetPhaseName(m_LobbyManager.GetLobbyPhase()), m_iActiveState, view, selected, interactive);
+        if (!interactive)
             return;
 
         SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
@@ -265,7 +306,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
         }
 
-        if (!m_bIsAdmin || !IsNextPhaseView(view, phase))
+        if (!IsLocalAdmin() || !IsNextPhaseView(view, phase))
             return;
 
         GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());

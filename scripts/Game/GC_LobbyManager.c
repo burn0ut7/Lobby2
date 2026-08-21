@@ -73,8 +73,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (Replication.IsServer() && !SCR_Global.IsEditMode())
 			EnsureFormationCatalog();
-
-		EnsureParameterCatalog();
 	}
 
 	protected bool EnsureParameterCatalog()
@@ -1207,6 +1205,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Serializes Lobby2's replicated snapshot. Save and load order must match.
     override protected bool RplSave(ScriptBitWriter writer)
     {
+		// Faction-dependent authoring validation is intentionally deferred until
+		// replication. Dedicated-server EOnInit can run before the faction manager
+		// is ready, which previously cleared all parameter defaults permanently.
+		if (!EnsureParameterCatalog())
+		{
+			Print("GC | JIP save failed: domain=parameters initialization", level: LogLevel.ERROR);
+			return false;
+		}
+
 		array<SCR_AIGroup> groups = m_Roster.GetGroups();
         writer.WriteInt(groups.Count());
 		PrintFormat("GC | JIP save begin: groups=%1 slots=%2", groups.Count(), m_Roster.GetSlots().Count());
@@ -1238,6 +1245,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     //! Deserializes Lobby2's snapshot from the authority.
     override protected bool RplLoad(ScriptBitReader reader)
     {
+		if (!EnsureParameterCatalog())
+		{
+			Print("GC | JIP load failed: domain=parameters initialization", level: LogLevel.ERROR);
+			return false;
+		}
+
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
 		m_Roster.ResetJipAttempts();
 

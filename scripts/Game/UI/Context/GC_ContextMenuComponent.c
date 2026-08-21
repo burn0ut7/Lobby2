@@ -159,6 +159,7 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 
 		m_Context = context;
 		m_wHeader.SetTextFormat("%1  /  %2", context.GetTargetTypeName(), context.GetTargetLabel());
+		GC_PlayerNamePresentation.Apply(m_wHeader, context.GetLabelPlayerId());
 
 		array<ref GC_ContextMenuAction> actions = {};
 		GC_ContextMenuActionRegistry.CollectVisible(context, actions);

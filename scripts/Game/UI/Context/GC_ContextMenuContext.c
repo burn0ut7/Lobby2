@@ -159,6 +159,18 @@ class GC_ContextMenuContext
 		return m_iRequesterPlayerId;
 	}
 
+	//! Player whose name is embedded in this context label, if any.
+	int GetLabelPlayerId()
+	{
+		if (m_eTargetType == GC_EContextTargetType.PLAYER)
+			return m_iPlayerId;
+
+		if (m_eTargetType == GC_EContextTargetType.VOICE_CHANNEL && m_eVoiceChannelType == GC_VoiceChannelType.PERSONAL)
+			return m_iVoicePersonalOwnerPlayerId;
+
+		return -1;
+	}
+
 	string GetTargetTypeName()
 	{
 		switch (m_eTargetType)

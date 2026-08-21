@@ -8,6 +8,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     protected GC_HeaderComponent m_Header;
     protected GC_FactionListComponent m_FactionList;
     protected GC_LobbyManager m_LobbyManager;
+	protected GC_LobbyGameMode m_LobbyGameMode;
     protected Widget m_wGroups;
     protected ScrollLayoutWidget m_wGroupScroll;
     protected ref array<Widget> m_aGroupCards = {};
@@ -30,10 +31,13 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         if (SCR_Global.IsEditMode())
             return;
 
-		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		m_LobbyGameMode = GC_LobbyGameMode.GetGameMode();
 		string phaseName = "NO_GAME_MODE";
-		if (gameMode)
-			phaseName = GC_LobbyManager.GetPhaseName(gameMode.GetState());
+		if (m_LobbyGameMode)
+		{
+			phaseName = GC_LobbyManager.GetPhaseName(m_LobbyGameMode.GetState());
+			m_LobbyGameMode.GetOnPlayerRoleChange().Insert(OnPlayerRoleChanged);
+		}
 		PrintFormat("GC | Phase UI | slotting menu opened: menu=%1 state=%2", this, phaseName);
 
 		m_InputManager = GetGame().GetInputManager();
@@ -93,6 +97,19 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		m_bWasManipulatingPreview = isManipulatingPreview;
     }
 
+	protected void RefreshAdminNamePresentation()
+	{
+		foreach (Widget groupCard : m_aGroupCards)
+		{
+			if (!groupCard)
+				continue;
+
+			GC_GroupWidgetComponent groupWidget = GC_GroupWidgetComponent.Cast(groupCard.FindHandler(GC_GroupWidgetComponent));
+			if (groupWidget)
+				groupWidget.RefreshAdminNamePresentation();
+		}
+	}
+
     override void OnMenuClose()
     {
 		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
@@ -102,6 +119,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		PrintFormat("GC | Phase UI | slotting menu closed: menu=%1 state=%2", this, phaseName);
 
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
+		if (m_LobbyGameMode)
+			m_LobbyGameMode.GetOnPlayerRoleChange().Remove(OnPlayerRoleChanged);
 		if (m_InputManager)
 			m_InputManager.RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 
@@ -138,14 +157,20 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         m_Header = null;
         m_FactionList = null;
 		m_LobbyManager = null;
+		m_LobbyGameMode = null;
         m_aGroupCards.Clear();
         m_wGroups = null;
 		m_wGroupScroll = null;
 		m_InputManager = null;
-        m_SelectedFactionKey = string.Empty;
+		m_SelectedFactionKey = string.Empty;
 
         super.OnMenuClose();
     }
+
+	protected void OnPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+	{
+		RefreshAdminNamePresentation();
+	}
 
 	protected void OnPauseMenuRequested()
 	{
