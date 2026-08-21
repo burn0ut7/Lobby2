@@ -475,14 +475,21 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected void HandlePlayerDisconnected(int playerId)
 	{
 		UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		GC_Slot slot = m_Roster.GetSlotByPlayerId(playerId);
 		IEntity spectator = m_mLobbySpectators.Get(playerId);
 		if (spectator && !identity.IsEmpty())
 			m_mReservedSpectators.Set(identity, spectator);
 		m_mLobbySpectators.Remove(playerId);
 
-		GC_Slot slot = m_Roster.GetSlotByPlayerId(playerId);
 		if (!slot)
 			return;
+		if (slot.GetUUID().IsEmpty())
+		{
+			ReleaseSlotClaim(slot);
+			UpdateSlot(slot);
+			PrintFormat("GC | Lifecycle | released identity-less disconnected claim: player=%1 slot=%2", playerId, slot.GetID(), level: LogLevel.WARNING);
+			return;
+		}
 
 		slot.MarkDisconnected();
 		UpdateSlot(slot);
@@ -522,7 +529,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (reconnect)
 			reconnect.HandlePlayerReconnect(playerId);
 
-		GC_Slot slot = m_Roster.GetSlotByUUID(identity);
+		// A connected player is authoritatively identified by the current session
+		// player ID. UUID lookup is reserved for reconnecting players whose former
+		// live player ID was cleared when they disconnected.
+		GC_Slot slot = m_Roster.GetSlotByPlayerId(playerId);
+		if (!slot)
+			slot = m_Roster.GetSlotByUUID(identity);
 		if (!slot)
 		{
 			PrintFormat("GC | Lifecycle | catch-up unassigned spectator: player=%1", playerId);
@@ -737,7 +749,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		group.AddAIEntityToGroup(entity);
 		AIControlComponent aiControl = AIControlComponent.Cast(entity.FindComponent(AIControlComponent));
 		if (aiControl)
+		{
 			aiControl.DeactivateAI();
+			if (aiControl.IsAIActivated())
+			{
+				PrintFormat("GC | Lifecycle | playable slot spawn rejected because AI remained active: slot=%1 entity=%2", slot.GetID(), entity, level: LogLevel.ERROR);
+				SCR_EntityHelper.DeleteEntityAndChildren(entity);
+				return false;
+			}
+		}
 
 		slot.SetEntity(entity);
 		if (slot.HasClaim())

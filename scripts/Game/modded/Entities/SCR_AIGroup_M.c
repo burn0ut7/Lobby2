@@ -51,6 +51,17 @@ modded class SCR_AIGroup : ChimeraAIGroup
 		super.RequestSpawn(slotsWanted, observerRange);
 	}
 
+	override bool ExpandOneMember()
+	{
+		// SCR_AIWorld drains queued startup requests through this method. Guard the
+		// dequeue path as well as RequestSpawn so initialization order cannot let a
+		// playable Lobby2 group materialize before its claimed slot is staged.
+		if (GC_LobbyGameMode.GetGameMode() && m_bPlayable && !GetWorld().IsEditMode())
+			return false;
+
+		return super.ExpandOneMember();
+	}
+
 	override void OnEmpty()
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();

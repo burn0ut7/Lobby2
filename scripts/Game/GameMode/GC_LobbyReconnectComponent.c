@@ -36,6 +36,9 @@ class GC_LobbyReconnectComponent : SCR_ReconnectComponent
 			return false;
 
 		data.m_PlayerUUID = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		if (data.m_PlayerUUID.IsEmpty())
+			return false;
+
 		if (m_iReconnectTime > 0)
 			data.m_ValidUntil = GetGame().GetWorld().GetTimestamp().PlusSeconds(m_iReconnectTime);
 		else

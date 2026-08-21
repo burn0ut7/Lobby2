@@ -303,7 +303,8 @@ Slot states have these meanings:
 
 Player catch-up is idempotent and runs after identity registration, reconnect, and relevant phase notifications:
 
-- No UUID reservation: global voice and spectator assignment.
+- A connected player's live claim is resolved by its authoritative session player ID before consulting UUID reservations.
+- No live claim or UUID reservation: global voice and spectator assignment.
 - `PREGAME`: restore slot/group claim, remain spectator.
 - `SLOTTING`: restore slot/group claim, remain spectator, and allow authoritative slot changes.
 - `BRIEFING`: stage the exact slot prefab in bounded batches, keep the player spectator, and deactivate staged AI.
@@ -312,7 +313,7 @@ Player catch-up is idempotent and runs after identity registration, reconnect, a
 
 The Lobby2 spectator body and spectator camera have separate lifetimes. The server spawns and possesses the replicated invisible spectator body during initial preview/slotting/briefing catch-up, but no manual camera is created then. When `GAME` begins, every connected player is reconciled: players without a living assigned slot receive an owner-only enter RPC and locally spawn `{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et`; players assigned a character receive the leave RPC. KIA uses the same entry path. Entering `POSTGAME` removes any remaining local spectator camera while preserving the authoritative spectator body/state.
 
-Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
+Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). A connected claim without a persistent UUID is released on disconnect because it cannot form a reconnect reservation. Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
 
 Slotting requests are server-authoritative and JIP-safe. Claims, changes, and toggling out are accepted only during `SLOTTING` and remain `RESERVED`. Entering `BRIEFING` stages every claimed slot in bounded batches; each pending spawn must re-check the claim so a released slot cannot be materialized by a stale queue entry. Slot changes are locked once briefing begins.
 

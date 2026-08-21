@@ -113,7 +113,7 @@ class GC_Slot
 
 	bool HasClaim()
 	{
-		return !m_PlayerUUID.IsEmpty();
+		return m_iPlayerId > 0 || !m_PlayerUUID.IsEmpty();
 	}
 
 	bool IsKIA()

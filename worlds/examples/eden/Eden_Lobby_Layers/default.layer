@@ -70,6 +70,9 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_
 RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
  coords 10358.268 28.752 313.506
 }
+ScriptedChatEntity : "{F69BC912AC8236F9}Prefabs/MP/ScriptedChatEntity.et" {
+ coords 10348.504 33.19 370.834
+}
 GenericEntity marker2 {
  components {
   GC_BriefingMarkerComponent "{6A208289DCAA4649}" {
@@ -83,10 +86,17 @@ GenericEntity marker2 {
  coords 10357.47 30.769 348.541
  angles 0 144.276 0
 }
-SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
- coords 10351.581 32.533 361.562
- m_bPlayable 1
- m_bDeleteIfNoPlayer 0
+$grp SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
+ {
+  coords 10351.581 32.533 361.562
+  m_bPlayable 1
+  m_bDeleteIfNoPlayer 0
+ }
+ {
+  coords 5218.536 10.486 12426.713
+  m_bPlayable 1
+  m_bDeleteIfNoPlayer 0
+ }
 }
 SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  coords 10350.959 30.317 309.757

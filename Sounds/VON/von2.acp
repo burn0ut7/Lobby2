@@ -534,7 +534,7 @@ AudioClass {
    id 89095
    name "Bus 87"
    version 7
-   tl -256 -640
+   tl -256 -672
    ins {
     ConnectionsClass "con:0" {
      id 0
@@ -685,11 +685,10 @@ AudioClass {
    id 90124
    name "Constant 88"
    version 5
-   tl -256 -528
+   tl -512 -672
    "Constant values" {
     IOPConstantsValueClass TEST {
      Key "TEST"
-     Value 1
      Port 1
     }
    }
@@ -756,6 +755,10 @@ AudioClass {
        id 50183
        port 65
       }
+      ConnectionClass "91143:65" {
+       id 91143
+       port 65
+      }
      }
     }
    }
@@ -783,15 +786,6 @@ AudioClass {
    version 5
    tl 240 -544
    ins {
-    ConnectionsClass "con:1" {
-     id 1
-     links {
-      ConnectionClass "96275:65" {
-       id 96275
-       port 65
-      }
-     }
-    }
     ConnectionsClass "con:64" {
      id 64
      links {
@@ -814,23 +808,6 @@ AudioClass {
    tl 0 -1072
    ctl 0 -21
    parent "{9F8145144171C64B}Sounds/_SharedData/Configs/Amplitude/_SharedData/Amplitude_-40LUFS_to_-35LUFS.conf"
-  }
-  AmplitudeClass "96275" : "{9F8145144171C64B}Sounds/_SharedData/Configs/Amplitude/_SharedData/Amplitude_-40LUFS_to_-35LUFS.conf" {
-   id 96275
-   version 5
-   tl 0 -480
-   ctl 0 -21
-   parent "{9F8145144171C64B}Sounds/_SharedData/Configs/Amplitude/_SharedData/Amplitude_-40LUFS_to_-35LUFS.conf"
-   curve Custom
-   AttenuationCurve {
-    CurvePoint "1" {
-     Y 1
-    }
-    CurvePoint "2" {
-     X 100000
-     Y 1
-    }
-   }
   }
  }
  frequency {
