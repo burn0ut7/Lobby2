@@ -28,6 +28,7 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 		m_LobbyManager.m_OnPlayerDisconnected.Insert(OnPlayerDisconnected);
 		m_LobbyManager.m_OnPlayerAffiliationChanged.Insert(OnPlayerAffiliationChanged);
 		m_LobbyManager.m_OnSlotPresentationChanged.Insert(OnSlotPresentationChanged);
+		m_LobbyManager.m_OnVoiceAssignmentChanged.Insert(OnVoiceAssignmentChanged);
 		m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
 		Refresh();
 	}
@@ -41,6 +42,7 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 			m_LobbyManager.m_OnPlayerDisconnected.Remove(OnPlayerDisconnected);
 			m_LobbyManager.m_OnPlayerAffiliationChanged.Remove(OnPlayerAffiliationChanged);
 			m_LobbyManager.m_OnSlotPresentationChanged.Remove(OnSlotPresentationChanged);
+			m_LobbyManager.m_OnVoiceAssignmentChanged.Remove(OnVoiceAssignmentChanged);
 			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
 		}
 
@@ -180,6 +182,13 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 	{
 		if (slot && slot.GetPlayerId() > 0)
 			UpsertPlayerRow(slot.GetPlayerId());
+	}
+
+	protected void OnVoiceAssignmentChanged(int playerId)
+	{
+		// The same row layout is used by the voice and player lists, but each
+		// collection owns its own widget instance. Refresh only this list's row.
+		UpsertPlayerRow(playerId);
 	}
 
 	protected void ClearPlayerRows()

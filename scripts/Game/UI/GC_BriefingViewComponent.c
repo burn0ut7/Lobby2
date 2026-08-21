@@ -49,6 +49,8 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
     protected static const float COMPACT_WIDTH = 287;
     protected static const float PARAMETERS_WIDTH = 1240;
     protected static const int SECTION_LAYOUT_SETTLE_DELAY = 50;
+	protected static const int PLAYER_READY_RETRY_MS = 250;
+	protected static const int PLAYER_READY_MAX_RETRIES = 20;
 
     protected GC_BriefingTitlesComponent m_Titles;
     protected GC_LobbyManager m_LobbyManager;
@@ -74,6 +76,7 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 	protected ref GC_BriefingInteractiveRenderer m_InteractiveRenderer = new GC_BriefingInteractiveRenderer();
     protected float m_fExpandedWidth;
     protected float m_fMaxViewHeight;
+	protected int m_iPlayerReadyAttempts;
     protected ref GC_BriefingMapFocusController m_MapFocusController = new GC_BriefingMapFocusController();
 
     override void HandlerAttached(Widget w)
@@ -129,13 +132,14 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
             m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
         }
 
-        RefreshBriefings();
+		InitializeBriefings();
     }
 
     override void HandlerDeattached(Widget w)
     {
         GetGame().GetCallqueue().Remove(PrepareSectionLayout);
         GetGame().GetCallqueue().Remove(CommitSectionLayout);
+		GetGame().GetCallqueue().Remove(InitializeBriefings);
         CancelMarkerFocus();
 		m_InteractiveRenderer.Detach();
 		m_Renderer.Detach();
@@ -236,8 +240,29 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 
     protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
     {
-        RefreshParametersTab();
+		// Briefing visibility is phase-filtered, so a phase transition changes
+		// the collection even when its authored revision did not change.
+		RefreshBriefings();
     }
+
+	protected void InitializeBriefings()
+	{
+		GetGame().GetCallqueue().Remove(InitializeBriefings);
+
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (!playerController || playerController.GetPlayerId() <= 0)
+		{
+			m_iPlayerReadyAttempts++;
+			if (m_iPlayerReadyAttempts < PLAYER_READY_MAX_RETRIES)
+				GetGame().GetCallqueue().CallLater(InitializeBriefings, PLAYER_READY_RETRY_MS);
+			else
+				RefreshBriefings();
+			return;
+		}
+
+		m_iPlayerReadyAttempts = 0;
+		RefreshBriefings();
+	}
 
     protected void RefreshBriefings()
     {
