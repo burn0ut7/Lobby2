@@ -310,6 +310,9 @@ class GC_BriefingParameterRowComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnEditChanged(Widget widget)
 	{
+		if (!IsInteractionAllowed())
+			return;
+
 		if (m_wEdit && !m_bUpdatingEditText && (m_IntegerDefinition || m_FloatDefinition))
 		{
 			// EditBoxWidget dispatches OnChange synchronously from SetText. Filter
@@ -355,13 +358,13 @@ class GC_BriefingParameterRowComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnComboClicked(SCR_ButtonBaseComponent button)
 	{
-		if (m_bEditable && m_Combo)
+		if (IsInteractionAllowed() && m_Combo)
 			m_Combo.OpenList();
 	}
 
 	protected void OnBoolClicked(SCR_ButtonBaseComponent button)
 	{
-		if (!m_bEditable || button != m_BoolButton)
+		if (!IsInteractionAllowed() || button != m_BoolButton)
 			return;
 
 		m_bBoolValue = !m_bBoolValue;
@@ -371,18 +374,24 @@ class GC_BriefingParameterRowComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnSelectionChanged(SCR_ComboBoxComponent combo, int index)
 	{
+		if (!IsInteractionAllowed())
+			return;
+
 		m_OnChanged.Invoke(this);
 	}
 
 	protected void OnSliderChanged(SCR_SliderComponent slider, float value)
 	{
+		if (!IsInteractionAllowed())
+			return;
+
 		UpdateSliderText(value);
 		m_OnChanged.Invoke(this);
 	}
 
 	protected void OnStepDownClicked(SCR_ButtonBaseComponent button)
 	{
-		if (!m_bEditable || !m_IntegerDefinition)
+		if (!IsInteractionAllowed() || !m_IntegerDefinition)
 			return;
 
 		int value = m_wStepValue.GetText().ToInt() - m_IntegerDefinition.GetStep();
@@ -393,13 +402,33 @@ class GC_BriefingParameterRowComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnStepUpClicked(SCR_ButtonBaseComponent button)
 	{
-		if (!m_bEditable || !m_IntegerDefinition)
+		if (!IsInteractionAllowed() || !m_IntegerDefinition)
 			return;
 
 		int value = m_wStepValue.GetText().ToInt() + m_IntegerDefinition.GetStep();
 		value = Math.Clamp(value, m_IntegerDefinition.GetMinimum(), m_IntegerDefinition.GetMaximum());
 		UpdateStepperText(value);
 		m_OnChanged.Invoke(this);
+	}
+
+	//! m_bEditable is presentation state only. Authority is queried again for
+	//! every interaction so a logout cannot use a still-enabled control while
+	//! the reliable role notification is converging locally.
+	protected bool IsInteractionAllowed()
+	{
+		if (!m_bEditable)
+			return false;
+
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (!playerController || !SCR_Global.IsAdmin(playerController.GetPlayerId()))
+			return false;
+
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager)
+			return false;
+
+		SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
+		return phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING;
 	}
 
 	protected bool IsIntegerText(string text)

@@ -87,6 +87,7 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
     void Clear()
     {
         GetGame().GetCallqueue().Remove(Refresh);
+		GetGame().GetCallqueue().Remove(RefreshClock);
         UnbindWeatherManager();
         m_bShowing = false;
 
@@ -124,7 +125,7 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
             for (int unavailableIndex = 0; unavailableIndex < ROW_COUNT; unavailableIndex++)
                 SetRowText(unavailableIndex, "SCENARIO", "Environment information is unavailable.");
 
-            ScheduleFallbackRefresh();
+            GetGame().GetCallqueue().CallLater(Refresh, REFRESH_INTERVAL);
             return;
         }
 
@@ -174,7 +175,28 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
             roundedWindSpeedMph, windDirectionName, roundedWindDirection.ToString(3)));
         SetTextureIcon(1, GetWindIcon(windSpeedMph));
 
-        int year;
+		RefreshClockRows(weatherManager);
+		ScheduleClockRefresh();
+	}
+
+	protected void RefreshClock()
+	{
+		GetGame().GetCallqueue().Remove(RefreshClock);
+		if (!m_bShowing)
+			return;
+		if (!m_WeatherManager)
+		{
+			GetGame().GetCallqueue().CallLater(Refresh, REFRESH_INTERVAL);
+			return;
+		}
+
+		RefreshClockRows(m_WeatherManager);
+		ScheduleClockRefresh();
+	}
+
+	protected void RefreshClockRows(TimeAndWeatherManagerEntity weatherManager)
+	{
+		int year;
         int month;
         int day;
         weatherManager.GetDate(year, month, day);
@@ -222,13 +244,12 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
             SetFallbackIcon(6);
         }
 
-        ScheduleFallbackRefresh();
     }
 
-    protected void ScheduleFallbackRefresh()
+    protected void ScheduleClockRefresh()
     {
         if (m_bShowing)
-            GetGame().GetCallqueue().CallLater(Refresh, REFRESH_INTERVAL);
+			GetGame().GetCallqueue().CallLater(RefreshClock, REFRESH_INTERVAL);
     }
 
     protected void RequestRefresh()
@@ -237,6 +258,7 @@ class GC_BriefingScenarioComponent : SCR_ScriptedWidgetComponent
             return;
 
         GetGame().GetCallqueue().Remove(Refresh);
+		GetGame().GetCallqueue().Remove(RefreshClock);
         GetGame().GetCallqueue().CallLater(Refresh, 0);
     }
 

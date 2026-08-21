@@ -123,7 +123,8 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         if (m_LobbyManager)
         {
             m_LobbyManager.m_OnBriefingsChanged.Insert(OnBriefingsChanged);
-            m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnPlayerRegistryChanged);
+            m_LobbyManager.m_OnRegistryReset.Insert(OnRegistryReset);
+            m_LobbyManager.m_OnPlayerAffiliationChanged.Insert(OnPlayerAffiliationChanged);
             m_LobbyManager.m_OnScenarioParametersChanged.Insert(OnScenarioParametersChanged);
             m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
         }
@@ -147,7 +148,8 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         if (m_LobbyManager)
         {
             m_LobbyManager.m_OnBriefingsChanged.Remove(OnBriefingsChanged);
-            m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnPlayerRegistryChanged);
+            m_LobbyManager.m_OnRegistryReset.Remove(OnRegistryReset);
+            m_LobbyManager.m_OnPlayerAffiliationChanged.Remove(OnPlayerAffiliationChanged);
             m_LobbyManager.m_OnScenarioParametersChanged.Remove(OnScenarioParametersChanged);
             m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
         }
@@ -215,9 +217,16 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         RefreshBriefings();
     }
 
-    protected void OnPlayerRegistryChanged(int playerId)
+    protected void OnRegistryReset(int revision)
     {
         RefreshBriefings();
+    }
+
+    protected void OnPlayerAffiliationChanged(int playerId)
+    {
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (playerController && playerController.GetPlayerId() == playerId)
+			RefreshBriefings();
     }
 
     protected void OnScenarioParametersChanged(int revision)

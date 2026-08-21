@@ -175,6 +175,15 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		ApplyStatePresentation();
 	}
 
+	void RefreshAdminNamePresentation(int playerId)
+	{
+		if (!m_bHovered || !m_Entity || !m_Entity.GetOwner())
+			return;
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (playerManager && playerManager.GetPlayerIdFromControlledEntity(m_Entity.GetOwner()) == playerId)
+			RefreshHoverLabel();
+	}
+
 	protected bool RefreshHoverLabel()
 	{
 		if (!m_wLabelText || !m_Entity || !m_Entity.GetOwner())
@@ -447,6 +456,13 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		m_fPopupHeight = 0.0;
 	}
 
+	void RefreshAdminNamePresentation(int playerId)
+	{
+		if (!m_wMemberPopup)
+			return;
+		CreateMemberPopup();
+	}
+
 	protected void RefreshGroupPresentation(SCR_EditableEntityComponent entity)
 	{
 		if (!entity || !m_wGroupOverlay)
@@ -572,12 +588,19 @@ class GC_SpectatorEditableEntityMarker
 		if (m_CharacterUI)
 		{
 			m_CharacterUI.UpdateDistancePresentation(distance, m_fMaxDistance);
-			m_CharacterUI.RefreshCharacterState();
 		}
 		else if (m_GroupUI)
 		{
 			m_GroupUI.UpdateDistancePresentation(distance, m_fMaxDistance);
 		}
+	}
+
+	void RefreshAdminNamePresentation(int playerId)
+	{
+		if (m_CharacterUI)
+			m_CharacterUI.RefreshAdminNamePresentation(playerId);
+		else if (m_GroupUI)
+			m_GroupUI.RefreshAdminNamePresentation(playerId);
 	}
 }
 
@@ -596,6 +619,7 @@ class GC_SpectatorMarkerOverlay
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
 	protected SCR_EditableEntityCore m_EditableEntityCore;
+	protected GC_LobbyManager m_LobbyManager;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
 
 	bool Start()
@@ -606,6 +630,7 @@ class GC_SpectatorMarkerOverlay
 		m_Workspace = GetGame().GetWorkspace();
 		m_World = GetGame().GetWorld();
 		m_EditableEntityCore = SCR_EditableEntityCore.Cast(SCR_EditableEntityCore.GetInstance(SCR_EditableEntityCore));
+		m_LobbyManager = GC_LobbyManager.GetManager();
 		if (!m_Workspace || !m_World || !m_EditableEntityCore)
 			return false;
 
@@ -615,6 +640,8 @@ class GC_SpectatorMarkerOverlay
 
 		m_EditableEntityCore.Event_OnEntityRegistered.Insert(OnEntityRegistered);
 		m_EditableEntityCore.Event_OnEntityUnregistered.Insert(OnEntityUnregistered);
+		if (m_LobbyManager)
+			m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
 
 		set<SCR_EditableEntityComponent> entities = new set<SCR_EditableEntityComponent>();
 		m_EditableEntityCore.GetAllEntities(entities);
@@ -637,6 +664,8 @@ class GC_SpectatorMarkerOverlay
 			m_EditableEntityCore.Event_OnEntityRegistered.Remove(OnEntityRegistered);
 			m_EditableEntityCore.Event_OnEntityUnregistered.Remove(OnEntityUnregistered);
 		}
+		if (m_LobbyManager)
+			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
 
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 			marker.Deactivate();
@@ -649,6 +678,7 @@ class GC_SpectatorMarkerOverlay
 		m_Workspace = null;
 		m_World = null;
 		m_EditableEntityCore = null;
+		m_LobbyManager = null;
 	}
 
 	protected void OnEntityRegistered(SCR_EditableEntityComponent entity)
@@ -681,6 +711,12 @@ class GC_SpectatorMarkerOverlay
 
 		marker.Deactivate();
 		m_mMarkers.Remove(entity);
+	}
+
+	protected void OnPlayerRoleChanged(int playerId)
+	{
+		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
+			marker.RefreshAdminNamePresentation(playerId);
 	}
 
 	protected void RefreshVisibility()

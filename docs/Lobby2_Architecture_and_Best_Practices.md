@@ -252,11 +252,19 @@ Each pre-match Lobby2 phase has one authoritative menu presentation.
 - Selected controls do not hover or accept clicks.
 - Locked controls do not hover, focus-highlight, click, or play sounds.
 - Non-admin players still see the immediate successor but cannot interact with it.
-- Administration status may change during a session. Never cache it as UI authority: every admin-gated presentation refresh and interaction must query the base player manager through `SCR_Global.IsAdmin`, while player-role events may only prompt an immediate refresh. A lifecycle-owned periodic refresh must cover dedicated-client role events that are not delivered to the local game-mode proxy, and must be removed on detach. Server authority must independently re-check the requesting player's current role for every mutation.
-- Every Lobby2 widget that presents a player-derived name uses the shared player-name presentation rule: current administrators are yellow and all other player names use the normal white. Player and voice lists refresh from the base game mode's player-role event, then query `SCR_Global.IsAdmin(playerId)` live; they do not poll or store parallel role state.
+- Administration status may change during a session. Never cache it as UI authority: every admin-gated presentation refresh and interaction queries the base player manager through `SCR_Global.IsAdmin`, and server authority independently re-checks every mutation. The authority game mode publishes role changes through one reliable Lobby2 manager broadcast so dedicated clients receive the prompt even when the base callback is not raised on their local proxy. Transported role state is used only as a bounded replication-convergence hint; presentation and permissions never consume it as authority.
+- Every Lobby2 widget that presents a player-derived name uses the shared player-name presentation rule: current administrators are yellow and all other player names use the normal white. Player, voice, slot, spectator, and context presentations consume the manager's converged player-role event, then query `SCR_Global.IsAdmin(playerId)` live; they do not poll or store parallel role state.
 - Entering `GAME` closes lobby UI.
 - `POSTGAME` currently closes the UI without opening a debrief screen.
 - Every widget component must unsubscribe invokers and remove queued callbacks in `HandlerDeattached`.
+
+### UI event domains
+
+`GC_LobbyManager` exposes narrow presentation notifications for registry reset, player connection, player affiliation, faction/group topology, faction presentation, slot presentation, voice assignment, voice topology, and player role. A normal mutation emits its owning domain event once. Consumers re-query authoritative base-game state and update the identified widget; they do not treat an event payload or presentation map as ownership state.
+
+Full collection reconstruction is limited to initial attachment and a completed JIP/registry reset. Topology events reconcile keyed widgets while preserving unchanged rows and cards. Voice or deafen changes never refresh briefings, briefing markers, faction lists, or unrelated player rows. Player-name role changes update only presentations for the identified player.
+
+Continuous presentation remains lifecycle-owned where no discrete state event can describe the change: spectator world-to-screen projection and distance animation update per frame, spectator draw-distance activation is checked periodically, and the scenario clock refreshes only its time-dependent rows. Zero-delay layout settling and bounded manager/entity attachment retries are lifecycle sequencing rather than steady-state polling. All recurring callbacks are removed when their owner detaches or stops.
 
 ## Replication and JIP
 

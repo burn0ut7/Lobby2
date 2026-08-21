@@ -22,7 +22,8 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 		if (m_LobbyManager)
 		{
 			m_LobbyManager.m_OnBriefingMarkersChanged.Insert(OnMarkersChanged);
-			m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnPlayerRegistryChanged);
+			m_LobbyManager.m_OnRegistryReset.Insert(OnRegistryReset);
+			m_LobbyManager.m_OnPlayerAffiliationChanged.Insert(OnPlayerAffiliationChanged);
 		}
 
 		SCR_MapEntity.GetOnMapOpenComplete().Insert(OnMapOpenComplete);
@@ -37,7 +38,8 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 		if (m_LobbyManager)
 		{
 			m_LobbyManager.m_OnBriefingMarkersChanged.Remove(OnMarkersChanged);
-			m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnPlayerRegistryChanged);
+			m_LobbyManager.m_OnRegistryReset.Remove(OnRegistryReset);
+			m_LobbyManager.m_OnPlayerAffiliationChanged.Remove(OnPlayerAffiliationChanged);
 		}
 
 		SCR_MapEntity.GetOnMapOpenComplete().Remove(OnMapOpenComplete);
@@ -51,7 +53,13 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 	}
 
 	protected void OnMarkersChanged(int revision) { RefreshMarkers(); }
-	protected void OnPlayerRegistryChanged(int playerId) { RefreshMarkers(); }
+	protected void OnRegistryReset(int revision) { RefreshMarkers(); }
+	protected void OnPlayerAffiliationChanged(int playerId)
+	{
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (playerController && playerController.GetPlayerId() == playerId)
+			RefreshMarkers();
+	}
 	protected void OnMapOpenComplete(MapConfiguration config) { RefreshMarkers(); }
 	protected void OnMapClose(MapConfiguration config) { ClearMarkers(); }
 	protected void OnMapPan(float x, float y, bool isPanStart) { UpdateMarkerTransforms(); }

@@ -14,14 +14,14 @@ class GC_FactionWidgetComponent : SCR_ScriptedWidgetComponent
         if (!m_LobbyManager)
             return;
 
-        m_LobbyManager.m_OnFactionUpdated.Insert(OnFactionUpdated);
+        m_LobbyManager.m_OnFactionPresentationChanged.Insert(OnFactionUpdated);
         Refresh();
     }
 
     override void HandlerDeattached(Widget w)
     {
         if (m_LobbyManager)
-            m_LobbyManager.m_OnFactionUpdated.Remove(OnFactionUpdated);
+            m_LobbyManager.m_OnFactionPresentationChanged.Remove(OnFactionUpdated);
 
         m_LobbyManager = null;
         super.HandlerDeattached(w);

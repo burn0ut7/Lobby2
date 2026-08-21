@@ -63,6 +63,7 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 	protected VerticalLayoutWidget m_wActions;
 	protected TextWidget m_wHeader;
 	protected ref GC_ContextMenuContext m_Context;
+	protected GC_LobbyManager m_LobbyManager;
 	protected float m_fMenuHeight;
 
 	override void HandlerAttached(Widget w)
@@ -70,6 +71,9 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 		super.HandlerAttached(w);
 		m_wActions = VerticalLayoutWidget.Cast(w.FindAnyWidget("ContextActions"));
 		m_wHeader = TextWidget.Cast(w.FindAnyWidget("ContextHeaderText"));
+		m_LobbyManager = GC_LobbyManager.GetManager();
+		if (m_LobbyManager)
+			m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
 
 		InputManager inputManager = GetGame().GetInputManager();
 		if (inputManager)
@@ -102,8 +106,11 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 
 		if (s_wActiveMenu == m_wRoot)
 			s_wActiveMenu = null;
+		if (m_LobbyManager)
+			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
 
 		m_Context = null;
+		m_LobbyManager = null;
 		m_wHeader = null;
 		m_wActions = null;
 		super.HandlerDeattached(w);
@@ -192,6 +199,22 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 		float x = Math.Clamp(FrameSlot.GetPosX(m_wRoot), 0.0, Math.Max(0.0, screenWidth - MENU_WIDTH));
 		float y = Math.Clamp(FrameSlot.GetPosY(m_wRoot), 0.0, Math.Max(0.0, screenHeight - m_fMenuHeight));
 		FrameSlot.SetPos(m_wRoot, x, y);
+	}
+
+	protected void OnPlayerRoleChanged(int playerId)
+	{
+		if (!m_Context)
+			return;
+
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (playerController && playerController.GetPlayerId() == playerId)
+		{
+			Close();
+			return;
+		}
+
+		if (m_Context.GetLabelPlayerId() == playerId)
+			GC_PlayerNamePresentation.Apply(m_wHeader, playerId);
 	}
 
 	protected void RequestClose()

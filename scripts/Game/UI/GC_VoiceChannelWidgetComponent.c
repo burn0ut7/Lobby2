@@ -9,7 +9,7 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 	protected UUID m_PersonalOwnerIdentity;
 	protected int m_iPersonalOwnerPlayerId = -1;
 	protected Widget m_wPlayers;
-	protected ref array<Widget> m_aPlayerRows = {};
+	protected ref map<int, Widget> m_mPlayerRows = new map<int, Widget>();
 
 	override void HandlerAttached(Widget w)
 	{
@@ -34,25 +34,9 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		}
 
 		ClearPlayerRows();
-		Refresh();
 	}
 
-	//! Binds this card to a channel type from the lobby channel registry.
-	void SetChannelType(GC_VoiceChannelType channelType)
-	{
-		m_ChannelType = channelType;
-		Refresh();
-	}
-
-	//! Assigns the authoritative faction whose color styles this card.
-	void SetFaction(Faction faction)
-	{
-		m_Faction = faction;
-		RefreshFactionColor();
-		RefreshAdminNamePresentation();
-	}
-
-	void RefreshAdminNamePresentation()
+	void RefreshAdminNamePresentation(int playerId = -1)
 	{
 		if (!m_wRoot)
 			return;
@@ -62,21 +46,39 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 			presentedPlayerId = m_iPersonalOwnerPlayerId;
 		GC_PlayerNamePresentation.Apply(m_wRoot.FindAnyWidget("ChannelName"), presentedPlayerId);
 
-		foreach (Widget rowWidget : m_aPlayerRows)
+		if (playerId > 0)
+		{
+			Widget rowWidget;
+			if (!m_mPlayerRows.Find(playerId, rowWidget) || !rowWidget)
+				return;
+			GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
+			if (row)
+				row.RefreshAdminNamePresentation();
+			return;
+		}
+
+		foreach (int rowPlayerId, Widget rowWidget : m_mPlayerRows)
 		{
 			if (!rowWidget)
 				continue;
-
 			GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
 			if (row)
 				row.RefreshAdminNamePresentation();
 		}
 	}
 
-	//! Retains the authoritative group represented by this group channel.
-	void SetGroup(SCR_AIGroup group)
+	void Configure(GC_VoiceChannelType channelType, Faction faction = null, SCR_AIGroup group = null, UUID personalOwnerIdentity = "", int personalOwnerPlayerId = -1)
 	{
+		m_ChannelType = channelType;
+		m_Faction = faction;
 		m_Group = group;
+		m_PersonalOwnerIdentity = personalOwnerIdentity;
+		m_iPersonalOwnerPlayerId = personalOwnerPlayerId;
+		Refresh();
+	}
+
+	void RefreshPresentation()
+	{
 		Refresh();
 	}
 
@@ -93,13 +95,6 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 	SCR_AIGroup GetGroup()
 	{
 		return m_Group;
-	}
-
-	void SetPersonalOwner(UUID ownerIdentity, int playerId)
-	{
-		m_PersonalOwnerIdentity = ownerIdentity;
-		m_iPersonalOwnerPlayerId = playerId;
-		Refresh();
 	}
 
 	UUID GetPersonalOwnerIdentity()
@@ -124,22 +119,42 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		ClearPlayerRows();
 
 		foreach (int playerId : playerIds)
+			UpsertPlayer(playerId, lobbyManager);
+	}
+
+	void UpsertPlayer(int playerId, GC_LobbyManager lobbyManager)
+	{
+		if (!m_wPlayers || !lobbyManager || playerId <= 0)
+			return;
+
+		Widget rowWidget;
+		if (!m_mPlayerRows.Find(playerId, rowWidget))
 		{
-			Widget rowWidget = GetGame().GetWorkspace().CreateWidgets(PLAYER_ROW_LAYOUT, m_wPlayers);
+			rowWidget = GetGame().GetWorkspace().CreateWidgets(PLAYER_ROW_LAYOUT, m_wPlayers);
 			if (!rowWidget)
-				continue;
-
-			GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
-			if (!row)
-			{
-				Print("GC | Voice channel player row missing GC_VoicePlayerRowComponent", level: LogLevel.WARNING);
-				rowWidget.RemoveFromHierarchy();
-				continue;
-			}
-
-			row.SetPlayer(playerId, lobbyManager.GetSlotByPlayerId(playerId));
-			m_aPlayerRows.Insert(rowWidget);
+				return;
+			m_mPlayerRows.Set(playerId, rowWidget);
 		}
+
+		GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
+		if (!row)
+		{
+			Print("GC | Voice channel player row missing GC_VoicePlayerRowComponent", level: LogLevel.WARNING);
+			RemovePlayer(playerId);
+			return;
+		}
+
+		row.SetPlayer(playerId, lobbyManager.GetSlotByPlayerId(playerId));
+	}
+
+	void RemovePlayer(int playerId)
+	{
+		Widget rowWidget;
+		if (!m_mPlayerRows.Find(playerId, rowWidget))
+			return;
+		if (rowWidget)
+			rowWidget.RemoveFromHierarchy();
+		m_mPlayerRows.Remove(playerId);
 	}
 
 	protected void Refresh()
@@ -221,6 +236,6 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 			child = nextChild;
 		}
 
-		m_aPlayerRows.Clear();
+		m_mPlayerRows.Clear();
 	}
 }

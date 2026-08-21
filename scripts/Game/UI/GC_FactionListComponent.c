@@ -4,7 +4,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
 
     protected Widget m_wContent;
     protected GC_LobbyManager m_LobbyManager;
-    protected ref array<Widget> m_aFactionCards = {};
+    protected ref map<FactionKey, Widget> m_mFactionCards = new map<FactionKey, Widget>();
     protected FactionKey m_SelectedFactionKey;
 
     ref ScriptInvoker<FactionKey> m_OnFactionSelected = new ScriptInvoker<FactionKey>();
@@ -21,14 +21,18 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
         if (!m_wContent || !m_LobbyManager)
             return;
 
-        m_LobbyManager.m_OnFactionUpdated.Insert(OnFactionUpdated);
+        m_LobbyManager.m_OnFactionTopologyChanged.Insert(OnFactionUpdated);
+		m_LobbyManager.m_OnRegistryReset.Insert(OnRegistryReset);
         Refresh();
     }
 
     override void HandlerDeattached(Widget w)
     {
         if (m_LobbyManager)
-            m_LobbyManager.m_OnFactionUpdated.Remove(OnFactionUpdated);
+        {
+            m_LobbyManager.m_OnFactionTopologyChanged.Remove(OnFactionUpdated);
+			m_LobbyManager.m_OnRegistryReset.Remove(OnRegistryReset);
+		}
 
         ClearCards();
         m_LobbyManager = null;
@@ -60,23 +64,8 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
             if (!faction)
                 continue;
 
-            Widget card = GetGame().GetWorkspace().CreateWidgets(FACTION_CARD_LAYOUT, m_wContent);
-            if (!card)
-                continue;
-
-            FactionKey factionKey = faction.GetFactionKey();
-            GC_FactionWidgetComponent factionWidget = GC_FactionWidgetComponent.Cast(card.FindHandler(GC_FactionWidgetComponent));
-            if (factionWidget)
-                factionWidget.SetFactionKey(factionKey);
-
-            GC_FactionButtonComponent button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
-            if (button)
-            {
-                button.SetFactionKey(factionKey);
-                button.m_OnClicked.Insert(OnFactionButtonClicked);
-            }
-
-            m_aFactionCards.Insert(card);
+			FactionKey factionKey = faction.GetFactionKey();
+			EnsureFactionCard(factionKey);
 
             if (selectionStillExists && factionKey == previousSelection)
                 m_SelectedFactionKey = factionKey;
@@ -108,12 +97,47 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
 
     protected void OnFactionUpdated(Faction faction)
     {
-        FactionKey previousSelection = m_SelectedFactionKey;
-        Refresh();
+		if (!faction)
+		{
+			ReconcileFactionCards();
+			return;
+		}
 
-		if (previousSelection != m_SelectedFactionKey)
-			m_OnFactionSelected.Invoke(m_SelectedFactionKey);
+		FactionKey factionKey = faction.GetFactionKey();
+		if (m_LobbyManager.GetRegisteredFaction(factionKey))
+			EnsureFactionCard(factionKey);
+		else
+			RemoveFactionCard(factionKey);
+		UpdateSelectionVisuals();
     }
+
+	protected void ReconcileFactionCards()
+	{
+		array<FactionKey> desiredKeys = {};
+		foreach (Faction faction : m_LobbyManager.GetRegisteredFactions())
+		{
+			if (!faction)
+				continue;
+			FactionKey factionKey = faction.GetFactionKey();
+			desiredKeys.Insert(factionKey);
+			EnsureFactionCard(factionKey);
+		}
+
+		array<FactionKey> removedKeys = {};
+		foreach (FactionKey existingKey, Widget card : m_mFactionCards)
+		{
+			if (!desiredKeys.Contains(existingKey))
+				removedKeys.Insert(existingKey);
+		}
+		foreach (FactionKey removedKey : removedKeys)
+			RemoveFactionCard(removedKey);
+		UpdateSelectionVisuals();
+	}
+
+	protected void OnRegistryReset(int revision)
+	{
+		Refresh();
+	}
 
     protected void OnFactionButtonClicked(SCR_ButtonBaseComponent baseButton)
     {
@@ -134,7 +158,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
 
     protected void UpdateSelectionVisuals()
     {
-        foreach (Widget card : m_aFactionCards)
+		foreach (FactionKey factionKey, Widget card : m_mFactionCards)
         {
             if (!card)
                 continue;
@@ -145,9 +169,52 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
         }
     }
 
+	protected void EnsureFactionCard(FactionKey factionKey)
+	{
+		if (factionKey.IsEmpty() || m_mFactionCards.Contains(factionKey))
+			return;
+
+		Widget card = GetGame().GetWorkspace().CreateWidgets(FACTION_CARD_LAYOUT, m_wContent);
+		if (!card)
+			return;
+
+		GC_FactionWidgetComponent factionWidget = GC_FactionWidgetComponent.Cast(card.FindHandler(GC_FactionWidgetComponent));
+		if (factionWidget)
+			factionWidget.SetFactionKey(factionKey);
+
+		GC_FactionButtonComponent button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
+		if (button)
+		{
+			button.SetFactionKey(factionKey);
+			button.m_OnClicked.Insert(OnFactionButtonClicked);
+		}
+
+		m_mFactionCards.Set(factionKey, card);
+	}
+
+	protected void RemoveFactionCard(FactionKey factionKey)
+	{
+		Widget card;
+		if (!m_mFactionCards.Find(factionKey, card))
+			return;
+
+		GC_FactionButtonComponent button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
+		if (button)
+			button.m_OnClicked.Remove(OnFactionButtonClicked);
+		if (card)
+			card.RemoveFromHierarchy();
+		m_mFactionCards.Remove(factionKey);
+
+		if (m_SelectedFactionKey == factionKey)
+		{
+			m_SelectedFactionKey = string.Empty;
+			m_OnFactionSelected.Invoke(m_SelectedFactionKey);
+		}
+	}
+
     protected void ClearCards()
     {
-        foreach (Widget card : m_aFactionCards)
+		foreach (FactionKey factionKey, Widget card : m_mFactionCards)
         {
             if (!card)
                 continue;
@@ -159,6 +226,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
             card.RemoveFromHierarchy();
         }
 
-        m_aFactionCards.Clear();
+		m_mFactionCards.Clear();
     }
 }

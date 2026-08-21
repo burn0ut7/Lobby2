@@ -1,3 +1,9 @@
+//! One disabled-by-default switch for transition-level UI event diagnostics.
+class GC_UIEventDiagnostics
+{
+	static const bool ENABLED = false;
+}
+
 //! Canonical player-name styling for every Lobby2 presentation surface.
 //! Administration is queried live from the base player manager and is never cached.
 class GC_PlayerNamePresentation

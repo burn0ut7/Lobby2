@@ -13,6 +13,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected const int PLAYER_CATCHUP_RETRY_MS = 250;
 	protected const int PLAYER_CATCHUP_MAX_RETRIES = 8;
 	protected const int BRIEFING_SPAWN_BATCH_SIZE = 4;
+	protected const int ROLE_PRESENTATION_RETRY_MS = 100;
+	protected const int ROLE_PRESENTATION_MAX_RETRIES = 20;
 
     //! Game-mode setting: group headers in the voice list may be selectable
     //! without changing the player's lobby slot or base-game group.
@@ -42,11 +44,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected ref GC_LobbyRoster m_Roster = new GC_LobbyRoster();
 	protected ref GC_LobbyVoiceState m_VoiceState = new GC_LobbyVoiceState();
-    ref ScriptInvoker<Faction> m_OnFactionUpdated = new ScriptInvoker<Faction>();
-    //! Signals that connected-player or authoritative group membership data changed.
-    //! Consumers re-query PlayerManager and SCR_GroupsManagerComponent instead of
-    //! maintaining a second player roster in Lobby2.
-    ref ScriptInvoker<int> m_OnPlayerRegistryUpdated = new ScriptInvoker<int>();
+    //! Narrow presentation events. Payloads identify the changed authoritative
+    //! record; consumers re-query base-game state and update only affected widgets.
+    ref ScriptInvoker<int> m_OnRegistryReset = new ScriptInvoker<int>();
+    ref ScriptInvoker<int> m_OnPlayerConnected = new ScriptInvoker<int>();
+    ref ScriptInvoker<int> m_OnPlayerDisconnected = new ScriptInvoker<int>();
+    ref ScriptInvoker<int> m_OnPlayerAffiliationChanged = new ScriptInvoker<int>();
+    ref ScriptInvoker<Faction> m_OnFactionTopologyChanged = new ScriptInvoker<Faction>();
+    ref ScriptInvoker<Faction> m_OnFactionPresentationChanged = new ScriptInvoker<Faction>();
+    ref ScriptInvoker<GC_Slot> m_OnSlotPresentationChanged = new ScriptInvoker<GC_Slot>();
+    ref ScriptInvoker<int> m_OnVoiceAssignmentChanged = new ScriptInvoker<int>();
+    ref ScriptInvoker<int> m_OnVoiceTopologyChanged = new ScriptInvoker<int>();
+    ref ScriptInvoker<int> m_OnPlayerRoleChanged = new ScriptInvoker<int>();
     //! Signals that the complete local briefing view changed. Consumers re-query
     //! this manager and current authoritative faction state.
     ref ScriptInvoker<int> m_OnBriefingsChanged = new ScriptInvoker<int>();
@@ -64,6 +73,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref array<GC_Slot> m_aPendingBriefingSpawns = {};
 	protected ref array<int> m_aPendingPlayerCatchUps = {};
 	protected ref map<int, int> m_mPlayerCatchUpAttempts = new map<int, int>();
+	//! Transport-convergence hints only. Never consulted for authorization or UI state.
+	protected ref map<int, bool> m_mPendingRoleAdmin = new map<int, bool>();
+	protected ref map<int, int> m_mPendingRoleAttempts = new map<int, int>();
+	protected ref set<int> m_sPendingAffiliationPlayers = new set<int>();
+	protected ref set<Faction> m_sPendingFactionPresentation = new set<Faction>();
 	protected bool m_bBriefingSpawnQueued;
 	protected bool m_bCatchUpQueued;
 
@@ -247,6 +261,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (!SCR_Global.IsAdmin(playerId))
 		{
+			if (GC_UIEventDiagnostics.ENABLED)
+				PrintFormat("GC | Admin Trace | server action rejected: action=advance-phase player=%1 queriedAdmin=false", playerId, level: LogLevel.WARNING);
 			PrintFormat("GC | Phase | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
 			return false;
 		}
@@ -358,18 +374,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer())
 			QueuePlayerCatchUp(playerId);
 
-		m_OnPlayerRegistryUpdated.Invoke(playerId);
     }
 
     override void OnPlayerConnected(int playerId)
     {
-        m_OnPlayerRegistryUpdated.Invoke(playerId);
         super.OnPlayerConnected(playerId);
     }
 
     override void OnPlayerRegistered(int playerId)
     {
-        m_OnPlayerRegistryUpdated.Invoke(playerId);
+		m_OnPlayerConnected.Invoke(playerId);
         super.OnPlayerRegistered(playerId);
     }
 
@@ -383,7 +397,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!isShutdown)
 		{
 			RemovePlayerVoiceAssignment(playerId);
-			m_OnPlayerRegistryUpdated.Invoke(playerId);
+			m_OnPlayerDisconnected.Invoke(playerId);
 		}
         super.OnPlayerDisconnected(playerId, cause, timeout);
     }
@@ -977,7 +991,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         // can discover an additional group without duplicating the new-faction
         // callback.
         if (faction && factionWasRegistered)
-            m_OnFactionUpdated.Invoke(faction);
+            m_OnFactionTopologyChanged.Invoke(faction);
     }
 
     //! Removes a group from the manager's index and its lobby-only slot records.
@@ -1008,7 +1022,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             UnsubscribeFromGroupPlayerEvents();
 
         if (faction)
-            m_OnFactionUpdated.Invoke(faction);
+            m_OnFactionTopologyChanged.Invoke(faction);
 
         return true;
     }
@@ -1054,13 +1068,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (faction)
             m_Roster.AddFaction(faction);
 
-        // The event does not identify which group changed. Notify all registered
-        // faction views so each view re-queries the authoritative group state.
-        foreach (Faction registeredFaction : m_Roster.GetFactions())
-        {
-            if (registeredFaction)
-                m_OnFactionUpdated.Invoke(registeredFaction);
-        }
+		// The base event does not identify the group or previous faction. One null
+		// topology event asks consumers to reconcile from authoritative group state.
+		m_OnFactionTopologyChanged.Invoke(null);
     }
 
     protected void OnGroupPlayerAdded(SCR_AIGroup group, int playerId)
@@ -1073,8 +1083,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, group.GetFaction().GetFactionKey(), Replication.FindItemId(group));
 		}
 
-        m_OnPlayerRegistryUpdated.Invoke(playerId);
-        QueueAllRegisteredFactionUpdates();
+		QueueAffiliationPresentation(playerId, group);
     }
 
     protected void OnGroupPlayerRemoved(SCR_AIGroup group, int playerId)
@@ -1089,8 +1098,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			}
         }
 
-        m_OnPlayerRegistryUpdated.Invoke(playerId);
-        QueueAllRegisteredFactionUpdates();
+		QueueAffiliationPresentation(playerId, group);
     }
 
     protected void NotifyGroupFactionUpdated(SCR_AIGroup group)
@@ -1100,8 +1108,30 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
         Faction faction = group.GetFaction();
         if (faction)
-            m_OnFactionUpdated.Invoke(faction);
+            m_OnFactionTopologyChanged.Invoke(faction);
     }
+
+	protected void QueueAffiliationPresentation(int playerId, SCR_AIGroup group)
+	{
+		if (playerId > 0)
+			m_sPendingAffiliationPlayers.Insert(playerId);
+		if (group && group.GetFaction())
+			m_sPendingFactionPresentation.Insert(group.GetFaction());
+
+		GetGame().GetCallqueue().Remove(FlushAffiliationPresentation);
+		GetGame().GetCallqueue().CallLater(FlushAffiliationPresentation, 0);
+	}
+
+	protected void FlushAffiliationPresentation()
+	{
+		foreach (int playerId : m_sPendingAffiliationPlayers)
+			m_OnPlayerAffiliationChanged.Invoke(playerId);
+		foreach (Faction faction : m_sPendingFactionPresentation)
+			m_OnFactionPresentationChanged.Invoke(faction);
+
+		m_sPendingAffiliationPlayers.Clear();
+		m_sPendingFactionPresentation.Clear();
+	}
 
     protected void SubscribeToSlotEvents(GC_Slot slot)
     {
@@ -1133,31 +1163,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (Replication.IsServer())
             UpdateSlot(slot);
 
-        // Slot assignment and base-group membership are changed together, but
-        // their callbacks can run before both states have settled. Refresh all
-        // dependent views on the next call-queue tick so they query one
-        // consistent authoritative state.
-        QueueAllRegisteredFactionUpdates();
-    }
-
-    protected void QueueAllRegisteredFactionUpdates()
-    {
-        GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
-        GetGame().GetCallqueue().CallLater(NotifyAllRegisteredFactions);
-    }
-
-    protected void NotifyAllRegisteredFactions()
-    {
-        // A slot change can move one player between groups, and the callback can
-        // arrive before the base group event. Signal a full re-query so channel
-        // views never depend on the slot registry as their membership source.
-        m_OnPlayerRegistryUpdated.Invoke(-1);
-
-        foreach (Faction faction : m_Roster.GetFactions())
-        {
-            if (faction)
-                m_OnFactionUpdated.Invoke(faction);
-        }
+        m_OnSlotPresentationChanged.Invoke(slot);
+        SCR_AIGroup group = slot.GetGroup();
+		QueueAffiliationPresentation(slot.GetPlayerId(), group);
     }
 
     protected void RegisterGroupMembers(SCR_AIGroup group)
@@ -1393,7 +1401,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		PrintFormat("GC | JIP topology ready: attempts=%1 groups=%2 factions=%3 slots=%4", attempt,
 			m_Roster.GetGroups().Count(), m_Roster.GetFactions().Count(), m_Roster.GetSlots().Count());
-		NotifyAllRegisteredFactions();
+		m_OnRegistryReset.Invoke(attempt);
 	}
 
     bool RegisterFaction(FactionKey factionKey)
@@ -1409,7 +1417,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!m_Roster.AddFaction(faction))
 			return false;
 
-		m_OnFactionUpdated.Invoke(faction);
+		m_OnFactionTopologyChanged.Invoke(faction);
 		return true;
     }
 
@@ -1419,7 +1427,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!m_Roster.RemoveFaction(faction))
 			return false;
 
-		m_OnFactionUpdated.Invoke(faction);
+		m_OnFactionTopologyChanged.Invoke(faction);
 		return true;
     }
 
@@ -1428,7 +1436,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     void NotifyFactionUpdated(Faction faction)
     {
 		if (m_Roster.ContainsFaction(faction))
-			m_OnFactionUpdated.Invoke(faction);
+			m_OnFactionPresentationChanged.Invoke(faction);
     }
 
     array<Faction> GetRegisteredFactions() { return m_Roster.GetFactions(); }
@@ -1445,7 +1453,78 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	GC_Slot GetSlotByEntity(IEntity entity) { return m_Roster.GetSlotByEntity(entity); }
     SCR_AIGroup GetRegisteredGroupByRplId(RplId groupRplId) { return m_Roster.GetGroupByRplId(groupRplId); }
     SCR_AIGroup GetPlayerGroup(int playerId) { return m_Roster.GetPlayerGroup(playerId); }
-    Faction GetPlayerFaction(int playerId) { return m_Roster.GetPlayerFaction(playerId); }
+	Faction GetPlayerFaction(int playerId) { return m_Roster.GetPlayerFaction(playerId); }
+
+	//! Publishes a role-change prompt from server authority. The transported flag
+	//! is used only to wait for each client's PlayerManager view to converge;
+	//! consumers always query SCR_Global.IsAdmin when applying presentation.
+	void PublishPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+	{
+		if (!Replication.IsServer() || playerId <= 0)
+			return;
+
+		bool expectedAdmin = SCR_Global.IsAdminRole(roleFlags);
+		if (GC_UIEventDiagnostics.ENABLED)
+			PrintFormat("GC | Admin Trace | role publish: player=%1 expectedAdmin=%2", playerId, expectedAdmin);
+
+		QueuePlayerRolePresentation(playerId, expectedAdmin);
+		Rpc(RpcDo_PlayerRoleChanged, playerId, expectedAdmin);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_PlayerRoleChanged(int playerId, bool expectedAdmin)
+	{
+		if (Replication.IsServer())
+			return;
+
+		if (GC_UIEventDiagnostics.ENABLED)
+			PrintFormat("GC | Admin Trace | role broadcast received: player=%1 expectedAdmin=%2", playerId, expectedAdmin);
+		QueuePlayerRolePresentation(playerId, expectedAdmin);
+	}
+
+	protected void QueuePlayerRolePresentation(int playerId, bool expectedAdmin)
+	{
+		m_mPendingRoleAdmin.Set(playerId, expectedAdmin);
+		m_mPendingRoleAttempts.Set(playerId, 0);
+		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);
+		GetGame().GetCallqueue().CallLater(ReconcilePendingPlayerRoles, 0);
+	}
+
+	protected void ReconcilePendingPlayerRoles()
+	{
+		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);
+		array<int> completed = {};
+		bool retry;
+		foreach (int playerId, bool expectedAdmin : m_mPendingRoleAdmin)
+		{
+			int attempts;
+			m_mPendingRoleAttempts.Find(playerId, attempts);
+			bool queriedAdmin = SCR_Global.IsAdmin(playerId);
+			if (queriedAdmin == expectedAdmin || attempts >= ROLE_PRESENTATION_MAX_RETRIES)
+			{
+				if (GC_UIEventDiagnostics.ENABLED && attempts >= ROLE_PRESENTATION_MAX_RETRIES && queriedAdmin != expectedAdmin)
+					PrintFormat("GC | Admin Trace | role convergence timed out: player=%1 expectedAdmin=%2 queriedAdmin=%3", playerId, expectedAdmin, queriedAdmin, level: LogLevel.WARNING);
+				else if (GC_UIEventDiagnostics.ENABLED)
+					PrintFormat("GC | Admin Trace | role converged: player=%1 admin=%2 attempts=%3", playerId, queriedAdmin, attempts);
+
+				m_OnPlayerRoleChanged.Invoke(playerId);
+				completed.Insert(playerId);
+				continue;
+			}
+
+			m_mPendingRoleAttempts.Set(playerId, attempts + 1);
+			retry = true;
+		}
+
+		foreach (int completedPlayerId : completed)
+		{
+			m_mPendingRoleAdmin.Remove(completedPlayerId);
+			m_mPendingRoleAttempts.Remove(completedPlayerId);
+		}
+
+		if (retry)
+			GetGame().GetCallqueue().CallLater(ReconcilePendingPlayerRoles, ROLE_PRESENTATION_RETRY_MS);
+	}
 
 	GC_VoiceChannelAssignment GetPlayerVoiceAssignment(int playerId) { return m_VoiceState.Get(playerId); }
 	UUID GetPlayerVoiceIdentity(int playerId) { return m_VoiceState.GetPlayerIdentity(playerId); }
@@ -1462,7 +1541,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		PrintFormat("GC | Voice deafen state changed: player=%1 deafened=%2", playerId, deafened);
 		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
-		m_OnPlayerRegistryUpdated.Invoke(playerId);
+		m_OnVoiceAssignmentChanged.Invoke(playerId);
 		return true;
 	}
 
@@ -1554,7 +1633,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		PrintFormat("GC | Voice assignment changed: player=%1 type=%2 faction=%3 group=%4 personalOwner=%5", playerId, channelType, factionKey, groupRplId, personalOwnerIdentity);
 		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
-		m_OnPlayerRegistryUpdated.Invoke(playerId);
+		m_OnVoiceAssignmentChanged.Invoke(playerId);
 
 		if (wasOpenPersonalOwner && (channelType != GC_VoiceChannelType.PERSONAL || personalOwnerIdentity != playerIdentity))
 			ClosePersonalVoiceChannel(playerIdentity);
@@ -1640,7 +1719,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		if (changed)
-			m_OnPlayerRegistryUpdated.Invoke(playerId);
+			m_OnVoiceTopologyChanged.Invoke(playerId);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
@@ -1649,7 +1728,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer() || !m_VoiceState.RegisterPersonalChannel(ownerIdentity))
 			return;
 
-		m_OnPlayerRegistryUpdated.Invoke(GetConnectedPlayerIdByIdentity(ownerIdentity));
+		m_OnVoiceTopologyChanged.Invoke(GetConnectedPlayerIdByIdentity(ownerIdentity));
 	}
 
 	protected void ClosePersonalVoiceChannel(UUID ownerIdentity)
@@ -1680,7 +1759,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer() || !m_VoiceState.Apply(updateAssignment))
 			return;
 
-		m_OnPlayerRegistryUpdated.Invoke(updateAssignment.GetPlayerId());
+		m_OnVoiceAssignmentChanged.Invoke(updateAssignment.GetPlayerId());
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
@@ -1689,8 +1768,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer())
 			return;
 
+		// Player disconnection is the sole presentation event for this removal.
+		// This RPC only converges the client-owned voice model.
 		m_VoiceState.Remove(playerId);
-		m_OnPlayerRegistryUpdated.Invoke(playerId);
 	}
 
     //! Returns one briefing by its one-based authored order/index.
@@ -1776,6 +1856,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (!SCR_Global.IsAdmin(playerId))
 		{
+			if (GC_UIEventDiagnostics.ENABLED)
+				PrintFormat("GC | Admin Trace | server action rejected: action=apply-parameters player=%1 queriedAdmin=false", playerId, level: LogLevel.WARNING);
 			PrintFormat("GC | Parameters | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
 			return false;
 		}
@@ -2133,8 +2215,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         // move the player between authoritative base-game groups or clear the
         // Lobby2 slot that supplies their role and slot metadata.
         SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), groupRplId);
-        m_OnPlayerRegistryUpdated.Invoke(playerId);
-        QueueAllRegisteredFactionUpdates();
         return true;
     }
 
@@ -2265,13 +2345,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
-		GetGame().GetCallqueue().Remove(NotifyAllRegisteredFactions);
+		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);
+		GetGame().GetCallqueue().Remove(FlushAffiliationPresentation);
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
 		GetGame().GetCallqueue().Remove(ProcessBriefingSlotSpawns);
 		GetGame().GetCallqueue().Remove(ProcessPlayerCatchUps);
 		m_aPendingBriefingSpawns.Clear();
 		m_aPendingPlayerCatchUps.Clear();
 		m_mPlayerCatchUpAttempts.Clear();
+		m_mPendingRoleAdmin.Clear();
+		m_mPendingRoleAttempts.Clear();
+		m_sPendingAffiliationPlayers.Clear();
+		m_sPendingFactionPresentation.Clear();
 		m_mLobbySpectators.Clear();
 		m_mReservedSpectators.Clear();
 		if (m_FormationCatalog)

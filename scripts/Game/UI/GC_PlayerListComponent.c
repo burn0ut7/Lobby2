@@ -5,9 +5,8 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 
 	protected Widget m_wPlayers;
 	protected GC_LobbyManager m_LobbyManager;
-	protected GC_LobbyGameMode m_LobbyGameMode;
 	protected string m_sSearchText;
-	protected ref array<Widget> m_aPlayerRows = {};
+	protected ref map<int, Widget> m_mPlayerRows = new map<int, Widget>();
 
 	override void HandlerAttached(Widget w)
 	{
@@ -24,43 +23,47 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 
-		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnPlayerRegistryUpdated);
-		m_LobbyGameMode = GC_LobbyGameMode.GetGameMode();
-		if (m_LobbyGameMode)
-			m_LobbyGameMode.GetOnPlayerRoleChange().Insert(OnPlayerRoleChanged);
+		m_LobbyManager.m_OnRegistryReset.Insert(OnRegistryReset);
+		m_LobbyManager.m_OnPlayerConnected.Insert(OnPlayerConnected);
+		m_LobbyManager.m_OnPlayerDisconnected.Insert(OnPlayerDisconnected);
+		m_LobbyManager.m_OnPlayerAffiliationChanged.Insert(OnPlayerAffiliationChanged);
+		m_LobbyManager.m_OnSlotPresentationChanged.Insert(OnSlotPresentationChanged);
+		m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
 		Refresh();
 	}
 
 	override void HandlerDeattached(Widget w)
 	{
 		if (m_LobbyManager)
-			m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnPlayerRegistryUpdated);
-		if (m_LobbyGameMode)
-			m_LobbyGameMode.GetOnPlayerRoleChange().Remove(OnPlayerRoleChanged);
+		{
+			m_LobbyManager.m_OnRegistryReset.Remove(OnRegistryReset);
+			m_LobbyManager.m_OnPlayerConnected.Remove(OnPlayerConnected);
+			m_LobbyManager.m_OnPlayerDisconnected.Remove(OnPlayerDisconnected);
+			m_LobbyManager.m_OnPlayerAffiliationChanged.Remove(OnPlayerAffiliationChanged);
+			m_LobbyManager.m_OnSlotPresentationChanged.Remove(OnSlotPresentationChanged);
+			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
+		}
 
 		ClearPlayerRows();
 		m_LobbyManager = null;
-		m_LobbyGameMode = null;
 		m_wPlayers = null;
 		super.HandlerDeattached(w);
 	}
 
-	protected void RefreshAdminNamePresentation()
+	protected void RefreshAdminNamePresentation(int playerId)
 	{
-		foreach (Widget rowWidget : m_aPlayerRows)
-		{
-			if (!rowWidget)
-				continue;
+		Widget rowWidget;
+		if (!m_mPlayerRows.Find(playerId, rowWidget) || !rowWidget)
+			return;
 
-			GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
-			if (row)
-				row.RefreshAdminNamePresentation();
-		}
+		GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
+		if (row)
+			row.RefreshAdminNamePresentation();
 	}
 
-	protected void OnPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+	protected void OnPlayerRoleChanged(int playerId)
 	{
-		RefreshAdminNamePresentation();
+		RefreshAdminNamePresentation(playerId);
 	}
 
 	void SetSearchText(string searchText)
@@ -69,7 +72,7 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 			return;
 
 		m_sSearchText = searchText;
-		Refresh();
+		ApplySearchFilter();
 	}
 
 	void Refresh()
@@ -83,34 +86,64 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 		PlayerManager playerManager = GetGame().GetPlayerManager();
 		playerManager.GetPlayers(connectedPlayers);
 
-		string searchNeedle = m_sSearchText;
-		searchNeedle.ToLower();
-
 		foreach (int playerId : connectedPlayers)
+			UpsertPlayerRow(playerId);
+
+		ApplySearchFilter();
+	}
+
+	protected void UpsertPlayerRow(int playerId)
+	{
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (!playerManager || !playerManager.IsPlayerConnected(playerId))
 		{
-			if (!playerManager.IsPlayerConnected(playerId))
-				continue;
-
-			string playerName = playerManager.GetPlayerName(playerId);
-			if (!MatchesSearch(playerName, searchNeedle))
-				continue;
-
-			Widget rowWidget = GetGame().GetWorkspace().CreateWidgets(PLAYER_ROW_LAYOUT, m_wPlayers);
-			if (!rowWidget)
-				continue;
-
-			GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
-			if (!row)
-			{
-				Print("GC | Player list row missing GC_VoicePlayerRowComponent", level: LogLevel.WARNING);
-				rowWidget.RemoveFromHierarchy();
-				continue;
-			}
-
-			row.SetPlayer(playerId, m_LobbyManager.GetSlotByPlayerId(playerId));
-			m_aPlayerRows.Insert(rowWidget);
+			RemovePlayerRow(playerId);
+			return;
 		}
 
+		Widget rowWidget;
+		if (!m_mPlayerRows.Find(playerId, rowWidget))
+		{
+			rowWidget = GetGame().GetWorkspace().CreateWidgets(PLAYER_ROW_LAYOUT, m_wPlayers);
+			if (!rowWidget)
+				return;
+			m_mPlayerRows.Set(playerId, rowWidget);
+		}
+
+		GC_VoicePlayerRowComponent row = GC_VoicePlayerRowComponent.Cast(rowWidget.FindHandler(GC_VoicePlayerRowComponent));
+		if (!row)
+		{
+			Print("GC | Player list row missing GC_VoicePlayerRowComponent", level: LogLevel.WARNING);
+			RemovePlayerRow(playerId);
+			return;
+		}
+
+		row.SetPlayer(playerId, m_LobbyManager.GetSlotByPlayerId(playerId));
+	}
+
+	protected void RemovePlayerRow(int playerId)
+	{
+		Widget rowWidget;
+		if (!m_mPlayerRows.Find(playerId, rowWidget))
+			return;
+		if (rowWidget)
+			rowWidget.RemoveFromHierarchy();
+		m_mPlayerRows.Remove(playerId);
+	}
+
+	protected void ApplySearchFilter()
+	{
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (!playerManager)
+			return;
+
+		string searchNeedle = m_sSearchText;
+		searchNeedle.ToLower();
+		foreach (int playerId, Widget rowWidget : m_mPlayerRows)
+		{
+			if (rowWidget)
+				rowWidget.SetVisible(MatchesSearch(playerManager.GetPlayerName(playerId), searchNeedle));
+		}
 	}
 
 	protected bool MatchesSearch(string playerName, string searchNeedle)
@@ -122,20 +155,42 @@ class GC_PlayerListComponent : SCR_ScriptedWidgetComponent
 		return playerName.Contains(searchNeedle);
 	}
 
-	protected void OnPlayerRegistryUpdated(int playerId)
+	protected void OnRegistryReset(int revision)
 	{
 		Refresh();
 	}
 
+	protected void OnPlayerConnected(int playerId)
+	{
+		UpsertPlayerRow(playerId);
+		ApplySearchFilter();
+	}
+
+	protected void OnPlayerDisconnected(int playerId)
+	{
+		RemovePlayerRow(playerId);
+	}
+
+	protected void OnPlayerAffiliationChanged(int playerId)
+	{
+		UpsertPlayerRow(playerId);
+	}
+
+	protected void OnSlotPresentationChanged(GC_Slot slot)
+	{
+		if (slot && slot.GetPlayerId() > 0)
+			UpsertPlayerRow(slot.GetPlayerId());
+	}
+
 	protected void ClearPlayerRows()
 	{
-		foreach (Widget rowWidget : m_aPlayerRows)
+		foreach (int playerId, Widget rowWidget : m_mPlayerRows)
 		{
 			if (rowWidget)
 				rowWidget.RemoveFromHierarchy();
 		}
 
-		m_aPlayerRows.Clear();
+		m_mPlayerRows.Clear();
 
 		if (!m_wPlayers)
 			return;
@@ -209,7 +264,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		if (m_DeafenButton)
 			m_DeafenButton.m_OnClicked.Remove(OnDeafenClicked);
 		if (m_LobbyManager)
-			m_LobbyManager.m_OnPlayerRegistryUpdated.Remove(OnVoiceStateUpdated);
+			m_LobbyManager.m_OnVoiceAssignmentChanged.Remove(OnVoiceStateUpdated);
 
 		m_VoiceChannelsButton = null;
 		m_PlayerListButton = null;
@@ -248,7 +303,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		m_VoiceChannelsButton.m_OnClicked.Insert(OnTabClicked);
 		m_PlayerListButton.m_OnClicked.Insert(OnTabClicked);
 		m_DeafenButton.m_OnClicked.Insert(OnDeafenClicked);
-		m_LobbyManager.m_OnPlayerRegistryUpdated.Insert(OnVoiceStateUpdated);
+		m_LobbyManager.m_OnVoiceAssignmentChanged.Insert(OnVoiceStateUpdated);
 		SetPlayerListActive(m_bPlayerListDefault);
 		RefreshDeafenVisuals();
 	}

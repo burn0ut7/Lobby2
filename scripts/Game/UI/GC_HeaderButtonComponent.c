@@ -52,11 +52,13 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
     {
         if (IsHeaderInteractionLocked())
         {
-            PrintFormat("GC | Admin Trace | header click blocked before dispatch: buttonView=%1 selectedLock=%2 permissionLock=%3", m_iHeaderState, m_bHeaderLocked, m_bHeaderPermissionLocked);
+			if (GC_UIEventDiagnostics.ENABLED)
+				PrintFormat("GC | Admin Trace | header click blocked before dispatch: buttonView=%1 selectedLock=%2 permissionLock=%3", m_iHeaderState, m_bHeaderLocked, m_bHeaderPermissionLocked);
             return true;
         }
 
-        PrintFormat("GC | Admin Trace | header click accepted by widget: buttonView=%1", m_iHeaderState);
+		if (GC_UIEventDiagnostics.ENABLED)
+			PrintFormat("GC | Admin Trace | header click accepted by widget: buttonView=%1", m_iHeaderState);
         PlaySound(SCR_SoundEvent.CLICK);
         return super.OnClick(w, x, y, button);
     }

@@ -49,14 +49,18 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		if (!m_wSlots || !m_LobbyManager)
 			return;
 
-		m_LobbyManager.m_OnFactionUpdated.Insert(OnFactionUpdated);
+		m_LobbyManager.m_OnFactionTopologyChanged.Insert(OnFactionUpdated);
+		m_LobbyManager.m_OnFactionPresentationChanged.Insert(OnFactionUpdated);
 		ClearSlotWidgets();
 	}
 
 	override void HandlerDeattached(Widget w)
 	{
 		if (m_LobbyManager)
-			m_LobbyManager.m_OnFactionUpdated.Remove(OnFactionUpdated);
+		{
+			m_LobbyManager.m_OnFactionTopologyChanged.Remove(OnFactionUpdated);
+			m_LobbyManager.m_OnFactionPresentationChanged.Remove(OnFactionUpdated);
+		}
 
 		ClearSlotWidgets();
 		m_Group = null;
@@ -136,7 +140,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_wSquadName.SetText(GC_GroupCallsignHelper.GetDisplayName(m_Group));
 	}
 
-	void RefreshAdminNamePresentation()
+	void RefreshAdminNamePresentation(int playerId = -1)
 	{
 		foreach (Widget slotWidget : m_aSlotWidgets)
 		{
@@ -144,7 +148,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 				continue;
 
 			GC_SlotButtonComponent slotButton = GC_SlotButtonComponent.Cast(slotWidget.FindHandler(GC_SlotButtonComponent));
-			if (slotButton)
+			if (slotButton && (playerId <= 0 || (slotButton.GetSlot() && slotButton.GetSlot().GetPlayerId() == playerId)))
 				slotButton.RefreshAdminNamePresentation();
 		}
 	}
@@ -209,11 +213,11 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnFactionUpdated(Faction faction)
 	{
-		if (!m_Group || !faction)
+		if (!m_Group)
 			return;
 
 		Faction groupFaction = m_Group.GetFaction();
-		if (groupFaction && groupFaction.GetFactionKey() == faction.GetFactionKey())
+		if (!faction || (groupFaction && groupFaction.GetFactionKey() == faction.GetFactionKey()))
 		{
 			if (!HasCurrentSlotTopology())
 			{
