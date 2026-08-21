@@ -189,20 +189,23 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
     protected bool CanNavigateToView(int view, SCR_EGameModeState phase)
     {
-        switch (phase)
-        {
-            case SCR_EGameModeState.PREGAME:
-				return view == VIEW_PREVIEW;
+		if (view == VIEW_PREVIEW)
+			return phase == SCR_EGameModeState.PREGAME;
+		if (view == VIEW_LOBBY)
+			return GC_LobbyPhase.IsAtOrAfter(phase, SCR_EGameModeState.SLOTTING);
+		if (view == VIEW_BRIEFING)
+			return GC_LobbyPhase.IsAtOrAfter(phase, SCR_EGameModeState.BRIEFING) && HasLocalPlayerFaction();
+		if (view == VIEW_GAME)
+			return GC_LobbyPhase.IsAtOrAfter(phase, SCR_EGameModeState.GAME);
 
-			case SCR_EGameModeState.SLOTTING:
-				return view == VIEW_LOBBY;
-
-            case SCR_EGameModeState.BRIEFING:
-				return view == VIEW_BRIEFING;
-        }
-
-        return false;
+		return false;
     }
+
+	protected bool HasLocalPlayerFaction()
+	{
+		PlayerController playerController = GetGame().GetPlayerController();
+		return playerController && m_LobbyManager && m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
+	}
 
     protected bool IsNextPhaseView(int view, SCR_EGameModeState phase)
     {
@@ -294,6 +297,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             SwitchToPreviewMenu();
         else if (view == VIEW_BRIEFING)
             SwitchToBriefingMenu();
+		else if (view == VIEW_GAME)
+			CloseCurrentMenu();
     }
 
     protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
@@ -350,8 +355,11 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
     protected void OpenBriefingMenu()
     {
         GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-        if (!lobbyManager || lobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+        if (!lobbyManager || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.BRIEFING))
             return;
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (!playerController || !lobbyManager.GetPlayerFaction(playerController.GetPlayerId()))
+			return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu, 0, true);
     }
@@ -362,8 +370,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         if (!lobbyManager)
             return;
 
-        SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
-		if (phase != SCR_EGameModeState.SLOTTING)
+		SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
+		if (!GC_LobbyPhase.IsAtOrAfter(phase, SCR_EGameModeState.SLOTTING))
             return;
 
         GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);

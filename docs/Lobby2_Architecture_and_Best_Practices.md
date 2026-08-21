@@ -239,22 +239,29 @@ Backward, skipped, duplicate, stale, non-admin, invalid-enum, non-authority, and
 
 ## UI state rules
 
-Each pre-match Lobby2 phase has one authoritative menu presentation.
+The replicated phase determines progression and the default presentation. Once
+reached, Slotting and Briefing remain local navigable views; opening an earlier
+view never requests or performs a backward phase transition.
 
 | Mission phase | Presented view | Admin-only successor | Locked |
 |---|---|---|---|
 | `PREGAME` | Preview | Slotting | Briefing, Game, Debrief |
 | `SLOTTING` | Lobby/Slotting | Briefing | Preview, Game, Debrief |
-| `BRIEFING` | Briefing | Game | Preview, Slotting, Debrief |
-| `GAME` | None | Debrief | Earlier views and current Game |
-| `POSTGAME` | None | None | All controls |
+| `BRIEFING` | Briefing for assigned players; Slotting for unassigned spectators | Game | Preview, Debrief |
+| `GAME` | None; Slotting and Briefing remain available from the pause menu | Debrief | Preview |
+| `POSTGAME` | None; reached Slotting and Briefing views remain available from the pause menu | None | Preview and phase controls |
 
 - Selected controls do not hover or accept clicks.
 - Locked controls do not hover, focus-highlight, click, or play sounds.
 - Non-admin players still see the immediate successor but cannot interact with it.
 - Administration status may change during a session. Never cache it as UI authority: every admin-gated presentation refresh and interaction queries the base player manager through `SCR_Global.IsAdmin`, and server authority independently re-checks every mutation. The authority game mode publishes role changes through one reliable Lobby2 manager broadcast so dedicated clients receive the prompt even when the base callback is not raised on their local proxy. Transported role state is used only as a bounded replication-convergence hint; presentation and permissions never consume it as authority.
 - Every Lobby2 widget that presents a player-derived name uses the shared player-name presentation rule: current administrators are yellow and all other player names use the normal white. Player, voice, slot, spectator, and context presentations consume the manager's converged player-role event, then query `SCR_Global.IsAdmin(playerId)` live; they do not poll or store parallel role state.
-- Entering `GAME` closes lobby UI.
+- Entering `GAME` closes lobby UI. The Lobby2 player controller adds scoped
+  Slotting/Briefing access to the active pause menu; no shared pause-menu class
+  or layout is modified for unrelated modes.
+- Briefing requires an authoritative player faction derived from the player's
+  current base-game group/slot. A player without one remains a spectator and is
+  presented Slotting when `BRIEFING` begins.
 - `POSTGAME` currently closes the UI without opening a debrief screen.
 - Every widget component must unsubscribe invokers and remove queued callbacks in `HandlerDeattached`.
 
@@ -315,7 +322,15 @@ The Lobby2 spectator body and spectator camera have separate lifetimes. The serv
 
 Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). A connected claim without a persistent UUID is released on disconnect because it cannot form a reconnect reservation. Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
 
-Slotting requests are server-authoritative and JIP-safe. Claims, changes, and toggling out are accepted only during `SLOTTING` and remain `RESERVED`. Entering `BRIEFING` stages every claimed slot in bounded batches; each pending spawn must re-check the claim so a released slot cannot be materialized by a stale queue entry. Slot changes are locked once briefing begins.
+Slotting requests are server-authoritative and JIP-safe. Claims, changes, and
+toggling out are unrestricted by faction only during `SLOTTING` and remain
+`RESERVED`. From `BRIEFING` through `GAME`, a player's authoritative current
+base-game faction is the faction lock: later slot requests may target only that
+faction, and toggling out is rejected so the lock cannot be cleared. A player
+who reaches `BRIEFING` without a slot may make one initial selection, which
+establishes the lock. KIA claims cannot switch slots. Entering `BRIEFING` stages
+every claimed slot in bounded batches; each pending spawn must re-check the
+claim so a released slot cannot be materialized by a stale queue entry.
 
 Tracked controllable destruction is phase-sensitive: before `GAME`, a claimed slot is restaged; during `GAME`, it becomes `KIA` and any connected claimant moves to spectator. Repeated callbacks must be harmless. All authoritative transitions use the existing reliable slot update path, and queued JIP/spawn callbacks are removed during shutdown.
 

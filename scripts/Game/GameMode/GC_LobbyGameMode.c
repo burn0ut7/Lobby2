@@ -99,7 +99,13 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		else if (phase == SCR_EGameModeState.SLOTTING)
 			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
 		else if (phase == SCR_EGameModeState.BRIEFING)
-			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu, 0, true);
+		{
+			GC_LobbyManager lobbyManager = GC_LobbyManager.Cast(FindComponent(GC_LobbyManager));
+			if (lobbyManager && lobbyManager.GetPlayerFaction(localController.GetPlayerId()))
+				openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu, 0, true);
+			else
+				openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
+		}
 
 		PrintFormat("GC | Phase UI Trace | menu open result: source=%1 phase=%2 menu=%3 top=%4", source, GC_LobbyManager.GetPhaseName(phase), openedMenu, menuManager.GetTopMenu());
 	}

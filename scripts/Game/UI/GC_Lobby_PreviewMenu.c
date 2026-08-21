@@ -49,7 +49,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 			m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
 		}
 
-		ApplyPhasePresentation(phase);
+		ApplyViewPresentation();
 		m_iEditorManagerAttachAttempts = 0;
 		AttachEditorManager();
 
@@ -168,12 +168,17 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 
 	protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
 	{
-		ApplyPhasePresentation(phase);
+		ApplyViewPresentation();
 	}
 
-	protected void ApplyPhasePresentation(SCR_EGameModeState phase)
+	protected bool IsBriefingView()
 	{
-		bool isBriefing = phase == SCR_EGameModeState.BRIEFING;
+		return false;
+	}
+
+	protected void ApplyViewPresentation()
+	{
+		bool isBriefing = IsBriefingView();
 
 		if (m_Header)
 		{

@@ -13,6 +13,7 @@ class GC_LobbyPlayerControllerClass : SCR_PlayerControllerClass
 class GC_LobbyPlayerController : SCR_PlayerController
 {
 	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et";
+	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout";
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
 
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
@@ -25,11 +26,21 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Remains true while gameplay expects the local spectator presentation.
 	//! Temporary possession suspends the presentation without losing this intent.
 	protected bool m_bSpectatorPresentationRequested;
+	protected PauseMenuUI m_PauseMenu;
+	protected Widget m_wPauseSlottingButton;
+	protected Widget m_wPauseBriefingButton;
+	protected SCR_ButtonTextComponent m_PauseSlottingButton;
+	protected SCR_ButtonTextComponent m_PauseBriefingButton;
 
 	void ~GC_LobbyPlayerController()
 	{
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
+		GetGame().GetCallqueue().Remove(OpenSlottingFromPause);
+		GetGame().GetCallqueue().Remove(OpenBriefingFromPause);
+		PauseMenuUI.m_OnPauseMenuOpened.Remove(OnPauseMenuOpened);
+		PauseMenuUI.m_OnPauseMenuClosed.Remove(OnPauseMenuClosed);
+		RemovePauseAccessButtons();
 
 		if (m_EditorManager)
 		{
@@ -57,7 +68,121 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 		}
 
+		PauseMenuUI.m_OnPauseMenuOpened.Insert(OnPauseMenuOpened);
+		PauseMenuUI.m_OnPauseMenuClosed.Insert(OnPauseMenuClosed);
 		gameMode.UpdateLocalPhasePresentation(this, "controller-init");
+	}
+
+	//! Adds Lobby2-owned access points to the active pause menu without
+	//! modifying the shared pause-menu class or layout for unrelated modes.
+	protected void OnPauseMenuOpened()
+	{
+		RemovePauseAccessButtons();
+
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.SLOTTING))
+			return;
+
+		MenuManager menuManager = GetGame().GetMenuManager();
+		if (!menuManager)
+			return;
+
+		m_PauseMenu = PauseMenuUI.Cast(menuManager.GetTopMenu());
+		if (!m_PauseMenu)
+			return;
+
+		SCR_ButtonTextComponent continueButton = SCR_ButtonTextComponent.GetButtonText("Continue", m_PauseMenu.GetRootWidget());
+		if (!continueButton || !continueButton.GetRootWidget())
+			return;
+
+		Widget buttonParent = continueButton.GetRootWidget().GetParent();
+		if (!buttonParent)
+			return;
+
+		m_wPauseSlottingButton = GetGame().GetWorkspace().CreateWidgets(PAUSE_ACCESS_BUTTON_LAYOUT, buttonParent);
+		if (m_wPauseSlottingButton)
+		{
+			m_PauseSlottingButton = SCR_ButtonTextComponent.Cast(m_wPauseSlottingButton.FindHandler(SCR_ButtonTextComponent));
+			if (m_PauseSlottingButton)
+			{
+				m_PauseSlottingButton.SetText("SLOTTING");
+				m_PauseSlottingButton.m_OnClicked.Insert(RequestOpenSlottingFromPause);
+			}
+		}
+
+		Faction playerFaction = lobbyManager.GetPlayerFaction(GetPlayerId());
+		if (!playerFaction || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.BRIEFING))
+			return;
+
+		m_wPauseBriefingButton = GetGame().GetWorkspace().CreateWidgets(PAUSE_ACCESS_BUTTON_LAYOUT, buttonParent);
+		if (m_wPauseBriefingButton)
+		{
+			m_PauseBriefingButton = SCR_ButtonTextComponent.Cast(m_wPauseBriefingButton.FindHandler(SCR_ButtonTextComponent));
+			if (m_PauseBriefingButton)
+			{
+				m_PauseBriefingButton.SetText("BRIEFING");
+				m_PauseBriefingButton.m_OnClicked.Insert(RequestOpenBriefingFromPause);
+			}
+		}
+	}
+
+	protected void OnPauseMenuClosed()
+	{
+		RemovePauseAccessButtons();
+		m_PauseMenu = null;
+	}
+
+	protected void RemovePauseAccessButtons()
+	{
+		if (m_PauseSlottingButton)
+			m_PauseSlottingButton.m_OnClicked.Remove(RequestOpenSlottingFromPause);
+		if (m_PauseBriefingButton)
+			m_PauseBriefingButton.m_OnClicked.Remove(RequestOpenBriefingFromPause);
+		if (m_wPauseSlottingButton)
+			m_wPauseSlottingButton.RemoveFromHierarchy();
+		if (m_wPauseBriefingButton)
+			m_wPauseBriefingButton.RemoveFromHierarchy();
+
+		m_PauseSlottingButton = null;
+		m_PauseBriefingButton = null;
+		m_wPauseSlottingButton = null;
+		m_wPauseBriefingButton = null;
+	}
+
+	protected void RequestOpenSlottingFromPause()
+	{
+		if (m_PauseMenu)
+			m_PauseMenu.Close();
+		GetGame().GetCallqueue().CallLater(OpenSlottingFromPause, 0);
+	}
+
+	protected void RequestOpenBriefingFromPause()
+	{
+		if (m_PauseMenu)
+			m_PauseMenu.Close();
+		GetGame().GetCallqueue().CallLater(OpenBriefingFromPause, 0);
+	}
+
+	protected void OpenSlottingFromPause()
+	{
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.SLOTTING))
+			return;
+
+		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
+		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_BriefingMenu);
+		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
+	}
+
+	protected void OpenBriefingFromPause()
+	{
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (!lobbyManager || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.BRIEFING) || !lobbyManager.GetPlayerFaction(GetPlayerId()))
+			return;
+
+		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
+		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_SlottingMenu);
+		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu, 0, true);
 	}
 
 	override protected void OnOwnershipChanged(bool changing, bool becameOwner)

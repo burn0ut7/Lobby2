@@ -166,22 +166,9 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (!m_bSlotInteractable)
 			return false;
 
-		if (!m_Slot)
-			return true;
-
-		int occupyingPlayerId = m_Slot.GetPlayerId();
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (m_Slot.GetState() != GC_SlotState.FREE)
-		{
-			PlayerController currentController = GetGame().GetPlayerController();
-			return lobbyManager && currentController && lobbyManager.GetLobbyPhase() == SCR_EGameModeState.SLOTTING && occupyingPlayerId == currentController.GetPlayerId();
-		}
-
-		if (occupyingPlayerId < 0)
-			return true;
-
 		PlayerController playerController = GetGame().GetPlayerController();
-		return playerController && occupyingPlayerId == playerController.GetPlayerId();
+		return lobbyManager && playerController && lobbyManager.CanPlayerRequestSlot(playerController.GetPlayerId(), m_Slot);
 	}
 
 	protected void UpdateSlotVisuals()

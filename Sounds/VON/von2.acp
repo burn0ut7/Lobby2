@@ -389,10 +389,6 @@ AudioClass {
        id 22546
        port 65
       }
-      ConnectionClass "95250:65" {
-       id 95250
-       port 65
-      }
      }
     }
    }
@@ -689,6 +685,7 @@ AudioClass {
    "Constant values" {
     IOPConstantsValueClass TEST {
      Key "TEST"
+     Value 1
      Port 1
     }
    }
@@ -753,10 +750,6 @@ AudioClass {
      links {
       ConnectionClass "50183:65" {
        id 50183
-       port 65
-      }
-      ConnectionClass "91143:65" {
-       id 91143
        port 65
       }
      }

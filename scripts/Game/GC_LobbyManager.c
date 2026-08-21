@@ -2245,23 +2245,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return false;
 
 		SCR_EGameModeState phase = GetLobbyPhase();
-		if (phase != SCR_EGameModeState.SLOTTING)
-			return false;
-
         GC_Slot targetSlot = GetSlot(slotId);
-        if (!targetSlot)
+        if (!CanPlayerRequestSlot(playerId, targetSlot))
+        {
+			PrintFormat("GC | Slot request rejected: player=%1 slot=%2 phase=%3 faction=%4", playerId, slotId, GetPhaseName(phase), GetPlayerFaction(playerId), level: LogLevel.WARNING);
             return false;
+		}
 
         int occupyingPlayerId = targetSlot.GetPlayerId();
-		if (targetSlot.GetState() != GC_SlotState.FREE && occupyingPlayerId != playerId)
-			return false;
-
-        if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
-            return false;
-
 		SCR_AIGroup targetGroup = ResolveSlotGroup(targetSlot);
-		if (!targetGroup)
-			return false;
 
 		if (FORMATION_DEBUG_LOGGING)
 		{
@@ -2278,7 +2270,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         GC_Slot currentSlot = GetSlotByPlayerId(playerId);
         SCR_AIGroup currentGroup = GetPlayerGroup(playerId);
 
-		// Clicking the current slot toggles the player out during SLOTTING.
+		// Toggling out remains SLOTTING-only. From BRIEFING onward the current
+		// authoritative group is also the player's faction lock.
 		if (occupyingPlayerId == playerId)
 		{
 			if (currentGroup)
@@ -2310,11 +2303,56 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			ReleaseSlotClaim(currentSlot);
 
 		targetSlot.SetPlayer(playerId);
-		targetSlot.SetState(GC_SlotState.RESERVED);
+		if (phase != SCR_EGameModeState.SLOTTING && targetSlot.GetEntity())
+			targetSlot.SetState(GC_SlotState.LOCKED);
+		else
+			targetSlot.SetState(GC_SlotState.RESERVED);
         SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), Replication.FindItemId(targetGroup));
+		if (phase == SCR_EGameModeState.BRIEFING && !targetSlot.GetEntity())
+			SpawnSlotEntity(targetSlot, false);
+		else if (phase == SCR_EGameModeState.GAME)
+			QueuePlayerCatchUp(playerId);
+
         PrintFormat("GC | Slot request accepted: player=%1 slot=%2", playerId, slotId);
         return true;
     }
+
+	//! Shared presentation and authority policy for player-owned slot requests.
+	//! Base-game group membership supplies the faction lock; Lobby2 stores no
+	//! parallel faction ownership value.
+	bool CanPlayerRequestSlot(int playerId, GC_Slot targetSlot)
+	{
+		if (playerId <= 0 || !targetSlot)
+			return false;
+
+		SCR_EGameModeState phase = GetLobbyPhase();
+		if (phase != SCR_EGameModeState.SLOTTING
+			&& phase != SCR_EGameModeState.BRIEFING
+			&& phase != SCR_EGameModeState.GAME)
+			return false;
+
+		int occupyingPlayerId = targetSlot.GetPlayerId();
+		if (targetSlot.GetState() != GC_SlotState.FREE && occupyingPlayerId != playerId)
+			return false;
+		if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
+			return false;
+		if (occupyingPlayerId == playerId)
+			return phase == SCR_EGameModeState.SLOTTING;
+
+		SCR_AIGroup targetGroup = ResolveSlotGroup(targetSlot);
+		if (!targetGroup || !targetGroup.GetFaction())
+			return false;
+
+		if (phase == SCR_EGameModeState.SLOTTING)
+			return true;
+
+		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
+		if (currentSlot && currentSlot.IsKIA())
+			return false;
+
+		Faction lockedFaction = GetPlayerFaction(playerId);
+		return !lockedFaction || lockedFaction == targetGroup.GetFaction();
+	}
 
     //! Broadcasts a complete server-authoritative slot state.
     bool UpdateSlot(GC_Slot slot)

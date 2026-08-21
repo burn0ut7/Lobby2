@@ -3,6 +3,7 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
     protected FactionKey m_FactionKey;
     protected bool m_bFactionSelected;
     protected bool m_bFactionHovered;
+	protected bool m_bFactionInteractable = true;
 
     override void HandlerAttached(Widget w)
     {
@@ -27,7 +28,7 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
 			return true;
 		}
 
-        if (button != 0 || m_bFactionSelected)
+        if (button != 0 || m_bFactionSelected || !m_bFactionInteractable)
             return true;
 
         PlaySound(SCR_SoundEvent.CLICK);
@@ -36,7 +37,7 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
 
     override bool OnMouseEnter(Widget w, int x, int y)
     {
-        if (m_bFactionSelected)
+        if (m_bFactionSelected || !m_bFactionInteractable)
             return true;
 
         m_bFactionHovered = true;
@@ -48,7 +49,7 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
     {
         m_bFactionHovered = false;
 
-        if (m_bFactionSelected)
+        if (m_bFactionSelected || !m_bFactionInteractable)
             return true;
 
         return super.OnMouseLeave(w, enterW, x, y);
@@ -89,11 +90,24 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
         return m_bFactionSelected;
     }
 
+	void SetFactionInteractable(bool interactable)
+	{
+		m_bFactionInteractable = interactable;
+		if (!interactable)
+			m_bFactionHovered = false;
+
+		UpdateFactionVisuals();
+	}
+
     protected void UpdateFactionVisuals()
     {
         if (!m_wRoot)
             return;
 
         ColorizeBackground(false);
+		if (m_bFactionInteractable || m_bFactionSelected)
+			m_wRoot.SetOpacity(1);
+		else
+			m_wRoot.SetOpacity(0.35);
     }
 }
