@@ -1,0 +1,52 @@
+SizeLayoutWidgetClass {
+ Name "LobbyContextGroupHeader"
+ Slot LayoutSlot "{6A57000000000041}" {
+  HorizontalAlign 3
+  VerticalAlign 0
+ }
+ AllowHeightOverride 1
+ HeightOverride 22
+ {
+  OverlayWidgetClass "{6A57000000000042}" {
+   Name "ContextGroupHeaderOverlay"
+   Slot AlignableSlot "{6A57000000000043}" {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   {
+    ImageWidgetClass "{6A57000000000044}" {
+     Name "ContextGroupHeaderBackground"
+     Slot OverlayWidgetSlot "{6A57000000000045}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.76 0.39 0.08 0.12
+     Size 272 22
+    }
+    ImageWidgetClass "{6A57000000000046}" {
+     Name "ContextGroupHeaderAccent"
+     Slot OverlayWidgetSlot "{6A57000000000047}" {
+      HorizontalAlign 0
+      VerticalAlign 1
+      Padding 4 0 0 0
+     }
+     Color 0.88 0.55 0.22 0.8
+     Size 2 14
+    }
+    TextWidgetClass "{6A57000000000048}" {
+     Name "ContextGroupHeaderLabel"
+     Slot OverlayWidgetSlot "{6A57000000000049}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+      Padding 12 0 8 0
+     }
+     Color 0.88 0.65 0.42 1
+     Text "GROUP"
+     "Font Size" 13
+     "Min Font Size" 11
+     "Vertical Alignment" Center
+    }
+   }
+  }
+ }
+}

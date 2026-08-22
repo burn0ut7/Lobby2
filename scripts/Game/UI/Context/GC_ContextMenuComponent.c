@@ -53,8 +53,10 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 {
 	protected static const ResourceName MENU_LAYOUT = "{6A57000000000001}UI/layouts/Context/Lobby_Context_Menu.layout";
 	protected static const ResourceName ACTION_LAYOUT = "{6A57000000000002}UI/layouts/Context/Lobby_Context_Action.layout";
+	protected static const ResourceName GROUP_HEADER_LAYOUT = "{6A57000000000003}UI/layouts/Context/Lobby_Context_GroupHeader.layout";
 	protected static const float MENU_WIDTH = 280.0;
 	protected static const float HEADER_HEIGHT = 34.0;
+	protected static const float GROUP_HEADER_HEIGHT = 22.0;
 	protected static const float ACTION_HEIGHT = 36.0;
 	protected static const float MENU_PADDING = 8.0;
 
@@ -170,21 +172,67 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 
 		array<ref GC_ContextMenuAction> actions = {};
 		GC_ContextMenuActionRegistry.CollectVisible(context, actions);
+		array<string> groupLabels = {};
+		int renderedActionCount;
+		int renderedGroupCount;
+
 		foreach (GC_ContextMenuAction action : actions)
 		{
-			Widget actionWidget = GetGame().GetWorkspace().CreateWidgets(ACTION_LAYOUT, m_wActions);
-			if (!actionWidget)
+			string groupLabel = action.GetGroupLabel(context);
+			if (!groupLabel.IsEmpty())
+			{
+				if (!groupLabels.Contains(groupLabel))
+					groupLabels.Insert(groupLabel);
 				continue;
+			}
 
-			GC_ContextMenuActionButtonComponent button = GC_ContextMenuActionButtonComponent.Cast(actionWidget.FindHandler(GC_ContextMenuActionButtonComponent));
-			if (button)
-				button.Bind(action, context);
+			if (AddAction(action, context))
+				renderedActionCount++;
 		}
 
-		if (!m_wActions.GetChildren())
+		foreach (string groupLabel : groupLabels)
+		{
+			if (AddGroupHeader(groupLabel))
+				renderedGroupCount++;
+
+			foreach (GC_ContextMenuAction action : actions)
+			{
+				if (action.GetGroupLabel(context) == groupLabel && AddAction(action, context))
+					renderedActionCount++;
+			}
+		}
+
+		if (renderedActionCount == 0)
 			return false;
 
-		m_fMenuHeight = HEADER_HEIGHT + actions.Count() * ACTION_HEIGHT + MENU_PADDING;
+		m_fMenuHeight = HEADER_HEIGHT + renderedGroupCount * GROUP_HEADER_HEIGHT + renderedActionCount * ACTION_HEIGHT + MENU_PADDING;
+		return true;
+	}
+
+	protected bool AddGroupHeader(string label)
+	{
+		Widget headerWidget = GetGame().GetWorkspace().CreateWidgets(GROUP_HEADER_LAYOUT, m_wActions);
+		if (!headerWidget)
+			return false;
+
+		TextWidget headerLabel = TextWidget.Cast(headerWidget.FindAnyWidget("ContextGroupHeaderLabel"));
+		if (headerLabel)
+			headerLabel.SetText(label);
+
+		return true;
+	}
+
+	protected bool AddAction(GC_ContextMenuAction action, GC_ContextMenuContext context)
+	{
+		Widget actionWidget = GetGame().GetWorkspace().CreateWidgets(ACTION_LAYOUT, m_wActions);
+		if (!actionWidget)
+			return false;
+
+		GC_ContextMenuActionButtonComponent button = GC_ContextMenuActionButtonComponent.Cast(actionWidget.FindHandler(GC_ContextMenuActionButtonComponent));
+		if (!button)
+			return false;
+
+		button.Bind(action, context);
 		return true;
 	}
 

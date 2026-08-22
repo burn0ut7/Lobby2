@@ -611,6 +611,11 @@ class GC_SpectatorCameraContextAction : GC_ContextMenuAction
 		m_sLabel = label;
 	}
 
+	override string GetGroupLabel(GC_ContextMenuContext context)
+	{
+		return "CAMERA";
+	}
+
 	override string GetLabel(GC_ContextMenuContext context)
 	{
 		return m_sLabel;

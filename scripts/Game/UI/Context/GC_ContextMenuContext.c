@@ -254,6 +254,13 @@ class GC_ContextMenuContext
 //! CanExecute; authoritative mutations must still route through their owner RPC.
 class GC_ContextMenuAction
 {
+	//! Empty labels leave the action ungrouped. Actions sharing a non-empty label
+	//! are rendered together under one subtle section header.
+	string GetGroupLabel(GC_ContextMenuContext context)
+	{
+		return string.Empty;
+	}
+
 	string GetLabel(GC_ContextMenuContext context)
 	{
 		return string.Empty;
