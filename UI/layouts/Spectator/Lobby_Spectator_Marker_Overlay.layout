@@ -2,4 +2,22 @@ FrameWidgetClass {
  Name "SpectatorMarkerOverlay"
  "Z Order" 20
  "Ignore Cursor" 1
+ {
+  CanvasWidgetClass "{6A5600000000000B}" {
+   Name "LobbySpectatorProjectileTracer"
+   Slot FrameWidgetSlot "{6A5600000000000C}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 0
+    OffsetBottom 0
+   }
+   "Z Order" -10
+   "Ignore Cursor" 1
+  }
+ }
 }

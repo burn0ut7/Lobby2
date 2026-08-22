@@ -626,6 +626,7 @@ class GC_SpectatorMarkerOverlay
 	protected BaseWorld m_World;
 	protected SCR_EditableEntityCore m_EditableEntityCore;
 	protected GC_LobbyManager m_LobbyManager;
+	protected ref GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
 
 	bool Start()
@@ -643,6 +644,16 @@ class GC_SpectatorMarkerOverlay
 		m_wRoot = m_Workspace.CreateWidgets(OVERLAY_LAYOUT);
 		if (!m_wRoot)
 			return false;
+
+		CanvasWidget tracerCanvas = CanvasWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorProjectileTracer"));
+		m_ProjectileTracer = new GC_SpectatorProjectileTracer();
+		if (!m_ProjectileTracer.Start(tracerCanvas, m_Workspace, m_World))
+		{
+			m_wRoot.RemoveFromHierarchy();
+			m_wRoot = null;
+			m_ProjectileTracer = null;
+			return false;
+		}
 
 		m_EditableEntityCore.Event_OnEntityRegistered.Insert(OnEntityRegistered);
 		m_EditableEntityCore.Event_OnEntityUnregistered.Insert(OnEntityUnregistered);
@@ -672,6 +683,8 @@ class GC_SpectatorMarkerOverlay
 		}
 		if (m_LobbyManager)
 			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
+		if (m_ProjectileTracer)
+			m_ProjectileTracer.Destroy();
 
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 			marker.Deactivate();
@@ -685,6 +698,7 @@ class GC_SpectatorMarkerOverlay
 		m_World = null;
 		m_EditableEntityCore = null;
 		m_LobbyManager = null;
+		m_ProjectileTracer = null;
 	}
 
 	protected void OnEntityRegistered(SCR_EditableEntityComponent entity)
@@ -702,6 +716,8 @@ class GC_SpectatorMarkerOverlay
 
 		if (entityType == EEditableEntityType.CHARACTER && !SCR_EditableCharacterComponent.Cast(entity))
 			return;
+		if (entityType == EEditableEntityType.CHARACTER && m_ProjectileTracer)
+			m_ProjectileTracer.TrackShooter(owner);
 
 		if (entityType == EEditableEntityType.GROUP && !SCR_EditableGroupComponent.Cast(entity))
 			return;
@@ -712,6 +728,8 @@ class GC_SpectatorMarkerOverlay
 	protected void OnEntityUnregistered(SCR_EditableEntityComponent entity)
 	{
 		GC_SpectatorEditableEntityMarker marker;
+		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER && m_ProjectileTracer)
+			m_ProjectileTracer.UntrackShooter(entity.GetOwner());
 		if (!m_mMarkers.Find(entity, marker))
 			return;
 
