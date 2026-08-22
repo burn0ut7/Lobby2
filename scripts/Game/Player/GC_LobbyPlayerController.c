@@ -15,12 +15,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! The eight-argument RPC ceiling leaves one integer for both sight indexes.
 	//! Each index is offset by one so zero represents the no-sight/no-zoom state.
 	static const int NETWORK_CAMERA_SIGHT_STATE_SCALE = 65536;
-	static const float NETWORK_CAMERA_TRANSFORM_CHARACTER = 1;
-	static const float NETWORK_CAMERA_TRANSFORM_SIGHT = 2;
 	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{0C428AB427BB44F5}Prefabs/Editor/Camera/GC_SpectatorCamera.et";
 	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout";
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
-	[Attribute("60", desc: "Networked first-person camera snapshots per second (1-60).")]
+	[Attribute("30", desc: "Networked first-person camera snapshots per second (1-60).")]
 	protected int m_iNetworkCameraUpdateRate;
 	[Attribute("0.2", desc: "Seconds of per-frame projectile path retained by the spectator tracer.")]
 	protected float m_fProjectileTraceDuration;
@@ -399,34 +397,28 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!currentCamera)
 			return;
 
+		IEntity controlledEntity = GetControlledEntity();
+		if (!controlledEntity)
+			return;
+
 		vector cameraTransform[4];
 		currentCamera.GetWorldTransform(cameraTransform);
-		vector snapshotPosition = cameraTransform[3];
-		vector snapshotForward = cameraTransform[2];
-		vector snapshotUp = cameraTransform[1];
-		// X is main-camera FOV, Y is optional PiP FOV, and Z identifies
-		// character-relative or sight-relative transform space.
+		vector characterWorldTransform[4];
+		controlledEntity.GetWorldTransform(characterWorldTransform);
+		vector cameraRelativeToCharacter[4];
+		Math3D.MatrixInvMultiply4(characterWorldTransform, cameraTransform, cameraRelativeToCharacter);
+		vector snapshotPosition = cameraRelativeToCharacter[3];
+		vector snapshotForward = cameraRelativeToCharacter[2];
+		vector snapshotUp = cameraRelativeToCharacter[1];
+		// X is main-camera FOV and Y is optional PiP FOV. Every camera
+		// transform uses the controlled character's local space.
 		vector lensState = Vector(currentCamera.GetVerticalFOV(), -1, 0);
 		bool isADS;
 		int sightState;
-		IEntity controlledEntity = GetControlledEntity();
-		BaseWeaponManagerComponent weaponManager;
-		if (controlledEntity)
-			weaponManager = BaseWeaponManagerComponent.Cast(controlledEntity.FindComponent(BaseWeaponManagerComponent));
+		BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(controlledEntity.FindComponent(BaseWeaponManagerComponent));
 		BaseWeaponComponent weapon;
 		if (weaponManager)
 			weapon = weaponManager.GetCurrentWeapon();
-		if (controlledEntity)
-		{
-			vector characterWorldTransform[4];
-			controlledEntity.GetWorldTransform(characterWorldTransform);
-			vector cameraRelativeToCharacter[4];
-			Math3D.MatrixInvMultiply4(characterWorldTransform, cameraTransform, cameraRelativeToCharacter);
-			snapshotPosition = cameraRelativeToCharacter[3];
-			snapshotForward = cameraRelativeToCharacter[2];
-			snapshotUp = cameraRelativeToCharacter[1];
-			lensState[2] = NETWORK_CAMERA_TRANSFORM_CHARACTER;
-		}
 
 		if (weapon && weapon.IsSightADSActive())
 		{
@@ -436,17 +428,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			BaseSightsComponent sights = weapon.GetSightsAt(sightsIndex);
 			if (sights)
 			{
-				vector sightsWorldTransform[4];
-				if (sights.GetSightsTransform(sightsWorldTransform))
-				{
-					vector cameraRelativeToSights[4];
-					Math3D.MatrixInvMultiply4(sightsWorldTransform, cameraTransform, cameraRelativeToSights);
-					snapshotPosition = cameraRelativeToSights[3];
-					snapshotForward = cameraRelativeToSights[2];
-					snapshotUp = cameraRelativeToSights[1];
-					lensState[2] = NETWORK_CAMERA_TRANSFORM_SIGHT;
-				}
-
 				SCR_BaseVariableSightsFOVInfo variableFOV = SCR_BaseVariableSightsFOVInfo.Cast(sights.GetFOVInfo());
 				if (variableFOV)
 					zoomIndex = variableFOV.GetCurrentIndex();
