@@ -49,6 +49,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected CameraBase m_MirrorOverlayCamera;
 	protected vector m_vMirrorSmoothedLocalPosition;
 	protected vector m_vMirrorSmoothedWorldDirection;
+	protected vector m_vMirrorSmoothedWorldUp;
 	protected bool m_bMirrorSmoothingInitialized;
 	protected bool m_bMirrorDiagnosticsLogged;
 	protected static AnimationTagID s_MirrorFPCameraTag = -1;
@@ -383,10 +384,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	//! Reconstructs the remote first-person transform from state available on a
 	//! non-owning proxy. The dynamic Camera/Head bone supplies only attachment
-	//! position. The stock head-aiming transform supplies the camera rotation from
-	//! the selected camera/head bone, including the head and torso separation used
-	//! by freelook. View bob is not added.
-	protected bool GetMirrorFirstPersonTransform(Animation animation, CharacterAnimationComponent characterAnimation, CharacterHeadAimingComponent headAiming, vector targetTransform[4], float timeSlice, out vector cameraTransform[4])
+	//! position. The animated Head bone supplies the complete camera rotation so
+	//! remote freelook follows the head instead of the character's body heading.
+	//! View bob is not added.
+	protected bool GetMirrorFirstPersonTransform(Animation animation, CharacterAnimationComponent characterAnimation, vector targetTransform[4], float timeSlice, out vector cameraTransform[4])
 	{
 		if (s_MirrorFPCameraTag == -1)
 			s_MirrorFPCameraTag = GameAnimationUtils.RegisterAnimationTag("TagFPCamera");
@@ -403,21 +404,30 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (!animation.GetBoneMatrix(anchorBoneIndex, anchorBoneTransform))
 			return false;
 
-		vector lookOffset = "0 0.03 -0.07";
-		vector additiveRotation = "0 0 0";
-		vector lookModelTransform[4];
-		headAiming.GetLookTransformationLS(anchorBoneIndex, EDirectBoneMode.RelativePosition, lookOffset, additiveRotation, lookModelTransform);
-		vector lookWorldTransform[3];
-		Math3D.MatrixMultiply3(targetTransform, lookModelTransform, lookWorldTransform);
+		TNodeId headBoneIndex = animation.GetBoneIndex("Head");
+		if (headBoneIndex == -1)
+			return false;
+
+		vector headBoneTransform[4];
+		if (!animation.GetBoneMatrix(headBoneIndex, headBoneTransform))
+			return false;
+
+		vector headWorldTransform[4];
+		Math3D.MatrixMultiply4(targetTransform, headBoneTransform, headWorldTransform);
+		vector cameraAxisTransform[3] = { "1 0 0", "0 1 0", "0 0 -1" };
+		vector headCameraWorldTransform[3];
+		Math3D.MatrixMultiply3(headWorldTransform, cameraAxisTransform, headCameraWorldTransform);
 
 		vector rawLocalPosition = anchorBoneTransform[3]
 			+ anchorBoneTransform[1] * 0.03
 			- anchorBoneTransform[2] * 0.07;
-		vector rawWorldDirection = lookWorldTransform[2];
+		vector rawWorldDirection = headCameraWorldTransform[2];
+		vector rawWorldUp = headCameraWorldTransform[1];
 		if (!m_bMirrorSmoothingInitialized || timeSlice <= 0)
 		{
 			m_vMirrorSmoothedLocalPosition = rawLocalPosition;
 			m_vMirrorSmoothedWorldDirection = rawWorldDirection;
+			m_vMirrorSmoothedWorldUp = rawWorldUp;
 			m_bMirrorSmoothingInitialized = true;
 		}
 		else
@@ -434,12 +444,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				+ (rawLocalPosition - m_vMirrorSmoothedLocalPosition) * positionAlpha;
 			m_vMirrorSmoothedWorldDirection = (m_vMirrorSmoothedWorldDirection
 				+ (rawWorldDirection - m_vMirrorSmoothedWorldDirection) * rotationAlpha).Normalized();
+			m_vMirrorSmoothedWorldUp = (m_vMirrorSmoothedWorldUp
+				+ (rawWorldUp - m_vMirrorSmoothedWorldUp) * rotationAlpha).Normalized();
 		}
 
 		// Filter the attachment in character-local space so locomotion bob is
 		// damped without making the spectator camera trail world-space movement.
 		// SCR_ManualCamera renders along the transform's positive Z direction.
-		Math3D.DirectionAndUpMatrix(m_vMirrorSmoothedWorldDirection, "0 1 0", cameraTransform);
+		Math3D.DirectionAndUpMatrix(m_vMirrorSmoothedWorldDirection, m_vMirrorSmoothedWorldUp, cameraTransform);
 		cameraTransform[3] = targetTransform[3]
 			+ targetTransform[0] * m_vMirrorSmoothedLocalPosition[0]
 			+ targetTransform[1] * m_vMirrorSmoothedLocalPosition[1]
@@ -454,8 +466,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	{
 		Animation animation = m_Target.GetAnimation();
 		CharacterAnimationComponent characterAnimation = CharacterAnimationComponent.Cast(m_Target.FindComponent(CharacterAnimationComponent));
-		CharacterHeadAimingComponent headAiming = CharacterHeadAimingComponent.Cast(m_Target.FindComponent(CharacterHeadAimingComponent));
-		if (!animation || !characterAnimation || !headAiming)
+		if (!animation || !characterAnimation)
 		{
 			SetFreeMode();
 			return;
@@ -537,7 +548,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			RestoreMirrorSightPresentation();
 			vector targetWorldTransform[4];
 			m_Target.GetWorldTransform(targetWorldTransform);
-			if (!GetMirrorFirstPersonTransform(animation, characterAnimation, headAiming, targetWorldTransform, timeSlice, cameraModelTransform))
+			if (!GetMirrorFirstPersonTransform(animation, characterAnimation, targetWorldTransform, timeSlice, cameraModelTransform))
 			{
 				PrintFormat("GC | Spectator Camera | mirror first-person animation unavailable: target=%1 player=%2", m_Target, m_iTargetPlayerId, level: LogLevel.WARNING);
 				SetFreeMode();
