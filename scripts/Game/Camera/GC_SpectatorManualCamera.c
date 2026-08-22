@@ -49,6 +49,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected bool m_bMirrorRotationStabilized;
 	protected vector m_vMirrorSmoothedLocalPosition;
 	protected vector m_vMirrorSmoothedLocalForward;
+	protected bool m_bMirrorHasPresentation;
+	protected bool m_bMirrorADSTransitionActive;
+	protected float m_fMirrorADSTransitionElapsed;
+	protected float m_fMirrorADSTransitionDuration;
+	protected vector m_vMirrorADSTransitionStartPosition;
+	protected float m_fMirrorADSTransitionStartFOV;
+	protected vector m_vMirrorLastWorldPosition;
+	protected float m_fMirrorLastFOV;
 	protected static AnimationTagID s_MirrorFPCameraTag = -1;
 	protected static const float MIRROR_POSITION_STABILIZATION_SPEED = 6.0;
 	protected static const float MIRROR_ROTATION_STABILIZATION_SPEED = 10.0;
@@ -142,6 +150,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			SetNearPlane(0.0125);
 			m_bMirrorPositionStabilized = false;
 			m_bMirrorRotationStabilized = false;
+			m_bMirrorHasPresentation = false;
+			m_bMirrorADSTransitionActive = false;
 			m_bMirrorDiagnosticsLogged = false;
 			CharacterAnimationComponent mirrorAnimation = CharacterAnimationComponent.Cast(target.FindComponent(CharacterAnimationComponent));
 			m_bMirrorWasADS = mirrorAnimation && mirrorAnimation.IsWeaponADSTag();
@@ -199,6 +209,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_bMirrorDiagnosticsLogged = false;
 		m_bMirrorPositionStabilized = false;
 		m_bMirrorRotationStabilized = false;
+		m_bMirrorHasPresentation = false;
+		m_bMirrorADSTransitionActive = false;
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -533,11 +545,26 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		bool isADS = characterAnimation.IsWeaponADSTag();
 		if (isADS != m_bMirrorWasADS)
 		{
+			SCR_CharacterControllerComponent observedController = SCR_CharacterControllerComponent.Cast(m_Target.FindComponent(SCR_CharacterControllerComponent));
 			m_bMirrorWasADS = isADS;
 			m_bMirrorDiagnosticsLogged = false;
 			m_bMirrorPositionStabilized = false;
 			m_bMirrorRotationStabilized = false;
-			PrintFormat("GC | Spectator Camera | mirror state changed: ads=%1 target=%2 player=%3", isADS, m_Target, m_iTargetPlayerId);
+			m_bMirrorADSTransitionActive = false;
+			m_fMirrorADSTransitionDuration = 0;
+			if (m_bMirrorHasPresentation && observedController)
+			{
+				m_fMirrorADSTransitionDuration = observedController.GetADSTime();
+				if (m_fMirrorADSTransitionDuration > 0)
+				{
+					m_bMirrorADSTransitionActive = true;
+					m_fMirrorADSTransitionElapsed = 0;
+					m_vMirrorADSTransitionStartPosition = m_vMirrorLastWorldPosition;
+					m_fMirrorADSTransitionStartFOV = m_fMirrorLastFOV;
+				}
+			}
+
+			PrintFormat("GC | Spectator Camera | mirror state changed: ads=%1 transition=%2 duration=%3 target=%4 player=%5", isADS, m_bMirrorADSTransitionActive, m_fMirrorADSTransitionDuration, m_Target, m_iTargetPlayerId);
 		}
 
 		vector cameraModelTransform[4];
@@ -619,11 +646,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				return;
 			}
 
-			ApplyMirrorFocusFOV(mirrorFOV, timeSlice);
-			SetVerticalFOV(mirrorFOV);
-			SetTransform(cameraModelTransform);
-			ApplyTransform(timeSlice);
-			LogMirrorDiagnostics(cameraModelTransform, isADS);
+			ApplyMirrorPresentation(cameraModelTransform, mirrorFOV, timeSlice, isADS);
 			return;
 		}
 
@@ -642,9 +665,32 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 		ApplyMirrorFocusFOV(mirrorFOV, timeSlice);
 
+		ApplyMirrorPresentation(cameraWorldTransform, mirrorFOV, timeSlice, isADS);
+	}
+
+	//! Blends only camera position and FOV when an already-observed target changes
+	//! ADS state. Head-derived rotation continues live throughout the transition.
+	//! A newly selected target has no prior presentation and therefore snaps to its
+	//! current state, including when it was already aiming before selection.
+	protected void ApplyMirrorPresentation(inout vector cameraWorldTransform[4], float mirrorFOV, float timeSlice, bool isADS)
+	{
+		if (m_bMirrorADSTransitionActive)
+		{
+			m_fMirrorADSTransitionElapsed += timeSlice;
+			float blend = Math.Clamp(m_fMirrorADSTransitionElapsed / m_fMirrorADSTransitionDuration, 0.0, 1.0);
+			blend = blend * blend * (3.0 - 2.0 * blend);
+			cameraWorldTransform[3] = vector.Lerp(m_vMirrorADSTransitionStartPosition, cameraWorldTransform[3], blend);
+			mirrorFOV = Math.Lerp(m_fMirrorADSTransitionStartFOV, mirrorFOV, blend);
+			if (blend >= 1.0)
+				m_bMirrorADSTransitionActive = false;
+		}
+
 		SetVerticalFOV(mirrorFOV);
 		SetTransform(cameraWorldTransform);
 		ApplyTransform(timeSlice);
+		m_vMirrorLastWorldPosition = cameraWorldTransform[3];
+		m_fMirrorLastFOV = mirrorFOV;
+		m_bMirrorHasPresentation = true;
 		LogMirrorDiagnostics(cameraWorldTransform, isADS);
 	}
 
