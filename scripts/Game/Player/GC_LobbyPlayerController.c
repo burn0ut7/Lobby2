@@ -20,7 +20,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{0C428AB427BB44F5}Prefabs/Editor/Camera/GC_SpectatorCamera.et";
 	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout";
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
-	[Attribute("30", desc: "Networked first-person camera snapshots per second (1-60).")]
+	[Attribute("60", desc: "Networked first-person camera snapshots per second (1-60).")]
 	protected int m_iNetworkCameraUpdateRate;
 	[Attribute("0.2", desc: "Seconds of per-frame projectile path retained by the spectator tracer.")]
 	protected float m_fProjectileTraceDuration;

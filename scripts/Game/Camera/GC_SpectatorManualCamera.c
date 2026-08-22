@@ -64,7 +64,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected bool m_bNetworkSnapshotReceived;
 	protected int m_iNetworkLastSequence = -1;
 	protected float m_fNetworkInterpolationElapsed;
-	protected float m_fNetworkSnapshotRate = 30.0;
+	protected float m_fNetworkSnapshotRate = 60.0;
 	protected bool m_bNetworkFOVOverrideActive;
 	protected float m_fNetworkPreviousFOV;
 	protected float m_fNetworkFromFOV;
