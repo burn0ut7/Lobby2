@@ -50,6 +50,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected Widget m_wPauseBriefingButton;
 	protected SCR_ButtonTextComponent m_PauseSlottingButton;
 	protected SCR_ButtonTextComponent m_PauseBriefingButton;
+	protected InputManager m_LobbyInputManager;
 
 	void ~GC_LobbyPlayerController()
 	{
@@ -61,6 +62,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		GetGame().GetCallqueue().Remove(OpenBriefingFromPause);
 		PauseMenuUI.m_OnPauseMenuOpened.Remove(OnPauseMenuOpened);
 		PauseMenuUI.m_OnPauseMenuClosed.Remove(OnPauseMenuClosed);
+		if (m_LobbyInputManager)
+			m_LobbyInputManager.RemoveActionListener("GC_OpenLobby", EActionTrigger.DOWN, OpenSlottingFromPause);
+		m_LobbyInputManager = null;
 		RemovePauseAccessButtons();
 		DestroySpectatorCamera();
 
@@ -92,6 +96,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		PauseMenuUI.m_OnPauseMenuOpened.Insert(OnPauseMenuOpened);
 		PauseMenuUI.m_OnPauseMenuClosed.Insert(OnPauseMenuClosed);
+		m_LobbyInputManager = GetGame().GetInputManager();
+		if (m_LobbyInputManager)
+			m_LobbyInputManager.AddActionListener("GC_OpenLobby", EActionTrigger.DOWN, OpenSlottingFromPause);
 		gameMode.UpdateLocalPhasePresentation(this, "controller-init");
 	}
 
