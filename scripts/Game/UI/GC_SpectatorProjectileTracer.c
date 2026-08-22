@@ -1,14 +1,18 @@
 //! One client-local projectile path sampled for spectator presentation.
 class GC_SpectatorProjectileTrace
 {
+	protected static const float START_POSITION_TOLERANCE = 0.01;
+
 	protected IEntity m_Projectile;
 	protected ProjectileMoveComponent m_ProjectileMove;
 	protected ref array<vector> m_aPositions = {};
 	protected ref array<float> m_aSampleTimes = {};
 	protected ref array<float> m_aSpeeds = {};
+	protected vector m_vStartPosition;
 	protected float m_fInitialSpeed;
 	protected float m_fTrailDuration;
 	protected float m_fElapsedTime;
+	protected bool m_bDepartedStartPosition;
 	protected bool m_bFinished;
 
 	void GC_SpectatorProjectileTrace(IEntity projectile, float trailDuration)
@@ -20,7 +24,8 @@ class GC_SpectatorProjectileTrace
 		if (m_Projectile)
 		{
 			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
-			m_aPositions.Insert(m_Projectile.GetOrigin());
+			m_vStartPosition = m_Projectile.GetOrigin();
+			m_aPositions.Insert(m_vStartPosition);
 			m_aSampleTimes.Insert(0.0);
 			if (m_ProjectileMove)
 				m_fInitialSpeed = m_ProjectileMove.GetVelocity().Length();
@@ -31,6 +36,11 @@ class GC_SpectatorProjectileTrace
 	bool IsValid()
 	{
 		return m_Projectile != null && m_ProjectileMove != null;
+	}
+
+	bool IsProjectile(IEntity projectile)
+	{
+		return m_Projectile == projectile;
 	}
 
 	//! Samples one point every presentation frame. After the configured delay,
@@ -44,9 +54,19 @@ class GC_SpectatorProjectileTrace
 			if (m_fInitialSpeed <= 0.0 && speed > 0.0)
 				m_fInitialSpeed = speed;
 
-			m_aPositions.Insert(m_Projectile.GetOrigin());
-			m_aSampleTimes.Insert(m_fElapsedTime);
-			m_aSpeeds.Insert(speed);
+			vector position = m_Projectile.GetOrigin();
+			float distanceFromStart = (position - m_vStartPosition).Length();
+			if (distanceFromStart > START_POSITION_TOLERANCE)
+				m_bDepartedStartPosition = true;
+
+			// Projectile teardown can reset the entity to its spawn origin before deletion.
+			// Never append that reset as a final segment back to the barrel.
+			if (!m_bDepartedStartPosition || distanceFromStart > START_POSITION_TOLERANCE)
+			{
+				m_aPositions.Insert(position);
+				m_aSampleTimes.Insert(m_fElapsedTime);
+				m_aSpeeds.Insert(speed);
+			}
 		}
 		else if (!m_bFinished)
 		{
@@ -170,6 +190,12 @@ class GC_SpectatorProjectileTracer
 	{
 		if (!projectile || !m_wCanvas)
 			return;
+
+		foreach (GC_SpectatorProjectileTrace existingTrace : m_aTraces)
+		{
+			if (existingTrace.IsProjectile(projectile))
+				return;
+		}
 
 		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, m_fTrailDuration);
 		if (trace.IsValid())
