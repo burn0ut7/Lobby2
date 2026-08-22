@@ -88,6 +88,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected vector m_vNetworkToPosition;
 	protected vector m_vNetworkToForward;
 	protected vector m_vNetworkToUp;
+	protected bool m_bNetworkDiagnosticsInitialized;
+	protected bool m_bNetworkDiagnosticsADS;
+	protected int m_iNetworkDiagnosticsSightState;
+	protected bool m_bNetworkDiagnosticsPending;
 
 	bool TrySetMode(GC_ESpectatorCameraMode mode, IEntity target = null)
 	{
@@ -205,6 +209,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_bNetworkSnapshotReceived = false;
 			m_iNetworkLastSequence = -1;
 			m_fNetworkInterpolationElapsed = 0;
+			m_bNetworkDiagnosticsInitialized = false;
+			m_bNetworkDiagnosticsPending = false;
 			m_fNetworkSnapshotRate = localController.GetNetworkCameraUpdateRate();
 			m_fNetworkPreviousFOV = GetVerticalFOV();
 			m_bNetworkFOVOverrideActive = true;
@@ -289,6 +295,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_fNetworkPIPFOV = -1;
 		m_fNetworkFromPIPFOV = -1;
 		m_fNetworkToPIPFOV = -1;
+		m_bNetworkDiagnosticsInitialized = false;
+		m_bNetworkDiagnosticsPending = false;
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -505,6 +513,13 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_iNetworkSightsIndex = -1;
 			m_iNetworkZoomIndex = -1;
 		}
+		bool diagnosticStateChanged = !m_bNetworkDiagnosticsInitialized || m_bNetworkDiagnosticsADS != isADS || m_iNetworkDiagnosticsSightState != sightState;
+		if (diagnosticStateChanged || isADS && sequence % GC_SpectatorCameraDiagnostics.SAMPLE_INTERVAL == 0)
+			m_bNetworkDiagnosticsPending = true;
+
+		m_bNetworkDiagnosticsInitialized = true;
+		m_bNetworkDiagnosticsADS = isADS;
+		m_iNetworkDiagnosticsSightState = sightState;
 		if (m_bNetworkSnapshotReceived && m_iNetworkSightsIndex != previousSightsIndex)
 			m_bNetworkSnapshotReceived = false;
 
@@ -551,12 +566,25 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		vector cameraTransform[4];
 		BuildNetworkTransform(blend, cameraTransform);
 
-		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
+		float renderedFOV = Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend);
+		float renderedPIPFOV = Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend);
+		SetVerticalFOV(renderedFOV);
 		// Network snapshots use world-aligned axes relative to the translation-only
 		// attachment helper at the observed character's origin.
 		SetLocalTransform(cameraTransform);
+		if (m_bNetworkDiagnosticsPending)
+		{
+			vector targetWorldTransform[4];
+			m_Target.GetWorldTransform(targetWorldTransform);
+			vector cameraWorldTransform[4];
+			Math3D.MatrixCopy(cameraTransform, cameraWorldTransform);
+			cameraWorldTransform[3] = targetWorldTransform[3] + cameraTransform[3];
+			GC_SpectatorCameraDiagnostics.LogSnapshot("spectator", m_iNetworkLastSequence, m_Target, cameraWorldTransform, cameraTransform[3], renderedFOV, renderedPIPFOV, m_bNetworkIsADS, m_iNetworkDiagnosticsSightState);
+			m_bNetworkDiagnosticsPending = false;
+		}
+
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
-			m_MirrorPIPSights.GC_UpdateSpectatorPIP(timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));
+			m_MirrorPIPSights.GC_UpdateSpectatorPIP(timeSlice, renderedPIPFOV);
 	}
 
 	protected void UpdateNetworkSightPresentation()

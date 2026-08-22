@@ -34,6 +34,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected int m_iServerNetworkCameraSpectatorPlayerId = -1;
 	protected ref array<int> m_aNetworkCameraSpectators = new array<int>();
 	protected int m_iNetworkCameraSequence;
+	protected bool m_bNetworkCameraDiagnosticsInitialized;
+	protected bool m_bNetworkCameraDiagnosticsADS;
+	protected int m_iNetworkCameraDiagnosticsSightState;
 	protected MenuBase m_SpectatorMenu;
 	protected ref GC_SpectatorMarkerOverlay m_SpectatorMarkerOverlay;
 	protected SCR_EditorManagerEntity m_EditorManager;
@@ -368,6 +371,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			if (spectatorIndex == -1)
 				m_aNetworkCameraSpectators.Insert(spectatorPlayerId);
+
+			m_bNetworkCameraDiagnosticsInitialized = false;
 		}
 		else if (spectatorIndex != -1)
 		{
@@ -437,6 +442,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			sightState = (sightsIndex + 1) * NETWORK_CAMERA_SIGHT_STATE_SCALE + zoomIndex + 1;
 		}
 		m_iNetworkCameraSequence++;
+		bool diagnosticStateChanged = !m_bNetworkCameraDiagnosticsInitialized || m_bNetworkCameraDiagnosticsADS != isADS || m_iNetworkCameraDiagnosticsSightState != sightState;
+		if (diagnosticStateChanged || isADS && m_iNetworkCameraSequence % GC_SpectatorCameraDiagnostics.SAMPLE_INTERVAL == 0)
+			GC_SpectatorCameraDiagnostics.LogSnapshot("owner", m_iNetworkCameraSequence, controlledEntity, cameraTransform, snapshotPosition, lensState[0], lensState[1], isADS, sightState);
+
+		m_bNetworkCameraDiagnosticsInitialized = true;
+		m_bNetworkCameraDiagnosticsADS = isADS;
+		m_iNetworkCameraDiagnosticsSightState = sightState;
 		foreach (int spectatorPlayerId : m_aNetworkCameraSpectators)
 			Rpc(RpcAsk_PublishNetworkCameraTransform, spectatorPlayerId, m_iNetworkCameraSequence, snapshotPosition, snapshotForward, snapshotUp, lensState, isADS, sightState);
 	}
