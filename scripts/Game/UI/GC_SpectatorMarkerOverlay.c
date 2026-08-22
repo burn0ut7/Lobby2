@@ -5,6 +5,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected static const float MIN_ICON_DISTANCE = 0.0;
 	protected static const float MAX_ICON_SIZE = 32.0;
 	protected static const float MIN_ICON_SIZE = 4.0;
+	protected static const float NAME_REVEAL_DISTANCE = 25.0;
 
 	protected ImageWidget m_wSmallBackground;
 	protected ImageWidget m_wBackground;
@@ -17,7 +18,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected RichTextWidget m_wLabelText;
 	protected SCR_CharacterControllerComponent m_CharacterController;
 	protected string m_sFallbackName;
-	protected bool m_bHovered;
+	protected bool m_bHasLabel;
 	protected bool m_bStateInitialized;
 	protected bool m_bDead;
 	protected bool m_bUnconscious;
@@ -56,6 +57,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			m_sFallbackName = editableInfo.GetName();
 
 		m_CharacterController = SCR_CharacterControllerComponent.Cast(entity.GetOwner().FindComponent(SCR_CharacterControllerComponent));
+		m_bHasLabel = RefreshLabel();
 		RefreshFaction(entity.GetFaction());
 		RefreshCharacterState();
 	}
@@ -77,15 +79,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		{
 			FrameSlot.SetSize(m_wSelectedIcon, iconSize, iconSize);
 			FrameSlot.SetPos(m_wSelectedIcon, iconOffset, iconOffset);
-
-			float highlightOpacity = m_wSelectedIcon.GetOpacity();
-			float highlightStep = GetGame().GetWorld().GetTimeSlice() * 5.0;
-			if (m_bHovered)
-				highlightOpacity += highlightStep;
-			else
-				highlightOpacity -= highlightStep;
-
-			m_wSelectedIcon.SetOpacity(Math.Clamp(highlightOpacity, 0.0, 1.0));
+			m_wSelectedIcon.SetOpacity(0.0);
 		}
 
 		if (m_wButton)
@@ -96,6 +90,14 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 		if (m_wLabel)
 		{
+			float labelOpacity;
+			if (m_bHasLabel && distance < NAME_REVEAL_DISTANCE)
+			{
+				labelOpacity = 1.0 - distance / NAME_REVEAL_DISTANCE;
+				labelOpacity = labelOpacity * labelOpacity * (3.0 - 2.0 * labelOpacity);
+			}
+			m_wLabel.SetOpacity(labelOpacity);
+
 			float labelWidth;
 			float labelHeight;
 			m_wLabel.GetScreenSize(labelWidth, labelHeight);
@@ -107,21 +109,12 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		m_bHovered = true;
-		bool hasLabel = RefreshHoverLabel();
-		if (m_wLabel && hasLabel)
-			m_wLabel.SetOpacity(1.0);
-
 		GetWidget().SetZOrder(100);
 		return true;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		m_bHovered = false;
-		if (m_wLabel)
-			m_wLabel.SetOpacity(0.0);
-
 		GetWidget().SetZOrder(0);
 		return true;
 	}
@@ -141,8 +134,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			RefreshFaction(m_Entity.GetFaction());
 
 		RefreshCharacterState();
-		if (m_bHovered)
-			RefreshHoverLabel();
+		m_bHasLabel = RefreshLabel();
 	}
 
 	void RefreshCharacterState()
@@ -177,14 +169,14 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	void RefreshAdminNamePresentation(int playerId)
 	{
-		if (!m_bHovered || !m_Entity || !m_Entity.GetOwner())
+		if (!m_Entity || !m_Entity.GetOwner())
 			return;
 		PlayerManager playerManager = GetGame().GetPlayerManager();
 		if (playerManager && playerManager.GetPlayerIdFromControlledEntity(m_Entity.GetOwner()) == playerId)
-			RefreshHoverLabel();
+			m_bHasLabel = RefreshLabel();
 	}
 
-	protected bool RefreshHoverLabel()
+	protected bool RefreshLabel()
 	{
 		if (!m_wLabelText || !m_Entity || !m_Entity.GetOwner())
 			return false;
