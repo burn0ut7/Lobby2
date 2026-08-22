@@ -43,6 +43,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected CameraBase m_MirrorOverlayCamera;
 	protected bool m_bMirrorDiagnosticsLogged;
 	protected float m_fMirrorPreviousFOV;
+	protected float m_fMirrorPreviousNearPlane;
 	protected bool m_bMirrorFOVOverrideActive;
 	protected static AnimationTagID s_MirrorFPCameraTag = -1;
 
@@ -130,7 +131,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (mode == GC_ESpectatorCameraMode.MIRROR)
 		{
 			m_fMirrorPreviousFOV = GetVerticalFOV();
+			m_fMirrorPreviousNearPlane = GetNearPlane();
 			m_bMirrorFOVOverrideActive = true;
+			SetNearPlane(0.0125);
 			m_bMirrorDiagnosticsLogged = false;
 			CharacterAnimationComponent mirrorAnimation = CharacterAnimationComponent.Cast(target.FindComponent(CharacterAnimationComponent));
 			m_bMirrorWasADS = mirrorAnimation && mirrorAnimation.IsWeaponADSTag();
@@ -175,6 +178,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (m_bMirrorFOVOverrideActive)
 		{
 			SetVerticalFOV(m_fMirrorPreviousFOV);
+			SetNearPlane(m_fMirrorPreviousNearPlane);
 			m_bMirrorFOVOverrideActive = false;
 		}
 
@@ -406,6 +410,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		vector zeroRotation = vector.Zero;
 		headAiming.GetLookTransformationLS(anchorBoneIndex, EDirectBoneMode.RelativePosition, stockOffset, zeroRotation, stockFirstPersonTransform);
 
+		// Match CharacterCamera1stPerson's character-pitch composition before the
+		// native camera pipeline attaches the result to the selected direct bone.
+		vector characterPitch = vector.Zero;
+		characterPitch[1] = m_Target.GetLocalYawPitchRoll()[1];
+		vector characterPitchTransform[4];
+		Math3D.AnglesToMatrix(characterPitch, characterPitchTransform);
+		Math3D.MatrixMultiply4(characterPitchTransform, stockFirstPersonTransform, stockFirstPersonTransform);
+
 		// CharacterCamera1stPerson returns this transform relative to its selected
 		// direct bone. The native player-camera pipeline applies that bone later;
 		// mirror mode must perform the same composition explicitly.
@@ -416,6 +428,19 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		vector stockFirstPersonModelTransform[4];
 		Math3D.MatrixMultiply4(anchorBoneTransform, stockFirstPersonTransform, stockFirstPersonModelTransform);
 
+		vector stockLocalPosition = stockFirstPersonModelTransform[3];
+		cameraTransform[3] = targetTransform[3]
+			+ targetTransform[0] * stockLocalPosition[0]
+			+ targetTransform[1] * stockLocalPosition[1]
+			+ targetTransform[2] * stockLocalPosition[2];
+		return ApplyMirrorHeadRotation(animation, targetTransform, cameraTransform);
+	}
+
+	//! Rotation intentionally comes from the animated Head bone in every mirror
+	//! state. Remote owner-local look input is unavailable, while this replicated
+	//! presentation preserves the character's visible freelook.
+	protected bool ApplyMirrorHeadRotation(Animation animation, vector targetTransform[4], inout vector cameraTransform[4])
+	{
 		TNodeId headBoneIndex = animation.GetBoneIndex("Head");
 		if (headBoneIndex == -1)
 			return false;
@@ -429,14 +454,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		vector cameraAxisTransform[3] = { "1 0 0", "0 1 0", "0 0 -1" };
 		vector headCameraWorldTransform[3];
 		Math3D.MatrixMultiply3(headWorldTransform, cameraAxisTransform, headCameraWorldTransform);
-
-		// SCR_ManualCamera renders along the transform's positive Z direction.
-		Math3D.DirectionAndUpMatrix(headCameraWorldTransform[2], headCameraWorldTransform[1], cameraTransform);
-		vector stockLocalPosition = stockFirstPersonModelTransform[3];
-		cameraTransform[3] = targetTransform[3]
-			+ targetTransform[0] * stockLocalPosition[0]
-			+ targetTransform[1] * stockLocalPosition[1]
-			+ targetTransform[2] * stockLocalPosition[2];
+		cameraTransform[0] = headCameraWorldTransform[0];
+		cameraTransform[1] = headCameraWorldTransform[1];
+		cameraTransform[2] = headCameraWorldTransform[2];
 		return true;
 	}
 
@@ -503,7 +523,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			SCR_2DPIPSightsComponent pipSights = SCR_2DPIPSightsComponent.Cast(sights);
 			if (pipSights)
 			{
-				mirrorFOV = Math.Min(mirrorFOV, pipSights.GetMainCameraFOV());
+				// Stock CharacterCameraADS replaces the main-camera FOV for PiP
+				// sights instead of applying the ordinary sight-FOV clamp.
+				mirrorFOV = pipSights.GetMainCameraFOV();
 				if (m_MirrorPIPSights != pipSights)
 				{
 					if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
@@ -540,6 +562,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				return;
 			}
 
+			ApplyMirrorFocusFOV(mirrorFOV, timeSlice);
 			SetVerticalFOV(mirrorFOV);
 			SetTransform(cameraModelTransform);
 			ApplyTransform(timeSlice);
@@ -551,17 +574,28 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_Target.GetWorldTransform(targetWorldTransform);
 		vector cameraWorldTransform[4];
 		Math3D.MatrixMultiply4(targetWorldTransform, cameraModelTransform, cameraWorldTransform);
+		if (!ApplyMirrorHeadRotation(animation, targetWorldTransform, cameraWorldTransform))
+		{
+			SetFreeMode();
+			return;
+		}
+
+		ApplyMirrorFocusFOV(mirrorFOV, timeSlice);
+
+		SetVerticalFOV(mirrorFOV);
+		SetTransform(cameraWorldTransform);
+		ApplyTransform(timeSlice);
+		LogMirrorDiagnostics(cameraWorldTransform, isADS);
+	}
+
+	protected void ApplyMirrorFocusFOV(inout float mirrorFOV, float timeSlice)
+	{
 		SCR_PlayerController localPlayerController = SCR_PlayerController.Cast(GetGame().GetPlayerController());
 		PlayerCamera localPlayerCamera;
 		if (localPlayerController)
 			localPlayerCamera = localPlayerController.GetPlayerCamera();
 		if (localPlayerCamera)
 			mirrorFOV = localPlayerCamera.GetFocusFOVScale(mirrorFOV, localPlayerController.GetFocusValue(1, timeSlice));
-
-		SetVerticalFOV(mirrorFOV);
-		SetTransform(cameraWorldTransform);
-		ApplyTransform(timeSlice);
-		LogMirrorDiagnostics(cameraWorldTransform, isADS);
 	}
 
 	protected void LogMirrorDiagnostics(vector cameraTransform[4], bool isADS)
