@@ -72,10 +72,18 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected bool m_bNetworkIsADS;
 	protected bool m_bNetworkCharacterRelativeTransform;
 	protected bool m_bNetworkSightRelativeTransform;
+	protected int m_iNetworkSightsIndex = -1;
+	protected int m_iNetworkZoomIndex = -1;
 	protected float m_fNetworkPIPFOV = -1;
 	protected float m_fNetworkFromPIPFOV = -1;
 	protected float m_fNetworkToPIPFOV = -1;
 	protected BaseWeaponComponent m_NetworkSightsWeapon;
+	protected int m_iNetworkPresentedSightsIndex = -1;
+	protected int m_iNetworkPreviousSightsIndex = -1;
+	protected bool m_bNetworkSightsOverrideActive;
+	protected SCR_BaseVariableSightsFOVInfo m_NetworkVariableSights;
+	protected int m_iNetworkPreviousZoomIndex = -1;
+	protected bool m_bNetworkZoomOverrideActive;
 	protected vector m_vNetworkFromPosition;
 	protected vector m_vNetworkFromForward;
 	protected vector m_vNetworkFromUp;
@@ -268,6 +276,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_bNetworkIsADS = false;
 		m_bNetworkCharacterRelativeTransform = false;
 		m_bNetworkSightRelativeTransform = false;
+		m_iNetworkSightsIndex = -1;
+		m_iNetworkZoomIndex = -1;
 		m_fNetworkPIPFOV = -1;
 		m_fNetworkFromPIPFOV = -1;
 		m_fNetworkToPIPFOV = -1;
@@ -296,7 +306,21 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected void RestoreNetworkSightPresentation()
 	{
 		RestoreMirrorSightPresentation();
+
+		if (m_NetworkVariableSights && m_bNetworkZoomOverrideActive)
+			SetNetworkVariableSightsIndex(m_NetworkVariableSights, m_iNetworkPreviousZoomIndex);
+
+		m_NetworkVariableSights = null;
+		m_iNetworkPreviousZoomIndex = -1;
+		m_bNetworkZoomOverrideActive = false;
+
+		if (m_NetworkSightsWeapon && m_bNetworkSightsOverrideActive)
+			m_NetworkSightsWeapon.SetSights(m_iNetworkPreviousSightsIndex);
+
 		m_NetworkSightsWeapon = null;
+		m_iNetworkPresentedSightsIndex = -1;
+		m_iNetworkPreviousSightsIndex = -1;
+		m_bNetworkSightsOverrideActive = false;
 	}
 
 	protected void SetMirrorOverlayCamera(CameraBase overlayCamera)
@@ -453,7 +477,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		SetTransform(cameraTransform);
 	}
 
-	void ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS)
+	void ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
 	{
 		if (m_eMode != GC_ESpectatorCameraMode.NETWORK || targetPlayerId != m_iTargetPlayerId || sequence <= m_iNetworkLastSequence)
 			return;
@@ -461,12 +485,23 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_iNetworkLastSequence = sequence;
 		bool previousCharacterRelativeTransform = m_bNetworkCharacterRelativeTransform;
 		bool previousSightRelativeTransform = m_bNetworkSightRelativeTransform;
+		int previousSightsIndex = m_iNetworkSightsIndex;
 		float fov = lensState[0];
 		m_bNetworkIsADS = isADS;
 		m_bNetworkSightRelativeTransform = lensState[2] == GC_LobbyPlayerController.NETWORK_CAMERA_TRANSFORM_SIGHT;
 		m_bNetworkCharacterRelativeTransform = lensState[2] == GC_LobbyPlayerController.NETWORK_CAMERA_TRANSFORM_CHARACTER;
 		m_fNetworkPIPFOV = lensState[1];
-		if (m_bNetworkSnapshotReceived && (m_bNetworkCharacterRelativeTransform != previousCharacterRelativeTransform || m_bNetworkSightRelativeTransform != previousSightRelativeTransform))
+		if (isADS)
+		{
+			m_iNetworkSightsIndex = sightState / GC_LobbyPlayerController.NETWORK_CAMERA_SIGHT_STATE_SCALE - 1;
+			m_iNetworkZoomIndex = sightState % GC_LobbyPlayerController.NETWORK_CAMERA_SIGHT_STATE_SCALE - 1;
+		}
+		else
+		{
+			m_iNetworkSightsIndex = -1;
+			m_iNetworkZoomIndex = -1;
+		}
+		if (m_bNetworkSnapshotReceived && (m_bNetworkCharacterRelativeTransform != previousCharacterRelativeTransform || m_bNetworkSightRelativeTransform != previousSightRelativeTransform || m_iNetworkSightsIndex != previousSightsIndex))
 			m_bNetworkSnapshotReceived = false;
 
 		if (!m_bNetworkSnapshotReceived)
@@ -536,11 +571,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	protected bool ApplyNetworkSightTransform(inout vector cameraTransform[4])
 	{
-		BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(m_Target.FindComponent(BaseWeaponManagerComponent));
-		if (!weaponManager || !m_NetworkSightsWeapon || weaponManager.GetCurrentWeapon() != m_NetworkSightsWeapon)
+		if (!m_NetworkSightsWeapon || m_iNetworkPresentedSightsIndex < 0)
 			return false;
 
-		BaseSightsComponent sights = m_NetworkSightsWeapon.GetSightsAt(weaponManager.GetCurrentSightsIndex());
+		BaseSightsComponent sights = m_NetworkSightsWeapon.GetSightsAt(m_iNetworkPresentedSightsIndex);
 		vector sightsWorldTransform[4];
 		if (!sights || !sights.GetSightsTransform(sightsWorldTransform))
 			return false;
@@ -556,7 +590,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	protected void UpdateNetworkSightPresentation()
 	{
-		if (!m_bNetworkIsADS)
+		if (!m_bNetworkIsADS || m_iNetworkSightsIndex < 0)
 		{
 			RestoreNetworkSightPresentation();
 			return;
@@ -566,22 +600,30 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		BaseWeaponComponent weapon;
 		if (weaponManager)
 			weapon = weaponManager.GetCurrentWeapon();
-		int sightsIndex = -1;
-		if (weaponManager)
-			sightsIndex = weaponManager.GetCurrentSightsIndex();
-		BaseSightsComponent sights;
-		if (weapon && sightsIndex >= 0)
-			sights = weapon.GetSightsAt(sightsIndex);
-		if (!weapon || !sights)
+		if (!weapon || !weapon.GetSightsAt(m_iNetworkSightsIndex))
 		{
 			RestoreNetworkSightPresentation();
 			return;
 		}
 
-		if (weapon != m_NetworkSightsWeapon)
+		if (weapon != m_NetworkSightsWeapon || m_iNetworkSightsIndex != m_iNetworkPresentedSightsIndex)
 		{
 			RestoreNetworkSightPresentation();
 			m_NetworkSightsWeapon = weapon;
+			m_iNetworkPresentedSightsIndex = m_iNetworkSightsIndex;
+			m_iNetworkPreviousSightsIndex = weaponManager.GetCurrentSightsIndex();
+			if (m_iNetworkPreviousSightsIndex != m_iNetworkSightsIndex)
+			{
+				if (!weapon.SetSights(m_iNetworkSightsIndex))
+				{
+					m_NetworkSightsWeapon = null;
+					m_iNetworkPresentedSightsIndex = -1;
+					m_iNetworkPreviousSightsIndex = -1;
+					return;
+				}
+
+				m_bNetworkSightsOverrideActive = true;
+			}
 		}
 
 		if (!weapon.IsSightADSActive())
@@ -589,6 +631,26 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			weapon.SightADSActivated();
 			m_MirrorADSWeapon = weapon;
 			m_bMirrorActivatedSight = true;
+		}
+
+		BaseSightsComponent sights = weapon.GetSightsAt(m_iNetworkSightsIndex);
+		SCR_BaseVariableSightsFOVInfo variableSights = SCR_BaseVariableSightsFOVInfo.Cast(sights.GetFOVInfo());
+		if (variableSights != m_NetworkVariableSights)
+		{
+			if (m_NetworkVariableSights && m_bNetworkZoomOverrideActive)
+				SetNetworkVariableSightsIndex(m_NetworkVariableSights, m_iNetworkPreviousZoomIndex);
+
+			m_NetworkVariableSights = variableSights;
+			m_iNetworkPreviousZoomIndex = -1;
+			m_bNetworkZoomOverrideActive = false;
+			if (m_NetworkVariableSights)
+				m_iNetworkPreviousZoomIndex = m_NetworkVariableSights.GetCurrentIndex();
+		}
+
+		if (m_NetworkVariableSights && m_iNetworkZoomIndex >= 0 && m_NetworkVariableSights.GetCurrentIndex() != m_iNetworkZoomIndex)
+		{
+			if (SetNetworkVariableSightsIndex(m_NetworkVariableSights, m_iNetworkZoomIndex))
+				m_bNetworkZoomOverrideActive = true;
 		}
 
 		SCR_2DPIPSightsComponent pipSights = SCR_2DPIPSightsComponent.Cast(sights);
@@ -617,6 +679,21 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_MirrorPIPSights = null;
 			SetMirrorOverlayCamera(null);
 		}
+	}
+
+	protected bool SetNetworkVariableSightsIndex(SCR_BaseVariableSightsFOVInfo variableSights, int targetIndex)
+	{
+		if (!variableSights || targetIndex < 0 || targetIndex >= variableSights.GetCount())
+			return false;
+
+		int count = variableSights.GetCount();
+		for (int i = 0; i < count && variableSights.GetCurrentIndex() != targetIndex; i++)
+		{
+			if (!variableSights.SetNext())
+				break;
+		}
+
+		return variableSights.GetCurrentIndex() == targetIndex;
 	}
 
 	protected float GetNetworkInterpolationBlend()
