@@ -42,9 +42,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected SCR_CharacterCameraHandlerComponent m_EyeCameraHandler;
 	protected bool m_bMovementInertiaWasEnabled;
 	protected bool m_bRotationInertiaWasEnabled;
-	protected float m_fMirrorPreviousFOV;
-	protected float m_fMirrorBaseFOV;
-	protected bool m_bMirrorFOVCaptured;
 	protected bool m_bMirrorWasADS;
 	protected BaseWeaponComponent m_MirrorADSWeapon;
 	protected bool m_bMirrorActivatedSight;
@@ -53,6 +50,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected vector m_vMirrorSmoothedLocalPosition;
 	protected vector m_vMirrorSmoothedWorldDirection;
 	protected bool m_bMirrorSmoothingInitialized;
+	protected bool m_bMirrorDiagnosticsLogged;
 	protected static AnimationTagID s_MirrorFPCameraTag = -1;
 
 	bool TrySetMode(GC_ESpectatorCameraMode mode, IEntity target = null)
@@ -139,13 +137,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (mode == GC_ESpectatorCameraMode.MIRROR)
 		{
 			m_bMirrorSmoothingInitialized = false;
-			m_fMirrorPreviousFOV = GetVerticalFOV();
-			CameraManager cameraManager = GetGame().GetCameraManager();
-			if (cameraManager)
-				m_fMirrorBaseFOV = cameraManager.GetFirstPersonFOV();
-			else
-				m_fMirrorBaseFOV = m_fMirrorPreviousFOV;
-			m_bMirrorFOVCaptured = true;
+			m_bMirrorDiagnosticsLogged = false;
 			CharacterAnimationComponent mirrorAnimation = CharacterAnimationComponent.Cast(target.FindComponent(CharacterAnimationComponent));
 			m_bMirrorWasADS = mirrorAnimation && mirrorAnimation.IsWeaponADSTag();
 			PrintFormat("GC | Spectator Camera | mirror state: ads=%1 target=%2 player=%3", m_bMirrorWasADS, target, m_iTargetPlayerId);
@@ -192,13 +184,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 		m_EyeCameraHandler = null;
 
-		if (m_bMirrorFOVCaptured)
-			SetVerticalFOV(m_fMirrorPreviousFOV);
-
-		m_bMirrorFOVCaptured = false;
-		m_fMirrorBaseFOV = 0;
 		m_bMirrorWasADS = false;
 		m_bMirrorSmoothingInitialized = false;
+		m_bMirrorDiagnosticsLogged = false;
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -395,15 +383,11 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	//! Reconstructs the remote first-person transform from state available on a
 	//! non-owning proxy. The dynamic Camera/Head bone supplies only attachment
-	//! position. Character head yaw/pitch supplies view direction and freelook
-	//! without inheriting the locomotion animation applied to the Head bone. View
-	//! bob is not added.
-	protected bool GetMirrorFirstPersonTransform(Animation animation, CharacterAnimationComponent characterAnimation, vector targetTransform[4], float timeSlice, out vector cameraTransform[4])
+	//! position. The stock head-aiming transform supplies the camera rotation from
+	//! the selected camera/head bone, including the head and torso separation used
+	//! by freelook. View bob is not added.
+	protected bool GetMirrorFirstPersonTransform(Animation animation, CharacterAnimationComponent characterAnimation, CharacterHeadAimingComponent headAiming, vector targetTransform[4], float timeSlice, out vector cameraTransform[4])
 	{
-		SCR_ChimeraCharacter targetCharacter = SCR_ChimeraCharacter.Cast(m_Target);
-		if (!targetCharacter)
-			return false;
-
 		if (s_MirrorFPCameraTag == -1)
 			s_MirrorFPCameraTag = GameAnimationUtils.RegisterAnimationTag("TagFPCamera");
 
@@ -419,17 +403,17 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (!animation.GetBoneMatrix(anchorBoneIndex, anchorBoneTransform))
 			return false;
 
-		vector aimRotationModel = targetCharacter.GetAimRotationModel();
-		vector lookAngles = Vector(aimRotationModel[0] * Math.RAD2DEG, aimRotationModel[1] * Math.RAD2DEG, 0);
-		vector lookModelTransform[3];
-		Math3D.AnglesToMatrix(lookAngles, lookModelTransform);
+		vector lookOffset = "0 0.03 -0.07";
+		vector additiveRotation = "0 0 0";
+		vector lookModelTransform[4];
+		headAiming.GetLookTransformationLS(anchorBoneIndex, EDirectBoneMode.RelativePosition, lookOffset, additiveRotation, lookModelTransform);
 		vector lookWorldTransform[3];
 		Math3D.MatrixMultiply3(targetTransform, lookModelTransform, lookWorldTransform);
 
 		vector rawLocalPosition = anchorBoneTransform[3]
 			+ anchorBoneTransform[1] * 0.03
 			- anchorBoneTransform[2] * 0.07;
-		vector rawWorldDirection = -lookWorldTransform[2];
+		vector rawWorldDirection = lookWorldTransform[2];
 		if (!m_bMirrorSmoothingInitialized || timeSlice <= 0)
 		{
 			m_vMirrorSmoothedLocalPosition = rawLocalPosition;
@@ -454,7 +438,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 		// Filter the attachment in character-local space so locomotion bob is
 		// damped without making the spectator camera trail world-space movement.
-		// Camera space faces opposite the character model's positive Z direction.
+		// SCR_ManualCamera renders along the transform's positive Z direction.
 		Math3D.DirectionAndUpMatrix(m_vMirrorSmoothedWorldDirection, "0 1 0", cameraTransform);
 		cameraTransform[3] = targetTransform[3]
 			+ targetTransform[0] * m_vMirrorSmoothedLocalPosition[0]
@@ -470,7 +454,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	{
 		Animation animation = m_Target.GetAnimation();
 		CharacterAnimationComponent characterAnimation = CharacterAnimationComponent.Cast(m_Target.FindComponent(CharacterAnimationComponent));
-		if (!animation || !characterAnimation)
+		CharacterHeadAimingComponent headAiming = CharacterHeadAimingComponent.Cast(m_Target.FindComponent(CharacterHeadAimingComponent));
+		if (!animation || !characterAnimation || !headAiming)
 		{
 			SetFreeMode();
 			return;
@@ -485,7 +470,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		}
 
 		vector cameraModelTransform[4];
-		float cameraFOV = m_fMirrorBaseFOV;
 		if (isADS)
 		{
 			BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(m_Target.FindComponent(BaseWeaponManagerComponent));
@@ -493,7 +477,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			if (weaponManager)
 				weapon = weaponManager.GetCurrentWeapon();
 
-			if (!weaponManager || !weapon || !weaponManager.GetCurrentSightsCameraTransform(cameraModelTransform, cameraFOV))
+			float unusedSightsFOV;
+			if (!weaponManager || !weapon || !weaponManager.GetCurrentSightsCameraTransform(cameraModelTransform, unusedSightsFOV))
 			{
 				PrintFormat("GC | Spectator Camera | mirror ADS unavailable: target=%1 player=%2", m_Target, m_iTargetPlayerId, level: LogLevel.WARNING);
 				SetFreeMode();
@@ -520,7 +505,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				Math3D.MatrixMultiply4(cameraModelTransform, zeroingTransform, cameraModelTransform);
 			}
 
-			cameraFOV = Math.Min(m_fMirrorBaseFOV, cameraFOV);
 			SightsComponent sights = weaponManager.GetCurrentSights();
 			SCR_2DPIPSightsComponent pipSights = SCR_2DPIPSightsComponent.Cast(sights);
 			if (pipSights)
@@ -537,7 +521,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 					pipSights.SetPIPEnabled(true);
 
 				SetMirrorOverlayCamera(pipSights.GetPIPCamera());
-				cameraFOV = Math.Min(m_fMirrorBaseFOV, pipSights.GetMainCameraFOV());
 				cameraModelTransform[3] = cameraModelTransform[3] - pipSights.GetMainCameraOffset();
 			}
 			else
@@ -554,7 +537,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			RestoreMirrorSightPresentation();
 			vector targetWorldTransform[4];
 			m_Target.GetWorldTransform(targetWorldTransform);
-			if (!GetMirrorFirstPersonTransform(animation, characterAnimation, targetWorldTransform, timeSlice, cameraModelTransform))
+			if (!GetMirrorFirstPersonTransform(animation, characterAnimation, headAiming, targetWorldTransform, timeSlice, cameraModelTransform))
 			{
 				PrintFormat("GC | Spectator Camera | mirror first-person animation unavailable: target=%1 player=%2", m_Target, m_iTargetPlayerId, level: LogLevel.WARNING);
 				SetFreeMode();
@@ -562,7 +545,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			}
 
 			SetTransform(cameraModelTransform);
-			SetVerticalFOV(cameraFOV);
+			LogMirrorDiagnostics(cameraModelTransform, isADS);
 			return;
 		}
 
@@ -571,7 +554,26 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		vector cameraWorldTransform[4];
 		Math3D.MatrixMultiply4(targetWorldTransform, cameraModelTransform, cameraWorldTransform);
 		SetTransform(cameraWorldTransform);
-		SetVerticalFOV(cameraFOV);
+		LogMirrorDiagnostics(cameraWorldTransform, isADS);
+	}
+
+	protected void LogMirrorDiagnostics(vector cameraTransform[4], bool isADS)
+	{
+		if (m_bMirrorDiagnosticsLogged)
+			return;
+
+		m_bMirrorDiagnosticsLogged = true;
+		CameraManager cameraManager = GetGame().GetCameraManager();
+		CameraBase currentCamera;
+		CameraBase overlayCamera;
+		if (cameraManager)
+		{
+			currentCamera = cameraManager.CurrentCamera();
+			overlayCamera = cameraManager.GetOverlayCamera();
+		}
+
+		PrintFormat("GC | Spectator Camera | mirror diagnostics: ads=%1 current=%2 self=%3 overlay=%4 headHidden=%5", isADS, currentCamera, this, overlayCamera, m_EyeCameraHandler != null);
+		PrintFormat("GC | Spectator Camera | mirror transform: x=%1 y=%2 z=%3 position=%4 target=%5 player=%6", cameraTransform[0], cameraTransform[1], cameraTransform[2], cameraTransform[3], m_Target, m_iTargetPlayerId);
 	}
 
 	protected bool IsEligibleTarget(IEntity target)
