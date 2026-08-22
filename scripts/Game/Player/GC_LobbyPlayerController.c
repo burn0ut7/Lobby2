@@ -12,6 +12,11 @@ class GC_LobbyPlayerControllerClass : SCR_PlayerControllerClass
 //! dedicated player-controller prefab using this class.
 class GC_LobbyPlayerController : SCR_PlayerController
 {
+	//! The eight-argument RPC ceiling leaves one integer for both sight indexes.
+	//! Each index is offset by one so zero represents the no-sight/no-zoom state.
+	static const int NETWORK_CAMERA_SIGHT_STATE_SCALE = 65536;
+	static const float NETWORK_CAMERA_TRANSFORM_CHARACTER = 1;
+	static const float NETWORK_CAMERA_TRANSFORM_SIGHT = 2;
 	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{0C428AB427BB44F5}Prefabs/Editor/Camera/GC_SpectatorCamera.et";
 	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout";
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
@@ -396,14 +401,71 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		vector cameraTransform[4];
 		currentCamera.GetWorldTransform(cameraTransform);
-		float cameraFOV = currentCamera.GetVerticalFOV();
+		vector snapshotPosition = cameraTransform[3];
+		vector snapshotForward = cameraTransform[2];
+		vector snapshotUp = cameraTransform[1];
+		// X is main-camera FOV, Y is optional PiP FOV, and Z identifies
+		// character-relative or sight-relative transform space.
+		vector lensState = Vector(currentCamera.GetVerticalFOV(), -1, 0);
+		bool isADS;
+		int sightState;
+		IEntity controlledEntity = GetControlledEntity();
+		BaseWeaponManagerComponent weaponManager;
+		if (controlledEntity)
+			weaponManager = BaseWeaponManagerComponent.Cast(controlledEntity.FindComponent(BaseWeaponManagerComponent));
+		BaseWeaponComponent weapon;
+		if (weaponManager)
+			weapon = weaponManager.GetCurrentWeapon();
+		if (controlledEntity)
+		{
+			vector characterWorldTransform[4];
+			controlledEntity.GetWorldTransform(characterWorldTransform);
+			vector cameraRelativeToCharacter[4];
+			Math3D.MatrixInvMultiply4(characterWorldTransform, cameraTransform, cameraRelativeToCharacter);
+			snapshotPosition = cameraRelativeToCharacter[3];
+			snapshotForward = cameraRelativeToCharacter[2];
+			snapshotUp = cameraRelativeToCharacter[1];
+			lensState[2] = NETWORK_CAMERA_TRANSFORM_CHARACTER;
+		}
+
+		if (weapon && weapon.IsSightADSActive())
+		{
+			isADS = true;
+			int sightsIndex = weaponManager.GetCurrentSightsIndex();
+			int zoomIndex = -1;
+			BaseSightsComponent sights = weapon.GetSightsAt(sightsIndex);
+			if (sights)
+			{
+				vector sightsWorldTransform[4];
+				if (sights.GetSightsTransform(sightsWorldTransform))
+				{
+					vector cameraRelativeToSights[4];
+					Math3D.MatrixInvMultiply4(sightsWorldTransform, cameraTransform, cameraRelativeToSights);
+					snapshotPosition = cameraRelativeToSights[3];
+					snapshotForward = cameraRelativeToSights[2];
+					snapshotUp = cameraRelativeToSights[1];
+					lensState[2] = NETWORK_CAMERA_TRANSFORM_SIGHT;
+				}
+
+				SCR_BaseVariableSightsFOVInfo variableFOV = SCR_BaseVariableSightsFOVInfo.Cast(sights.GetFOVInfo());
+				if (variableFOV)
+					zoomIndex = variableFOV.GetCurrentIndex();
+
+				SCR_2DPIPSightsComponent pipSights = SCR_2DPIPSightsComponent.Cast(sights);
+				CameraBase overlayCamera = cameraManager.GetOverlayCamera();
+				if (pipSights && overlayCamera && overlayCamera == pipSights.GetPIPCamera())
+					lensState[1] = overlayCamera.GetVerticalFOV();
+			}
+
+			sightState = (sightsIndex + 1) * NETWORK_CAMERA_SIGHT_STATE_SCALE + zoomIndex + 1;
+		}
 		m_iNetworkCameraSequence++;
 		foreach (int spectatorPlayerId : m_aNetworkCameraSpectators)
-			Rpc(RpcAsk_PublishNetworkCameraTransform, spectatorPlayerId, m_iNetworkCameraSequence, cameraTransform[3], cameraTransform[2], cameraTransform[1], cameraFOV);
+			Rpc(RpcAsk_PublishNetworkCameraTransform, spectatorPlayerId, m_iNetworkCameraSequence, snapshotPosition, snapshotForward, snapshotUp, lensState, isADS, sightState);
 	}
 
 	[RplRpc(RplChannel.Unreliable, RplRcver.Server)]
-	protected void RpcAsk_PublishNetworkCameraTransform(int spectatorPlayerId, int sequence, vector position, vector forward, vector up, float fov)
+	protected void RpcAsk_PublishNetworkCameraTransform(int spectatorPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
 	{
 		if (m_eLobbyPlayerState != GC_ELobbyPlayerState.PLAYING)
 			return;
@@ -415,21 +477,21 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!spectatorController || spectatorController.m_iServerNetworkCameraTargetPlayerId != GetPlayerId() || spectatorController.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
 			return;
 
-		spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up, fov);
+		spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up, lensState, isADS, sightState);
 	}
 
-	protected void ServerSendNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, float fov)
+	protected void ServerSendNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
 	{
-		Rpc(RpcDo_ReceiveNetworkCameraTransform, targetPlayerId, sequence, position, forward, up, fov);
+		Rpc(RpcDo_ReceiveNetworkCameraTransform, targetPlayerId, sequence, position, forward, up, lensState, isADS, sightState);
 	}
 
 	[RplRpc(RplChannel.Unreliable, RplRcver.Owner)]
-	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, float fov)
+	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
 	{
 		if (GetGame().GetPlayerController() != this || !m_SpectatorCamera)
 			return;
 
-		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, sequence, position, forward, up, fov);
+		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, sequence, position, forward, up, lensState, isADS, sightState);
 	}
 
 	bool SetLobbySpectator(IEntity entity, bool activateCamera)
