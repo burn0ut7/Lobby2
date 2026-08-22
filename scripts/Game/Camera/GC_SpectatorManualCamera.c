@@ -62,7 +62,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected static const float MIRROR_POSITION_STABILIZATION_SPEED = 6.0;
 	protected static const float MIRROR_ROTATION_STABILIZATION_SPEED = 10.0;
 	protected bool m_bNetworkSnapshotReceived;
-	protected bool m_bNetworkInitialTransformApplied;
+	protected CharacterAnimationComponent m_NetworkAnimation;
 	protected int m_iNetworkLastSequence = -1;
 	protected float m_fNetworkInterpolationElapsed;
 	protected float m_fNetworkSnapshotRate = 30.0;
@@ -196,7 +196,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		else if (mode == GC_ESpectatorCameraMode.NETWORK)
 		{
 			GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-			if (!localController || !attachComponent || m_iTargetPlayerId <= 0)
+			m_NetworkAnimation = CharacterAnimationComponent.Cast(target.FindComponent(CharacterAnimationComponent));
+			if (!localController || !attachComponent || !m_NetworkAnimation || m_iTargetPlayerId <= 0)
 			{
 				SetFreeMode();
 				return false;
@@ -210,8 +211,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				return false;
 			}
 
+			// Diagnostic experiment: evaluate the observed proxy through the engine's
+			// first-person animation layer while retaining the real replicated weapon.
+			m_NetworkAnimation.SetAnimationLayerFPP();
 			m_bNetworkSnapshotReceived = false;
-			m_bNetworkInitialTransformApplied = false;
 			m_iNetworkLastSequence = -1;
 			m_fNetworkInterpolationElapsed = 0;
 			m_bNetworkDiagnosticsInitialized = false;
@@ -268,6 +271,12 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		}
 
 		RestoreNetworkSightPresentation();
+		if (m_NetworkAnimation)
+		{
+			m_NetworkAnimation.SetAnimationLayerTPP();
+			m_NetworkAnimation = null;
+		}
+
 		if (m_bMirrorFOVOverrideActive)
 		{
 			SetVerticalFOV(m_fMirrorPreviousFOV);
@@ -292,7 +301,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_bMirrorHasPresentation = false;
 		m_bMirrorADSTransitionActive = false;
 		m_bNetworkSnapshotReceived = false;
-		m_bNetworkInitialTransformApplied = false;
 		m_iNetworkLastSequence = -1;
 		m_fNetworkInterpolationElapsed = 0;
 		m_bNetworkIsADS = false;
@@ -407,6 +415,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		// entity post-frame. Follow deliberately accepts movement and look input.
 		if (m_eMode == GC_ESpectatorCameraMode.FOLLOW)
 			return;
+
+		// Network first person is a locked remote view. Spectator look or movement
+		// input must not cancel the stream before its camera samples can be evaluated.
+		if (m_eMode == GC_ESpectatorCameraMode.NETWORK)
+		{
+			UpdateAttachedTransform(timeSlice);
+			return;
+		}
 
 		// Context-menu mouse input can remain in the native manual-camera pipeline
 		// for a few frames after activation. Arm cancellation only after two clean
@@ -587,14 +603,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		float renderedSightFOV = Math.Lerp(m_fNetworkFromSightFOV, m_fNetworkToSightFOV, blend);
 		SetVerticalFOV(renderedFOV);
 		// Network snapshots use world-aligned axes relative to the translation-only
-		// attachment helper at the observed character's origin. Apply the first valid
-		// pose once so the test starts correctly aligned, then leave that local pose
-		// fixed while attachment, ADS, sight, zoom, FOV, PiP, and diagnostics continue.
-		if (!m_bNetworkInitialTransformApplied)
-		{
-			SetLocalTransform(cameraTransform);
-			m_bNetworkInitialTransformApplied = true;
-		}
+		// attachment helper at the observed character's origin.
+		SetLocalTransform(cameraTransform);
 		if (m_bNetworkDiagnosticsPending)
 		{
 			vector targetWorldTransform[4];
