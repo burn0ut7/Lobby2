@@ -15,6 +15,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{0C428AB427BB44F5}Prefabs/Editor/Camera/GC_SpectatorCamera.et";
 	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout";
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
+	[Attribute("30", desc: "Networked first-person camera snapshots per second (1-60).")]
+	protected int m_iNetworkCameraUpdateRate;
 
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
 	protected GC_SpectatorManualCamera m_SpectatorCamera;
@@ -22,6 +24,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected ref GC_SpectatorCameraContextAction m_EyeCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_FollowCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_MirrorCameraAction;
+	protected ref GC_SpectatorCameraContextAction m_NetworkCameraAction;
+	protected int m_iServerNetworkCameraTargetPlayerId = -1;
+	protected int m_iServerNetworkCameraSpectatorPlayerId = -1;
+	protected ref array<int> m_aNetworkCameraSpectators = new array<int>();
+	protected int m_iNetworkCameraSequence;
 	protected MenuBase m_SpectatorMenu;
 	protected ref GC_SpectatorMarkerOverlay m_SpectatorMarkerOverlay;
 	protected SCR_EditorManagerEntity m_EditorManager;
@@ -38,6 +45,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	void ~GC_LobbyPlayerController()
 	{
+		StopServerNetworkCameraStream();
+		GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
 		GetGame().GetCallqueue().Remove(OpenSlottingFromPause);
@@ -220,6 +229,29 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		Rpc(RpcAsk_RequestLobbyPhaseAdvance, requestedPhase);
 	}
 
+	int GetNetworkCameraUpdateRate()
+	{
+		if (m_iNetworkCameraUpdateRate < 1)
+			return 1;
+		if (m_iNetworkCameraUpdateRate > 60)
+			return 60;
+
+		return m_iNetworkCameraUpdateRate;
+	}
+
+	void RequestNetworkCameraStream(int targetPlayerId)
+	{
+		if (targetPlayerId <= 0)
+			return;
+
+		Rpc(RpcAsk_SetNetworkCameraTarget, targetPlayerId);
+	}
+
+	void StopNetworkCameraStream()
+	{
+		Rpc(RpcAsk_SetNetworkCameraTarget, -1);
+	}
+
 	//! Sends one complete local parameter draft. The server derives the player
 	//! identity from this owning controller and never trusts a client id.
 	void RequestApplyScenarioParameters(int baseRevision, array<ref GC_LobbyParameterValue> values)
@@ -269,6 +301,132 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
 		if (lobbyManager)
 			lobbyManager.TryApplyScenarioParameters(GetPlayerId(), baseRevision, values);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_SetNetworkCameraTarget(int targetPlayerId)
+	{
+		if (targetPlayerId == m_iServerNetworkCameraTargetPlayerId)
+			return;
+
+		StopServerNetworkCameraStream();
+		if (targetPlayerId <= 0 || m_eLobbyPlayerState != GC_ELobbyPlayerState.SPECTATOR)
+			return;
+
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (!playerManager)
+			return;
+
+		IEntity targetEntity = playerManager.GetPlayerControlledEntity(targetPlayerId);
+		GC_LobbyPlayerController targetController = GC_LobbyPlayerController.Cast(playerManager.GetPlayerController(targetPlayerId));
+		if (!SCR_ChimeraCharacter.Cast(targetEntity) || targetEntity.FindComponent(GC_LobbySpectatorBodyComponent) || !targetController || targetController.GetLobbyPlayerState() != GC_ELobbyPlayerState.PLAYING)
+			return;
+
+		m_iServerNetworkCameraTargetPlayerId = targetPlayerId;
+		m_iServerNetworkCameraSpectatorPlayerId = GetPlayerId();
+		targetController.ServerSetNetworkCameraSpectator(m_iServerNetworkCameraSpectatorPlayerId, true);
+		PrintFormat("GC | Spectator Camera RPC | stream subscribed: spectator=%1 target=%2 rate=%3", m_iServerNetworkCameraSpectatorPlayerId, targetPlayerId, targetController.GetNetworkCameraUpdateRate());
+	}
+
+	protected void StopServerNetworkCameraStream()
+	{
+		if (m_iServerNetworkCameraTargetPlayerId <= 0)
+			return;
+
+		int targetPlayerId = m_iServerNetworkCameraTargetPlayerId;
+		int spectatorPlayerId = m_iServerNetworkCameraSpectatorPlayerId;
+		m_iServerNetworkCameraTargetPlayerId = -1;
+		m_iServerNetworkCameraSpectatorPlayerId = -1;
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		GC_LobbyPlayerController targetController;
+		if (playerManager)
+			targetController = GC_LobbyPlayerController.Cast(playerManager.GetPlayerController(targetPlayerId));
+		if (targetController)
+			targetController.ServerSetNetworkCameraSpectator(spectatorPlayerId, false);
+
+		PrintFormat("GC | Spectator Camera RPC | stream unsubscribed: spectator=%1 target=%2", spectatorPlayerId, targetPlayerId);
+	}
+
+	protected void ServerSetNetworkCameraSpectator(int spectatorPlayerId, bool enabled)
+	{
+		Rpc(RpcDo_SetNetworkCameraSpectator, spectatorPlayerId, enabled);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_SetNetworkCameraSpectator(int spectatorPlayerId, bool enabled)
+	{
+		if (GetGame().GetPlayerController() != this)
+			return;
+
+		int spectatorIndex = m_aNetworkCameraSpectators.Find(spectatorPlayerId);
+		if (enabled)
+		{
+			if (spectatorIndex == -1)
+				m_aNetworkCameraSpectators.Insert(spectatorPlayerId);
+		}
+		else if (spectatorIndex != -1)
+		{
+			m_aNetworkCameraSpectators.Remove(spectatorIndex);
+		}
+
+		GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
+		if (m_aNetworkCameraSpectators.IsEmpty())
+			return;
+
+		PublishNetworkCameraTransform();
+		GetGame().GetCallqueue().CallLater(PublishNetworkCameraTransform, 1000 / GetNetworkCameraUpdateRate(), true);
+	}
+
+	protected void PublishNetworkCameraTransform()
+	{
+		if (GetGame().GetPlayerController() != this || m_aNetworkCameraSpectators.IsEmpty())
+		{
+			GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
+			return;
+		}
+
+		CameraManager cameraManager = GetGame().GetCameraManager();
+		CameraBase currentCamera;
+		if (cameraManager)
+			currentCamera = cameraManager.CurrentCamera();
+		if (!currentCamera)
+			return;
+
+		vector cameraTransform[4];
+		currentCamera.GetWorldTransform(cameraTransform);
+		m_iNetworkCameraSequence++;
+		foreach (int spectatorPlayerId : m_aNetworkCameraSpectators)
+			Rpc(RpcAsk_PublishNetworkCameraTransform, spectatorPlayerId, m_iNetworkCameraSequence, cameraTransform[3], cameraTransform[2], cameraTransform[1]);
+	}
+
+	[RplRpc(RplChannel.Unreliable, RplRcver.Server)]
+	protected void RpcAsk_PublishNetworkCameraTransform(int spectatorPlayerId, int sequence, vector position, vector forward, vector up)
+	{
+		if (m_eLobbyPlayerState != GC_ELobbyPlayerState.PLAYING)
+			return;
+
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		GC_LobbyPlayerController spectatorController;
+		if (playerManager)
+			spectatorController = GC_LobbyPlayerController.Cast(playerManager.GetPlayerController(spectatorPlayerId));
+		if (!spectatorController || spectatorController.m_iServerNetworkCameraTargetPlayerId != GetPlayerId() || spectatorController.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
+			return;
+
+		spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up);
+	}
+
+	protected void ServerSendNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up)
+	{
+		Rpc(RpcDo_ReceiveNetworkCameraTransform, targetPlayerId, sequence, position, forward, up);
+	}
+
+	[RplRpc(RplChannel.Unreliable, RplRcver.Owner)]
+	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up)
+	{
+		if (GetGame().GetPlayerController() != this || !m_SpectatorCamera)
+			return;
+
+		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, sequence, position, forward, up);
 	}
 
 	bool SetLobbySpectator(IEntity entity, bool activateCamera)
@@ -544,6 +702,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_MirrorCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.MIRROR, "MIRROR FIRST PERSON");
 			GC_ContextMenuActionRegistry.Register(m_MirrorCameraAction);
 		}
+
+		if (!m_NetworkCameraAction)
+		{
+			m_NetworkCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.NETWORK, "NETWORK FIRST PERSON");
+			GC_ContextMenuActionRegistry.Register(m_NetworkCameraAction);
+		}
 	}
 
 	protected void UnregisterSpectatorCameraActions()
@@ -570,6 +734,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			GC_ContextMenuActionRegistry.Unregister(m_MirrorCameraAction);
 			m_MirrorCameraAction = null;
+		}
+
+		if (m_NetworkCameraAction)
+		{
+			GC_ContextMenuActionRegistry.Unregister(m_NetworkCameraAction);
+			m_NetworkCameraAction = null;
 		}
 	}
 

@@ -4,7 +4,8 @@ enum GC_ESpectatorCameraMode
 	SHOULDER,
 	EYE,
 	FOLLOW,
-	MIRROR
+	MIRROR,
+	NETWORK
 }
 
 class GC_SpectatorManualCameraClass : SCR_ManualCameraClass
@@ -60,6 +61,16 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected static AnimationTagID s_MirrorFPCameraTag = -1;
 	protected static const float MIRROR_POSITION_STABILIZATION_SPEED = 6.0;
 	protected static const float MIRROR_ROTATION_STABILIZATION_SPEED = 10.0;
+	protected bool m_bNetworkSnapshotReceived;
+	protected int m_iNetworkLastSequence = -1;
+	protected float m_fNetworkInterpolationElapsed;
+	protected float m_fNetworkSnapshotRate = 30.0;
+	protected vector m_vNetworkFromPosition;
+	protected vector m_vNetworkFromForward;
+	protected vector m_vNetworkFromUp;
+	protected vector m_vNetworkToPosition;
+	protected vector m_vNetworkToForward;
+	protected vector m_vNetworkToUp;
 
 	bool TrySetMode(GC_ESpectatorCameraMode mode, IEntity target = null)
 	{
@@ -69,7 +80,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			return true;
 		}
 
-		if ((mode != GC_ESpectatorCameraMode.SHOULDER && mode != GC_ESpectatorCameraMode.EYE && mode != GC_ESpectatorCameraMode.FOLLOW && mode != GC_ESpectatorCameraMode.MIRROR) || !IsEligibleTarget(target))
+		if ((mode != GC_ESpectatorCameraMode.SHOULDER && mode != GC_ESpectatorCameraMode.EYE && mode != GC_ESpectatorCameraMode.FOLLOW && mode != GC_ESpectatorCameraMode.MIRROR && mode != GC_ESpectatorCameraMode.NETWORK) || !IsEligibleTarget(target))
 			return false;
 
 		SCR_AttachManualCameraComponent attachComponent = SCR_AttachManualCameraComponent.Cast(FindCameraComponent(SCR_AttachManualCameraComponent));
@@ -135,7 +146,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (playerManager)
 			m_iTargetPlayerId = playerManager.GetPlayerIdFromControlledEntity(target);
 
-		if (mode == GC_ESpectatorCameraMode.EYE || mode == GC_ESpectatorCameraMode.MIRROR)
+		if (mode == GC_ESpectatorCameraMode.EYE || mode == GC_ESpectatorCameraMode.MIRROR || mode == GC_ESpectatorCameraMode.NETWORK)
 		{
 			m_EyeCameraHandler = SCR_CharacterCameraHandlerComponent.Cast(target.FindComponent(SCR_CharacterCameraHandlerComponent));
 			if (m_EyeCameraHandler)
@@ -156,6 +167,21 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			CharacterAnimationComponent mirrorAnimation = CharacterAnimationComponent.Cast(target.FindComponent(CharacterAnimationComponent));
 			m_bMirrorWasADS = mirrorAnimation && mirrorAnimation.IsWeaponADSTag();
 			PrintFormat("GC | Spectator Camera | mirror state: ads=%1 target=%2 player=%3", m_bMirrorWasADS, target, m_iTargetPlayerId);
+		}
+		else if (mode == GC_ESpectatorCameraMode.NETWORK)
+		{
+			GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			if (!localController || m_iTargetPlayerId <= 0)
+			{
+				SetFreeMode();
+				return false;
+			}
+
+			m_bNetworkSnapshotReceived = false;
+			m_iNetworkLastSequence = -1;
+			m_fNetworkInterpolationElapsed = 0;
+			m_fNetworkSnapshotRate = localController.GetNetworkCameraUpdateRate();
+			localController.RequestNetworkCameraStream(m_iTargetPlayerId);
 		}
 
 		UpdateAttachedTransform(0);
@@ -192,6 +218,13 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	protected void RestoreAttachedPresentation()
 	{
+		if (m_eMode == GC_ESpectatorCameraMode.NETWORK)
+		{
+			GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			if (localController)
+				localController.StopNetworkCameraStream();
+		}
+
 		RestoreMirrorSightPresentation();
 		if (m_bMirrorFOVOverrideActive)
 		{
@@ -211,6 +244,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_bMirrorRotationStabilized = false;
 		m_bMirrorHasPresentation = false;
 		m_bMirrorADSTransitionActive = false;
+		m_bNetworkSnapshotReceived = false;
+		m_iNetworkLastSequence = -1;
+		m_fNetworkInterpolationElapsed = 0;
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -315,6 +351,12 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	protected void UpdateAttachedTransform(float timeSlice)
 	{
+		if (m_eMode == GC_ESpectatorCameraMode.NETWORK)
+		{
+			UpdateNetworkTransform(timeSlice);
+			return;
+		}
+
 		if (m_eMode == GC_ESpectatorCameraMode.MIRROR)
 		{
 			UpdateMirrorTransform(timeSlice);
@@ -379,6 +421,60 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		// Apply immediately every frame; Lobby2 intentionally keeps no target-switch
 		// easing because spectator camera interpolation is explicitly disabled.
 		SetTransform(cameraTransform);
+	}
+
+	void ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up)
+	{
+		if (m_eMode != GC_ESpectatorCameraMode.NETWORK || targetPlayerId != m_iTargetPlayerId || sequence <= m_iNetworkLastSequence)
+			return;
+
+		m_iNetworkLastSequence = sequence;
+		if (!m_bNetworkSnapshotReceived)
+		{
+			m_vNetworkFromPosition = position;
+			m_vNetworkFromForward = forward;
+			m_vNetworkFromUp = up;
+			m_bNetworkSnapshotReceived = true;
+		}
+		else
+		{
+			vector currentTransform[4];
+			BuildNetworkTransform(GetNetworkInterpolationBlend(), currentTransform);
+			m_vNetworkFromPosition = currentTransform[3];
+			m_vNetworkFromForward = currentTransform[2];
+			m_vNetworkFromUp = currentTransform[1];
+		}
+
+		m_vNetworkToPosition = position;
+		m_vNetworkToForward = forward;
+		m_vNetworkToUp = up;
+		m_fNetworkInterpolationElapsed = 0;
+	}
+
+	protected void UpdateNetworkTransform(float timeSlice)
+	{
+		if (!m_bNetworkSnapshotReceived)
+			return;
+
+		m_fNetworkInterpolationElapsed += timeSlice;
+		vector cameraTransform[4];
+		BuildNetworkTransform(GetNetworkInterpolationBlend(), cameraTransform);
+		SetTransform(cameraTransform);
+	}
+
+	protected float GetNetworkInterpolationBlend()
+	{
+		return Math.Clamp(m_fNetworkInterpolationElapsed * m_fNetworkSnapshotRate, 0.0, 1.0);
+	}
+
+	protected void BuildNetworkTransform(float blend, out vector cameraTransform[4])
+	{
+		vector forward = vector.Lerp(m_vNetworkFromForward, m_vNetworkToForward, blend);
+		vector up = vector.Lerp(m_vNetworkFromUp, m_vNetworkToUp, blend);
+		forward.Normalize();
+		up.Normalize();
+		Math3D.DirectionAndUpMatrix(forward, up, cameraTransform);
+		cameraTransform[3] = vector.Lerp(m_vNetworkFromPosition, m_vNetworkToPosition, blend);
 	}
 
 	//! Remote character controllers do not expose their owner-local look input.
