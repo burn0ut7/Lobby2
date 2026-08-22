@@ -3,12 +3,12 @@ class GC_SpectatorProjectileTrace
 {
 	protected static const float MIN_SAMPLE_DISTANCE_SQ = 0.01;
 	protected static const float COLLAPSE_DURATION = 1.0;
-	protected static const int MAX_SAMPLES = 128;
 
 	protected IEntity m_Projectile;
+	protected ProjectileMoveComponent m_ProjectileMove;
 	protected ref array<vector> m_aPositions = {};
-	protected ref array<float> m_aSpeeds = {};
 	protected float m_fInitialSpeed;
+	protected float m_fCurrentSpeed;
 	protected float m_fCollapseProgress;
 	protected bool m_bCollapsing;
 
@@ -17,9 +17,19 @@ class GC_SpectatorProjectileTrace
 		m_Projectile = projectile;
 		if (m_Projectile)
 		{
+			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
 			m_aPositions.Insert(m_Projectile.GetOrigin());
-			m_aSpeeds.Insert(0.0);
+			if (m_ProjectileMove)
+			{
+				m_fInitialSpeed = m_ProjectileMove.GetVelocity().Length();
+				m_fCurrentSpeed = m_fInitialSpeed;
+			}
 		}
+	}
+
+	bool IsValid()
+	{
+		return m_Projectile != null && m_ProjectileMove != null;
 	}
 
 	//! Returns false once the collapsing tail reaches the final sample.
@@ -30,32 +40,18 @@ class GC_SpectatorProjectileTrace
 			vector position = m_Projectile.GetOrigin();
 			vector previousPosition = m_aPositions[m_aPositions.Count() - 1];
 			float distanceSq = vector.DistanceSq(previousPosition, position);
+			m_fCurrentSpeed = m_ProjectileMove.GetVelocity().Length();
+			if (m_fInitialSpeed <= 0.0 && m_fCurrentSpeed > 0.0)
+				m_fInitialSpeed = m_fCurrentSpeed;
 			if (distanceSq >= MIN_SAMPLE_DISTANCE_SQ)
-			{
-				float speed;
-				if (timeSlice > 0.0)
-					speed = Math.Sqrt(distanceSq) / timeSlice;
-
-				if (m_fInitialSpeed <= 0.0 && speed > 0.0)
-				{
-					m_fInitialSpeed = speed;
-					m_aSpeeds[0] = speed;
-				}
-
 				m_aPositions.Insert(position);
-				m_aSpeeds.Insert(speed);
-				if (m_aPositions.Count() > MAX_SAMPLES)
-				{
-					// Preserve the true start and endpoint while bounding long-flight memory.
-					m_aPositions.Remove(1);
-					m_aSpeeds.Remove(1);
-				}
-			}
 
 			return true;
 		}
 
 		m_Projectile = null;
+		m_ProjectileMove = null;
+		m_fCurrentSpeed = 0.0;
 		m_bCollapsing = true;
 		if (m_aPositions.Count() < 2)
 			return false;
@@ -74,9 +70,9 @@ class GC_SpectatorProjectileTrace
 		return m_aPositions[index];
 	}
 
-	float GetSpeed(int index)
+	float GetCurrentSpeed()
 	{
-		return m_aSpeeds[index];
+		return m_fCurrentSpeed;
 	}
 
 	float GetInitialSpeed()
@@ -168,7 +164,10 @@ class GC_SpectatorProjectileTracer
 
 		if (m_aTraces.Count() >= MAX_ACTIVE_TRACES)
 			m_aTraces.Remove(0);
-		m_aTraces.Insert(new GC_SpectatorProjectileTrace(projectile));
+
+		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile);
+		if (trace.IsValid())
+			m_aTraces.Insert(trace);
 	}
 
 	protected void Update()
@@ -201,62 +200,68 @@ class GC_SpectatorProjectileTracer
 		if (firstSegment >= segmentCount)
 			return;
 
-		for (int segmentIndex = firstSegment; segmentIndex < segmentCount; segmentIndex++)
+		vector startPosition = trace.GetPosition(firstSegment);
+		vector firstEndPosition = trace.GetPosition(firstSegment + 1);
+		if (firstSegmentFraction > 0.0)
+			startPosition = vector.Lerp(startPosition, firstEndPosition, firstSegmentFraction);
+
+		vector screenPosition = m_Workspace.ProjWorldToScreen(startPosition, m_World);
+		if (screenPosition[2] <= 0.0)
+			return;
+
+		LineDrawCommand line = new LineDrawCommand();
+		line.m_iColor = GetSpeedColor(trace.GetCurrentSpeed(), trace.GetInitialSpeed());
+		line.m_fWidth = LINE_WIDTH;
+		line.m_fOutlineWidth = LINE_OUTLINE_WIDTH;
+		line.m_iOutlineColor = 0x99000000;
+		line.m_Vertices = {};
+		line.m_Vertices.Insert(screenPosition[0]);
+		line.m_Vertices.Insert(screenPosition[1]);
+
+		for (int positionIndex = firstSegment + 1; positionIndex <= segmentCount; positionIndex++)
 		{
-			vector startPosition = trace.GetPosition(segmentIndex);
-			vector endPosition = trace.GetPosition(segmentIndex + 1);
-			if (segmentIndex == firstSegment && firstSegmentFraction > 0.0)
-				startPosition = vector.Lerp(startPosition, endPosition, firstSegmentFraction);
+			screenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex), m_World);
+			if (screenPosition[2] <= 0.0)
+				return;
 
-			vector screenStart = m_Workspace.ProjWorldToScreen(startPosition, m_World);
-			vector screenEnd = m_Workspace.ProjWorldToScreen(endPosition, m_World);
-			if (screenStart[2] <= 0.0 || screenEnd[2] <= 0.0)
-				continue;
-
-			LineDrawCommand line = new LineDrawCommand();
-			line.m_iColor = GetSpeedColor(trace.GetSpeed(segmentIndex + 1), trace.GetInitialSpeed());
-			line.m_fWidth = LINE_WIDTH;
-			line.m_fOutlineWidth = LINE_OUTLINE_WIDTH;
-			line.m_iOutlineColor = 0x99000000;
-			line.m_Vertices = {};
-			line.m_Vertices.Insert(screenStart[0]);
-			line.m_Vertices.Insert(screenStart[1]);
-			line.m_Vertices.Insert(screenEnd[0]);
-			line.m_Vertices.Insert(screenEnd[1]);
-			m_aDrawCommands.Insert(line);
+			line.m_Vertices.Insert(screenPosition[0]);
+			line.m_Vertices.Insert(screenPosition[1]);
 		}
+
+		m_aDrawCommands.Insert(line);
 	}
 
-	//! Initial speed is red, then green, yellow, and finally white at rest.
+	//! Uses Reforger's default red, yellow, green, and white color anchors.
 	protected int GetSpeedColor(float speed, float initialSpeed)
 	{
 		if (initialSpeed <= 0.0)
 			return Color.WHITE;
 
 		float normalizedSpeed = Math.Clamp(speed / initialSpeed, 0.0, 1.0);
-		float red;
-		float green;
-		float blue;
+		int startColor;
+		int endColor;
+		float factor;
 		if (normalizedSpeed >= 0.666667)
 		{
-			float factor = (normalizedSpeed - 0.666667) * 3.0;
-			red = factor;
-			green = 1.0 - factor;
+			startColor = Color.YELLOW;
+			endColor = Color.RED;
+			factor = (normalizedSpeed - 0.666667) * 3.0;
 		}
 		else if (normalizedSpeed >= 0.333333)
 		{
-			red = (0.666667 - normalizedSpeed) * 3.0;
-			green = 1.0;
+			startColor = Color.GREEN;
+			endColor = Color.YELLOW;
+			factor = (normalizedSpeed - 0.333333) * 3.0;
 		}
 		else
 		{
-			float factor = normalizedSpeed * 3.0;
-			red = 1.0;
-			green = 1.0;
-			blue = 1.0 - factor;
+			startColor = Color.WHITE;
+			endColor = Color.GREEN;
+			factor = normalizedSpeed * 3.0;
 		}
 
-		Color color = new Color(red, green, blue, 1.0);
+		Color color = Color.FromInt(startColor);
+		color.Lerp(Color.FromInt(endColor), factor);
 		return color.PackToInt();
 	}
 }
