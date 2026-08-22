@@ -21,6 +21,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected ref GC_SpectatorCameraContextAction m_ShoulderCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_EyeCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_FollowCameraAction;
+	protected ref GC_SpectatorCameraContextAction m_MirrorCameraAction;
 	protected MenuBase m_SpectatorMenu;
 	protected ref GC_SpectatorMarkerOverlay m_SpectatorMarkerOverlay;
 	protected SCR_EditorManagerEntity m_EditorManager;
@@ -537,6 +538,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_FollowCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.FOLLOW, "FOLLOW CAMERA");
 			GC_ContextMenuActionRegistry.Register(m_FollowCameraAction);
 		}
+
+		if (!m_MirrorCameraAction)
+		{
+			m_MirrorCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.MIRROR, "MIRROR FIRST PERSON");
+			GC_ContextMenuActionRegistry.Register(m_MirrorCameraAction);
+		}
 	}
 
 	protected void UnregisterSpectatorCameraActions()
@@ -557,6 +564,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			GC_ContextMenuActionRegistry.Unregister(m_FollowCameraAction);
 			m_FollowCameraAction = null;
+		}
+
+		if (m_MirrorCameraAction)
+		{
+			GC_ContextMenuActionRegistry.Unregister(m_MirrorCameraAction);
+			m_MirrorCameraAction = null;
 		}
 	}
 
