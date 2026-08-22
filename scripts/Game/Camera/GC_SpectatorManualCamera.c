@@ -188,14 +188,15 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		else if (mode == GC_ESpectatorCameraMode.NETWORK)
 		{
 			GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-			if (!localController || m_iTargetPlayerId <= 0)
+			if (!localController || !attachComponent || m_iTargetPlayerId <= 0)
 			{
 				SetFreeMode();
 				return false;
 			}
 
-			AttachTo(target);
-			if (GetParent() != target)
+			// The stock helper follows target translation but deliberately retains
+			// world-aligned axes, isolating the camera from proxy turn animation.
+			if (!attachComponent.AttachTo(target) || !GetParent())
 			{
 				SetFreeMode();
 				return false;
@@ -250,8 +251,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			if (localController)
 				localController.StopNetworkCameraStream();
 
-			if (GetParent())
-				Detach();
+			SCR_AttachManualCameraComponent attachComponent = SCR_AttachManualCameraComponent.Cast(FindCameraComponent(SCR_AttachManualCameraComponent));
+			if (attachComponent)
+				attachComponent.Detach();
 		}
 
 		RestoreNetworkSightPresentation();
@@ -550,8 +552,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		BuildNetworkTransform(blend, cameraTransform);
 
 		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
-		// Network snapshots are character-local and this camera is attached to the
-		// observed character for the complete NETWORK mode lifetime.
+		// Network snapshots use world-aligned axes relative to the translation-only
+		// attachment helper at the observed character's origin.
 		SetLocalTransform(cameraTransform);
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
 			m_MirrorPIPSights.GC_UpdateSpectatorPIP(m_Target, timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));

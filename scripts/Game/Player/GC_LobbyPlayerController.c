@@ -403,15 +403,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		vector cameraTransform[4];
 		currentCamera.GetWorldTransform(cameraTransform);
-		vector characterWorldTransform[4];
-		controlledEntity.GetWorldTransform(characterWorldTransform);
-		vector cameraRelativeToCharacter[4];
-		Math3D.MatrixInvMultiply4(characterWorldTransform, cameraTransform, cameraRelativeToCharacter);
-		vector snapshotPosition = cameraRelativeToCharacter[3];
-		vector snapshotForward = cameraRelativeToCharacter[2];
-		vector snapshotUp = cameraRelativeToCharacter[1];
+		vector snapshotPosition = cameraTransform[3] - controlledEntity.GetWorldTransformAxis(3);
+		vector snapshotForward = cameraTransform[2];
+		vector snapshotUp = cameraTransform[1];
 		// X is main-camera FOV and Y is optional PiP FOV. Every camera
-		// transform uses the controlled character's local space.
+		// transform uses world-aligned axes relative to the character origin.
 		vector lensState = Vector(currentCamera.GetVerticalFOV(), -1, 0);
 		bool isADS;
 		int sightState;
