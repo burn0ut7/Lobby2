@@ -629,7 +629,7 @@ class GC_SpectatorMarkerOverlay
 	protected ref GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
 
-	bool Start()
+	bool Start(float projectileTraceLifetime)
 	{
 		if (m_wRoot)
 			return true;
@@ -647,7 +647,7 @@ class GC_SpectatorMarkerOverlay
 
 		CanvasWidget tracerCanvas = CanvasWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorProjectileTracer"));
 		m_ProjectileTracer = new GC_SpectatorProjectileTracer();
-		if (!m_ProjectileTracer.Start(tracerCanvas, m_Workspace, m_World))
+		if (!m_ProjectileTracer.Start(tracerCanvas, m_Workspace, m_World, projectileTraceLifetime))
 		{
 			m_wRoot.RemoveFromHierarchy();
 			m_wRoot = null;

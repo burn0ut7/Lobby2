@@ -2,23 +2,28 @@
 class GC_SpectatorProjectileTrace
 {
 	protected static const float MIN_SAMPLE_DISTANCE_SQ = 0.01;
-	protected static const float COLLAPSE_DURATION = 1.0;
 
 	protected IEntity m_Projectile;
 	protected ProjectileMoveComponent m_ProjectileMove;
 	protected ref array<vector> m_aPositions = {};
+	protected ref array<float> m_aSampleTimes = {};
 	protected float m_fInitialSpeed;
 	protected float m_fCurrentSpeed;
-	protected float m_fCollapseProgress;
-	protected bool m_bCollapsing;
+	protected float m_fTraceLifetime;
+	protected float m_fElapsedTime;
+	protected bool m_bFinished;
 
-	void GC_SpectatorProjectileTrace(IEntity projectile)
+	void GC_SpectatorProjectileTrace(IEntity projectile, float traceLifetime)
 	{
 		m_Projectile = projectile;
+		m_fTraceLifetime = traceLifetime;
+		if (m_fTraceLifetime <= 0.0)
+			m_fTraceLifetime = 0.01;
 		if (m_Projectile)
 		{
 			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
 			m_aPositions.Insert(m_Projectile.GetOrigin());
+			m_aSampleTimes.Insert(0.0);
 			if (m_ProjectileMove)
 			{
 				m_fInitialSpeed = m_ProjectileMove.GetVelocity().Length();
@@ -32,10 +37,12 @@ class GC_SpectatorProjectileTrace
 		return m_Projectile != null && m_ProjectileMove != null;
 	}
 
-	//! Returns false once the collapsing tail reaches the final sample.
+	//! Keeps a moving path window. Once its age reaches the configured lifetime,
+	//! the tail advances from the muzzle while the projectile continues to fly.
 	bool Update(float timeSlice)
 	{
-		if (!m_bCollapsing && m_Projectile && !m_Projectile.IsDeleted())
+		m_fElapsedTime += timeSlice;
+		if (!m_bFinished && m_Projectile && !m_Projectile.IsDeleted())
 		{
 			vector position = m_Projectile.GetOrigin();
 			vector previousPosition = m_aPositions[m_aPositions.Count() - 1];
@@ -44,20 +51,30 @@ class GC_SpectatorProjectileTrace
 			if (m_fInitialSpeed <= 0.0 && m_fCurrentSpeed > 0.0)
 				m_fInitialSpeed = m_fCurrentSpeed;
 			if (distanceSq >= MIN_SAMPLE_DISTANCE_SQ)
+			{
 				m_aPositions.Insert(position);
-
-			return true;
+				m_aSampleTimes.Insert(m_fElapsedTime);
+			}
+		}
+		else if (!m_bFinished)
+		{
+			m_Projectile = null;
+			m_ProjectileMove = null;
+			m_fCurrentSpeed = 0.0;
+			m_bFinished = true;
 		}
 
-		m_Projectile = null;
-		m_ProjectileMove = null;
-		m_fCurrentSpeed = 0.0;
-		m_bCollapsing = true;
-		if (m_aPositions.Count() < 2)
-			return false;
+		float tailTime = m_fElapsedTime - m_fTraceLifetime;
+		while (m_aPositions.Count() > 2 && m_aSampleTimes[1] <= tailTime)
+		{
+			m_aPositions.Remove(0);
+			m_aSampleTimes.Remove(0);
+		}
 
-		m_fCollapseProgress += timeSlice / COLLAPSE_DURATION;
-		return m_fCollapseProgress < 1.0;
+		if (!m_bFinished)
+			return true;
+
+		return !m_aSampleTimes.IsEmpty() && tailTime < m_aSampleTimes[m_aSampleTimes.Count() - 1];
 	}
 
 	int GetSegmentCount()
@@ -80,9 +97,20 @@ class GC_SpectatorProjectileTrace
 		return m_fInitialSpeed;
 	}
 
-	float GetCollapseProgress()
+	float GetTailFraction()
 	{
-		return Math.Clamp(m_fCollapseProgress, 0.0, 1.0);
+		if (m_aSampleTimes.Count() < 2)
+			return 0.0;
+
+		float tailTime = m_fElapsedTime - m_fTraceLifetime;
+		if (tailTime <= m_aSampleTimes[0])
+			return 0.0;
+
+		float segmentDuration = m_aSampleTimes[1] - m_aSampleTimes[0];
+		if (segmentDuration <= 0.0)
+			return 1.0;
+
+		return Math.Clamp((tailTime - m_aSampleTimes[0]) / segmentDuration, 0.0, 1.0);
 	}
 }
 
@@ -97,11 +125,12 @@ class GC_SpectatorProjectileTracer
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
+	protected float m_fTraceLifetime;
 	protected ref map<IEntity, EventHandlerManagerComponent> m_mShooterEvents = new map<IEntity, EventHandlerManagerComponent>();
 	protected ref array<ref GC_SpectatorProjectileTrace> m_aTraces = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 
-	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world)
+	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float traceLifetime)
 	{
 		if (!canvas || !workspace || !world)
 			return false;
@@ -109,6 +138,9 @@ class GC_SpectatorProjectileTracer
 		m_wCanvas = canvas;
 		m_Workspace = workspace;
 		m_World = world;
+		m_fTraceLifetime = traceLifetime;
+		if (m_fTraceLifetime <= 0.0)
+			m_fTraceLifetime = 0.01;
 		GetGame().GetCallqueue().CallLater(Update, 0, true);
 		return true;
 	}
@@ -131,6 +163,7 @@ class GC_SpectatorProjectileTracer
 		m_wCanvas = null;
 		m_Workspace = null;
 		m_World = null;
+		m_fTraceLifetime = 0.0;
 	}
 
 	void TrackShooter(IEntity shooter)
@@ -165,7 +198,7 @@ class GC_SpectatorProjectileTracer
 		if (m_aTraces.Count() >= MAX_ACTIVE_TRACES)
 			m_aTraces.Remove(0);
 
-		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile);
+		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, m_fTraceLifetime);
 		if (trace.IsValid())
 			m_aTraces.Insert(trace);
 	}
@@ -194,16 +227,11 @@ class GC_SpectatorProjectileTracer
 		if (segmentCount < 1)
 			return;
 
-		float collapsedSegments = trace.GetCollapseProgress() * segmentCount;
-		int firstSegment = Math.Floor(collapsedSegments);
-		float firstSegmentFraction = collapsedSegments - firstSegment;
-		if (firstSegment >= segmentCount)
-			return;
-
-		vector startPosition = trace.GetPosition(firstSegment);
-		vector firstEndPosition = trace.GetPosition(firstSegment + 1);
-		if (firstSegmentFraction > 0.0)
-			startPosition = vector.Lerp(startPosition, firstEndPosition, firstSegmentFraction);
+		float tailFraction = trace.GetTailFraction();
+		vector startPosition = trace.GetPosition(0);
+		vector firstEndPosition = trace.GetPosition(1);
+		if (tailFraction > 0.0)
+			startPosition = vector.Lerp(startPosition, firstEndPosition, tailFraction);
 
 		vector screenPosition = m_Workspace.ProjWorldToScreen(startPosition, m_World);
 		if (screenPosition[2] <= 0.0)
@@ -218,7 +246,7 @@ class GC_SpectatorProjectileTracer
 		line.m_Vertices.Insert(screenPosition[0]);
 		line.m_Vertices.Insert(screenPosition[1]);
 
-		for (int positionIndex = firstSegment + 1; positionIndex <= segmentCount; positionIndex++)
+		for (int positionIndex = 1; positionIndex <= segmentCount; positionIndex++)
 		{
 			screenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex), m_World);
 			if (screenPosition[2] <= 0.0)
