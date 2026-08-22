@@ -58,8 +58,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected float m_fMirrorADSTransitionStartFOV;
 	protected vector m_vMirrorLastWorldPosition;
 	protected float m_fMirrorLastFOV;
-	protected static AnimationTagID s_MirrorFPCameraTag = -1;
-	protected static const float MIRROR_POSITION_STABILIZATION_SPEED = 6.0;
+	protected static AnimationTagID s_FirstPersonCameraTag = -1;
+	protected static const float FIRST_PERSON_POSITION_STABILIZATION_SPEED = 6.0;
 	protected static const float MIRROR_ROTATION_STABILIZATION_SPEED = 10.0;
 	protected bool m_bNetworkSnapshotReceived;
 	protected int m_iNetworkLastSequence = -1;
@@ -88,6 +88,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected vector m_vNetworkToPosition;
 	protected vector m_vNetworkToForward;
 	protected vector m_vNetworkToUp;
+	protected bool m_bNetworkPositionStabilized;
+	protected vector m_vNetworkSmoothedLocalPosition;
 
 	bool TrySetMode(GC_ESpectatorCameraMode mode, IEntity target = null)
 	{
@@ -200,6 +202,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_fNetworkSnapshotRate = localController.GetNetworkCameraUpdateRate();
 			m_fNetworkPreviousFOV = GetVerticalFOV();
 			m_bNetworkFOVOverrideActive = true;
+			m_bNetworkPositionStabilized = false;
 			localController.RequestNetworkCameraStream(m_iTargetPlayerId);
 		}
 
@@ -277,6 +280,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_fNetworkPIPFOV = -1;
 		m_fNetworkFromPIPFOV = -1;
 		m_fNetworkToPIPFOV = -1;
+		m_bNetworkPositionStabilized = false;
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -480,6 +484,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 		m_iNetworkLastSequence = sequence;
 		int previousSightsIndex = m_iNetworkSightsIndex;
+		bool previousADS = m_bNetworkIsADS;
 		float fov = lensState[0];
 		m_bNetworkIsADS = isADS;
 		m_fNetworkPIPFOV = lensState[1];
@@ -493,6 +498,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_iNetworkSightsIndex = -1;
 			m_iNetworkZoomIndex = -1;
 		}
+		if (m_bNetworkIsADS != previousADS || m_iNetworkSightsIndex != previousSightsIndex)
+			m_bNetworkPositionStabilized = false;
 		if (m_bNetworkSnapshotReceived && m_iNetworkSightsIndex != previousSightsIndex)
 			m_bNetworkSnapshotReceived = false;
 
@@ -538,7 +545,12 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		UpdateNetworkSightPresentation();
 		vector cameraTransform[4];
 		BuildNetworkTransform(blend, cameraTransform);
-		ApplyNetworkCharacterTransform(cameraTransform);
+		if (!ApplyNetworkProxyTransform(cameraTransform, timeSlice))
+		{
+			PrintFormat("GC | Spectator Camera | network first-person anchor unavailable: target=%1 player=%2", m_Target, m_iTargetPlayerId, level: LogLevel.WARNING);
+			SetFreeMode();
+			return;
+		}
 
 		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
 		SetTransform(cameraTransform);
@@ -546,16 +558,88 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_MirrorPIPSights.GC_UpdateSpectatorPIP(m_Target, timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));
 	}
 
-	protected void ApplyNetworkCharacterTransform(inout vector cameraTransform[4])
+	//! Keeps the owner-networked camera basis, but positions it from the observed
+	//! proxy's stock first-person anchor. This prevents the owner's animated camera
+	//! displacement from being composed with a different proxy animation timeline.
+	protected bool ApplyNetworkProxyTransform(inout vector cameraTransform[4], float timeSlice)
 	{
 		vector characterWorldTransform[4];
 		m_Target.GetWorldTransform(characterWorldTransform);
 		vector cameraWorldTransform[4];
 		Math3D.MatrixMultiply4(characterWorldTransform, cameraTransform, cameraWorldTransform);
+
+		vector localPosition;
+		if (m_bNetworkIsADS)
+		{
+			BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(m_Target.FindComponent(BaseWeaponManagerComponent));
+			BaseWeaponComponent weapon;
+			if (weaponManager)
+				weapon = weaponManager.GetCurrentWeapon();
+
+			vector sightCameraTransform[4];
+			float sightsFOV;
+			if (!weaponManager || !weapon || !GetADSAnchorModelTransform(weaponManager, weapon, sightCameraTransform, sightsFOV))
+				return false;
+
+			localPosition = sightCameraTransform[3];
+		}
+		else
+		{
+			Animation animation = m_Target.GetAnimation();
+			CharacterAnimationComponent characterAnimation = CharacterAnimationComponent.Cast(m_Target.FindComponent(CharacterAnimationComponent));
+			if (!animation || !characterAnimation || !GetFirstPersonAnchorLocalPosition(animation, characterAnimation, localPosition))
+				return false;
+		}
+
+		StabilizeNetworkLocalPosition(localPosition, timeSlice);
+		cameraWorldTransform[3] = characterWorldTransform[3]
+			+ characterWorldTransform[0] * localPosition[0]
+			+ characterWorldTransform[1] * localPosition[1]
+			+ characterWorldTransform[2] * localPosition[2];
 		cameraTransform[0] = cameraWorldTransform[0];
 		cameraTransform[1] = cameraWorldTransform[1];
 		cameraTransform[2] = cameraWorldTransform[2];
 		cameraTransform[3] = cameraWorldTransform[3];
+		return true;
+	}
+
+	//! Filters only proxy model-space animation displacement. Character locomotion
+	//! remains unsmoothed because the current proxy root is composed afterward.
+	protected void StabilizeNetworkLocalPosition(inout vector localPosition, float timeSlice)
+	{
+		if (!m_bNetworkPositionStabilized || timeSlice <= 0)
+		{
+			m_vNetworkSmoothedLocalPosition = localPosition;
+			m_bNetworkPositionStabilized = true;
+		}
+		else
+		{
+			float blend = Math.Clamp(timeSlice * FIRST_PERSON_POSITION_STABILIZATION_SPEED, 0.0, 1.0);
+			m_vNetworkSmoothedLocalPosition = vector.Lerp(m_vNetworkSmoothedLocalPosition, localPosition, blend);
+		}
+
+		localPosition = m_vNetworkSmoothedLocalPosition;
+	}
+
+	//! Returns the observed proxy's active sight-camera transform in character model
+	//! space, including zeroing and the PiP main-camera ocular offset.
+	protected bool GetADSAnchorModelTransform(BaseWeaponManagerComponent weaponManager, BaseWeaponComponent weapon, out vector cameraModelTransform[4], out float sightsFOV)
+	{
+		if (!weaponManager.GetCurrentSightsCameraTransform(cameraModelTransform, sightsFOV))
+			return false;
+
+		vector zeroingTransform[4];
+		if (weapon.GetCurrentSightsZeroingTransform(zeroingTransform))
+		{
+			zeroingTransform[3] = -zeroingTransform[3];
+			Math3D.MatrixMultiply4(cameraModelTransform, zeroingTransform, cameraModelTransform);
+		}
+
+		SCR_2DPIPSightsComponent pipSights = SCR_2DPIPSightsComponent.Cast(weaponManager.GetCurrentSights());
+		if (pipSights)
+			cameraModelTransform[3] = cameraModelTransform[3] - pipSights.GetMainCameraOffset();
+
+		return true;
 	}
 
 	protected void UpdateNetworkSightPresentation()
@@ -712,11 +796,27 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	//! freelook follows the presented head instead of unavailable owner-local input.
 	protected bool GetMirrorFirstPersonTransform(Animation animation, CharacterAnimationComponent characterAnimation, vector targetTransform[4], float timeSlice, out vector cameraTransform[4])
 	{
-		if (s_MirrorFPCameraTag == -1)
-			s_MirrorFPCameraTag = GameAnimationUtils.RegisterAnimationTag("TagFPCamera");
+		vector stockLocalPosition;
+		if (!GetFirstPersonAnchorLocalPosition(animation, characterAnimation, stockLocalPosition))
+			return false;
+		StabilizeMirrorLocalPosition(stockLocalPosition, timeSlice);
+		cameraTransform[3] = targetTransform[3]
+			+ targetTransform[0] * stockLocalPosition[0]
+			+ targetTransform[1] * stockLocalPosition[1]
+			+ targetTransform[2] * stockLocalPosition[2];
+		return ApplyMirrorHeadRotation(animation, targetTransform, timeSlice, cameraTransform);
+	}
+
+	//! Reconstructs the stock first-person attachment position in character model
+	//! space. Reforger selects Camera only for TagFPCamera animations and otherwise
+	//! uses Head, then applies the stock first-person local offset.
+	protected bool GetFirstPersonAnchorLocalPosition(Animation animation, CharacterAnimationComponent characterAnimation, out vector localPosition)
+	{
+		if (s_FirstPersonCameraTag == -1)
+			s_FirstPersonCameraTag = GameAnimationUtils.RegisterAnimationTag("TagFPCamera");
 
 		string anchorBoneName = "Head";
-		if (characterAnimation.IsPrimaryTag(s_MirrorFPCameraTag))
+		if (characterAnimation.IsPrimaryTag(s_FirstPersonCameraTag))
 			anchorBoneName = "Camera";
 
 		TNodeId anchorBoneIndex = animation.GetBoneIndex(anchorBoneName);
@@ -732,31 +832,20 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		vector zeroRotation = vector.Zero;
 		headAiming.GetLookTransformationLS(anchorBoneIndex, EDirectBoneMode.RelativePosition, stockOffset, zeroRotation, stockFirstPersonTransform);
 
-		// Match CharacterCamera1stPerson's character-pitch composition before the
-		// native camera pipeline attaches the result to the selected direct bone.
 		vector characterPitch = vector.Zero;
 		characterPitch[1] = m_Target.GetLocalYawPitchRoll()[1];
 		vector characterPitchTransform[4];
 		Math3D.AnglesToMatrix(characterPitch, characterPitchTransform);
 		Math3D.MatrixMultiply4(characterPitchTransform, stockFirstPersonTransform, stockFirstPersonTransform);
 
-		// CharacterCamera1stPerson returns this transform relative to its selected
-		// direct bone. The native player-camera pipeline applies that bone later;
-		// mirror mode must perform the same composition explicitly.
 		vector anchorBoneTransform[4];
 		if (!animation.GetBoneMatrix(anchorBoneIndex, anchorBoneTransform))
 			return false;
 
 		vector stockFirstPersonModelTransform[4];
 		Math3D.MatrixMultiply4(anchorBoneTransform, stockFirstPersonTransform, stockFirstPersonModelTransform);
-
-		vector stockLocalPosition = stockFirstPersonModelTransform[3];
-		StabilizeMirrorLocalPosition(stockLocalPosition, timeSlice);
-		cameraTransform[3] = targetTransform[3]
-			+ targetTransform[0] * stockLocalPosition[0]
-			+ targetTransform[1] * stockLocalPosition[1]
-			+ targetTransform[2] * stockLocalPosition[2];
-		return ApplyMirrorHeadRotation(animation, targetTransform, timeSlice, cameraTransform);
+		localPosition = stockFirstPersonModelTransform[3];
+		return true;
 	}
 
 	//! Filters only model-space animation displacement. Character world movement is
@@ -771,7 +860,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		}
 		else
 		{
-			float blend = Math.Clamp(timeSlice * MIRROR_POSITION_STABILIZATION_SPEED, 0.0, 1.0);
+			float blend = Math.Clamp(timeSlice * FIRST_PERSON_POSITION_STABILIZATION_SPEED, 0.0, 1.0);
 			m_vMirrorSmoothedLocalPosition = vector.Lerp(m_vMirrorSmoothedLocalPosition, localPosition, blend);
 		}
 
@@ -876,7 +965,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				weapon = weaponManager.GetCurrentWeapon();
 
 			float sightsFOV;
-			if (!weaponManager || !weapon || !weaponManager.GetCurrentSightsCameraTransform(cameraModelTransform, sightsFOV))
+			if (!weaponManager || !weapon || !GetADSAnchorModelTransform(weaponManager, weapon, cameraModelTransform, sightsFOV))
 			{
 				PrintFormat("GC | Spectator Camera | mirror ADS unavailable: target=%1 player=%2", m_Target, m_iTargetPlayerId, level: LogLevel.WARNING);
 				SetFreeMode();
@@ -894,13 +983,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				weapon.SightADSActivated();
 				m_bMirrorActivatedSight = true;
 				PrintFormat("GC | Spectator Camera | mirror sight activated: weapon=%1 target=%2 player=%3", weapon.GetOwner(), m_Target, m_iTargetPlayerId);
-			}
-
-			vector zeroingTransform[4];
-			if (weapon.GetCurrentSightsZeroingTransform(zeroingTransform))
-			{
-				zeroingTransform[3] = -zeroingTransform[3];
-				Math3D.MatrixMultiply4(cameraModelTransform, zeroingTransform, cameraModelTransform);
 			}
 
 			SightsComponent sights = weaponManager.GetCurrentSights();
@@ -922,7 +1004,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 					pipSights.SetPIPEnabled(true);
 
 				SetMirrorOverlayCamera(pipSights.GetPIPCamera());
-				cameraModelTransform[3] = cameraModelTransform[3] - pipSights.GetMainCameraOffset();
 			}
 			else
 			{
