@@ -88,6 +88,13 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected vector m_vNetworkToPosition;
 	protected vector m_vNetworkToForward;
 	protected vector m_vNetworkToUp;
+	protected static const float NETWORK_ADS_ALIGNMENT_SETTLE_TIME = 0.25;
+	protected static const float NETWORK_ADS_ALIGNMENT_SPEED = 12.0;
+	protected static const float NETWORK_ADS_ALIGNMENT_MAX_OFFSET = 0.12;
+	protected bool m_bNetworkADSAlignmentReady;
+	protected float m_fNetworkADSAlignmentElapsed;
+	protected int m_iNetworkADSAlignmentSightsIndex = -1;
+	protected vector m_vNetworkADSAlignmentOffset;
 
 	bool TrySetMode(GC_ESpectatorCameraMode mode, IEntity target = null)
 	{
@@ -205,6 +212,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_bNetworkSnapshotReceived = false;
 			m_iNetworkLastSequence = -1;
 			m_fNetworkInterpolationElapsed = 0;
+			ResetNetworkADSAlignment();
 			m_fNetworkSnapshotRate = localController.GetNetworkCameraUpdateRate();
 			m_fNetworkPreviousFOV = GetVerticalFOV();
 			m_bNetworkFOVOverrideActive = true;
@@ -289,6 +297,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_fNetworkPIPFOV = -1;
 		m_fNetworkFromPIPFOV = -1;
 		m_fNetworkToPIPFOV = -1;
+		ResetNetworkADSAlignment();
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -491,6 +500,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			return;
 
 		m_iNetworkLastSequence = sequence;
+		bool wasADS = m_bNetworkIsADS;
 		int previousSightsIndex = m_iNetworkSightsIndex;
 		float fov = lensState[0];
 		m_bNetworkIsADS = isADS;
@@ -505,6 +515,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_iNetworkSightsIndex = -1;
 			m_iNetworkZoomIndex = -1;
 		}
+		if (wasADS != m_bNetworkIsADS || previousSightsIndex != m_iNetworkSightsIndex)
+			ResetNetworkADSAlignment();
+
 		if (m_bNetworkSnapshotReceived && m_iNetworkSightsIndex != previousSightsIndex)
 			m_bNetworkSnapshotReceived = false;
 
@@ -550,6 +563,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		UpdateNetworkSightPresentation();
 		vector cameraTransform[4];
 		BuildNetworkTransform(blend, cameraTransform);
+		ApplyNetworkADSAlignment(cameraTransform, timeSlice);
 
 		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
 		// Network snapshots use world-aligned axes relative to the translation-only
@@ -557,6 +571,62 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		SetLocalTransform(cameraTransform);
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
 			m_MirrorPIPSights.GC_UpdateSpectatorPIP(timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));
+	}
+
+	//! Samples the proxy sight only during a bounded ADS settling window, then
+	//! freezes a camera-local lateral/vertical correction. Weapon animation never
+	//! drives camera rotation or continuously moves the spectator camera.
+	protected void ApplyNetworkADSAlignment(inout vector cameraTransform[4], float timeSlice)
+	{
+		if (!m_bNetworkIsADS || m_iNetworkSightsIndex < 0 || !m_Target)
+			return;
+
+		if (m_iNetworkADSAlignmentSightsIndex != m_iNetworkSightsIndex)
+		{
+			ResetNetworkADSAlignment();
+			m_iNetworkADSAlignmentSightsIndex = m_iNetworkSightsIndex;
+		}
+
+		if (!m_bNetworkADSAlignmentReady)
+		{
+			BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(m_Target.FindComponent(BaseWeaponManagerComponent));
+			vector sightsModelTransform[4];
+			float sightsFOV;
+			if (!weaponManager || !weaponManager.GetCurrentSightsCameraTransform(sightsModelTransform, sightsFOV))
+				return;
+
+			vector targetWorldTransform[4];
+			m_Target.GetWorldTransform(targetWorldTransform);
+			vector sightsWorldTransform[4];
+			Math3D.MatrixMultiply4(targetWorldTransform, sightsModelTransform, sightsWorldTransform);
+
+			vector cameraWorldPosition = targetWorldTransform[3] + cameraTransform[3];
+			vector sightDisplacement = sightsWorldTransform[3] - cameraWorldPosition;
+			vector desiredOffset = Vector(
+				Math.Clamp(vector.Dot(sightDisplacement, cameraTransform[0]), -NETWORK_ADS_ALIGNMENT_MAX_OFFSET, NETWORK_ADS_ALIGNMENT_MAX_OFFSET),
+				Math.Clamp(vector.Dot(sightDisplacement, cameraTransform[1]), -NETWORK_ADS_ALIGNMENT_MAX_OFFSET, NETWORK_ADS_ALIGNMENT_MAX_OFFSET),
+				0);
+			float alignmentBlend = Math.Clamp(timeSlice * NETWORK_ADS_ALIGNMENT_SPEED, 0.0, 1.0);
+			m_vNetworkADSAlignmentOffset = vector.Lerp(m_vNetworkADSAlignmentOffset, desiredOffset, alignmentBlend);
+			m_fNetworkADSAlignmentElapsed += timeSlice;
+			if (m_fNetworkADSAlignmentElapsed >= NETWORK_ADS_ALIGNMENT_SETTLE_TIME)
+			{
+				m_bNetworkADSAlignmentReady = true;
+				PrintFormat("GC | Spectator Camera | network ADS alignment frozen: offset=%1 sight=%2 target=%3 player=%4", m_vNetworkADSAlignmentOffset, m_iNetworkSightsIndex, m_Target, m_iTargetPlayerId);
+			}
+		}
+
+		cameraTransform[3] = cameraTransform[3]
+			+ cameraTransform[0] * m_vNetworkADSAlignmentOffset[0]
+			+ cameraTransform[1] * m_vNetworkADSAlignmentOffset[1];
+	}
+
+	protected void ResetNetworkADSAlignment()
+	{
+		m_bNetworkADSAlignmentReady = false;
+		m_fNetworkADSAlignmentElapsed = 0;
+		m_iNetworkADSAlignmentSightsIndex = -1;
+		m_vNetworkADSAlignmentOffset = vector.Zero;
 	}
 
 	protected void UpdateNetworkSightPresentation()
