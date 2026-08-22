@@ -19,6 +19,8 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected SCR_CharacterControllerComponent m_CharacterController;
 	protected string m_sFallbackName;
 	protected bool m_bHasPlayerLabel;
+	protected bool m_bHovered;
+	protected float m_fProximityNameOpacity;
 	protected bool m_bStateInitialized;
 	protected bool m_bDead;
 	protected bool m_bUnconscious;
@@ -57,7 +59,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			m_sFallbackName = editableInfo.GetName();
 
 		m_CharacterController = SCR_CharacterControllerComponent.Cast(entity.GetOwner().FindComponent(SCR_CharacterControllerComponent));
-		m_bHasPlayerLabel = RefreshLabel();
+		m_bHasPlayerLabel = RefreshLabel(true);
 		RefreshFaction(entity.GetFaction());
 		RefreshCharacterState();
 	}
@@ -79,7 +81,15 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		{
 			FrameSlot.SetSize(m_wSelectedIcon, iconSize, iconSize);
 			FrameSlot.SetPos(m_wSelectedIcon, iconOffset, iconOffset);
-			m_wSelectedIcon.SetOpacity(0.0);
+
+			float highlightOpacity = m_wSelectedIcon.GetOpacity();
+			float highlightStep = GetGame().GetWorld().GetTimeSlice() * 5.0;
+			if (m_bHovered)
+				highlightOpacity += highlightStep;
+			else
+				highlightOpacity -= highlightStep;
+
+			m_wSelectedIcon.SetOpacity(Math.Clamp(highlightOpacity, 0.0, 1.0));
 		}
 
 		if (m_wButton)
@@ -90,13 +100,23 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 		if (m_wLabel)
 		{
-			float labelOpacity;
-			if (m_bHasPlayerLabel && distance < NAME_REVEAL_DISTANCE)
+			m_fProximityNameOpacity = 0.0;
+			if (distance < NAME_REVEAL_DISTANCE)
 			{
-				labelOpacity = 1.0 - distance / NAME_REVEAL_DISTANCE;
-				labelOpacity = labelOpacity * labelOpacity * (3.0 - 2.0 * labelOpacity);
+				if (!m_bHasPlayerLabel)
+					m_bHasPlayerLabel = RefreshLabel(true);
+
+				if (m_bHasPlayerLabel)
+				{
+					m_fProximityNameOpacity = 1.0 - distance / NAME_REVEAL_DISTANCE;
+					m_fProximityNameOpacity = m_fProximityNameOpacity * m_fProximityNameOpacity * (3.0 - 2.0 * m_fProximityNameOpacity);
+				}
 			}
-			m_wLabel.SetOpacity(labelOpacity);
+
+			if (m_bHovered)
+				m_wLabel.SetOpacity(1.0);
+			else
+				m_wLabel.SetOpacity(m_fProximityNameOpacity);
 
 			float labelWidth;
 			float labelHeight;
@@ -109,12 +129,21 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
+		m_bHovered = true;
+		bool hasLabel = RefreshLabel();
+		if (m_wLabel && hasLabel)
+			m_wLabel.SetOpacity(1.0);
+
 		GetWidget().SetZOrder(100);
 		return true;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
+		m_bHovered = false;
+		if (m_wLabel)
+			m_wLabel.SetOpacity(m_fProximityNameOpacity);
+
 		GetWidget().SetZOrder(0);
 		return true;
 	}
@@ -134,7 +163,10 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			RefreshFaction(m_Entity.GetFaction());
 
 		RefreshCharacterState();
-		m_bHasPlayerLabel = RefreshLabel();
+		if (m_bHovered)
+			RefreshLabel();
+		else if (m_fProximityNameOpacity > 0.0)
+			m_bHasPlayerLabel = RefreshLabel(true);
 	}
 
 	void RefreshCharacterState()
@@ -173,10 +205,10 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			return;
 		PlayerManager playerManager = GetGame().GetPlayerManager();
 		if (playerManager && playerManager.GetPlayerIdFromControlledEntity(m_Entity.GetOwner()) == playerId)
-			m_bHasPlayerLabel = RefreshLabel();
+			m_bHasPlayerLabel = RefreshLabel(true);
 	}
 
-	protected bool RefreshLabel()
+	protected bool RefreshLabel(bool playerOnly = false)
 	{
 		if (!m_wLabelText || !m_Entity || !m_Entity.GetOwner())
 			return false;
@@ -195,10 +227,12 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 					displayName = playerName;
 			}
 		}
+		if (playerOnly && presentedPlayerId <= 0)
+			return false;
 
 		m_wLabelText.SetText(displayName);
 		GC_PlayerNamePresentation.Apply(m_wLabelText, presentedPlayerId);
-		return presentedPlayerId > 0 && !displayName.IsEmpty();
+		return !displayName.IsEmpty();
 	}
 
 	protected void ApplyStatePresentation()
