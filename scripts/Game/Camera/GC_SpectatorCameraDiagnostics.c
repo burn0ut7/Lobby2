@@ -2,7 +2,7 @@ class GC_SpectatorCameraDiagnostics
 {
 	static const int SAMPLE_INTERVAL = 30;
 
-	static void LogSnapshot(string role, int sequence, IEntity character, vector cameraWorldTransform[4], vector cameraOffset, float mainFOV, float pipFOV, bool isADS, int sightState)
+	static void LogSnapshot(string role, int sequence, IEntity character, vector cameraWorldTransform[4], vector cameraOffset, float mainFOV, float pipFOV, float networkSightFOV, bool isADS, int sightState)
 	{
 		if (!character)
 			return;
@@ -18,7 +18,7 @@ class GC_SpectatorCameraDiagnostics
 		vector characterWorldTransform[4];
 		character.GetWorldTransform(characterWorldTransform);
 		PrintFormat("GC | Spectator Camera Debug | role=%1 sequence=%2 ads=%3 sight=%4 zoom=%5", role, sequence, isADS, sightsIndex, zoomIndex);
-		PrintFormat("GC | Spectator Camera Debug | role=%1 sequence=%2 mainFOV=%3 pipFOV=%4 cameraOffset=%5", role, sequence, mainFOV, pipFOV, cameraOffset);
+		PrintFormat("GC | Spectator Camera Debug | role=%1 sequence=%2 mainFOV=%3 pipFOV=%4 networkSightFOV=%5 cameraOffset=%6", role, sequence, mainFOV, pipFOV, networkSightFOV, cameraOffset);
 		PrintFormat("GC | Spectator Camera Debug | role=%1 sequence=%2 cameraPosition=%3 cameraRight=%4 cameraUp=%5 cameraForward=%6", role, sequence, cameraWorldTransform[3], cameraWorldTransform[0], cameraWorldTransform[1], cameraWorldTransform[2]);
 		PrintFormat("GC | Spectator Camera Debug | role=%1 sequence=%2 characterPosition=%3 characterUp=%4 characterForward=%5", role, sequence, characterWorldTransform[3], characterWorldTransform[1], characterWorldTransform[2]);
 

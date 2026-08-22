@@ -411,9 +411,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		vector snapshotPosition = cameraTransform[3] - controlledEntity.GetWorldTransformAxis(3);
 		vector snapshotForward = cameraTransform[2];
 		vector snapshotUp = cameraTransform[1];
-		// X is main-camera FOV and Y is optional PiP FOV. Every camera
-		// transform uses world-aligned axes relative to the character origin.
-		vector lensState = Vector(currentCamera.GetVerticalFOV(), -1, 0);
+		// X is main-camera FOV, Y is optional PiP FOV and Z is the selected
+		// sight's actual FOV. Every camera transform uses world-aligned axes
+		// relative to the character origin.
+		vector lensState = Vector(currentCamera.GetVerticalFOV(), -1, -1);
 		bool isADS;
 		int sightState;
 		BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(controlledEntity.FindComponent(BaseWeaponManagerComponent));
@@ -429,7 +430,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			BaseSightsComponent sights = weapon.GetSightsAt(sightsIndex);
 			if (sights)
 			{
-				SCR_BaseVariableSightsFOVInfo variableFOV = SCR_BaseVariableSightsFOVInfo.Cast(sights.GetFOVInfo());
+				SightsFOVInfo fovInfo = sights.GetFOVInfo();
+				if (fovInfo)
+					lensState[2] = fovInfo.GetFOV();
+
+				SCR_BaseVariableSightsFOVInfo variableFOV = SCR_BaseVariableSightsFOVInfo.Cast(fovInfo);
 				if (variableFOV)
 					zoomIndex = variableFOV.GetCurrentIndex();
 
@@ -444,7 +449,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		m_iNetworkCameraSequence++;
 		bool diagnosticStateChanged = !m_bNetworkCameraDiagnosticsInitialized || m_bNetworkCameraDiagnosticsADS != isADS || m_iNetworkCameraDiagnosticsSightState != sightState;
 		if (diagnosticStateChanged || isADS && m_iNetworkCameraSequence % GC_SpectatorCameraDiagnostics.SAMPLE_INTERVAL == 0)
-			GC_SpectatorCameraDiagnostics.LogSnapshot("owner", m_iNetworkCameraSequence, controlledEntity, cameraTransform, snapshotPosition, lensState[0], lensState[1], isADS, sightState);
+			GC_SpectatorCameraDiagnostics.LogSnapshot("owner", m_iNetworkCameraSequence, controlledEntity, cameraTransform, snapshotPosition, lensState[0], lensState[1], lensState[2], isADS, sightState);
 
 		m_bNetworkCameraDiagnosticsInitialized = true;
 		m_bNetworkCameraDiagnosticsADS = isADS;

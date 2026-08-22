@@ -2,9 +2,9 @@ modded class SCR_2DPIPSightsComponent
 {
 	//! The observed proxy supplies only the selected optic's presentation. The
 	//! replicated spectator camera remains authoritative for view and parallax.
-	void GC_UpdateSpectatorPIP(float timeSlice, float authoritativePIPFOV)
+	void GC_UpdateSpectatorPIP(float timeSlice, float authoritativePIPFOV, float authoritativeSightFOV)
 	{
-		if (!IsPIPEnabled() || !m_PIPCamera || !m_pMaterial || authoritativePIPFOV <= 0)
+		if (!IsPIPEnabled() || !m_PIPCamera || !m_pMaterial || authoritativePIPFOV <= 0 || authoritativeSightFOV <= 0)
 			return;
 
 		CameraManager cameraManager = GetGame().GetCameraManager();
@@ -26,25 +26,21 @@ modded class SCR_2DPIPSightsComponent
 		SightsFOVInfo fovInfo = GetFOVInfo();
 		if (fovInfo)
 		{
-			float sightFOV = fovInfo.GetFOV();
-			if (sightFOV > 0)
-			{
-				SCR_BaseVariableSightsFOVInfo variableSights = SCR_BaseVariableSightsFOVInfo.Cast(fovInfo);
-				if (variableSights)
-					m_fEdgeScale = sightFOV / variableSights.GetBaseFOV();
+			SCR_BaseVariableSightsFOVInfo variableSights = SCR_BaseVariableSightsFOVInfo.Cast(fovInfo);
+			if (variableSights)
+				m_fEdgeScale = authoritativeSightFOV / variableSights.GetBaseFOV();
 
-				float reticleFOV;
-				if (m_fReticleBaseZoom > 0)
-					m_fReticleBaseZoom = -CalculateZoomFOV(m_fReticleBaseZoom);
+			float reticleFOV;
+			if (m_fReticleBaseZoom > 0)
+				m_fReticleBaseZoom = -CalculateZoomFOV(m_fReticleBaseZoom);
 
-				if (m_fReticleBaseZoom == 0)
-					reticleFOV = sightFOV;
-				else if (m_fReticleBaseZoom < 0)
-					reticleFOV = -m_fReticleBaseZoom;
+			if (m_fReticleBaseZoom == 0)
+				reticleFOV = authoritativeSightFOV;
+			else if (m_fReticleBaseZoom < 0)
+				reticleFOV = -m_fReticleBaseZoom;
 
-				if (reticleFOV > 0 && m_fReticleAngularSize != 0)
-					m_fReticleScale = reticleFOV * (authoritativePIPFOV / sightFOV) * m_fReticlePortion / m_fReticleAngularSize;
-			}
+			if (reticleFOV > 0 && m_fReticleAngularSize != 0)
+				m_fReticleScale = reticleFOV * (authoritativePIPFOV / authoritativeSightFOV) * m_fReticlePortion / m_fReticleAngularSize;
 		}
 
 		SCR_2DPIPSightsComponentClass data = SCR_2DPIPSightsComponentClass.Cast(GetComponentData(GetOwner()));
