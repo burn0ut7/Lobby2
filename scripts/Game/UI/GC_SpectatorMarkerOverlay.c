@@ -18,7 +18,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected RichTextWidget m_wLabelText;
 	protected SCR_CharacterControllerComponent m_CharacterController;
 	protected string m_sFallbackName;
-	protected bool m_bHasLabel;
+	protected bool m_bHasPlayerLabel;
 	protected bool m_bStateInitialized;
 	protected bool m_bDead;
 	protected bool m_bUnconscious;
@@ -57,7 +57,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			m_sFallbackName = editableInfo.GetName();
 
 		m_CharacterController = SCR_CharacterControllerComponent.Cast(entity.GetOwner().FindComponent(SCR_CharacterControllerComponent));
-		m_bHasLabel = RefreshLabel();
+		m_bHasPlayerLabel = RefreshLabel();
 		RefreshFaction(entity.GetFaction());
 		RefreshCharacterState();
 	}
@@ -91,7 +91,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		if (m_wLabel)
 		{
 			float labelOpacity;
-			if (m_bHasLabel && distance < NAME_REVEAL_DISTANCE)
+			if (m_bHasPlayerLabel && distance < NAME_REVEAL_DISTANCE)
 			{
 				labelOpacity = 1.0 - distance / NAME_REVEAL_DISTANCE;
 				labelOpacity = labelOpacity * labelOpacity * (3.0 - 2.0 * labelOpacity);
@@ -134,7 +134,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			RefreshFaction(m_Entity.GetFaction());
 
 		RefreshCharacterState();
-		m_bHasLabel = RefreshLabel();
+		m_bHasPlayerLabel = RefreshLabel();
 	}
 
 	void RefreshCharacterState()
@@ -173,7 +173,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			return;
 		PlayerManager playerManager = GetGame().GetPlayerManager();
 		if (playerManager && playerManager.GetPlayerIdFromControlledEntity(m_Entity.GetOwner()) == playerId)
-			m_bHasLabel = RefreshLabel();
+			m_bHasPlayerLabel = RefreshLabel();
 	}
 
 	protected bool RefreshLabel()
@@ -198,7 +198,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 		m_wLabelText.SetText(displayName);
 		GC_PlayerNamePresentation.Apply(m_wLabelText, presentedPlayerId);
-		return !displayName.IsEmpty();
+		return presentedPlayerId > 0 && !displayName.IsEmpty();
 	}
 
 	protected void ApplyStatePresentation()
