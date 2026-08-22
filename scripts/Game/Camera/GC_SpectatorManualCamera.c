@@ -556,7 +556,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		// attachment helper at the observed character's origin.
 		SetLocalTransform(cameraTransform);
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
-			m_MirrorPIPSights.GC_UpdateSpectatorPIP(m_Target, timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));
+			m_MirrorPIPSights.GC_UpdateSpectatorPIP(timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));
 	}
 
 	protected void UpdateNetworkSightPresentation()
