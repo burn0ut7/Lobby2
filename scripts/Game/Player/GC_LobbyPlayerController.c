@@ -394,13 +394,14 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		vector cameraTransform[4];
 		currentCamera.GetWorldTransform(cameraTransform);
+		float cameraFOV = currentCamera.GetVerticalFOV();
 		m_iNetworkCameraSequence++;
 		foreach (int spectatorPlayerId : m_aNetworkCameraSpectators)
-			Rpc(RpcAsk_PublishNetworkCameraTransform, spectatorPlayerId, m_iNetworkCameraSequence, cameraTransform[3], cameraTransform[2], cameraTransform[1]);
+			Rpc(RpcAsk_PublishNetworkCameraTransform, spectatorPlayerId, m_iNetworkCameraSequence, cameraTransform[3], cameraTransform[2], cameraTransform[1], cameraFOV);
 	}
 
 	[RplRpc(RplChannel.Unreliable, RplRcver.Server)]
-	protected void RpcAsk_PublishNetworkCameraTransform(int spectatorPlayerId, int sequence, vector position, vector forward, vector up)
+	protected void RpcAsk_PublishNetworkCameraTransform(int spectatorPlayerId, int sequence, vector position, vector forward, vector up, float fov)
 	{
 		if (m_eLobbyPlayerState != GC_ELobbyPlayerState.PLAYING)
 			return;
@@ -412,21 +413,21 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!spectatorController || spectatorController.m_iServerNetworkCameraTargetPlayerId != GetPlayerId() || spectatorController.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
 			return;
 
-		spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up);
+		spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up, fov);
 	}
 
-	protected void ServerSendNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up)
+	protected void ServerSendNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, float fov)
 	{
-		Rpc(RpcDo_ReceiveNetworkCameraTransform, targetPlayerId, sequence, position, forward, up);
+		Rpc(RpcDo_ReceiveNetworkCameraTransform, targetPlayerId, sequence, position, forward, up, fov);
 	}
 
 	[RplRpc(RplChannel.Unreliable, RplRcver.Owner)]
-	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up)
+	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, float fov)
 	{
 		if (GetGame().GetPlayerController() != this || !m_SpectatorCamera)
 			return;
 
-		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, sequence, position, forward, up);
+		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, sequence, position, forward, up, fov);
 	}
 
 	bool SetLobbySpectator(IEntity entity, bool activateCamera)

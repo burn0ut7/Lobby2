@@ -65,6 +65,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected int m_iNetworkLastSequence = -1;
 	protected float m_fNetworkInterpolationElapsed;
 	protected float m_fNetworkSnapshotRate = 30.0;
+	protected bool m_bNetworkFOVOverrideActive;
+	protected float m_fNetworkPreviousFOV;
+	protected float m_fNetworkFromFOV;
+	protected float m_fNetworkToFOV;
 	protected vector m_vNetworkFromPosition;
 	protected vector m_vNetworkFromForward;
 	protected vector m_vNetworkFromUp;
@@ -181,6 +185,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_iNetworkLastSequence = -1;
 			m_fNetworkInterpolationElapsed = 0;
 			m_fNetworkSnapshotRate = localController.GetNetworkCameraUpdateRate();
+			m_fNetworkPreviousFOV = GetVerticalFOV();
+			m_bNetworkFOVOverrideActive = true;
 			localController.RequestNetworkCameraStream(m_iTargetPlayerId);
 		}
 
@@ -231,6 +237,11 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			SetVerticalFOV(m_fMirrorPreviousFOV);
 			SetNearPlane(m_fMirrorPreviousNearPlane);
 			m_bMirrorFOVOverrideActive = false;
+		}
+		if (m_bNetworkFOVOverrideActive)
+		{
+			SetVerticalFOV(m_fNetworkPreviousFOV);
+			m_bNetworkFOVOverrideActive = false;
 		}
 
 		if (m_EyeCameraHandler)
@@ -423,7 +434,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		SetTransform(cameraTransform);
 	}
 
-	void ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up)
+	void ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, float fov)
 	{
 		if (m_eMode != GC_ESpectatorCameraMode.NETWORK || targetPlayerId != m_iTargetPlayerId || sequence <= m_iNetworkLastSequence)
 			return;
@@ -434,20 +445,24 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_vNetworkFromPosition = position;
 			m_vNetworkFromForward = forward;
 			m_vNetworkFromUp = up;
+			m_fNetworkFromFOV = fov;
 			m_bNetworkSnapshotReceived = true;
 		}
 		else
 		{
+			float blend = GetNetworkInterpolationBlend();
 			vector currentTransform[4];
-			BuildNetworkTransform(GetNetworkInterpolationBlend(), currentTransform);
+			BuildNetworkTransform(blend, currentTransform);
 			m_vNetworkFromPosition = currentTransform[3];
 			m_vNetworkFromForward = currentTransform[2];
 			m_vNetworkFromUp = currentTransform[1];
+			m_fNetworkFromFOV = Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend);
 		}
 
 		m_vNetworkToPosition = position;
 		m_vNetworkToForward = forward;
 		m_vNetworkToUp = up;
+		m_fNetworkToFOV = fov;
 		m_fNetworkInterpolationElapsed = 0;
 	}
 
@@ -457,8 +472,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			return;
 
 		m_fNetworkInterpolationElapsed += timeSlice;
+		float blend = GetNetworkInterpolationBlend();
 		vector cameraTransform[4];
-		BuildNetworkTransform(GetNetworkInterpolationBlend(), cameraTransform);
+		BuildNetworkTransform(blend, cameraTransform);
+		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
 		SetTransform(cameraTransform);
 	}
 
