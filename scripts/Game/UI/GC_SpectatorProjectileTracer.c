@@ -130,7 +130,6 @@ class GC_SpectatorProjectileTrace
 class GC_SpectatorProjectileTracer
 {
 	protected static const float LINE_WIDTH = 3.0;
-	protected static const float LINE_OUTLINE_WIDTH = 1.0;
 
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
@@ -247,8 +246,6 @@ class GC_SpectatorProjectileTracer
 		LineDrawCommand line = new LineDrawCommand();
 		line.m_iColor = GetSpeedColor(trace.GetCurrentSpeed(), trace.GetInitialSpeed());
 		line.m_fWidth = LINE_WIDTH;
-		line.m_fOutlineWidth = LINE_OUTLINE_WIDTH;
-		line.m_iOutlineColor = 0x99000000;
 		line.m_Vertices = {};
 		line.m_Vertices.Insert(screenPosition[0]);
 		line.m_Vertices.Insert(screenPosition[1]);
