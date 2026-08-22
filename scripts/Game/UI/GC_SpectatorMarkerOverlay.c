@@ -5,7 +5,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected static const float MIN_ICON_DISTANCE = 0.0;
 	protected static const float MAX_ICON_SIZE = 32.0;
 	protected static const float MIN_ICON_SIZE = 4.0;
-	protected static const float NAME_REVEAL_DISTANCE = 25.0;
+	protected static const float NAME_REVEAL_DISTANCE = 50.0;
 
 	protected ImageWidget m_wSmallBackground;
 	protected ImageWidget m_wBackground;
