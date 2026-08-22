@@ -5,8 +5,8 @@ class GC_SpectatorProjectileTrace
 	protected ProjectileMoveComponent m_ProjectileMove;
 	protected ref array<vector> m_aPositions = {};
 	protected ref array<float> m_aSampleTimes = {};
+	protected ref array<float> m_aSpeeds = {};
 	protected float m_fInitialSpeed;
-	protected float m_fCurrentSpeed;
 	protected float m_fTrailDuration;
 	protected float m_fElapsedTime;
 	protected bool m_bFinished;
@@ -23,10 +23,8 @@ class GC_SpectatorProjectileTrace
 			m_aPositions.Insert(m_Projectile.GetOrigin());
 			m_aSampleTimes.Insert(0.0);
 			if (m_ProjectileMove)
-			{
 				m_fInitialSpeed = m_ProjectileMove.GetVelocity().Length();
-				m_fCurrentSpeed = m_fInitialSpeed;
-			}
+			m_aSpeeds.Insert(m_fInitialSpeed);
 		}
 	}
 
@@ -42,18 +40,18 @@ class GC_SpectatorProjectileTrace
 		m_fElapsedTime += timeSlice;
 		if (!m_bFinished && m_Projectile && !m_Projectile.IsDeleted())
 		{
-			m_fCurrentSpeed = m_ProjectileMove.GetVelocity().Length();
-			if (m_fInitialSpeed <= 0.0 && m_fCurrentSpeed > 0.0)
-				m_fInitialSpeed = m_fCurrentSpeed;
+			float speed = m_ProjectileMove.GetVelocity().Length();
+			if (m_fInitialSpeed <= 0.0 && speed > 0.0)
+				m_fInitialSpeed = speed;
 
 			m_aPositions.Insert(m_Projectile.GetOrigin());
 			m_aSampleTimes.Insert(m_fElapsedTime);
+			m_aSpeeds.Insert(speed);
 		}
 		else if (!m_bFinished)
 		{
 			m_Projectile = null;
 			m_ProjectileMove = null;
-			m_fCurrentSpeed = 0.0;
 			m_bFinished = true;
 		}
 
@@ -66,6 +64,7 @@ class GC_SpectatorProjectileTrace
 		{
 			m_aPositions.Remove(0);
 			m_aSampleTimes.Remove(0);
+			m_aSpeeds.Remove(0);
 		}
 
 		return !m_bFinished || m_aPositions.Count() > 1;
@@ -81,9 +80,9 @@ class GC_SpectatorProjectileTrace
 		return m_aPositions[index];
 	}
 
-	float GetCurrentSpeed()
+	float GetSpeed(int index)
 	{
-		return m_fCurrentSpeed;
+		return m_aSpeeds[index];
 	}
 
 	float GetInitialSpeed()
@@ -201,29 +200,24 @@ class GC_SpectatorProjectileTracer
 		if (segmentCount < 1)
 			return;
 
-		vector startPosition = trace.GetPosition(0);
-		vector screenPosition = m_Workspace.ProjWorldToScreen(startPosition, m_World);
-		if (screenPosition[2] <= 0.0)
-			return;
-
-		LineDrawCommand line = new LineDrawCommand();
-		line.m_iColor = GetSpeedColor(trace.GetCurrentSpeed(), trace.GetInitialSpeed());
-		line.m_fWidth = LINE_WIDTH;
-		line.m_Vertices = {};
-		line.m_Vertices.Insert(screenPosition[0]);
-		line.m_Vertices.Insert(screenPosition[1]);
-
-		for (int positionIndex = 1; positionIndex <= segmentCount; positionIndex++)
+		for (int positionIndex = 0; positionIndex < segmentCount; positionIndex++)
 		{
-			screenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex), m_World);
-			if (screenPosition[2] <= 0.0)
-				return;
+			vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex), m_World);
+			vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex + 1), m_World);
+			if (startScreenPosition[2] <= 0.0 || endScreenPosition[2] <= 0.0)
+				continue;
 
-			line.m_Vertices.Insert(screenPosition[0]);
-			line.m_Vertices.Insert(screenPosition[1]);
+			LineDrawCommand line = new LineDrawCommand();
+			line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex + 1), trace.GetInitialSpeed());
+			line.m_fWidth = LINE_WIDTH;
+			line.m_bShouldEnclose = false;
+			line.m_Vertices = {};
+			line.m_Vertices.Insert(startScreenPosition[0]);
+			line.m_Vertices.Insert(startScreenPosition[1]);
+			line.m_Vertices.Insert(endScreenPosition[0]);
+			line.m_Vertices.Insert(endScreenPosition[1]);
+			m_aDrawCommands.Insert(line);
 		}
-
-		m_aDrawCommands.Insert(line);
 	}
 
 	//! Uses Reforger's default red, yellow, green, and white color anchors.
