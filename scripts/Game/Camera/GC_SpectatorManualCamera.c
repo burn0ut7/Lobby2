@@ -62,6 +62,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected static const float MIRROR_POSITION_STABILIZATION_SPEED = 6.0;
 	protected static const float MIRROR_ROTATION_STABILIZATION_SPEED = 10.0;
 	protected bool m_bNetworkSnapshotReceived;
+	protected bool m_bNetworkInitialTransformApplied;
 	protected int m_iNetworkLastSequence = -1;
 	protected float m_fNetworkInterpolationElapsed;
 	protected float m_fNetworkSnapshotRate = 30.0;
@@ -210,6 +211,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			}
 
 			m_bNetworkSnapshotReceived = false;
+			m_bNetworkInitialTransformApplied = false;
 			m_iNetworkLastSequence = -1;
 			m_fNetworkInterpolationElapsed = 0;
 			m_bNetworkDiagnosticsInitialized = false;
@@ -290,6 +292,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_bMirrorHasPresentation = false;
 		m_bMirrorADSTransitionActive = false;
 		m_bNetworkSnapshotReceived = false;
+		m_bNetworkInitialTransformApplied = false;
 		m_iNetworkLastSequence = -1;
 		m_fNetworkInterpolationElapsed = 0;
 		m_bNetworkIsADS = false;
@@ -584,10 +587,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		float renderedSightFOV = Math.Lerp(m_fNetworkFromSightFOV, m_fNetworkToSightFOV, blend);
 		SetVerticalFOV(renderedFOV);
 		// Network snapshots use world-aligned axes relative to the translation-only
-		// attachment helper at the observed character's origin.
-		// Jitter isolation experiment: keep attachment, ADS, sight, zoom, FOV, PiP,
-		// and diagnostics active while suppressing only the streamed camera transform.
-		// SetLocalTransform(cameraTransform);
+		// attachment helper at the observed character's origin. Apply the first valid
+		// pose once so the test starts correctly aligned, then leave that local pose
+		// fixed while attachment, ADS, sight, zoom, FOV, PiP, and diagnostics continue.
+		if (!m_bNetworkInitialTransformApplied)
+		{
+			SetLocalTransform(cameraTransform);
+			m_bNetworkInitialTransformApplied = true;
+		}
 		if (m_bNetworkDiagnosticsPending)
 		{
 			vector targetWorldTransform[4];
