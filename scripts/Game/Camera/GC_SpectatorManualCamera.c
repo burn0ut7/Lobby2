@@ -585,7 +585,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		SetVerticalFOV(renderedFOV);
 		// Network snapshots use world-aligned axes relative to the translation-only
 		// attachment helper at the observed character's origin.
-		SetLocalTransform(cameraTransform);
+		// Jitter isolation experiment: keep attachment, ADS, sight, zoom, FOV, PiP,
+		// and diagnostics active while suppressing only the streamed camera transform.
+		// SetLocalTransform(cameraTransform);
 		if (m_bNetworkDiagnosticsPending)
 		{
 			vector targetWorldTransform[4];
