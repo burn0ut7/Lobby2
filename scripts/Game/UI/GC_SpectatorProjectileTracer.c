@@ -9,16 +9,17 @@ class GC_SpectatorProjectileTrace
 	protected ref array<float> m_aSampleTimes = {};
 	protected float m_fInitialSpeed;
 	protected float m_fCurrentSpeed;
-	protected float m_fTraceLifetime;
+	protected float m_fCollapseDuration;
 	protected float m_fElapsedTime;
+	protected float m_fCollapseElapsedTime;
 	protected bool m_bFinished;
 
-	void GC_SpectatorProjectileTrace(IEntity projectile, float traceLifetime)
+	void GC_SpectatorProjectileTrace(IEntity projectile, float collapseDuration)
 	{
 		m_Projectile = projectile;
-		m_fTraceLifetime = traceLifetime;
-		if (m_fTraceLifetime <= 0.0)
-			m_fTraceLifetime = 0.01;
+		m_fCollapseDuration = collapseDuration;
+		if (m_fCollapseDuration <= 0.0)
+			m_fCollapseDuration = 0.01;
 		if (m_Projectile)
 		{
 			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
@@ -37,8 +38,8 @@ class GC_SpectatorProjectileTrace
 		return m_Projectile != null && m_ProjectileMove != null;
 	}
 
-	//! Keeps a moving path window. Once its age reaches the configured lifetime,
-	//! the tail advances from the muzzle while the projectile continues to fly.
+	//! Records the complete path while the projectile exists. Once the projectile
+	//! is destroyed, the tail advances along that path over the configured duration.
 	bool Update(float timeSlice)
 	{
 		m_fElapsedTime += timeSlice;
@@ -64,17 +65,18 @@ class GC_SpectatorProjectileTrace
 			m_bFinished = true;
 		}
 
-		float tailTime = m_fElapsedTime - m_fTraceLifetime;
+		if (!m_bFinished)
+			return true;
+
+		m_fCollapseElapsedTime += timeSlice;
+		float tailTime = GetTailTime();
 		while (m_aPositions.Count() > 2 && m_aSampleTimes[1] <= tailTime)
 		{
 			m_aPositions.Remove(0);
 			m_aSampleTimes.Remove(0);
 		}
 
-		if (!m_bFinished)
-			return true;
-
-		return !m_aSampleTimes.IsEmpty() && tailTime < m_aSampleTimes[m_aSampleTimes.Count() - 1];
+		return m_fCollapseElapsedTime < m_fCollapseDuration;
 	}
 
 	int GetSegmentCount()
@@ -99,10 +101,10 @@ class GC_SpectatorProjectileTrace
 
 	float GetTailFraction()
 	{
-		if (m_aSampleTimes.Count() < 2)
+		if (!m_bFinished || m_aSampleTimes.Count() < 2)
 			return 0.0;
 
-		float tailTime = m_fElapsedTime - m_fTraceLifetime;
+		float tailTime = GetTailTime();
 		if (tailTime <= m_aSampleTimes[0])
 			return 0.0;
 
@@ -112,25 +114,33 @@ class GC_SpectatorProjectileTrace
 
 		return Math.Clamp((tailTime - m_aSampleTimes[0]) / segmentDuration, 0.0, 1.0);
 	}
+
+	protected float GetTailTime()
+	{
+		if (m_aSampleTimes.IsEmpty())
+			return 0.0;
+
+		float collapseProgress = Math.Clamp(m_fCollapseElapsedTime / m_fCollapseDuration, 0.0, 1.0);
+		return m_aSampleTimes[m_aSampleTimes.Count() - 1] * collapseProgress;
+	}
 }
 
 //! Spectator-only projectile event adapter and CanvasWidget renderer.
 //! It owns presentation state only; projectile simulation remains base-game owned.
 class GC_SpectatorProjectileTracer
 {
-	protected static const int MAX_ACTIVE_TRACES = 64;
 	protected static const float LINE_WIDTH = 3.0;
 	protected static const float LINE_OUTLINE_WIDTH = 1.0;
 
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
-	protected float m_fTraceLifetime;
+	protected float m_fCollapseDuration;
 	protected ref map<IEntity, EventHandlerManagerComponent> m_mShooterEvents = new map<IEntity, EventHandlerManagerComponent>();
 	protected ref array<ref GC_SpectatorProjectileTrace> m_aTraces = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 
-	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float traceLifetime)
+	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float collapseDuration)
 	{
 		if (!canvas || !workspace || !world)
 			return false;
@@ -138,9 +148,9 @@ class GC_SpectatorProjectileTracer
 		m_wCanvas = canvas;
 		m_Workspace = workspace;
 		m_World = world;
-		m_fTraceLifetime = traceLifetime;
-		if (m_fTraceLifetime <= 0.0)
-			m_fTraceLifetime = 0.01;
+		m_fCollapseDuration = collapseDuration;
+		if (m_fCollapseDuration <= 0.0)
+			m_fCollapseDuration = 0.01;
 		GetGame().GetCallqueue().CallLater(Update, 0, true);
 		return true;
 	}
@@ -163,7 +173,7 @@ class GC_SpectatorProjectileTracer
 		m_wCanvas = null;
 		m_Workspace = null;
 		m_World = null;
-		m_fTraceLifetime = 0.0;
+		m_fCollapseDuration = 0.0;
 	}
 
 	void TrackShooter(IEntity shooter)
@@ -195,10 +205,7 @@ class GC_SpectatorProjectileTracer
 		if (!projectile || !m_wCanvas)
 			return;
 
-		if (m_aTraces.Count() >= MAX_ACTIVE_TRACES)
-			m_aTraces.Remove(0);
-
-		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, m_fTraceLifetime);
+		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, m_fCollapseDuration);
 		if (trace.IsValid())
 			m_aTraces.Insert(trace);
 	}

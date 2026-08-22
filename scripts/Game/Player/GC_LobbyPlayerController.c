@@ -17,8 +17,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
 	[Attribute("30", desc: "Networked first-person camera snapshots per second (1-60).")]
 	protected int m_iNetworkCameraUpdateRate;
-	[Attribute("0.5", desc: "Seconds of projectile path retained before the spectator tracer tail advances.")]
-	protected float m_fProjectileTraceLifetime;
+	[Attribute("0.5", desc: "Seconds for a spectator projectile trace to collapse after its projectile is destroyed.")]
+	protected float m_fProjectileTraceCollapseDuration;
 
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
 	protected GC_SpectatorManualCamera m_SpectatorCamera;
@@ -754,7 +754,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay = new GC_SpectatorMarkerOverlay();
 
-		if (!m_SpectatorMarkerOverlay.Start(m_fProjectileTraceLifetime))
+		if (!m_SpectatorMarkerOverlay.Start(m_fProjectileTraceCollapseDuration))
 		{
 			PrintFormat("GC | Spectator | marker overlay creation failed: player=%1", GetPlayerId(), level: LogLevel.WARNING);
 			m_SpectatorMarkerOverlay = null;
