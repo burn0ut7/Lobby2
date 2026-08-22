@@ -194,7 +194,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				return false;
 			}
 
-			target.AddChild(this, -1, EAddChildFlags.RECALC_LOCAL_TRANSFORM);
+			AttachTo(target);
 			if (GetParent() != target)
 			{
 				SetFreeMode();
@@ -250,9 +250,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			if (localController)
 				localController.StopNetworkCameraStream();
 
-			IEntity parent = GetParent();
-			if (parent)
-				parent.RemoveChild(this, true);
+			if (GetParent())
+				Detach();
 		}
 
 		RestoreNetworkSightPresentation();
@@ -551,7 +550,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		BuildNetworkTransform(blend, cameraTransform);
 
 		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
-		SetTransform(cameraTransform);
+		// Network snapshots are character-local and this camera is attached to the
+		// observed character for the complete NETWORK mode lifetime.
+		SetLocalTransform(cameraTransform);
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
 			m_MirrorPIPSights.GC_UpdateSpectatorPIP(m_Target, timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));
 	}
