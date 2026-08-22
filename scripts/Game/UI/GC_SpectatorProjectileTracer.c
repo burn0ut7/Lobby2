@@ -231,37 +231,28 @@ class GC_SpectatorProjectileTracer
 		}
 	}
 
-	//! Uses Reforger's default red, yellow, green, and white color anchors.
+	//! Holds red through 90% speed, blends to green by 10%, then to white at rest.
 	protected int GetSpeedColor(float speed, float initialSpeed)
 	{
 		if (initialSpeed <= 0.0)
 			return Color.WHITE;
 
-		float normalizedSpeed = Math.Clamp(speed / initialSpeed, 0.0, 1.0);
-		int startColor;
-		int endColor;
-		float factor;
-		if (normalizedSpeed >= 0.666667)
+		float speedRatio = Math.Clamp(speed / initialSpeed, 0.0, 1.0);
+		if (speedRatio >= 0.9)
+			return Color.RED;
+
+		Color color;
+		if (speedRatio >= 0.1)
 		{
-			startColor = Color.YELLOW;
-			endColor = Color.RED;
-			factor = (normalizedSpeed - 0.666667) * 3.0;
-		}
-		else if (normalizedSpeed >= 0.333333)
-		{
-			startColor = Color.GREEN;
-			endColor = Color.YELLOW;
-			factor = (normalizedSpeed - 0.333333) * 3.0;
+			color = Color.FromInt(Color.RED);
+			color.Lerp(Color.FromInt(Color.GREEN), (0.9 - speedRatio) / 0.8);
 		}
 		else
 		{
-			startColor = Color.WHITE;
-			endColor = Color.GREEN;
-			factor = normalizedSpeed * 3.0;
+			color = Color.FromInt(Color.GREEN);
+			color.Lerp(Color.FromInt(Color.WHITE), (0.1 - speedRatio) / 0.1);
 		}
 
-		Color color = Color.FromInt(startColor);
-		color.Lerp(Color.FromInt(endColor), factor);
 		return color.PackToInt();
 	}
 }
