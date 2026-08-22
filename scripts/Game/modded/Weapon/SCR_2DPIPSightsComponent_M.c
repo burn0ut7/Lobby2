@@ -3,9 +3,9 @@ modded class SCR_2DPIPSightsComponent
 	//! The stock PiP post-frame path resolves material geometry through the local
 	//! controlled character. A spectator observes a remote proxy without taking
 	//! possession, so update the same presentation from that proxy explicitly.
-	void GC_UpdateSpectatorPIP(IEntity observedCharacter, float timeSlice)
+	void GC_UpdateSpectatorPIP(IEntity observedCharacter, float timeSlice, float authoritativePIPFOV)
 	{
-		if (!IsPIPEnabled() || !m_PIPCamera || !m_pMaterial)
+		if (!IsPIPEnabled() || !m_PIPCamera || !m_pMaterial || authoritativePIPFOV <= 0)
 			return;
 
 		ChimeraCharacter character = ChimeraCharacter.Cast(observedCharacter);
@@ -28,10 +28,35 @@ modded class SCR_2DPIPSightsComponent
 		if (!mainCamera)
 			return;
 
-		// The optic's render FOV and parallax depend on the spectator's current
-		// camera-to-ocular geometry, not on the final value sampled by the owner.
+		// Refresh proxy-local parallax and material state first, then restore the
+		// owner's authoritative render FOV before deriving FOV-dependent values.
 		UpdateCamera(timeSlice);
 		UpdateHDR();
+		m_PIPCamera.SetVerticalFOV(authoritativePIPFOV);
+
+		SightsFOVInfo fovInfo = GetFOVInfo();
+		if (fovInfo)
+		{
+			float sightFOV = fovInfo.GetFOV();
+			if (sightFOV > 0)
+			{
+				SCR_BaseVariableSightsFOVInfo variableSights = SCR_BaseVariableSightsFOVInfo.Cast(fovInfo);
+				if (variableSights)
+					m_fEdgeScale = sightFOV / variableSights.GetBaseFOV();
+
+				float reticleFOV;
+				if (m_fReticleBaseZoom > 0)
+					m_fReticleBaseZoom = -CalculateZoomFOV(m_fReticleBaseZoom);
+
+				if (m_fReticleBaseZoom == 0)
+					reticleFOV = sightFOV;
+				else if (m_fReticleBaseZoom < 0)
+					reticleFOV = -m_fReticleBaseZoom;
+
+				if (reticleFOV > 0 && m_fReticleAngularSize != 0)
+					m_fReticleScale = reticleFOV * (authoritativePIPFOV / sightFOV) * m_fReticlePortion / m_fReticleAngularSize;
+			}
+		}
 
 		vector sightsModelTransform[4];
 		float sightsFOV;
@@ -64,7 +89,7 @@ modded class SCR_2DPIPSightsComponent
 
 		float distanceFactor = 1 - 1 / Math.Log2(distancePower * Math.AbsFloat(distance) + 2);
 		float vignettePower = Math.Clamp(distanceFactor * 100, data.GetBasicParallax(), data.GetMaxParallax());
-		float pipFOV = m_PIPCamera.GetVerticalFOV();
+		float pipFOV = authoritativePIPFOV;
 		if (pipFOV <= 0)
 			return;
 

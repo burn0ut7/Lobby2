@@ -75,6 +75,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected int m_iNetworkSightsIndex = -1;
 	protected int m_iNetworkZoomIndex = -1;
 	protected float m_fNetworkPIPFOV = -1;
+	protected float m_fNetworkFromPIPFOV = -1;
+	protected float m_fNetworkToPIPFOV = -1;
 	protected BaseWeaponComponent m_NetworkSightsWeapon;
 	protected int m_iNetworkPresentedSightsIndex = -1;
 	protected int m_iNetworkPreviousSightsIndex = -1;
@@ -277,6 +279,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_iNetworkSightsIndex = -1;
 		m_iNetworkZoomIndex = -1;
 		m_fNetworkPIPFOV = -1;
+		m_fNetworkFromPIPFOV = -1;
+		m_fNetworkToPIPFOV = -1;
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -506,6 +510,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_vNetworkFromForward = forward;
 			m_vNetworkFromUp = up;
 			m_fNetworkFromFOV = fov;
+			m_fNetworkFromPIPFOV = m_fNetworkPIPFOV;
 			m_bNetworkSnapshotReceived = true;
 		}
 		else
@@ -517,12 +522,17 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_vNetworkFromForward = currentTransform[2];
 			m_vNetworkFromUp = currentTransform[1];
 			m_fNetworkFromFOV = Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend);
+			if (m_fNetworkFromPIPFOV > 0 && m_fNetworkToPIPFOV > 0 && m_fNetworkPIPFOV > 0)
+				m_fNetworkFromPIPFOV = Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend);
+			else
+				m_fNetworkFromPIPFOV = m_fNetworkPIPFOV;
 		}
 
 		m_vNetworkToPosition = position;
 		m_vNetworkToForward = forward;
 		m_vNetworkToUp = up;
 		m_fNetworkToFOV = fov;
+		m_fNetworkToPIPFOV = m_fNetworkPIPFOV;
 		m_fNetworkInterpolationElapsed = 0;
 	}
 
@@ -544,7 +554,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
 		SetTransform(cameraTransform);
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
-			m_MirrorPIPSights.GC_UpdateSpectatorPIP(m_Target, timeSlice);
+			m_MirrorPIPSights.GC_UpdateSpectatorPIP(m_Target, timeSlice, Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend));
 	}
 
 	protected void ApplyNetworkCharacterTransform(inout vector cameraTransform[4])
