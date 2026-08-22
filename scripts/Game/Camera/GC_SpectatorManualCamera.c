@@ -70,8 +70,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected float m_fNetworkFromFOV;
 	protected float m_fNetworkToFOV;
 	protected bool m_bNetworkIsADS;
-	protected bool m_bNetworkCharacterRelativeTransform;
-	protected bool m_bNetworkSightRelativeTransform;
 	protected int m_iNetworkSightsIndex = -1;
 	protected int m_iNetworkZoomIndex = -1;
 	protected float m_fNetworkPIPFOV = -1;
@@ -274,8 +272,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_iNetworkLastSequence = -1;
 		m_fNetworkInterpolationElapsed = 0;
 		m_bNetworkIsADS = false;
-		m_bNetworkCharacterRelativeTransform = false;
-		m_bNetworkSightRelativeTransform = false;
 		m_iNetworkSightsIndex = -1;
 		m_iNetworkZoomIndex = -1;
 		m_fNetworkPIPFOV = -1;
@@ -483,13 +479,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			return;
 
 		m_iNetworkLastSequence = sequence;
-		bool previousCharacterRelativeTransform = m_bNetworkCharacterRelativeTransform;
-		bool previousSightRelativeTransform = m_bNetworkSightRelativeTransform;
 		int previousSightsIndex = m_iNetworkSightsIndex;
 		float fov = lensState[0];
 		m_bNetworkIsADS = isADS;
-		m_bNetworkSightRelativeTransform = lensState[2] == GC_LobbyPlayerController.NETWORK_CAMERA_TRANSFORM_SIGHT;
-		m_bNetworkCharacterRelativeTransform = lensState[2] == GC_LobbyPlayerController.NETWORK_CAMERA_TRANSFORM_CHARACTER;
 		m_fNetworkPIPFOV = lensState[1];
 		if (isADS)
 		{
@@ -501,7 +493,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_iNetworkSightsIndex = -1;
 			m_iNetworkZoomIndex = -1;
 		}
-		if (m_bNetworkSnapshotReceived && (m_bNetworkCharacterRelativeTransform != previousCharacterRelativeTransform || m_bNetworkSightRelativeTransform != previousSightRelativeTransform || m_iNetworkSightsIndex != previousSightsIndex))
+		if (m_bNetworkSnapshotReceived && m_iNetworkSightsIndex != previousSightsIndex)
 			m_bNetworkSnapshotReceived = false;
 
 		if (!m_bNetworkSnapshotReceived)
@@ -546,10 +538,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		UpdateNetworkSightPresentation();
 		vector cameraTransform[4];
 		BuildNetworkTransform(blend, cameraTransform);
-		if (m_bNetworkSightRelativeTransform && !ApplyNetworkSightTransform(cameraTransform))
-			return;
-		if (m_bNetworkCharacterRelativeTransform)
-			ApplyNetworkCharacterTransform(cameraTransform);
+		ApplyNetworkCharacterTransform(cameraTransform);
 
 		SetVerticalFOV(Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend));
 		SetTransform(cameraTransform);
@@ -567,25 +556,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		cameraTransform[1] = cameraWorldTransform[1];
 		cameraTransform[2] = cameraWorldTransform[2];
 		cameraTransform[3] = cameraWorldTransform[3];
-	}
-
-	protected bool ApplyNetworkSightTransform(inout vector cameraTransform[4])
-	{
-		if (!m_NetworkSightsWeapon || m_iNetworkPresentedSightsIndex < 0)
-			return false;
-
-		BaseSightsComponent sights = m_NetworkSightsWeapon.GetSightsAt(m_iNetworkPresentedSightsIndex);
-		vector sightsWorldTransform[4];
-		if (!sights || !sights.GetSightsTransform(sightsWorldTransform))
-			return false;
-
-		vector cameraWorldTransform[4];
-		Math3D.MatrixMultiply4(sightsWorldTransform, cameraTransform, cameraWorldTransform);
-		cameraTransform[0] = cameraWorldTransform[0];
-		cameraTransform[1] = cameraWorldTransform[1];
-		cameraTransform[2] = cameraWorldTransform[2];
-		cameraTransform[3] = cameraWorldTransform[3];
-		return true;
 	}
 
 	protected void UpdateNetworkSightPresentation()
