@@ -29,11 +29,43 @@ modded class SCR_AIGroup : ChimeraAIGroup
 			ChimeraAIWorld aiWorld = ChimeraAIWorld.Cast(GetGame().GetAIWorld());
 			if (aiWorld)
 				aiWorld.PurgeSpawnRequestsForGroup(this);
+
+			if (Replication.IsServer())
+			{
+				array<AIAgent> agents = {};
+				GetAgents(agents);
+				foreach (AIAgent agent : agents)
+					GC_DeactivatePlayableAgent(agent);
+			}
 		}
 
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (manager)
 			manager.RegisterGroup(this);
+	}
+
+	override void OnAgentAdded(AIAgent child)
+	{
+		super.OnAgentAdded(child);
+
+		if (!Replication.IsServer() || !m_bPlayable || !GC_LobbyGameMode.GetGameMode())
+			return;
+
+		GC_DeactivatePlayableAgent(child);
+	}
+
+	protected void GC_DeactivatePlayableAgent(AIAgent agent)
+	{
+		if (!agent)
+			return;
+
+		IEntity entity = agent.GetControlledEntity();
+		if (!entity)
+			return;
+
+		AIControlComponent aiControl = AIControlComponent.Cast(entity.FindComponent(AIControlComponent));
+		if (aiControl)
+			aiControl.DeactivateAI();
 	}
 
 	void ~SCR_AIGroup()
@@ -86,10 +118,7 @@ modded class SCR_AIGroup : ChimeraAIGroup
 		if (GetWorld().IsEditMode() && m_bPlayable)
 		{
 #ifdef WORKBENCH
-			if (WorkbenchWorldHasLobbyGameMode())
-				DestroyEntities(m_aSceneGroupUnitInstances);
-			else
-				SpawnWorkbenchPreview();
+			SpawnWorkbenchPreview();
 #else
 			super.SpawnUnits();
 #endif
@@ -103,26 +132,6 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	}
 
 #ifdef WORKBENCH
-	protected bool WorkbenchWorldHasLobbyGameMode()
-	{
-		WorldEditor worldEditor = Workbench.GetModule(WorldEditor);
-		if (!worldEditor)
-			return false;
-
-		WorldEditorAPI worldEditorAPI = worldEditor.GetApi();
-		if (!worldEditorAPI)
-			return false;
-
-		for (int index = 0; index < worldEditorAPI.GetEditorEntityCount(); index++)
-		{
-			IEntitySource entitySource = worldEditorAPI.GetEditorEntity(index);
-			if (entitySource && entitySource.GetClassName() == "GC_LobbyGameMode")
-				return true;
-		}
-
-		return false;
-	}
-
 	protected GC_PlayerFormationCatalog GetWorkbenchFormationCatalog()
 	{
 		if (!s_WorkbenchFormationCatalog)

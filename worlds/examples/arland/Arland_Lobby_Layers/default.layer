@@ -23,13 +23,16 @@ GenericEntity marker2 {
    m_sDescription "testttt"
   }
  }
- coords 1225.552 39 2736.949
+ coords 1223.647 39 2739.598
  angles 0 144.276 0
 }
 SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
  coords 1198.979 39 2734.366
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
+}
+SCR_ChimeraCharacter : "{1CA3D30464EE4674}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Spotter.et" {
+ coords 1236.022 39 2739.588
 }
 SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  coords 1198.357 38.853 2682.561
@@ -51,8 +54,6 @@ SCR_AIGroup : "{CB58D90EA14430AD}Prefabs/Groups/OPFOR/Group_USSR_SentryTeam.et" 
 }
 SCR_AIGroup : "{D807C7047E818488}Prefabs/Groups/BLUFOR/Group_US_SniperTeam.et" {
  coords 1196.259 40.347 2726.05
- m_bDeleteWhenEmpty 0
- m_bDeleteIfNoPlayer 0
 }
 $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
  {
@@ -101,5 +102,11 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
  }
  {
   coords 1202.769 38.688 2775.924
+ }
+ {
+  coords 1174.875 38.817 2766.863
+ }
+ {
+  coords 1145.004 38 2778.242
  }
 }

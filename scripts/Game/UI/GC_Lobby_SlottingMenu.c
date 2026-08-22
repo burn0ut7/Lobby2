@@ -135,6 +135,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 		if (m_LobbyManager)
 		{
+			m_LobbyManager.m_OnRegistryReset.Remove(OnRegistryReset);
 			m_LobbyManager.m_OnFactionTopologyChanged.Remove(OnLobbyFactionUpdated);
 			m_LobbyManager.m_OnFactionPresentationChanged.Remove(OnLobbyFactionUpdated);
 			m_LobbyManager.m_OnPlayerAffiliationChanged.Remove(OnPlayerAffiliationChanged);
@@ -239,14 +240,26 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			return;
 
 		PlayerController playerController = GetGame().GetPlayerController();
-		if (!playerController)
+		Faction selectedFaction;
+		if (playerController)
+			selectedFaction = m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
+
+		if (!selectedFaction)
+		{
+			foreach (Faction faction : m_LobbyManager.GetRegisteredFactions())
+			{
+				if (!faction)
+					continue;
+
+				selectedFaction = faction;
+				break;
+			}
+		}
+
+		if (!selectedFaction)
 			return;
 
-		Faction playerFaction = m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
-		if (!playerFaction)
-			return;
-
-		m_FactionList.SetSelectedFaction(playerFaction.GetFactionKey());
+		m_FactionList.SetSelectedFaction(selectedFaction.GetFactionKey());
 	}
 
     protected void InitializeGroupWidget()
@@ -273,12 +286,26 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         }
 
 		m_LobbyManager.m_OnFactionTopologyChanged.Insert(OnLobbyFactionUpdated);
+		m_LobbyManager.m_OnRegistryReset.Insert(OnRegistryReset);
 		m_LobbyManager.m_OnFactionPresentationChanged.Insert(OnLobbyFactionUpdated);
 		m_LobbyManager.m_OnPlayerAffiliationChanged.Insert(OnPlayerAffiliationChanged);
 		m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
 		m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
 		ApplyFactionLock();
 		RefreshGroupWidget();
+	}
+
+	//! Rebuilds the group and slot collection after a completed JIP snapshot has
+	//! resolved all replicated group references.
+	protected void OnRegistryReset(int revision)
+	{
+		ApplyFactionLock();
+
+		if (m_SelectedFactionKey.IsEmpty() || !m_LobbyManager.GetRegisteredFaction(m_SelectedFactionKey))
+			SelectLocalPlayerFaction();
+
+		RefreshGroupWidget();
+		RefreshLoadoutPreview();
 	}
 
 	protected void OnPlayerAffiliationChanged(int playerId)

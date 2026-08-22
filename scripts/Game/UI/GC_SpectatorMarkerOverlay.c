@@ -292,7 +292,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		else if (distance < CLOSE_FADE_START)
 			opacity = (distance - CLOSE_FADE_END) / (CLOSE_FADE_START - CLOSE_FADE_END);
 
-		bool isVisible = opacity > 0.0;
+		bool isVisible = m_Group && m_Group.GetAgentsCount() > 0 && opacity > 0.0;
 		m_wGroupOverlay.SetVisible(isVisible);
 		m_wGroupOverlay.SetOpacity(opacity);
 		if (!isVisible)
@@ -467,6 +467,12 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	{
 		if (!entity || !m_wGroupOverlay)
 			return;
+		if (!m_Group || m_Group.GetAgentsCount() == 0)
+		{
+			m_wGroupOverlay.SetVisible(false);
+			RemoveMemberPopup();
+			return;
+		}
 
 		Faction faction = entity.GetFaction();
 		if (!faction)

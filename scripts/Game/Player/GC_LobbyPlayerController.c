@@ -12,12 +12,15 @@ class GC_LobbyPlayerControllerClass : SCR_PlayerControllerClass
 //! dedicated player-controller prefab using this class.
 class GC_LobbyPlayerController : SCR_PlayerController
 {
-	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et";
+	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{0C428AB427BB44F5}Prefabs/Editor/Camera/GC_SpectatorCamera.et";
 	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout";
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
 
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
-	protected SCR_ManualCamera m_SpectatorCamera;
+	protected GC_SpectatorManualCamera m_SpectatorCamera;
+	protected ref GC_SpectatorCameraContextAction m_ShoulderCameraAction;
+	protected ref GC_SpectatorCameraContextAction m_EyeCameraAction;
+	protected ref GC_SpectatorCameraContextAction m_FollowCameraAction;
 	protected MenuBase m_SpectatorMenu;
 	protected ref GC_SpectatorMarkerOverlay m_SpectatorMarkerOverlay;
 	protected SCR_EditorManagerEntity m_EditorManager;
@@ -41,6 +44,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		PauseMenuUI.m_OnPauseMenuOpened.Remove(OnPauseMenuOpened);
 		PauseMenuUI.m_OnPauseMenuClosed.Remove(OnPauseMenuClosed);
 		RemovePauseAccessButtons();
+		DestroySpectatorCamera();
 
 		if (m_EditorManager)
 		{
@@ -49,8 +53,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 	}
 
-	//! The controller is the local UI lifecycle boundary. As soon as it loads,
-	//! apply the menu that corresponds to the already-replicated game state.
+	//! The owning client controller is the local UI lifecycle boundary. As soon
+	//! as it loads, apply the menu that corresponds to the replicated game state.
 	override protected void OnInit(IEntity owner)
 	{
 		super.OnInit(owner);
@@ -463,7 +467,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			controlledEntity.GetWorldTransform(spawnParams.Transform);
 
 		IEntity cameraEntity = GetGame().SpawnEntityPrefabLocal(cameraResource, GetWorld(), spawnParams);
-		m_SpectatorCamera = SCR_ManualCamera.Cast(cameraEntity);
+		m_SpectatorCamera = GC_SpectatorManualCamera.Cast(cameraEntity);
 		if (!m_SpectatorCamera)
 		{
 			PrintFormat("GC | Spectator | manual camera spawn failed: player=%1", GetPlayerId(), level: LogLevel.ERROR);
@@ -491,22 +495,69 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		CreateSpectatorMenu();
 		CreateSpectatorMarkerOverlay();
+		RegisterSpectatorCameraActions();
 		PrintFormat("GC | Spectator | manual camera entered: player=%1", GetPlayerId());
 	}
 
 	protected void DestroySpectatorCamera()
 	{
+		UnregisterSpectatorCameraActions();
 		DestroySpectatorMarkerOverlay();
 		DestroySpectatorMenu();
-
 		if (!m_SpectatorCamera)
 			return;
 
-		SCR_ManualCamera camera = m_SpectatorCamera;
+		GC_SpectatorManualCamera camera = m_SpectatorCamera;
 		m_SpectatorCamera = null;
+		camera.SetFreeMode();
 		camera.Terminate();
 		delete camera;
 		PrintFormat("GC | Spectator | manual camera left: player=%1", GetPlayerId());
+	}
+
+	protected void RegisterSpectatorCameraActions()
+	{
+		if (!m_SpectatorCamera)
+			return;
+
+		if (!m_ShoulderCameraAction)
+		{
+			m_ShoulderCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.SHOULDER, "SHOULDER CAMERA");
+			GC_ContextMenuActionRegistry.Register(m_ShoulderCameraAction);
+		}
+
+		if (!m_EyeCameraAction)
+		{
+			m_EyeCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.EYE, "EYE CAMERA");
+			GC_ContextMenuActionRegistry.Register(m_EyeCameraAction);
+		}
+
+		if (!m_FollowCameraAction)
+		{
+			m_FollowCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.FOLLOW, "FOLLOW CAMERA");
+			GC_ContextMenuActionRegistry.Register(m_FollowCameraAction);
+		}
+	}
+
+	protected void UnregisterSpectatorCameraActions()
+	{
+		if (m_ShoulderCameraAction)
+		{
+			GC_ContextMenuActionRegistry.Unregister(m_ShoulderCameraAction);
+			m_ShoulderCameraAction = null;
+		}
+
+		if (m_EyeCameraAction)
+		{
+			GC_ContextMenuActionRegistry.Unregister(m_EyeCameraAction);
+			m_EyeCameraAction = null;
+		}
+
+		if (m_FollowCameraAction)
+		{
+			GC_ContextMenuActionRegistry.Unregister(m_FollowCameraAction);
+			m_FollowCameraAction = null;
+		}
 	}
 
 	protected void CreateSpectatorMarkerOverlay()

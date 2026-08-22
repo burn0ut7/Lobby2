@@ -51,6 +51,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 
 		m_LobbyManager.m_OnFactionTopologyChanged.Insert(OnFactionUpdated);
 		m_LobbyManager.m_OnFactionPresentationChanged.Insert(OnFactionUpdated);
+		m_LobbyManager.m_OnSlotPresentationChanged.Insert(OnSlotUpdated);
 		ClearSlotWidgets();
 	}
 
@@ -60,6 +61,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		{
 			m_LobbyManager.m_OnFactionTopologyChanged.Remove(OnFactionUpdated);
 			m_LobbyManager.m_OnFactionPresentationChanged.Remove(OnFactionUpdated);
+			m_LobbyManager.m_OnSlotPresentationChanged.Remove(OnSlotUpdated);
 		}
 
 		ClearSlotWidgets();
@@ -231,6 +233,15 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 			UpdateFactionAccent();
 			UpdatePlayerCount();
 		}
+	}
+
+	protected void OnSlotUpdated(GC_Slot slot)
+	{
+		if (!slot || slot.GetGroup() != m_Group)
+			return;
+
+		if (!HasCurrentSlotTopology())
+			Refresh();
 	}
 
 	protected void ClearSlotWidgets()

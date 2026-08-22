@@ -138,13 +138,17 @@ Small related value types may share a file. Large classes should not become fold
 - `scripts/Game/Player/GC_LobbyPlayerController.c`
   - Owns Lobby2 request RPCs.
   - Is selected only by the Lobby2 player-controller prefab.
-  - Applies the current phase menu directly from `OnInit` on every non-dedicated local runtime.
+  - Applies the current phase menu directly from `OnInit` on the owning local player controller, including a headed listen server. Dedicated servers never create or switch Lobby2 menus, and remote player-controller proxies cannot alter another client's local view.
   - Receives reliable owner-only spectator enter/leave RPCs. The owning client alone creates and deletes the local manual camera; the server never spawns or replicates that camera.
+- `scripts/Game/Camera/GC_SpectatorManualCamera.c`
+  - Extends the base manual camera and owns the active client-local spectator camera mode and target through the Lobby2 spectator camera prefab.
+  - Leaves native manual-camera components responsible for free movement, rotation, and zoom. Shoulder mode uses the animated `Camera` bone as its positional anchor, the animated `Head` bone as its unadjusted rotation, and prefab-authored lateral, backward, and vertical offsets. Eye mode uses the animated `leftEye` bone for position and the camera-aligned animated `Head` basis for rotation. While eye mode is active, the target's base character-camera handler hides only its head identity mesh and head-cover loadout, then restores them on every exit or target-switch path. Neither attached mode interpolates, and manual movement or look input returns either mode to free camera.
+  - Registers no replicated state or global camera override. Target eligibility is re-queried from base player and character components, and invalid or streamed-out targets return to free camera.
 - `scripts/Game/modded/Entities/SCR_AIGroup_M.c`
   - Calls `super` for every base group lifecycle event.
   - Purges any AI-world request queued by native initialization, registers playable groups through the lobby manager, and suppresses later queued `RequestSpawn()` and direct `SpawnUnits()` calls whenever the active mode is `GC_LobbyGameMode`.
   - Preserves empty playable group entities for Lobby2 respawn and slot reuse regardless of their authored native delete-when-empty setting, while retaining native empty-event and dormant behavior.
-  - In Workbench edit mode outside a Lobby2 world, materializes transient previews for playable groups from the cached formation data. An authored `GC_LobbyGameMode` suppresses those previews as well as runtime playable spawning.
+  - In Workbench edit mode, materializes transient previews for every playable group from the cached formation data, including Lobby2 worlds. Runtime Lobby2 playable spawning remains suppressed outside edit mode.
   - Unrelated runtime game modes retain the original `SCR_AIGroup` behavior because the manager cast returns `null`.
   - The editor-only playable preview is an explicit guarded Workbench exception and never changes runtime behavior.
 - `scripts/Game/modded/Groups/SCR_GroupsManagerComponent_M.c`
@@ -247,7 +251,7 @@ view never requests or performs a backward phase transition.
 |---|---|---|---|
 | `PREGAME` | Preview | Slotting | Briefing, Game, Debrief |
 | `SLOTTING` | Lobby/Slotting | Briefing | Preview, Game, Debrief |
-| `BRIEFING` | Briefing for assigned players; Slotting for unassigned spectators | Game | Preview, Debrief |
+| `BRIEFING` | Briefing for assigned players; spectator presentation for unassigned players | Game | Preview, Debrief |
 | `GAME` | None; Slotting and Briefing remain available from the pause menu | Debrief | Preview |
 | `POSTGAME` | None; reached Slotting and Briefing views remain available from the pause menu | None | Preview and phase controls |
 
@@ -261,7 +265,8 @@ view never requests or performs a backward phase transition.
   or layout is modified for unrelated modes.
 - Briefing requires an authoritative player faction derived from the player's
   current base-game group/slot. A player without one remains a spectator and is
-  presented Slotting when `BRIEFING` begins.
+  presented the spectator camera, HUD, and marker overlay when `BRIEFING`
+  begins. Slotting remains available from the pause menu.
 - `POSTGAME` currently closes the UI without opening a debrief screen.
 - Every widget component must unsubscribe invokers and remove queued callbacks in `HandlerDeattached`.
 
@@ -318,7 +323,7 @@ Player catch-up is idempotent and runs after identity registration, reconnect, a
 - `GAME`: force-spawn a missing living slot when possible and assign its entity through `SetInitialMainEntity`; failed assignments remain spectators.
 - `KIA` or `POSTGAME`: spectator behavior without altering match results.
 
-The Lobby2 spectator body and spectator camera have separate lifetimes. The server spawns and possesses the replicated invisible spectator body during initial preview/slotting/briefing catch-up, but no manual camera is created then. When `GAME` begins, every connected player is reconciled: players without a living assigned slot receive an owner-only enter RPC and locally spawn `{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et`; players assigned a character receive the leave RPC. KIA uses the same entry path. Entering `POSTGAME` removes any remaining local spectator camera while preserving the authoritative spectator body/state.
+The Lobby2 spectator body and spectator camera have separate lifetimes. The server spawns and possesses the replicated invisible spectator body during initial preview and slotting catch-up without creating a manual camera. When `BRIEFING` begins, every connected player is reconciled: an unassigned player receives the owner-only enter RPC and locally creates the complete spectator presentation, while an assigned player remains in the spectator body but receives the briefing screen without a manual camera. `GAME` reconciles all players again; players without a living assigned slot use the same spectator entry path, while assigned players possess their characters and receive the leave RPC. The add-on-owned spectator camera derives from `{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et`, and its mode and target remain transient on the owning client. KIA uses the same entry path. Entering `POSTGAME` removes any remaining local spectator camera while preserving the authoritative spectator body/state.
 
 Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). A connected claim without a persistent UUID is released on disconnect because it cannot form a reconnect reservation. Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
 

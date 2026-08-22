@@ -55,6 +55,14 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//! same function so initial and subsequent presentation cannot diverge.
 	void UpdateLocalPhasePresentation(PlayerController localController = null, string source = "unspecified")
 	{
+		// A headed listen server owns local UI just like a connected client. Only
+		// a dedicated server has no local presentation.
+		if (RplSession.Mode() == RplMode.Dedicated)
+		{
+			PrintFormat("GC | Phase UI Trace | presentation stopped: source=%1 reason=dedicated-server state=%2", source, GC_LobbyManager.GetPhaseName(GetState()));
+			return;
+		}
+
 		PlayerController publishedController = GetGame().GetPlayerController();
 		MenuManager menuManager = GetGame().GetMenuManager();
 		MenuBase topMenu;
@@ -103,8 +111,6 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 			GC_LobbyManager lobbyManager = GC_LobbyManager.Cast(FindComponent(GC_LobbyManager));
 			if (lobbyManager && lobbyManager.GetPlayerFaction(localController.GetPlayerId()))
 				openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_BriefingMenu, 0, true);
-			else
-				openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
 		}
 
 		PrintFormat("GC | Phase UI Trace | menu open result: source=%1 phase=%2 menu=%3 top=%4", source, GC_LobbyManager.GetPhaseName(phase), openedMenu, menuManager.GetTopMenu());

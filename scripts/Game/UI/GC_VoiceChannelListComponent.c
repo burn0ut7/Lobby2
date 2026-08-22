@@ -368,10 +368,13 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 	{
 		string channelKey = GetChannelKey(channelType, faction, group, personalOwnerIdentity);
 		desiredKeys.Insert(channelKey);
+		int channelOrder = desiredKeys.Count() - 1;
 		if (m_mChannelWidgets.Contains(channelKey))
 		{
 			Widget existingWidget;
 			m_mChannelWidgets.Find(channelKey, existingWidget);
+			if (existingWidget)
+				existingWidget.SetZOrder(channelOrder);
 			GC_VoiceChannelWidgetComponent existingChannel;
 			if (existingWidget)
 				existingChannel = GC_VoiceChannelWidgetComponent.Cast(existingWidget.FindHandler(GC_VoiceChannelWidgetComponent));
@@ -396,6 +399,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		}
 
 		channel.Configure(channelType, faction, group, personalOwnerIdentity, personalOwnerPlayerId);
+		channelWidget.SetZOrder(channelOrder);
 		m_mChannelWidgets.Set(channelKey, channelWidget);
 		return true;
 	}

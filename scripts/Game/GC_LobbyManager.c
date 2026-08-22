@@ -176,7 +176,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		PrintFormat("GC | Phase | base state event: state=%1 role=%2", GetPhaseName(state), role);
 
 		if (Replication.IsServer() && state == SCR_EGameModeState.BRIEFING)
+		{
 			ReconcileBriefingVoiceAssignments();
+			QueueCatchUpConnectedPlayers();
+		}
 		else if (Replication.IsServer() && state == SCR_EGameModeState.POSTGAME)
 		{
 			array<int> connectedPlayers = {};
@@ -424,7 +427,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (state)
         {
 			PrintFormat("GC | Lifecycle | spectator requested: player=%1", playerId);
-			bool activateCamera = GetLobbyPhase() == SCR_EGameModeState.GAME;
+			SCR_EGameModeState phase = GetLobbyPhase();
+			bool activateCamera = phase == SCR_EGameModeState.GAME
+				|| (phase == SCR_EGameModeState.BRIEFING && !m_Roster.GetSlotByPlayerId(playerId));
 
 			IEntity existingSpectator = m_mLobbySpectators.Get(playerId);
 			if (!existingSpectator)
@@ -1303,8 +1308,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				continue;
 			}
 
-			if (!ResolveJipGroup(groupRplId))
-				m_Roster.GetPendingGroupIds().Insert(groupRplId);
+			// Preserve the authority's serialized order independently of proxy
+			// streaming timing. Ordered resolution below owns roster insertion.
+			m_Roster.GetPendingGroupIds().Insert(groupRplId);
 		}
 
 		int slotCount;
@@ -1381,12 +1387,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		int attempt = m_Roster.IncrementJipAttempt();
 		array<RplId> pendingGroups = m_Roster.GetPendingGroupIds();
 
-		for (int groupIndex = pendingGroups.Count() - 1; groupIndex >= 0; groupIndex--)
+		// Resolve only the available prefix. Allowing later proxies to register
+		// ahead of an earlier unresolved proxy would make client faction/group
+		// presentation order depend on streaming timing instead of server order.
+		while (!pendingGroups.IsEmpty())
 		{
-			if (!ResolveJipGroup(pendingGroups[groupIndex]))
-				continue;
+			if (!ResolveJipGroup(pendingGroups[0]))
+				break;
 
-			pendingGroups.RemoveOrdered(groupIndex);
+			pendingGroups.RemoveOrdered(0);
 		}
 
 		int pendingSlotGroups;
