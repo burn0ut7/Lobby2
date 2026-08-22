@@ -51,3 +51,7 @@ Base-game systems are the authoritative source for faction, group, player member
 ## Scope discipline
 
 When a request is ambiguous, preserve the current phase model and choose the smallest reversible change that moves the requested behavior forward. Ask for direction only when the choice would materially change the game-mode design or multiplayer ownership model.
+
+## Git commit policy
+
+After completing a task, commit and push the task's changes. The commit subject must contain no more than five words, and the commit description/body must be blank.
