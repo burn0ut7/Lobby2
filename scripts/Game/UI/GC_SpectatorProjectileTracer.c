@@ -149,10 +149,7 @@ class GC_SpectatorProjectileTracer
 		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mShooterEvents)
 		{
 			if (eventManager)
-			{
-				eventManager.RemoveScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
 				eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
-			}
 		}
 		foreach (IEntity shooter, SCR_MuzzleEffectComponent muzzleEffect : m_mMuzzleEffects)
 		{
@@ -207,7 +204,6 @@ class GC_SpectatorProjectileTracer
 
 		if (eventManager)
 		{
-			eventManager.RegisterScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
 			eventManager.RegisterScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
 			m_mShooterEvents.Insert(shooter, eventManager);
 		}
@@ -236,10 +232,7 @@ class GC_SpectatorProjectileTracer
 
 		EventHandlerManagerComponent eventManager;
 		if (m_mShooterEvents.Find(shooter, eventManager) && eventManager)
-		{
-			eventManager.RemoveScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
 			eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
-		}
 		SCR_MuzzleEffectComponent muzzleEffect;
 		if (m_mMuzzleEffects.Find(shooter, muzzleEffect) && muzzleEffect)
 			muzzleEffect.GetOnWeaponFired().Remove(OnMuzzleWeaponFired);
@@ -298,12 +291,12 @@ class GC_SpectatorProjectileTracer
 
 	int GetTrackedShooterCount()
 	{
-		return m_mShooterEvents.Count();
+		return m_mShooterReferences.Count();
 	}
 
 	void ReportDiagnostics(string source)
 	{
-		PrintFormat("GC | Tracer Debug | subscription report: source=%1 tracked=%2 eventSources=%3 muzzleSources=%4 attempts=%5 successes=%6 failures=%7 untracks=%8", source, m_mShooterReferences.Count(), m_mShooterEvents.Count(), m_mMuzzleEffects.Count(), m_iTrackAttempts, m_iTrackSuccesses, m_iTrackFailures, m_iUntracks);
+		PrintFormat("GC | Tracer Debug | subscription report: source=%1 tracked=%2 grenadeSources=%3 muzzleSources=%4 attempts=%5 successes=%6 failures=%7 untracks=%8", source, m_mShooterReferences.Count(), m_mShooterEvents.Count(), m_mMuzzleEffects.Count(), m_iTrackAttempts, m_iTrackSuccesses, m_iTrackFailures, m_iUntracks);
 		PrintFormat("GC | Tracer Debug | rendering report: callbacks=%1 muzzleCallbacks=%2 accepted=%3 rejected=%4 activeTraces=%5 segments=%6 projectedSegments=%7 drawCommands=%8", m_iProjectileCallbacks, m_iMuzzleCallbacks, m_iAcceptedTraces, m_iRejectedCallbacks, m_aTraces.Count(), m_iLastSegmentCount, m_iLastProjectedSegmentCount, m_iLastDrawCommandCount);
 	}
 

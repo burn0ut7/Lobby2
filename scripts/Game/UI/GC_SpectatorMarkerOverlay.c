@@ -652,8 +652,7 @@ class GC_SpectatorMarkerOverlay
 	protected GC_LobbyManager m_LobbyManager;
 	protected ref GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
-	protected ref map<SCR_AIGroup, ref array<IEntity>> m_mGroupShooters = new map<SCR_AIGroup, ref array<IEntity>>();
-	protected ref map<SCR_AIGroup, int> m_mGroupCandidateCounts = new map<SCR_AIGroup, int>();
+	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mCharacterShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mVehicleShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 
 	bool Start(float projectileTraceDuration)
@@ -729,8 +728,7 @@ class GC_SpectatorMarkerOverlay
 		if (m_ProjectileTracer)
 			m_ProjectileTracer.Destroy();
 
-		m_mGroupShooters.Clear();
-		m_mGroupCandidateCounts.Clear();
+		m_mCharacterShooters.Clear();
 		m_mVehicleShooters.Clear();
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 			marker.Deactivate();
@@ -770,21 +768,13 @@ class GC_SpectatorMarkerOverlay
 
 		if (entityType == EEditableEntityType.CHARACTER && !SCR_EditableCharacterComponent.Cast(entity))
 			return;
-		if (entityType == EEditableEntityType.CHARACTER && m_ProjectileTracer)
-		{
-			array<IEntity> characterSources = {};
-			CollectCharacterShooterSources(owner, characterSources);
-			PrintFormat("GC | Tracer Debug | editable character discovered: character=%1 candidateSources=%2", owner, characterSources.Count());
-			m_ProjectileTracer.TrackShooter(owner);
-		}
+		if (entityType == EEditableEntityType.CHARACTER)
+			RefreshCharacterShooters(entity);
 
 		if (entityType == EEditableEntityType.GROUP)
 		{
 			if (!SCR_EditableGroupComponent.Cast(entity))
 				return;
-
-			SCR_AIGroup group = SCR_AIGroup.Cast(owner);
-			RefreshGroupShooters(group);
 		}
 
 		m_mMarkers.Insert(entity, new GC_SpectatorEditableEntityMarker(entity, MAX_MARKER_DISTANCE));
@@ -803,20 +793,13 @@ class GC_SpectatorMarkerOverlay
 		}
 
 		GC_SpectatorEditableEntityMarker marker;
-		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER && m_ProjectileTracer)
-			m_ProjectileTracer.UntrackShooter(entity.GetOwner());
-		if (entity && entity.GetEntityType() == EEditableEntityType.GROUP && m_ProjectileTracer)
+		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER)
 		{
-			SCR_AIGroup group = SCR_AIGroup.Cast(entity.GetOwner());
-			if (group)
-			{
-				array<IEntity> groupShooters;
-				if (m_mGroupShooters.Find(group, groupShooters))
-					foreach (IEntity shooter : groupShooters)
-						m_ProjectileTracer.UntrackShooter(shooter);
-				m_mGroupShooters.Remove(group);
-				m_mGroupCandidateCounts.Remove(group);
-			}
+			array<IEntity> characterShooters;
+			if (m_mCharacterShooters.Find(entity, characterShooters) && m_ProjectileTracer)
+				foreach (IEntity shooter : characterShooters)
+					m_ProjectileTracer.UntrackShooter(shooter);
+			m_mCharacterShooters.Remove(entity);
 		}
 		if (!m_mMarkers.Find(entity, marker))
 			return;
@@ -842,8 +825,8 @@ class GC_SpectatorMarkerOverlay
 
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 		{
-			if (entity.GetEntityType() == EEditableEntityType.GROUP)
-				RefreshGroupShooters(SCR_AIGroup.Cast(entity.GetOwner()));
+			if (entity.GetEntityType() == EEditableEntityType.CHARACTER)
+				RefreshCharacterShooters(entity);
 
 			bool shouldBeActive = marker.ShouldBeActive(cameraPosition);
 			if (shouldBeActive && !marker.IsActive())
@@ -861,48 +844,35 @@ class GC_SpectatorMarkerOverlay
 		if (!m_ProjectileTracer)
 			return;
 
-		PrintFormat("GC | Tracer Debug | overlay report: markers=%1 groups=%2 vehicles=%3 trackedSources=%4", m_mMarkers.Count(), m_mGroupShooters.Count(), m_mVehicleShooters.Count(), m_ProjectileTracer.GetTrackedShooterCount());
+		PrintFormat("GC | Tracer Debug | overlay report: markers=%1 characters=%2 vehicles=%3 trackedSources=%4", m_mMarkers.Count(), m_mCharacterShooters.Count(), m_mVehicleShooters.Count(), m_ProjectileTracer.GetTrackedShooterCount());
 		m_ProjectileTracer.ReportDiagnostics("periodic");
 	}
 
-	protected void RefreshGroupShooters(SCR_AIGroup group)
+	protected void RefreshCharacterShooters(SCR_EditableEntityComponent characterEntity)
 	{
-		if (!group || !m_ProjectileTracer)
+		if (!characterEntity || !m_ProjectileTracer)
+			return;
+
+		IEntity character = characterEntity.GetOwner();
+		if (!character)
 			return;
 
 		array<IEntity> trackedShooters;
 		bool firstReconciliation = false;
-		if (!m_mGroupShooters.Find(group, trackedShooters))
+		if (!m_mCharacterShooters.Find(characterEntity, trackedShooters))
 		{
 			trackedShooters = {};
-			m_mGroupShooters.Insert(group, trackedShooters);
+			m_mCharacterShooters.Insert(characterEntity, trackedShooters);
 			firstReconciliation = true;
 		}
 		int previousTrackedCount = trackedShooters.Count();
 
 		array<IEntity> currentShooters = {};
-		array<AIAgent> agents = {};
-		group.GetAgents(agents);
-		foreach (AIAgent agent : agents)
+		CollectCharacterShooterSources(character, currentShooters);
+		foreach (IEntity shooter : currentShooters)
 		{
-			if (!agent)
-				continue;
-
-			IEntity character = agent.GetControlledEntity();
-			if (!character)
-				continue;
-
-			array<IEntity> characterShooters = {};
-			CollectCharacterShooterSources(character, characterShooters);
-			foreach (IEntity shooter : characterShooters)
-			{
-				if (currentShooters.Contains(shooter))
-					continue;
-
-				currentShooters.Insert(shooter);
-				if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter))
-					trackedShooters.Insert(shooter);
-			}
+			if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter))
+				trackedShooters.Insert(shooter);
 		}
 
 		for (int shooterIndex = trackedShooters.Count() - 1; shooterIndex >= 0; shooterIndex--)
@@ -915,11 +885,8 @@ class GC_SpectatorMarkerOverlay
 			trackedShooters.RemoveOrdered(shooterIndex);
 		}
 
-		int previousCandidateCount = -1;
-		m_mGroupCandidateCounts.Find(group, previousCandidateCount);
-		if (firstReconciliation || previousCandidateCount != currentShooters.Count() || previousTrackedCount != trackedShooters.Count())
-			PrintFormat("GC | Tracer Debug | AI group reconciled: group=%1 agents=%2 candidateSources=%3 subscribedSources=%4", group, agents.Count(), currentShooters.Count(), trackedShooters.Count());
-		m_mGroupCandidateCounts.Set(group, currentShooters.Count());
+		if (firstReconciliation || previousTrackedCount != trackedShooters.Count())
+			PrintFormat("GC | Tracer Debug | character reconciled: character=%1 candidateSources=%2 subscribedSources=%3", character, currentShooters.Count(), trackedShooters.Count());
 	}
 
 	protected void CollectCharacterShooterSources(IEntity character, array<IEntity> output)
