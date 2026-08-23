@@ -5,7 +5,8 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected static const float MIN_ICON_DISTANCE = 0.0;
 	protected static const float MAX_ICON_SIZE = 32.0;
 	protected static const float MIN_ICON_SIZE = 4.0;
-	protected static const float NAME_REVEAL_DISTANCE = 25.0;
+	protected static const float NAME_REVEAL_DISTANCE = 50.0;
+	protected static const float NAME_REVEAL_TRANSITION_FRACTION = 0.1;
 
 	protected ImageWidget m_wSmallBackground;
 	protected ImageWidget m_wBackground;
@@ -107,6 +108,8 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		if (m_wLabel)
 		{
 			m_fProximityNameOpacity = 0.0;
+			float nameRevealTransitionDistance = NAME_REVEAL_DISTANCE * NAME_REVEAL_TRANSITION_FRACTION;
+			float fullNameRevealDistance = NAME_REVEAL_DISTANCE - nameRevealTransitionDistance;
 			if (distance < NAME_REVEAL_DISTANCE)
 			{
 				if (!m_bHasLabel)
@@ -114,7 +117,11 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 				if (m_bHasLabel)
 				{
-					m_fProximityNameOpacity = 1.0 - distance / NAME_REVEAL_DISTANCE;
+					if (distance <= fullNameRevealDistance)
+						m_fProximityNameOpacity = 1.0;
+					else
+						m_fProximityNameOpacity = (NAME_REVEAL_DISTANCE - distance) / nameRevealTransitionDistance;
+
 					m_fProximityNameOpacity = m_fProximityNameOpacity * m_fProximityNameOpacity * (3.0 - 2.0 * m_fProximityNameOpacity);
 				}
 			}
@@ -291,8 +298,8 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	protected static const ResourceName GROUP_HOVER_LAYOUT = "{6A56000000000009}UI/layouts/Spectator/Lobby_Spectator_Group_Hover.layout";
 	protected static const ResourceName GROUP_MEMBER_ROW_LAYOUT = "{6A5600000000000A}UI/layouts/Spectator/Lobby_Spectator_Group_Member_Row.layout";
 	protected static const float GROUP_ICON_SIZE = 48.0;
-	protected static const float CLOSE_FADE_START = 50.0;
-	protected static const float CLOSE_FADE_END = 25.0;
+	protected static const float CLOSE_FADE_START = 100.0;
+	protected static const float CLOSE_FADE_TRANSITION_FRACTION = 0.1;
 	protected static const float HOVER_WIDTH = 220.0;
 	protected static const float HOVER_HEADER_HEIGHT = 34.0;
 	protected static const float HOVER_ROW_HEIGHT = 30.0;
@@ -337,10 +344,12 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		PositionMemberPopup();
 
 		float opacity = 1.0;
-		if (distance <= CLOSE_FADE_END)
+		float closeFadeTransitionDistance = CLOSE_FADE_START * CLOSE_FADE_TRANSITION_FRACTION;
+		float closeFadeEnd = CLOSE_FADE_START - closeFadeTransitionDistance;
+		if (distance <= closeFadeEnd)
 			opacity = 0.0;
 		else if (distance < CLOSE_FADE_START)
-			opacity = (distance - CLOSE_FADE_END) / (CLOSE_FADE_START - CLOSE_FADE_END);
+			opacity = (distance - closeFadeEnd) / closeFadeTransitionDistance;
 
 		bool isVisible = m_Group && m_Group.GetAgentsCount() > 0 && opacity > 0.0;
 		m_wGroupOverlay.SetVisible(isVisible);
