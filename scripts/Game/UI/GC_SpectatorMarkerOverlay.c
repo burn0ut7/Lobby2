@@ -264,7 +264,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	protected static const ResourceName GROUP_HOVER_LAYOUT = "{6A56000000000009}UI/layouts/Spectator/Lobby_Spectator_Group_Hover.layout";
 	protected static const ResourceName GROUP_MEMBER_ROW_LAYOUT = "{6A5600000000000A}UI/layouts/Spectator/Lobby_Spectator_Group_Member_Row.layout";
 	protected static const float GROUP_ICON_SIZE = 48.0;
-	protected static const float CLOSE_FADE_START = 20.0;
+	protected static const float CLOSE_FADE_START = 50.0;
 	protected static const float CLOSE_FADE_END = 10.0;
 	protected static const float HOVER_WIDTH = 220.0;
 	protected static const float HOVER_HEADER_HEIGHT = 34.0;
