@@ -65,7 +65,7 @@ FrameWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0.07 0.1 0.11 0.96
+       Color 0.07 0.1 0.11 0
       }
       ImageWidgetClass "{6A5800000000000C}" {
        Name "SlideOutHandleAccent"
