@@ -642,7 +642,6 @@ class GC_SpectatorMarkerOverlay
 	protected static const ResourceName SLOT_LAYOUT = "{6A56000000000004}UI/layouts/Spectator/Lobby_Spectator_Entity_Slot.layout";
 	protected static const ResourceName GROUP_LAYOUT = "{6A56000000000005}UI/layouts/Spectator/Lobby_Spectator_Group_Marker.layout";
 	protected static const int VISIBILITY_REFRESH_INTERVAL = 250;
-	protected static const int TRACER_DIAGNOSTIC_INTERVAL = 5000;
 	protected static const float MAX_MARKER_DISTANCE = 2500.0;
 
 	protected Widget m_wRoot;
@@ -658,35 +657,23 @@ class GC_SpectatorMarkerOverlay
 	bool Start(float projectileTraceDuration)
 	{
 		if (m_wRoot)
-		{
-			Print("GC | Tracer Debug | overlay start skipped: already active");
 			return true;
-		}
 
 		m_Workspace = GetGame().GetWorkspace();
 		m_World = GetGame().GetWorld();
 		m_EditableEntityCore = SCR_EditableEntityCore.Cast(SCR_EditableEntityCore.GetInstance(SCR_EditableEntityCore));
 		m_LobbyManager = GC_LobbyManager.GetManager();
-		PrintFormat("GC | Tracer Debug | overlay start requested: duration=%1 workspace=%2 world=%3 editableCore=%4 lobbyManager=%5", projectileTraceDuration, m_Workspace, m_World, m_EditableEntityCore, m_LobbyManager);
 		if (!m_Workspace || !m_World || !m_EditableEntityCore)
-		{
-			Print("GC | Tracer Debug | overlay start failed: required runtime service unavailable", LogLevel.ERROR);
 			return false;
-		}
 
 		m_wRoot = m_Workspace.CreateWidgets(OVERLAY_LAYOUT);
 		if (!m_wRoot)
-		{
-			PrintFormat("GC | Tracer Debug | overlay start failed: layout could not be created resource=%1", OVERLAY_LAYOUT, level: LogLevel.ERROR);
 			return false;
-		}
 
 		CanvasWidget tracerCanvas = CanvasWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorProjectileTracer"));
-		PrintFormat("GC | Tracer Debug | overlay widgets created: root=%1 tracerCanvas=%2", m_wRoot, tracerCanvas);
 		m_ProjectileTracer = new GC_SpectatorProjectileTracer();
 		if (!m_ProjectileTracer.Start(tracerCanvas, m_Workspace, m_World, projectileTraceDuration))
 		{
-			Print("GC | Tracer Debug | overlay start failed: projectile renderer rejected its dependencies", LogLevel.ERROR);
 			m_wRoot.RemoveFromHierarchy();
 			m_wRoot = null;
 			m_ProjectileTracer = null;
@@ -700,15 +687,12 @@ class GC_SpectatorMarkerOverlay
 
 		set<SCR_EditableEntityComponent> entities = new set<SCR_EditableEntityComponent>();
 		m_EditableEntityCore.GetAllEntities(entities);
-		PrintFormat("GC | Tracer Debug | overlay registry snapshot: editableEntities=%1", entities.Count());
 		foreach (SCR_EditableEntityComponent entity : entities)
 			OnEntityRegistered(entity);
 
 		RefreshVisibility();
 		GetGame().GetCallqueue().CallLater(UpdatePositions, 0, true);
 		GetGame().GetCallqueue().CallLater(RefreshVisibility, VISIBILITY_REFRESH_INTERVAL, true);
-		GetGame().GetCallqueue().CallLater(ReportTracerDiagnostics, TRACER_DIAGNOSTIC_INTERVAL, true);
-		ReportTracerDiagnostics();
 		return true;
 	}
 
@@ -716,7 +700,6 @@ class GC_SpectatorMarkerOverlay
 	{
 		GetGame().GetCallqueue().Remove(UpdatePositions);
 		GetGame().GetCallqueue().Remove(RefreshVisibility);
-		GetGame().GetCallqueue().Remove(ReportTracerDiagnostics);
 
 		if (m_EditableEntityCore)
 		{
@@ -751,12 +734,9 @@ class GC_SpectatorMarkerOverlay
 			return;
 
 		EEditableEntityType entityType = entity.GetEntityType();
-		if (entityType == EEditableEntityType.CHARACTER || entityType == EEditableEntityType.GROUP || entityType == EEditableEntityType.VEHICLE)
-			PrintFormat("GC | Tracer Debug | editable entity registered: type=%1 component=%2 owner=%3", entityType, entity, entity.GetOwner());
 		IEntity owner = entity.GetOwner();
 		if (entityType == EEditableEntityType.VEHICLE)
 		{
-			m_ProjectileTracer.TrackDamageEntity(owner);
 			RefreshVehicleShooters(entity);
 			return;
 		}
@@ -771,7 +751,6 @@ class GC_SpectatorMarkerOverlay
 			return;
 		if (entityType == EEditableEntityType.CHARACTER)
 		{
-			m_ProjectileTracer.TrackDamageEntity(owner);
 			RefreshCharacterShooters(entity);
 		}
 
@@ -788,8 +767,6 @@ class GC_SpectatorMarkerOverlay
 	{
 		if (entity && entity.GetEntityType() == EEditableEntityType.VEHICLE)
 		{
-			if (m_ProjectileTracer)
-				m_ProjectileTracer.UntrackDamageEntity(entity.GetOwner());
 			array<IEntity> vehicleShooters;
 			if (m_mVehicleShooters.Find(entity, vehicleShooters) && m_ProjectileTracer)
 				foreach (IEntity shooter : vehicleShooters)
@@ -801,8 +778,6 @@ class GC_SpectatorMarkerOverlay
 		GC_SpectatorEditableEntityMarker marker;
 		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER)
 		{
-			if (m_ProjectileTracer)
-				m_ProjectileTracer.UntrackDamageEntity(entity.GetOwner());
 			array<IEntity> characterShooters;
 			if (m_mCharacterShooters.Find(entity, characterShooters) && m_ProjectileTracer)
 				foreach (IEntity shooter : characterShooters)
@@ -847,15 +822,6 @@ class GC_SpectatorMarkerOverlay
 			RefreshVehicleShooters(vehicle);
 	}
 
-	protected void ReportTracerDiagnostics()
-	{
-		if (!m_ProjectileTracer)
-			return;
-
-		PrintFormat("GC | Tracer Debug | overlay report: markers=%1 characters=%2 vehicles=%3 trackedSources=%4", m_mMarkers.Count(), m_mCharacterShooters.Count(), m_mVehicleShooters.Count(), m_ProjectileTracer.GetTrackedShooterCount());
-		m_ProjectileTracer.ReportDiagnostics("periodic");
-	}
-
 	protected void RefreshCharacterShooters(SCR_EditableEntityComponent characterEntity)
 	{
 		if (!characterEntity || !m_ProjectileTracer)
@@ -866,14 +832,11 @@ class GC_SpectatorMarkerOverlay
 			return;
 
 		array<IEntity> trackedShooters;
-		bool firstReconciliation = false;
 		if (!m_mCharacterShooters.Find(characterEntity, trackedShooters))
 		{
 			trackedShooters = {};
 			m_mCharacterShooters.Insert(characterEntity, trackedShooters);
-			firstReconciliation = true;
 		}
-		int previousTrackedCount = trackedShooters.Count();
 
 		array<IEntity> currentShooters = {};
 		CollectCharacterShooterSources(character, currentShooters);
@@ -892,9 +855,6 @@ class GC_SpectatorMarkerOverlay
 			m_ProjectileTracer.UntrackShooter(shooter);
 			trackedShooters.RemoveOrdered(shooterIndex);
 		}
-
-		if (firstReconciliation || previousTrackedCount != trackedShooters.Count())
-			PrintFormat("GC | Tracer Debug | character reconciled: character=%1 candidateSources=%2 subscribedSources=%3", character, currentShooters.Count(), trackedShooters.Count());
 	}
 
 	protected void CollectCharacterShooterSources(IEntity character, array<IEntity> output)
