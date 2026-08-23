@@ -1,7 +1,25 @@
 FrameWidgetClass {
  Name "BriefingMarker"
- "Ignore Cursor" 1
+ components {
+  GC_BriefingMarkerWidgetComponent "{6A4E000000000006}" {
+  }
+ }
  {
+  ImageWidgetClass "{6A4E000000000007}" {
+   Name "BriefingMarkerGlow"
+   Slot FrameWidgetSlot "{6A4E000000000008}" {
+    SizeX 56
+    OffsetLeft -4
+    OffsetRight -52
+    SizeY 56
+    OffsetTop -4
+    OffsetBottom -52
+   }
+   Image ""
+   Size 56 56
+   "Is Visible" 0
+   "Ignore Cursor" 1
+  }
   ImageWidgetClass "{6A4E000000000002}" {
    Name "BriefingMarkerImage"
    Slot FrameWidgetSlot "{6A4E000000000003}" {
@@ -14,8 +32,8 @@ FrameWidgetClass {
    Size 48 48
    "Ignore Cursor" 1
   }
-  TextWidgetClass "{6A4E000000000004}" {
-   Name "BriefingMarkerDescription"
+  FrameWidgetClass "{6A4E000000000009}" {
+   Name "BriefingMarkerLabel"
    Slot FrameWidgetSlot "{6A4E000000000005}" {
     PositionY 48
     OffsetTop 48
@@ -24,13 +42,26 @@ FrameWidgetClass {
     SizeY 30
     OffsetBottom -78
    }
-   Text ""
-   "Font Size" 18
-   "Min Font Size" 12
-   "Horizontal Alignment" Center
-   "Vertical Alignment" Top
-   Color 0.92 0.94 0.95 1
+   "Is Visible" 0
    "Ignore Cursor" 1
+   {
+    TextWidgetClass "{6A4E000000000004}" {
+     Name "BriefingMarkerDescription"
+     Slot FrameWidgetSlot "{6A4E00000000000A}" {
+      SizeX 180
+      OffsetRight -180
+      SizeY 30
+      OffsetBottom -30
+     }
+     Text ""
+     "Font Size" 18
+     "Min Font Size" 12
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Top
+     Color 0.92 0.94 0.95 1
+     "Ignore Cursor" 1
+    }
+   }
   }
  }
 }
