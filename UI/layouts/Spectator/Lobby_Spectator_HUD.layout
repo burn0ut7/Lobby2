@@ -1,6 +1,6 @@
 FrameWidgetClass {
  Name "LobbySpectatorHUD"
- "Z Order" 10
+ "Z Order" 100
  {
   FrameWidgetClass "{6A58000000000020}" : "{6A58000000000001}UI/layouts/Common/Lobby_Slide_Out.layout" {
    Name "SpectatorPlayerSlideOut"
@@ -16,7 +16,7 @@ FrameWidgetClass {
     OffsetBottom -868
     Alignment 1 0.5
    }
-   "Z Order" 20
+   "Z Order" 100
    {
     OverlayWidgetClass "{6A58000000000004}" {
      Prefab "{6A58000000000004}"

@@ -471,13 +471,18 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
-		super.OnClick(w, x, y, button);
+		return super.OnClick(w, x, y, button);
+	}
+
+	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+	{
+		bool handled = super.OnMouseButtonDown(w, x, y, button);
 		if (button != 0 || !m_SlideOut)
-			return false;
+			return handled;
 
 		m_SlideOut.TogglePinned();
 		UpdateVisuals();
-		return false;
+		return true;
 	}
 
 	void SetHovered(bool hovered)
