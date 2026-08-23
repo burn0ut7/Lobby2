@@ -765,7 +765,11 @@ class GC_SpectatorMarkerOverlay
 
 	protected void OnEntityUnregistered(SCR_EditableEntityComponent entity)
 	{
-		if (entity && entity.GetEntityType() == EEditableEntityType.VEHICLE)
+		if (!entity)
+			return;
+
+		EEditableEntityType entityType = entity.GetEntityType();
+		if (entityType == EEditableEntityType.VEHICLE)
 		{
 			array<IEntity> vehicleShooters;
 			if (m_mVehicleShooters.Find(entity, vehicleShooters) && m_ProjectileTracer)
@@ -776,7 +780,7 @@ class GC_SpectatorMarkerOverlay
 		}
 
 		GC_SpectatorEditableEntityMarker marker;
-		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER)
+		if (entityType == EEditableEntityType.CHARACTER)
 		{
 			array<IEntity> characterShooters;
 			if (m_mCharacterShooters.Find(entity, characterShooters) && m_ProjectileTracer)

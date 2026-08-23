@@ -15,8 +15,6 @@ class GC_SpectatorProjectileTrace
 	{
 		m_Projectile = projectile;
 		m_fTrailDuration = trailDuration;
-		if (m_fTrailDuration <= 0.0)
-			m_fTrailDuration = 0.01;
 		if (m_Projectile)
 		{
 			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
@@ -229,29 +227,20 @@ class GC_SpectatorProjectileTracer
 
 	protected void OnMuzzleWeaponFired(IEntity effectEntity, BaseMuzzleComponent muzzle, IEntity projectile)
 	{
-		vector projectilePosition;
-		if (projectile)
-			projectilePosition = projectile.GetOrigin();
-		CreateProjectileTrace(projectile, projectilePosition);
+		CreateProjectileTrace(projectile);
 	}
 
 	protected void OnWeaponProjectileCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
-		vector projectilePosition;
-		if (projectile)
-			projectilePosition = projectile.GetOrigin();
-		CreateProjectileTrace(projectile, projectilePosition);
+		CreateProjectileTrace(projectile);
 	}
 
 	protected void OnGrenadeCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
-		vector startPosition;
-		if (projectile)
-			startPosition = projectile.GetOrigin();
-		CreateProjectileTrace(projectile, startPosition);
+		CreateProjectileTrace(projectile);
 	}
 
-	protected void CreateProjectileTrace(IEntity projectile, vector startPosition)
+	protected void CreateProjectileTrace(IEntity projectile)
 	{
 		if (!projectile || !m_wCanvas)
 			return;
@@ -262,7 +251,7 @@ class GC_SpectatorProjectileTracer
 				return;
 		}
 
-		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, startPosition, m_fTrailDuration);
+		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, projectile.GetOrigin(), m_fTrailDuration);
 		if (trace.IsValid())
 			m_aTraces.Insert(trace);
 	}
@@ -293,28 +282,30 @@ class GC_SpectatorProjectileTracer
 		if (segmentCount < 1)
 			return;
 
+		float initialSpeed = trace.GetInitialSpeed();
+		vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(0), m_World);
 		for (int positionIndex = 0; positionIndex < segmentCount; positionIndex++)
 		{
-			vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex), m_World);
 			vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex + 1), m_World);
-			if (startScreenPosition[2] <= 0.0 || endScreenPosition[2] <= 0.0)
-				continue;
-
-			float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
-			float screenDeltaY = endScreenPosition[1] - startScreenPosition[1];
-			if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY <= MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
-				continue;
-
-			LineDrawCommand line = new LineDrawCommand();
-			line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex), trace.GetInitialSpeed());
-			line.m_fWidth = LINE_WIDTH;
-			line.m_bShouldEnclose = false;
-			line.m_Vertices = {};
-			line.m_Vertices.Insert(startScreenPosition[0]);
-			line.m_Vertices.Insert(startScreenPosition[1]);
-			line.m_Vertices.Insert(endScreenPosition[0]);
-			line.m_Vertices.Insert(endScreenPosition[1]);
-			m_aDrawCommands.Insert(line);
+			if (startScreenPosition[2] > 0.0 && endScreenPosition[2] > 0.0)
+			{
+				float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
+				float screenDeltaY = endScreenPosition[1] - startScreenPosition[1];
+				if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY > MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
+				{
+					LineDrawCommand line = new LineDrawCommand();
+					line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex), initialSpeed);
+					line.m_fWidth = LINE_WIDTH;
+					line.m_bShouldEnclose = false;
+					line.m_Vertices = {};
+					line.m_Vertices.Insert(startScreenPosition[0]);
+					line.m_Vertices.Insert(startScreenPosition[1]);
+					line.m_Vertices.Insert(endScreenPosition[0]);
+					line.m_Vertices.Insert(endScreenPosition[1]);
+					m_aDrawCommands.Insert(line);
+				}
+			}
+			startScreenPosition = endScreenPosition;
 		}
 	}
 
