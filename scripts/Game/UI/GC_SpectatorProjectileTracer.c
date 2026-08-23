@@ -133,7 +133,10 @@ class GC_SpectatorProjectileTracer
 		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mShooterEvents)
 		{
 			if (eventManager)
-				eventManager.RemoveScriptHandler("OnProjectileShot", this, OnProjectileShot, false);
+			{
+				eventManager.RemoveScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
+				eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
+			}
 		}
 
 		m_mShooterEvents.Clear();
@@ -165,7 +168,8 @@ class GC_SpectatorProjectileTracer
 		if (!eventManager)
 			return;
 
-		eventManager.RegisterScriptHandler("OnProjectileShot", this, OnProjectileShot, false);
+		eventManager.RegisterScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
+		eventManager.RegisterScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
 		m_mShooterEvents.Insert(shooter, eventManager);
 		m_mShooterReferences.Insert(shooter, 1);
 	}
@@ -184,12 +188,15 @@ class GC_SpectatorProjectileTracer
 
 		EventHandlerManagerComponent eventManager;
 		if (m_mShooterEvents.Find(shooter, eventManager) && eventManager)
-			eventManager.RemoveScriptHandler("OnProjectileShot", this, OnProjectileShot, false);
+		{
+			eventManager.RemoveScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
+			eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
+		}
 		m_mShooterEvents.Remove(shooter);
 		m_mShooterReferences.Remove(shooter);
 	}
 
-	protected void OnProjectileShot(int playerId, BaseWeaponComponent weapon, IEntity projectile)
+	protected void OnProjectileCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
 		if (!projectile || !m_wCanvas)
 			return;
