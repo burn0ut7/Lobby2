@@ -5,6 +5,7 @@ class GC_SpectatorProjectileTrace
 
 	protected IEntity m_Projectile;
 	protected ProjectileMoveComponent m_ProjectileMove;
+	protected ref array<BaseTriggerComponent> m_aProjectileTriggers = {};
 	protected ref array<vector> m_aPositions = {};
 	protected ref array<float> m_aSampleTimes = {};
 	protected ref array<float> m_aSpeeds = {};
@@ -16,6 +17,10 @@ class GC_SpectatorProjectileTrace
 	protected vector m_vSimulatedPosition;
 	protected vector m_vSimulatedVelocity;
 	protected float m_fSimulationLifetime;
+	protected bool m_bExplosive;
+	protected bool m_bExplosionPending;
+	protected bool m_bExplosionReported;
+	protected vector m_vLastProjectilePosition;
 
 	void GC_SpectatorProjectileTrace(IEntity projectile, vector startPosition, float trailDuration)
 	{
@@ -26,11 +31,30 @@ class GC_SpectatorProjectileTrace
 		if (m_Projectile)
 		{
 			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
+			m_vLastProjectilePosition = startPosition;
 			m_aPositions.Insert(startPosition);
 			m_aSampleTimes.Insert(0.0);
 			if (m_ProjectileMove)
 				m_fInitialSpeed = m_ProjectileMove.GetVelocity().Length();
 			m_aSpeeds.Insert(m_fInitialSpeed);
+
+			array<Managed> triggerComponents = {};
+			m_Projectile.FindComponents(BaseTriggerComponent, triggerComponents);
+			foreach (Managed triggerComponent : triggerComponents)
+			{
+				BaseTriggerComponent trigger = BaseTriggerComponent.Cast(triggerComponent);
+				if (!trigger)
+					continue;
+
+				m_aProjectileTriggers.Insert(trigger);
+				array<BaseProjectileEffect> projectileEffects = {};
+				trigger.GetProjectileEffects(m_Projectile.Type(), projectileEffects);
+				foreach (BaseProjectileEffect projectileEffect : projectileEffects)
+				{
+					if (projectileEffect && projectileEffect.Type().ToString().Contains("ExplosionEffect"))
+						m_bExplosive = true;
+				}
+			}
 		}
 	}
 
@@ -64,6 +88,22 @@ class GC_SpectatorProjectileTrace
 		return m_bSimulated;
 	}
 
+	bool IsExplosive()
+	{
+		return m_bExplosive;
+	}
+
+	bool ConsumeExplosion(out vector explosionPosition)
+	{
+		if (!m_bExplosionPending || m_bExplosionReported)
+			return false;
+
+		m_bExplosionPending = false;
+		m_bExplosionReported = true;
+		explosionPosition = m_vLastProjectilePosition;
+		return true;
+	}
+
 	//! Samples one point every presentation frame. After the configured delay,
 	//! one oldest point is removed per frame so the tail follows the projectile.
 	bool Update(float timeSlice)
@@ -83,6 +123,16 @@ class GC_SpectatorProjectileTrace
 		}
 		else if (!m_bFinished && m_Projectile && !m_Projectile.IsDeleted())
 		{
+			m_vLastProjectilePosition = m_Projectile.GetOrigin();
+			if (m_bExplosive && !m_bExplosionReported)
+			{
+				foreach (BaseTriggerComponent trigger : m_aProjectileTriggers)
+				{
+					if (trigger && trigger.WasTriggered())
+						m_bExplosionPending = true;
+				}
+			}
+
 			float speed = m_ProjectileMove.GetVelocity().Length();
 			if (m_fInitialSpeed <= 0.0 && speed > 0.0)
 				m_fInitialSpeed = speed;
@@ -93,8 +143,11 @@ class GC_SpectatorProjectileTrace
 		}
 		else if (!m_bFinished)
 		{
+			if (m_bExplosive && !m_bExplosionReported)
+				m_bExplosionPending = true;
 			m_Projectile = null;
 			m_ProjectileMove = null;
+			m_aProjectileTriggers.Clear();
 			m_bFinished = true;
 		}
 
@@ -170,7 +223,7 @@ class GC_SpectatorProjectileTracer
 	protected int m_iLastSegmentCount;
 	protected int m_iLastProjectedSegmentCount;
 	protected int m_iLastDrawCommandCount;
-	protected int m_iExplosionCallbacks;
+	protected int m_iExplosionsDetected;
 	protected int m_iFragmentTracesCreated;
 	protected int m_iActiveFragmentTraces;
 
@@ -185,7 +238,6 @@ class GC_SpectatorProjectileTracer
 		m_fTrailDuration = trailDuration;
 		if (m_fTrailDuration <= 0.0)
 			m_fTrailDuration = 0.01;
-		SCR_ExplosionAmmoEffect.GetOnExplosionAmmoEffect().Insert(OnExplosionAmmoEffect);
 		GetGame().GetCallqueue().CallLater(Update, 0, true);
 		PrintFormat("GC | Tracer Debug | renderer started: canvas=%1 workspace=%2 world=%3 trailDuration=%4", m_wCanvas, m_Workspace, m_World, m_fTrailDuration);
 		return true;
@@ -195,7 +247,6 @@ class GC_SpectatorProjectileTracer
 	{
 		ReportDiagnostics("destroy");
 		GetGame().GetCallqueue().Remove(Update);
-		SCR_ExplosionAmmoEffect.GetOnExplosionAmmoEffect().Remove(OnExplosionAmmoEffect);
 		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mGrenadeEvents)
 		{
 			if (eventManager)
@@ -393,17 +444,16 @@ class GC_SpectatorProjectileTracer
 		}
 
 		if (m_iProjectileCallbacks <= SHOT_DETAIL_LIMIT)
-			PrintFormat("GC | Tracer Debug | projectile callback: callback=%1 player=%2 weapon=%3 projectile=%4 originSource=%5 start=%6 projectilePosition=%7 traceValid=%8 activeTraces=%9", m_iProjectileCallbacks, playerId, weapon, projectile, originSource, startPosition, projectile.GetOrigin(), trace.IsValid(), m_aTraces.Count());
+			PrintFormat("GC | Tracer Debug | projectile callback: callback=%1 player=%2 weapon=%3 projectile=%4 originSource=%5 start=%6 projectilePosition=%7 traceValid=%8 explosive=%9 activeTraces=%10", m_iProjectileCallbacks, playerId, weapon, projectile, originSource, startPosition, projectile.GetOrigin(), trace.IsValid(), trace.IsExplosive(), m_aTraces.Count());
 	}
 
-	protected void OnExplosionAmmoEffect(IEntity hitEntity, inout vector effectTransform[3], IEntity damageSource, notnull Instigator instigator, string colliderName, float speed)
+	protected void CreateFragmentTraces(vector explosionPosition)
 	{
-		m_iExplosionCallbacks++;
-		vector explosionPosition = effectTransform[0];
+		m_iExplosionsDetected++;
 		int availableFragmentTraces = MAX_ACTIVE_FRAGMENT_TRACES - m_iActiveFragmentTraces;
 		if (availableFragmentTraces <= 0)
 		{
-			PrintFormat("GC | Tracer Debug | fragmentation prototype skipped: explosion=%1 position=%2 reason=active fragment cap", m_iExplosionCallbacks, explosionPosition);
+			PrintFormat("GC | Tracer Debug | fragmentation prototype skipped: explosion=%1 position=%2 reason=active fragment cap", m_iExplosionsDetected, explosionPosition);
 			return;
 		}
 
@@ -429,7 +479,7 @@ class GC_SpectatorProjectileTracer
 			m_iFragmentTracesCreated++;
 		}
 
-		PrintFormat("GC | Tracer Debug | fragmentation prototype: explosion=%1 position=%2 damageSource=%3 instigator=%4 fragmentsCreated=%5 activeFragments=%6", m_iExplosionCallbacks, explosionPosition, damageSource, instigator, fragmentCount, m_iActiveFragmentTraces);
+		PrintFormat("GC | Tracer Debug | fragmentation prototype: explosion=%1 position=%2 fragmentsCreated=%3 activeFragments=%4 source=projectile-trigger", m_iExplosionsDetected, explosionPosition, fragmentCount, m_iActiveFragmentTraces);
 	}
 
 	int GetTrackedShooterCount()
@@ -441,7 +491,7 @@ class GC_SpectatorProjectileTracer
 	{
 		PrintFormat("GC | Tracer Debug | subscription report: source=%1 tracked=%2 grenadeSources=%3 projectileEventSources=%4 muzzleSources=%5 attempts=%6 successes=%7 failures=%8 untracks=%9", source, m_mShooterReferences.Count(), m_mGrenadeEvents.Count(), m_mProjectileEvents.Count(), m_mMuzzleEffects.Count(), m_iTrackAttempts, m_iTrackSuccesses, m_iTrackFailures, m_iUntracks);
 		PrintFormat("GC | Tracer Debug | rendering report: callbacks=%1 muzzleCallbacks=%2 accepted=%3 rejected=%4 activeTraces=%5 segments=%6 projectedSegments=%7 drawCommands=%8", m_iProjectileCallbacks, m_iMuzzleCallbacks, m_iAcceptedTraces, m_iRejectedCallbacks, m_aTraces.Count(), m_iLastSegmentCount, m_iLastProjectedSegmentCount, m_iLastDrawCommandCount);
-		PrintFormat("GC | Tracer Debug | fragmentation report: explosions=%1 fragmentsCreated=%2 activeFragments=%3", m_iExplosionCallbacks, m_iFragmentTracesCreated, m_iActiveFragmentTraces);
+		PrintFormat("GC | Tracer Debug | fragmentation report: explosions=%1 fragmentsCreated=%2 activeFragments=%3", m_iExplosionsDetected, m_iFragmentTracesCreated, m_iActiveFragmentTraces);
 	}
 
 	protected void Update()
@@ -452,9 +502,15 @@ class GC_SpectatorProjectileTracer
 		float timeSlice = m_World.GetTimeSlice();
 		for (int traceIndex = m_aTraces.Count() - 1; traceIndex >= 0; traceIndex--)
 		{
-			if (!m_aTraces[traceIndex].Update(timeSlice))
+			GC_SpectatorProjectileTrace trace = m_aTraces[traceIndex];
+			bool keepTrace = trace.Update(timeSlice);
+			vector explosionPosition;
+			if (trace.ConsumeExplosion(explosionPosition))
+				CreateFragmentTraces(explosionPosition);
+
+			if (!keepTrace)
 			{
-				if (m_aTraces[traceIndex].IsSimulated())
+				if (trace.IsSimulated())
 					m_iActiveFragmentTraces--;
 				m_aTraces.Remove(traceIndex);
 			}
