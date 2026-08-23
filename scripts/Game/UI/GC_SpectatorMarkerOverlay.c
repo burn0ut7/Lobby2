@@ -750,25 +750,7 @@ class GC_SpectatorMarkerOverlay
 				return;
 
 			SCR_AIGroup group = SCR_AIGroup.Cast(owner);
-			if (group && m_ProjectileTracer)
-			{
-				array<AIAgent> agents = {};
-				ref array<IEntity> groupShooters = {};
-				group.GetAgents(agents);
-				foreach (AIAgent agent : agents)
-				{
-					if (!agent)
-						continue;
-
-					IEntity shooter = agent.GetControlledEntity();
-					if (!shooter)
-						continue;
-
-					m_ProjectileTracer.TrackShooter(shooter);
-					groupShooters.Insert(shooter);
-				}
-				m_mGroupShooters.Insert(group, groupShooters);
-			}
+			RefreshGroupShooters(group);
 		}
 
 		m_mMarkers.Insert(entity, new GC_SpectatorEditableEntityMarker(entity, MAX_MARKER_DISTANCE));
@@ -815,11 +797,57 @@ class GC_SpectatorMarkerOverlay
 
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 		{
+			if (entity.GetEntityType() == EEditableEntityType.GROUP)
+				RefreshGroupShooters(SCR_AIGroup.Cast(entity.GetOwner()));
+
 			bool shouldBeActive = marker.ShouldBeActive(cameraPosition);
 			if (shouldBeActive && !marker.IsActive())
 				marker.Activate(m_Workspace, m_wRoot, SLOT_LAYOUT, CHARACTER_LAYOUT, GROUP_LAYOUT);
 			else if (!shouldBeActive && marker.IsActive())
 				marker.Deactivate();
+		}
+	}
+
+	protected void RefreshGroupShooters(SCR_AIGroup group)
+	{
+		if (!group || !m_ProjectileTracer)
+			return;
+
+		array<IEntity> trackedShooters;
+		if (!m_mGroupShooters.Find(group, trackedShooters))
+		{
+			trackedShooters = {};
+			m_mGroupShooters.Insert(group, trackedShooters);
+		}
+
+		array<IEntity> currentShooters = {};
+		array<AIAgent> agents = {};
+		group.GetAgents(agents);
+		foreach (AIAgent agent : agents)
+		{
+			if (!agent)
+				continue;
+
+			IEntity shooter = agent.GetControlledEntity();
+			if (!shooter)
+				continue;
+
+			currentShooters.Insert(shooter);
+			if (trackedShooters.Contains(shooter))
+				continue;
+
+			m_ProjectileTracer.TrackShooter(shooter);
+			trackedShooters.Insert(shooter);
+		}
+
+		for (int shooterIndex = trackedShooters.Count() - 1; shooterIndex >= 0; shooterIndex--)
+		{
+			IEntity shooter = trackedShooters[shooterIndex];
+			if (currentShooters.Contains(shooter))
+				continue;
+
+			m_ProjectileTracer.UntrackShooter(shooter);
+			trackedShooters.RemoveOrdered(shooterIndex);
 		}
 	}
 
