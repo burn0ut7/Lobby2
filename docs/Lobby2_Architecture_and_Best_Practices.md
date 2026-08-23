@@ -362,11 +362,14 @@ Use structured prefixes so multiplayer logs can be filtered quickly:
 - `GC | Phase |` for accepted state changes and validation failures.
 - `GC | Phase RPC |` for request and broadcast boundaries.
 - `GC | Phase JIP |` for snapshot phase serialization.
+- `GC | Admin Action |` for the central audit record of every accepted or rejected admin action.
 - `GC | Admin Trace |` for initial role reads, role-change propagation, UI permission state, blocked controls, and server-side role observations.
 - `GC | Lifecycle |` for startup and teardown.
 - `GC | JIP` for topology/reference resolution.
 
 Log the role, previous phase, target phase, base-game state, and requesting player where relevant. Avoid per-frame or repeated retry spam.
+
+All authoritative admin-action paths must call `GC_AdminActionLogger.Log` with the requester, action, target or context, and outcome. The logger currently prints one structured record and is the only extension point for future audit destinations; action handlers must not create parallel audit logging.
 
 ## Lessons learned
 

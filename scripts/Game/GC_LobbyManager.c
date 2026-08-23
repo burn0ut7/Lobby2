@@ -236,29 +236,35 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! Validates and applies an admin-owned request on the server authority.
 	bool TryAdvanceLobbyPhase(int playerId, SCR_EGameModeState requestedPhase)
 	{
+		string requestedPhaseName = GetPhaseName(requestedPhase);
 		if (m_bShutdown)
 		{
 			Print("GC | Phase | request rejected: Lobby2 manager is shutting down", LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-manager-shutdown");
 			return false;
 		}
 
 		if (!Replication.IsServer())
 		{
 			Print("GC | Phase | request rejected: handler is not running on authority", LogLevel.ERROR);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-not-authority");
 			return false;
 		}
 
-		PrintFormat("GC | Phase | request received: player=%1 current=%2 requested=%3 requestedValue=%4", playerId, GetPhaseName(GetLobbyPhase()), GetPhaseName(requestedPhase), requestedPhase);
+		PrintFormat("GC | Phase | request received: player=%1 current=%2 requested=%3 requestedValue=%4", playerId, GetPhaseName(GetLobbyPhase()), requestedPhaseName, requestedPhase);
 
-		if (playerId <= 0)
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (playerId <= 0 || !playerManager || !playerManager.IsPlayerConnected(playerId))
 		{
-			PrintFormat("GC | Phase | request rejected: invalid player id=%1", playerId, level: LogLevel.WARNING);
+			PrintFormat("GC | Phase | request rejected: player=%1 is not connected", playerId, level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-not-logged-in");
 			return false;
 		}
 
 		if (!GC_LobbyPhase.IsValid(requestedPhase))
 		{
 			PrintFormat("GC | Phase | request rejected: invalid target value=%1", requestedPhase, level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-invalid-target");
 			return false;
 		}
 
@@ -267,6 +273,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (GC_UIEventDiagnostics.ENABLED)
 				PrintFormat("GC | Admin Trace | server action rejected: action=advance-phase player=%1 queriedAdmin=false", playerId, level: LogLevel.WARNING);
 			PrintFormat("GC | Phase | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-not-admin");
 			return false;
 		}
 
@@ -274,16 +281,25 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (requestedPhase != nextPhase)
 		{
 			PrintFormat("GC | Phase | request rejected: player=%1 current=%2 requested=%3 expected=%4", playerId, GetPhaseName(GetLobbyPhase()), GetPhaseName(requestedPhase), GetPhaseName(nextPhase), level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-not-next-phase");
 			return false;
 		}
 
 		if (requestedPhase == SCR_EGameModeState.POSTGAME)
-			return EnterPostGame(null);
+		{
+			bool enteredPostGame = EnterPostGame(null);
+			string outcome = "rejected-transition-failed";
+			if (enteredPostGame)
+				outcome = "succeeded";
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, outcome);
+			return enteredPostGame;
+		}
 
 		SCR_BaseGameMode gameMode = GetGameMode();
 		if (!gameMode)
 		{
 			Print("GC | Phase | request rejected: SCR_BaseGameMode is unavailable", LogLevel.ERROR);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-game-mode-unavailable");
 			return false;
 		}
 
@@ -292,6 +308,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (gameMode.GetState() != SCR_EGameModeState.BRIEFING)
 			{
 				PrintFormat("GC | Phase | GAME transition rejected: expected state=BRIEFING actual=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
+				GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-invalid-base-state");
 				return false;
 			}
 
@@ -305,20 +322,24 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (gameMode.GetState() != SCR_EGameModeState.GAME)
 			{
 				PrintFormat("GC | Phase | native StartGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
+				GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-transition-failed");
 				return false;
 			}
 
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "succeeded");
 			return true;
 		}
 
 		if (!gameMode.GC_SetLobbyState(requestedPhase))
 		{
 			PrintFormat("GC | Phase | custom pre-match transition failed: requested=%1", GetPhaseName(requestedPhase), level: LogLevel.ERROR);
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-transition-failed");
 			return false;
 		}
 
 		if (requestedPhase == SCR_EGameModeState.BRIEFING)
 			QueueBriefingSlotSpawns();
+		GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "succeeded");
 		return true;
 	}
 
@@ -1874,12 +1895,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (m_bShutdown || !Replication.IsServer())
 		{
 			Print("GC | Parameters | request rejected: manager inactive or caller is not authority", LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-inactive-or-not-authority");
 			return false;
 		}
 
-		if (playerId <= 0 || !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (playerId <= 0 || !playerManager || !playerManager.IsPlayerConnected(playerId))
 		{
 			PrintFormat("GC | Parameters | request rejected: invalid player=%1", playerId, level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-not-logged-in");
 			return false;
 		}
 
@@ -1888,6 +1912,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (GC_UIEventDiagnostics.ENABLED)
 				PrintFormat("GC | Admin Trace | server action rejected: action=apply-parameters player=%1 queriedAdmin=false", playerId, level: LogLevel.WARNING);
 			PrintFormat("GC | Parameters | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-not-admin");
 			return false;
 		}
 
@@ -1895,18 +1920,21 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
 		{
 			PrintFormat("GC | Parameters | request rejected: parameters locked in lobby=%1", GetPhaseName(phase), level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-phase-locked");
 			return false;
 		}
 
 		if (!IsScenarioParameterCatalogValid() || baseRevision != GetScenarioParameterRevision())
 		{
 			PrintFormat("GC | Parameters | request rejected: stale or invalid catalog player=%1 baseRevision=%2 currentRevision=%3", playerId, baseRevision, GetScenarioParameterRevision(), level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-stale-catalog");
 			return false;
 		}
 
 		if (!m_ParameterCatalog.ValidateValues(values))
 		{
 			PrintFormat("GC | Parameters | request rejected: invalid complete batch player=%1", playerId, level: LogLevel.WARNING);
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-invalid-values");
 			return false;
 		}
 
@@ -1925,17 +1953,22 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				escapedLabel.Replace("\n", "\\n");
 				escapedLabel.Replace("\r", "\\r");
 				PrintFormat("GC | Parameters | request rejected: owner mismatch player=%1 index=%2 label=\"%3\"", playerId, value.GetDefinitionIndex(), escapedLabel, level: LogLevel.WARNING);
+				GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-owner-mismatch");
 				return false;
 			}
 		}
 
 		if (!m_ParameterCatalog.ApplyValues(values))
+		{
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-apply-failed");
 			return false;
+		}
 
 		int revision = m_ParameterCatalog.GetRevision();
 		m_OnScenarioParametersChanged.Invoke(revision);
 		PrintScenarioParameterValues(playerId);
 		Rpc(RpcDo_SetScenarioParameters, revision, m_ParameterCatalog.GetValues());
+		GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "succeeded");
 		return true;
 	}
 

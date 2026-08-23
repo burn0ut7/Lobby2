@@ -35,6 +35,16 @@ Base-game systems are the authoritative source for faction, group, player member
 - When a base-game API is unavailable or insufficient, document the gap and ask for direction before introducing a new ownership source.
 - Keep server authority, client presentation, and replication responsibilities clear for multiplayer behavior.
 
+## Admin actions and logging
+
+- Every admin-action entry point must verify, at execution time, that the requesting player has an active authenticated admin login. UI visibility, client claims, or an earlier check are not authorization.
+- Admin actions must be server-authoritative whenever the engine and action permit it. Validate authorization on the server before changing state; clients may request an action but must not decide whether it is authorized.
+- Reject an admin action without applying any state change when the requester cannot be resolved or is not currently logged in as an admin.
+- Route every admin action through one add-on-owned central logging function. Do not scatter direct admin-action `Print` calls or create per-action logging paths.
+- The central logging function must currently emit the admin action through the engine's print logging and remain the single extension point for future logging destinations or audit behavior.
+- Log the requester, action, relevant target or context, and outcome, including authorization rejection, without recording secrets or credentials.
+- Tests for admin actions must cover an authenticated admin, an unauthenticated or logged-out requester, server-side rejection without mutation, and emission through the central logging function.
+
 ## Development rules
 
 - Do not add speculative abstractions, general-purpose helpers, or extra features unless the slice requires them.
