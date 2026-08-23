@@ -849,16 +849,21 @@ class GC_SpectatorMarkerOverlay
 			if (!agent)
 				continue;
 
-			IEntity shooter = agent.GetControlledEntity();
-			if (!shooter)
+			IEntity character = agent.GetControlledEntity();
+			if (!character)
 				continue;
 
-			currentShooters.Insert(shooter);
-			if (trackedShooters.Contains(shooter))
-				continue;
+			array<IEntity> characterShooters = {};
+			CollectCharacterShooterSources(character, characterShooters);
+			foreach (IEntity shooter : characterShooters)
+			{
+				if (currentShooters.Contains(shooter))
+					continue;
 
-			if (m_ProjectileTracer.TrackShooter(shooter))
-				trackedShooters.Insert(shooter);
+				currentShooters.Insert(shooter);
+				if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter))
+					trackedShooters.Insert(shooter);
+			}
 		}
 
 		for (int shooterIndex = trackedShooters.Count() - 1; shooterIndex >= 0; shooterIndex--)
@@ -869,6 +874,29 @@ class GC_SpectatorMarkerOverlay
 
 			m_ProjectileTracer.UntrackShooter(shooter);
 			trackedShooters.RemoveOrdered(shooterIndex);
+		}
+	}
+
+	protected void CollectCharacterShooterSources(IEntity character, array<IEntity> output)
+	{
+		if (!character || !output)
+			return;
+
+		output.Insert(character);
+		CharacterWeaponManagerComponent weaponManager = CharacterWeaponManagerComponent.Cast(character.FindComponent(CharacterWeaponManagerComponent));
+		if (!weaponManager)
+			return;
+
+		array<BaseWeaponComponent> weapons = {};
+		weaponManager.GetWeapons(weapons);
+		foreach (BaseWeaponComponent weapon : weapons)
+		{
+			if (!weapon)
+				continue;
+
+			IEntity weaponOwner = weapon.GetOwner();
+			if (weaponOwner && !output.Contains(weaponOwner))
+				output.Insert(weaponOwner);
 		}
 	}
 
