@@ -208,6 +208,12 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			m_bHasLabel = RefreshLabel();
 	}
 
+	void RefreshSlotPresentation(GC_Slot slot)
+	{
+		if (slot && m_Entity && slot.GetEntity() == m_Entity.GetOwner())
+			m_bHasLabel = RefreshLabel();
+	}
+
 	protected bool RefreshLabel()
 	{
 		if (!m_wLabelText || !m_Entity || !m_Entity.GetOwner())
@@ -215,8 +221,18 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 		string displayName = m_sFallbackName;
 		int presentedPlayerId = -1;
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		GC_Slot slot;
+		if (lobbyManager)
+			slot = lobbyManager.GetSlotByEntity(m_Entity.GetOwner());
+		if (slot && !slot.GetCachedPlayerName().IsEmpty())
+		{
+			displayName = slot.GetCachedPlayerName();
+			presentedPlayerId = slot.GetPlayerId();
+		}
+
 		PlayerManager playerManager = GetGame().GetPlayerManager();
-		if (playerManager)
+		if ((!slot || slot.GetCachedPlayerName().IsEmpty()) && playerManager)
 		{
 			int playerId = playerManager.GetPlayerIdFromControlledEntity(m_Entity.GetOwner());
 			if (playerId > 0)
@@ -377,6 +393,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 			headerBackground.SetColor(faction.GetFactionColor());
 
 		PlayerManager playerManager = GetGame().GetPlayerManager();
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
 		int memberCount;
 		if (playerManager)
 		{
@@ -387,7 +404,16 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 				if (!playerEntity)
 					continue;
 
-				if (CreateMemberRow(workspace, playerEntity, playerManager.GetPlayerName(playerId), playerId))
+				string playerName;
+				GC_Slot playerSlot;
+				if (lobbyManager)
+					playerSlot = lobbyManager.GetSlotByPlayerId(playerId);
+				if (playerSlot)
+					playerName = playerSlot.GetCachedPlayerName();
+				if (playerName.IsEmpty())
+					playerName = playerManager.GetPlayerName(playerId);
+
+				if (CreateMemberRow(workspace, playerEntity, playerName, playerId))
 					memberCount++;
 			}
 		}
@@ -406,7 +432,19 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 			if (playerManager && playerManager.GetPlayerIdFromControlledEntity(controlledEntity) > 0)
 				continue;
 
-			if (CreateMemberRow(workspace, controlledEntity, string.Empty))
+			string playerName;
+			int playerId = -1;
+			if (lobbyManager)
+			{
+				GC_Slot slot = lobbyManager.GetSlotByEntity(controlledEntity);
+				if (slot)
+				{
+					playerName = slot.GetCachedPlayerName();
+					playerId = slot.GetPlayerId();
+				}
+			}
+
+			if (CreateMemberRow(workspace, controlledEntity, playerName, playerId))
 				memberCount++;
 		}
 
@@ -484,6 +522,12 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		if (!m_wMemberPopup)
 			return;
 		CreateMemberPopup();
+	}
+
+	void RefreshSlotPresentation(GC_Slot slot)
+	{
+		if (m_wMemberPopup && slot && slot.GetGroup() == m_Group)
+			CreateMemberPopup();
 	}
 
 	protected void RefreshGroupPresentation(SCR_EditableEntityComponent entity)
@@ -631,6 +675,14 @@ class GC_SpectatorEditableEntityMarker
 		else if (m_GroupUI)
 			m_GroupUI.RefreshAdminNamePresentation(playerId);
 	}
+
+	void RefreshSlotPresentation(GC_Slot slot)
+	{
+		if (m_CharacterUI)
+			m_CharacterUI.RefreshSlotPresentation(slot);
+		else if (m_GroupUI)
+			m_GroupUI.RefreshSlotPresentation(slot);
+	}
 }
 
 //! Spectator-only adapter over the base editable-entity registry and scene UI.
@@ -683,7 +735,10 @@ class GC_SpectatorMarkerOverlay
 		m_EditableEntityCore.Event_OnEntityRegistered.Insert(OnEntityRegistered);
 		m_EditableEntityCore.Event_OnEntityUnregistered.Insert(OnEntityUnregistered);
 		if (m_LobbyManager)
+		{
 			m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
+			m_LobbyManager.m_OnSlotPresentationChanged.Insert(OnSlotPresentationChanged);
+		}
 
 		set<SCR_EditableEntityComponent> entities = new set<SCR_EditableEntityComponent>();
 		m_EditableEntityCore.GetAllEntities(entities);
@@ -707,7 +762,10 @@ class GC_SpectatorMarkerOverlay
 			m_EditableEntityCore.Event_OnEntityUnregistered.Remove(OnEntityUnregistered);
 		}
 		if (m_LobbyManager)
+		{
 			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
+			m_LobbyManager.m_OnSlotPresentationChanged.Remove(OnSlotPresentationChanged);
+		}
 		if (m_ProjectileTracer)
 			m_ProjectileTracer.Destroy();
 
@@ -799,6 +857,12 @@ class GC_SpectatorMarkerOverlay
 	{
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 			marker.RefreshAdminNamePresentation(playerId);
+	}
+
+	protected void OnSlotPresentationChanged(GC_Slot slot)
+	{
+		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
+			marker.RefreshSlotPresentation(slot);
 	}
 
 	protected void RefreshVisibility()
