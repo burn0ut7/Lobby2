@@ -76,6 +76,21 @@ FrameWidgetClass : "{6A56000000000008}UI/layouts/Spectator/Lobby_Spectator_Marke
          Image "LobbySpectatorWounded"
          Size 32 32
         }
+        ImageWidgetClass "{6A56000000000053}" {
+         Name "LobbySpectatorMarkerDisconnectedIcon"
+         Slot OverlayWidgetSlot "{6A56000000000054}" {
+          HorizontalAlign 0
+          VerticalAlign 0
+          Padding -8 -8 0 0
+         }
+         "Z Order" 30
+         "Is Visible" 0
+         "Ignore Cursor" 1
+         Color 0.855 0.641 0 1
+         Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
+         Image "disconnection"
+         Size 32 32
+        }
        }
       }
      }

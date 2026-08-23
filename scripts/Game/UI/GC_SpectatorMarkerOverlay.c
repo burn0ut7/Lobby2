@@ -13,6 +13,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected ImageWidget m_wIcon;
 	protected ImageWidget m_wSelectedIcon;
 	protected ImageWidget m_wStatusIcon;
+	protected ImageWidget m_wDisconnectedIcon;
 	protected ButtonWidget m_wButton;
 	protected PanelWidget m_wLabel;
 	protected RichTextWidget m_wLabelText;
@@ -24,6 +25,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected bool m_bStateInitialized;
 	protected bool m_bDead;
 	protected bool m_bUnconscious;
+	protected bool m_bDisconnected;
 	protected int m_iFactionColor;
 	protected int m_iOutlineColor;
 
@@ -37,6 +39,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		m_wIcon = ImageWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerRoleIcon"));
 		m_wSelectedIcon = ImageWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerSelectedIcon"));
 		m_wStatusIcon = ImageWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerWoundedIcon"));
+		m_wDisconnectedIcon = ImageWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerDisconnectedIcon"));
 		m_wButton = ButtonWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerButton"));
 		m_wLabel = PanelWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerLabel"));
 		m_wLabelText = RichTextWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerLabelText"));
@@ -62,6 +65,9 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		m_bHasLabel = RefreshLabel();
 		RefreshFaction(entity.GetFaction());
 		RefreshCharacterState();
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		if (lobbyManager)
+			RefreshSlotPresentation(lobbyManager.GetSlotByEntity(entity.GetOwner()));
 	}
 
 	void UpdateDistancePresentation(float distance, float maxDistance)
@@ -210,8 +216,12 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	void RefreshSlotPresentation(GC_Slot slot)
 	{
-		if (slot && m_Entity && slot.GetEntity() == m_Entity.GetOwner())
-			m_bHasLabel = RefreshLabel();
+		if (!slot || !m_Entity || slot.GetEntity() != m_Entity.GetOwner())
+			return;
+
+		m_bDisconnected = slot.GetState() == GC_SlotState.DISCONNECTED;
+		m_bHasLabel = RefreshLabel();
+		ApplyStatePresentation();
 	}
 
 	protected bool RefreshLabel()
@@ -250,10 +260,11 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	protected void ApplyStatePresentation()
 	{
-		if (!m_wSmallBackground || !m_wBackground || !m_wOutline || !m_wIcon || !m_wStatusIcon)
+		if (!m_wSmallBackground || !m_wBackground || !m_wOutline || !m_wIcon || !m_wStatusIcon || !m_wDisconnectedIcon)
 			return;
 
-		m_wStatusIcon.SetVisible(m_bUnconscious);
+		m_wStatusIcon.SetVisible(m_bUnconscious && !m_bDisconnected);
+		m_wDisconnectedIcon.SetVisible(m_bDisconnected);
 		if (m_bDead)
 		{
 			int destroyedColor = UIColors.EDITOR_ICON_COLOR_DESTROYED.PackToInt();
