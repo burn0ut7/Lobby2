@@ -64,6 +64,12 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		super.HandlerDeattached(w);
 	}
 
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		SetHandleHovered(true);
+		return true;
+	}
+
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		if (!ContainsWidget(enterW))
@@ -111,7 +117,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	{
 		Widget content = m_wRoot.FindAnyWidget("SlideOutContent");
 		Widget handle = m_wRoot.FindAnyWidget("SlideOutHandle");
-		Widget handleJoinFill = m_wRoot.FindAnyWidget("SlideOutHandleJoinFill");
+		Widget handleBackground = m_wRoot.FindAnyWidget("SlideOutHandleRoundedBase");
 		TextWidget arrow = TextWidget.Cast(m_wRoot.FindAnyWidget("SlideOutArrow"));
 		if (!content || !handle)
 		{
@@ -123,6 +129,12 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		FrameSlot.SetAnchorMin(content, 0, 0);
 		FrameSlot.SetAnchorMax(content, 1, 1);
 		FrameSlot.SetAlignment(content, 0, 0);
+		if (handleBackground)
+		{
+			GC_SlideOutHandleBackgroundComponent backgroundComponent = GC_SlideOutHandleBackgroundComponent.Cast(handleBackground.FindHandler(GC_SlideOutHandleBackgroundComponent));
+			if (backgroundComponent)
+				backgroundComponent.SetDirection(m_eDirection);
+		}
 
 		switch (m_eDirection)
 		{
@@ -134,7 +146,6 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleSize, m_fHandleLength);
 				if (arrow)
 					arrow.SetText(">");
-				ConfigureHandleJoinFill(handleJoinFill, 0, 0, 0, 1, 0, 0, 16, 0);
 				break;
 
 			case GC_ESlideOutDirection.UP:
@@ -145,7 +156,6 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleLength, m_fHandleSize);
 				if (arrow)
 					arrow.SetText("^");
-				ConfigureHandleJoinFill(handleJoinFill, 0, 1, 1, 1, 0, -16, 0, 0);
 				break;
 
 			case GC_ESlideOutDirection.DOWN:
@@ -156,7 +166,6 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleLength, m_fHandleSize);
 				if (arrow)
 					arrow.SetText("v");
-				ConfigureHandleJoinFill(handleJoinFill, 0, 0, 1, 0, 0, 0, 0, 16);
 				break;
 
 			default:
@@ -167,19 +176,8 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleSize, m_fHandleLength);
 				if (arrow)
 					arrow.SetText("<");
-				ConfigureHandleJoinFill(handleJoinFill, 1, 0, 1, 1, -16, 0, 0, 0);
 				break;
 		}
-	}
-
-	protected void ConfigureHandleJoinFill(Widget joinFill, float anchorMinX, float anchorMinY, float anchorMaxX, float anchorMaxY, float left, float top, float right, float bottom)
-	{
-		if (!joinFill)
-			return;
-
-		FrameSlot.SetAnchorMin(joinFill, anchorMinX, anchorMinY);
-		FrameSlot.SetAnchorMax(joinFill, anchorMaxX, anchorMaxY);
-		FrameSlot.SetOffsets(joinFill, left, top, right, bottom);
 	}
 
 	protected void SetExpanded(bool expanded)
@@ -257,52 +255,19 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	}
 }
 
-//! Keeps an already-visible slide-out open without allowing hidden content to
-//! become the activation target.
-class GC_SlideOutContentComponent : SCR_ScriptedWidgetComponent
-{
-	protected GC_SlideOutComponent m_SlideOut;
-
-	override void HandlerAttached(Widget w)
-	{
-		super.HandlerAttached(w);
-
-		Widget parent = w.GetParent();
-		while (parent && !m_SlideOut)
-		{
-			m_SlideOut = GC_SlideOutComponent.Cast(parent.FindHandler(GC_SlideOutComponent));
-			parent = parent.GetParent();
-		}
-	}
-
-	override void HandlerDeattached(Widget w)
-	{
-		m_SlideOut = null;
-		super.HandlerDeattached(w);
-	}
-
-	override bool OnMouseEnter(Widget w, int x, int y)
-	{
-		if (m_SlideOut)
-			m_SlideOut.SetHandleHovered(true);
-		return true;
-	}
-
-	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
-	{
-		if (m_SlideOut && !m_SlideOut.ContainsWidget(enterW))
-			m_SlideOut.SetHandleHovered(false);
-		return true;
-	}
-}
-
 //! Draws the opaque rounded base used inside the handle's translucent visual group.
 class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 {
+	protected static const float CORNER_RADIUS = 16;
+
 	protected CanvasWidget m_wCanvas;
-	protected ref array<float> m_aVertices = {};
+	protected ref array<float> m_aBodyVertices = {};
+	protected ref array<float> m_aMiddleVertices = {};
+	protected ref array<float> m_aFirstCornerVertices = {};
+	protected ref array<float> m_aSecondCornerVertices = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 	protected int m_iColor = 0xff000000;
+	protected GC_ESlideOutDirection m_eDirection;
 
 	override void HandlerAttached(Widget w)
 	{
@@ -332,23 +297,67 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 
-		m_aVertices = {};
-		m_wCanvas.TessellateRoundedRectangle(
-			Vector(0, 0, 0),
-			Vector(canvasSize[0], canvasSize[1], 0),
-			16,
-			16,
-			RectangleCorner.All,
-			m_aVertices
-		);
-
-		PolygonDrawCommand background = new PolygonDrawCommand();
-		background.m_iColor = m_iColor;
-		background.m_Vertices = m_aVertices;
-
+		m_aBodyVertices = {};
+		m_aMiddleVertices = {};
+		m_aFirstCornerVertices = {};
+		m_aSecondCornerVertices = {};
 		m_aDrawCommands = {};
-		m_aDrawCommands.Insert(background);
+
+		switch (m_eDirection)
+		{
+			case GC_ESlideOutDirection.RIGHT:
+				TessellateRectangle(Vector(0, 0, 0), Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1], 0), m_aBodyVertices);
+				TessellateRectangle(Vector(0, CORNER_RADIUS, 0), Vector(canvasSize[0], canvasSize[1] - CORNER_RADIUS, 0), m_aMiddleVertices);
+				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
+				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				break;
+
+			case GC_ESlideOutDirection.UP:
+				TessellateRectangle(Vector(0, CORNER_RADIUS, 0), Vector(canvasSize[0], canvasSize[1], 0), m_aBodyVertices);
+				TessellateRectangle(Vector(CORNER_RADIUS, 0, 0), Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1], 0), m_aMiddleVertices);
+				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
+				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				break;
+
+			case GC_ESlideOutDirection.DOWN:
+				TessellateRectangle(Vector(0, 0, 0), Vector(canvasSize[0], canvasSize[1] - CORNER_RADIUS, 0), m_aBodyVertices);
+				TessellateRectangle(Vector(CORNER_RADIUS, 0, 0), Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1], 0), m_aMiddleVertices);
+				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
+				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				break;
+
+			default:
+				TessellateRectangle(Vector(CORNER_RADIUS, 0, 0), Vector(canvasSize[0], canvasSize[1], 0), m_aBodyVertices);
+				TessellateRectangle(Vector(0, CORNER_RADIUS, 0), Vector(canvasSize[0], canvasSize[1] - CORNER_RADIUS, 0), m_aMiddleVertices);
+				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
+				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				break;
+		}
+
+		AddShape(m_aBodyVertices);
+		AddShape(m_aMiddleVertices);
+		AddShape(m_aFirstCornerVertices);
+		AddShape(m_aSecondCornerVertices);
 		m_wCanvas.SetDrawCommands(m_aDrawCommands);
+	}
+
+	protected void TessellateRectangle(vector mins, vector maxs, out notnull array<float> vertices)
+	{
+		m_wCanvas.TessellateRoundedRectangle(mins, maxs, 0, 1, RectangleCorner.All, vertices);
+	}
+
+	protected void AddShape(array<float> vertices)
+	{
+		PolygonDrawCommand shape = new PolygonDrawCommand();
+		shape.m_iColor = m_iColor;
+		shape.m_Vertices = vertices;
+		m_aDrawCommands.Insert(shape);
+	}
+
+	void SetDirection(GC_ESlideOutDirection direction)
+	{
+		m_eDirection = direction;
+		Redraw();
 	}
 
 	void SetBackgroundColor(int color)
@@ -359,22 +368,17 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 }
 
 //! Button adapter which keeps pin intent scoped to the slide-out handle.
-class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
+class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
 {
 	protected GC_SlideOutComponent m_SlideOut;
 	protected GC_SlideOutHandleBackgroundComponent m_BackgroundComponent;
 	protected Widget m_wHandleBackground;
-	protected ImageWidget m_wJoinFill;
 	protected TextWidget m_wArrow;
 	protected bool m_bHovered;
 
 	override void HandlerAttached(Widget w)
 	{
 		super.HandlerAttached(w);
-		SetHoverSound(string.Empty);
-		SetClickedSound(string.Empty);
-		SetToggleable(false);
-		m_bUseColorization = false;
 
 		Widget parent = w.GetParent();
 		while (parent && !m_SlideOut)
@@ -383,7 +387,7 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 			parent = parent.GetParent();
 		}
 
-		Widget handle = w.GetParent();
+		Widget handle = w;
 		if (handle)
 		{
 			Widget roundedBase = handle.FindAnyWidget("SlideOutHandleRoundedBase");
@@ -391,7 +395,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 				m_BackgroundComponent = GC_SlideOutHandleBackgroundComponent.Cast(roundedBase.FindHandler(GC_SlideOutHandleBackgroundComponent));
 
 			m_wHandleBackground = handle.FindAnyWidget("SlideOutHandleBackground");
-			m_wJoinFill = ImageWidget.Cast(handle.FindAnyWidget("SlideOutHandleJoinFill"));
 			m_wArrow = TextWidget.Cast(handle.FindAnyWidget("SlideOutArrow"));
 		}
 
@@ -402,7 +405,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 	{
 		m_BackgroundComponent = null;
 		m_wHandleBackground = null;
-		m_wJoinFill = null;
 		m_wArrow = null;
 		m_SlideOut = null;
 		super.HandlerDeattached(w);
@@ -413,7 +415,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		m_bHovered = true;
 		if (m_SlideOut)
 			m_SlideOut.SetHandleHovered(true);
-		PlaySound(SCR_SoundEvent.SOUND_FE_BUTTON_HOVER);
 		UpdateVisuals();
 		return true;
 	}
@@ -427,12 +428,11 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		return true;
 	}
 
-	override bool OnClick(Widget w, int x, int y, int button)
+	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
 		if (button != 0 || !m_SlideOut)
-			return true;
+			return false;
 
-		PlaySound(SCR_SoundEvent.CLICK);
 		m_SlideOut.TogglePinned();
 		UpdateVisuals();
 		return true;
@@ -459,8 +459,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 
 		if (m_BackgroundComponent)
 			m_BackgroundComponent.SetBackgroundColor(backgroundColor);
-		if (m_wJoinFill)
-			m_wJoinFill.SetColorInt(backgroundColor);
 		if (m_wHandleBackground)
 			m_wHandleBackground.SetOpacity(backgroundOpacity);
 		if (m_wArrow)

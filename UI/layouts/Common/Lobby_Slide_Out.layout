@@ -30,10 +30,6 @@ FrameWidgetClass {
     SizeY 0
     OffsetBottom 0
    }
-   components {
-    GC_SlideOutContentComponent "{6A58000000000017}" {
-    }
-   }
   }
   FrameWidgetClass "{6A58000000000006}" {
    Name "SlideOutHandle"
@@ -49,6 +45,10 @@ FrameWidgetClass {
     SizeY 112
     OffsetBottom -112
     Alignment 0 0.5
+   }
+   components {
+    GC_SlideOutHandleComponent "{6A58000000000011}" {
+    }
    }
    {
     FrameWidgetClass "{6A5800000000000A}" {
@@ -86,22 +86,6 @@ FrameWidgetClass {
           }
          }
         }
-        ImageWidgetClass "{6A58000000000015}" {
-         Name "SlideOutHandleJoinFill"
-         "Ignore Cursor" 1
-         Slot FrameWidgetSlot "{6A58000000000016}" {
-          Anchor 1 0 1 1
-          PositionX -16
-          OffsetLeft -16
-          PositionY 0
-          OffsetTop 0
-          SizeX 16
-          OffsetRight 0
-          SizeY 0
-          OffsetBottom 0
-         }
-         Color 0 0 0 1
-        }
        }
     }
     TextWidgetClass "{6A5800000000000E}" {
@@ -127,27 +111,6 @@ FrameWidgetClass {
       OutlineSize 1
       OutlineColor 0 0 0 0.8
      }
-    }
-    ButtonWidgetClass "{6A58000000000008}" {
-     Name "SlideOutHandleButton"
-     "Ignore Cursor" 0
-     Slot FrameWidgetSlot "{6A58000000000009}" {
-      Anchor 0 0 1 1
-      PositionX 0
-      OffsetLeft 0
-      PositionY 0
-      OffsetTop 0
-      SizeX 0
-      OffsetRight 0
-      SizeY 0
-      OffsetBottom 0
-     }
-     Color 1 1 1 0
-     components {
-      GC_SlideOutHandleComponent "{6A58000000000011}" {
-      }
-     }
-     "no focus" 1
     }
    }
   }
