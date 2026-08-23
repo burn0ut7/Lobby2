@@ -651,6 +651,7 @@ class GC_SpectatorMarkerOverlay
 	protected GC_LobbyManager m_LobbyManager;
 	protected ref GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
+	protected ref map<SCR_AIGroup, ref array<IEntity>> m_mGroupShooters = new map<SCR_AIGroup, ref array<IEntity>>();
 
 	bool Start(float projectileTraceDuration)
 	{
@@ -709,6 +710,7 @@ class GC_SpectatorMarkerOverlay
 		if (m_ProjectileTracer)
 			m_ProjectileTracer.Destroy();
 
+		m_mGroupShooters.Clear();
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 			marker.Deactivate();
 
@@ -742,8 +744,32 @@ class GC_SpectatorMarkerOverlay
 		if (entityType == EEditableEntityType.CHARACTER && m_ProjectileTracer)
 			m_ProjectileTracer.TrackShooter(owner);
 
-		if (entityType == EEditableEntityType.GROUP && !SCR_EditableGroupComponent.Cast(entity))
-			return;
+		if (entityType == EEditableEntityType.GROUP)
+		{
+			if (!SCR_EditableGroupComponent.Cast(entity))
+				return;
+
+			SCR_AIGroup group = SCR_AIGroup.Cast(owner);
+			if (group && m_ProjectileTracer)
+			{
+				array<AIAgent> agents = {};
+				ref array<IEntity> groupShooters = {};
+				group.GetAgents(agents);
+				foreach (AIAgent agent : agents)
+				{
+					if (!agent)
+						continue;
+
+					IEntity shooter = agent.GetControlledEntity();
+					if (!shooter)
+						continue;
+
+					m_ProjectileTracer.TrackShooter(shooter);
+					groupShooters.Insert(shooter);
+				}
+				m_mGroupShooters.Insert(group, groupShooters);
+			}
+		}
 
 		m_mMarkers.Insert(entity, new GC_SpectatorEditableEntityMarker(entity, MAX_MARKER_DISTANCE));
 	}
@@ -753,6 +779,18 @@ class GC_SpectatorMarkerOverlay
 		GC_SpectatorEditableEntityMarker marker;
 		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER && m_ProjectileTracer)
 			m_ProjectileTracer.UntrackShooter(entity.GetOwner());
+		if (entity && entity.GetEntityType() == EEditableEntityType.GROUP && m_ProjectileTracer)
+		{
+			SCR_AIGroup group = SCR_AIGroup.Cast(entity.GetOwner());
+			if (group)
+			{
+				array<IEntity> groupShooters;
+				if (m_mGroupShooters.Find(group, groupShooters))
+					foreach (IEntity shooter : groupShooters)
+						m_ProjectileTracer.UntrackShooter(shooter);
+				m_mGroupShooters.Remove(group);
+			}
+		}
 		if (!m_mMarkers.Find(entity, marker))
 			return;
 

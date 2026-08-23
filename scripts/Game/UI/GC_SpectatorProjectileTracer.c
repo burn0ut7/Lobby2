@@ -108,6 +108,7 @@ class GC_SpectatorProjectileTracer
 	protected BaseWorld m_World;
 	protected float m_fTrailDuration;
 	protected ref map<IEntity, EventHandlerManagerComponent> m_mShooterEvents = new map<IEntity, EventHandlerManagerComponent>();
+	protected ref map<IEntity, int> m_mShooterReferences = new map<IEntity, int>();
 	protected ref array<ref GC_SpectatorProjectileTrace> m_aTraces = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 
@@ -136,6 +137,7 @@ class GC_SpectatorProjectileTracer
 		}
 
 		m_mShooterEvents.Clear();
+		m_mShooterReferences.Clear();
 		m_aTraces.Clear();
 		m_aDrawCommands.Clear();
 		if (m_wCanvas)
@@ -149,8 +151,15 @@ class GC_SpectatorProjectileTracer
 
 	void TrackShooter(IEntity shooter)
 	{
-		if (!shooter || m_mShooterEvents.Contains(shooter))
+		if (!shooter)
 			return;
+
+		int referenceCount;
+		if (m_mShooterReferences.Find(shooter, referenceCount))
+		{
+			m_mShooterReferences.Set(shooter, referenceCount + 1);
+			return;
+		}
 
 		EventHandlerManagerComponent eventManager = EventHandlerManagerComponent.Cast(shooter.FindComponent(EventHandlerManagerComponent));
 		if (!eventManager)
@@ -158,17 +167,26 @@ class GC_SpectatorProjectileTracer
 
 		eventManager.RegisterScriptHandler("OnProjectileShot", this, OnProjectileShot, false);
 		m_mShooterEvents.Insert(shooter, eventManager);
+		m_mShooterReferences.Insert(shooter, 1);
 	}
 
 	void UntrackShooter(IEntity shooter)
 	{
-		EventHandlerManagerComponent eventManager;
-		if (!shooter || !m_mShooterEvents.Find(shooter, eventManager))
+		int referenceCount;
+		if (!shooter || !m_mShooterReferences.Find(shooter, referenceCount))
 			return;
 
-		if (eventManager)
+		if (referenceCount > 1)
+		{
+			m_mShooterReferences.Set(shooter, referenceCount - 1);
+			return;
+		}
+
+		EventHandlerManagerComponent eventManager;
+		if (m_mShooterEvents.Find(shooter, eventManager) && eventManager)
 			eventManager.RemoveScriptHandler("OnProjectileShot", this, OnProjectileShot, false);
 		m_mShooterEvents.Remove(shooter);
+		m_mShooterReferences.Remove(shooter);
 	}
 
 	protected void OnProjectileShot(int playerId, BaseWeaponComponent weapon, IEntity projectile)
