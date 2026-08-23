@@ -1,5 +1,6 @@
 FrameWidgetClass {
  Name "SlideOut"
+ "Ignore Cursor" 0
  Slot FrameWidgetSlot "{6A58000000000002}" {
   PositionX 0
   OffsetLeft 0
@@ -31,6 +32,7 @@ FrameWidgetClass {
   }
   SizeLayoutWidgetClass "{6A58000000000006}" {
    Name "SlideOutHandle"
+   "Ignore Cursor" 1
    Slot FrameWidgetSlot "{6A58000000000007}" {
     Anchor 0 0.5 0 0.5
     PositionX 0
@@ -50,6 +52,7 @@ FrameWidgetClass {
    {
     OverlayWidgetClass "{6A58000000000008}" {
      Name "SlideOutHandleBody"
+     "Ignore Cursor" 1
      Slot AlignableSlot "{6A58000000000009}" {
       HorizontalAlign 3
       VerticalAlign 3
@@ -57,6 +60,7 @@ FrameWidgetClass {
      {
       ImageWidgetClass "{6A5800000000000A}" {
        Name "SlideOutHandleBackground"
+       "Ignore Cursor" 1
        Slot OverlayWidgetSlot "{6A5800000000000B}" {
         HorizontalAlign 3
         VerticalAlign 3
@@ -65,6 +69,7 @@ FrameWidgetClass {
       }
       ImageWidgetClass "{6A5800000000000C}" {
        Name "SlideOutHandleAccent"
+       "Ignore Cursor" 1
        Slot OverlayWidgetSlot "{6A5800000000000D}" {
         HorizontalAlign 0
         VerticalAlign 3
@@ -74,6 +79,7 @@ FrameWidgetClass {
       }
       TextWidgetClass "{6A5800000000000E}" {
        Name "SlideOutArrow"
+       "Ignore Cursor" 1
        Slot OverlayWidgetSlot "{6A5800000000000F}" {
         HorizontalAlign 3
         VerticalAlign 3
