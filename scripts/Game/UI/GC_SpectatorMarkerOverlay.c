@@ -753,8 +753,10 @@ class GC_SpectatorMarkerOverlay
 		EEditableEntityType entityType = entity.GetEntityType();
 		if (entityType == EEditableEntityType.CHARACTER || entityType == EEditableEntityType.GROUP || entityType == EEditableEntityType.VEHICLE)
 			PrintFormat("GC | Tracer Debug | editable entity registered: type=%1 component=%2 owner=%3", entityType, entity, entity.GetOwner());
+		IEntity owner = entity.GetOwner();
 		if (entityType == EEditableEntityType.VEHICLE)
 		{
+			m_ProjectileTracer.TrackDamageEntity(owner);
 			RefreshVehicleShooters(entity);
 			return;
 		}
@@ -762,14 +764,16 @@ class GC_SpectatorMarkerOverlay
 		if (entityType != EEditableEntityType.CHARACTER && entityType != EEditableEntityType.GROUP)
 			return;
 
-		IEntity owner = entity.GetOwner();
 		if (!owner || owner.FindComponent(GC_LobbySpectatorBodyComponent))
 			return;
 
 		if (entityType == EEditableEntityType.CHARACTER && !SCR_EditableCharacterComponent.Cast(entity))
 			return;
 		if (entityType == EEditableEntityType.CHARACTER)
+		{
+			m_ProjectileTracer.TrackDamageEntity(owner);
 			RefreshCharacterShooters(entity);
+		}
 
 		if (entityType == EEditableEntityType.GROUP)
 		{
@@ -784,6 +788,8 @@ class GC_SpectatorMarkerOverlay
 	{
 		if (entity && entity.GetEntityType() == EEditableEntityType.VEHICLE)
 		{
+			if (m_ProjectileTracer)
+				m_ProjectileTracer.UntrackDamageEntity(entity.GetOwner());
 			array<IEntity> vehicleShooters;
 			if (m_mVehicleShooters.Find(entity, vehicleShooters) && m_ProjectileTracer)
 				foreach (IEntity shooter : vehicleShooters)
@@ -795,6 +801,8 @@ class GC_SpectatorMarkerOverlay
 		GC_SpectatorEditableEntityMarker marker;
 		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER)
 		{
+			if (m_ProjectileTracer)
+				m_ProjectileTracer.UntrackDamageEntity(entity.GetOwner());
 			array<IEntity> characterShooters;
 			if (m_mCharacterShooters.Find(entity, characterShooters) && m_ProjectileTracer)
 				foreach (IEntity shooter : characterShooters)

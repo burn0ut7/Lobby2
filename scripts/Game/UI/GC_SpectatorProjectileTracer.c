@@ -83,6 +83,11 @@ class GC_SpectatorProjectileTrace
 		return m_Projectile && m_Projectile == projectile;
 	}
 
+	vector GetLastProjectilePosition()
+	{
+		return m_vLastProjectilePosition;
+	}
+
 	bool IsSimulated()
 	{
 		return m_bSimulated;
@@ -209,6 +214,7 @@ class GC_SpectatorProjectileTracer
 	protected ref map<IEntity, EventHandlerManagerComponent> m_mProjectileEvents = new map<IEntity, EventHandlerManagerComponent>();
 	protected ref map<IEntity, SCR_MuzzleEffectComponent> m_mMuzzleEffects = new map<IEntity, SCR_MuzzleEffectComponent>();
 	protected ref map<IEntity, int> m_mShooterReferences = new map<IEntity, int>();
+	protected ref map<IEntity, SCR_DamageManagerComponent> m_mDamageManagers = new map<IEntity, SCR_DamageManagerComponent>();
 	protected ref set<IEntity> m_sReportedMissingFiringSources = new set<IEntity>();
 	protected ref array<ref GC_SpectatorProjectileTrace> m_aTraces = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
@@ -226,6 +232,9 @@ class GC_SpectatorProjectileTracer
 	protected int m_iExplosionsDetected;
 	protected int m_iFragmentTracesCreated;
 	protected int m_iActiveFragmentTraces;
+	protected int m_iDamageManagerSubscriptions;
+	protected int m_iDamageCallbacks;
+	protected int m_iFragmentDamageCallbacks;
 
 	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float trailDuration)
 	{
@@ -262,11 +271,17 @@ class GC_SpectatorProjectileTracer
 			if (muzzleEffect)
 				muzzleEffect.GetOnWeaponFired().Remove(OnMuzzleWeaponFired);
 		}
+		foreach (IEntity damageEntity, SCR_DamageManagerComponent damageManager : m_mDamageManagers)
+		{
+			if (damageManager)
+				damageManager.GetOnDamage().Remove(OnDamage);
+		}
 
 		m_mGrenadeEvents.Clear();
 		m_mProjectileEvents.Clear();
 		m_mMuzzleEffects.Clear();
 		m_mShooterReferences.Clear();
+		m_mDamageManagers.Clear();
 		m_sReportedMissingFiringSources.Clear();
 		m_aTraces.Clear();
 		m_aDrawCommands.Clear();
@@ -277,6 +292,35 @@ class GC_SpectatorProjectileTracer
 		m_Workspace = null;
 		m_World = null;
 		m_fTrailDuration = 0.0;
+	}
+
+	void TrackDamageEntity(IEntity damageEntity)
+	{
+		if (!damageEntity || m_mDamageManagers.Contains(damageEntity))
+			return;
+
+		SCR_DamageManagerComponent damageManager = SCR_DamageManagerComponent.Cast(damageEntity.FindComponent(SCR_DamageManagerComponent));
+		if (!damageManager)
+		{
+			PrintFormat("GC | Fragment Debug | damage subscription rejected: entity=%1 reason=no SCR_DamageManagerComponent", damageEntity);
+			return;
+		}
+
+		damageManager.GetOnDamage().Insert(OnDamage);
+		m_mDamageManagers.Insert(damageEntity, damageManager);
+		m_iDamageManagerSubscriptions++;
+		PrintFormat("GC | Fragment Debug | damage subscription active: entity=%1 manager=%2 trackedManagers=%3", damageEntity, damageManager, m_mDamageManagers.Count());
+	}
+
+	void UntrackDamageEntity(IEntity damageEntity)
+	{
+		SCR_DamageManagerComponent damageManager;
+		if (!damageEntity || !m_mDamageManagers.Find(damageEntity, damageManager))
+			return;
+
+		if (damageManager)
+			damageManager.GetOnDamage().Remove(OnDamage);
+		m_mDamageManagers.Remove(damageEntity);
 	}
 
 	bool TrackShooter(IEntity shooter, bool trackGrenades, bool trackProjectileEvents)
@@ -385,6 +429,48 @@ class GC_SpectatorProjectileTracer
 		CreateProjectileTrace(playerId, weapon, projectile, startPosition, "grenade");
 	}
 
+	protected void OnDamage(BaseDamageContext damageContext)
+	{
+		m_iDamageCallbacks++;
+		if (!damageContext || (damageContext.damageType != EDamageType.FRAGMENTATION && damageContext.damageType != EDamageType.PROCESSED_FRAGMENTATION))
+			return;
+
+		m_iFragmentDamageCallbacks++;
+		IEntity damageSource = damageContext.damageSource;
+		bool sourceValid = damageSource && !damageSource.IsDeleted();
+		vector sourceOrigin;
+		if (sourceValid)
+			sourceOrigin = damageSource.GetOrigin();
+
+		bool sourceTracked;
+		vector cachedSourcePosition;
+		foreach (GC_SpectatorProjectileTrace trace : m_aTraces)
+		{
+			if (!trace.IsProjectile(damageSource))
+				continue;
+
+			sourceTracked = true;
+			cachedSourcePosition = trace.GetLastProjectilePosition();
+			break;
+		}
+
+		string effectType = "NULL";
+		bool effectProxy;
+		if (damageContext.damageEffect)
+		{
+			effectType = damageContext.damageEffect.Type().ToString();
+			effectProxy = damageContext.damageEffect.IsProxy();
+		}
+
+		IEntity instigatorEntity;
+		if (damageContext.instigator)
+			instigatorEntity = damageContext.instigator.GetInstigatorEntity();
+
+		PrintFormat("GC | Fragment Debug | real hit: callback=%1 type=%2 damage=%3 victim=%4 hitPosition=%5 hitDirection=%6", m_iFragmentDamageCallbacks, damageContext.damageType, damageContext.damageValue, damageContext.hitEntity, damageContext.hitPosition, damageContext.hitDirection);
+		PrintFormat("GC | Fragment Debug | real hit source: callback=%1 source=%2 sourceValid=%3 sourceOrigin=%4 sourceTracked=%5 cachedSourcePosition=%6", m_iFragmentDamageCallbacks, damageSource, sourceValid, sourceOrigin, sourceTracked, cachedSourcePosition);
+		PrintFormat("GC | Fragment Debug | real hit context: callback=%1 effect=%2 effectProxy=%3 instigator=%4 impactVelocity=%5 hitNormal=%6", m_iFragmentDamageCallbacks, effectType, effectProxy, instigatorEntity, damageContext.impactVelocity, damageContext.hitNormal);
+	}
+
 	protected void CreateProjectileTrace(int playerId, BaseWeaponComponent weapon, IEntity projectile, vector startPosition, string originSource)
 	{
 		m_iProjectileCallbacks++;
@@ -467,6 +553,7 @@ class GC_SpectatorProjectileTracer
 		PrintFormat("GC | Tracer Debug | subscription report: source=%1 tracked=%2 grenadeSources=%3 projectileEventSources=%4 muzzleSources=%5 attempts=%6 successes=%7 failures=%8 untracks=%9", source, m_mShooterReferences.Count(), m_mGrenadeEvents.Count(), m_mProjectileEvents.Count(), m_mMuzzleEffects.Count(), m_iTrackAttempts, m_iTrackSuccesses, m_iTrackFailures, m_iUntracks);
 		PrintFormat("GC | Tracer Debug | rendering report: callbacks=%1 muzzleCallbacks=%2 accepted=%3 rejected=%4 activeTraces=%5 segments=%6 projectedSegments=%7 drawCommands=%8", m_iProjectileCallbacks, m_iMuzzleCallbacks, m_iAcceptedTraces, m_iRejectedCallbacks, m_aTraces.Count(), m_iLastSegmentCount, m_iLastProjectedSegmentCount, m_iLastDrawCommandCount);
 		PrintFormat("GC | Tracer Debug | fragmentation report: explosions=%1 fragmentsCreated=%2 activeFragments=%3", m_iExplosionsDetected, m_iFragmentTracesCreated, m_iActiveFragmentTraces);
+		PrintFormat("GC | Fragment Debug | damage report: subscriptions=%1 trackedManagers=%2 damageCallbacks=%3 fragmentCallbacks=%4", m_iDamageManagerSubscriptions, m_mDamageManagers.Count(), m_iDamageCallbacks, m_iFragmentDamageCallbacks);
 	}
 
 	protected void Update()
