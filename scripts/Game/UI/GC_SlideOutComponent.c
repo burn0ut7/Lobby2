@@ -25,6 +25,9 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	[Attribute("180", UIWidgets.EditBox, "Expand and collapse duration in milliseconds")]
 	protected int m_iAnimationDurationMs;
 
+	[Attribute("5", UIWidgets.EditBox, "Distance in handle widths over which the handle fades in")]
+	protected float m_fHandleRevealDistanceWidths;
+
 	protected float m_fExpandedX;
 	protected float m_fExpandedY;
 	protected float m_fTravelDistance;
@@ -104,14 +107,45 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		SetHovered(handleHovered || contentHovered || m_bHandleFocused);
 
 		if (!m_HandleComponent)
-		{
-			Widget handleButton = m_wHandle.FindAnyWidget("SlideOutHandleButton");
-			if (handleButton)
-				m_HandleComponent = GC_SlideOutHandleComponent.Cast(handleButton.FindHandler(GC_SlideOutHandleComponent));
-		}
+			m_HandleComponent = GC_SlideOutHandleComponent.Cast(m_wHandle.FindHandler(GC_SlideOutHandleComponent));
 
 		if (m_HandleComponent)
+		{
+			m_HandleComponent.SetProximityOpacity(GetPointerProximity(m_wHandle, mouseX, mouseY));
 			m_HandleComponent.SetHovered(handleHovered || m_bHandleFocused);
+		}
+	}
+
+	protected float GetPointerProximity(Widget widget, int mouseX, int mouseY)
+	{
+		if (!widget || m_fHandleRevealDistanceWidths <= 0)
+			return 0;
+
+		float widgetX;
+		float widgetY;
+		float widgetWidth;
+		float widgetHeight;
+		widget.GetScreenPos(widgetX, widgetY);
+		widget.GetScreenSize(widgetWidth, widgetHeight);
+
+		float distanceX;
+		if (mouseX < widgetX)
+			distanceX = widgetX - mouseX;
+		else if (mouseX > widgetX + widgetWidth)
+			distanceX = mouseX - widgetX - widgetWidth;
+
+		float distanceY;
+		if (mouseY < widgetY)
+			distanceY = widgetY - mouseY;
+		else if (mouseY > widgetY + widgetHeight)
+			distanceY = mouseY - widgetY - widgetHeight;
+
+		float revealDistance = m_fHandleSize * m_fHandleRevealDistanceWidths;
+		float distance = Math.Sqrt(distanceX * distanceX + distanceY * distanceY);
+		if (distance >= revealDistance)
+			return 0;
+
+		return 1 - distance / revealDistance;
 	}
 
 	protected bool IsPointerInside(Widget widget, int mouseX, int mouseY)
@@ -156,6 +190,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		}
 		m_wContent = content;
 		m_wHandle = handle;
+		m_HandleComponent = GC_SlideOutHandleComponent.Cast(handle.FindHandler(GC_SlideOutHandleComponent));
 
 		FrameSlot.SetAnchorMin(content, 0, 0);
 		FrameSlot.SetAnchorMax(content, 1, 1);
@@ -393,6 +428,9 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 
 	void SetBackgroundColor(int color)
 	{
+		if (m_iColor == color)
+			return;
+
 		m_iColor = color;
 		Redraw();
 	}
@@ -406,6 +444,7 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 	protected Widget m_wHandleBackground;
 	protected TextWidget m_wArrow;
 	protected bool m_bHovered;
+	protected float m_fProximityOpacity;
 
 	override void HandlerAttached(Widget w)
 	{
@@ -422,7 +461,7 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 			parent = parent.GetParent();
 		}
 
-		Widget handle = w.GetParent();
+		Widget handle = w;
 		if (handle)
 		{
 			Widget roundedBase = handle.FindAnyWidget("SlideOutHandleRoundedBase");
@@ -471,18 +510,19 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
-		return super.OnClick(w, x, y, button);
-	}
-
-	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
-	{
-		bool handled = super.OnMouseButtonDown(w, x, y, button);
+		super.OnClick(w, x, y, button);
 		if (button != 0 || !m_SlideOut)
-			return handled;
+			return true;
 
 		m_SlideOut.TogglePinned();
 		UpdateVisuals();
 		return true;
+	}
+
+	void SetProximityOpacity(float opacity)
+	{
+		m_fProximityOpacity = opacity;
+		UpdateVisuals();
 	}
 
 	void SetHovered(bool hovered)
@@ -516,8 +556,11 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		if (m_BackgroundComponent)
 			m_BackgroundComponent.SetBackgroundColor(backgroundColor);
 		if (m_wHandleBackground)
-			m_wHandleBackground.SetOpacity(backgroundOpacity);
+			m_wHandleBackground.SetOpacity(backgroundOpacity * m_fProximityOpacity);
 		if (m_wArrow)
+		{
 			m_wArrow.SetColor(arrowColor);
+			m_wArrow.SetOpacity(m_fProximityOpacity);
+		}
 	}
 }
