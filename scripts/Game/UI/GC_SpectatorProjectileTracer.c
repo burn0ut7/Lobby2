@@ -271,7 +271,9 @@ class GC_SpectatorProjectileTracer
 			return;
 		}
 
-		CreateProjectileTrace(0, null, projectile, effectEntity.GetOrigin(), "muzzle");
+		vector muzzleTransform[4];
+		effectEntity.GetTransform(muzzleTransform);
+		CreateProjectileTrace(0, null, projectile, muzzleTransform[3], "muzzle");
 	}
 
 	protected void OnWeaponProjectileCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
@@ -294,7 +296,9 @@ class GC_SpectatorProjectileTracer
 			return;
 		}
 
-		CreateProjectileTrace(playerId, weapon, projectile, muzzleParticle.GetOrigin(), "vehicle-muzzle");
+		vector muzzleTransform[4];
+		muzzleParticle.GetTransform(muzzleTransform);
+		CreateProjectileTrace(playerId, weapon, projectile, muzzleTransform[3], "vehicle-muzzle");
 	}
 
 	protected void OnGrenadeCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
