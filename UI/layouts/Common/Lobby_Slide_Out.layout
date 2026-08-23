@@ -51,18 +51,24 @@ FrameWidgetClass {
    AllowHeightOverride 1
    HeightOverride 112
    {
-    OverlayWidgetClass "{6A58000000000008}" {
-     Name "SlideOutHandleBody"
-     "Ignore Cursor" 1
+    ButtonWidgetClass "{6A58000000000008}" {
+     Name "SlideOutHandleButton"
+     "Ignore Cursor" 0
      Slot AlignableSlot "{6A58000000000009}" {
       HorizontalAlign 3
       VerticalAlign 3
      }
+     Color 1 1 1 0
+     components {
+      GC_SlideOutHandleComponent "{6A58000000000011}" {
+      }
+     }
+     "no focus" 1
      {
       ImageWidgetClass "{6A5800000000000A}" {
        Name "SlideOutHandleBackground"
        "Ignore Cursor" 1
-       Slot OverlayWidgetSlot "{6A5800000000000B}" {
+       Slot ButtonWidgetSlot "{6A5800000000000B}" {
         HorizontalAlign 3
         VerticalAlign 3
        }
@@ -71,7 +77,7 @@ FrameWidgetClass {
       ImageWidgetClass "{6A5800000000000C}" {
        Name "SlideOutHandleAccent"
        "Ignore Cursor" 1
-       Slot OverlayWidgetSlot "{6A5800000000000D}" {
+       Slot ButtonWidgetSlot "{6A5800000000000D}" {
         HorizontalAlign 0
         VerticalAlign 3
        }
@@ -81,7 +87,7 @@ FrameWidgetClass {
       TextWidgetClass "{6A5800000000000E}" {
        Name "SlideOutArrow"
        "Ignore Cursor" 1
-       Slot OverlayWidgetSlot "{6A5800000000000F}" {
+       Slot ButtonWidgetSlot "{6A5800000000000F}" {
         HorizontalAlign 3
         VerticalAlign 3
        }

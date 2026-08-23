@@ -29,6 +29,8 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	protected float m_fTravelDistance;
 	protected float m_fProgress;
 	protected float m_fTargetProgress;
+	protected bool m_bHovered;
+	protected bool m_bPinned;
 
 	override void HandlerAttached(Widget w)
 	{
@@ -48,6 +50,8 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 		m_fProgress = 0;
 		m_fTargetProgress = 0;
+		m_bHovered = false;
+		m_bPinned = false;
 		ApplyProgress();
 	}
 
@@ -59,6 +63,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
+		m_bHovered = true;
 		SetExpanded(true);
 		return true;
 	}
@@ -74,8 +79,19 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			enteredWidget = enteredWidget.GetParent();
 		}
 
-		SetExpanded(false);
+		m_bHovered = false;
+		if (!m_bPinned)
+			SetExpanded(false);
 		return true;
+	}
+
+	void TogglePinned()
+	{
+		m_bPinned = !m_bPinned;
+		if (m_bPinned)
+			SetExpanded(true);
+		else if (!m_bHovered)
+			SetExpanded(false);
 	}
 
 	protected void ConfigureChildren()
@@ -202,5 +218,38 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		}
 
 		FrameSlot.SetPos(m_wRoot, x, y);
+	}
+}
+
+//! Button adapter which keeps pin intent scoped to the slide-out handle.
+class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
+{
+	protected GC_SlideOutComponent m_SlideOut;
+
+	override void HandlerAttached(Widget w)
+	{
+		super.HandlerAttached(w);
+
+		Widget parent = w.GetParent();
+		while (parent && !m_SlideOut)
+		{
+			m_SlideOut = GC_SlideOutComponent.Cast(parent.FindHandler(GC_SlideOutComponent));
+			parent = parent.GetParent();
+		}
+	}
+
+	override void HandlerDeattached(Widget w)
+	{
+		m_SlideOut = null;
+		super.HandlerDeattached(w);
+	}
+
+	override bool OnClick(Widget w, int x, int y, int button)
+	{
+		if (!m_SlideOut)
+			return false;
+
+		m_SlideOut.TogglePinned();
+		return true;
 	}
 }
