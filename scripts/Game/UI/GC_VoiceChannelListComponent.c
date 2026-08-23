@@ -97,14 +97,14 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 		array<string> desiredKeys = {};
 		bool changed;
-		if (m_LobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+		Faction localFaction = GetLocalPlayerFaction();
+		if (m_LobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING || !localFaction)
 			changed = EnsureChannel(desiredKeys, GC_VoiceChannelType.GLOBAL) || changed;
 
 		array<Faction> factions = m_LobbyManager.GetRegisteredFactions();
 		array<SCR_AIGroup> groups = m_LobbyManager.GetRegisteredGroups();
 		array<int> connectedPlayers = {};
 		GetGame().GetPlayerManager().GetPlayers(connectedPlayers);
-		Faction localFaction = GetLocalPlayerFaction();
 
 		// Keep each faction's channel beside its group channels so the list reads
 		// as one hierarchy: Global, faction, that faction's groups, next faction.
