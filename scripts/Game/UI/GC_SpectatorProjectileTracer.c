@@ -11,7 +11,7 @@ class GC_SpectatorProjectileTrace
 	protected float m_fElapsedTime;
 	protected bool m_bFinished;
 
-	void GC_SpectatorProjectileTrace(IEntity projectile, float trailDuration)
+	void GC_SpectatorProjectileTrace(IEntity projectile, vector startPosition, float trailDuration)
 	{
 		m_Projectile = projectile;
 		m_fTrailDuration = trailDuration;
@@ -20,7 +20,7 @@ class GC_SpectatorProjectileTrace
 		if (m_Projectile)
 		{
 			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
-			m_aPositions.Insert(m_Projectile.GetOrigin());
+			m_aPositions.Insert(startPosition);
 			m_aSampleTimes.Insert(0.0);
 			if (m_ProjectileMove)
 				m_fInitialSpeed = m_ProjectileMove.GetVelocity().Length();
@@ -108,7 +108,8 @@ class GC_SpectatorProjectileTracer
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
 	protected float m_fTrailDuration;
-	protected ref map<IEntity, EventHandlerManagerComponent> m_mShooterEvents = new map<IEntity, EventHandlerManagerComponent>();
+	protected ref map<IEntity, EventHandlerManagerComponent> m_mGrenadeEvents = new map<IEntity, EventHandlerManagerComponent>();
+	protected ref map<IEntity, EventHandlerManagerComponent> m_mProjectileEvents = new map<IEntity, EventHandlerManagerComponent>();
 	protected ref map<IEntity, SCR_MuzzleEffectComponent> m_mMuzzleEffects = new map<IEntity, SCR_MuzzleEffectComponent>();
 	protected ref map<IEntity, int> m_mShooterReferences = new map<IEntity, int>();
 	protected ref set<IEntity> m_sReportedMissingFiringSources = new set<IEntity>();
@@ -146,10 +147,15 @@ class GC_SpectatorProjectileTracer
 	{
 		ReportDiagnostics("destroy");
 		GetGame().GetCallqueue().Remove(Update);
-		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mShooterEvents)
+		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mGrenadeEvents)
 		{
 			if (eventManager)
-				eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
+				eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnGrenadeCreated, false);
+		}
+		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mProjectileEvents)
+		{
+			if (eventManager)
+				eventManager.RemoveScriptHandler("OnProjectileShot", this, OnWeaponProjectileCreated, false);
 		}
 		foreach (IEntity shooter, SCR_MuzzleEffectComponent muzzleEffect : m_mMuzzleEffects)
 		{
@@ -157,7 +163,8 @@ class GC_SpectatorProjectileTracer
 				muzzleEffect.GetOnWeaponFired().Remove(OnMuzzleWeaponFired);
 		}
 
-		m_mShooterEvents.Clear();
+		m_mGrenadeEvents.Clear();
+		m_mProjectileEvents.Clear();
 		m_mMuzzleEffects.Clear();
 		m_mShooterReferences.Clear();
 		m_sReportedMissingFiringSources.Clear();
@@ -172,7 +179,7 @@ class GC_SpectatorProjectileTracer
 		m_fTrailDuration = 0.0;
 	}
 
-	bool TrackShooter(IEntity shooter)
+	bool TrackShooter(IEntity shooter, bool trackGrenades, bool trackProjectileEvents)
 	{
 		m_iTrackAttempts++;
 		if (!shooter)
@@ -191,7 +198,9 @@ class GC_SpectatorProjectileTracer
 
 		EventHandlerManagerComponent eventManager = EventHandlerManagerComponent.Cast(shooter.FindComponent(EventHandlerManagerComponent));
 		SCR_MuzzleEffectComponent muzzleEffect = SCR_MuzzleEffectComponent.Cast(shooter.FindComponent(SCR_MuzzleEffectComponent));
-		if (!eventManager && !muzzleEffect)
+		bool useGrenadeEvent = trackGrenades && eventManager;
+		bool useProjectileEvent = trackProjectileEvents && !muzzleEffect && eventManager;
+		if (!useGrenadeEvent && !useProjectileEvent && !muzzleEffect)
 		{
 			m_iTrackFailures++;
 			if (!m_sReportedMissingFiringSources.Contains(shooter))
@@ -202,10 +211,15 @@ class GC_SpectatorProjectileTracer
 			return false;
 		}
 
-		if (eventManager)
+		if (useGrenadeEvent)
 		{
-			eventManager.RegisterScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
-			m_mShooterEvents.Insert(shooter, eventManager);
+			eventManager.RegisterScriptHandler("OnGrenadeThrown", this, OnGrenadeCreated, false);
+			m_mGrenadeEvents.Insert(shooter, eventManager);
+		}
+		if (useProjectileEvent)
+		{
+			eventManager.RegisterScriptHandler("OnProjectileShot", this, OnWeaponProjectileCreated, false);
+			m_mProjectileEvents.Insert(shooter, eventManager);
 		}
 		if (muzzleEffect)
 		{
@@ -214,7 +228,7 @@ class GC_SpectatorProjectileTracer
 		}
 		m_mShooterReferences.Insert(shooter, 1);
 		m_iTrackSuccesses++;
-		PrintFormat("GC | Tracer Debug | subscription active: shooter=%1 eventManager=%2 muzzleEffect=%3 tracked=%4", shooter, eventManager, muzzleEffect, m_mShooterReferences.Count());
+		PrintFormat("GC | Tracer Debug | subscription active: shooter=%1 grenadeEvent=%2 projectileEvent=%3 muzzleEffect=%4 tracked=%5", shooter, useGrenadeEvent, useProjectileEvent, muzzleEffect, m_mShooterReferences.Count());
 		return true;
 	}
 
@@ -231,12 +245,15 @@ class GC_SpectatorProjectileTracer
 		}
 
 		EventHandlerManagerComponent eventManager;
-		if (m_mShooterEvents.Find(shooter, eventManager) && eventManager)
-			eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
+		if (m_mGrenadeEvents.Find(shooter, eventManager) && eventManager)
+			eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnGrenadeCreated, false);
+		if (m_mProjectileEvents.Find(shooter, eventManager) && eventManager)
+			eventManager.RemoveScriptHandler("OnProjectileShot", this, OnWeaponProjectileCreated, false);
 		SCR_MuzzleEffectComponent muzzleEffect;
 		if (m_mMuzzleEffects.Find(shooter, muzzleEffect) && muzzleEffect)
 			muzzleEffect.GetOnWeaponFired().Remove(OnMuzzleWeaponFired);
-		m_mShooterEvents.Remove(shooter);
+		m_mGrenadeEvents.Remove(shooter);
+		m_mProjectileEvents.Remove(shooter);
 		m_mMuzzleEffects.Remove(shooter);
 		m_mShooterReferences.Remove(shooter);
 		m_iUntracks++;
@@ -246,13 +263,48 @@ class GC_SpectatorProjectileTracer
 	protected void OnMuzzleWeaponFired(IEntity effectEntity, BaseMuzzleComponent muzzle, IEntity projectile)
 	{
 		m_iMuzzleCallbacks++;
-		if (m_iMuzzleCallbacks <= SHOT_DETAIL_LIMIT)
-			PrintFormat("GC | Tracer Debug | muzzle callback: callback=%1 effectEntity=%2 muzzle=%3 projectile=%4", m_iMuzzleCallbacks, effectEntity, muzzle, projectile);
+		if (!effectEntity)
+		{
+			m_iRejectedCallbacks++;
+			PrintFormat("GC | Tracer Debug | muzzle callback rejected: callback=%1 muzzle=%2 projectile=%3 reason=no muzzle effect entity", m_iMuzzleCallbacks, muzzle, projectile, level: LogLevel.WARNING);
+			return;
+		}
 
-		OnProjectileCreated(0, null, projectile);
+		CreateProjectileTrace(0, null, projectile, effectEntity.GetOrigin(), "muzzle");
 	}
 
-	protected void OnProjectileCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
+	protected void OnWeaponProjectileCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
+	{
+		IEntity muzzleParticle;
+		if (weapon)
+		{
+			IEntity weaponEntity = weapon.GetOwner();
+			MuzzleEffectComponent muzzleEffect;
+			if (weaponEntity)
+				muzzleEffect = MuzzleEffectComponent.Cast(weaponEntity.FindComponent(MuzzleEffectComponent));
+			if (muzzleEffect)
+				muzzleParticle = muzzleEffect.GetParticleEntity();
+		}
+
+		if (!muzzleParticle)
+		{
+			m_iRejectedCallbacks++;
+			PrintFormat("GC | Tracer Debug | vehicle projectile callback rejected: player=%1 weapon=%2 projectile=%3 reason=no muzzle particle entity", playerId, weapon, projectile, level: LogLevel.WARNING);
+			return;
+		}
+
+		CreateProjectileTrace(playerId, weapon, projectile, muzzleParticle.GetOrigin(), "vehicle-muzzle");
+	}
+
+	protected void OnGrenadeCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
+	{
+		vector startPosition;
+		if (projectile)
+			startPosition = projectile.GetOrigin();
+		CreateProjectileTrace(playerId, weapon, projectile, startPosition, "grenade");
+	}
+
+	protected void CreateProjectileTrace(int playerId, BaseWeaponComponent weapon, IEntity projectile, vector startPosition, string originSource)
 	{
 		m_iProjectileCallbacks++;
 		if (!projectile || !m_wCanvas)
@@ -274,7 +326,7 @@ class GC_SpectatorProjectileTracer
 			}
 		}
 
-		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, m_fTrailDuration);
+		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, startPosition, m_fTrailDuration);
 		if (trace.IsValid())
 		{
 			m_aTraces.Insert(trace);
@@ -286,7 +338,7 @@ class GC_SpectatorProjectileTracer
 		}
 
 		if (m_iProjectileCallbacks <= SHOT_DETAIL_LIMIT)
-			PrintFormat("GC | Tracer Debug | projectile callback: callback=%1 player=%2 weapon=%3 projectile=%4 traceValid=%5 activeTraces=%6", m_iProjectileCallbacks, playerId, weapon, projectile, trace.IsValid(), m_aTraces.Count());
+			PrintFormat("GC | Tracer Debug | projectile callback: callback=%1 player=%2 weapon=%3 projectile=%4 originSource=%5 start=%6 projectilePosition=%7 traceValid=%8 activeTraces=%9", m_iProjectileCallbacks, playerId, weapon, projectile, originSource, startPosition, projectile.GetOrigin(), trace.IsValid(), m_aTraces.Count());
 	}
 
 	int GetTrackedShooterCount()
@@ -296,7 +348,7 @@ class GC_SpectatorProjectileTracer
 
 	void ReportDiagnostics(string source)
 	{
-		PrintFormat("GC | Tracer Debug | subscription report: source=%1 tracked=%2 grenadeSources=%3 muzzleSources=%4 attempts=%5 successes=%6 failures=%7 untracks=%8", source, m_mShooterReferences.Count(), m_mShooterEvents.Count(), m_mMuzzleEffects.Count(), m_iTrackAttempts, m_iTrackSuccesses, m_iTrackFailures, m_iUntracks);
+		PrintFormat("GC | Tracer Debug | subscription report: source=%1 tracked=%2 grenadeSources=%3 projectileEventSources=%4 muzzleSources=%5 attempts=%6 successes=%7 failures=%8 untracks=%9", source, m_mShooterReferences.Count(), m_mGrenadeEvents.Count(), m_mProjectileEvents.Count(), m_mMuzzleEffects.Count(), m_iTrackAttempts, m_iTrackSuccesses, m_iTrackFailures, m_iUntracks);
 		PrintFormat("GC | Tracer Debug | rendering report: callbacks=%1 muzzleCallbacks=%2 accepted=%3 rejected=%4 activeTraces=%5 segments=%6 projectedSegments=%7 drawCommands=%8", m_iProjectileCallbacks, m_iMuzzleCallbacks, m_iAcceptedTraces, m_iRejectedCallbacks, m_aTraces.Count(), m_iLastSegmentCount, m_iLastProjectedSegmentCount, m_iLastDrawCommandCount);
 	}
 

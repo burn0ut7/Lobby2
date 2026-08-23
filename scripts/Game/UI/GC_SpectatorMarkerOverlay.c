@@ -871,7 +871,7 @@ class GC_SpectatorMarkerOverlay
 		CollectCharacterShooterSources(character, currentShooters);
 		foreach (IEntity shooter : currentShooters)
 		{
-			if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter))
+			if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter, shooter == character, false))
 				trackedShooters.Insert(shooter);
 		}
 
@@ -957,7 +957,7 @@ class GC_SpectatorMarkerOverlay
 						continue;
 
 					currentShooters.Insert(shooter);
-					if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter))
+					if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter, false, true))
 						trackedShooters.Insert(shooter);
 				}
 			}
