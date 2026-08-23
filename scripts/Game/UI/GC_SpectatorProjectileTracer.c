@@ -101,7 +101,8 @@ class GC_SpectatorProjectileTrace
 //! It owns presentation state only; projectile simulation remains base-game owned.
 class GC_SpectatorProjectileTracer
 {
-	protected static const float LINE_WIDTH = 1.0;
+	protected static const float LINE_WIDTH = 1.5;
+	protected static const float MIN_DRAWABLE_SEGMENT_LENGTH_SQ = 1.0;
 	protected static const int SHOT_DETAIL_LIMIT = 12;
 
 	protected CanvasWidget m_wCanvas;
@@ -385,6 +386,11 @@ class GC_SpectatorProjectileTracer
 			vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex), m_World);
 			vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex + 1), m_World);
 			if (startScreenPosition[2] <= 0.0 || endScreenPosition[2] <= 0.0)
+				continue;
+
+			float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
+			float screenDeltaY = endScreenPosition[1] - startScreenPosition[1];
+			if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY <= MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
 				continue;
 			m_iLastProjectedSegmentCount++;
 
