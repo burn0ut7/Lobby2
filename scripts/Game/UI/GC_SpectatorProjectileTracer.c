@@ -102,6 +102,7 @@ class GC_SpectatorProjectileTrace
 class GC_SpectatorProjectileTracer
 {
 	protected static const float LINE_WIDTH = 1.0;
+	protected static const int SHOT_DETAIL_LIMIT = 12;
 
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
@@ -109,8 +110,19 @@ class GC_SpectatorProjectileTracer
 	protected float m_fTrailDuration;
 	protected ref map<IEntity, EventHandlerManagerComponent> m_mShooterEvents = new map<IEntity, EventHandlerManagerComponent>();
 	protected ref map<IEntity, int> m_mShooterReferences = new map<IEntity, int>();
+	protected ref set<IEntity> m_sReportedMissingEventManagers = new set<IEntity>();
 	protected ref array<ref GC_SpectatorProjectileTrace> m_aTraces = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
+	protected int m_iTrackAttempts;
+	protected int m_iTrackSuccesses;
+	protected int m_iTrackFailures;
+	protected int m_iUntracks;
+	protected int m_iProjectileCallbacks;
+	protected int m_iAcceptedTraces;
+	protected int m_iRejectedCallbacks;
+	protected int m_iLastSegmentCount;
+	protected int m_iLastProjectedSegmentCount;
+	protected int m_iLastDrawCommandCount;
 
 	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float trailDuration)
 	{
@@ -124,11 +136,13 @@ class GC_SpectatorProjectileTracer
 		if (m_fTrailDuration <= 0.0)
 			m_fTrailDuration = 0.01;
 		GetGame().GetCallqueue().CallLater(Update, 0, true);
+		PrintFormat("GC | Tracer Debug | renderer started: canvas=%1 workspace=%2 world=%3 trailDuration=%4", m_wCanvas, m_Workspace, m_World, m_fTrailDuration);
 		return true;
 	}
 
 	void Destroy()
 	{
+		ReportDiagnostics("destroy");
 		GetGame().GetCallqueue().Remove(Update);
 		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mShooterEvents)
 		{
@@ -141,6 +155,7 @@ class GC_SpectatorProjectileTracer
 
 		m_mShooterEvents.Clear();
 		m_mShooterReferences.Clear();
+		m_sReportedMissingEventManagers.Clear();
 		m_aTraces.Clear();
 		m_aDrawCommands.Clear();
 		if (m_wCanvas)
@@ -154,8 +169,13 @@ class GC_SpectatorProjectileTracer
 
 	bool TrackShooter(IEntity shooter)
 	{
+		m_iTrackAttempts++;
 		if (!shooter)
+		{
+			m_iTrackFailures++;
+			Print("GC | Tracer Debug | subscription rejected: shooter is null", LogLevel.WARNING);
 			return false;
+		}
 
 		int referenceCount;
 		if (m_mShooterReferences.Find(shooter, referenceCount))
@@ -166,12 +186,22 @@ class GC_SpectatorProjectileTracer
 
 		EventHandlerManagerComponent eventManager = EventHandlerManagerComponent.Cast(shooter.FindComponent(EventHandlerManagerComponent));
 		if (!eventManager)
+		{
+			m_iTrackFailures++;
+			if (!m_sReportedMissingEventManagers.Contains(shooter))
+			{
+				m_sReportedMissingEventManagers.Insert(shooter);
+				PrintFormat("GC | Tracer Debug | subscription rejected: shooter=%1 reason=no EventHandlerManagerComponent", shooter, level: LogLevel.WARNING);
+			}
 			return false;
+		}
 
 		eventManager.RegisterScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
 		eventManager.RegisterScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
 		m_mShooterEvents.Insert(shooter, eventManager);
 		m_mShooterReferences.Insert(shooter, 1);
+		m_iTrackSuccesses++;
+		PrintFormat("GC | Tracer Debug | subscription active: shooter=%1 eventManager=%2 tracked=%3", shooter, eventManager, m_mShooterEvents.Count());
 		return true;
 	}
 
@@ -195,22 +225,56 @@ class GC_SpectatorProjectileTracer
 		}
 		m_mShooterEvents.Remove(shooter);
 		m_mShooterReferences.Remove(shooter);
+		m_iUntracks++;
+		PrintFormat("GC | Tracer Debug | subscription removed: shooter=%1 tracked=%2", shooter, m_mShooterEvents.Count());
 	}
 
 	protected void OnProjectileCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
+		m_iProjectileCallbacks++;
 		if (!projectile || !m_wCanvas)
+		{
+			m_iRejectedCallbacks++;
+			if (m_iProjectileCallbacks <= SHOT_DETAIL_LIMIT)
+				PrintFormat("GC | Tracer Debug | projectile callback rejected: callback=%1 player=%2 weapon=%3 projectile=%4 canvas=%5", m_iProjectileCallbacks, playerId, weapon, projectile, m_wCanvas, level: LogLevel.WARNING);
 			return;
+		}
 
 		foreach (GC_SpectatorProjectileTrace existingTrace : m_aTraces)
 		{
 			if (existingTrace.IsProjectile(projectile))
+			{
+				m_iRejectedCallbacks++;
+				if (m_iProjectileCallbacks <= SHOT_DETAIL_LIMIT)
+					PrintFormat("GC | Tracer Debug | projectile callback duplicate: callback=%1 player=%2 weapon=%3 projectile=%4", m_iProjectileCallbacks, playerId, weapon, projectile);
 				return;
+			}
 		}
 
 		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, m_fTrailDuration);
 		if (trace.IsValid())
+		{
 			m_aTraces.Insert(trace);
+			m_iAcceptedTraces++;
+		}
+		else
+		{
+			m_iRejectedCallbacks++;
+		}
+
+		if (m_iProjectileCallbacks <= SHOT_DETAIL_LIMIT)
+			PrintFormat("GC | Tracer Debug | projectile callback: callback=%1 player=%2 weapon=%3 projectile=%4 traceValid=%5 activeTraces=%6", m_iProjectileCallbacks, playerId, weapon, projectile, trace.IsValid(), m_aTraces.Count());
+	}
+
+	int GetTrackedShooterCount()
+	{
+		return m_mShooterEvents.Count();
+	}
+
+	void ReportDiagnostics(string source)
+	{
+		PrintFormat("GC | Tracer Debug | subscription report: source=%1 tracked=%2 references=%3 attempts=%4 successes=%5 failures=%6 untracks=%7", source, m_mShooterEvents.Count(), m_mShooterReferences.Count(), m_iTrackAttempts, m_iTrackSuccesses, m_iTrackFailures, m_iUntracks);
+		PrintFormat("GC | Tracer Debug | rendering report: callbacks=%1 accepted=%2 rejected=%3 activeTraces=%4 segments=%5 projectedSegments=%6 drawCommands=%7", m_iProjectileCallbacks, m_iAcceptedTraces, m_iRejectedCallbacks, m_aTraces.Count(), m_iLastSegmentCount, m_iLastProjectedSegmentCount, m_iLastDrawCommandCount);
 	}
 
 	protected void Update()
@@ -226,8 +290,11 @@ class GC_SpectatorProjectileTracer
 		}
 
 		m_aDrawCommands = {};
+		m_iLastSegmentCount = 0;
+		m_iLastProjectedSegmentCount = 0;
 		foreach (GC_SpectatorProjectileTrace trace : m_aTraces)
 			DrawTrace(trace);
+		m_iLastDrawCommandCount = m_aDrawCommands.Count();
 		m_wCanvas.SetDrawCommands(m_aDrawCommands);
 	}
 
@@ -239,10 +306,12 @@ class GC_SpectatorProjectileTracer
 
 		for (int positionIndex = 0; positionIndex < segmentCount; positionIndex++)
 		{
+			m_iLastSegmentCount++;
 			vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex), m_World);
 			vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex + 1), m_World);
 			if (startScreenPosition[2] <= 0.0 || endScreenPosition[2] <= 0.0)
 				continue;
+			m_iLastProjectedSegmentCount++;
 
 			LineDrawCommand line = new LineDrawCommand();
 			line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex + 1), trace.GetInitialSpeed());
