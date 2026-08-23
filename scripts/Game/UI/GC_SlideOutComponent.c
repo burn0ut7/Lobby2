@@ -31,6 +31,8 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	protected float m_fTargetProgress;
 	protected bool m_bHovered;
 	protected bool m_bPinned;
+	protected bool m_bContentInteractive = true;
+	protected Widget m_wContent;
 
 	override void HandlerAttached(Widget w)
 	{
@@ -58,21 +60,14 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	override void HandlerDeattached(Widget w)
 	{
 		GetGame().GetCallqueue().Remove(Animate);
+		m_wContent = null;
 		super.HandlerDeattached(w);
-	}
-
-	override bool OnMouseEnter(Widget w, int x, int y)
-	{
-		SetHandleHovered(true);
-		return true;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		if (ContainsWidget(enterW))
-			return true;
-
-		SetHandleHovered(false);
+		if (!ContainsWidget(enterW))
+			SetHandleHovered(false);
 		return true;
 	}
 
@@ -123,6 +118,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			PrintFormat("GC | Slide out attach failed: content=%1 handle=%2", content != null, handle != null, level: LogLevel.ERROR);
 			return;
 		}
+		m_wContent = content;
 
 		FrameSlot.SetAnchorMin(content, 0, 0);
 		FrameSlot.SetAnchorMax(content, 1, 1);
@@ -251,6 +247,52 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		}
 
 		FrameSlot.SetPos(m_wRoot, x, y);
+
+		bool contentInteractive = m_fProgress > 0;
+		if (m_wContent && contentInteractive != m_bContentInteractive)
+		{
+			m_bContentInteractive = contentInteractive;
+			m_wContent.SetEnabled(contentInteractive);
+		}
+	}
+}
+
+//! Keeps an already-visible slide-out open without allowing hidden content to
+//! become the activation target.
+class GC_SlideOutContentComponent : SCR_ScriptedWidgetComponent
+{
+	protected GC_SlideOutComponent m_SlideOut;
+
+	override void HandlerAttached(Widget w)
+	{
+		super.HandlerAttached(w);
+
+		Widget parent = w.GetParent();
+		while (parent && !m_SlideOut)
+		{
+			m_SlideOut = GC_SlideOutComponent.Cast(parent.FindHandler(GC_SlideOutComponent));
+			parent = parent.GetParent();
+		}
+	}
+
+	override void HandlerDeattached(Widget w)
+	{
+		m_SlideOut = null;
+		super.HandlerDeattached(w);
+	}
+
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		if (m_SlideOut)
+			m_SlideOut.SetHandleHovered(true);
+		return true;
+	}
+
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		if (m_SlideOut && !m_SlideOut.ContainsWidget(enterW))
+			m_SlideOut.SetHandleHovered(false);
+		return true;
 	}
 }
 

@@ -30,6 +30,10 @@ FrameWidgetClass {
     SizeY 0
     OffsetBottom 0
    }
+   components {
+    GC_SlideOutContentComponent "{6A58000000000017}" {
+    }
+   }
   }
   FrameWidgetClass "{6A58000000000006}" {
    Name "SlideOutHandle"
