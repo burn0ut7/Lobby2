@@ -31,7 +31,7 @@ FrameWidgetClass {
     OffsetBottom 0
    }
   }
-  SizeLayoutWidgetClass "{6A58000000000006}" {
+  FrameWidgetClass "{6A58000000000006}" {
    Name "SlideOutHandle"
    "Ignore Cursor" 0
    Slot FrameWidgetSlot "{6A58000000000007}" {
@@ -46,17 +46,97 @@ FrameWidgetClass {
     OffsetBottom -112
     Alignment 0 0.5
    }
-   AllowWidthOverride 1
-   WidthOverride 56
-   AllowHeightOverride 1
-   HeightOverride 112
    {
+    FrameWidgetClass "{6A5800000000000A}" {
+       Name "SlideOutHandleBackground"
+       "Ignore Cursor" 1
+       Slot FrameWidgetSlot "{6A5800000000000B}" {
+        Anchor 0 0 1 1
+        PositionX 0
+        OffsetLeft 0
+        PositionY 0
+        OffsetTop 0
+        SizeX 0
+        OffsetRight 0
+        SizeY 0
+        OffsetBottom 0
+       }
+       Opacity 0.42
+       {
+        CanvasWidgetClass "{6A58000000000012}" {
+         Name "SlideOutHandleRoundedBase"
+         "Ignore Cursor" 1
+         Slot FrameWidgetSlot "{6A58000000000013}" {
+          Anchor 0 0 1 1
+          PositionX 0
+          OffsetLeft 0
+          PositionY 0
+          OffsetTop 0
+          SizeX 0
+          OffsetRight 0
+          SizeY 0
+          OffsetBottom 0
+         }
+         components {
+          GC_SlideOutHandleBackgroundComponent "{6A58000000000014}" {
+          }
+         }
+        }
+        ImageWidgetClass "{6A58000000000015}" {
+         Name "SlideOutHandleJoinFill"
+         "Ignore Cursor" 1
+         Slot FrameWidgetSlot "{6A58000000000016}" {
+          Anchor 1 0 1 1
+          PositionX -16
+          OffsetLeft -16
+          PositionY 0
+          OffsetTop 0
+          SizeX 16
+          OffsetRight 0
+          SizeY 0
+          OffsetBottom 0
+         }
+         Color 0 0 0 1
+        }
+       }
+    }
+    TextWidgetClass "{6A5800000000000E}" {
+     Name "SlideOutArrow"
+     "Ignore Cursor" 1
+     Slot FrameWidgetSlot "{6A5800000000000F}" {
+      Anchor 0 0 1 1
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 0
+      OffsetRight 0
+      SizeY 0
+      OffsetBottom 0
+     }
+     Text "<"
+     "Font Size" 42
+     "Min Font Size" 20
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+     FontProperties FontProperties "{6A58000000000010}" {
+      OutlineSize 1
+      OutlineColor 0 0 0 0.8
+     }
+    }
     ButtonWidgetClass "{6A58000000000008}" {
      Name "SlideOutHandleButton"
      "Ignore Cursor" 0
-     Slot AlignableSlot "{6A58000000000009}" {
-      HorizontalAlign 3
-      VerticalAlign 3
+     Slot FrameWidgetSlot "{6A58000000000009}" {
+      Anchor 0 0 1 1
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 0
+      OffsetRight 0
+      SizeY 0
+      OffsetBottom 0
      }
      Color 1 1 1 0
      components {
@@ -64,44 +144,6 @@ FrameWidgetClass {
       }
      }
      "no focus" 1
-     {
-      ImageWidgetClass "{6A5800000000000A}" {
-       Name "SlideOutHandleBackground"
-       "Ignore Cursor" 1
-       Slot ButtonWidgetSlot "{6A5800000000000B}" {
-        HorizontalAlign 3
-        VerticalAlign 3
-       }
-       Color 0 0 0 0.28
-      }
-      ImageWidgetClass "{6A5800000000000C}" {
-       Name "SlideOutHandleAccent"
-       "Ignore Cursor" 1
-       Slot ButtonWidgetSlot "{6A5800000000000D}" {
-        HorizontalAlign 0
-        VerticalAlign 3
-       }
-       Color 0.25 0.72 0.78 1
-       Size 4 112
-      }
-      TextWidgetClass "{6A5800000000000E}" {
-       Name "SlideOutArrow"
-       "Ignore Cursor" 1
-       Slot ButtonWidgetSlot "{6A5800000000000F}" {
-        HorizontalAlign 3
-        VerticalAlign 3
-       }
-       Text "<"
-       "Font Size" 42
-       "Min Font Size" 20
-       "Horizontal Alignment" Center
-       "Vertical Alignment" Center
-       FontProperties FontProperties "{6A58000000000010}" {
-        OutlineSize 1
-        OutlineColor 0 0 0 0.8
-       }
-      }
-     }
     }
    }
   }

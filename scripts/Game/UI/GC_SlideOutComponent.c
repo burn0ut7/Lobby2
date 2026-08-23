@@ -63,26 +63,39 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		m_bHovered = true;
-		SetExpanded(true);
+		SetHandleHovered(true);
 		return true;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		Widget enteredWidget = enterW;
-		while (enteredWidget)
+		if (ContainsWidget(enterW))
+			return true;
+
+		SetHandleHovered(false);
+		return true;
+	}
+
+	void SetHandleHovered(bool hovered)
+	{
+		m_bHovered = hovered;
+		if (hovered)
+			SetExpanded(true);
+		else if (!m_bPinned)
+			SetExpanded(false);
+	}
+
+	bool ContainsWidget(Widget widget)
+	{
+		while (widget)
 		{
-			if (enteredWidget == m_wRoot)
+			if (widget == m_wRoot)
 				return true;
 
-			enteredWidget = enteredWidget.GetParent();
+			widget = widget.GetParent();
 		}
 
-		m_bHovered = false;
-		if (!m_bPinned)
-			SetExpanded(false);
-		return true;
+		return false;
 	}
 
 	void TogglePinned()
@@ -94,10 +107,16 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			SetExpanded(false);
 	}
 
+	bool IsPinned()
+	{
+		return m_bPinned;
+	}
+
 	protected void ConfigureChildren()
 	{
 		Widget content = m_wRoot.FindAnyWidget("SlideOutContent");
 		Widget handle = m_wRoot.FindAnyWidget("SlideOutHandle");
+		Widget handleJoinFill = m_wRoot.FindAnyWidget("SlideOutHandleJoinFill");
 		TextWidget arrow = TextWidget.Cast(m_wRoot.FindAnyWidget("SlideOutArrow"));
 		if (!content || !handle)
 		{
@@ -119,6 +138,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleSize, m_fHandleLength);
 				if (arrow)
 					arrow.SetText(">");
+				ConfigureHandleJoinFill(handleJoinFill, 0, 0, 0, 1, 0, 0, 16, 0);
 				break;
 
 			case GC_ESlideOutDirection.UP:
@@ -129,6 +149,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleLength, m_fHandleSize);
 				if (arrow)
 					arrow.SetText("^");
+				ConfigureHandleJoinFill(handleJoinFill, 0, 1, 1, 1, 0, -16, 0, 0);
 				break;
 
 			case GC_ESlideOutDirection.DOWN:
@@ -139,6 +160,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleLength, m_fHandleSize);
 				if (arrow)
 					arrow.SetText("v");
+				ConfigureHandleJoinFill(handleJoinFill, 0, 0, 1, 0, 0, 0, 0, 16);
 				break;
 
 			default:
@@ -149,8 +171,19 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				FrameSlot.SetSize(handle, m_fHandleSize, m_fHandleLength);
 				if (arrow)
 					arrow.SetText("<");
+				ConfigureHandleJoinFill(handleJoinFill, 1, 0, 1, 1, -16, 0, 0, 0);
 				break;
 		}
+	}
+
+	protected void ConfigureHandleJoinFill(Widget joinFill, float anchorMinX, float anchorMinY, float anchorMaxX, float anchorMaxY, float left, float top, float right, float bottom)
+	{
+		if (!joinFill)
+			return;
+
+		FrameSlot.SetAnchorMin(joinFill, anchorMinX, anchorMinY);
+		FrameSlot.SetAnchorMax(joinFill, anchorMaxX, anchorMaxY);
+		FrameSlot.SetOffsets(joinFill, left, top, right, bottom);
 	}
 
 	protected void SetExpanded(bool expanded)
@@ -221,14 +254,85 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	}
 }
 
-//! Button adapter which keeps pin intent scoped to the slide-out handle.
-class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
+//! Draws the opaque rounded base used inside the handle's translucent visual group.
+class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 {
-	protected GC_SlideOutComponent m_SlideOut;
+	protected CanvasWidget m_wCanvas;
+	protected ref array<float> m_aVertices = {};
+	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
+	protected int m_iColor = 0xff000000;
 
 	override void HandlerAttached(Widget w)
 	{
 		super.HandlerAttached(w);
+
+		m_wCanvas = CanvasWidget.Cast(w);
+		if (m_wCanvas)
+			GetGame().GetCallqueue().CallLater(Redraw, 0);
+	}
+
+	override void HandlerDeattached(Widget w)
+	{
+		GetGame().GetCallqueue().Remove(Redraw);
+		m_wCanvas = null;
+		super.HandlerDeattached(w);
+	}
+
+	protected void Redraw()
+	{
+		if (!m_wCanvas)
+			return;
+
+		vector canvasSize = m_wCanvas.GetSizeInUnits();
+		if (canvasSize[0] <= 0 || canvasSize[1] <= 0)
+		{
+			GetGame().GetCallqueue().CallLater(Redraw, 0);
+			return;
+		}
+
+		m_aVertices = {};
+		m_wCanvas.TessellateRoundedRectangle(
+			Vector(0, 0, 0),
+			Vector(canvasSize[0], canvasSize[1], 0),
+			16,
+			16,
+			RectangleCorner.All,
+			m_aVertices
+		);
+
+		PolygonDrawCommand background = new PolygonDrawCommand();
+		background.m_iColor = m_iColor;
+		background.m_Vertices = m_aVertices;
+
+		m_aDrawCommands = {};
+		m_aDrawCommands.Insert(background);
+		m_wCanvas.SetDrawCommands(m_aDrawCommands);
+	}
+
+	void SetBackgroundColor(int color)
+	{
+		m_iColor = color;
+		Redraw();
+	}
+}
+
+//! Button adapter which keeps pin intent scoped to the slide-out handle.
+class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
+{
+	protected GC_SlideOutComponent m_SlideOut;
+	protected GC_SlideOutHandleBackgroundComponent m_BackgroundComponent;
+	protected Widget m_wHandleBackground;
+	protected ImageWidget m_wJoinFill;
+	protected TextWidget m_wArrow;
+	protected bool m_bHovered;
+
+	override void HandlerAttached(Widget w)
+	{
+		super.HandlerAttached(w);
+		SetHoverSound(string.Empty);
+		SetClickedSound(string.Empty);
+		SetToggleable(false);
+		m_bUseColorization = false;
 
 		Widget parent = w.GetParent();
 		while (parent && !m_SlideOut)
@@ -236,20 +340,88 @@ class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
 			m_SlideOut = GC_SlideOutComponent.Cast(parent.FindHandler(GC_SlideOutComponent));
 			parent = parent.GetParent();
 		}
+
+		Widget handle = w.GetParent();
+		if (handle)
+		{
+			Widget roundedBase = handle.FindAnyWidget("SlideOutHandleRoundedBase");
+			if (roundedBase)
+				m_BackgroundComponent = GC_SlideOutHandleBackgroundComponent.Cast(roundedBase.FindHandler(GC_SlideOutHandleBackgroundComponent));
+
+			m_wHandleBackground = handle.FindAnyWidget("SlideOutHandleBackground");
+			m_wJoinFill = ImageWidget.Cast(handle.FindAnyWidget("SlideOutHandleJoinFill"));
+			m_wArrow = TextWidget.Cast(handle.FindAnyWidget("SlideOutArrow"));
+		}
+
+		UpdateVisuals();
 	}
 
 	override void HandlerDeattached(Widget w)
 	{
+		m_BackgroundComponent = null;
+		m_wHandleBackground = null;
+		m_wJoinFill = null;
+		m_wArrow = null;
 		m_SlideOut = null;
 		super.HandlerDeattached(w);
 	}
 
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		m_bHovered = true;
+		if (m_SlideOut)
+			m_SlideOut.SetHandleHovered(true);
+		PlaySound(SCR_SoundEvent.SOUND_FE_BUTTON_HOVER);
+		UpdateVisuals();
+		return true;
+	}
+
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		m_bHovered = false;
+		if (m_SlideOut && !m_SlideOut.ContainsWidget(enterW))
+			m_SlideOut.SetHandleHovered(false);
+		UpdateVisuals();
+		return true;
+	}
+
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
-		if (!m_SlideOut)
-			return false;
+		if (button != 0 || !m_SlideOut)
+			return true;
 
+		PlaySound(SCR_SoundEvent.CLICK);
 		m_SlideOut.TogglePinned();
+		UpdateVisuals();
 		return true;
+	}
+
+	protected void UpdateVisuals()
+	{
+		bool pinned = m_SlideOut && m_SlideOut.IsPinned();
+		int backgroundColor = 0xff000000;
+		float backgroundOpacity = 0.42;
+		Color arrowColor = Color.FromRGBA(255, 255, 255, 255);
+
+		if (pinned)
+		{
+			backgroundColor = 0xffffc440;
+			backgroundOpacity = 0.9;
+			arrowColor = Color.FromRGBA(12, 12, 10, 255);
+		}
+		else if (m_bHovered)
+		{
+			backgroundOpacity = 0.7;
+			arrowColor = Color.FromRGBA(255, 196, 64, 255);
+		}
+
+		if (m_BackgroundComponent)
+			m_BackgroundComponent.SetBackgroundColor(backgroundColor);
+		if (m_wJoinFill)
+			m_wJoinFill.SetColorInt(backgroundColor);
+		if (m_wHandleBackground)
+			m_wHandleBackground.SetOpacity(backgroundOpacity);
+		if (m_wArrow)
+			m_wArrow.SetColor(arrowColor);
 	}
 }
