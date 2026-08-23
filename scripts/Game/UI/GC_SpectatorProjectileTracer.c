@@ -314,7 +314,7 @@ class GC_SpectatorProjectileTracer
 			m_iLastProjectedSegmentCount++;
 
 			LineDrawCommand line = new LineDrawCommand();
-			line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex + 1), trace.GetInitialSpeed());
+			line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex), trace.GetInitialSpeed());
 			line.m_fWidth = LINE_WIDTH;
 			line.m_bShouldEnclose = false;
 			line.m_Vertices = {};
