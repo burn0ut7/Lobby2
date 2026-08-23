@@ -2166,12 +2166,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     }
 
     bool SetBriefingMarker(string markerName, ResourceName image, ResourceName highlightImage, string quadName, vector worldPosition,
-        float rotation, bool worldScale, float size, string description, array<string> factionKeys = null,
+        float rotation, bool worldScale, float size, float minSize, string description, array<string> factionKeys = null,
         SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
         bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
     {
         GC_BriefingMarker update = new GC_BriefingMarker();
-        update.Set(markerName, image, highlightImage, quadName, worldPosition, rotation, worldScale, size,
+        update.Set(markerName, image, highlightImage, quadName, worldPosition, rotation, worldScale, size, minSize,
             description, factionKeys, showAtGameModeState, invertGameModeState, visible, color);
         return UpsertBriefingMarker(update);
     }
@@ -2187,7 +2187,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
         return SetBriefingMarker(marker.GetName(), marker.GetImage(), marker.GetHighlightImage(), marker.GetQuadName(),
             marker.GetWorldPosition(), marker.GetRotation(), marker.IsWorldScale(), marker.GetSize(),
-            marker.GetDescription(), marker.GetFactionKeys(), marker.GetShowAtGameModeState(),
+            marker.GetMinSize(), marker.GetDescription(), marker.GetFactionKeys(), marker.GetShowAtGameModeState(),
             marker.IsGameModeStateInverted(), visible, marker.GetColor());
     }
 
@@ -2212,6 +2212,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             || marker.GetImage().IsEmpty()
             || marker.GetDescription().Length() > GC_LobbyBriefingCatalog.MAX_MARKER_DESCRIPTION_LENGTH
             || marker.GetSize() <= 0
+			|| marker.GetMinSize() < 0
             || !GC_LobbyPhase.IsValid(marker.GetShowAtGameModeState()))
             return false;
 

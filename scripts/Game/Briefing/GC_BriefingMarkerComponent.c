@@ -19,11 +19,14 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.EditBox, "Quad name used only when Image is an .imageset resource. Workbench does not expose image-set quads to scripted dropdowns")]
 	protected string m_sQuadName;
 
-	[Attribute("0", UIWidgets.CheckBox, "Off: Size is screen pixels. On: Size is world metres and changes with map zoom")]
+	[Attribute("1", UIWidgets.CheckBox, "Off: Size is screen pixels. On: Size is a world offset and changes with map zoom, matching PS_ManualMarker")]
 	protected bool m_bWorldScale;
 
-	[Attribute("48", UIWidgets.SpinBox, "Marker size in screen pixels, or world metres when World Scale is enabled", params: "1 10000 1")]
+	[Attribute("5", UIWidgets.SpinBox, "Legacy marker size: pixels when World Scale is off, or the projected X/Z world offset when on", params: "0.01 100000 0.01")]
 	protected float m_fSize;
+
+	[Attribute("0", UIWidgets.SpinBox, "Minimum projected width and height in pixels. Zero disables the legacy minimum-size clamp", params: "0 10000 1")]
+	protected float m_fMinSize;
 
 	[Attribute("1 1 1 1", UIWidgets.ColorPicker, "Tint applied to the map marker and its Workbench direction arrow")]
 	protected ref Color m_Color;
@@ -95,8 +98,8 @@ class GC_BriefingMarkerComponent : ScriptComponent
 		int markerColor = Color.WHITE;
 		if (m_Color)
 			markerColor = m_Color.PackToInt();
-		marker.Set(markerName, m_sImageSetOrImage, m_sHighlightImageSet, m_sQuadName, owner.GetOrigin(), owner.GetYawPitchRoll()[0],
-			m_bWorldScale, m_fSize, m_sDescription, m_aFactionKeys,
+		marker.Set(markerName, m_sImageSetOrImage, m_sHighlightImageSet, m_sQuadName, owner.GetOrigin(), owner.GetYawPitchRoll()[0] - 90,
+			m_bWorldScale, m_fSize, m_fMinSize, m_sDescription, m_aFactionKeys,
 			m_eShowAtGameModeState, m_bInvertGameModeState, true, markerColor);
 		return marker;
 	}

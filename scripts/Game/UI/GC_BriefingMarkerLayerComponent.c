@@ -58,9 +58,6 @@ class GC_BriefingMarkerWidgetComponent : SCR_ScriptedWidgetComponent
 class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 {
 	protected static const ResourceName MARKER_LAYOUT = "{6A4E000000000001}UI/layouts/Briefing/Lobby_Briefing_Marker.layout";
-	protected static const float MIN_DISPLAY_SIZE = 4;
-	protected static const float MAX_DISPLAY_SIZE = 512;
-	protected static const float GLOW_PADDING = 4;
 	protected static const float MIN_LABEL_WIDTH = 180;
 	protected static const float LABEL_HEIGHT = 30;
 
@@ -217,64 +214,64 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 			if (!marker || !markerRoot || !markerImage || !markerGlow || !markerLabel || !markerDescription)
 				continue;
 
-			float displaySize = marker.GetSize();
+			float displayWidth = marker.GetSize();
+			float displayHeight = marker.GetSize();
 			if (marker.IsWorldScale())
-				displaySize = GetProjectedWorldSize(marker, workspace);
-			if (displaySize < MIN_DISPLAY_SIZE) displaySize = MIN_DISPLAY_SIZE;
-			if (!marker.IsWorldScale() && displaySize > MAX_DISPLAY_SIZE) displaySize = MAX_DISPLAY_SIZE;
+			{
+				vector projectedSize = GetProjectedWorldSize(marker, workspace);
+				displayWidth = projectedSize[0];
+				displayHeight = projectedSize[1];
+			}
 
-			float labelWidth = displaySize;
+			float minSize = marker.GetMinSize();
+			if (minSize > 0)
+			{
+				if (displayWidth < minSize) displayWidth = minSize;
+				if (displayHeight < minSize) displayHeight = minSize;
+			}
+
+			int imageWidth;
+			int imageHeight;
+			markerImage.GetImageSize(0, imageWidth, imageHeight);
+			if (imageWidth > 0 && imageHeight > 0)
+				displayHeight *= (float)imageHeight / (float)imageWidth;
+
+			float labelWidth = displayWidth;
 			if (labelWidth < MIN_LABEL_WIDTH) labelWidth = MIN_LABEL_WIDTH;
 
 			vector worldPosition = marker.GetWorldPosition();
 			int screenX;
 			int screenY;
 			m_MapEntity.WorldToScreen(worldPosition[0], worldPosition[2], screenX, screenY, true);
-			float localX = workspace.DPIUnscale(screenX) - displaySize * 0.5;
-			float localY = workspace.DPIUnscale(screenY) - displaySize * 0.5;
+			float localX = workspace.DPIUnscale(screenX) - displayWidth * 0.5;
+			float localY = workspace.DPIUnscale(screenY) - displayHeight * 0.5;
 
 			FrameSlot.SetPos(markerRoot, localX, localY);
-			FrameSlot.SetSize(markerRoot, displaySize, displaySize);
-			FrameSlot.SetPos(markerGlow, -GLOW_PADDING, -GLOW_PADDING);
-			FrameSlot.SetSize(markerGlow, displaySize + GLOW_PADDING * 2, displaySize + GLOW_PADDING * 2);
+			FrameSlot.SetSize(markerRoot, displayWidth, displayHeight);
+			FrameSlot.SetPos(markerGlow, 0, 0);
+			FrameSlot.SetSize(markerGlow, displayWidth, displayHeight);
 			FrameSlot.SetPos(markerImage, 0, 0);
-			FrameSlot.SetSize(markerImage, displaySize, displaySize);
-			FrameSlot.SetPos(markerLabel, (displaySize - labelWidth) * 0.5, displaySize);
+			FrameSlot.SetSize(markerImage, displayWidth, displayHeight);
+			FrameSlot.SetPos(markerLabel, (displayWidth - labelWidth) * 0.5, displayHeight);
 			FrameSlot.SetSize(markerLabel, labelWidth, LABEL_HEIGHT);
 			FrameSlot.SetPos(markerDescription, 0, 0);
 			FrameSlot.SetSize(markerDescription, labelWidth, LABEL_HEIGHT);
 		}
 	}
 
-	//! Converts the authored world-metre diameter through the same map projection
-	//! used for marker positioning. This remains accurate at extreme zoom levels
-	//! where multiplying by the public zoom value accumulates scale error.
-	protected float GetProjectedWorldSize(GC_BriefingMarker marker, WorkspaceWidget workspace)
+	//! Matches PS_ManualMarkerComponent.SetSlotWorld: project the authored
+	//! positive X/Z offset and retain each screen axis independently.
+	protected vector GetProjectedWorldSize(GC_BriefingMarker marker, WorkspaceWidget workspace)
 	{
 		vector worldPosition = marker.GetWorldPosition();
-		float halfWorldSize = marker.GetSize() * 0.5;
+		int screenX;
+		int screenY;
+		int screenXEnd;
+		int screenYEnd;
+		m_MapEntity.WorldToScreen(worldPosition[0], worldPosition[2], screenX, screenY, true);
+		m_MapEntity.WorldToScreen(worldPosition[0] + marker.GetSize(), worldPosition[2] + marker.GetSize(), screenXEnd, screenYEnd, true);
 
-		int leftX;
-		int leftY;
-		int rightX;
-		int rightY;
-		int bottomX;
-		int bottomY;
-		int topX;
-		int topY;
-		m_MapEntity.WorldToScreen(worldPosition[0] - halfWorldSize, worldPosition[2], leftX, leftY, true);
-		m_MapEntity.WorldToScreen(worldPosition[0] + halfWorldSize, worldPosition[2], rightX, rightY, true);
-		m_MapEntity.WorldToScreen(worldPosition[0], worldPosition[2] - halfWorldSize, bottomX, bottomY, true);
-		m_MapEntity.WorldToScreen(worldPosition[0], worldPosition[2] + halfWorldSize, topX, topY, true);
-
-		float projectedWidth = workspace.DPIUnscale(rightX - leftX);
-		if (projectedWidth < 0)
-			projectedWidth = -projectedWidth;
-		float projectedHeight = workspace.DPIUnscale(topY - bottomY);
-		if (projectedHeight < 0)
-			projectedHeight = -projectedHeight;
-
-		return (projectedWidth + projectedHeight) * 0.5;
+		return {workspace.DPIUnscale(screenXEnd - screenX), workspace.DPIUnscale(screenY - screenYEnd), 0};
 	}
 
 	protected void ClearMarkers()

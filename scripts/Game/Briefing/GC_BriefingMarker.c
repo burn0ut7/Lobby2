@@ -13,6 +13,7 @@ class GC_BriefingMarker
 	protected float m_fRotation;
 	protected bool m_bWorldScale;
 	protected float m_fSize;
+	protected float m_fMinSize;
 	protected int m_iColor = Color.WHITE;
 	protected string m_sDescription;
 	protected ref array<string> m_aFactionKeys = {};
@@ -29,6 +30,7 @@ class GC_BriefingMarker
 	float GetRotation() { return m_fRotation; }
 	bool IsWorldScale() { return m_bWorldScale; }
 	float GetSize() { return m_fSize; }
+	float GetMinSize() { return m_fMinSize; }
 	int GetColor() { return m_iColor; }
 	string GetDescription() { return m_sDescription; }
 	array<string> GetFactionKeys() { return m_aFactionKeys; }
@@ -39,7 +41,7 @@ class GC_BriefingMarker
 	void SetRevision(int revision) { m_iRevision = revision; }
 
 	void Set(string name, ResourceName image, ResourceName highlightImage, string quadName, vector worldPosition, float rotation, bool worldScale,
-		float size, string description, array<string> factionKeys = null,
+		float size, float minSize, string description, array<string> factionKeys = null,
 		SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
 		bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
 	{
@@ -51,6 +53,7 @@ class GC_BriefingMarker
 		m_fRotation = rotation;
 		m_bWorldScale = worldScale;
 		m_fSize = size;
+		m_fMinSize = minSize;
 		m_iColor = color;
 		m_sDescription = description;
 		m_aFactionKeys.Clear();
@@ -101,7 +104,7 @@ class GC_BriefingMarker
 			return;
 
 		Set(source.m_sName, source.m_sImage, source.m_sHighlightImage, source.m_sQuadName, source.m_vWorldPosition,
-			source.m_fRotation, source.m_bWorldScale, source.m_fSize, source.m_sDescription,
+			source.m_fRotation, source.m_bWorldScale, source.m_fSize, source.m_fMinSize, source.m_sDescription,
 			source.m_aFactionKeys, source.m_eShowAtGameModeState,
 			source.m_bInvertGameModeState, source.m_bVisible, source.m_iColor);
 		m_iRevision = source.m_iRevision;
@@ -117,6 +120,7 @@ class GC_BriefingMarker
 		writer.WriteFloat(m_fRotation);
 		writer.WriteBool(m_bWorldScale);
 		writer.WriteFloat(m_fSize);
+		writer.WriteFloat(m_fMinSize);
 		writer.WriteInt(m_iColor);
 		writer.WriteString(m_sDescription);
 		writer.WriteInt(m_aFactionKeys.Count());
@@ -137,7 +141,7 @@ class GC_BriefingMarker
 			return false;
 		if (!reader.ReadVector(m_vWorldPosition) || !reader.ReadFloat(m_fRotation))
 			return false;
-		if (!reader.ReadBool(m_bWorldScale) || !reader.ReadFloat(m_fSize) || !reader.ReadInt(m_iColor)
+		if (!reader.ReadBool(m_bWorldScale) || !reader.ReadFloat(m_fSize) || !reader.ReadFloat(m_fMinSize) || !reader.ReadInt(m_iColor)
 			|| !reader.ReadString(m_sDescription))
 			return false;
 
@@ -179,6 +183,7 @@ class GC_BriefingMarker
 		snapshot.SerializeFloat(instance.m_fRotation);
 		snapshot.SerializeBool(instance.m_bWorldScale);
 		snapshot.SerializeFloat(instance.m_fSize);
+		snapshot.SerializeFloat(instance.m_fMinSize);
 		snapshot.SerializeInt(instance.m_iColor);
 		snapshot.SerializeString(instance.m_sDescription);
 		int factionCount = instance.m_aFactionKeys.Count();
@@ -213,6 +218,7 @@ class GC_BriefingMarker
 		snapshot.SerializeFloat(instance.m_fRotation);
 		snapshot.SerializeBool(instance.m_bWorldScale);
 		snapshot.SerializeFloat(instance.m_fSize);
+		snapshot.SerializeFloat(instance.m_fMinSize);
 		snapshot.SerializeInt(instance.m_iColor);
 		snapshot.SerializeString(instance.m_sDescription);
 		int factionCount;
@@ -245,6 +251,7 @@ class GC_BriefingMarker
 		for (int index; index < 4; index++) snapshot.EncodeFloat(packet);
 		snapshot.EncodeBool(packet);
 		snapshot.EncodeFloat(packet);
+		snapshot.EncodeFloat(packet);
 		snapshot.EncodeInt(packet);
 		snapshot.EncodeString(packet);
 		snapshot.EncodeInt(packet);
@@ -264,6 +271,7 @@ class GC_BriefingMarker
 		for (int index; index < 4; index++) snapshot.DecodeFloat(packet);
 		snapshot.DecodeBool(packet);
 		snapshot.DecodeFloat(packet);
+		snapshot.DecodeFloat(packet);
 		snapshot.DecodeInt(packet);
 		snapshot.DecodeString(packet);
 		snapshot.DecodeInt(packet);
@@ -280,7 +288,7 @@ class GC_BriefingMarker
 		if (!lhs.CompareStringSnapshots(rhs) || !lhs.CompareStringSnapshots(rhs)
 			|| !lhs.CompareStringSnapshots(rhs) || !lhs.CompareStringSnapshots(rhs))
 			return false;
-		for (int index; index < 7; index++)
+		for (int index; index < 8; index++)
 		{
 			if (!lhs.CompareSnapshots(rhs, 4)) return false;
 		}
@@ -305,6 +313,7 @@ class GC_BriefingMarker
 			|| !snapshot.CompareFloat(instance.m_fRotation)
 			|| !snapshot.CompareBool(instance.m_bWorldScale)
 			|| !snapshot.CompareFloat(instance.m_fSize)
+			|| !snapshot.CompareFloat(instance.m_fMinSize)
 			|| !snapshot.CompareInt(instance.m_iColor)
 			|| !snapshot.CompareString(instance.m_sDescription)
 			|| !snapshot.CompareInt(instance.m_aFactionKeys.Count()))
