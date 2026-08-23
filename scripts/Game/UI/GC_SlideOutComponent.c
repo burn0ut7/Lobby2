@@ -64,12 +64,6 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		super.HandlerDeattached(w);
 	}
 
-	override bool OnMouseEnter(Widget w, int x, int y)
-	{
-		SetHandleHovered(true);
-		return true;
-	}
-
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		if (!ContainsWidget(enterW))
@@ -368,7 +362,7 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 }
 
 //! Button adapter which keeps pin intent scoped to the slide-out handle.
-class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
+class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 {
 	protected GC_SlideOutComponent m_SlideOut;
 	protected GC_SlideOutHandleBackgroundComponent m_BackgroundComponent;
@@ -379,6 +373,10 @@ class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
 	override void HandlerAttached(Widget w)
 	{
 		super.HandlerAttached(w);
+		SetHoverSound(string.Empty);
+		SetClickedSound(string.Empty);
+		SetToggleable(false);
+		m_bUseColorization = false;
 
 		Widget parent = w.GetParent();
 		while (parent && !m_SlideOut)
@@ -387,7 +385,7 @@ class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
 			parent = parent.GetParent();
 		}
 
-		Widget handle = w;
+		Widget handle = w.GetParent();
 		if (handle)
 		{
 			Widget roundedBase = handle.FindAnyWidget("SlideOutHandleRoundedBase");
@@ -412,30 +410,33 @@ class GC_SlideOutHandleComponent : SCR_ScriptedWidgetComponent
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
+		super.OnMouseEnter(w, x, y);
 		m_bHovered = true;
 		if (m_SlideOut)
 			m_SlideOut.SetHandleHovered(true);
 		UpdateVisuals();
-		return true;
+		return false;
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
+		super.OnMouseLeave(w, enterW, x, y);
 		m_bHovered = false;
 		if (m_SlideOut && !m_SlideOut.ContainsWidget(enterW))
 			m_SlideOut.SetHandleHovered(false);
 		UpdateVisuals();
-		return true;
+		return false;
 	}
 
-	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+	override bool OnClick(Widget w, int x, int y, int button)
 	{
+		super.OnClick(w, x, y, button);
 		if (button != 0 || !m_SlideOut)
 			return false;
 
 		m_SlideOut.TogglePinned();
 		UpdateVisuals();
-		return true;
+		return false;
 	}
 
 	protected void UpdateVisuals()

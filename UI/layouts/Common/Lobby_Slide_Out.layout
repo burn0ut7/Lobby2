@@ -1,6 +1,6 @@
 FrameWidgetClass {
  Name "SlideOut"
- "Ignore Cursor" 1
+ "Ignore Cursor" 0
  Slot FrameWidgetSlot "{6A58000000000002}" {
   PositionX 0
   OffsetLeft 0
@@ -45,10 +45,6 @@ FrameWidgetClass {
     SizeY 112
     OffsetBottom -112
     Alignment 0 0.5
-   }
-   components {
-    GC_SlideOutHandleComponent "{6A58000000000011}" {
-    }
    }
    {
     FrameWidgetClass "{6A5800000000000A}" {
@@ -111,6 +107,28 @@ FrameWidgetClass {
       OutlineSize 1
       OutlineColor 0 0 0 0.8
      }
+    }
+    ButtonWidgetClass "{6A58000000000008}" {
+     Name "SlideOutHandleButton"
+     "Ignore Cursor" 0
+     Slot FrameWidgetSlot "{6A58000000000009}" {
+      Anchor 0 0 1 1
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 0
+      OffsetRight 0
+      SizeY 0
+      OffsetBottom 0
+     }
+     Color 1 1 1 0
+     components {
+      GC_SlideOutHandleComponent "{6A58000000000011}" {
+       m_bUseColorization 0
+      }
+     }
+     "no focus" 1
     }
    }
   }
