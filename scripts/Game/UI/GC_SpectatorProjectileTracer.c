@@ -363,43 +363,18 @@ class GC_SpectatorProjectileTracer
 	protected void OnMuzzleWeaponFired(IEntity effectEntity, BaseMuzzleComponent muzzle, IEntity projectile)
 	{
 		m_iMuzzleCallbacks++;
-		if (!effectEntity)
-		{
-			m_iRejectedCallbacks++;
-			PrintFormat("GC | Tracer Debug | muzzle callback rejected: callback=%1 muzzle=%2 projectile=%3 reason=no muzzle effect entity", m_iMuzzleCallbacks, muzzle, projectile, level: LogLevel.WARNING);
-			return;
-		}
-
-		vector muzzleTransform[4];
-		effectEntity.GetTransform(muzzleTransform);
-		CreateProjectileTrace(0, null, projectile, muzzleTransform[3], "muzzle");
+		vector projectilePosition;
+		if (projectile)
+			projectilePosition = projectile.GetOrigin();
+		CreateProjectileTrace(0, null, projectile, projectilePosition, "projectile-origin");
 	}
 
 	protected void OnWeaponProjectileCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
-		IEntity muzzleParticle;
-		if (weapon)
-		{
-			BaseMuzzleComponent muzzle = weapon.GetCurrentMuzzle();
-			MuzzleEffectComponent muzzleEffect;
-			if (muzzle)
-				muzzleEffect = MuzzleEffectComponent.Cast(muzzle.FindComponent(MuzzleEffectComponent));
-			if (muzzleEffect)
-				muzzleParticle = muzzleEffect.GetParticleEntity();
-		}
-
-		if (!muzzleParticle)
-		{
-			vector projectilePosition;
-			if (projectile)
-				projectilePosition = projectile.GetOrigin();
-			CreateProjectileTrace(playerId, weapon, projectile, projectilePosition, "weapon-projectile");
-			return;
-		}
-
-		vector muzzleTransform[4];
-		muzzleParticle.GetTransform(muzzleTransform);
-		CreateProjectileTrace(playerId, weapon, projectile, muzzleTransform[3], "vehicle-muzzle");
+		vector projectilePosition;
+		if (projectile)
+			projectilePosition = projectile.GetOrigin();
+		CreateProjectileTrace(playerId, weapon, projectile, projectilePosition, "projectile-origin");
 	}
 
 	protected void OnGrenadeCreated(int playerId, BaseWeaponComponent weapon, IEntity projectile)
