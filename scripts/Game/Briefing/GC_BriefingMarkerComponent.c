@@ -13,6 +13,9 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.ResourcePickerThumbnail, "Texture or image-set resource used by the briefing marker", params: "imageset edds png")]
 	protected ResourceName m_sImageSetOrImage;
 
+	[Attribute("", UIWidgets.ResourcePickerThumbnail, "Optional highlight imageset using the same quad as the marker image", params: "imageset")]
+	protected ResourceName m_sHighlightImageSet;
+
 	[Attribute("", UIWidgets.EditBox, "Quad name used only when Image is an .imageset resource. Workbench does not expose image-set quads to scripted dropdowns")]
 	protected string m_sQuadName;
 
@@ -92,7 +95,7 @@ class GC_BriefingMarkerComponent : ScriptComponent
 		int markerColor = Color.WHITE;
 		if (m_Color)
 			markerColor = m_Color.PackToInt();
-		marker.Set(markerName, m_sImageSetOrImage, m_sQuadName, owner.GetOrigin(), owner.GetYawPitchRoll()[0],
+		marker.Set(markerName, m_sImageSetOrImage, m_sHighlightImageSet, m_sQuadName, owner.GetOrigin(), owner.GetYawPitchRoll()[0],
 			m_bWorldScale, m_fSize, m_sDescription, m_aFactionKeys,
 			m_eShowAtGameModeState, m_bInvertGameModeState, true, markerColor);
 		return marker;

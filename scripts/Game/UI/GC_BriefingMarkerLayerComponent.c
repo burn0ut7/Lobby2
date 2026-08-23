@@ -12,6 +12,8 @@ class GC_BriefingMarkerWidgetComponent : SCR_ScriptedWidgetComponent
 		m_wLabel = w.FindAnyWidget("BriefingMarkerLabel");
 		m_wGlow = ImageWidget.Cast(w.FindAnyWidget("BriefingMarkerGlow"));
 		m_iDefaultZOrder = w.GetZOrder();
+		if (m_wLabel)
+			m_wLabel.SetVisible(true);
 		SetHovered(false);
 	}
 
@@ -39,8 +41,6 @@ class GC_BriefingMarkerWidgetComponent : SCR_ScriptedWidgetComponent
 
 	protected void SetHovered(bool hovered)
 	{
-		if (m_wLabel)
-			m_wLabel.SetVisible(hovered);
 		if (m_wGlow)
 			m_wGlow.SetVisible(hovered);
 		if (m_wRoot)
@@ -165,15 +165,9 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 
 			bool loaded;
 			if (marker.GetImage().EndsWith(".imageset"))
-			{
 				loaded = markerImage.LoadImageFromSet(0, marker.GetImage(), marker.GetQuadName());
-				loaded = markerGlow.LoadImageFromSet(0, marker.GetImage(), marker.GetQuadName()) && loaded;
-			}
 			else
-			{
 				loaded = markerImage.LoadImageTexture(0, marker.GetImage());
-				loaded = markerGlow.LoadImageTexture(0, marker.GetImage()) && loaded;
-			}
 
 			if (!loaded)
 			{
@@ -183,11 +177,17 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 				continue;
 			}
 
+			ResourceName highlightImage = marker.GetHighlightImage();
+			if (!highlightImage.IsEmpty() && !markerGlow.LoadImageFromSet(0, highlightImage, marker.GetQuadName()))
+			{
+				PrintFormat("GC | Failed to load briefing marker highlight: marker=%1 resource=%2 quad=%3",
+					marker.GetName(), highlightImage, marker.GetQuadName(), level: LogLevel.WARNING);
+			}
+
 			markerImage.SetRotation(marker.GetRotation());
 			markerImage.SetColorInt(marker.GetColor());
 			markerGlow.SetRotation(marker.GetRotation());
-			markerGlow.SetColor(GUIColors.ORANGE);
-			markerGlow.SetOpacity(0.75);
+			markerGlow.SetColor(Color.FromSRGBA(226, 168, 79, 155));
 			markerDescription.SetText(marker.GetDescription());
 			m_aMarkerRoots.Insert(markerRoot);
 			m_aMarkerImages.Insert(markerImage);

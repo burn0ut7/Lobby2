@@ -7,6 +7,7 @@ class GC_BriefingMarker
 
 	protected string m_sName;
 	protected ResourceName m_sImage;
+	protected ResourceName m_sHighlightImage;
 	protected string m_sQuadName;
 	protected vector m_vWorldPosition;
 	protected float m_fRotation;
@@ -22,6 +23,7 @@ class GC_BriefingMarker
 
 	string GetName() { return m_sName; }
 	ResourceName GetImage() { return m_sImage; }
+	ResourceName GetHighlightImage() { return m_sHighlightImage; }
 	string GetQuadName() { return m_sQuadName; }
 	vector GetWorldPosition() { return m_vWorldPosition; }
 	float GetRotation() { return m_fRotation; }
@@ -36,13 +38,14 @@ class GC_BriefingMarker
 	int GetRevision() { return m_iRevision; }
 	void SetRevision(int revision) { m_iRevision = revision; }
 
-	void Set(string name, ResourceName image, string quadName, vector worldPosition, float rotation, bool worldScale,
+	void Set(string name, ResourceName image, ResourceName highlightImage, string quadName, vector worldPosition, float rotation, bool worldScale,
 		float size, string description, array<string> factionKeys = null,
 		SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
 		bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
 	{
 		m_sName = name;
 		m_sImage = image;
+		m_sHighlightImage = highlightImage;
 		m_sQuadName = quadName;
 		m_vWorldPosition = worldPosition;
 		m_fRotation = rotation;
@@ -97,7 +100,7 @@ class GC_BriefingMarker
 		if (!source)
 			return;
 
-		Set(source.m_sName, source.m_sImage, source.m_sQuadName, source.m_vWorldPosition,
+		Set(source.m_sName, source.m_sImage, source.m_sHighlightImage, source.m_sQuadName, source.m_vWorldPosition,
 			source.m_fRotation, source.m_bWorldScale, source.m_fSize, source.m_sDescription,
 			source.m_aFactionKeys, source.m_eShowAtGameModeState,
 			source.m_bInvertGameModeState, source.m_bVisible, source.m_iColor);
@@ -108,6 +111,7 @@ class GC_BriefingMarker
 	{
 		writer.WriteString(m_sName);
 		writer.WriteString(m_sImage);
+		writer.WriteString(m_sHighlightImage);
 		writer.WriteString(m_sQuadName);
 		writer.WriteVector(m_vWorldPosition);
 		writer.WriteFloat(m_fRotation);
@@ -128,7 +132,8 @@ class GC_BriefingMarker
 
 	bool RplLoad(ScriptBitReader reader)
 	{
-		if (!reader.ReadString(m_sName) || !reader.ReadString(m_sImage) || !reader.ReadString(m_sQuadName))
+		if (!reader.ReadString(m_sName) || !reader.ReadString(m_sImage)
+			|| !reader.ReadString(m_sHighlightImage) || !reader.ReadString(m_sQuadName))
 			return false;
 		if (!reader.ReadVector(m_vWorldPosition) || !reader.ReadFloat(m_fRotation))
 			return false;
@@ -163,6 +168,7 @@ class GC_BriefingMarker
 	{
 		snapshot.SerializeString(instance.m_sName);
 		snapshot.SerializeString(instance.m_sImage);
+		snapshot.SerializeString(instance.m_sHighlightImage);
 		snapshot.SerializeString(instance.m_sQuadName);
 		float positionX = instance.m_vWorldPosition[0];
 		float positionY = instance.m_vWorldPosition[1];
@@ -195,6 +201,7 @@ class GC_BriefingMarker
 	{
 		snapshot.SerializeString(instance.m_sName);
 		snapshot.SerializeString(instance.m_sImage);
+		snapshot.SerializeString(instance.m_sHighlightImage);
 		snapshot.SerializeString(instance.m_sQuadName);
 		float positionX;
 		float positionY;
@@ -234,6 +241,7 @@ class GC_BriefingMarker
 		snapshot.EncodeString(packet);
 		snapshot.EncodeString(packet);
 		snapshot.EncodeString(packet);
+		snapshot.EncodeString(packet);
 		for (int index; index < 4; index++) snapshot.EncodeFloat(packet);
 		snapshot.EncodeBool(packet);
 		snapshot.EncodeFloat(packet);
@@ -249,6 +257,7 @@ class GC_BriefingMarker
 
 	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
 	{
+		snapshot.DecodeString(packet);
 		snapshot.DecodeString(packet);
 		snapshot.DecodeString(packet);
 		snapshot.DecodeString(packet);
@@ -268,7 +277,8 @@ class GC_BriefingMarker
 
 	static bool SnapCompare(SSnapSerializerBase lhs, SSnapSerializerBase rhs, ScriptCtx ctx)
 	{
-		if (!lhs.CompareStringSnapshots(rhs) || !lhs.CompareStringSnapshots(rhs) || !lhs.CompareStringSnapshots(rhs))
+		if (!lhs.CompareStringSnapshots(rhs) || !lhs.CompareStringSnapshots(rhs)
+			|| !lhs.CompareStringSnapshots(rhs) || !lhs.CompareStringSnapshots(rhs))
 			return false;
 		for (int index; index < 7; index++)
 		{
@@ -287,6 +297,7 @@ class GC_BriefingMarker
 	static bool PropCompare(GC_BriefingMarker instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
 	{
 		if (!snapshot.CompareString(instance.m_sName) || !snapshot.CompareString(instance.m_sImage)
+			|| !snapshot.CompareString(instance.m_sHighlightImage)
 			|| !snapshot.CompareString(instance.m_sQuadName)
 			|| !snapshot.CompareFloat(instance.m_vWorldPosition[0])
 			|| !snapshot.CompareFloat(instance.m_vWorldPosition[1])

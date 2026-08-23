@@ -31,8 +31,9 @@ ScriptedChatEntity : "{F69BC912AC8236F9}Prefabs/MP/ScriptedChatEntity.et" {
 GenericEntity marker2 {
  components {
   GC_BriefingMarkerComponent "{6A208289DCAA4649}" {
-   m_sImageSetOrImage "{8479B3B5347DF5CF}UI/Imagesets/MilitarySymbol/ID_D.imageset"
-   m_sQuadName "System_Bcg"
+   m_sImageSetOrImage "{E23427CAC80DA8B7}UI/Textures/Icons/icons_mapMarkersUI.imageset"
+   m_sHighlightImageSet "{67B3A6DC2D712B52}UI/Textures/Icons/icons_mapMarkersUI-glow.imageset"
+   m_sQuadName "circle-2"
    m_fSize 50
    m_Color 1 0 0 1
    m_sDescription "testttt"

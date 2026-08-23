@@ -42,7 +42,7 @@ FrameWidgetClass {
     SizeY 30
     OffsetBottom -78
    }
-   "Is Visible" 0
+   "Is Visible" 1
    "Ignore Cursor" 1
    {
     TextWidgetClass "{6A4E000000000004}" {
