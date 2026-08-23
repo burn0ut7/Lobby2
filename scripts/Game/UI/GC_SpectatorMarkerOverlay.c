@@ -932,16 +932,16 @@ class GC_SpectatorMarkerOverlay
 		if (!weaponManager)
 			return;
 
-		array<BaseWeaponComponent> weapons = {};
-		weaponManager.GetWeapons(weapons);
-		foreach (BaseWeaponComponent weapon : weapons)
+		array<WeaponSlotComponent> weaponSlots = {};
+		weaponManager.GetWeaponsSlots(weaponSlots);
+		foreach (WeaponSlotComponent weaponSlot : weaponSlots)
 		{
-			if (!weapon)
+			if (!weaponSlot)
 				continue;
 
-			IEntity weaponOwner = weapon.GetOwner();
-			if (weaponOwner && !output.Contains(weaponOwner))
-				output.Insert(weaponOwner);
+			IEntity weaponEntity = weaponSlot.GetWeaponEntity();
+			if (weaponEntity && weaponEntity.FindComponent(SCR_MuzzleEffectComponent) && !output.Contains(weaponEntity))
+				output.Insert(weaponEntity);
 		}
 	}
 
