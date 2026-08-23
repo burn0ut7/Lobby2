@@ -96,9 +96,9 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		switch (m_eDirection)
 		{
 			case GC_ESlideOutDirection.RIGHT:
-				FrameSlot.SetOffsets(content, m_fHandleSize, 0, 0, 0);
-				FrameSlot.SetAnchor(handle, 0, 0.5);
-				FrameSlot.SetAlignment(handle, 0, 0.5);
+				FrameSlot.SetOffsets(content, 0, 0, -m_fHandleSize, 0);
+				FrameSlot.SetAnchor(handle, 1, 0.5);
+				FrameSlot.SetAlignment(handle, 1, 0.5);
 				FrameSlot.SetPos(handle, 0, 0);
 				FrameSlot.SetSize(handle, m_fHandleSize, m_fHandleLength);
 				if (arrow)
@@ -106,9 +106,9 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				break;
 
 			case GC_ESlideOutDirection.UP:
-				FrameSlot.SetOffsets(content, 0, 0, 0, -m_fHandleSize);
-				FrameSlot.SetAnchor(handle, 0.5, 1);
-				FrameSlot.SetAlignment(handle, 0.5, 1);
+				FrameSlot.SetOffsets(content, 0, m_fHandleSize, 0, 0);
+				FrameSlot.SetAnchor(handle, 0.5, 0);
+				FrameSlot.SetAlignment(handle, 0.5, 0);
 				FrameSlot.SetPos(handle, 0, 0);
 				FrameSlot.SetSize(handle, m_fHandleLength, m_fHandleSize);
 				if (arrow)
@@ -116,9 +116,9 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				break;
 
 			case GC_ESlideOutDirection.DOWN:
-				FrameSlot.SetOffsets(content, 0, m_fHandleSize, 0, 0);
-				FrameSlot.SetAnchor(handle, 0.5, 0);
-				FrameSlot.SetAlignment(handle, 0.5, 0);
+				FrameSlot.SetOffsets(content, 0, 0, 0, -m_fHandleSize);
+				FrameSlot.SetAnchor(handle, 0.5, 1);
+				FrameSlot.SetAlignment(handle, 0.5, 1);
 				FrameSlot.SetPos(handle, 0, 0);
 				FrameSlot.SetSize(handle, m_fHandleLength, m_fHandleSize);
 				if (arrow)
@@ -126,9 +126,9 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 				break;
 
 			default:
-				FrameSlot.SetOffsets(content, 0, 0, -m_fHandleSize, 0);
-				FrameSlot.SetAnchor(handle, 1, 0.5);
-				FrameSlot.SetAlignment(handle, 1, 0.5);
+				FrameSlot.SetOffsets(content, m_fHandleSize, 0, 0, 0);
+				FrameSlot.SetAnchor(handle, 0, 0.5);
+				FrameSlot.SetAlignment(handle, 0, 0.5);
 				FrameSlot.SetPos(handle, 0, 0);
 				FrameSlot.SetSize(handle, m_fHandleSize, m_fHandleLength);
 				if (arrow)

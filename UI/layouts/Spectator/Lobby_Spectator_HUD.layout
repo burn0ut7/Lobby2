@@ -6,12 +6,12 @@ FrameWidgetClass {
    Name "SpectatorPlayerSlideOut"
    Slot FrameWidgetSlot "{6A58000000000021}" {
     Anchor 1 0.5 1 0.5
-    PositionX -24
-    OffsetLeft -24
+    PositionX 0
+    OffsetLeft 0
     PositionY 0
     OffsetTop 0
     SizeX 716
-    OffsetRight -692
+    OffsetRight -716
     SizeY 868
     OffsetBottom -868
     Alignment 1 0.5
