@@ -5,7 +5,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected static const float MIN_ICON_DISTANCE = 0.0;
 	protected static const float MAX_ICON_SIZE = 32.0;
 	protected static const float MIN_ICON_SIZE = 4.0;
-	protected static const float NAME_REVEAL_DISTANCE = 50.0;
+	protected static const float NAME_REVEAL_DISTANCE = 25.0;
 
 	protected ImageWidget m_wSmallBackground;
 	protected ImageWidget m_wBackground;
@@ -291,8 +291,8 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	protected static const ResourceName GROUP_HOVER_LAYOUT = "{6A56000000000009}UI/layouts/Spectator/Lobby_Spectator_Group_Hover.layout";
 	protected static const ResourceName GROUP_MEMBER_ROW_LAYOUT = "{6A5600000000000A}UI/layouts/Spectator/Lobby_Spectator_Group_Member_Row.layout";
 	protected static const float GROUP_ICON_SIZE = 48.0;
-	protected static const float CLOSE_FADE_START = 100.0;
-	protected static const float CLOSE_FADE_END = 50.0;
+	protected static const float CLOSE_FADE_START = 50.0;
+	protected static const float CLOSE_FADE_END = 25.0;
 	protected static const float HOVER_WIDTH = 220.0;
 	protected static const float HOVER_HEADER_HEIGHT = 34.0;
 	protected static const float HOVER_ROW_HEIGHT = 30.0;
