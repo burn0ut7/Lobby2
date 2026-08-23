@@ -871,7 +871,7 @@ class GC_SpectatorMarkerOverlay
 		CollectCharacterShooterSources(character, currentShooters);
 		foreach (IEntity shooter : currentShooters)
 		{
-			if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter, shooter == character, false))
+			if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter, shooter == character, shooter == character))
 				trackedShooters.Insert(shooter);
 		}
 
