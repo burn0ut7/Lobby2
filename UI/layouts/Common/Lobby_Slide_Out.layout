@@ -1,0 +1,96 @@
+FrameWidgetClass {
+ Name "SlideOut"
+ Slot FrameWidgetSlot "{6A58000000000002}" {
+  PositionX 0
+  OffsetLeft 0
+  PositionY 0
+  OffsetTop 0
+  SizeX 716
+  OffsetRight -716
+  SizeY 868
+  OffsetBottom -868
+ }
+ components {
+  GC_SlideOutComponent "{6A58000000000003}" {
+  }
+ }
+ {
+  OverlayWidgetClass "{6A58000000000004}" {
+   Name "SlideOutContent"
+   Slot FrameWidgetSlot "{6A58000000000005}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX -56
+    OffsetRight -56
+    SizeY 0
+    OffsetBottom 0
+   }
+  }
+  SizeLayoutWidgetClass "{6A58000000000006}" {
+   Name "SlideOutHandle"
+   Slot FrameWidgetSlot "{6A58000000000007}" {
+    Anchor 1 0.5 1 0.5
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 56
+    OffsetRight -56
+    SizeY 112
+    OffsetBottom -112
+    Alignment 1 0.5
+   }
+   AllowWidthOverride 1
+   WidthOverride 56
+   AllowHeightOverride 1
+   HeightOverride 112
+   {
+    OverlayWidgetClass "{6A58000000000008}" {
+     Name "SlideOutHandleBody"
+     Slot AlignableSlot "{6A58000000000009}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      ImageWidgetClass "{6A5800000000000A}" {
+       Name "SlideOutHandleBackground"
+       Slot OverlayWidgetSlot "{6A5800000000000B}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.07 0.1 0.11 0.96
+      }
+      ImageWidgetClass "{6A5800000000000C}" {
+       Name "SlideOutHandleAccent"
+       Slot OverlayWidgetSlot "{6A5800000000000D}" {
+        HorizontalAlign 0
+        VerticalAlign 3
+       }
+       Color 0.25 0.72 0.78 1
+       Size 4 112
+      }
+      TextWidgetClass "{6A5800000000000E}" {
+       Name "SlideOutArrow"
+       Slot OverlayWidgetSlot "{6A5800000000000F}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Text "<"
+       "Font Size" 42
+       "Min Font Size" 20
+       "Horizontal Alignment" Center
+       "Vertical Alignment" Center
+       FontProperties FontProperties "{6A58000000000010}" {
+        OutlineSize 1
+        OutlineColor 0 0 0 0.8
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

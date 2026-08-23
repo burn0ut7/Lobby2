@@ -1,4 +1,38 @@
 FrameWidgetClass {
  Name "LobbySpectatorHUD"
  "Z Order" 10
+ {
+  FrameWidgetClass "{6A58000000000020}" : "{6A58000000000001}UI/layouts/Common/Lobby_Slide_Out.layout" {
+   Name "SpectatorPlayerSlideOut"
+   Slot FrameWidgetSlot "{6A58000000000021}" {
+    Anchor 1 0.5 1 0.5
+    PositionX -24
+    OffsetLeft -24
+    PositionY 0
+    OffsetTop 0
+    SizeX 716
+    OffsetRight -692
+    SizeY 868
+    OffsetBottom -868
+    Alignment 1 0.5
+   }
+   "Z Order" 20
+   {
+    OverlayWidgetClass "{6A58000000000004}" {
+     Prefab "{6A58000000000004}"
+     {
+      SizeLayoutWidgetClass "{6A58000000000022}" : "{6A38000000000001}UI/layouts/Players/Lobby_Player_List_Panel.layout" {
+       Name "SpectatorPlayerListPanel"
+       Slot OverlayWidgetSlot "{6A58000000000023}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       AllowWidthOverride 0
+       AllowHeightOverride 0
+      }
+     }
+    }
+   }
+  }
+ }
 }
