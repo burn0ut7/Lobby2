@@ -152,26 +152,27 @@ class GC_SpectatorProjectileTracer
 		m_fTrailDuration = 0.0;
 	}
 
-	void TrackShooter(IEntity shooter)
+	bool TrackShooter(IEntity shooter)
 	{
 		if (!shooter)
-			return;
+			return false;
 
 		int referenceCount;
 		if (m_mShooterReferences.Find(shooter, referenceCount))
 		{
 			m_mShooterReferences.Set(shooter, referenceCount + 1);
-			return;
+			return true;
 		}
 
 		EventHandlerManagerComponent eventManager = EventHandlerManagerComponent.Cast(shooter.FindComponent(EventHandlerManagerComponent));
 		if (!eventManager)
-			return;
+			return false;
 
 		eventManager.RegisterScriptHandler("OnProjectileShot", this, OnProjectileCreated, false);
 		eventManager.RegisterScriptHandler("OnGrenadeThrown", this, OnProjectileCreated, false);
 		m_mShooterEvents.Insert(shooter, eventManager);
 		m_mShooterReferences.Insert(shooter, 1);
+		return true;
 	}
 
 	void UntrackShooter(IEntity shooter)

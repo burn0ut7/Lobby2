@@ -652,6 +652,7 @@ class GC_SpectatorMarkerOverlay
 	protected ref GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
 	protected ref map<SCR_AIGroup, ref array<IEntity>> m_mGroupShooters = new map<SCR_AIGroup, ref array<IEntity>>();
+	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mVehicleShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 
 	bool Start(float projectileTraceDuration)
 	{
@@ -711,6 +712,7 @@ class GC_SpectatorMarkerOverlay
 			m_ProjectileTracer.Destroy();
 
 		m_mGroupShooters.Clear();
+		m_mVehicleShooters.Clear();
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 			marker.Deactivate();
 
@@ -732,6 +734,12 @@ class GC_SpectatorMarkerOverlay
 			return;
 
 		EEditableEntityType entityType = entity.GetEntityType();
+		if (entityType == EEditableEntityType.VEHICLE)
+		{
+			RefreshVehicleShooters(entity);
+			return;
+		}
+
 		if (entityType != EEditableEntityType.CHARACTER && entityType != EEditableEntityType.GROUP)
 			return;
 
@@ -758,6 +766,16 @@ class GC_SpectatorMarkerOverlay
 
 	protected void OnEntityUnregistered(SCR_EditableEntityComponent entity)
 	{
+		if (entity && entity.GetEntityType() == EEditableEntityType.VEHICLE)
+		{
+			array<IEntity> vehicleShooters;
+			if (m_mVehicleShooters.Find(entity, vehicleShooters) && m_ProjectileTracer)
+				foreach (IEntity shooter : vehicleShooters)
+					m_ProjectileTracer.UntrackShooter(shooter);
+			m_mVehicleShooters.Remove(entity);
+			return;
+		}
+
 		GC_SpectatorEditableEntityMarker marker;
 		if (entity && entity.GetEntityType() == EEditableEntityType.CHARACTER && m_ProjectileTracer)
 			m_ProjectileTracer.UntrackShooter(entity.GetOwner());
@@ -806,6 +824,9 @@ class GC_SpectatorMarkerOverlay
 			else if (!shouldBeActive && marker.IsActive())
 				marker.Deactivate();
 		}
+
+		foreach (SCR_EditableEntityComponent vehicle, array<IEntity> vehicleShooters : m_mVehicleShooters)
+			RefreshVehicleShooters(vehicle);
 	}
 
 	protected void RefreshGroupShooters(SCR_AIGroup group)
@@ -836,8 +857,70 @@ class GC_SpectatorMarkerOverlay
 			if (trackedShooters.Contains(shooter))
 				continue;
 
-			m_ProjectileTracer.TrackShooter(shooter);
-			trackedShooters.Insert(shooter);
+			if (m_ProjectileTracer.TrackShooter(shooter))
+				trackedShooters.Insert(shooter);
+		}
+
+		for (int shooterIndex = trackedShooters.Count() - 1; shooterIndex >= 0; shooterIndex--)
+		{
+			IEntity shooter = trackedShooters[shooterIndex];
+			if (currentShooters.Contains(shooter))
+				continue;
+
+			m_ProjectileTracer.UntrackShooter(shooter);
+			trackedShooters.RemoveOrdered(shooterIndex);
+		}
+	}
+
+	protected void RefreshVehicleShooters(SCR_EditableEntityComponent vehicle)
+	{
+		if (!vehicle || !m_ProjectileTracer)
+			return;
+
+		IEntity vehicleOwner = vehicle.GetOwner();
+		if (!vehicleOwner)
+			return;
+
+		array<IEntity> trackedShooters;
+		if (!m_mVehicleShooters.Find(vehicle, trackedShooters))
+		{
+			trackedShooters = {};
+			m_mVehicleShooters.Insert(vehicle, trackedShooters);
+		}
+
+		array<IEntity> hierarchy = {vehicleOwner};
+		SCR_EntityHelper.GetHierarchyEntityList(vehicleOwner, hierarchy);
+		array<IEntity> currentShooters = {};
+		foreach (IEntity hierarchyEntity : hierarchy)
+		{
+			array<Managed> turretComponents = {};
+			hierarchyEntity.FindComponents(TurretControllerComponent, turretComponents);
+			foreach (Managed component : turretComponents)
+			{
+				TurretControllerComponent turret = TurretControllerComponent.Cast(component);
+				if (!turret)
+					continue;
+
+				BaseWeaponManagerComponent weaponManager = turret.GetWeaponManager();
+				if (!weaponManager)
+					continue;
+
+				array<BaseWeaponComponent> weapons = {};
+				weaponManager.GetWeapons(weapons);
+				foreach (BaseWeaponComponent weapon : weapons)
+				{
+					if (!weapon)
+						continue;
+
+					IEntity shooter = weapon.GetOwner();
+					if (!shooter || currentShooters.Contains(shooter))
+						continue;
+
+					currentShooters.Insert(shooter);
+					if (!trackedShooters.Contains(shooter) && m_ProjectileTracer.TrackShooter(shooter))
+						trackedShooters.Insert(shooter);
+				}
+			}
 		}
 
 		for (int shooterIndex = trackedShooters.Count() - 1; shooterIndex >= 0; shooterIndex--)
