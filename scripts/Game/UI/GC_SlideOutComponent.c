@@ -11,6 +11,7 @@ enum GC_ESlideOutDirection
 class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 {
 	protected static const int ANIMATION_TICK_MS = 16;
+	protected static const int HOVER_TICK_MS = 16;
 
 	[Attribute("0", UIWidgets.ComboBox, "Direction in which the content expands", enumType: GC_ESlideOutDirection)]
 	protected GC_ESlideOutDirection m_eDirection;
@@ -31,8 +32,11 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	protected float m_fTargetProgress;
 	protected bool m_bHovered;
 	protected bool m_bPinned;
+	protected bool m_bHandleFocused;
 	protected bool m_bContentInteractive = true;
 	protected Widget m_wContent;
+	protected Widget m_wHandle;
+	protected GC_SlideOutHandleComponent m_HandleComponent;
 
 	override void HandlerAttached(Widget w)
 	{
@@ -54,25 +58,32 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		m_fTargetProgress = 0;
 		m_bHovered = false;
 		m_bPinned = false;
+		m_bHandleFocused = false;
 		ApplyProgress();
+		GetGame().GetCallqueue().CallLater(UpdatePointerHover, HOVER_TICK_MS, true);
 	}
 
 	override void HandlerDeattached(Widget w)
 	{
 		GetGame().GetCallqueue().Remove(Animate);
+		GetGame().GetCallqueue().Remove(UpdatePointerHover);
+		m_HandleComponent = null;
+		m_wHandle = null;
 		m_wContent = null;
 		super.HandlerDeattached(w);
 	}
 
-	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	void SetHandleFocused(bool focused)
 	{
-		if (!ContainsWidget(enterW))
-			SetHandleHovered(false);
-		return true;
+		m_bHandleFocused = focused;
+		UpdatePointerHover();
 	}
 
-	void SetHandleHovered(bool hovered)
+	protected void SetHovered(bool hovered)
 	{
+		if (m_bHovered == hovered)
+			return;
+
 		m_bHovered = hovered;
 		if (hovered)
 			SetExpanded(true);
@@ -80,17 +91,42 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			SetExpanded(false);
 	}
 
-	bool ContainsWidget(Widget widget)
+	protected void UpdatePointerHover()
 	{
-		while (widget)
-		{
-			if (widget == m_wRoot)
-				return true;
+		if (!m_wHandle)
+			return;
 
-			widget = widget.GetParent();
+		int mouseX;
+		int mouseY;
+		WidgetManager.GetMousePos(mouseX, mouseY);
+		bool handleHovered = IsPointerInside(m_wHandle, mouseX, mouseY);
+		bool contentHovered = m_fProgress > 0 && IsPointerInside(m_wContent, mouseX, mouseY);
+		SetHovered(handleHovered || contentHovered || m_bHandleFocused);
+
+		if (!m_HandleComponent)
+		{
+			Widget handleButton = m_wHandle.FindAnyWidget("SlideOutHandleButton");
+			if (handleButton)
+				m_HandleComponent = GC_SlideOutHandleComponent.Cast(handleButton.FindHandler(GC_SlideOutHandleComponent));
 		}
 
-		return false;
+		if (m_HandleComponent)
+			m_HandleComponent.SetHovered(handleHovered || m_bHandleFocused);
+	}
+
+	protected bool IsPointerInside(Widget widget, int mouseX, int mouseY)
+	{
+		if (!widget)
+			return false;
+
+		float widgetX;
+		float widgetY;
+		float widgetWidth;
+		float widgetHeight;
+		widget.GetScreenPos(widgetX, widgetY);
+		widget.GetScreenSize(widgetWidth, widgetHeight);
+		return mouseX >= widgetX && mouseX < widgetX + widgetWidth
+			&& mouseY >= widgetY && mouseY < widgetY + widgetHeight;
 	}
 
 	void TogglePinned()
@@ -119,6 +155,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 		m_wContent = content;
+		m_wHandle = handle;
 
 		FrameSlot.SetAnchorMin(content, 0, 0);
 		FrameSlot.SetAnchorMax(content, 1, 1);
@@ -410,22 +447,26 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 
 	override bool OnMouseEnter(Widget w, int x, int y)
 	{
-		super.OnMouseEnter(w, x, y);
-		m_bHovered = true;
-		if (m_SlideOut)
-			m_SlideOut.SetHandleHovered(true);
-		UpdateVisuals();
-		return false;
+		return super.OnMouseEnter(w, x, y);
 	}
 
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
-		super.OnMouseLeave(w, enterW, x, y);
-		m_bHovered = false;
-		if (m_SlideOut && !m_SlideOut.ContainsWidget(enterW))
-			m_SlideOut.SetHandleHovered(false);
-		UpdateVisuals();
-		return false;
+		return super.OnMouseLeave(w, enterW, x, y);
+	}
+
+	override bool OnFocus(Widget w, int x, int y)
+	{
+		if (m_SlideOut)
+			m_SlideOut.SetHandleFocused(true);
+		return super.OnFocus(w, x, y);
+	}
+
+	override bool OnFocusLost(Widget w, int x, int y)
+	{
+		if (m_SlideOut)
+			m_SlideOut.SetHandleFocused(false);
+		return super.OnFocusLost(w, x, y);
 	}
 
 	override bool OnClick(Widget w, int x, int y, int button)
@@ -437,6 +478,15 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		m_SlideOut.TogglePinned();
 		UpdateVisuals();
 		return false;
+	}
+
+	void SetHovered(bool hovered)
+	{
+		if (m_bHovered == hovered)
+			return;
+
+		m_bHovered = hovered;
+		UpdateVisuals();
 	}
 
 	protected void UpdateVisuals()

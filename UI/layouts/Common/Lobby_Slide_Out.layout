@@ -128,7 +128,6 @@ FrameWidgetClass {
        m_bUseColorization 0
       }
      }
-     "no focus" 1
     }
    }
   }
