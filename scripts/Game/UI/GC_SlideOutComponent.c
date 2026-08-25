@@ -31,11 +31,15 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	[Attribute("2", UIWidgets.EditBox, "Distance in handle widths at which the handle is fully visible")]
 	protected float m_fHandleFullRevealDistanceWidths;
 
+	[Attribute("220", UIWidgets.EditBox, "Handle fade duration in milliseconds")]
+	protected int m_iHandleFadeDurationMs;
+
 	protected float m_fExpandedX;
 	protected float m_fExpandedY;
 	protected float m_fTravelDistance;
 	protected float m_fProgress;
 	protected float m_fTargetProgress;
+	protected float m_fDisplayedHandleOpacity;
 	protected bool m_bHovered;
 	protected bool m_bPinned;
 	protected bool m_bHandleFocused;
@@ -62,6 +66,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 		m_fProgress = 0;
 		m_fTargetProgress = 0;
+		m_fDisplayedHandleOpacity = 0;
 		m_bHovered = false;
 		m_bPinned = false;
 		m_bHandleFocused = false;
@@ -117,9 +122,35 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			float handleOpacity = GetPointerProximity(m_wHandle, mouseX, mouseY);
 			if (m_fProgress > 0 || m_fTargetProgress > 0 || m_bPinned || m_bHandleFocused)
 				handleOpacity = 1;
-			m_HandleComponent.SetProximityOpacity(handleOpacity);
+			UpdateHandleOpacity(handleOpacity);
 			m_HandleComponent.SetHovered(handleHovered || m_bHandleFocused);
 		}
+	}
+
+	protected void UpdateHandleOpacity(float targetOpacity)
+	{
+		if (m_iHandleFadeDurationMs <= 0)
+		{
+			m_fDisplayedHandleOpacity = targetOpacity;
+		}
+		else
+		{
+			float opacityStep = HOVER_TICK_MS * 1.0 / m_iHandleFadeDurationMs;
+			if (targetOpacity > m_fDisplayedHandleOpacity)
+			{
+				m_fDisplayedHandleOpacity += opacityStep;
+				if (m_fDisplayedHandleOpacity > targetOpacity)
+					m_fDisplayedHandleOpacity = targetOpacity;
+			}
+			else if (targetOpacity < m_fDisplayedHandleOpacity)
+			{
+				m_fDisplayedHandleOpacity -= opacityStep;
+				if (m_fDisplayedHandleOpacity < targetOpacity)
+					m_fDisplayedHandleOpacity = targetOpacity;
+			}
+		}
+
+		m_HandleComponent.SetProximityOpacity(m_fDisplayedHandleOpacity);
 	}
 
 	protected float GetPointerProximity(Widget widget, int mouseX, int mouseY)
@@ -156,7 +187,8 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		if (distance <= fullRevealDistance)
 			return 1;
 
-		return 1 - (distance - fullRevealDistance) / (revealDistance - fullRevealDistance);
+		float opacity = 1 - (distance - fullRevealDistance) / (revealDistance - fullRevealDistance);
+		return opacity * opacity * (3 - 2 * opacity);
 	}
 
 	protected bool IsPointerInside(Widget widget, int mouseX, int mouseY)
