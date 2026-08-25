@@ -399,10 +399,7 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 	protected static const float CORNER_RADIUS = 16;
 
 	protected CanvasWidget m_wCanvas;
-	protected ref array<float> m_aBodyVertices = {};
-	protected ref array<float> m_aMiddleVertices = {};
-	protected ref array<float> m_aFirstCornerVertices = {};
-	protected ref array<float> m_aSecondCornerVertices = {};
+	protected ref array<float> m_aVertices = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 	protected int m_iColor = 0xff000000;
 	protected GC_ESlideOutDirection m_eDirection;
@@ -435,53 +432,39 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 
-		m_aBodyVertices = {};
-		m_aMiddleVertices = {};
-		m_aFirstCornerVertices = {};
-		m_aSecondCornerVertices = {};
+		m_aVertices = {};
 		m_aDrawCommands = {};
+		RectangleCorner roundedCorners;
 
 		switch (m_eDirection)
 		{
 			case GC_ESlideOutDirection.RIGHT:
-				TessellateRectangle(Vector(0, 0, 0), Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1], 0), m_aBodyVertices);
-				TessellateRectangle(Vector(0, CORNER_RADIUS, 0), Vector(canvasSize[0], canvasSize[1] - CORNER_RADIUS, 0), m_aMiddleVertices);
-				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
-				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				roundedCorners = RectangleCorner.TopRight | RectangleCorner.BottomRight;
 				break;
 
 			case GC_ESlideOutDirection.UP:
-				TessellateRectangle(Vector(0, CORNER_RADIUS, 0), Vector(canvasSize[0], canvasSize[1], 0), m_aBodyVertices);
-				TessellateRectangle(Vector(CORNER_RADIUS, 0, 0), Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1], 0), m_aMiddleVertices);
-				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
-				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				roundedCorners = RectangleCorner.Top;
 				break;
 
 			case GC_ESlideOutDirection.DOWN:
-				TessellateRectangle(Vector(0, 0, 0), Vector(canvasSize[0], canvasSize[1] - CORNER_RADIUS, 0), m_aBodyVertices);
-				TessellateRectangle(Vector(CORNER_RADIUS, 0, 0), Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1], 0), m_aMiddleVertices);
-				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
-				m_wCanvas.TessellateCircle(Vector(canvasSize[0] - CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				roundedCorners = RectangleCorner.Bottom;
 				break;
 
 			default:
-				TessellateRectangle(Vector(CORNER_RADIUS, 0, 0), Vector(canvasSize[0], canvasSize[1], 0), m_aBodyVertices);
-				TessellateRectangle(Vector(0, CORNER_RADIUS, 0), Vector(canvasSize[0], canvasSize[1] - CORNER_RADIUS, 0), m_aMiddleVertices);
-				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aFirstCornerVertices);
-				m_wCanvas.TessellateCircle(Vector(CORNER_RADIUS, canvasSize[1] - CORNER_RADIUS, 0), CORNER_RADIUS, 16, m_aSecondCornerVertices);
+				roundedCorners = RectangleCorner.TopLeft | RectangleCorner.BottomLeft;
 				break;
 		}
 
-		AddShape(m_aBodyVertices);
-		AddShape(m_aMiddleVertices);
-		AddShape(m_aFirstCornerVertices);
-		AddShape(m_aSecondCornerVertices);
+		m_wCanvas.TessellateRoundedRectangle(
+			Vector(0, 0, 0),
+			Vector(canvasSize[0], canvasSize[1], 0),
+			CORNER_RADIUS,
+			16,
+			roundedCorners,
+			m_aVertices
+		);
+		AddShape(m_aVertices);
 		m_wCanvas.SetDrawCommands(m_aDrawCommands);
-	}
-
-	protected void TessellateRectangle(vector mins, vector maxs, out notnull array<float> vertices)
-	{
-		m_wCanvas.TessellateRoundedRectangle(mins, maxs, 0, 1, RectangleCorner.All, vertices);
 	}
 
 	protected void AddShape(array<float> vertices)
