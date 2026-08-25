@@ -68,7 +68,7 @@ FrameWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Opacity 0.42
+       Opacity 1
        {
         CanvasWidgetClass "{6A58000000000012}" {
          Name "SlideOutHandleRoundedBase"

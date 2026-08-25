@@ -71,11 +71,20 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		m_bPinned = false;
 		m_bHandleFocused = false;
 		ApplyProgress();
+
+		InputManager inputManager = GetGame().GetInputManager();
+		if (inputManager)
+			inputManager.AddActionListener("MouseLeft", EActionTrigger.DOWN, OnMouseLeftDown);
+
 		GetGame().GetCallqueue().CallLater(UpdatePointerHover, HOVER_TICK_MS, true);
 	}
 
 	override void HandlerDeattached(Widget w)
 	{
+		InputManager inputManager = GetGame().GetInputManager();
+		if (inputManager)
+			inputManager.RemoveActionListener("MouseLeft", EActionTrigger.DOWN, OnMouseLeftDown);
+
 		GetGame().GetCallqueue().Remove(Animate);
 		GetGame().GetCallqueue().Remove(UpdatePointerHover);
 		m_HandleComponent = null;
@@ -151,6 +160,26 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		}
 
 		m_HandleComponent.SetProximityOpacity(m_fDisplayedHandleOpacity);
+	}
+
+	protected void OnMouseLeftDown()
+	{
+		if (!m_wRoot.IsVisible() || !m_wHandle || !m_wHandle.IsVisible())
+			return;
+
+		int mouseX;
+		int mouseY;
+		WidgetManager.GetMousePos(mouseX, mouseY);
+		if (!IsPointerInside(m_wHandle, mouseX, mouseY))
+			return;
+
+		TogglePinned();
+		if (m_HandleComponent)
+			m_HandleComponent.RefreshVisuals();
+
+	#ifdef WORKBENCH
+		PrintFormat("GC | Slide out | knob pressed: pinned=%1", m_bPinned);
+	#endif
 	}
 
 	protected float GetPointerProximity(Widget widget, int mouseX, int mouseY)
@@ -376,6 +405,7 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 	protected ref array<float> m_aSecondCornerVertices = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 	protected int m_iColor = 0xff000000;
+	protected float m_fOpacity;
 	protected GC_ESlideOutDirection m_eDirection;
 
 	override void HandlerAttached(Widget w)
@@ -384,7 +414,10 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 
 		m_wCanvas = CanvasWidget.Cast(w);
 		if (m_wCanvas)
+		{
+			m_wCanvas.SetOpacity(m_fOpacity);
 			GetGame().GetCallqueue().CallLater(Redraw, 0);
+		}
 	}
 
 	override void HandlerDeattached(Widget w)
@@ -477,6 +510,13 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 		m_iColor = color;
 		Redraw();
 	}
+
+	void SetBackgroundOpacity(float opacity)
+	{
+		m_fOpacity = opacity;
+		if (m_wCanvas)
+			m_wCanvas.SetOpacity(m_fOpacity);
+	}
 }
 
 //! Button adapter which keeps pin intent scoped to the slide-out handle.
@@ -484,7 +524,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 {
 	protected GC_SlideOutComponent m_SlideOut;
 	protected GC_SlideOutHandleBackgroundComponent m_BackgroundComponent;
-	protected Widget m_wHandleBackground;
 	protected TextWidget m_wArrow;
 	protected bool m_bHovered;
 	protected float m_fProximityOpacity;
@@ -511,7 +550,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 			if (roundedBase)
 				m_BackgroundComponent = GC_SlideOutHandleBackgroundComponent.Cast(roundedBase.FindHandler(GC_SlideOutHandleBackgroundComponent));
 
-			m_wHandleBackground = handle.FindAnyWidget("SlideOutHandleBackground");
 			m_wArrow = TextWidget.Cast(handle.FindAnyWidget("SlideOutArrow"));
 		}
 
@@ -521,7 +559,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 	override void HandlerDeattached(Widget w)
 	{
 		m_BackgroundComponent = null;
-		m_wHandleBackground = null;
 		m_wArrow = null;
 		m_SlideOut = null;
 		super.HandlerDeattached(w);
@@ -551,16 +588,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		return super.OnFocusLost(w, x, y);
 	}
 
-	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
-	{
-		if (button != 0 || !m_SlideOut)
-			return false;
-
-		m_SlideOut.TogglePinned();
-		UpdateVisuals();
-		return true;
-	}
-
 	void SetProximityOpacity(float opacity)
 	{
 		m_fProximityOpacity = opacity;
@@ -580,7 +607,7 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 	{
 		bool pinned = m_SlideOut && m_SlideOut.IsPinned();
 		int backgroundColor = 0xff000000;
-		float backgroundOpacity = 0.42;
+		float backgroundOpacity = 0.3;
 		Color arrowColor = Color.FromRGBA(255, 255, 255, 255);
 
 		if (pinned)
@@ -591,18 +618,24 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		}
 		else if (m_bHovered)
 		{
-			backgroundOpacity = 0.7;
+			backgroundOpacity = 0.62;
 			arrowColor = Color.FromRGBA(255, 196, 64, 255);
 		}
 
 		if (m_BackgroundComponent)
+		{
 			m_BackgroundComponent.SetBackgroundColor(backgroundColor);
-		if (m_wHandleBackground)
-			m_wHandleBackground.SetOpacity(backgroundOpacity * m_fProximityOpacity);
+			m_BackgroundComponent.SetBackgroundOpacity(backgroundOpacity * m_fProximityOpacity);
+		}
 		if (m_wArrow)
 		{
 			m_wArrow.SetColor(arrowColor);
 			m_wArrow.SetOpacity(m_fProximityOpacity);
 		}
+	}
+
+	void RefreshVisuals()
+	{
+		UpdateVisuals();
 	}
 }
