@@ -405,7 +405,6 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 	protected ref array<float> m_aSecondCornerVertices = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 	protected int m_iColor = 0xff000000;
-	protected float m_fOpacity;
 	protected GC_ESlideOutDirection m_eDirection;
 
 	override void HandlerAttached(Widget w)
@@ -414,10 +413,7 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 
 		m_wCanvas = CanvasWidget.Cast(w);
 		if (m_wCanvas)
-		{
-			m_wCanvas.SetOpacity(m_fOpacity);
 			GetGame().GetCallqueue().CallLater(Redraw, 0);
-		}
 	}
 
 	override void HandlerDeattached(Widget w)
@@ -511,12 +507,6 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 		Redraw();
 	}
 
-	void SetBackgroundOpacity(float opacity)
-	{
-		m_fOpacity = opacity;
-		if (m_wCanvas)
-			m_wCanvas.SetOpacity(m_fOpacity);
-	}
 }
 
 //! Button adapter which keeps pin intent scoped to the slide-out handle.
@@ -606,27 +596,32 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 	protected void UpdateVisuals()
 	{
 		bool pinned = m_SlideOut && m_SlideOut.IsPinned();
-		int backgroundColor = 0xff000000;
-		float backgroundOpacity = 0.3;
+		float backgroundOpacity = 0.38;
+		int backgroundRed;
+		int backgroundGreen;
+		int backgroundBlue;
 		Color arrowColor = Color.FromRGBA(255, 255, 255, 255);
 
 		if (pinned)
 		{
-			backgroundColor = 0xffffc440;
-			backgroundOpacity = 0.9;
+			backgroundRed = 255;
+			backgroundGreen = 196;
+			backgroundBlue = 64;
+			backgroundOpacity = 0.82;
 			arrowColor = Color.FromRGBA(12, 12, 10, 255);
 		}
 		else if (m_bHovered)
 		{
-			backgroundOpacity = 0.62;
 			arrowColor = Color.FromRGBA(255, 196, 64, 255);
 		}
 
 		if (m_BackgroundComponent)
-		{
-			m_BackgroundComponent.SetBackgroundColor(backgroundColor);
-			m_BackgroundComponent.SetBackgroundOpacity(backgroundOpacity * m_fProximityOpacity);
-		}
+			m_BackgroundComponent.SetBackgroundColor(Color.FromRGBA(
+				backgroundRed,
+				backgroundGreen,
+				backgroundBlue,
+				Math.Round(backgroundOpacity * m_fProximityOpacity * 255)
+			).PackToInt());
 		if (m_wArrow)
 		{
 			m_wArrow.SetColor(arrowColor);
