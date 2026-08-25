@@ -114,7 +114,10 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 		if (m_HandleComponent)
 		{
-			m_HandleComponent.SetProximityOpacity(GetPointerProximity(m_wHandle, mouseX, mouseY));
+			float handleOpacity = GetPointerProximity(m_wHandle, mouseX, mouseY);
+			if (m_fProgress > 0 || m_fTargetProgress > 0 || m_bPinned || m_bHandleFocused)
+				handleOpacity = 1;
+			m_HandleComponent.SetProximityOpacity(handleOpacity);
 			m_HandleComponent.SetHovered(handleHovered || m_bHandleFocused);
 		}
 	}
