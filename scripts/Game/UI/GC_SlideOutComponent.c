@@ -551,11 +551,10 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		return super.OnFocusLost(w, x, y);
 	}
 
-	override bool OnClick(Widget w, int x, int y, int button)
+	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
-		super.OnClick(w, x, y, button);
 		if (button != 0 || !m_SlideOut)
-			return true;
+			return false;
 
 		m_SlideOut.TogglePinned();
 		UpdateVisuals();
