@@ -446,33 +446,34 @@ class GC_SlideOutHandleBackgroundComponent : SCR_ScriptedWidgetComponent
 
 		m_aVertices = {};
 		m_aDrawCommands = {};
-		RectangleCorner roundedCorners;
+		vector roundedMins = Vector(0, 0, 0);
+		vector roundedMaxs = Vector(canvasSize[0], canvasSize[1], 0);
 
 		switch (m_eDirection)
 		{
 			case GC_ESlideOutDirection.RIGHT:
-				roundedCorners = RectangleCorner.TopRight | RectangleCorner.BottomRight;
+				roundedMins[0] = -CORNER_RADIUS;
 				break;
 
 			case GC_ESlideOutDirection.UP:
-				roundedCorners = RectangleCorner.Top;
+				roundedMaxs[1] = roundedMaxs[1] + CORNER_RADIUS;
 				break;
 
 			case GC_ESlideOutDirection.DOWN:
-				roundedCorners = RectangleCorner.Bottom;
+				roundedMins[1] = -CORNER_RADIUS;
 				break;
 
 			default:
-				roundedCorners = RectangleCorner.TopLeft | RectangleCorner.BottomLeft;
+				roundedMaxs[0] = roundedMaxs[0] + CORNER_RADIUS;
 				break;
 		}
 
 		m_wCanvas.TessellateRoundedRectangle(
-			Vector(0, 0, 0),
-			Vector(canvasSize[0], canvasSize[1], 0),
+			roundedMins,
+			roundedMaxs,
 			CORNER_RADIUS,
 			16,
-			roundedCorners,
+			RectangleCorner.All,
 			m_aVertices
 		);
 		AddShape(m_aVertices);
@@ -591,10 +592,10 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 	protected void UpdateVisuals()
 	{
 		bool pinned = m_SlideOut && m_SlideOut.IsPinned();
-		float backgroundOpacity = 0.38;
-		int backgroundRed;
-		int backgroundGreen;
-		int backgroundBlue;
+		int backgroundRed = 2;
+		int backgroundGreen = 3;
+		int backgroundBlue = 4;
+		int backgroundAlpha = 184;
 		Color arrowColor = Color.FromRGBA(255, 255, 255, 255);
 
 		if (pinned)
@@ -602,7 +603,7 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 			backgroundRed = 255;
 			backgroundGreen = 196;
 			backgroundBlue = 64;
-			backgroundOpacity = 0.82;
+			backgroundAlpha = 242;
 			arrowColor = Color.FromRGBA(12, 12, 10, 255);
 		}
 		else if (m_bHovered)
@@ -615,7 +616,7 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 				backgroundRed,
 				backgroundGreen,
 				backgroundBlue,
-				Math.Round(backgroundOpacity * m_fProximityOpacity * 255)
+				Math.Round(backgroundAlpha * m_fProximityOpacity)
 			).PackToInt());
 		if (m_wArrow)
 		{
