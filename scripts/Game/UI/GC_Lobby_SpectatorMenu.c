@@ -23,16 +23,23 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected static const float OPTION_TOOLTIP_GAP = 16;
 	protected static const int OPTION_TOOLTIP_DELAY_MS = 1500;
 	protected static const string INTERFACE_OPTION_DESCRIPTION = "Hide the spectator interface, chat, notifications, and all other game HUD elements. Press the shown key to restore them.";
+	protected static const string PROJECTILE_TRACERS_OPTION_DESCRIPTION = "Draw client-local paths for bullets and other projectiles fired by tracked characters and vehicles.";
 
 	protected InputManager m_InputManager;
 	protected GC_SpectatorOptionButtonComponent m_InterfaceOptionButton;
 	protected Widget m_wInterfaceOptionSource;
 	protected TextWidget m_wInterfaceOptionState;
 	protected Widget m_wInterfaceOptionStateBackground;
+	protected GC_SpectatorOptionButtonComponent m_ProjectileTracersOptionButton;
+	protected Widget m_wProjectileTracersOptionSource;
+	protected TextWidget m_wProjectileTracersOptionState;
+	protected Widget m_wProjectileTracersOptionStateBackground;
 	protected Widget m_wOptionTooltipLayer;
 	protected Widget m_wOptionTooltip;
 	protected TextWidget m_wOptionTooltipText;
-	protected bool m_bInterfaceOptionHovered;
+	protected Widget m_wHoveredOptionSource;
+	protected string m_sHoveredOptionDescription;
+	protected bool m_bOptionHovered;
 
 	override void OnMenuOpen()
 	{
@@ -57,8 +64,16 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		}
 		if (root)
 		{
+			Widget projectileTracersOptionButton = root.FindAnyWidget("SpectatorProjectileTracersOptionButton");
+			if (projectileTracersOptionButton)
+			{
+				m_wProjectileTracersOptionSource = projectileTracersOptionButton;
+				m_ProjectileTracersOptionButton = GC_SpectatorOptionButtonComponent.Cast(projectileTracersOptionButton.FindHandler(GC_SpectatorOptionButtonComponent));
+			}
 			m_wInterfaceOptionState = TextWidget.Cast(root.FindAnyWidget("SpectatorInterfaceOptionState"));
 			m_wInterfaceOptionStateBackground = root.FindAnyWidget("SpectatorInterfaceOptionStateBackground");
+			m_wProjectileTracersOptionState = TextWidget.Cast(root.FindAnyWidget("SpectatorProjectileTracersOptionState"));
+			m_wProjectileTracersOptionStateBackground = root.FindAnyWidget("SpectatorProjectileTracersOptionStateBackground");
 			m_wOptionTooltipLayer = root.FindAnyWidget("SpectatorOptionTooltipLayer");
 			m_wOptionTooltip = root.FindAnyWidget("SpectatorOptionTooltip");
 			m_wOptionTooltipText = TextWidget.Cast(root.FindAnyWidget("SpectatorOptionTooltipText"));
@@ -68,10 +83,16 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InterfaceOptionButton.m_OnClicked.Insert(OnToggleSpectatorInterface);
 			m_InterfaceOptionButton.m_OnHoverChanged.Insert(OnInterfaceOptionHoverChanged);
 		}
+		if (m_ProjectileTracersOptionButton)
+		{
+			m_ProjectileTracersOptionButton.m_OnClicked.Insert(OnToggleProjectileTracers);
+			m_ProjectileTracersOptionButton.m_OnHoverChanged.Insert(OnProjectileTracersOptionHoverChanged);
+		}
 		HideOptionTooltip();
 
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		SetInterfaceVisible(!playerController || playerController.IsSpectatorInterfaceVisible());
+		SetProjectileTracersEnabled(playerController && playerController.AreSpectatorProjectileTracersEnabled());
 	}
 
 	override void OnMenuFocusGained()
@@ -79,6 +100,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		super.OnMenuFocusGained();
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		SetInterfaceVisible(!playerController || playerController.IsSpectatorInterfaceVisible());
+		SetProjectileTracersEnabled(playerController && playerController.AreSpectatorProjectileTracersEnabled());
 	}
 
 	override void OnMenuClose()
@@ -88,6 +110,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_InterfaceOptionButton.m_OnClicked.Remove(OnToggleSpectatorInterface);
 			m_InterfaceOptionButton.m_OnHoverChanged.Remove(OnInterfaceOptionHoverChanged);
+		}
+		if (m_ProjectileTracersOptionButton)
+		{
+			m_ProjectileTracersOptionButton.m_OnClicked.Remove(OnToggleProjectileTracers);
+			m_ProjectileTracersOptionButton.m_OnHoverChanged.Remove(OnProjectileTracersOptionHoverChanged);
 		}
 		if (m_InputManager)
 		{
@@ -99,6 +126,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		m_wOptionTooltipText = null;
 		m_wOptionTooltip = null;
 		m_wOptionTooltipLayer = null;
+		m_wHoveredOptionSource = null;
+		m_wProjectileTracersOptionStateBackground = null;
+		m_wProjectileTracersOptionState = null;
+		m_wProjectileTracersOptionSource = null;
+		m_ProjectileTracersOptionButton = null;
 		m_wInterfaceOptionStateBackground = null;
 		m_wInterfaceOptionState = null;
 		m_wInterfaceOptionSource = null;
@@ -117,20 +149,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		else
 			WidgetManager.SetCursor(-1);
 
-		if (m_wInterfaceOptionState)
-		{
-			if (visible)
-				m_wInterfaceOptionState.SetText("ON");
-			else
-				m_wInterfaceOptionState.SetText("OFF");
-		}
-		if (m_wInterfaceOptionStateBackground)
-		{
-			if (visible)
-				m_wInterfaceOptionStateBackground.SetColor(Color.FromRGBA(48, 148, 112, 255));
-			else
-				m_wInterfaceOptionStateBackground.SetColor(Color.FromRGBA(82, 88, 90, 255));
-		}
+		UpdateBooleanOption(m_wInterfaceOptionState, m_wInterfaceOptionStateBackground, visible);
 
 		Widget root = GetRootWidget();
 		if (root)
@@ -144,25 +163,69 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			playerController.ToggleSpectatorInterface();
 	}
 
+	void SetProjectileTracersEnabled(bool enabled)
+	{
+		UpdateBooleanOption(m_wProjectileTracersOptionState, m_wProjectileTracersOptionStateBackground, enabled);
+	}
+
+	protected void UpdateBooleanOption(TextWidget state, Widget background, bool enabled)
+	{
+		if (state)
+		{
+			if (enabled)
+				state.SetText("ON");
+			else
+				state.SetText("OFF");
+		}
+		if (background)
+		{
+			if (enabled)
+				background.SetColor(Color.FromRGBA(48, 148, 112, 255));
+			else
+				background.SetColor(Color.FromRGBA(82, 88, 90, 255));
+		}
+	}
+
+	protected void OnToggleProjectileTracers()
+	{
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (playerController)
+			playerController.ToggleSpectatorProjectileTracers();
+	}
+
 	protected void OnInterfaceOptionHoverChanged(bool hovered)
 	{
-		m_bInterfaceOptionHovered = hovered;
+		HandleOptionHover(m_wInterfaceOptionSource, INTERFACE_OPTION_DESCRIPTION, hovered);
+	}
+
+	protected void OnProjectileTracersOptionHoverChanged(bool hovered)
+	{
+		HandleOptionHover(m_wProjectileTracersOptionSource, PROJECTILE_TRACERS_OPTION_DESCRIPTION, hovered);
+	}
+
+	protected void HandleOptionHover(Widget source, string description, bool hovered)
+	{
+		m_bOptionHovered = hovered;
 		GetGame().GetCallqueue().Remove(ShowOptionTooltip);
 		if (hovered)
+		{
+			m_wHoveredOptionSource = source;
+			m_sHoveredOptionDescription = description;
 			GetGame().GetCallqueue().CallLater(ShowOptionTooltip, OPTION_TOOLTIP_DELAY_MS);
+		}
 		else
 			HideOptionTooltip();
 	}
 
 	protected void ShowOptionTooltip()
 	{
-		if (!m_bInterfaceOptionHovered)
+		if (!m_bOptionHovered)
 			return;
 
-		if (!m_wInterfaceOptionSource || !m_wOptionTooltipLayer || !m_wOptionTooltip || !m_wOptionTooltipText)
+		if (!m_wHoveredOptionSource || !m_wOptionTooltipLayer || !m_wOptionTooltip || !m_wOptionTooltipText)
 			return;
 
-		m_wOptionTooltipText.SetText(INTERFACE_OPTION_DESCRIPTION);
+		m_wOptionTooltipText.SetText(m_sHoveredOptionDescription);
 		m_wOptionTooltip.SetVisible(true);
 		GetGame().GetCallqueue().Remove(PositionOptionTooltip);
 		GetGame().GetCallqueue().CallLater(PositionOptionTooltip, 0);
@@ -170,7 +233,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	protected void PositionOptionTooltip()
 	{
-		if (!m_bInterfaceOptionHovered || !m_wInterfaceOptionSource || !m_wOptionTooltipLayer || !m_wOptionTooltip)
+		if (!m_bOptionHovered || !m_wHoveredOptionSource || !m_wOptionTooltipLayer || !m_wOptionTooltip)
 			return;
 
 		float layerX;
@@ -211,6 +274,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	protected void HideOptionTooltip()
 	{
+		m_bOptionHovered = false;
+		m_wHoveredOptionSource = null;
+		m_sHoveredOptionDescription = string.Empty;
 		GetGame().GetCallqueue().Remove(ShowOptionTooltip);
 		GetGame().GetCallqueue().Remove(PositionOptionTooltip);
 		if (m_wOptionTooltip)

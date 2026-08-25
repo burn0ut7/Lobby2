@@ -46,6 +46,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Temporary possession suspends the presentation without losing this intent.
 	protected bool m_bSpectatorPresentationRequested;
 	protected bool m_bSpectatorInterfaceVisible = true;
+	//! Client-local spectator presentation preference. Defaults to disabled.
+	protected bool m_bSpectatorProjectileTracersEnabled = false;
 	protected PauseMenuUI m_PauseMenu;
 	protected Widget m_wPauseSlottingButton;
 	protected Widget m_wPauseBriefingButton;
@@ -821,7 +823,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay = new GC_SpectatorMarkerOverlay();
 
-		if (!m_SpectatorMarkerOverlay.Start(m_fProjectileTraceDuration))
+		if (!m_SpectatorMarkerOverlay.Start(m_fProjectileTraceDuration, m_bSpectatorProjectileTracersEnabled))
 		{
 			PrintFormat("GC | Spectator | marker overlay creation failed: player=%1", GetPlayerId(), level: LogLevel.WARNING);
 			m_SpectatorMarkerOverlay = null;
@@ -848,7 +850,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
 			if (spectatorMenu)
+			{
 				spectatorMenu.SetInterfaceVisible(m_bSpectatorInterfaceVisible);
+				spectatorMenu.SetProjectileTracersEnabled(m_bSpectatorProjectileTracersEnabled);
+			}
 		}
 	}
 
@@ -873,6 +878,26 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_SpectatorMarkerOverlay.SetInterfaceVisible(visible);
 		if (!visible)
 			GC_ContextMenuComponent.Close();
+	}
+
+	bool AreSpectatorProjectileTracersEnabled()
+	{
+		return m_bSpectatorProjectileTracersEnabled;
+	}
+
+	void ToggleSpectatorProjectileTracers()
+	{
+		SetSpectatorProjectileTracersEnabled(!m_bSpectatorProjectileTracersEnabled);
+	}
+
+	void SetSpectatorProjectileTracersEnabled(bool enabled)
+	{
+		m_bSpectatorProjectileTracersEnabled = enabled;
+		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
+		if (spectatorMenu)
+			spectatorMenu.SetProjectileTracersEnabled(enabled);
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.SetProjectileTracersEnabled(enabled);
 	}
 
 	protected void SetBaseHUDVisible(bool visible)

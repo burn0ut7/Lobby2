@@ -106,6 +106,7 @@ class GC_SpectatorProjectileTracer
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
 	protected float m_fTrailDuration;
+	protected bool m_bEnabled;
 	protected ref map<IEntity, EventHandlerManagerComponent> m_mGrenadeEvents = new map<IEntity, EventHandlerManagerComponent>();
 	protected ref map<IEntity, EventHandlerManagerComponent> m_mProjectileEvents = new map<IEntity, EventHandlerManagerComponent>();
 	protected ref map<IEntity, SCR_MuzzleEffectComponent> m_mMuzzleEffects = new map<IEntity, SCR_MuzzleEffectComponent>();
@@ -113,7 +114,7 @@ class GC_SpectatorProjectileTracer
 	protected ref array<ref GC_SpectatorProjectileTrace> m_aTraces = {};
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 
-	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float trailDuration)
+	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float trailDuration, bool enabled)
 	{
 		if (!canvas || !workspace || !world)
 			return false;
@@ -124,8 +125,27 @@ class GC_SpectatorProjectileTracer
 		m_fTrailDuration = trailDuration;
 		if (m_fTrailDuration <= 0.0)
 			m_fTrailDuration = 0.01;
-		GetGame().GetCallqueue().CallLater(Update, 0, true);
+		SetEnabled(enabled);
 		return true;
+	}
+
+	void SetEnabled(bool enabled)
+	{
+		if (m_bEnabled == enabled)
+			return;
+
+		m_bEnabled = enabled;
+		GetGame().GetCallqueue().Remove(Update);
+		if (m_bEnabled)
+		{
+			GetGame().GetCallqueue().CallLater(Update, 0, true);
+			return;
+		}
+
+		m_aTraces.Clear();
+		m_aDrawCommands = {};
+		if (m_wCanvas)
+			m_wCanvas.SetDrawCommands(m_aDrawCommands);
 	}
 
 	void Destroy()
@@ -242,7 +262,7 @@ class GC_SpectatorProjectileTracer
 
 	protected void CreateProjectileTrace(IEntity projectile)
 	{
-		if (!projectile || !m_wCanvas)
+		if (!m_bEnabled || !projectile || !m_wCanvas)
 			return;
 
 		foreach (GC_SpectatorProjectileTrace existingTrace : m_aTraces)

@@ -215,6 +215,121 @@ SizeLayoutWidgetClass {
             }
            }
           }
+          SizeLayoutWidgetClass "{6A5E000000000001}" {
+           Name "SpectatorProjectileTracersOptionRow"
+           Slot LayoutSlot "{6A5E000000000002}" {
+            HorizontalAlign 3
+            Padding 0 0 0 8
+           }
+           AllowHeightOverride 1
+           HeightOverride 62
+           {
+            ButtonWidgetClass "{6A5E000000000003}" {
+             Name "SpectatorProjectileTracersOptionButton"
+             Slot AlignableSlot "{6A5E000000000004}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 1 1 1 0
+             components {
+              GC_SpectatorOptionButtonComponent "{6A5E000000000005}" {
+               m_bShowBorderOnFocus 0
+               m_bShowBorderOnHover 1
+              }
+             }
+             {
+              OverlayWidgetClass "{6A5E000000000006}" {
+               Slot ButtonWidgetSlot "{6A5E000000000007}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Ignore Cursor" 1
+               {
+                PanelWidgetClass "{6A5E000000000008}" {
+                 Slot OverlayWidgetSlot "{6A5E000000000009}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.07 0.1 0.11 0.98
+                 style full
+                }
+                PanelWidgetClass "{6A5E00000000000A}" {
+                 Slot OverlayWidgetSlot "{6A5E00000000000B}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.16 0.2 0.21 1
+                 style outline_2px
+                }
+                HorizontalLayoutWidgetClass "{6A5E00000000000C}" {
+                 Slot OverlayWidgetSlot "{6A5E00000000000D}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                  Padding 14 10 12 10
+                 }
+                 {
+                  TextWidgetClass "{6A5E00000000000E}" {
+                   Slot LayoutSlot "{6A5E00000000000F}" {
+                    VerticalAlign 1
+                    SizeMode Fill
+                    FillWeight 1
+                    Padding 0 0 12 0
+                   }
+                   Color 0.96 0.97 0.96 1
+                   Text "BULLET TRACERS"
+                   "Font Size" 19
+                   "Min Font Size" 15
+                   "Vertical Alignment" Center
+                  }
+                  SizeLayoutWidgetClass "{6A5E000000000010}" {
+                   Slot LayoutSlot "{6A5E000000000011}" {
+                    VerticalAlign 1
+                   }
+                   AllowWidthOverride 1
+                   WidthOverride 54
+                   AllowHeightOverride 1
+                   HeightOverride 42
+                   {
+                    OverlayWidgetClass "{6A5E000000000012}" {
+                     Slot AlignableSlot "{6A5E000000000013}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     {
+                      PanelWidgetClass "{6A5E000000000014}" {
+                       Name "SpectatorProjectileTracersOptionStateBackground"
+                       Slot OverlayWidgetSlot "{6A5E000000000015}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 0.322 0.345 0.353 1
+                       style full
+                      }
+                      TextWidgetClass "{6A5E000000000016}" {
+                       Name "SpectatorProjectileTracersOptionState"
+                       Slot OverlayWidgetSlot "{6A5E000000000017}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 1 1 1 1
+                       Text "OFF"
+                       "Font Size" 17
+                       "Min Font Size" 12
+                       "Horizontal Alignment" Center
+                       "Vertical Alignment" Center
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
          }
         }
        }

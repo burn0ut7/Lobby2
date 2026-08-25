@@ -726,7 +726,7 @@ class GC_SpectatorMarkerOverlay
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mCharacterShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mVehicleShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 
-	bool Start(float projectileTraceDuration)
+	bool Start(float projectileTraceDuration, bool projectileTracersEnabled)
 	{
 		if (m_wRoot)
 			return true;
@@ -744,7 +744,7 @@ class GC_SpectatorMarkerOverlay
 
 		CanvasWidget tracerCanvas = CanvasWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorProjectileTracer"));
 		m_ProjectileTracer = new GC_SpectatorProjectileTracer();
-		if (!m_ProjectileTracer.Start(tracerCanvas, m_Workspace, m_World, projectileTraceDuration))
+		if (!m_ProjectileTracer.Start(tracerCanvas, m_Workspace, m_World, projectileTraceDuration, projectileTracersEnabled))
 		{
 			m_wRoot.RemoveFromHierarchy();
 			m_wRoot = null;
@@ -810,6 +810,12 @@ class GC_SpectatorMarkerOverlay
 	{
 		if (m_wRoot)
 			m_wRoot.SetVisible(visible);
+	}
+
+	void SetProjectileTracersEnabled(bool enabled)
+	{
+		if (m_ProjectileTracer)
+			m_ProjectileTracer.SetEnabled(enabled);
 	}
 
 	protected void OnEntityRegistered(SCR_EditableEntityComponent entity)
