@@ -127,6 +127,13 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	{
 		if (!m_wHandle)
 			return;
+		if (!m_wRoot.IsVisibleInHierarchy())
+		{
+			SetHovered(false);
+			if (m_HandleComponent)
+				m_HandleComponent.SetHovered(false);
+			return;
+		}
 
 		int mouseX;
 		int mouseY;
