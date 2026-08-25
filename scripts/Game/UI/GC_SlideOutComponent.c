@@ -28,6 +28,9 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	[Attribute("5", UIWidgets.EditBox, "Distance in handle widths over which the handle fades in")]
 	protected float m_fHandleRevealDistanceWidths;
 
+	[Attribute("2", UIWidgets.EditBox, "Distance in handle widths at which the handle is fully visible")]
+	protected float m_fHandleFullRevealDistanceWidths;
+
 	protected float m_fExpandedX;
 	protected float m_fExpandedY;
 	protected float m_fTravelDistance;
@@ -141,11 +144,16 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			distanceY = mouseY - widgetY - widgetHeight;
 
 		float revealDistance = m_fHandleSize * m_fHandleRevealDistanceWidths;
+		float fullRevealDistance = m_fHandleSize * m_fHandleFullRevealDistanceWidths;
+		if (fullRevealDistance < 0)
+			fullRevealDistance = 0;
 		float distance = Math.Sqrt(distanceX * distanceX + distanceY * distanceY);
 		if (distance >= revealDistance)
 			return 0;
+		if (distance <= fullRevealDistance)
+			return 1;
 
-		return 1 - distance / revealDistance;
+		return 1 - (distance - fullRevealDistance) / (revealDistance - fullRevealDistance);
 	}
 
 	protected bool IsPointerInside(Widget widget, int mouseX, int mouseY)
