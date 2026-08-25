@@ -3,6 +3,9 @@
 class GC_SpectatorKilledFromVisualizer
 {
 	protected static const float LINE_WIDTH = 3.0;
+	protected static const float KILLER_LABEL_WIDTH = 160.0;
+	protected static const float KILLER_LABEL_HEIGHT = 36.0;
+	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
 
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
@@ -79,6 +82,14 @@ class GC_SpectatorKilledFromVisualizer
 		if (!m_PreviewEntity)
 			return;
 
+		// The preview is presentation only. Disable every physics object in the
+		// hierarchy so the cloned character, weapon, vehicle, or turret cannot
+		// participate in the live world's simulation or collision layers.
+		DisablePhysicsHierarchy(m_PreviewEntity);
+		ChimeraWorld world = ChimeraWorld.CastFrom(m_World);
+		if (world)
+			world.OutlineEntity(m_PreviewEntity, Color.FromRGBA(235, 45, 70, 255), 1.0, 0.2, true, 3);
+
 		AIControlComponent aiControl = AIControlComponent.Cast(m_PreviewEntity.FindComponent(AIControlComponent));
 		if (aiControl)
 			aiControl.DeactivateAI();
@@ -98,6 +109,28 @@ class GC_SpectatorKilledFromVisualizer
 			controller.SetDynamicStance(m_Snapshot.GetDynamicStance());
 		controller.SetWeaponRaised((m_Snapshot.GetFlags() & GC_KilledFromSnapshot.FLAG_WEAPON_RAISED) != 0);
 		controller.SetWeaponADS((m_Snapshot.GetFlags() & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0);
+	}
+
+	protected void DisablePhysicsHierarchy(IEntity entity)
+	{
+		if (!entity)
+			return;
+
+		Physics physics = entity.GetPhysics();
+		if (physics)
+		{
+			physics.SetActive(ActiveState.INACTIVE);
+			physics.ChangeSimulationState(SimulationState.NONE);
+			physics.SetInteractionLayer(EPhysicsLayerDefs.Unused);
+		}
+
+		IEntity child = entity.GetChildren();
+		while (child)
+		{
+			IEntity sibling = child.GetSibling();
+			DisablePhysicsHierarchy(child);
+			child = sibling;
+		}
 	}
 
 	protected void DestroyPreview()
@@ -131,7 +164,45 @@ class GC_SpectatorKilledFromVisualizer
 			line.m_Vertices.Insert(end[1]);
 			m_aDrawCommands.Insert(line);
 		}
+
+		DrawKillerLabel();
 		m_wCanvas.SetDrawCommands(m_aDrawCommands);
+	}
+
+	protected void DrawKillerLabel()
+	{
+		if (!m_PreviewEntity)
+			return;
+
+		vector labelWorldPosition = m_PreviewEntity.GetOrigin();
+		labelWorldPosition[1] = labelWorldPosition[1] + KILLER_LABEL_WORLD_OFFSET;
+		vector labelPosition = m_Workspace.ProjWorldToScreen(labelWorldPosition, m_World);
+		if (labelPosition[2] <= 0.0)
+			return;
+
+		float halfWidth = KILLER_LABEL_WIDTH * 0.5;
+		float halfHeight = KILLER_LABEL_HEIGHT * 0.5;
+		PolygonDrawCommand background = new PolygonDrawCommand();
+		background.m_iColor = 0xe6a20f2d;
+		background.m_Vertices = {};
+		background.m_Vertices.Insert(labelPosition[0] - halfWidth);
+		background.m_Vertices.Insert(labelPosition[1] - halfHeight);
+		background.m_Vertices.Insert(labelPosition[0] + halfWidth);
+		background.m_Vertices.Insert(labelPosition[1] - halfHeight);
+		background.m_Vertices.Insert(labelPosition[0] + halfWidth);
+		background.m_Vertices.Insert(labelPosition[1] + halfHeight);
+		background.m_Vertices.Insert(labelPosition[0] - halfWidth);
+		background.m_Vertices.Insert(labelPosition[1] + halfHeight);
+		m_aDrawCommands.Insert(background);
+
+		TextDrawCommand label = new TextDrawCommand();
+		label.m_iColor = Color.WHITE;
+		label.m_Position = labelPosition;
+		label.m_sText = "KILLED YOU";
+		label.m_fSize = 22.0;
+		label.m_Pivot[0] = 0.5;
+		label.m_Pivot[1] = 0.5;
+		m_aDrawCommands.Insert(label);
 	}
 
 	protected void ClearLine()
