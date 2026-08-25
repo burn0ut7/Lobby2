@@ -21,7 +21,7 @@ class GC_SpectatorOptionButtonComponent : SCR_ButtonBaseComponent
 class GC_Lobby_SpectatorMenu : EditorMenuUI
 {
 	protected static const float OPTION_TOOLTIP_GAP = 16;
-	protected static const int OPTION_TOOLTIP_DELAY_MS = 3000;
+	protected static const int OPTION_TOOLTIP_DELAY_MS = 1500;
 	protected static const string INTERFACE_OPTION_DESCRIPTION = "Hide the spectator interface, chat, notifications, and all other game HUD elements. Press the shown key to restore them.";
 
 	protected InputManager m_InputManager;
