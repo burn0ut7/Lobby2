@@ -806,6 +806,12 @@ class GC_SpectatorMarkerOverlay
 		m_ProjectileTracer = null;
 	}
 
+	void SetInterfaceVisible(bool visible)
+	{
+		if (m_wRoot)
+			m_wRoot.SetVisible(visible);
+	}
+
 	protected void OnEntityRegistered(SCR_EditableEntityComponent entity)
 	{
 		if (!entity || m_mMarkers.Contains(entity))

@@ -34,5 +34,42 @@ FrameWidgetClass {
     }
    }
   }
+  FrameWidgetClass "{6A5A000000000030}" : "{6A58000000000001}UI/layouts/Common/Lobby_Slide_Out.layout" {
+   Name "SpectatorOptionsSlideOut"
+   Slot FrameWidgetSlot "{6A5A000000000031}" {
+    Anchor 1 1 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY -32
+    OffsetTop -32
+    SizeX 460
+    OffsetRight -460
+    SizeY 220
+    OffsetBottom -188
+    Alignment 1 1
+   }
+   "Z Order" 110
+   components {
+    GC_SlideOutComponent "{6A58000000000003}" {
+     m_iAnimationDurationMs 250
+    }
+   }
+   {
+    OverlayWidgetClass "{6A58000000000004}" {
+     Prefab "{6A58000000000004}"
+     {
+      SizeLayoutWidgetClass "{6A5A000000000032}" : "{6A5A000000000001}UI/layouts/Spectator/Lobby_Spectator_Options_Panel.layout" {
+       Name "SpectatorOptionsPanel"
+       Slot OverlayWidgetSlot "{6A5A000000000033}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       AllowWidthOverride 0
+       AllowHeightOverride 0
+      }
+     }
+    }
+   }
+  }
  }
 }

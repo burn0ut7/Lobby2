@@ -45,6 +45,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Remains true while gameplay expects the local spectator presentation.
 	//! Temporary possession suspends the presentation without losing this intent.
 	protected bool m_bSpectatorPresentationRequested;
+	protected bool m_bSpectatorInterfaceVisible = true;
 	protected PauseMenuUI m_PauseMenu;
 	protected Widget m_wPauseSlottingButton;
 	protected Widget m_wPauseBriefingButton;
@@ -822,6 +823,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			PrintFormat("GC | Spectator | marker overlay creation failed: player=%1", GetPlayerId(), level: LogLevel.WARNING);
 			m_SpectatorMarkerOverlay = null;
 		}
+		else
+		{
+			m_SpectatorMarkerOverlay.SetInterfaceVisible(m_bSpectatorInterfaceVisible);
+		}
 	}
 
 	protected void CreateSpectatorMenu()
@@ -836,6 +841,34 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		m_SpectatorMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_SpectatorMenu, 0, true);
 		if (!m_SpectatorMenu)
 			PrintFormat("GC | Spectator | spectator HUD creation failed: player=%1", GetPlayerId(), level: LogLevel.WARNING);
+		else
+		{
+			GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
+			if (spectatorMenu)
+				spectatorMenu.SetInterfaceVisible(m_bSpectatorInterfaceVisible);
+		}
+	}
+
+	bool IsSpectatorInterfaceVisible()
+	{
+		return m_bSpectatorInterfaceVisible;
+	}
+
+	void ToggleSpectatorInterface()
+	{
+		SetSpectatorInterfaceVisible(!m_bSpectatorInterfaceVisible);
+	}
+
+	void SetSpectatorInterfaceVisible(bool visible)
+	{
+		m_bSpectatorInterfaceVisible = visible;
+		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
+		if (spectatorMenu)
+			spectatorMenu.SetInterfaceVisible(visible);
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.SetInterfaceVisible(visible);
+		if (!visible)
+			GC_ContextMenuComponent.Close();
 	}
 
 	protected void DestroySpectatorMenu()
