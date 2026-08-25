@@ -19,5 +19,21 @@ FrameWidgetClass {
    "Z Order" -10
    "Ignore Cursor" 1
   }
+  CanvasWidgetClass "{6A5F000000000001}" {
+   Name "LobbySpectatorKilledFromTracer"
+   Slot FrameWidgetSlot "{6A5F000000000002}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 0
+    OffsetBottom 0
+   }
+   "Z Order" -9
+   "Ignore Cursor" 1
+  }
  }
 }

@@ -24,6 +24,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected static const int OPTION_TOOLTIP_DELAY_MS = 1500;
 	protected static const string INTERFACE_OPTION_DESCRIPTION = "Hide the spectator interface, chat, notifications, and all other game HUD elements. Press the shown key to restore them.";
 	protected static const string PROJECTILE_TRACERS_OPTION_DESCRIPTION = "Draw client-local paths for bullets and other projectiles fired by tracked characters and vehicles.";
+	protected static const string KILLED_FROM_OPTION_DESCRIPTION = "Show a client-local snapshot of the entity that killed you and trace its firing or explosive origin to the fatal impact point.";
 
 	protected InputManager m_InputManager;
 	protected GC_SpectatorOptionButtonComponent m_InterfaceOptionButton;
@@ -34,6 +35,10 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected Widget m_wProjectileTracersOptionSource;
 	protected TextWidget m_wProjectileTracersOptionState;
 	protected Widget m_wProjectileTracersOptionStateBackground;
+	protected GC_SpectatorOptionButtonComponent m_KilledFromOptionButton;
+	protected Widget m_wKilledFromOptionSource;
+	protected TextWidget m_wKilledFromOptionState;
+	protected Widget m_wKilledFromOptionStateBackground;
 	protected Widget m_wOptionTooltipLayer;
 	protected Widget m_wOptionTooltip;
 	protected TextWidget m_wOptionTooltipText;
@@ -74,6 +79,14 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_wInterfaceOptionStateBackground = root.FindAnyWidget("SpectatorInterfaceOptionStateBackground");
 			m_wProjectileTracersOptionState = TextWidget.Cast(root.FindAnyWidget("SpectatorProjectileTracersOptionState"));
 			m_wProjectileTracersOptionStateBackground = root.FindAnyWidget("SpectatorProjectileTracersOptionStateBackground");
+			Widget killedFromOptionButton = root.FindAnyWidget("SpectatorKilledFromOptionButton");
+			if (killedFromOptionButton)
+			{
+				m_wKilledFromOptionSource = killedFromOptionButton;
+				m_KilledFromOptionButton = GC_SpectatorOptionButtonComponent.Cast(killedFromOptionButton.FindHandler(GC_SpectatorOptionButtonComponent));
+			}
+			m_wKilledFromOptionState = TextWidget.Cast(root.FindAnyWidget("SpectatorKilledFromOptionState"));
+			m_wKilledFromOptionStateBackground = root.FindAnyWidget("SpectatorKilledFromOptionStateBackground");
 			m_wOptionTooltipLayer = root.FindAnyWidget("SpectatorOptionTooltipLayer");
 			m_wOptionTooltip = root.FindAnyWidget("SpectatorOptionTooltip");
 			m_wOptionTooltipText = TextWidget.Cast(root.FindAnyWidget("SpectatorOptionTooltipText"));
@@ -88,11 +101,17 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_ProjectileTracersOptionButton.m_OnClicked.Insert(OnToggleProjectileTracers);
 			m_ProjectileTracersOptionButton.m_OnHoverChanged.Insert(OnProjectileTracersOptionHoverChanged);
 		}
+		if (m_KilledFromOptionButton)
+		{
+			m_KilledFromOptionButton.m_OnClicked.Insert(OnToggleKilledFrom);
+			m_KilledFromOptionButton.m_OnHoverChanged.Insert(OnKilledFromOptionHoverChanged);
+		}
 		HideOptionTooltip();
 
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		SetInterfaceVisible(!playerController || playerController.IsSpectatorInterfaceVisible());
 		SetProjectileTracersEnabled(playerController && playerController.AreSpectatorProjectileTracersEnabled());
+		SetKilledFromEnabled(playerController && playerController.IsSpectatorKilledFromEnabled());
 	}
 
 	override void OnMenuFocusGained()
@@ -101,6 +120,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		SetInterfaceVisible(!playerController || playerController.IsSpectatorInterfaceVisible());
 		SetProjectileTracersEnabled(playerController && playerController.AreSpectatorProjectileTracersEnabled());
+		SetKilledFromEnabled(playerController && playerController.IsSpectatorKilledFromEnabled());
 	}
 
 	override void OnMenuClose()
@@ -115,6 +135,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_ProjectileTracersOptionButton.m_OnClicked.Remove(OnToggleProjectileTracers);
 			m_ProjectileTracersOptionButton.m_OnHoverChanged.Remove(OnProjectileTracersOptionHoverChanged);
+		}
+		if (m_KilledFromOptionButton)
+		{
+			m_KilledFromOptionButton.m_OnClicked.Remove(OnToggleKilledFrom);
+			m_KilledFromOptionButton.m_OnHoverChanged.Remove(OnKilledFromOptionHoverChanged);
 		}
 		if (m_InputManager)
 		{
@@ -131,6 +156,10 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		m_wProjectileTracersOptionState = null;
 		m_wProjectileTracersOptionSource = null;
 		m_ProjectileTracersOptionButton = null;
+		m_wKilledFromOptionStateBackground = null;
+		m_wKilledFromOptionState = null;
+		m_wKilledFromOptionSource = null;
+		m_KilledFromOptionButton = null;
 		m_wInterfaceOptionStateBackground = null;
 		m_wInterfaceOptionState = null;
 		m_wInterfaceOptionSource = null;
@@ -168,6 +197,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		UpdateBooleanOption(m_wProjectileTracersOptionState, m_wProjectileTracersOptionStateBackground, enabled);
 	}
 
+	void SetKilledFromEnabled(bool enabled)
+	{
+		UpdateBooleanOption(m_wKilledFromOptionState, m_wKilledFromOptionStateBackground, enabled);
+	}
+
 	protected void UpdateBooleanOption(TextWidget state, Widget background, bool enabled)
 	{
 		if (state)
@@ -193,6 +227,13 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			playerController.ToggleSpectatorProjectileTracers();
 	}
 
+	protected void OnToggleKilledFrom()
+	{
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (playerController)
+			playerController.ToggleSpectatorKilledFrom();
+	}
+
 	protected void OnInterfaceOptionHoverChanged(bool hovered)
 	{
 		HandleOptionHover(m_wInterfaceOptionSource, INTERFACE_OPTION_DESCRIPTION, hovered);
@@ -201,6 +242,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected void OnProjectileTracersOptionHoverChanged(bool hovered)
 	{
 		HandleOptionHover(m_wProjectileTracersOptionSource, PROJECTILE_TRACERS_OPTION_DESCRIPTION, hovered);
+	}
+
+	protected void OnKilledFromOptionHoverChanged(bool hovered)
+	{
+		HandleOptionHover(m_wKilledFromOptionSource, KILLED_FROM_OPTION_DESCRIPTION, hovered);
 	}
 
 	protected void HandleOptionHover(Widget source, string description, bool hovered)

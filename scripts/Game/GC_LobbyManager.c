@@ -942,7 +942,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!Replication.IsServer())
 			return;
 
-		GC_Slot slot = m_Roster.GetSlotByEntity(instigatorContextData.GetVictimEntity());
+		IEntity victim = instigatorContextData.GetVictimEntity();
+		GC_Slot slot = m_Roster.GetSlotByEntity(victim);
 		if (!slot)
 			return;
 
@@ -952,6 +953,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			int playerId = slot.GetPlayerId();
 			if (playerId > 0)
 			{
+				GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+				if (playerController)
+				{
+					GC_KilledFromSnapshot killedFromSnapshot = new GC_KilledFromSnapshot();
+					killedFromSnapshot.CaptureDeathFallback(victim, instigatorContextData.GetKillerEntity());
+					playerController.SendKilledFromSnapshot(killedFromSnapshot);
+				}
 				SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
 				SetSpectator(playerId, true);
 			}
@@ -983,6 +991,27 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (GetLobbyPhase() == SCR_EGameModeState.GAME)
 		{
+			bool wasKIA = slot.IsKIA();
+			int playerId = slot.GetPlayerId();
+			if (!wasKIA && playerId > 0)
+			{
+				IEntity killer;
+				SCR_DamageManagerComponent damageManager = SCR_DamageManagerComponent.Cast(entity.FindComponent(SCR_DamageManagerComponent));
+				if (damageManager)
+				{
+					Instigator instigator = damageManager.GetInstigator();
+					if (instigator)
+						killer = instigator.GetInstigatorEntity();
+				}
+
+				GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+				if (playerController)
+				{
+					GC_KilledFromSnapshot killedFromSnapshot = new GC_KilledFromSnapshot();
+					killedFromSnapshot.CaptureDeathFallback(entity, killer);
+					playerController.SendKilledFromSnapshot(killedFromSnapshot);
+				}
+			}
 			slot.ClearEntityReference(true);
 			slot.MarkKIA();
 		}

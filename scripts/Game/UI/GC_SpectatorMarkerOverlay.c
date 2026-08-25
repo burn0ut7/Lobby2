@@ -722,11 +722,12 @@ class GC_SpectatorMarkerOverlay
 	protected SCR_EditableEntityCore m_EditableEntityCore;
 	protected GC_LobbyManager m_LobbyManager;
 	protected ref GC_SpectatorProjectileTracer m_ProjectileTracer;
+	protected ref GC_SpectatorKilledFromVisualizer m_KilledFromVisualizer;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mCharacterShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mVehicleShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 
-	bool Start(float projectileTraceDuration, bool projectileTracersEnabled)
+	bool Start(float projectileTraceDuration, bool projectileTracersEnabled, GC_KilledFromSnapshot killedFromSnapshot, bool killedFromEnabled)
 	{
 		if (m_wRoot)
 			return true;
@@ -749,6 +750,18 @@ class GC_SpectatorMarkerOverlay
 			m_wRoot.RemoveFromHierarchy();
 			m_wRoot = null;
 			m_ProjectileTracer = null;
+			return false;
+		}
+
+		CanvasWidget killedFromCanvas = CanvasWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorKilledFromTracer"));
+		m_KilledFromVisualizer = new GC_SpectatorKilledFromVisualizer();
+		if (!m_KilledFromVisualizer.Start(killedFromCanvas, m_Workspace, m_World, killedFromSnapshot, killedFromEnabled))
+		{
+			m_ProjectileTracer.Destroy();
+			m_wRoot.RemoveFromHierarchy();
+			m_wRoot = null;
+			m_ProjectileTracer = null;
+			m_KilledFromVisualizer = null;
 			return false;
 		}
 
@@ -788,6 +801,8 @@ class GC_SpectatorMarkerOverlay
 		}
 		if (m_ProjectileTracer)
 			m_ProjectileTracer.Destroy();
+		if (m_KilledFromVisualizer)
+			m_KilledFromVisualizer.Destroy();
 
 		m_mCharacterShooters.Clear();
 		m_mVehicleShooters.Clear();
@@ -804,6 +819,7 @@ class GC_SpectatorMarkerOverlay
 		m_EditableEntityCore = null;
 		m_LobbyManager = null;
 		m_ProjectileTracer = null;
+		m_KilledFromVisualizer = null;
 	}
 
 	void SetInterfaceVisible(bool visible)
@@ -816,6 +832,18 @@ class GC_SpectatorMarkerOverlay
 	{
 		if (m_ProjectileTracer)
 			m_ProjectileTracer.SetEnabled(enabled);
+	}
+
+	void SetKilledFromSnapshot(GC_KilledFromSnapshot snapshot)
+	{
+		if (m_KilledFromVisualizer)
+			m_KilledFromVisualizer.SetSnapshot(snapshot);
+	}
+
+	void SetKilledFromEnabled(bool enabled)
+	{
+		if (m_KilledFromVisualizer)
+			m_KilledFromVisualizer.SetEnabled(enabled);
 	}
 
 	protected void OnEntityRegistered(SCR_EditableEntityComponent entity)

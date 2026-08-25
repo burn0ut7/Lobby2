@@ -330,6 +330,121 @@ SizeLayoutWidgetClass {
             }
            }
           }
+          SizeLayoutWidgetClass "{6A5F000000000010}" {
+           Name "SpectatorKilledFromOptionRow"
+           Slot LayoutSlot "{6A5F000000000011}" {
+            HorizontalAlign 3
+            Padding 0 0 0 8
+           }
+           AllowHeightOverride 1
+           HeightOverride 62
+           {
+            ButtonWidgetClass "{6A5F000000000012}" {
+             Name "SpectatorKilledFromOptionButton"
+             Slot AlignableSlot "{6A5F000000000013}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 1 1 1 0
+             components {
+              GC_SpectatorOptionButtonComponent "{6A5F000000000014}" {
+               m_bShowBorderOnFocus 0
+               m_bShowBorderOnHover 1
+              }
+             }
+             {
+              OverlayWidgetClass "{6A5F000000000015}" {
+               Slot ButtonWidgetSlot "{6A5F000000000016}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Ignore Cursor" 1
+               {
+                PanelWidgetClass "{6A5F000000000017}" {
+                 Slot OverlayWidgetSlot "{6A5F000000000018}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.07 0.1 0.11 0.98
+                 style full
+                }
+                PanelWidgetClass "{6A5F000000000019}" {
+                 Slot OverlayWidgetSlot "{6A5F00000000001A}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.16 0.2 0.21 1
+                 style outline_2px
+                }
+                HorizontalLayoutWidgetClass "{6A5F00000000001B}" {
+                 Slot OverlayWidgetSlot "{6A5F00000000001C}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                  Padding 14 10 12 10
+                 }
+                 {
+                  TextWidgetClass "{6A5F00000000001D}" {
+                   Slot LayoutSlot "{6A5F00000000001E}" {
+                    VerticalAlign 1
+                    SizeMode Fill
+                    FillWeight 1
+                    Padding 0 0 12 0
+                   }
+                   Color 0.96 0.97 0.96 1
+                   Text "KILLED FROM"
+                   "Font Size" 19
+                   "Min Font Size" 15
+                   "Vertical Alignment" Center
+                  }
+                  SizeLayoutWidgetClass "{6A5F00000000001F}" {
+                   Slot LayoutSlot "{6A5F000000000020}" {
+                    VerticalAlign 1
+                   }
+                   AllowWidthOverride 1
+                   WidthOverride 54
+                   AllowHeightOverride 1
+                   HeightOverride 42
+                   {
+                    OverlayWidgetClass "{6A5F000000000021}" {
+                     Slot AlignableSlot "{6A5F000000000022}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     {
+                      PanelWidgetClass "{6A5F000000000023}" {
+                       Name "SpectatorKilledFromOptionStateBackground"
+                       Slot OverlayWidgetSlot "{6A5F000000000024}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 0.322 0.345 0.353 1
+                       style full
+                      }
+                      TextWidgetClass "{6A5F000000000025}" {
+                       Name "SpectatorKilledFromOptionState"
+                       Slot OverlayWidgetSlot "{6A5F000000000026}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 1 1 1 1
+                       Text "OFF"
+                       "Font Size" 17
+                       "Min Font Size" 12
+                       "Horizontal Alignment" Center
+                       "Vertical Alignment" Center
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
          }
         }
        }

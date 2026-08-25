@@ -48,6 +48,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected bool m_bSpectatorInterfaceVisible = true;
 	//! Client-local spectator presentation preference. Defaults to disabled.
 	protected bool m_bSpectatorProjectileTracersEnabled = false;
+	//! Client-local killed-from presentation preference. Defaults to disabled.
+	protected bool m_bSpectatorKilledFromEnabled = false;
+	protected ref GC_KilledFromSnapshot m_KilledFromSnapshot;
+	protected ref GC_KilledFromDamageTracker m_LocalKilledFromTracker;
 	protected PauseMenuUI m_PauseMenu;
 	protected Widget m_wPauseSlottingButton;
 	protected Widget m_wPauseBriefingButton;
@@ -57,6 +61,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	void ~GC_LobbyPlayerController()
 	{
+		StopLocalKilledFromTracking(false);
 		StopServerNetworkCameraStream();
 		GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
@@ -103,6 +108,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (m_LobbyInputManager)
 			m_LobbyInputManager.AddActionListener("GC_OpenLobby", EActionTrigger.DOWN, OpenSlottingFromPause);
 		gameMode.UpdateLocalPhasePresentation(this, "controller-init");
+		StartLocalKilledFromTracking(GetControlledEntity());
 	}
 
 	//! Adds Lobby2-owned access points to the active pause menu without
@@ -557,6 +563,29 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		Rpc(RpcDo_LeaveLobbySpectatorMode, false);
 	}
 
+	//! Authority-to-owner publication of the latest fatal damage snapshot.
+	void SendKilledFromSnapshot(GC_KilledFromSnapshot snapshot)
+	{
+		if (!Replication.IsServer() || !snapshot)
+			return;
+
+		Rpc(RpcDo_SetKilledFromSnapshot, snapshot.GetKillerPrefab(), snapshot.GetKillerPosition(), snapshot.GetKillerAngles(), snapshot.GetLineOrigin(), snapshot.GetHitPosition(), snapshot.GetStance(), snapshot.GetDynamicStance(), snapshot.GetFlags());
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_SetKilledFromSnapshot(ResourceName killerPrefab, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
+	{
+		GC_KilledFromSnapshot serverFallback = new GC_KilledFromSnapshot();
+		serverFallback.SetNetworkData(killerPrefab, killerPosition, killerAngles, lineOrigin, hitPosition, stance, dynamicStance, flags);
+		if (m_LocalKilledFromTracker)
+			serverFallback.MergeLocalDamage(m_LocalKilledFromTracker.GetSnapshot());
+		else
+			serverFallback.MergeLocalDamage(m_KilledFromSnapshot);
+		m_KilledFromSnapshot = serverFallback;
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
+	}
+
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
 	protected void RpcDo_EnterLobbySpectatorMode()
 	{
@@ -575,13 +604,17 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (remainsSpectator)
 			SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
 		else
+		{
 			SetLobbyPlayerState(GC_ELobbyPlayerState.PLAYING);
+			m_KilledFromSnapshot = null;
+		}
 
 		DestroySpectatorCamera();
 	}
 
 	override void OnControlledEntityChanged(IEntity from, IEntity to)
 	{
+		StopLocalKilledFromTracking(true);
 		super.OnControlledEntityChanged(from, to);
 
 		// Camera and menu presentation exists only on the owning client. The same
@@ -589,8 +622,42 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (GetGame().GetPlayerController() != this)
 			return;
 
+		StartLocalKilledFromTracking(to);
+
 		AttachEditorManager();
 		ReconcileSpectatorPresentation();
+	}
+
+	protected void StartLocalKilledFromTracking(IEntity entity)
+	{
+		if (m_LocalKilledFromTracker || GetGame().GetPlayerController() != this || !entity || entity.FindComponent(GC_LobbySpectatorBodyComponent))
+			return;
+
+		m_KilledFromSnapshot = null;
+		m_LocalKilledFromTracker = new GC_KilledFromDamageTracker();
+		if (!m_LocalKilledFromTracker.Start(entity))
+			m_LocalKilledFromTracker = null;
+	}
+
+	protected void StopLocalKilledFromTracking(bool retainSnapshot)
+	{
+		if (!m_LocalKilledFromTracker)
+			return;
+
+		if (retainSnapshot)
+		{
+			GC_KilledFromSnapshot localDamage = m_LocalKilledFromTracker.GetSnapshot();
+			if (localDamage)
+			{
+				if (m_KilledFromSnapshot)
+					m_KilledFromSnapshot.MergeLocalDamage(localDamage);
+				else
+					m_KilledFromSnapshot = localDamage;
+			}
+		}
+
+		m_LocalKilledFromTracker.Destroy();
+		m_LocalKilledFromTracker = null;
 	}
 
 	protected void AttachEditorManager()
@@ -823,7 +890,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay = new GC_SpectatorMarkerOverlay();
 
-		if (!m_SpectatorMarkerOverlay.Start(m_fProjectileTraceDuration, m_bSpectatorProjectileTracersEnabled))
+		if (!m_SpectatorMarkerOverlay.Start(m_fProjectileTraceDuration, m_bSpectatorProjectileTracersEnabled, m_KilledFromSnapshot, m_bSpectatorKilledFromEnabled))
 		{
 			PrintFormat("GC | Spectator | marker overlay creation failed: player=%1", GetPlayerId(), level: LogLevel.WARNING);
 			m_SpectatorMarkerOverlay = null;
@@ -853,6 +920,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			{
 				spectatorMenu.SetInterfaceVisible(m_bSpectatorInterfaceVisible);
 				spectatorMenu.SetProjectileTracersEnabled(m_bSpectatorProjectileTracersEnabled);
+				spectatorMenu.SetKilledFromEnabled(m_bSpectatorKilledFromEnabled);
 			}
 		}
 	}
@@ -898,6 +966,26 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			spectatorMenu.SetProjectileTracersEnabled(enabled);
 		if (m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay.SetProjectileTracersEnabled(enabled);
+	}
+
+	bool IsSpectatorKilledFromEnabled()
+	{
+		return m_bSpectatorKilledFromEnabled;
+	}
+
+	void ToggleSpectatorKilledFrom()
+	{
+		SetSpectatorKilledFromEnabled(!m_bSpectatorKilledFromEnabled);
+	}
+
+	void SetSpectatorKilledFromEnabled(bool enabled)
+	{
+		m_bSpectatorKilledFromEnabled = enabled;
+		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
+		if (spectatorMenu)
+			spectatorMenu.SetKilledFromEnabled(enabled);
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.SetKilledFromEnabled(enabled);
 	}
 
 	protected void SetBaseHUDVisible(bool visible)

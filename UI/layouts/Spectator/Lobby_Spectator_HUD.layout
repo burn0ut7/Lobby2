@@ -44,8 +44,8 @@ FrameWidgetClass {
     OffsetTop -32
     SizeX 460
     OffsetRight -460
-    SizeY 220
-    OffsetBottom -188
+    SizeY 290
+    OffsetBottom -258
     Alignment 1 1
    }
    "Z Order" 110
