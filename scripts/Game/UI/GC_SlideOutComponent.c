@@ -51,15 +51,25 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 	override void HandlerAttached(Widget w)
 	{
 		super.HandlerAttached(w);
+		GetGame().GetCallqueue().CallLater(Initialize, 0);
+	}
 
-		m_fExpandedX = FrameSlot.GetPosX(w);
-		m_fExpandedY = FrameSlot.GetPosY(w);
+	protected void Initialize()
+	{
+		if (!m_wRoot || !FrameWidget.Cast(m_wRoot.GetParent()))
+		{
+			Print("GC | Slide out initialization failed: root requires a parent FrameWidget", level: LogLevel.ERROR);
+			return;
+		}
+
+		m_fExpandedX = FrameSlot.GetPosX(m_wRoot);
+		m_fExpandedY = FrameSlot.GetPosY(m_wRoot);
 		ConfigureChildren();
 
 		if (m_eDirection == GC_ESlideOutDirection.LEFT || m_eDirection == GC_ESlideOutDirection.RIGHT)
-			m_fTravelDistance = FrameSlot.GetSizeX(w) - m_fHandleSize;
+			m_fTravelDistance = FrameSlot.GetSizeX(m_wRoot) - m_fHandleSize;
 		else
-			m_fTravelDistance = FrameSlot.GetSizeY(w) - m_fHandleSize;
+			m_fTravelDistance = FrameSlot.GetSizeY(m_wRoot) - m_fHandleSize;
 
 		if (m_fTravelDistance < 0)
 			m_fTravelDistance = 0;
@@ -81,6 +91,8 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 	override void HandlerDeattached(Widget w)
 	{
+		GetGame().GetCallqueue().Remove(Initialize);
+
 		InputManager inputManager = GetGame().GetInputManager();
 		if (inputManager)
 			inputManager.RemoveActionListener("MouseLeft", EActionTrigger.DOWN, OnMouseLeftDown);
