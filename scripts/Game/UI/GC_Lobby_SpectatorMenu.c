@@ -41,7 +41,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	override void OnMenuFocusGained()
 	{
 		super.OnMenuFocusGained();
-		WidgetManager.SetCursor(0);
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		SetInterfaceVisible(!playerController || playerController.IsSpectatorInterfaceVisible());
 	}
 
 	override void OnMenuClose()
@@ -64,6 +65,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	void SetInterfaceVisible(bool visible)
 	{
+		if (visible)
+			WidgetManager.SetCursor(0);
+		else
+			WidgetManager.SetCursor(-1);
+
 		if (m_wInterfaceOptionState)
 		{
 			if (visible)

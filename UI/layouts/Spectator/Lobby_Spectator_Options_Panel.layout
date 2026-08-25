@@ -68,115 +68,168 @@ SizeLayoutWidgetClass {
         }
        }
       }
-      SizeLayoutWidgetClass "{6A5A000000000011}" {
+      ScrollLayoutWidgetClass "{6A5A000000000011}" {
+       Name "SpectatorOptionsScroll"
        Slot LayoutSlot "{6A5A000000000012}" {
         HorizontalAlign 3
-        VerticalAlign 0
-        Padding 0 14 0 0
+        SizeMode Fill
+        Padding 0 12 0 0
        }
-       AllowHeightOverride 1
-       HeightOverride 62
+       Color 1 1 1 0
+       "Scrollbar Always Visible" 0
        {
-        HorizontalLayoutWidgetClass "{6A5A000000000013}" {
+        VerticalLayoutWidgetClass "{6A5A000000000013}" {
+         Name "SpectatorOptionsRows"
          Slot AlignableSlot "{6A5A000000000014}" {
           HorizontalAlign 3
-          VerticalAlign 3
+          VerticalAlign 0
+          Padding 0 0 6 0
          }
          {
-          ButtonWidgetClass "{6A5A000000000015}" {
-           Name "SpectatorInterfaceOptionButton"
+          SizeLayoutWidgetClass "{6A5A000000000015}" {
+           Name "SpectatorInterfaceOptionRow"
            Slot LayoutSlot "{6A5A000000000016}" {
-            SizeMode Fill
-            FillWeight 1
+            HorizontalAlign 3
+            Padding 0 0 0 8
            }
-           Color 1 1 1 0
-           components {
-            SCR_ButtonBaseComponent "{6A5A000000000017}" {
-            }
-           }
+           AllowHeightOverride 1
+           HeightOverride 92
            {
-            OverlayWidgetClass "{6A5A000000000018}" {
-             Slot ButtonWidgetSlot "{6A5A000000000019}" {
+            ButtonWidgetClass "{6A5A000000000017}" {
+             Name "SpectatorInterfaceOptionButton"
+             Slot AlignableSlot "{6A5A000000000018}" {
               HorizontalAlign 3
               VerticalAlign 3
              }
-             "Ignore Cursor" 1
+             Color 1 1 1 0
+             components {
+              SCR_ButtonBaseComponent "{6A5A000000000019}" {
+              }
+             }
              {
-              ImageWidgetClass "{6A5A00000000001A}" {
-               Slot OverlayWidgetSlot "{6A5A00000000001B}" {
+              OverlayWidgetClass "{6A5A00000000001A}" {
+               Slot ButtonWidgetSlot "{6A5A00000000001B}" {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
-               Color 0.07 0.1 0.11 0.95
-              }
-              TextWidgetClass "{6A5A00000000001C}" {
-               Slot OverlayWidgetSlot "{6A5A00000000001D}" {
-                HorizontalAlign 0
-                VerticalAlign 3
-                Padding 14 0 76 0
+               "Ignore Cursor" 1
+               {
+                PanelWidgetClass "{6A5A00000000001C}" {
+                 Slot OverlayWidgetSlot "{6A5A00000000001D}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.07 0.1 0.11 0.98
+                 style full
+                }
+                PanelWidgetClass "{6A5A00000000001E}" {
+                 Slot OverlayWidgetSlot "{6A5A00000000001F}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.16 0.2 0.21 1
+                 style outline_2px
+                }
+                HorizontalLayoutWidgetClass "{6A5A000000000020}" {
+                 Slot OverlayWidgetSlot "{6A5A000000000021}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                  Padding 14 10 12 10
+                 }
+                 {
+                  VerticalLayoutWidgetClass "{6A5A000000000022}" {
+                   Slot LayoutSlot "{6A5A000000000023}" {
+                    VerticalAlign 1
+                    SizeMode Fill
+                    FillWeight 1
+                    Padding 0 0 12 0
+                   }
+                   {
+                    TextWidgetClass "{6A5A000000000024}" {
+                     Color 0.96 0.97 0.96 1
+                     Text "SHOW INTERFACE"
+                     "Font Size" 19
+                     "Min Font Size" 15
+                    }
+                    TextWidgetClass "{6A5A000000000025}" {
+                     Slot LayoutSlot "{6A5A000000000026}" {
+                      HorizontalAlign 3
+                      Padding 0 4 0 0
+                     }
+                     Color 0.68 0.72 0.72 1
+                     Text "Hide every spectator HUD element. Use the bound key to restore it."
+                     "Font Size" 13
+                     "Min Font Size" 11
+                     Wrap 1
+                    }
+                   }
+                  }
+                  ButtonWidgetClass "{6A5A000000000027}" : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
+                   Name "SpectatorInterfaceKeyHint"
+                   Slot LayoutSlot "{6A5A000000000028}" {
+                    VerticalAlign 1
+                    Padding 0 0 10 0
+                   }
+                   "Ignore Cursor" 1
+                   components {
+                    SCR_InputButtonComponent "{5D346C3DD81D95CD}" {
+                     m_sActionName "GC_ToggleSpectatorInterface"
+                     m_sLabel ""
+                    }
+                   }
+                  }
+                  SizeLayoutWidgetClass "{6A5A000000000029}" {
+                   Slot LayoutSlot "{6A5A00000000002A}" {
+                    VerticalAlign 1
+                   }
+                   AllowWidthOverride 1
+                   WidthOverride 54
+                   AllowHeightOverride 1
+                   HeightOverride 42
+                   {
+                    OverlayWidgetClass "{6A5A00000000002B}" {
+                     Slot AlignableSlot "{6A5A00000000002C}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     {
+                      PanelWidgetClass "{6A5A00000000002D}" {
+                       Name "SpectatorInterfaceOptionStateBackground"
+                       Slot OverlayWidgetSlot "{6A5A00000000002E}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 0.188 0.58 0.439 1
+                       style full
+                      }
+                      TextWidgetClass "{6A5A00000000002F}" {
+                       Name "SpectatorInterfaceOptionState"
+                       Slot OverlayWidgetSlot "{6A5A000000000030}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 1 1 1 1
+                       Text "ON"
+                       "Font Size" 17
+                       "Min Font Size" 12
+                       "Horizontal Alignment" Center
+                       "Vertical Alignment" Center
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
                }
-               Color 0.9 0.91 0.9 1
-               Text "SHOW INTERFACE"
-               "Font Size" 19
-               "Min Font Size" 14
-               "Vertical Alignment" Center
-              }
-              ImageWidgetClass "{6A5A00000000001E}" {
-               Name "SpectatorInterfaceOptionStateBackground"
-               Slot OverlayWidgetSlot "{6A5A00000000001F}" {
-                HorizontalAlign 2
-                VerticalAlign 3
-                Padding 0 12 12 12
-               }
-               Color 0.188 0.58 0.439 1
-               Size 54 0
-              }
-              TextWidgetClass "{6A5A000000000020}" {
-               Name "SpectatorInterfaceOptionState"
-               Slot OverlayWidgetSlot "{6A5A000000000021}" {
-                HorizontalAlign 2
-                VerticalAlign 3
-                Padding 0 12 12 12
-               }
-               Color 1 1 1 1
-               Text "ON"
-               "Font Size" 17
-               "Min Font Size" 12
-               "Horizontal Alignment" Center
-               "Vertical Alignment" Center
               }
              }
-            }
-           }
-          }
-          ButtonWidgetClass "{6A5A000000000022}" : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
-           Name "SpectatorInterfaceKeyHint"
-           Slot LayoutSlot "{6A5A000000000023}" {
-            VerticalAlign 3
-            Padding 10 0 0 0
-           }
-           components {
-            SCR_InputButtonComponent "{5D346C3DD81D95CD}" {
-             m_sActionName "GC_ToggleSpectatorInterface"
-             m_sLabel ""
             }
            }
           }
          }
         }
        }
-      }
-      TextWidgetClass "{6A5A000000000024}" {
-       Slot LayoutSlot "{6A5A000000000025}" {
-        HorizontalAlign 3
-        VerticalAlign 0
-        Padding 4 12 4 0
-       }
-       Color 0.6 0.64 0.64 1
-       Text "Use the bound key to restore the interface."
-       "Font Size" 15
-       "Min Font Size" 12
-       "Vertical Alignment" Center
       }
      }
     }
