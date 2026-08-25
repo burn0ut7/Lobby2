@@ -93,7 +93,7 @@ SizeLayoutWidgetClass {
             Padding 0 0 0 8
            }
            AllowHeightOverride 1
-           HeightOverride 92
+           HeightOverride 62
            {
             ButtonWidgetClass "{6A5A000000000017}" {
              Name "SpectatorInterfaceOptionButton"
@@ -104,6 +104,8 @@ SizeLayoutWidgetClass {
              Color 1 1 1 0
              components {
               SCR_ButtonBaseComponent "{6A5A000000000019}" {
+               m_bShowBorderOnFocus 0
+               m_bShowBorderOnHover 1
               }
              }
              {
@@ -137,32 +139,18 @@ SizeLayoutWidgetClass {
                   Padding 14 10 12 10
                  }
                  {
-                  VerticalLayoutWidgetClass "{6A5A000000000022}" {
+                  TextWidgetClass "{6A5A000000000022}" {
                    Slot LayoutSlot "{6A5A000000000023}" {
                     VerticalAlign 1
                     SizeMode Fill
                     FillWeight 1
                     Padding 0 0 12 0
                    }
-                   {
-                    TextWidgetClass "{6A5A000000000024}" {
-                     Color 0.96 0.97 0.96 1
-                     Text "SHOW INTERFACE"
-                     "Font Size" 19
-                     "Min Font Size" 15
-                    }
-                    TextWidgetClass "{6A5A000000000025}" {
-                     Slot LayoutSlot "{6A5A000000000026}" {
-                      HorizontalAlign 3
-                      Padding 0 4 0 0
-                     }
-                     Color 0.68 0.72 0.72 1
-                     Text "Hide every spectator HUD element. Use the bound key to restore it."
-                     "Font Size" 13
-                     "Min Font Size" 11
-                     Wrap 1
-                    }
-                   }
+                   Color 0.96 0.97 0.96 1
+                   Text "SHOW INTERFACE"
+                   "Font Size" 19
+                   "Min Font Size" 15
+                   "Vertical Alignment" Center
                   }
                   ButtonWidgetClass "{6A5A000000000027}" : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
                    Name "SpectatorInterfaceKeyHint"
@@ -225,6 +213,71 @@ SizeLayoutWidgetClass {
               }
              }
             }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+     FrameWidgetClass "{6A5A000000000031}" {
+      Name "SpectatorOptionTooltipLayer"
+      Slot OverlayWidgetSlot "{6A5A000000000032}" {
+       HorizontalAlign 3
+       VerticalAlign 3
+      }
+      Clipping False
+      "Ignore Cursor" 1
+      {
+       SizeLayoutWidgetClass "{6A5A000000000033}" {
+        Name "SpectatorOptionTooltip"
+        Slot FrameWidgetSlot "{6A5A000000000034}" {
+         PositionX 0
+         PositionY 0
+         SizeX 100
+         SizeY 30
+         SizeToContent 1
+        }
+        "Is Visible" 0
+        Clipping False
+        "Ignore Cursor" 1
+        AllowMaxDesiredWidth 1
+        MaxDesiredWidth 320
+        {
+         OverlayWidgetClass "{6A5A000000000035}" {
+          Slot AlignableSlot "{6A5A000000000036}" {
+           HorizontalAlign 3
+           VerticalAlign 3
+          }
+          {
+           PanelWidgetClass "{6A5A000000000037}" {
+            Slot OverlayWidgetSlot "{6A5A000000000038}" {
+             HorizontalAlign 3
+             VerticalAlign 3
+            }
+            Color 0.01 0.018 0.02 0.98
+            style full
+           }
+           PanelWidgetClass "{6A5A000000000039}" {
+            Slot OverlayWidgetSlot "{6A5A00000000003A}" {
+             HorizontalAlign 3
+             VerticalAlign 3
+            }
+            Color 0.25 0.72 0.78 1
+            style outline_2px
+           }
+           TextWidgetClass "{6A5A00000000003B}" {
+            Name "SpectatorOptionTooltipText"
+            Slot OverlayWidgetSlot "{6A5A00000000003C}" {
+             HorizontalAlign 3
+             VerticalAlign 3
+             Padding 12 9 12 9
+            }
+            Color 0.94 0.94 0.92 1
+            Text "OPTION DESCRIPTION"
+            "Font Size" 16
+            "Min Font Size" 14
+            Wrap 1
            }
           }
          }
