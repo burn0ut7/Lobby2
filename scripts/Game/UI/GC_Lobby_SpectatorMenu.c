@@ -1,19 +1,38 @@
+class GC_SpectatorOptionButtonComponent : SCR_ButtonBaseComponent
+{
+	ref ScriptInvoker m_OnHoverChanged = new ScriptInvoker();
+
+	override bool OnMouseEnter(Widget w, int x, int y)
+	{
+		m_OnHoverChanged.Invoke(true);
+		return super.OnMouseEnter(w, x, y);
+	}
+
+	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
+	{
+		m_OnHoverChanged.Invoke(false);
+		return super.OnMouseLeave(w, enterW, x, y);
+	}
+}
+
 //! The base manual camera intentionally accepts input only while no menu is
 //! open or while the top menu is an EditorMenuUI. Using the camera-compatible
 //! base here keeps Lobby2 scoped and avoids a global SCR_ManualCamera override.
 class GC_Lobby_SpectatorMenu : EditorMenuUI
 {
-	protected static const float OPTION_TOOLTIP_GAP = 8;
-	protected static const string INTERFACE_OPTION_DESCRIPTION = "Hide every spectator HUD element. Press the shown key to restore it.";
+	protected static const float OPTION_TOOLTIP_GAP = 16;
+	protected static const int OPTION_TOOLTIP_DELAY_MS = 3000;
+	protected static const string INTERFACE_OPTION_DESCRIPTION = "Hide the spectator interface, chat, notifications, and all other game HUD elements. Press the shown key to restore them.";
 
 	protected InputManager m_InputManager;
-	protected SCR_ButtonBaseComponent m_InterfaceOptionButton;
+	protected GC_SpectatorOptionButtonComponent m_InterfaceOptionButton;
 	protected Widget m_wInterfaceOptionSource;
 	protected TextWidget m_wInterfaceOptionState;
 	protected Widget m_wInterfaceOptionStateBackground;
 	protected Widget m_wOptionTooltipLayer;
 	protected Widget m_wOptionTooltip;
 	protected TextWidget m_wOptionTooltipText;
+	protected bool m_bInterfaceOptionHovered;
 
 	override void OnMenuOpen()
 	{
@@ -34,7 +53,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (optionButton)
 		{
 			m_wInterfaceOptionSource = optionButton;
-			m_InterfaceOptionButton = SCR_ButtonBaseComponent.Cast(optionButton.FindHandler(SCR_ButtonBaseComponent));
+			m_InterfaceOptionButton = GC_SpectatorOptionButtonComponent.Cast(optionButton.FindHandler(GC_SpectatorOptionButtonComponent));
 		}
 		if (root)
 		{
@@ -47,7 +66,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (m_InterfaceOptionButton)
 		{
 			m_InterfaceOptionButton.m_OnClicked.Insert(OnToggleSpectatorInterface);
-			m_InterfaceOptionButton.m_OnShowBorder.Insert(OnInterfaceOptionHoverChanged);
+			m_InterfaceOptionButton.m_OnHoverChanged.Insert(OnInterfaceOptionHoverChanged);
 		}
 		HideOptionTooltip();
 
@@ -68,7 +87,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (m_InterfaceOptionButton)
 		{
 			m_InterfaceOptionButton.m_OnClicked.Remove(OnToggleSpectatorInterface);
-			m_InterfaceOptionButton.m_OnShowBorder.Remove(OnInterfaceOptionHoverChanged);
+			m_InterfaceOptionButton.m_OnHoverChanged.Remove(OnInterfaceOptionHoverChanged);
 		}
 		if (m_InputManager)
 		{
@@ -125,46 +144,63 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			playerController.ToggleSpectatorInterface();
 	}
 
-	protected void OnInterfaceOptionHoverChanged(SCR_ButtonBaseComponent button, bool hovered)
+	protected void OnInterfaceOptionHoverChanged(bool hovered)
 	{
-		if (button != m_InterfaceOptionButton)
-			return;
-
+		m_bInterfaceOptionHovered = hovered;
+		GetGame().GetCallqueue().Remove(ShowOptionTooltip);
 		if (hovered)
-			ShowOptionTooltip();
+			GetGame().GetCallqueue().CallLater(ShowOptionTooltip, OPTION_TOOLTIP_DELAY_MS);
 		else
 			HideOptionTooltip();
 	}
 
 	protected void ShowOptionTooltip()
 	{
+		if (!m_bInterfaceOptionHovered)
+			return;
+
 		if (!m_wInterfaceOptionSource || !m_wOptionTooltipLayer || !m_wOptionTooltip || !m_wOptionTooltipText)
 			return;
 
 		m_wOptionTooltipText.SetText(INTERFACE_OPTION_DESCRIPTION);
 		m_wOptionTooltip.SetVisible(true);
+		GetGame().GetCallqueue().Remove(PositionOptionTooltip);
+		GetGame().GetCallqueue().CallLater(PositionOptionTooltip, 0);
+	}
 
-		float sourceX;
-		float sourceY;
-		float sourceWidth;
-		float sourceHeight;
+	protected void PositionOptionTooltip()
+	{
+		if (!m_bInterfaceOptionHovered || !m_wInterfaceOptionSource || !m_wOptionTooltipLayer || !m_wOptionTooltip)
+			return;
+
 		float layerX;
 		float layerY;
 		float layerWidth;
 		float layerHeight;
 		float tooltipWidth;
 		float tooltipHeight;
-		m_wInterfaceOptionSource.GetScreenPos(sourceX, sourceY);
-		m_wInterfaceOptionSource.GetScreenSize(sourceWidth, sourceHeight);
 		m_wOptionTooltipLayer.GetScreenPos(layerX, layerY);
 		m_wOptionTooltipLayer.GetScreenSize(layerWidth, layerHeight);
 		m_wOptionTooltip.GetScreenSize(tooltipWidth, tooltipHeight);
+		int mouseX;
+		int mouseY;
+		WidgetManager.GetMousePos(mouseX, mouseY);
 
 		WorkspaceWidget workspace = GetGame().GetWorkspace();
-		float localX = workspace.DPIUnscale(sourceX - layerX - tooltipWidth) - OPTION_TOOLTIP_GAP;
-		float localY = workspace.DPIUnscale(sourceY - layerY + (sourceHeight - tooltipHeight) * 0.5);
+		float localX = workspace.DPIUnscale(mouseX - layerX) + OPTION_TOOLTIP_GAP;
+		float localY = workspace.DPIUnscale(mouseY - layerY) + OPTION_TOOLTIP_GAP;
+		float localTooltipWidth = workspace.DPIUnscale(tooltipWidth);
 		float localTooltipHeight = workspace.DPIUnscale(tooltipHeight);
+		float availableWidth = workspace.DPIUnscale(layerWidth);
 		float availableHeight = workspace.DPIUnscale(layerHeight);
+		if (localX + localTooltipWidth > availableWidth)
+			localX = workspace.DPIUnscale(mouseX - layerX) - localTooltipWidth - OPTION_TOOLTIP_GAP;
+		if (localY + localTooltipHeight > availableHeight)
+			localY = workspace.DPIUnscale(mouseY - layerY) - localTooltipHeight - OPTION_TOOLTIP_GAP;
+		if (localX + localTooltipWidth > availableWidth)
+			localX = availableWidth - localTooltipWidth;
+		if (localX < 0)
+			localX = 0;
 		if (localY + localTooltipHeight > availableHeight)
 			localY = availableHeight - localTooltipHeight;
 		if (localY < 0)
@@ -175,6 +211,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	protected void HideOptionTooltip()
 	{
+		GetGame().GetCallqueue().Remove(ShowOptionTooltip);
+		GetGame().GetCallqueue().Remove(PositionOptionTooltip);
 		if (m_wOptionTooltip)
 			m_wOptionTooltip.SetVisible(false);
 	}

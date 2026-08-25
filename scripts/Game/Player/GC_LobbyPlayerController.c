@@ -674,6 +674,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			if (cameraManager)
 				cameraManager.SetCamera(m_SpectatorCamera);
+			SetBaseHUDVisible(m_bSpectatorInterfaceVisible);
 			CreateSpectatorMenu();
 			CreateSpectatorMarkerOverlay();
 			return;
@@ -719,6 +720,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 		}
 
+		SetBaseHUDVisible(m_bSpectatorInterfaceVisible);
 		CreateSpectatorMenu();
 		CreateSpectatorMarkerOverlay();
 		RegisterSpectatorCameraActions();
@@ -730,6 +732,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		UnregisterSpectatorCameraActions();
 		DestroySpectatorMarkerOverlay();
 		DestroySpectatorMenu();
+		SetBaseHUDVisible(true);
 		if (!m_SpectatorCamera)
 			return;
 
@@ -862,6 +865,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	void SetSpectatorInterfaceVisible(bool visible)
 	{
 		m_bSpectatorInterfaceVisible = visible;
+		SetBaseHUDVisible(visible);
 		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
 		if (spectatorMenu)
 			spectatorMenu.SetInterfaceVisible(visible);
@@ -869,6 +873,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_SpectatorMarkerOverlay.SetInterfaceVisible(visible);
 		if (!visible)
 			GC_ContextMenuComponent.Close();
+	}
+
+	protected void SetBaseHUDVisible(bool visible)
+	{
+		SCR_HUDManagerComponent hudManager = SCR_HUDManagerComponent.GetHUDManager();
+		if (hudManager)
+			hudManager.SetVisible(visible);
 	}
 
 	protected void DestroySpectatorMenu()

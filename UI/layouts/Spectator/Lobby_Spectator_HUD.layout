@@ -71,5 +71,74 @@ FrameWidgetClass {
     }
    }
   }
+  FrameWidgetClass "{6A5C000000000001}" {
+   Name "SpectatorOptionTooltipLayer"
+   Slot FrameWidgetSlot "{6A5C000000000002}" {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   "Z Order" 120
+   Clipping False
+   "Ignore Cursor" 1
+   {
+    SizeLayoutWidgetClass "{6A5C000000000003}" {
+     Name "SpectatorOptionTooltip"
+     Slot FrameWidgetSlot "{6A5C000000000004}" {
+      PositionX 0
+      PositionY 0
+      SizeX 100
+      SizeY 30
+      SizeToContent 1
+     }
+     "Is Visible" 0
+     Clipping False
+     "Ignore Cursor" 1
+     AllowMaxDesiredWidth 1
+     MaxDesiredWidth 320
+     {
+      OverlayWidgetClass "{6A5C000000000005}" {
+       Slot AlignableSlot "{6A5C000000000006}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       {
+        PanelWidgetClass "{6A5C000000000007}" {
+         Slot OverlayWidgetSlot "{6A5C000000000008}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.01 0.018 0.02 0.98
+         style full
+        }
+        PanelWidgetClass "{6A5C000000000009}" {
+         Slot OverlayWidgetSlot "{6A5C00000000000A}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.25 0.72 0.78 1
+         style outline_2px
+        }
+        TextWidgetClass "{6A5C00000000000B}" {
+         Name "SpectatorOptionTooltipText"
+         Slot OverlayWidgetSlot "{6A5C00000000000C}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 12 9 12 9
+         }
+         Color 0.94 0.94 0.92 1
+         Text "OPTION DESCRIPTION"
+         "Font Size" 16
+         "Min Font Size" 14
+         Wrap 1
+        }
+       }
+      }
+     }
+    }
+   }
+  }
  }
 }
