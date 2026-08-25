@@ -187,7 +187,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 		TogglePinned();
 		if (m_HandleComponent)
-			m_HandleComponent.RefreshVisuals();
+			m_HandleComponent.OnPressed();
 
 	#ifdef WORKBENCH
 		PrintFormat("GC | Slide out | knob pressed: pinned=%1", m_bPinned);
@@ -586,6 +586,8 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 			return;
 
 		m_bHovered = hovered;
+		if (m_bHovered)
+			PlaySound(SCR_SoundEvent.SOUND_FE_BUTTON_HOVER);
 		UpdateVisuals();
 	}
 
@@ -608,6 +610,10 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		}
 		else if (m_bHovered)
 		{
+			backgroundRed = 36;
+			backgroundGreen = 42;
+			backgroundBlue = 45;
+			backgroundAlpha = 210;
 			arrowColor = Color.FromRGBA(255, 196, 64, 255);
 		}
 
@@ -625,8 +631,9 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		}
 	}
 
-	void RefreshVisuals()
+	void OnPressed()
 	{
+		PlaySound(SCR_SoundEvent.CLICK);
 		UpdateVisuals();
 	}
 }
