@@ -7,6 +7,40 @@ class GC_KilledFromBonePose
 	bool m_bHasLocalTransform;
 }
 
+class GC_KilledFromWeaponState
+{
+	protected ResourceName m_sPrefab;
+	protected vector m_aWorldTransform[4];
+	protected int m_iManagedWeaponIndex = -1;
+	protected int m_iSightsIndex = -1;
+
+	void Capture(IEntity character)
+	{
+		CharacterWeaponManagerComponent manager = CharacterWeaponManagerComponent.Cast(character.FindComponent(CharacterWeaponManagerComponent));
+		if (!manager)
+			return;
+		BaseWeaponComponent weapon = manager.GetCurrentWeapon();
+		if (!weapon || !weapon.GetOwner())
+			return;
+		IEntity weaponEntity = weapon.GetOwner();
+		EntityPrefabData prefabData = weaponEntity.GetPrefabData();
+		if (prefabData)
+			m_sPrefab = prefabData.GetPrefabName();
+		weaponEntity.GetWorldTransform(m_aWorldTransform);
+		m_iSightsIndex = manager.GetCurrentSightsIndex();
+		array<IEntity> weapons = {};
+		manager.GetWeaponsList(weapons);
+		m_iManagedWeaponIndex = weapons.Find(weaponEntity);
+		PrintFormat("GC | Killed From | event=weapon-capture character=%1 weapon=%2 prefab=%3 managedIndex=%4 sightsIndex=%5 transform=%6", character, weaponEntity, m_sPrefab, m_iManagedWeaponIndex, m_iSightsIndex, m_aWorldTransform);
+	}
+
+	bool IsValid() { return m_sPrefab != ResourceName.Empty; }
+	ResourceName GetPrefab() { return m_sPrefab; }
+	int GetManagedWeaponIndex() { return m_iManagedWeaponIndex; }
+	int GetSightsIndex() { return m_iSightsIndex; }
+	void GetWorldTransform(out vector transform[4]) { Math3D.MatrixCopy(m_aWorldTransform, transform); }
+}
+
 //! One captured turret animation state. Turrets are recorded and replayed in
 //! deterministic prefab hierarchy order.
 class GC_KilledFromTurretState
@@ -133,12 +167,14 @@ class GC_KilledFromSnapshot
 	protected ResourceName m_sKillerVisualObject;
 	protected vector m_aKillerRootTransform[4];
 	protected ref array<ref GC_KilledFromBonePose> m_aKillerBonePose;
+	protected ref GC_KilledFromWeaponState m_KillerWeapon;
 	protected ref GC_KilledFromVehicleState m_KillerVehicle;
 	protected ref array<ref SCR_BasePreviewEntry> m_aVictimPreviewEntries;
 	protected ResourceName m_sVictimPrefab;
 	protected ResourceName m_sVictimVisualObject;
 	protected vector m_aVictimRootTransform[4];
 	protected ref array<ref GC_KilledFromBonePose> m_aVictimBonePose;
+	protected ref GC_KilledFromWeaponState m_VictimWeapon;
 	protected ref GC_KilledFromVehicleState m_VictimVehicle;
 	protected int m_iVictimStance;
 	protected float m_fVictimDynamicStance;
@@ -220,6 +256,7 @@ class GC_KilledFromSnapshot
 		m_sVictimVisualObject = localDamage.m_sVictimVisualObject;
 		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
 		m_aVictimBonePose = localDamage.m_aVictimBonePose;
+		m_VictimWeapon = localDamage.m_VictimWeapon;
 		m_VictimVehicle = localDamage.m_VictimVehicle;
 		m_fVictimLean = localDamage.m_fVictimLean;
 		m_vVictimAimingAngles = localDamage.m_vVictimAimingAngles;
@@ -241,6 +278,7 @@ class GC_KilledFromSnapshot
 		m_sKillerVisualObject = localDamage.m_sKillerVisualObject;
 		Math3D.MatrixCopy(localDamage.m_aKillerRootTransform, m_aKillerRootTransform);
 		m_aKillerBonePose = localDamage.m_aKillerBonePose;
+		m_KillerWeapon = localDamage.m_KillerWeapon;
 		m_KillerVehicle = localDamage.m_KillerVehicle;
 	}
 
@@ -276,6 +314,8 @@ class GC_KilledFromSnapshot
 			return;
 
 		CaptureCharacterState(character, "killer", m_iStance, m_fDynamicStance, m_fKillerLean, m_vKillerAimingAngles, m_iFlags);
+		m_KillerWeapon = new GC_KilledFromWeaponState();
+		m_KillerWeapon.Capture(character);
 	}
 
 	protected void CaptureCharacterState(IEntity entity, string role, out int stance, out float dynamicStance, out float lean, out vector aimingAngles, inout int flags)
@@ -422,6 +462,7 @@ class GC_KilledFromSnapshot
 	{
 		m_iVictimFlags = 0;
 		m_VictimVehicle = null;
+		m_VictimWeapon = null;
 		CaptureVisual(victim, "victim", m_aVictimPreviewEntries, m_sVictimVisualObject, m_aVictimRootTransform, m_aVictimBonePose);
 		EntityPrefabData victimPrefabData;
 		if (victim)
@@ -439,6 +480,8 @@ class GC_KilledFromSnapshot
 			m_VictimVehicle.Capture(victimVehicle, occupiedCompartment);
 		}
 		CaptureCharacterState(victimCharacter, "victim", m_iVictimStance, m_fVictimDynamicStance, m_fVictimLean, m_vVictimAimingAngles, m_iVictimFlags);
+		m_VictimWeapon = new GC_KilledFromWeaponState();
+		m_VictimWeapon.Capture(victimCharacter);
 	}
 
 	protected void CaptureVisual(IEntity entity, string role, out array<ref SCR_BasePreviewEntry> entries, out ResourceName visualObjectName, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
@@ -529,6 +572,8 @@ class GC_KilledFromSnapshot
 	int GetVictimFlags() { return m_iVictimFlags; }
 	GC_KilledFromVehicleState GetKillerVehicle() { return m_KillerVehicle; }
 	GC_KilledFromVehicleState GetVictimVehicle() { return m_VictimVehicle; }
+	GC_KilledFromWeaponState GetKillerWeapon() { return m_KillerWeapon; }
+	GC_KilledFromWeaponState GetVictimWeapon() { return m_VictimWeapon; }
 	bool HasKillerVehicle() { return m_KillerVehicle && m_KillerVehicle.IsValid(); }
 	bool HasVictimVehicle() { return m_VictimVehicle && m_VictimVehicle.IsValid(); }
 	bool HasKillerPreview() { return (m_iFlags & FLAG_VALID_KILLER) != 0; }
