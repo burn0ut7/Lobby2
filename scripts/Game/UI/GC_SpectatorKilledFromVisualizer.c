@@ -6,10 +6,10 @@ class GC_KilledFromBoneOperation
 
 enum GC_EKilledFromWeaponPrototype
 {
-	POSE_THEN_NORMAL,
-	POSE_THEN_WORLD,
-	SELECT_POSE_WORLD,
-	SELECT_POSE_HAND_RELATIVE
+	NORMAL_ATTACHMENT,
+	ACTOR_RELATIVE_WEAPON,
+	ACTOR_RELATIVE_RIGHT_HAND,
+	ACTOR_RELATIVE_BOTH_HANDS
 }
 
 //! Client-only killed-from preview and line renderer. No entity created here is
@@ -130,7 +130,7 @@ class GC_SpectatorKilledFromVisualizer
 			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
 		else
 		{
-			for (int mode; mode <= GC_EKilledFromWeaponPrototype.SELECT_POSE_HAND_RELATIVE; mode++)
+			for (int mode; mode <= GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_BOTH_HANDS; mode++)
 			{
 				vector prototypeTransform[4];
 				Math3D.MatrixCopy(killerTransform, prototypeTransform);
@@ -415,43 +415,64 @@ class GC_SpectatorKilledFromVisualizer
 		return selectedWeapon;
 	}
 
-	protected void ApplyWeaponTransform(IEntity actor, IEntity weapon, GC_KilledFromWeaponState state, bool handRelative, string role, bool report)
+	protected void ApplyWeaponTransform(IEntity actor, IEntity weapon, GC_KilledFromWeaponState state, string role, bool report)
 	{
 		if (!actor || !weapon || !state)
 			return;
+		vector actorTransform[4];
+		vector actorRelativeTransform[4];
 		vector exactTransform[4];
-		string mode = "WORLD";
-		if (handRelative && state.HasRightHandRelativeTransform())
-		{
-			Animation animation = actor.GetAnimation();
-			TNodeId handBone;
-			vector handModelTransform[4];
-			if (animation)
-				handBone = animation.GetBoneIndex("RightHandProp");
-			if (animation && handBone >= 0 && animation.GetBoneMatrix(handBone, handModelTransform))
-			{
-				vector actorTransform[4];
-				vector handWorldTransform[4];
-				vector handRelativeTransform[4];
-				actor.GetWorldTransform(actorTransform);
-				Math3D.MatrixMultiply4(actorTransform, handModelTransform, handWorldTransform);
-				state.GetRightHandRelativeTransform(handRelativeTransform);
-				Math3D.MatrixMultiply4(handWorldTransform, handRelativeTransform, exactTransform);
-				mode = "RIGHT-HAND-RELATIVE";
-			}
-			else
-				state.GetWorldTransform(exactTransform);
-		}
-		else
-			state.GetWorldTransform(exactTransform);
+		actor.GetWorldTransform(actorTransform);
+		state.GetActorRelativeTransform(actorRelativeTransform);
+		Math3D.MatrixMultiply4(actorTransform, actorRelativeTransform, exactTransform);
 		weapon.SetWorldTransform(exactTransform);
 		weapon.Update();
 		if (report)
 		{
 			vector readback[4];
 			weapon.GetWorldTransform(readback);
-			PrintFormat("GC | Killed From | event=weapon-transform role=%1 mode=%2 weapon=%3 requested=%4 readback=%5", role, mode, weapon, exactTransform, readback);
+			PrintFormat("GC | Killed From | event=weapon-transform role=%1 mode=ACTOR-RELATIVE weapon=%2 requested=%3 readback=%4", role, weapon, exactTransform, readback);
 		}
+	}
+
+	protected bool CorrectHandToWeapon(IEntity actor, IEntity weapon, GC_KilledFromWeaponState state, bool leftHand, string role, bool report)
+	{
+		if (!actor || !weapon || !state)
+			return false;
+		if (leftHand && !state.HasWeaponToLeftHandTransform())
+			return false;
+		if (!leftHand && !state.HasWeaponToRightHandTransform())
+			return false;
+		Animation animation = actor.GetAnimation();
+		if (!animation)
+			return false;
+		string boneName = "RightHand";
+		if (leftHand)
+			boneName = "LeftHand";
+		TNodeId boneIndex = animation.GetBoneIndex(boneName);
+		vector currentModelTransform[4];
+		if (boneIndex < 0 || !animation.GetBoneMatrix(boneIndex, currentModelTransform))
+			return false;
+		vector weaponTransform[4];
+		vector relation[4];
+		vector desiredWorldTransform[4];
+		vector actorTransform[4];
+		vector desiredModelTransform[4];
+		vector deltaTransform[4];
+		weapon.GetWorldTransform(weaponTransform);
+		if (leftHand)
+			state.GetWeaponToLeftHandTransform(relation);
+		else
+			state.GetWeaponToRightHandTransform(relation);
+		Math3D.MatrixMultiply4(weaponTransform, relation, desiredWorldTransform);
+		actor.GetWorldTransform(actorTransform);
+		Math3D.MatrixInvMultiply4(actorTransform, desiredWorldTransform, desiredModelTransform);
+		Math3D.MatrixInvMultiply4(currentModelTransform, desiredModelTransform, deltaTransform);
+		bool applied = animation.SetBoneMatrix(actor, boneIndex, deltaTransform);
+		actor.Update();
+		if (report)
+			PrintFormat("GC | Killed From | event=hand-correction role=%1 bone=%2 applied=%3 currentModel=%4 desiredModel=%5 delta=%6", role, boneName, applied, currentModelTransform, desiredModelTransform, deltaTransform);
+		return applied;
 	}
 
 	protected void UpdateWeaponPrototypeSet(array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, bool report)
@@ -459,17 +480,17 @@ class GC_SpectatorKilledFromVisualizer
 		foreach (int mode, IEntity prototype : m_aKillerWeaponPrototypes)
 		{
 			IsolatePhysicsHierarchy(prototype);
-			IEntity weapon;
-			if (mode >= GC_EKilledFromWeaponPrototype.SELECT_POSE_WORLD)
-				weapon = SelectWeapon(prototype, weaponState, string.Format("killer-weapon-%1", mode), report);
 			int missingBones;
 			int failedBones;
 			int unavailableLocalBones;
 			int appliedBones = ApplyBonePose(prototype, bonePose, missingBones, failedBones, unavailableLocalBones);
-			if (mode < GC_EKilledFromWeaponPrototype.SELECT_POSE_WORLD)
-				weapon = SelectWeapon(prototype, weaponState, string.Format("killer-weapon-%1", mode), report);
-			if (mode != GC_EKilledFromWeaponPrototype.POSE_THEN_NORMAL)
-				ApplyWeaponTransform(prototype, weapon, weaponState, mode == GC_EKilledFromWeaponPrototype.SELECT_POSE_HAND_RELATIVE, string.Format("killer-weapon-%1", mode), report);
+			IEntity weapon = SelectWeapon(prototype, weaponState, string.Format("killer-weapon-%1", mode), report);
+			if (mode != GC_EKilledFromWeaponPrototype.NORMAL_ATTACHMENT)
+				ApplyWeaponTransform(prototype, weapon, weaponState, string.Format("killer-weapon-%1", mode), report);
+			if (mode >= GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_RIGHT_HAND)
+				CorrectHandToWeapon(prototype, weapon, weaponState, false, string.Format("killer-weapon-%1", mode), report);
+			if (mode == GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_BOTH_HANDS)
+				CorrectHandToWeapon(prototype, weapon, weaponState, true, string.Format("killer-weapon-%1", mode), report);
 			IsolatePhysicsHierarchy(weapon);
 			int deactivatedBodies = DeactivatePhysicsHierarchy(prototype);
 			if (report)
@@ -481,10 +502,10 @@ class GC_SpectatorKilledFromVisualizer
 	{
 		switch (mode)
 		{
-			case GC_EKilledFromWeaponPrototype.POSE_THEN_NORMAL: return "POSE-NORMAL";
-			case GC_EKilledFromWeaponPrototype.POSE_THEN_WORLD: return "POSE-WORLD";
-			case GC_EKilledFromWeaponPrototype.SELECT_POSE_WORLD: return "SELECT-POSE-WORLD";
-			case GC_EKilledFromWeaponPrototype.SELECT_POSE_HAND_RELATIVE: return "SELECT-POSE-HAND";
+			case GC_EKilledFromWeaponPrototype.NORMAL_ATTACHMENT: return "NORMAL";
+			case GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_WEAPON: return "ADS-WEAPON";
+			case GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_RIGHT_HAND: return "ADS-RIGHT-HAND";
+			case GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_BOTH_HANDS: return "ADS-BOTH-HANDS";
 		}
 		return "UNKNOWN";
 	}
@@ -628,10 +649,14 @@ class GC_SpectatorKilledFromVisualizer
 		if (m_aKillerWeaponPrototypes.Count() == 0)
 		{
 			killerWeapon = SelectWeapon(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
-			ApplyWeaponTransform(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), true, "killer", !m_bPhysicsDeactivationReported);
+			ApplyWeaponTransform(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
+			CorrectHandToWeapon(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), false, "killer", !m_bPhysicsDeactivationReported);
+			CorrectHandToWeapon(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), true, "killer", !m_bPhysicsDeactivationReported);
 		}
 		IEntity victimWeapon = SelectWeapon(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
-		ApplyWeaponTransform(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), true, "victim", !m_bPhysicsDeactivationReported);
+		ApplyWeaponTransform(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
+		CorrectHandToWeapon(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), false, "victim", !m_bPhysicsDeactivationReported);
+		CorrectHandToWeapon(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), true, "victim", !m_bPhysicsDeactivationReported);
 		IsolatePhysicsHierarchy(killerWeapon);
 		IsolatePhysicsHierarchy(victimWeapon);
 		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);
