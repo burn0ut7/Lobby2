@@ -1,3 +1,19 @@
+enum GC_EKilledFromPosePrototype
+{
+	BASELINE,
+	MODEL_DELTA_MATRIX,
+	LOCAL_DELTA_MATRIX,
+	LOCAL_DELTA_ROTATION,
+	LOCAL_INVERSE_DELTA_ROTATION
+}
+
+class GC_KilledFromBoneOperation
+{
+	TNodeId m_iBoneIndex;
+	vector m_aMatrix[4];
+	vector m_vAngles;
+}
+
 //! Client-only killed-from preview and line renderer. No entity created here is
 //! inserted on the server or exposed as replicated gameplay state.
 class GC_SpectatorKilledFromVisualizer
@@ -14,6 +30,8 @@ class GC_SpectatorKilledFromVisualizer
 	protected IEntity m_VictimPreviewEntity;
 	protected IEntity m_KillerVehiclePreviewEntity;
 	protected IEntity m_VictimVehiclePreviewEntity;
+	protected ref array<IEntity> m_aKillerPosePrototypes = {};
+	protected ref array<IEntity> m_aVictimPosePrototypes = {};
 	protected bool m_bEnabled;
 	protected bool m_bVisibilityReported;
 	protected bool m_bPhysicsDeactivationReported;
@@ -111,15 +129,41 @@ class GC_SpectatorKilledFromVisualizer
 
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
-		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles(), m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		if (killerVehicle && killerVehicle.IsValid())
+			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		else
+			CreatePosePrototypeSet(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer", m_aKillerPosePrototypes, m_KillerPreviewEntity);
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
-		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles(), m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
+		if (victimVehicle && victimVehicle.IsValid())
+			m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
+		else
+			CreatePosePrototypeSet(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim", m_aVictimPosePrototypes, m_VictimPreviewEntity);
 		EnsureActorSeat(m_KillerPreviewEntity, m_KillerVehiclePreviewEntity, killerVehicle, "killer");
 		EnsureActorSeat(m_VictimPreviewEntity, m_VictimVehiclePreviewEntity, victimVehicle, "victim");
 		m_bPhysicsDeactivationReported = false;
 		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 killerVehicle=%3 victimVehicle=%4 snapshot={%5}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_KillerVehiclePreviewEntity, m_VictimVehiclePreviewEntity, m_Snapshot.GetDebugReport());
+	}
+
+	protected void CreatePosePrototypeSet(ResourceName prefab, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role, notnull array<IEntity> prototypes, out IEntity primary)
+	{
+		prototypes.Clear();
+		primary = null;
+		for (int mode; mode <= GC_EKilledFromPosePrototype.LOCAL_INVERSE_DELTA_ROTATION; mode++)
+		{
+			vector prototypeTransform[4];
+			Math3D.MatrixCopy(rootTransform, prototypeTransform);
+			prototypeTransform[3] = prototypeTransform[3] + rootTransform[0] * ((mode - 2) * 3.0);
+			string prototypeRole = string.Format("%1-pose-%2", role, mode);
+			IEntity prototype = CreateActorClone(prefab, prototypeTransform, bonePose, outlineColor, prototypeRole);
+			if (!prototype)
+				continue;
+			prototypes.Insert(prototype);
+			if (mode == GC_EKilledFromPosePrototype.BASELINE)
+				primary = prototype;
+			PrintFormat("GC | Killed From | event=pose-prototype-spawn role=%1 index=%2 mode=%3 entity=%4 position=%5", role, mode, GetPosePrototypeName(mode), prototype, prototypeTransform[3]);
+		}
 	}
 
 	protected IEntity CreateVehicleClone(GC_KilledFromVehicleState state, Color outlineColor, string role)
@@ -249,7 +293,7 @@ class GC_SpectatorKilledFromVisualizer
 		PrintFormat("GC | Killed From | event=vehicle-state role=%1 vehicle=%2 capturedTurrets=%3 cloneTurrets=%4 compartmentType=%5 compartmentIndex=%6", role, vehicle, states.Count(), turretIndex, state.GetCompartmentType(), state.GetCompartmentIndex());
 	}
 
-	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], int stance, float dynamicStance, int flags, float lean, vector aimingAngles, array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
+	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
 	{
 		if (prefab == ResourceName.Empty)
 		{
@@ -277,7 +321,6 @@ class GC_SpectatorKilledFromVisualizer
 		AIControlComponent aiControl = AIControlComponent.Cast(preview.FindComponent(AIControlComponent));
 		if (aiControl)
 			aiControl.DeactivateAI();
-		ApplyCharacterState(preview, stance, dynamicStance, flags, lean, aimingAngles);
 		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
 		ReportPhysicsHierarchy(preview, role);
 
@@ -290,51 +333,124 @@ class GC_SpectatorKilledFromVisualizer
 			capturedBones = bonePose.Count();
 		vector transformReadback[4];
 		preview.GetWorldTransform(transformReadback);
-		PrintFormat("GC | Killed From | event=actor-clone result=spawned role=%1 preview=%2 prefab=%3 isolatedPhysics=%4 capturedBones=%5 applyBones=0 sourceMutation=none", role, preview, prefab, isolatedPhysics, capturedBones);
+		PrintFormat("GC | Killed From | event=actor-clone result=spawned role=%1 preview=%2 prefab=%3 isolatedPhysics=%4 capturedBones=%5 boneReplay=scheduled sourceMutation=none", role, preview, prefab, isolatedPhysics, capturedBones);
 		PrintFormat("GC | Killed From | event=actor-clone-transform role=%1 requested=%2 readback=%3", role, rootTransform, transformReadback);
 		return preview;
 	}
 
-	protected void ApplyCharacterState(IEntity entity, int stance, float dynamicStance, int flags, float lean, vector aimingAngles)
+	protected string GetPosePrototypeName(int mode)
 	{
-		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
-		if (!character)
-			return;
-		CharacterControllerComponent controller = character.GetCharacterController();
-		if (!controller)
-			return;
-		controller.ForceStance(stance + 1);
-		if (controller.CanSetDynamicStance(dynamicStance))
-			controller.SetDynamicStance(dynamicStance);
-		bool ads = (flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0;
-		controller.SetWeaponRaised((flags & GC_KilledFromSnapshot.FLAG_WEAPON_RAISED) != 0 || ads);
-		controller.SetWeaponADS(ads);
-		CharacterInputContext inputContext = controller.GetInputContext();
-		if (inputContext)
+		switch (mode)
 		{
-			inputContext.SetLean(lean);
-			inputContext.SetAimingAngles(aimingAngles);
-			inputContext.SetWeaponADS(ads);
+			case GC_EKilledFromPosePrototype.BASELINE: return "BASELINE";
+			case GC_EKilledFromPosePrototype.MODEL_DELTA_MATRIX: return "MODEL DELTA MATRIX";
+			case GC_EKilledFromPosePrototype.LOCAL_DELTA_MATRIX: return "LOCAL DELTA MATRIX";
+			case GC_EKilledFromPosePrototype.LOCAL_DELTA_ROTATION: return "LOCAL DELTA ROT";
+			case GC_EKilledFromPosePrototype.LOCAL_INVERSE_DELTA_ROTATION: return "LOCAL INV DELTA ROT";
 		}
+		return "UNKNOWN";
 	}
 
-	protected void ReportCharacterState(IEntity entity, string role, float requestedLean, vector requestedAimingAngles, int flags)
+	//! Controlled comparison of the engine's model-space and local-space bone APIs.
+	protected int ApplyBonePose(IEntity entity, array<ref GC_KilledFromBonePose> bonePose, int mode, out int missingBones, out int failedBones, out int unavailableLocalBones)
 	{
-		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
-		if (!character)
-			return;
-		CharacterControllerComponent controller = character.GetCharacterController();
-		if (!controller)
-			return;
-		CharacterInputContext inputContext = controller.GetInputContext();
-		if (!inputContext)
+		missingBones = 0;
+		failedBones = 0;
+		unavailableLocalBones = 0;
+		if (mode == GC_EKilledFromPosePrototype.BASELINE)
+			return 0;
+		if (!entity || !bonePose)
+			return 0;
+		Animation animation = entity.GetAnimation();
+		if (!animation)
+			return 0;
+		ref array<ref GC_KilledFromBoneOperation> operations = {};
+		foreach (GC_KilledFromBonePose pose : bonePose)
 		{
-			PrintFormat("GC | Killed From | event=clone-character-state role=%1 result=no-input-context requestedLean=%2 requestedAim=%3 requestedADS=%4", role, requestedLean, requestedAimingAngles, (flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0, level: LogLevel.WARNING);
-			return;
+			if (!pose)
+				continue;
+			TNodeId boneIndex = animation.GetBoneIndex(pose.m_sBoneName);
+			if (boneIndex < 0)
+			{
+				missingBones++;
+				continue;
+			}
+			vector currentTransform[4];
+			vector targetTransform[4];
+			if (mode == GC_EKilledFromPosePrototype.MODEL_DELTA_MATRIX)
+			{
+				if (!animation.GetBoneMatrix(boneIndex, currentTransform))
+				{
+					failedBones++;
+					continue;
+				}
+				Math3D.MatrixCopy(pose.m_aTransform, targetTransform);
+			}
+			else
+			{
+				if (!pose.m_bHasLocalTransform || !animation.GetBoneLocalMatrix(boneIndex, currentTransform))
+				{
+					unavailableLocalBones++;
+					continue;
+				}
+				Math3D.MatrixCopy(pose.m_aLocalTransform, targetTransform);
+			}
+
+			GC_KilledFromBoneOperation operation = new GC_KilledFromBoneOperation();
+			operation.m_iBoneIndex = boneIndex;
+			if (mode <= GC_EKilledFromPosePrototype.LOCAL_DELTA_MATRIX)
+				Math3D.MatrixInvMultiply4(currentTransform, targetTransform, operation.m_aMatrix);
+			else
+			{
+				vector currentRotation[3] = {currentTransform[0], currentTransform[1], currentTransform[2]};
+				vector targetRotation[3] = {targetTransform[0], targetTransform[1], targetTransform[2]};
+				vector deltaRotation[3];
+				if (mode == GC_EKilledFromPosePrototype.LOCAL_DELTA_ROTATION)
+					Math3D.MatrixInvMultiply3(currentRotation, targetRotation, deltaRotation);
+				else
+					Math3D.MatrixInvMultiply3(targetRotation, currentRotation, deltaRotation);
+				operation.m_vAngles = Math3D.MatrixToAngles(deltaRotation);
+			}
+			operations.Insert(operation);
 		}
-		PrintFormat("GC | Killed From | event=clone-character-state role=%1 requestedLean=%2 inputLean=%3 currentLean=%4 requestedAim=%5 inputAim=%6 requestedADS=%7 controllerADS=%8 inputADS=%9 weaponRaised=%10",
-			role, requestedLean, inputContext.GetLean(), controller.GetCurrentLeanAmount(), requestedAimingAngles, inputContext.GetAimingAngles(),
-			(flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0, controller.IsWeaponADS(), inputContext.IsWeaponADS(), controller.IsWeaponRaised());
+
+		foreach (GC_KilledFromBoneOperation operation : operations)
+		{
+			if (mode <= GC_EKilledFromPosePrototype.LOCAL_DELTA_MATRIX)
+			{
+				if (!animation.SetBoneMatrix(entity, operation.m_iBoneIndex, operation.m_aMatrix))
+				{
+					failedBones++;
+					continue;
+				}
+			}
+			else
+				animation.SetBone(entity, operation.m_iBoneIndex, operation.m_vAngles, vector.Zero, 1.0);
+		}
+		entity.Update();
+		return operations.Count() - failedBones;
+	}
+
+	protected void UpdatePosePrototypeSet(notnull array<IEntity> prototypes, array<ref GC_KilledFromBonePose> bonePose, string role, bool report)
+	{
+		for (int mode; mode < prototypes.Count(); mode++)
+		{
+			IEntity prototype = prototypes[mode];
+			IsolatePhysicsHierarchy(prototype);
+			int missingBones;
+			int failedBones;
+			int unavailableLocalBones;
+			int appliedBones = ApplyBonePose(prototype, bonePose, mode, missingBones, failedBones, unavailableLocalBones);
+			int deactivatedBodies = DeactivatePhysicsHierarchy(prototype);
+			if (report)
+			{
+				int capturedBones;
+				if (bonePose)
+					capturedBones = bonePose.Count();
+				PrintFormat("GC | Killed From | event=pose-prototype-apply role=%1 index=%2 mode=%3 captured=%4 applied=%5 missing=%6 failed=%7 unavailableLocal=%8 deactivatedBodies=%9", role, mode, GetPosePrototypeName(mode), capturedBones, appliedBones, missingBones, failedBones, unavailableLocalBones, deactivatedBodies);
+				ReportPhysicsHierarchy(prototype, string.Format("%1-pose-%2-post-deactivation", role, mode));
+			}
+		}
 	}
 
 	protected int IsolatePhysicsHierarchy(IEntity entity)
@@ -402,14 +518,34 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected void DestroyPreview()
 	{
-		if (m_KillerPreviewEntity)
+		if (m_aKillerPosePrototypes.Count() > 0)
+		{
+			foreach (IEntity killerPrototype : m_aKillerPosePrototypes)
+			{
+				PrintFormat("GC | Killed From | event=preview-destroy role=killer-prototype preview=%1", killerPrototype);
+				delete killerPrototype;
+			}
+			m_aKillerPosePrototypes.Clear();
+			m_KillerPreviewEntity = null;
+		}
+		else if (m_KillerPreviewEntity)
 		{
 			IEntity killer = m_KillerPreviewEntity;
 			m_KillerPreviewEntity = null;
 			PrintFormat("GC | Killed From | event=preview-destroy role=killer preview=%1", killer);
 			delete killer;
 		}
-		if (m_VictimPreviewEntity)
+		if (m_aVictimPosePrototypes.Count() > 0)
+		{
+			foreach (IEntity victimPrototype : m_aVictimPosePrototypes)
+			{
+				PrintFormat("GC | Killed From | event=preview-destroy role=victim-prototype preview=%1", victimPrototype);
+				delete victimPrototype;
+			}
+			m_aVictimPosePrototypes.Clear();
+			m_VictimPreviewEntity = null;
+		}
+		else if (m_VictimPreviewEntity)
 		{
 			IEntity victim = m_VictimPreviewEntity;
 			m_VictimPreviewEntity = null;
@@ -446,8 +582,24 @@ class GC_SpectatorKilledFromVisualizer
 		IsolatePhysicsHierarchy(m_VictimPreviewEntity);
 		IsolatePhysicsHierarchy(m_KillerVehiclePreviewEntity);
 		IsolatePhysicsHierarchy(m_VictimVehiclePreviewEntity);
-		ApplyCharacterState(m_KillerPreviewEntity, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles());
-		ApplyCharacterState(m_VictimPreviewEntity, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles());
+		array<ref GC_KilledFromBonePose> killerBonePose = m_Snapshot.GetKillerBonePose();
+		array<ref GC_KilledFromBonePose> victimBonePose = m_Snapshot.GetVictimBonePose();
+		UpdatePosePrototypeSet(m_aKillerPosePrototypes, killerBonePose, "killer", !m_bPhysicsDeactivationReported);
+		UpdatePosePrototypeSet(m_aVictimPosePrototypes, victimBonePose, "victim", !m_bPhysicsDeactivationReported);
+		if (m_aKillerPosePrototypes.Count() == 0)
+		{
+			int killerMissingBones;
+			int killerFailedBones;
+			int killerUnavailableLocalBones;
+			ApplyBonePose(m_KillerPreviewEntity, killerBonePose, GC_EKilledFromPosePrototype.LOCAL_DELTA_ROTATION, killerMissingBones, killerFailedBones, killerUnavailableLocalBones);
+		}
+		if (m_aVictimPosePrototypes.Count() == 0)
+		{
+			int victimMissingBones;
+			int victimFailedBones;
+			int victimUnavailableLocalBones;
+			ApplyBonePose(m_VictimPreviewEntity, victimBonePose, GC_EKilledFromPosePrototype.LOCAL_DELTA_ROTATION, victimMissingBones, victimFailedBones, victimUnavailableLocalBones);
+		}
 		ApplyVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
 		ApplyVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
 		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);
@@ -457,8 +609,6 @@ class GC_SpectatorKilledFromVisualizer
 
 		if (!m_bPhysicsDeactivationReported)
 		{
-			ReportCharacterState(m_KillerPreviewEntity, "killer", m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles(), m_Snapshot.GetFlags());
-			ReportCharacterState(m_VictimPreviewEntity, "victim", m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles(), m_Snapshot.GetVictimFlags());
 			ReportVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
 			ReportVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
 			PrintFormat("GC | Killed From | event=clone-physics-deactivation treatment=ALL-OFF killerBodies=%1 victimBodies=%2 killerVehicleBodies=%3 victimVehicleBodies=%4", killerDeactivatedPhysics, victimDeactivatedPhysics, killerVehicleDeactivatedPhysics, victimVehicleDeactivatedPhysics);
@@ -493,8 +643,22 @@ class GC_SpectatorKilledFromVisualizer
 		IEntity victimLabelEntity = m_VictimPreviewEntity;
 		if (m_VictimVehiclePreviewEntity)
 			victimLabelEntity = m_VictimVehiclePreviewEntity;
-		bool killerLabelVisible = DrawActorLabel(killerLabelEntity, "KILLED YOU", 0xe6a20f2d);
-		bool victimLabelVisible = DrawActorLabel(victimLabelEntity, "YOU", 0xe63278b7);
+		bool killerLabelVisible;
+		if (m_aKillerPosePrototypes.Count() > 0)
+		{
+			for (int killerMode; killerMode < m_aKillerPosePrototypes.Count(); killerMode++)
+				killerLabelVisible |= DrawActorLabel(m_aKillerPosePrototypes[killerMode], string.Format("K%1 %2", killerMode, GetPosePrototypeName(killerMode)), 0xe6a20f2d);
+		}
+		else
+			killerLabelVisible = DrawActorLabel(killerLabelEntity, "KILLED YOU", 0xe6a20f2d);
+		bool victimLabelVisible;
+		if (m_aVictimPosePrototypes.Count() > 0)
+		{
+			for (int victimMode; victimMode < m_aVictimPosePrototypes.Count(); victimMode++)
+				victimLabelVisible |= DrawActorLabel(m_aVictimPosePrototypes[victimMode], string.Format("V%1 %2", victimMode, GetPosePrototypeName(victimMode)), 0xe63278b7);
+		}
+		else
+			victimLabelVisible = DrawActorLabel(victimLabelEntity, "YOU", 0xe63278b7);
 		bool labelVisible = killerLabelVisible || victimLabelVisible;
 		if (!m_bVisibilityReported || traceVisible != m_bLastTraceVisible || labelVisible != m_bLastLabelVisible)
 		{

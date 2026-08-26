@@ -267,7 +267,7 @@ class GC_KilledFromSnapshot
 			EntityPrefabData prefabData = killer.GetPrefabData();
 			if (prefabData)
 				m_sKillerPrefab = prefabData.GetPrefabName();
-			CaptureVisual(killer, m_aKillerPreviewEntries, m_sKillerVisualObject, m_aKillerRootTransform, m_aKillerBonePose);
+			CaptureVisual(killer, "killer", m_aKillerPreviewEntries, m_sKillerVisualObject, m_aKillerRootTransform, m_aKillerBonePose);
 		}
 		if (m_sKillerPrefab != string.Empty || HasKillerVehicle())
 			m_iFlags |= FLAG_VALID_KILLER;
@@ -275,20 +275,39 @@ class GC_KilledFromSnapshot
 		if (!character)
 			return;
 
-		CharacterControllerComponent controller = character.GetCharacterController();
-		if (!controller)
-			return;
+		CaptureCharacterState(character, "killer", m_iStance, m_fDynamicStance, m_fKillerLean, m_vKillerAimingAngles, m_iFlags);
+	}
 
-		m_iStance = controller.GetStance();
-		m_fDynamicStance = controller.GetDynamicStance();
-		m_fKillerLean = controller.GetCurrentLeanAmount();
+	protected void CaptureCharacterState(IEntity entity, string role, out int stance, out float dynamicStance, out float lean, out vector aimingAngles, inout int flags)
+	{
+		SCR_CharacterControllerComponent controller = SCR_CharacterControllerComponent.Cast(entity.FindComponent(SCR_CharacterControllerComponent));
+		if (!controller)
+		{
+			PrintFormat("GC | Killed From | event=character-state-capture role=%1 result=no-controller entity=%2", role, entity, level: LogLevel.WARNING);
+			return;
+		}
+		stance = controller.GetStance();
+		dynamicStance = controller.GetDynamicStance();
+		float currentLean = controller.GetCurrentLeanAmount();
+		lean = currentLean;
 		CharacterInputContext inputContext = controller.GetInputContext();
+		float inputLean;
+		bool inputADS;
 		if (inputContext)
-			m_vKillerAimingAngles = inputContext.GetAimingAngles();
+		{
+			inputLean = inputContext.GetLean();
+			lean = inputLean;
+			aimingAngles = inputContext.GetAimingAngles();
+			inputADS = inputContext.IsWeaponADS();
+		}
 		if (controller.IsWeaponRaised())
-			m_iFlags |= FLAG_WEAPON_RAISED;
-		if (controller.IsWeaponADS() || (inputContext && inputContext.IsWeaponADS()))
-			m_iFlags |= FLAG_WEAPON_ADS;
+			flags |= FLAG_WEAPON_RAISED;
+		if (controller.IsWeaponADS() || inputADS)
+			flags |= FLAG_WEAPON_ADS;
+		PrintFormat("GC | Killed From | event=character-state-capture role=%1 result=complete entity=%2 controller=%3 inputContext=%4 stance=%5 dynamicStance=%6 currentLean=%7 inputLean=%8 selectedLean=%9",
+			role, entity, controller, inputContext, stance, dynamicStance, currentLean, inputLean, lean);
+		PrintFormat("GC | Killed From | event=character-state-capture-input role=%1 aimingAngles=%2 controllerRaised=%3 controllerADS=%4 inputADS=%5 flags=%6",
+			role, aimingAngles, controller.IsWeaponRaised(), controller.IsWeaponADS(), inputADS, flags);
 	}
 
 	protected IEntity ResolveVehicle(IEntity entity, out BaseCompartmentSlot occupiedCompartment)
@@ -403,7 +422,7 @@ class GC_KilledFromSnapshot
 	{
 		m_iVictimFlags = 0;
 		m_VictimVehicle = null;
-		CaptureVisual(victim, m_aVictimPreviewEntries, m_sVictimVisualObject, m_aVictimRootTransform, m_aVictimBonePose);
+		CaptureVisual(victim, "victim", m_aVictimPreviewEntries, m_sVictimVisualObject, m_aVictimRootTransform, m_aVictimBonePose);
 		EntityPrefabData victimPrefabData;
 		if (victim)
 			victimPrefabData = victim.GetPrefabData();
@@ -419,22 +438,10 @@ class GC_KilledFromSnapshot
 			m_VictimVehicle = new GC_KilledFromVehicleState();
 			m_VictimVehicle.Capture(victimVehicle, occupiedCompartment);
 		}
-		CharacterControllerComponent victimController = victimCharacter.GetCharacterController();
-		if (!victimController)
-			return;
-		m_fVictimLean = victimController.GetCurrentLeanAmount();
-		CharacterInputContext victimInputContext = victimController.GetInputContext();
-		if (victimInputContext)
-			m_vVictimAimingAngles = victimInputContext.GetAimingAngles();
-		m_iVictimStance = victimController.GetStance();
-		m_fVictimDynamicStance = victimController.GetDynamicStance();
-		if (victimController.IsWeaponRaised())
-			m_iVictimFlags |= FLAG_WEAPON_RAISED;
-		if (victimController.IsWeaponADS() || (victimInputContext && victimInputContext.IsWeaponADS()))
-			m_iVictimFlags |= FLAG_WEAPON_ADS;
+		CaptureCharacterState(victimCharacter, "victim", m_iVictimStance, m_fVictimDynamicStance, m_fVictimLean, m_vVictimAimingAngles, m_iVictimFlags);
 	}
 
-	protected void CaptureVisual(IEntity entity, out array<ref SCR_BasePreviewEntry> entries, out ResourceName visualObjectName, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
+	protected void CaptureVisual(IEntity entity, string role, out array<ref SCR_BasePreviewEntry> entries, out ResourceName visualObjectName, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
 	{
 		entries = {};
 		visualObjectName = ResourceName.Empty;
@@ -460,6 +467,7 @@ class GC_KilledFromSnapshot
 
 		array<string> boneNames = {};
 		animation.GetBoneNames(boneNames);
+		int localBoneCount;
 		foreach (string boneName : boneNames)
 		{
 			TNodeId boneIndex = animation.GetBoneIndex(boneName);
@@ -468,8 +476,18 @@ class GC_KilledFromSnapshot
 			if (!animation.GetBoneMatrix(boneIndex, pose.m_aTransform))
 				continue;
 			pose.m_bHasLocalTransform = animation.GetBoneLocalMatrix(boneIndex, pose.m_aLocalTransform);
+			if (pose.m_bHasLocalTransform)
+				localBoneCount++;
 			bonePose.Insert(pose);
+			if (bonePose.Count() <= 8)
+			{
+				vector localRotation[3] = {pose.m_aLocalTransform[0], pose.m_aLocalTransform[1], pose.m_aLocalTransform[2]};
+				vector localAngles;
+				float localScale = Math3D.MatrixToAnglesAndScale(localRotation, localAngles);
+				PrintFormat("GC | Killed From | event=bone-capture-sample role=%1 index=%2 name=%3 modelTranslation=%4 hasLocal=%5 localTranslation=%6 localAngles=%7 localScale=%8", role, bonePose.Count() - 1, boneName, pose.m_aTransform[3], pose.m_bHasLocalTransform, pose.m_aLocalTransform[3], localAngles, localScale);
+			}
 		}
+		PrintFormat("GC | Killed From | event=bone-capture-summary role=%1 entity=%2 boneNames=%3 modelMatrices=%4 localMatrices=%5 visualObject=%6 rootTransform=%7", role, entity, boneNames.Count(), bonePose.Count(), localBoneCount, visualObjectName, rootTransform);
 	}
 
 	void SetNetworkData(ResourceName killerPrefab, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
