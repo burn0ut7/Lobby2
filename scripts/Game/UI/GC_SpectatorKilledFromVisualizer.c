@@ -7,7 +7,6 @@ class GC_SpectatorKilledFromVisualizer
 	protected static const float KILLER_LABEL_HEIGHT = 36.0;
 	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
 	protected static const ResourceName PREVIEW_MATERIAL = "{58F07022C12D0CF5}Assets/Editor/PlacingPreview/Preview.emat";
-
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
@@ -102,19 +101,19 @@ class GC_SpectatorKilledFromVisualizer
 		}
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
-		m_KillerPreviewEntity = CreateActorPreview(m_Snapshot.GetKillerPreviewEntries(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		m_KillerPreviewEntity = CreateActorPreview(m_Snapshot.GetKillerVisualObject(), m_Snapshot.GetKillerPreviewEntries(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
-		m_VictimPreviewEntity = CreateActorPreview(m_Snapshot.GetVictimPreviewEntries(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
+		m_VictimPreviewEntity = CreateActorPreview(m_Snapshot.GetVictimVisualObject(), m_Snapshot.GetVictimPreviewEntries(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
 		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 snapshot={%3}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_Snapshot.GetDebugReport());
 	}
 
-	protected SCR_BasePreviewEntity CreateActorPreview(array<ref SCR_BasePreviewEntry> entries, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
+	protected SCR_BasePreviewEntity CreateActorPreview(ResourceName visualObject, array<ref SCR_BasePreviewEntry> entries, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
 	{
-		if (!entries || entries.IsEmpty())
+		if (visualObject == ResourceName.Empty || !entries || entries.IsEmpty())
 		{
-			PrintFormat("GC | Killed From | event=actor-preview result=skipped role=%1 reason=no-client-visual", role, level: LogLevel.WARNING);
+			PrintFormat("GC | Killed From | event=actor-preview result=skipped role=%1 stage=hierarchy-local-pose reason=no-client-visual", role, level: LogLevel.WARNING);
 			return null;
 		}
 
@@ -124,7 +123,7 @@ class GC_SpectatorKilledFromVisualizer
 		SCR_BasePreviewEntity preview = SCR_BasePreviewEntity.SpawnPreview(entries, "SCR_BasePreviewEntity", m_World, params, PREVIEW_MATERIAL);
 		if (!preview)
 		{
-			PrintFormat("GC | Killed From | event=actor-preview result=failed role=%1 entries=%2", role, entries.Count(), level: LogLevel.ERROR);
+			PrintFormat("GC | Killed From | event=actor-preview result=failed role=%1 stage=hierarchy-local-pose reason=spawn sourceObject=%2 entries=%3", role, visualObject, entries.Count(), level: LogLevel.ERROR);
 			return null;
 		}
 
@@ -137,27 +136,65 @@ class GC_SpectatorKilledFromVisualizer
 		else
 			PrintFormat("GC | Killed From | event=preview-outline result=failed role=%1 reason=world-cast", role, level: LogLevel.ERROR);
 
-		int appliedBones;
-		array<SCR_BasePreviewEntity> children = preview.GetPreviewChildren();
-		if (children && !children.IsEmpty() && bonePose)
+		int capturedBones;
+		int capturedLocalBones;
+		int matchingBones;
+		int missingBones;
+		int targetBones;
+		int appliedLocalBones;
+		int failedLocalBones;
+		if (bonePose)
+			capturedBones = bonePose.Count();
+		IEntity skeletalEntity;
+		array<SCR_BasePreviewEntity> previewChildren = preview.GetPreviewChildren();
+		if (previewChildren && !previewChildren.IsEmpty())
+			skeletalEntity = previewChildren[0];
+		Animation targetAnimation;
+		if (skeletalEntity)
+			targetAnimation = skeletalEntity.GetAnimation();
+		if (targetAnimation)
 		{
-			IEntity skeletalEntity = children[0];
-			Animation animation = skeletalEntity.GetAnimation();
-			if (animation)
+			array<string> targetBoneNames = {};
+			targetAnimation.GetBoneNames(targetBoneNames);
+			targetBones = targetBoneNames.Count();
+		}
+		if (bonePose)
+		{
+			foreach (GC_KilledFromBonePose pose : bonePose)
 			{
-				foreach (GC_KilledFromBonePose pose : bonePose)
+				if (pose.m_bHasLocalTransform)
+					capturedLocalBones++;
+				if (targetAnimation)
 				{
-					TNodeId boneIndex = animation.GetBoneIndex(pose.m_sBoneName);
-					if (animation.SetBoneMatrix(skeletalEntity, boneIndex, pose.m_aTransform))
-						appliedBones++;
+					TNodeId targetBone = targetAnimation.GetBoneIndex(pose.m_sBoneName);
+					if (targetBone == -1)
+						missingBones++;
+					else
+					{
+						matchingBones++;
+						if (pose.m_bHasLocalTransform && targetAnimation.SetBoneMatrix(skeletalEntity, targetBone, pose.m_aLocalTransform))
+							appliedLocalBones++;
+						else
+							failedLocalBones++;
+					}
 				}
 			}
 		}
 
-		int boneCount;
-		if (bonePose)
-			boneCount = bonePose.Count();
-		PrintFormat("GC | Killed From | event=actor-preview result=spawned role=%1 preview=%2 entries=%3 bones=%4/%5 transform=%6", role, preview, entries.Count(), appliedBones, boneCount, rootTransform);
+		int entryCount;
+		if (entries)
+			entryCount = entries.Count();
+		ResourceName targetObject;
+		VObject previewObject;
+		if (skeletalEntity)
+			previewObject = skeletalEntity.GetVObject();
+		if (previewObject)
+			targetObject = previewObject.GetResourceName();
+		Physics previewPhysics;
+		if (skeletalEntity)
+			previewPhysics = skeletalEntity.GetPhysics();
+		PrintFormat("GC | Killed From | event=actor-preview result=spawned role=%1 stage=hierarchy-local-pose preview=%2 sourceObject=%3 targetObject=%4 hierarchyEntries=%5 physics=%6 exactWorldTransform=%7", role, preview, visualObject, targetObject, entryCount, previewPhysics, rootTransform);
+		PrintFormat("GC | Killed From | event=actor-preview-compat role=%1 stage=hierarchy-local-pose capturedModelBones=%2 capturedLocalBones=%3 targetBones=%4 matchingBones=%5 missingBones=%6 appliedLocalBones=%7 failedLocalBones=%8", role, capturedBones, capturedLocalBones, targetBones, matchingBones, missingBones, appliedLocalBones, failedLocalBones);
 		return preview;
 	}
 
