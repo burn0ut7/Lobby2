@@ -33,9 +33,13 @@ class GC_KilledFromSnapshot
 	protected vector m_aKillerRootTransform[4];
 	protected ref array<ref GC_KilledFromBonePose> m_aKillerBonePose;
 	protected ref array<ref SCR_BasePreviewEntry> m_aVictimPreviewEntries;
+	protected ResourceName m_sVictimPrefab;
 	protected ResourceName m_sVictimVisualObject;
 	protected vector m_aVictimRootTransform[4];
 	protected ref array<ref GC_KilledFromBonePose> m_aVictimBonePose;
+	protected int m_iVictimStance;
+	protected float m_fVictimDynamicStance;
+	protected int m_iVictimFlags;
 
 	void Capture(IEntity victim, notnull BaseDamageContext damageContext)
 	{
@@ -97,10 +101,14 @@ class GC_KilledFromSnapshot
 			m_sLineOriginMode = localDamage.m_sLineOriginMode;
 		}
 		m_aVictimPreviewEntries = localDamage.m_aVictimPreviewEntries;
+		m_sVictimPrefab = localDamage.m_sVictimPrefab;
 		m_sVictimVisualObject = localDamage.m_sVictimVisualObject;
 		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
 		m_aVictimBonePose = localDamage.m_aVictimBonePose;
 		m_fVictimLean = localDamage.m_fVictimLean;
+		m_iVictimStance = localDamage.m_iVictimStance;
+		m_fVictimDynamicStance = localDamage.m_fVictimDynamicStance;
+		m_iVictimFlags = localDamage.m_iVictimFlags;
 		if (!localDamage.HasKillerPreview())
 			return;
 
@@ -180,13 +188,26 @@ class GC_KilledFromSnapshot
 	//! attacker came from an earlier hit that caused unconsciousness or bleed-out.
 	void CaptureVictimVisual(IEntity victim)
 	{
+		m_iVictimFlags = 0;
 		CaptureVisual(victim, m_aVictimPreviewEntries, m_sVictimVisualObject, m_aVictimRootTransform, m_aVictimBonePose);
+		EntityPrefabData victimPrefabData;
+		if (victim)
+			victimPrefabData = victim.GetPrefabData();
+		if (victimPrefabData)
+			m_sVictimPrefab = victimPrefabData.GetPrefabName();
 		ChimeraCharacter victimCharacter = ChimeraCharacter.Cast(victim);
 		if (!victimCharacter)
 			return;
 		CharacterControllerComponent victimController = victimCharacter.GetCharacterController();
-		if (victimController)
-			m_fVictimLean = victimController.GetCurrentLeanAmount();
+		if (!victimController)
+			return;
+		m_fVictimLean = victimController.GetCurrentLeanAmount();
+		m_iVictimStance = victimController.GetStance();
+		m_fVictimDynamicStance = victimController.GetDynamicStance();
+		if (victimController.IsWeaponRaised())
+			m_iVictimFlags |= FLAG_WEAPON_RAISED;
+		if (victimController.IsWeaponADS())
+			m_iVictimFlags |= FLAG_WEAPON_ADS;
 	}
 
 	protected void CaptureVisual(IEntity entity, out array<ref SCR_BasePreviewEntry> entries, out ResourceName visualObjectName, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
@@ -240,6 +261,7 @@ class GC_KilledFromSnapshot
 	}
 
 	ResourceName GetKillerPrefab() { return m_sKillerPrefab; }
+	ResourceName GetVictimPrefab() { return m_sVictimPrefab; }
 	vector GetKillerPosition() { return m_vKillerPosition; }
 	vector GetKillerAngles() { return m_vKillerAngles; }
 	vector GetLineOrigin() { return m_vLineOrigin; }
@@ -247,6 +269,9 @@ class GC_KilledFromSnapshot
 	int GetStance() { return m_iStance; }
 	float GetDynamicStance() { return m_fDynamicStance; }
 	int GetFlags() { return m_iFlags; }
+	int GetVictimStance() { return m_iVictimStance; }
+	float GetVictimDynamicStance() { return m_fVictimDynamicStance; }
+	int GetVictimFlags() { return m_iVictimFlags; }
 	bool HasKillerPreview() { return (m_iFlags & FLAG_VALID_KILLER) != 0; }
 	bool HasKillerVisual() { return m_sKillerVisualObject != ResourceName.Empty; }
 	bool HasVictimVisual() { return m_sVictimVisualObject != ResourceName.Empty; }
@@ -271,7 +296,7 @@ class GC_KilledFromSnapshot
 		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 weaponRaised=%5 ads=%6", m_iStance, m_fDynamicStance,
 			m_fKillerLean, m_fVictimLean, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
 		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasLocalDamageCapture, m_sLineOriginMode);
-		return report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 victimVisual=%4 victimObject=%5 victimBones=%6", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount);
+		return report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 victimPrefab=%4 victimVisual=%5 victimObject=%6 victimBones=%7", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, m_sVictimPrefab, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount);
 	}
 }
 

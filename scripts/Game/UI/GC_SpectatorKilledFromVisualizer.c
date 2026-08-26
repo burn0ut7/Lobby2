@@ -10,8 +10,8 @@ class GC_SpectatorKilledFromVisualizer
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
 	protected ref GC_KilledFromSnapshot m_Snapshot;
-	protected SCR_BasePreviewEntity m_KillerPreviewEntity;
-	protected SCR_BasePreviewEntity m_VictimPreviewEntity;
+	protected IEntity m_KillerPreviewEntity;
+	protected IEntity m_VictimPreviewEntity;
 	protected bool m_bEnabled;
 	protected bool m_bVisibilityReported;
 	protected bool m_bLastTraceVisible;
@@ -100,207 +100,106 @@ class GC_SpectatorKilledFromVisualizer
 		}
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
-		m_KillerPreviewEntity = CreateActorPreview(m_Snapshot.GetKillerVisualObject(), m_Snapshot.GetKillerPreviewEntries(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
-		m_VictimPreviewEntity = CreateActorPreview(m_Snapshot.GetVictimVisualObject(), m_Snapshot.GetVictimPreviewEntries(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
+		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
 		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 snapshot={%3}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_Snapshot.GetDebugReport());
 	}
 
-	protected SCR_BasePreviewEntity CreateActorPreview(ResourceName visualObject, array<ref SCR_BasePreviewEntry> entries, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
+	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], int stance, float dynamicStance, int flags, array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
 	{
-		if (visualObject == ResourceName.Empty || !entries || entries.IsEmpty())
+		if (prefab == ResourceName.Empty)
 		{
-			PrintFormat("GC | Killed From | event=actor-preview result=skipped role=%1 stage=hierarchy-baseline reason=no-client-visual", role, level: LogLevel.WARNING);
+			PrintFormat("GC | Killed From | event=actor-clone result=skipped role=%1 reason=no-prefab", role, level: LogLevel.WARNING);
 			return null;
 		}
-		// SpawnPreview cannot preserve source materials: an empty material suppresses
-		// mesh creation, while a non-empty material remaps every source material.
-		// Build the same captured hierarchy directly and retain each VObject's own
-		// materials. These are new client-only render entities; source entities are
-		// never moved, hidden, re-parented, or otherwise mutated.
-		EntitySpawnParams rootParams = new EntitySpawnParams();
-		rootParams.TransformMode = ETransformMode.WORLD;
-		Math3D.MatrixCopy(rootTransform, rootParams.Transform);
-		SCR_BasePreviewEntity preview = SCR_BasePreviewEntity.Cast(GetGame().SpawnEntity(SCR_BasePreviewEntity, m_World, rootParams));
+
+		Resource resource = Resource.Load(prefab);
+		if (!resource || !resource.IsValid())
+		{
+			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=resource prefab=%2", role, prefab, level: LogLevel.ERROR);
+			return null;
+		}
+
+		EntitySpawnParams params = new EntitySpawnParams();
+		params.TransformMode = ETransformMode.WORLD;
+		Math3D.MatrixCopy(rootTransform, params.Transform);
+		IEntity preview = GetGame().SpawnEntityPrefabLocal(resource, m_World, params);
 		if (!preview)
 		{
-			PrintFormat("GC | Killed From | event=actor-preview result=failed role=%1 stage=root-spawn sourceObject=%2 visualParts=%3", role, visualObject, entries.Count(), level: LogLevel.ERROR);
+			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=spawn prefab=%2 transform=%3", role, prefab, rootTransform, level: LogLevel.ERROR);
 			return null;
 		}
 
-		array<SCR_BasePreviewEntity> children = {};
-		int createdParts;
-		int assignedObjects;
-		int failedParts;
-		foreach (int visualPartIndex, SCR_BasePreviewEntry visualPart : entries)
-		{
-			SCR_BasePreviewEntity parent = preview;
-			if (visualPart.m_iParentID >= 0)
-			{
-				if (visualPart.m_iParentID >= children.Count() || !children[visualPart.m_iParentID])
-				{
-					children.Insert(null);
-					failedParts++;
-					PrintFormat("GC | Killed From | event=preview-part result=failed role=%1 index=%2 stage=parent parentIndex=%3 children=%4 mesh=%5", role, visualPartIndex, visualPart.m_iParentID, children.Count(), visualPart.m_Mesh, level: LogLevel.ERROR);
-					continue;
-				}
-				parent = children[visualPart.m_iParentID];
-			}
-
-			EntitySpawnParams partParams = new EntitySpawnParams();
-			visualPart.LoadTransform(partParams.Transform);
-			if (visualPart.m_Shape != EPreviewEntityShape.ELLIPSE && visualPart.m_Shape != EPreviewEntityShape.RECTANGLE)
-				Math3D.MatrixScale(partParams.Transform, visualPart.GetScale());
-
-			// A dynamically assigned skinned VObject renders reliably when it is the
-			// preview root. An empty wrapper with the body attached below it produces
-			// valid objects and bounds but no visible runtime character. Entry zero is
-			// the captured character root, so reuse the exact-world root for it.
-			bool reusedRoot = visualPartIndex == 0 && visualPart.m_iParentID == -1;
-			SCR_BasePreviewEntity part;
-			if (reusedRoot)
-				part = preview;
-			else
-				part = SCR_BasePreviewEntity.Cast(GetGame().SpawnEntity(SCR_BasePreviewEntity, m_World, partParams));
-			children.Insert(part);
-			if (!part)
-			{
-				failedParts++;
-				PrintFormat("GC | Killed From | event=preview-part result=failed role=%1 index=%2 stage=entity-spawn parentIndex=%3 pivot=%4 mesh=%5 shape=%6 localTransform=%7", role, visualPartIndex, visualPart.m_iParentID, visualPart.m_iPivotID, visualPart.m_Mesh, visualPart.m_Shape, partParams.Transform, level: LogLevel.ERROR);
-				continue;
-			}
-			createdParts++;
-
-			bool resourceValid;
-			bool objectAssigned;
-			int materialCount;
-			string sourceMaterials[256];
-			Resource meshResource;
-			VObject sourceObject;
-			if (visualPart.m_Shape == EPreviewEntityShape.MESH && visualPart.m_Mesh != ResourceName.Empty)
-			{
-				meshResource = Resource.Load(visualPart.m_Mesh);
-				resourceValid = meshResource && meshResource.IsValid();
-				if (resourceValid && meshResource.GetResource())
-					sourceObject = meshResource.GetResource().ToVObject();
-				if (sourceObject)
-				{
-					materialCount = sourceObject.GetMaterials(sourceMaterials);
-					part.SetObject(sourceObject, string.Empty);
-				}
-			}
-
-			TNodeId pivot = -1;
-			int addChildResult = -1;
-			if (!reusedRoot)
-			{
-				Animation parentAnimation = parent.GetAnimation();
-				if (!visualPart.m_iPivotID.IsEmpty() && parentAnimation)
-					pivot = parentAnimation.GetBoneIndex(visualPart.m_iPivotID);
-				addChildResult = parent.AddChild(part, pivot, EAddChildFlags.AUTO_TRANSFORM);
-			}
-
-			vector localReadback[4];
-			vector worldReadback[4];
-			vector boundMin;
-			vector boundMax;
-			part.GetLocalTransform(localReadback);
-			part.GetWorldTransform(worldReadback);
-			part.GetBounds(boundMin, boundMax);
-			VObject assignedObject = part.GetVObject();
-			ResourceName assignedObjectName;
-			if (assignedObject)
-			{
-				assignedObjectName = assignedObject.GetResourceName();
-				objectAssigned = true;
-				assignedObjects++;
-			}
-			PrintFormat("GC | Killed From | event=preview-part result=created role=%1 index=%2 parentIndex=%3 parent=%4 pivotName=%5 pivotIndex=%6 attachResult=%7 reusedRoot=%8 mesh=%9", role, visualPartIndex, visualPart.m_iParentID, parent, visualPart.m_iPivotID, pivot, addChildResult, reusedRoot, visualPart.m_Mesh);
-			PrintFormat("GC | Killed From | event=preview-part-object role=%1 index=%2 resourceValid=%3 sourceObject=%4 setObject=%5 assignedObject=%6 materials=%7 physics=%8", role, visualPartIndex, resourceValid, sourceObject, objectAssigned, assignedObjectName, materialCount, part.GetPhysics());
-			PrintFormat("GC | Killed From | event=preview-part-transform role=%1 index=%2 localCaptured=%3 localReadback=%4 worldReadback=%5 boundsMin=%6 boundsMax=%7", role, visualPartIndex, partParams.Transform, localReadback, worldReadback, boundMin, boundMax);
-		}
-
-		vector rootReadback[4];
-		preview.GetWorldTransform(rootReadback);
-		PrintFormat("GC | Killed From | event=preview-hierarchy role=%1 result=complete root=%2 requestedRoot=%3 rootReadback=%4 entries=%5 created=%6 objectsAssigned=%7 failed=%8 sourceMutation=none materialMode=source-original", role, preview, rootTransform, rootReadback, entries.Count(), createdParts, assignedObjects, failedParts);
+		AIControlComponent aiControl = AIControlComponent.Cast(preview.FindComponent(AIControlComponent));
+		if (aiControl)
+			aiControl.DeactivateAI();
+		ApplyCharacterState(preview, stance, dynamicStance, flags);
+		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
 
 		ChimeraWorld world = ChimeraWorld.CastFrom(m_World);
 		if (world)
-		{
 			world.OutlineEntity(preview, outlineColor, 1.0, 0.2, true, 3);
-			PrintFormat("GC | Killed From | event=preview-outline result=applied role=%1 preview=%2 includeChildren=1 thickness=3", role, preview);
-		}
-		else
-			PrintFormat("GC | Killed From | event=preview-outline result=failed role=%1 reason=world-cast", role, level: LogLevel.ERROR);
 
 		int capturedBones;
-		int capturedLocalBones;
-		int matchingBones;
-		int missingBones;
-		int targetBones;
 		if (bonePose)
 			capturedBones = bonePose.Count();
-		IEntity skeletalEntity;
-		if (!children.IsEmpty())
-			skeletalEntity = children[0];
-		Animation targetAnimation;
-		if (skeletalEntity)
-			targetAnimation = skeletalEntity.GetAnimation();
-		if (targetAnimation)
-		{
-			array<string> targetBoneNames = {};
-			targetAnimation.GetBoneNames(targetBoneNames);
-			targetBones = targetBoneNames.Count();
-		}
-		if (bonePose)
-		{
-			foreach (GC_KilledFromBonePose pose : bonePose)
-			{
-				if (pose.m_bHasLocalTransform)
-					capturedLocalBones++;
-				if (targetAnimation)
-				{
-					TNodeId targetBone = targetAnimation.GetBoneIndex(pose.m_sBoneName);
-					if (targetBone == -1)
-						missingBones++;
-					else
-						matchingBones++;
-				}
-			}
-		}
-
-		int entryCount;
-		if (entries)
-			entryCount = entries.Count();
-		ResourceName targetObject;
-		VObject previewObject;
-		if (skeletalEntity)
-			previewObject = skeletalEntity.GetVObject();
-		if (previewObject)
-			targetObject = previewObject.GetResourceName();
-		Physics previewPhysics;
-		if (skeletalEntity)
-			previewPhysics = skeletalEntity.GetPhysics();
-		PrintFormat("GC | Killed From | event=actor-preview result=spawned role=%1 stage=original-material-hierarchy preview=%2 sourceObject=%3 targetObject=%4 visualParts=%5 createdParts=%6 assignedObjects=%7 failedParts=%8 physics=%9 sourceMutation=none", role, preview, visualObject, targetObject, entryCount, createdParts, assignedObjects, failedParts, previewPhysics);
-		PrintFormat("GC | Killed From | event=actor-preview-transform role=%1 exactWorldTransform=%2", role, rootTransform);
-		PrintFormat("GC | Killed From | event=actor-preview-compat role=%1 stage=hierarchy-baseline capturedModelBones=%2 capturedLocalBones=%3 targetBones=%4 matchingBones=%5 missingBones=%6 applyBones=0", role, capturedBones, capturedLocalBones, targetBones, matchingBones, missingBones);
+		vector transformReadback[4];
+		preview.GetWorldTransform(transformReadback);
+		PrintFormat("GC | Killed From | event=actor-clone result=spawned role=%1 preview=%2 prefab=%3 isolatedPhysics=%4 capturedBones=%5 applyBones=0 sourceMutation=none", role, preview, prefab, isolatedPhysics, capturedBones);
+		PrintFormat("GC | Killed From | event=actor-clone-transform role=%1 requested=%2 readback=%3", role, rootTransform, transformReadback);
 		return preview;
+	}
+
+	protected void ApplyCharacterState(IEntity entity, int stance, float dynamicStance, int flags)
+	{
+		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
+		if (!character)
+			return;
+		CharacterControllerComponent controller = character.GetCharacterController();
+		if (!controller)
+			return;
+		controller.ForceStance(stance + 1);
+		if (controller.CanSetDynamicStance(dynamicStance))
+			controller.SetDynamicStance(dynamicStance);
+		controller.SetWeaponRaised((flags & GC_KilledFromSnapshot.FLAG_WEAPON_RAISED) != 0);
+		controller.SetWeaponADS((flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0);
+	}
+
+	protected int IsolatePhysicsHierarchy(IEntity entity)
+	{
+		if (!entity)
+			return 0;
+		int count;
+		Physics physics = entity.GetPhysics();
+		if (physics)
+		{
+			physics.SetInteractionLayer(EPhysicsLayerDefs.Unused);
+			count++;
+		}
+		IEntity child = entity.GetChildren();
+		while (child)
+		{
+			count += IsolatePhysicsHierarchy(child);
+			child = child.GetSibling();
+		}
+		return count;
 	}
 
 	protected void DestroyPreview()
 	{
 		if (m_KillerPreviewEntity)
 		{
-			SCR_BasePreviewEntity killer = m_KillerPreviewEntity;
+			IEntity killer = m_KillerPreviewEntity;
 			m_KillerPreviewEntity = null;
 			PrintFormat("GC | Killed From | event=preview-destroy role=killer preview=%1", killer);
 			delete killer;
 		}
 		if (m_VictimPreviewEntity)
 		{
-			SCR_BasePreviewEntity victim = m_VictimPreviewEntity;
+			IEntity victim = m_VictimPreviewEntity;
 			m_VictimPreviewEntity = null;
 			PrintFormat("GC | Killed From | event=preview-destroy role=victim preview=%1", victim);
 			delete victim;
@@ -312,6 +211,14 @@ class GC_SpectatorKilledFromVisualizer
 		m_aDrawCommands = {};
 		if (!m_bEnabled || !m_Snapshot || !m_wCanvas || !m_Workspace || !m_World)
 			return;
+
+		// Character and inventory systems can create or rebuild physics after the
+		// local prefab spawn. Reassert only the unused interaction layer; disabling
+		// simulation or activity corrupts the character animation transform.
+		IsolatePhysicsHierarchy(m_KillerPreviewEntity);
+		IsolatePhysicsHierarchy(m_VictimPreviewEntity);
+		ApplyCharacterState(m_KillerPreviewEntity, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags());
+		ApplyCharacterState(m_VictimPreviewEntity, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags());
 
 		bool traceVisible;
 		vector start = m_Workspace.ProjWorldToScreen(m_Snapshot.GetLineOrigin(), m_World);
