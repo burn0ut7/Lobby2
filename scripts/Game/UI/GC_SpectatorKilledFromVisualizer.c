@@ -12,6 +12,8 @@ class GC_SpectatorKilledFromVisualizer
 	protected ref GC_KilledFromSnapshot m_Snapshot;
 	protected IEntity m_KillerPreviewEntity;
 	protected IEntity m_VictimPreviewEntity;
+	protected IEntity m_KillerVehiclePreviewEntity;
+	protected IEntity m_VictimVehiclePreviewEntity;
 	protected bool m_bEnabled;
 	protected bool m_bVisibilityReported;
 	protected bool m_bPhysicsDeactivationReported;
@@ -90,9 +92,9 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected void CreatePreview()
 	{
-		if (m_KillerPreviewEntity || m_VictimPreviewEntity)
+		if (m_KillerPreviewEntity || m_VictimPreviewEntity || m_KillerVehiclePreviewEntity || m_VictimVehiclePreviewEntity)
 		{
-			PrintFormat("GC | Killed From | event=preview-create result=ignored reason=already-exists killer=%1 victim=%2", m_KillerPreviewEntity, m_VictimPreviewEntity);
+			PrintFormat("GC | Killed From | event=preview-create result=ignored reason=already-exists killer=%1 victim=%2 killerVehicle=%3 victimVehicle=%4", m_KillerPreviewEntity, m_VictimPreviewEntity, m_KillerVehiclePreviewEntity, m_VictimVehiclePreviewEntity);
 			return;
 		}
 		if (!m_Snapshot)
@@ -100,6 +102,13 @@ class GC_SpectatorKilledFromVisualizer
 			Print("GC | Killed From | event=preview-create result=rejected reason=no-snapshot", LogLevel.WARNING);
 			return;
 		}
+		GC_KilledFromVehicleState killerVehicle = m_Snapshot.GetKillerVehicle();
+		if (killerVehicle && killerVehicle.IsValid())
+			m_KillerVehiclePreviewEntity = CreateVehicleClone(killerVehicle, Color.FromRGBA(235, 45, 70, 255), "killer-vehicle");
+		GC_KilledFromVehicleState victimVehicle = m_Snapshot.GetVictimVehicle();
+		if (victimVehicle && victimVehicle.IsValid())
+			m_VictimVehiclePreviewEntity = CreateVehicleClone(victimVehicle, Color.FromRGBA(65, 170, 255, 255), "victim-vehicle");
+
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
 		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles(), m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
@@ -107,8 +116,137 @@ class GC_SpectatorKilledFromVisualizer
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
 		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles(), m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
+		EnsureActorSeat(m_KillerPreviewEntity, m_KillerVehiclePreviewEntity, killerVehicle, "killer");
+		EnsureActorSeat(m_VictimPreviewEntity, m_VictimVehiclePreviewEntity, victimVehicle, "victim");
 		m_bPhysicsDeactivationReported = false;
-		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 snapshot={%3}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_Snapshot.GetDebugReport());
+		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 killerVehicle=%3 victimVehicle=%4 snapshot={%5}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_KillerVehiclePreviewEntity, m_VictimVehiclePreviewEntity, m_Snapshot.GetDebugReport());
+	}
+
+	protected IEntity CreateVehicleClone(GC_KilledFromVehicleState state, Color outlineColor, string role)
+	{
+		if (!state || !state.IsValid())
+			return null;
+		Resource resource = Resource.Load(state.GetPrefab());
+		if (!resource || !resource.IsValid())
+		{
+			PrintFormat("GC | Killed From | event=vehicle-clone result=failed role=%1 stage=resource prefab=%2", role, state.GetPrefab(), level: LogLevel.ERROR);
+			return null;
+		}
+		vector rootTransform[4];
+		state.GetRootTransform(rootTransform);
+		EntitySpawnParams params = new EntitySpawnParams();
+		params.TransformMode = ETransformMode.WORLD;
+		Math3D.MatrixCopy(rootTransform, params.Transform);
+		IEntity preview = GetGame().SpawnEntityPrefabLocal(resource, m_World, params);
+		if (!preview)
+		{
+			PrintFormat("GC | Killed From | event=vehicle-clone result=failed role=%1 stage=spawn prefab=%2 transform=%3", role, state.GetPrefab(), rootTransform, level: LogLevel.ERROR);
+			return null;
+		}
+		AIControlComponent aiControl = AIControlComponent.Cast(preview.FindComponent(AIControlComponent));
+		if (aiControl)
+			aiControl.DeactivateAI();
+		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
+		ChimeraWorld world = ChimeraWorld.CastFrom(m_World);
+		if (world)
+			world.OutlineEntity(preview, outlineColor, 1.0, 0.2, true, 3);
+		vector readback[4];
+		preview.GetWorldTransform(readback);
+		PrintFormat("GC | Killed From | event=vehicle-clone result=spawned role=%1 preview=%2 prefab=%3 isolatedPhysics=%4 turrets=%5 requested=%6 readback=%7 sourceMutation=none", role, preview, state.GetPrefab(), isolatedPhysics, state.GetTurrets().Count(), rootTransform, readback);
+		return preview;
+	}
+
+	protected bool EnsureActorSeat(IEntity actor, IEntity vehicle, GC_KilledFromVehicleState state, string role)
+	{
+		if (!actor || !vehicle || !state || !state.HasOccupiedCompartment())
+			return false;
+		ChimeraCharacter character = ChimeraCharacter.Cast(actor);
+		if (!character)
+			return false;
+		CompartmentAccessComponent access = character.GetCompartmentAccessComponent();
+		SCR_BaseCompartmentManagerComponent manager = SCR_BaseCompartmentManagerComponent.Cast(vehicle.FindComponent(SCR_BaseCompartmentManagerComponent));
+		if (!access || !manager)
+			return false;
+		array<BaseCompartmentSlot> compartments = {};
+		manager.GetCompartmentsOfType(compartments, state.GetCompartmentType());
+		int compartmentIndex = state.GetCompartmentIndex();
+		if (compartmentIndex < 0 || compartmentIndex >= compartments.Count())
+		{
+			PrintFormat("GC | Killed From | event=vehicle-seat result=failed role=%1 reason=index type=%2 index=%3 available=%4", role, state.GetCompartmentType(), compartmentIndex, compartments.Count(), level: LogLevel.ERROR);
+			return false;
+		}
+		BaseCompartmentSlot targetCompartment = compartments[compartmentIndex];
+		if (access.GetVehicleCompartmentManagerOwner() == vehicle && access.GetCompartment() == targetCompartment)
+			return true;
+		bool entered = access.GetInVehicle(vehicle, targetCompartment, true, 0, ECloseDoorAfterActions.CLOSE_DOOR, false);
+		PrintFormat("GC | Killed From | event=vehicle-seat role=%1 result=%2 actor=%3 vehicle=%4 type=%5 index=%6 target=%7 actualVehicle=%8 actualCompartment=%9", role, entered, actor, vehicle, state.GetCompartmentType(), compartmentIndex, targetCompartment, access.GetVehicleCompartmentManagerOwner(), access.GetCompartment());
+		return entered;
+	}
+
+	protected void ApplyVehicleState(IEntity vehicle, GC_KilledFromVehicleState state, string role)
+	{
+		if (!vehicle || !state)
+			return;
+		array<TurretControllerComponent> controllers = {};
+		array<IEntity> hierarchy = {vehicle};
+		SCR_EntityHelper.GetHierarchyEntityList(vehicle, hierarchy);
+		foreach (IEntity hierarchyEntity : hierarchy)
+		{
+			array<Managed> components = {};
+			hierarchyEntity.FindComponents(TurretControllerComponent, components);
+			foreach (Managed component : components)
+			{
+				TurretControllerComponent controller = TurretControllerComponent.Cast(component);
+				if (controller)
+					controllers.Insert(controller);
+			}
+		}
+		array<ref GC_KilledFromTurretState> states = state.GetTurrets();
+		int applyCount = Math.Min(controllers.Count(), states.Count());
+		for (int index; index < applyCount; index++)
+		{
+			vector rawRotation = states[index].GetRawAimingRotation();
+			bool ads = states[index].IsWeaponADS();
+			controllers[index].SetAimingAngles(rawRotation[0], rawRotation[1]);
+			controllers[index].SetWeaponADSInput(ads);
+			controllers[index].SetWeaponADS(ads);
+			controllers[index].SetCurrentSightsADS(ads);
+		}
+	}
+
+	protected void ReportVehicleState(IEntity vehicle, GC_KilledFromVehicleState state, string role)
+	{
+		if (!vehicle || !state)
+			return;
+		array<ref GC_KilledFromTurretState> states = state.GetTurrets();
+		int turretIndex;
+		array<IEntity> hierarchy = {vehicle};
+		SCR_EntityHelper.GetHierarchyEntityList(vehicle, hierarchy);
+		foreach (IEntity hierarchyEntity : hierarchy)
+		{
+			array<Managed> components = {};
+			hierarchyEntity.FindComponents(TurretControllerComponent, components);
+			foreach (Managed component : components)
+			{
+				TurretControllerComponent controller = TurretControllerComponent.Cast(component);
+				if (!controller)
+					continue;
+				vector requestedRotation;
+				bool requestedADS;
+				if (turretIndex < states.Count())
+				{
+					requestedRotation = states[turretIndex].GetRawAimingRotation();
+					requestedADS = states[turretIndex].IsWeaponADS();
+				}
+				TurretComponent turret = controller.GetTurretComponent();
+				vector actualRotation;
+				if (turret)
+					actualRotation = turret.GetRawAimingRotation();
+				PrintFormat("GC | Killed From | event=vehicle-turret-state role=%1 index=%2 controller=%3 requestedRotation=%4 actualRotation=%5 requestedADS=%6 actualADS=%7 inputADS=%8 sightsADS=%9", role, turretIndex, controller, requestedRotation, actualRotation, requestedADS, controller.IsWeaponADS(), controller.GetWeaponADSInput(), controller.GetCurrentSightsADS());
+				turretIndex++;
+			}
+		}
+		PrintFormat("GC | Killed From | event=vehicle-state role=%1 vehicle=%2 capturedTurrets=%3 cloneTurrets=%4 compartmentType=%5 compartmentIndex=%6", role, vehicle, states.Count(), turretIndex, state.GetCompartmentType(), state.GetCompartmentIndex());
 	}
 
 	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], int stance, float dynamicStance, int flags, float lean, vector aimingAngles, array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
@@ -278,6 +416,20 @@ class GC_SpectatorKilledFromVisualizer
 			PrintFormat("GC | Killed From | event=preview-destroy role=victim preview=%1", victim);
 			delete victim;
 		}
+		if (m_KillerVehiclePreviewEntity)
+		{
+			IEntity killerVehicle = m_KillerVehiclePreviewEntity;
+			m_KillerVehiclePreviewEntity = null;
+			PrintFormat("GC | Killed From | event=preview-destroy role=killer-vehicle preview=%1", killerVehicle);
+			delete killerVehicle;
+		}
+		if (m_VictimVehiclePreviewEntity)
+		{
+			IEntity victimVehicle = m_VictimVehiclePreviewEntity;
+			m_VictimVehiclePreviewEntity = null;
+			PrintFormat("GC | Killed From | event=preview-destroy role=victim-vehicle preview=%1", victimVehicle);
+			delete victimVehicle;
+		}
 		m_bPhysicsDeactivationReported = false;
 	}
 
@@ -292,18 +444,28 @@ class GC_SpectatorKilledFromVisualizer
 		// the configured simulation state remains unchanged.
 		IsolatePhysicsHierarchy(m_KillerPreviewEntity);
 		IsolatePhysicsHierarchy(m_VictimPreviewEntity);
+		IsolatePhysicsHierarchy(m_KillerVehiclePreviewEntity);
+		IsolatePhysicsHierarchy(m_VictimVehiclePreviewEntity);
 		ApplyCharacterState(m_KillerPreviewEntity, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles());
 		ApplyCharacterState(m_VictimPreviewEntity, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles());
+		ApplyVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
+		ApplyVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
 		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);
 		int victimDeactivatedPhysics = DeactivatePhysicsHierarchy(m_VictimPreviewEntity);
+		int killerVehicleDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerVehiclePreviewEntity);
+		int victimVehicleDeactivatedPhysics = DeactivatePhysicsHierarchy(m_VictimVehiclePreviewEntity);
 
 		if (!m_bPhysicsDeactivationReported)
 		{
 			ReportCharacterState(m_KillerPreviewEntity, "killer", m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles(), m_Snapshot.GetFlags());
 			ReportCharacterState(m_VictimPreviewEntity, "victim", m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles(), m_Snapshot.GetVictimFlags());
-			PrintFormat("GC | Killed From | event=clone-physics-deactivation treatment=ALL-OFF killerBodies=%1 victimBodies=%2", killerDeactivatedPhysics, victimDeactivatedPhysics);
+			ReportVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
+			ReportVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
+			PrintFormat("GC | Killed From | event=clone-physics-deactivation treatment=ALL-OFF killerBodies=%1 victimBodies=%2 killerVehicleBodies=%3 victimVehicleBodies=%4", killerDeactivatedPhysics, victimDeactivatedPhysics, killerVehicleDeactivatedPhysics, victimVehicleDeactivatedPhysics);
 			ReportPhysicsHierarchy(m_KillerPreviewEntity, "killer-post-deactivation");
 			ReportPhysicsHierarchy(m_VictimPreviewEntity, "victim-post-deactivation");
+			ReportPhysicsHierarchy(m_KillerVehiclePreviewEntity, "killer-vehicle-post-deactivation");
+			ReportPhysicsHierarchy(m_VictimVehiclePreviewEntity, "victim-vehicle-post-deactivation");
 			m_bPhysicsDeactivationReported = true;
 		}
 
@@ -325,12 +487,18 @@ class GC_SpectatorKilledFromVisualizer
 			m_aDrawCommands.Insert(line);
 		}
 
-		bool killerLabelVisible = DrawActorLabel(m_KillerPreviewEntity, "KILLED YOU", 0xe6a20f2d);
-		bool victimLabelVisible = DrawActorLabel(m_VictimPreviewEntity, "YOU", 0xe63278b7);
+		IEntity killerLabelEntity = m_KillerPreviewEntity;
+		if (m_KillerVehiclePreviewEntity)
+			killerLabelEntity = m_KillerVehiclePreviewEntity;
+		IEntity victimLabelEntity = m_VictimPreviewEntity;
+		if (m_VictimVehiclePreviewEntity)
+			victimLabelEntity = m_VictimVehiclePreviewEntity;
+		bool killerLabelVisible = DrawActorLabel(killerLabelEntity, "KILLED YOU", 0xe6a20f2d);
+		bool victimLabelVisible = DrawActorLabel(victimLabelEntity, "YOU", 0xe63278b7);
 		bool labelVisible = killerLabelVisible || victimLabelVisible;
 		if (!m_bVisibilityReported || traceVisible != m_bLastTraceVisible || labelVisible != m_bLastLabelVisible)
 		{
-			PrintFormat("GC | Killed From | event=render-visibility traceVisible=%1 killerLabel=%2 victimLabel=%3 killerPreview=%4 victimPreview=%5 lineStartScreen=%6 lineEndScreen=%7", traceVisible, killerLabelVisible, victimLabelVisible, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null, start, end);
+			PrintFormat("GC | Killed From | event=render-visibility traceVisible=%1 killerLabel=%2 victimLabel=%3 killerPreview=%4 victimPreview=%5 killerVehicle=%6 victimVehicle=%7 lineStartScreen=%8 lineEndScreen=%9", traceVisible, killerLabelVisible, victimLabelVisible, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null, m_KillerVehiclePreviewEntity != null, m_VictimVehiclePreviewEntity != null, start, end);
 			m_bVisibilityReported = true;
 			m_bLastTraceVisible = traceVisible;
 			m_bLastLabelVisible = labelVisible;

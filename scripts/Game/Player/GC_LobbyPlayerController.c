@@ -572,8 +572,24 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 		}
 
+		ResourceName killerVehiclePrefab;
+		vector killerVehiclePosition;
+		vector killerVehicleAngles;
+		ECompartmentType killerCompartmentType;
+		int killerCompartmentIndex = -1;
+		GC_KilledFromVehicleState killerVehicle = snapshot.GetKillerVehicle();
+		if (killerVehicle && killerVehicle.IsValid())
+		{
+			killerVehiclePrefab = killerVehicle.GetPrefab();
+			killerVehiclePosition = killerVehicle.GetPosition();
+			killerVehicleAngles = killerVehicle.GetAngles();
+			killerCompartmentType = killerVehicle.GetCompartmentType();
+			killerCompartmentIndex = killerVehicle.GetCompartmentIndex();
+		}
 		PrintFormat("GC | Killed From | event=snapshot-send result=rpc-owner player=%1 snapshot={%2}", GetPlayerId(), snapshot.GetDebugReport());
 		Rpc(RpcDo_SetKilledFromSnapshot, snapshot.GetKillerPrefab(), snapshot.GetKillerPosition(), snapshot.GetKillerAngles(), snapshot.GetLineOrigin(), snapshot.GetHitPosition(), snapshot.GetStance(), snapshot.GetDynamicStance(), snapshot.GetFlags());
+		if (killerVehiclePrefab != ResourceName.Empty)
+			Rpc(RpcDo_SetKilledFromVehicle, killerVehiclePrefab, killerVehiclePosition, killerVehicleAngles, killerCompartmentType, killerCompartmentIndex);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
@@ -588,6 +604,25 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			serverFallback.MergeLocalDamage(m_KilledFromSnapshot);
 		m_KilledFromSnapshot = serverFallback;
 		PrintFormat("GC | Killed From | event=snapshot-merge player=%1 final={%2} overlayReady=%3 enabled=%4", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport(), m_SpectatorMarkerOverlay != null, m_bSpectatorKilledFromEnabled);
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_SetKilledFromVehicle(ResourceName prefab, vector position, vector angles, ECompartmentType compartmentType, int compartmentIndex)
+	{
+		if (!m_KilledFromSnapshot)
+		{
+			PrintFormat("GC | Killed From | event=vehicle-fallback-receive result=rejected reason=no-snapshot player=%1 prefab=%2", GetPlayerId(), prefab, level: LogLevel.WARNING);
+			return;
+		}
+		if (m_KilledFromSnapshot.HasKillerVehicle())
+		{
+			PrintFormat("GC | Killed From | event=vehicle-fallback-receive result=ignored reason=local-vehicle-retained player=%1 prefab=%2", GetPlayerId(), prefab);
+			return;
+		}
+		m_KilledFromSnapshot.SetNetworkKillerVehicleData(prefab, position, angles, compartmentType, compartmentIndex);
+		PrintFormat("GC | Killed From | event=vehicle-fallback-receive result=applied player=%1 snapshot={%2}", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport());
 		if (m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
 	}
