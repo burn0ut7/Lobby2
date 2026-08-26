@@ -6,14 +6,17 @@ class GC_SpectatorKilledFromVisualizer
 	protected static const float KILLER_LABEL_WIDTH = 160.0;
 	protected static const float KILLER_LABEL_HEIGHT = 36.0;
 	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
+	protected static const int PHYSICS_VARIANT_COUNT = 6;
+	protected static const float PHYSICS_VARIANT_SPACING = 3.0;
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
 	protected ref GC_KilledFromSnapshot m_Snapshot;
-	protected IEntity m_KillerPreviewEntity;
+	protected ref array<IEntity> m_aKillerPreviewEntities = {};
 	protected IEntity m_VictimPreviewEntity;
 	protected bool m_bEnabled;
 	protected bool m_bVisibilityReported;
+	protected bool m_bPhysicsVariantsReported;
 	protected bool m_bLastTraceVisible;
 	protected bool m_bLastLabelVisible;
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
@@ -41,11 +44,12 @@ class GC_SpectatorKilledFromVisualizer
 	void SetSnapshot(GC_KilledFromSnapshot snapshot)
 	{
 		if (snapshot)
-			PrintFormat("GC | Killed From | event=visualizer-snapshot enabled=%1 killerPreview=%2 victimPreview=%3 snapshot={%4}", m_bEnabled, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null, snapshot.GetDebugReport());
+			PrintFormat("GC | Killed From | event=visualizer-snapshot enabled=%1 killerPreviews=%2 victimPreview=%3 snapshot={%4}", m_bEnabled, m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity != null, snapshot.GetDebugReport());
 		else
-			PrintFormat("GC | Killed From | event=visualizer-snapshot enabled=%1 killerPreview=%2 victimPreview=%3 snapshot=none", m_bEnabled, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null);
+			PrintFormat("GC | Killed From | event=visualizer-snapshot enabled=%1 killerPreviews=%2 victimPreview=%3 snapshot=none", m_bEnabled, m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity != null);
 		m_Snapshot = snapshot;
 		m_bVisibilityReported = false;
+		m_bPhysicsVariantsReported = false;
 		DestroyPreview();
 		if (m_bEnabled)
 			CreatePreview();
@@ -55,13 +59,13 @@ class GC_SpectatorKilledFromVisualizer
 	{
 		if (m_bEnabled == enabled)
 		{
-			PrintFormat("GC | Killed From | event=visualizer-toggle result=unchanged enabled=%1 snapshot=%2 killerPreview=%3 victimPreview=%4", enabled, m_Snapshot != null, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null);
+			PrintFormat("GC | Killed From | event=visualizer-toggle result=unchanged enabled=%1 snapshot=%2 killerPreviews=%3 victimPreview=%4", enabled, m_Snapshot != null, m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity != null);
 			return;
 		}
 
 		m_bEnabled = enabled;
 		m_bVisibilityReported = false;
-		PrintFormat("GC | Killed From | event=visualizer-toggle result=changed enabled=%1 snapshot=%2 killerPreview=%3 victimPreview=%4", enabled, m_Snapshot != null, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null);
+		PrintFormat("GC | Killed From | event=visualizer-toggle result=changed enabled=%1 snapshot=%2 killerPreviews=%3 victimPreview=%4", enabled, m_Snapshot != null, m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity != null);
 		GetGame().GetCallqueue().Remove(Update);
 		if (m_bEnabled)
 		{
@@ -76,7 +80,7 @@ class GC_SpectatorKilledFromVisualizer
 
 	void Destroy()
 	{
-		PrintFormat("GC | Killed From | event=visualizer-destroy enabled=%1 snapshot=%2 killerPreview=%3 victimPreview=%4", m_bEnabled, m_Snapshot != null, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null);
+		PrintFormat("GC | Killed From | event=visualizer-destroy enabled=%1 snapshot=%2 killerPreviews=%3 victimPreview=%4", m_bEnabled, m_Snapshot != null, m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity != null);
 		GetGame().GetCallqueue().Remove(Update);
 		DestroyPreview();
 		ClearLine();
@@ -88,9 +92,9 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected void CreatePreview()
 	{
-		if (m_KillerPreviewEntity || m_VictimPreviewEntity)
+		if (!m_aKillerPreviewEntities.IsEmpty() || m_VictimPreviewEntity)
 		{
-			PrintFormat("GC | Killed From | event=preview-create result=ignored reason=already-exists killer=%1 victim=%2", m_KillerPreviewEntity, m_VictimPreviewEntity);
+			PrintFormat("GC | Killed From | event=preview-create result=ignored reason=already-exists killers=%1 victim=%2", m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity);
 			return;
 		}
 		if (!m_Snapshot)
@@ -98,14 +102,43 @@ class GC_SpectatorKilledFromVisualizer
 			Print("GC | Killed From | event=preview-create result=rejected reason=no-snapshot", LogLevel.WARNING);
 			return;
 		}
-		vector killerTransform[4];
-		m_Snapshot.GetKillerRootTransform(killerTransform);
-		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		for (int variantIndex; variantIndex < PHYSICS_VARIANT_COUNT; variantIndex++)
+		{
+			vector killerTransform[4];
+			GetKillerVariantTransform(variantIndex, killerTransform);
+			string role = string.Format("killer-%1-%2", variantIndex, GetPhysicsVariantName(variantIndex));
+			IEntity killerPreview = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), role);
+			m_aKillerPreviewEntities.Insert(killerPreview);
+		}
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
 		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
-		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 snapshot={%3}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_Snapshot.GetDebugReport());
+		m_bPhysicsVariantsReported = false;
+		PrintFormat("GC | Killed From | event=preview-create result=complete killerVariants=%1 victim=%2 snapshot={%3}", m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity, m_Snapshot.GetDebugReport());
+	}
+
+	protected void GetKillerVariantTransform(int variantIndex, out vector transform[4])
+	{
+		m_Snapshot.GetKillerRootTransform(transform);
+		vector right = transform[0];
+		right.Normalize();
+		float centeredIndex = variantIndex - ((PHYSICS_VARIANT_COUNT - 1) * 0.5);
+		transform[3] = transform[3] + right * (centeredIndex * PHYSICS_VARIANT_SPACING);
+	}
+
+	protected string GetPhysicsVariantName(int variantIndex)
+	{
+		switch (variantIndex)
+		{
+			case 0: return "CONTROL";
+			case 1: return "ROOT-OFF";
+			case 2: return "ALL-OFF";
+			case 3: return "ROOT-OFF-THEN-XFORM";
+			case 4: return "XFORM-THEN-ROOT-OFF";
+			case 5: return "XFORM-THEN-ALL-OFF";
+		}
+		return "UNKNOWN";
 	}
 
 	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], int stance, float dynamicStance, int flags, array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
@@ -192,6 +225,60 @@ class GC_SpectatorKilledFromVisualizer
 		return count;
 	}
 
+	protected int DeactivatePhysicsHierarchy(IEntity entity)
+	{
+		if (!entity)
+			return 0;
+		int count;
+		Physics physics = entity.GetPhysics();
+		if (physics)
+		{
+			physics.SetActive(ActiveState.INACTIVE);
+			count++;
+		}
+		IEntity child = entity.GetChildren();
+		while (child)
+		{
+			count += DeactivatePhysicsHierarchy(child);
+			child = child.GetSibling();
+		}
+		return count;
+	}
+
+	protected void ApplyPhysicsVariant(IEntity entity, int variantIndex, vector exactTransform[4])
+	{
+		if (!entity)
+			return;
+
+		Physics rootPhysics = entity.GetPhysics();
+		switch (variantIndex)
+		{
+			case 0:
+				return;
+			case 1:
+				if (rootPhysics)
+					rootPhysics.SetActive(ActiveState.INACTIVE);
+				return;
+			case 2:
+				DeactivatePhysicsHierarchy(entity);
+				return;
+			case 3:
+				if (rootPhysics)
+					rootPhysics.SetActive(ActiveState.INACTIVE);
+				entity.SetWorldTransform(exactTransform);
+				return;
+			case 4:
+				entity.SetWorldTransform(exactTransform);
+				if (rootPhysics)
+					rootPhysics.SetActive(ActiveState.INACTIVE);
+				return;
+			case 5:
+				entity.SetWorldTransform(exactTransform);
+				DeactivatePhysicsHierarchy(entity);
+				return;
+		}
+	}
+
 	protected void ReportPhysicsHierarchy(IEntity entity, string role)
 	{
 		if (!entity)
@@ -214,13 +301,14 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected void DestroyPreview()
 	{
-		if (m_KillerPreviewEntity)
+		foreach (int variantIndex, IEntity killer : m_aKillerPreviewEntities)
 		{
-			IEntity killer = m_KillerPreviewEntity;
-			m_KillerPreviewEntity = null;
-			PrintFormat("GC | Killed From | event=preview-destroy role=killer preview=%1", killer);
+			if (!killer)
+				continue;
+			PrintFormat("GC | Killed From | event=preview-destroy role=killer index=%1 treatment=%2 preview=%3", variantIndex, GetPhysicsVariantName(variantIndex), killer);
 			delete killer;
 		}
+		m_aKillerPreviewEntities.Clear();
 		if (m_VictimPreviewEntity)
 		{
 			IEntity victim = m_VictimPreviewEntity;
@@ -228,6 +316,7 @@ class GC_SpectatorKilledFromVisualizer
 			PrintFormat("GC | Killed From | event=preview-destroy role=victim preview=%1", victim);
 			delete victim;
 		}
+		m_bPhysicsVariantsReported = false;
 	}
 
 	protected void Update()
@@ -236,13 +325,33 @@ class GC_SpectatorKilledFromVisualizer
 		if (!m_bEnabled || !m_Snapshot || !m_wCanvas || !m_Workspace || !m_World)
 			return;
 
-		// Character and inventory systems can create or rebuild physics after the
-		// local prefab spawn. Reassert only the unused interaction layer; disabling
-		// simulation or activity corrupts the character animation transform.
-		IsolatePhysicsHierarchy(m_KillerPreviewEntity);
+		// This diagnostic row deliberately compares activity changes and ordering.
+		// Simulation state is left untouched in every case.
+		foreach (int variantIndex, IEntity killer : m_aKillerPreviewEntities)
+		{
+			IsolatePhysicsHierarchy(killer);
+			ApplyCharacterState(killer, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags());
+			vector exactTransform[4];
+			GetKillerVariantTransform(variantIndex, exactTransform);
+			ApplyPhysicsVariant(killer, variantIndex, exactTransform);
+		}
 		IsolatePhysicsHierarchy(m_VictimPreviewEntity);
-		ApplyCharacterState(m_KillerPreviewEntity, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags());
 		ApplyCharacterState(m_VictimPreviewEntity, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags());
+
+		if (!m_bPhysicsVariantsReported)
+		{
+			foreach (int reportIndex, IEntity reportKiller : m_aKillerPreviewEntities)
+			{
+				vector requestedTransform[4];
+				GetKillerVariantTransform(reportIndex, requestedTransform);
+				vector actualTransform[4];
+				if (reportKiller)
+					reportKiller.GetWorldTransform(actualTransform);
+				PrintFormat("GC | Killed From | event=physics-variant index=%1 treatment=%2 entity=%3 requestedTransform=%4 actualTransform=%5", reportIndex, GetPhysicsVariantName(reportIndex), reportKiller, requestedTransform, actualTransform);
+				ReportPhysicsHierarchy(reportKiller, string.Format("killer-%1-%2-post", reportIndex, GetPhysicsVariantName(reportIndex)));
+			}
+			m_bPhysicsVariantsReported = true;
+		}
 
 		bool traceVisible;
 		vector start = m_Workspace.ProjWorldToScreen(m_Snapshot.GetLineOrigin(), m_World);
@@ -262,12 +371,18 @@ class GC_SpectatorKilledFromVisualizer
 			m_aDrawCommands.Insert(line);
 		}
 
-		bool killerLabelVisible = DrawActorLabel(m_KillerPreviewEntity, "KILLED YOU", 0xe6a20f2d);
+		bool killerLabelVisible;
+		foreach (int labelIndex, IEntity labelKiller : m_aKillerPreviewEntities)
+		{
+			string labelText = string.Format("%1  %2", labelIndex, GetPhysicsVariantName(labelIndex));
+			if (DrawActorLabel(labelKiller, labelText, 0xe6a20f2d))
+				killerLabelVisible = true;
+		}
 		bool victimLabelVisible = DrawActorLabel(m_VictimPreviewEntity, "YOU", 0xe63278b7);
 		bool labelVisible = killerLabelVisible || victimLabelVisible;
 		if (!m_bVisibilityReported || traceVisible != m_bLastTraceVisible || labelVisible != m_bLastLabelVisible)
 		{
-			PrintFormat("GC | Killed From | event=render-visibility traceVisible=%1 killerLabel=%2 victimLabel=%3 killerPreview=%4 victimPreview=%5 lineStartScreen=%6 lineEndScreen=%7", traceVisible, killerLabelVisible, victimLabelVisible, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null, start, end);
+			PrintFormat("GC | Killed From | event=render-visibility traceVisible=%1 killerLabel=%2 victimLabel=%3 killerPreviews=%4 victimPreview=%5 lineStartScreen=%6 lineEndScreen=%7", traceVisible, killerLabelVisible, victimLabelVisible, m_aKillerPreviewEntities.Count(), m_VictimPreviewEntity != null, start, end);
 			m_bVisibilityReported = true;
 			m_bLastTraceVisible = traceVisible;
 			m_bLastLabelVisible = labelVisible;
