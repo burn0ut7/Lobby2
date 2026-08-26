@@ -239,12 +239,14 @@ class GC_KilledFromSnapshot
 	protected int m_iFlags;
 	protected bool m_bHasLocalDamageCapture;
 	protected ref array<ref SCR_BasePreviewEntry> m_aKillerPreviewEntries;
+	protected IEntity m_KillerSourceEntity;
 	protected ResourceName m_sKillerVisualObject;
 	protected vector m_aKillerRootTransform[4];
 	protected ref array<ref GC_KilledFromBonePose> m_aKillerBonePose;
 	protected ref GC_KilledFromWeaponState m_KillerWeapon;
 	protected ref GC_KilledFromVehicleState m_KillerVehicle;
 	protected ref array<ref SCR_BasePreviewEntry> m_aVictimPreviewEntries;
+	protected IEntity m_VictimSourceEntity;
 	protected ResourceName m_sVictimPrefab;
 	protected ResourceName m_sVictimVisualObject;
 	protected vector m_aVictimRootTransform[4];
@@ -327,6 +329,7 @@ class GC_KilledFromSnapshot
 			m_sLineOriginMode = localDamage.m_sLineOriginMode;
 		}
 		m_aVictimPreviewEntries = localDamage.m_aVictimPreviewEntries;
+		m_VictimSourceEntity = localDamage.m_VictimSourceEntity;
 		m_sVictimPrefab = localDamage.m_sVictimPrefab;
 		m_sVictimVisualObject = localDamage.m_sVictimVisualObject;
 		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
@@ -350,6 +353,7 @@ class GC_KilledFromSnapshot
 		m_vKillerAimingAngles = localDamage.m_vKillerAimingAngles;
 		m_iFlags = localDamage.m_iFlags;
 		m_aKillerPreviewEntries = localDamage.m_aKillerPreviewEntries;
+		m_KillerSourceEntity = localDamage.m_KillerSourceEntity;
 		m_sKillerVisualObject = localDamage.m_sKillerVisualObject;
 		Math3D.MatrixCopy(localDamage.m_aKillerRootTransform, m_aKillerRootTransform);
 		m_aKillerBonePose = localDamage.m_aKillerBonePose;
@@ -359,6 +363,7 @@ class GC_KilledFromSnapshot
 
 	protected void CaptureKiller(IEntity killer)
 	{
+		m_KillerSourceEntity = killer;
 		m_vKillerPosition = killer.GetOrigin();
 		m_vKillerAngles = killer.GetAngles();
 		m_vLineOrigin = m_vKillerPosition;
@@ -535,6 +540,7 @@ class GC_KilledFromSnapshot
 	//! attacker came from an earlier hit that caused unconsciousness or bleed-out.
 	void CaptureVictimVisual(IEntity victim)
 	{
+		m_VictimSourceEntity = victim;
 		m_iVictimFlags = 0;
 		m_VictimVehicle = null;
 		m_VictimWeapon = null;
@@ -649,6 +655,8 @@ class GC_KilledFromSnapshot
 	GC_KilledFromVehicleState GetVictimVehicle() { return m_VictimVehicle; }
 	GC_KilledFromWeaponState GetKillerWeapon() { return m_KillerWeapon; }
 	GC_KilledFromWeaponState GetVictimWeapon() { return m_VictimWeapon; }
+	IEntity GetKillerSourceEntity() { return m_KillerSourceEntity; }
+	IEntity GetVictimSourceEntity() { return m_VictimSourceEntity; }
 	bool HasKillerVehicle() { return m_KillerVehicle && m_KillerVehicle.IsValid(); }
 	bool HasVictimVehicle() { return m_VictimVehicle && m_VictimVehicle.IsValid(); }
 	bool HasKillerPreview() { return (m_iFlags & FLAG_VALID_KILLER) != 0; }

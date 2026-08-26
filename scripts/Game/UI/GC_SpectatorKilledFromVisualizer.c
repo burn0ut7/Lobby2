@@ -6,10 +6,10 @@ class GC_KilledFromBoneOperation
 
 enum GC_EKilledFromWeaponPrototype
 {
-	POSE_CONTROL,
-	DIRECT_ADS,
-	SHARED_ADS,
-	SHARED_ADS_AIM
+	INVENTORY_PREVIEW,
+	INVENTORY_PREVIEW_IK,
+	INVENTORY_PREVIEW_IK_BONES,
+	GAMEPLAY_SHARED_ADS_AIM
 }
 
 //! Client-only killed-from preview and line renderer. No entity created here is
@@ -29,6 +29,8 @@ class GC_SpectatorKilledFromVisualizer
 	protected IEntity m_KillerVehiclePreviewEntity;
 	protected IEntity m_VictimVehiclePreviewEntity;
 	protected ref array<IEntity> m_aKillerWeaponPrototypes = {};
+	protected bool m_bKillerInventoryPrototypes;
+	protected bool m_bVictimInventoryPreview;
 	protected bool m_bEnabled;
 	protected bool m_bVisibilityReported;
 	protected bool m_bPhysicsDeactivationReported;
@@ -130,14 +132,35 @@ class GC_SpectatorKilledFromVisualizer
 			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
 		else
 		{
-			for (int mode; mode <= GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM; mode++)
+			bool allInventoryPrototypes = true;
+			for (int mode; mode <= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES; mode++)
 			{
 				vector prototypeTransform[4];
 				Math3D.MatrixCopy(killerTransform, prototypeTransform);
-				prototypeTransform[3] = prototypeTransform[3] + killerTransform[0] * ((mode - 1.5) * 3.0);
-				IEntity prototype = CreateActorClone(m_Snapshot.GetKillerPrefab(), prototypeTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), string.Format("killer-weapon-%1", mode));
+				prototypeTransform[3] = prototypeTransform[3] + killerTransform[0] * ((mode - 1.0) * 3.0);
+				IEntity prototype = CreateInventoryActorClone(m_Snapshot.GetKillerSourceEntity(), prototypeTransform, m_Snapshot.GetKillerBonePose(), m_Snapshot.GetKillerWeapon(), mode, Color.FromRGBA(235, 45, 70, 255), string.Format("killer-inventory-%1", mode));
+				if (!prototype)
+				{
+					allInventoryPrototypes = false;
+				}
 				if (prototype)
 					m_aKillerWeaponPrototypes.Insert(prototype);
+			}
+			m_bKillerInventoryPrototypes = allInventoryPrototypes && m_aKillerWeaponPrototypes.Count() == 3;
+			if (!m_bKillerInventoryPrototypes)
+			{
+				foreach (IEntity incompletePrototype : m_aKillerWeaponPrototypes)
+					delete incompletePrototype;
+				m_aKillerWeaponPrototypes.Clear();
+				for (int fallbackMode; fallbackMode <= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES; fallbackMode++)
+				{
+					vector fallbackTransform[4];
+					Math3D.MatrixCopy(killerTransform, fallbackTransform);
+					fallbackTransform[3] = fallbackTransform[3] + killerTransform[0] * ((fallbackMode - 1.0) * 3.0);
+					IEntity fallbackPrototype = CreateActorClone(m_Snapshot.GetKillerPrefab(), fallbackTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), string.Format("killer-fallback-%1", fallbackMode));
+					if (fallbackPrototype)
+						m_aKillerWeaponPrototypes.Insert(fallbackPrototype);
+				}
 			}
 			if (m_aKillerWeaponPrototypes.Count() > 0)
 				m_KillerPreviewEntity = m_aKillerWeaponPrototypes[0];
@@ -145,7 +168,12 @@ class GC_SpectatorKilledFromVisualizer
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
-		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
+		if (!victimVehicle || !victimVehicle.IsValid())
+			m_VictimPreviewEntity = CreateInventoryActorClone(m_Snapshot.GetVictimSourceEntity(), victimTransform, m_Snapshot.GetVictimBonePose(), m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES, Color.FromRGBA(65, 170, 255, 255), "victim-inventory");
+		if (m_VictimPreviewEntity)
+			m_bVictimInventoryPreview = true;
+		else
+			m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim-fallback");
 		EnsureActorSeat(m_KillerPreviewEntity, m_KillerVehiclePreviewEntity, killerVehicle, "killer");
 		EnsureActorSeat(m_VictimPreviewEntity, m_VictimVehiclePreviewEntity, victimVehicle, "victim");
 		m_bPhysicsDeactivationReported = false;
@@ -277,6 +305,101 @@ class GC_SpectatorKilledFromVisualizer
 			}
 		}
 		PrintFormat("GC | Killed From | event=vehicle-state role=%1 vehicle=%2 capturedTurrets=%3 cloneTurrets=%4 compartmentType=%5 compartmentIndex=%6", role, vehicle, states.Count(), turretIndex, state.GetCompartmentType(), state.GetCompartmentIndex());
+	}
+
+	protected IEntity CreateInventoryActorClone(IEntity source, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, int mode, Color outlineColor, string role)
+	{
+		if (!source || source.IsDeleted())
+		{
+			PrintFormat("GC | Killed From | event=inventory-clone result=failed role=%1 mode=%2 stage=source source=%3", role, GetWeaponPrototypeName(mode), source, level: LogLevel.WARNING);
+			return null;
+		}
+
+		InventoryItemComponent inventoryItem = InventoryItemComponent.Cast(source.FindComponent(InventoryItemComponent));
+		if (!inventoryItem)
+		{
+			PrintFormat("GC | Killed From | event=inventory-clone result=failed role=%1 mode=%2 stage=inventory-item source=%3", role, GetWeaponPrototypeName(mode), source, level: LogLevel.WARNING);
+			return null;
+		}
+
+		IEntity preview = inventoryItem.CreatePreviewEntity(m_World, m_World.GetCurrentCameraId());
+		if (!preview)
+		{
+			PrintFormat("GC | Killed From | event=inventory-clone result=failed role=%1 mode=%2 stage=create-preview source=%3", role, GetWeaponPrototypeName(mode), source, level: LogLevel.WARNING);
+			return null;
+		}
+
+		preview.SetTransform(rootTransform);
+		preview.Update();
+		PreviewAnimationComponent previewAnimation = PreviewAnimationComponent.Cast(preview.FindComponent(PreviewAnimationComponent));
+		ResourceName handsIK;
+		int armIKVariable = -1;
+		int initialArmIK = -1;
+		int appliedBones;
+		int missingBones;
+		int failedBones;
+		int unavailableLocalBones;
+		if (mode >= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK)
+		{
+			if (!previewAnimation)
+			{
+				PrintFormat("GC | Killed From | event=inventory-clone-ik result=unavailable role=%1 mode=%2 preview=%3 reason=no-preview-animation", role, GetWeaponPrototypeName(mode), preview, level: LogLevel.WARNING);
+			}
+			else
+			{
+				handsIK = ResolveWeaponHandsIK(weaponState);
+				armIKVariable = previewAnimation.BindIntVariable("ArmIK");
+				if (armIKVariable != -1)
+				{
+					initialArmIK = previewAnimation.GetIntVariable(armIKVariable);
+					if (initialArmIK <= 0)
+						previewAnimation.SetIntVariable(armIKVariable, 1);
+				}
+				previewAnimation.SetIkState(true, true);
+				if (handsIK != ResourceName.Empty)
+					previewAnimation.SetHandsIKPose(preview, handsIK);
+				previewAnimation.UpdateFrameStep(preview, 1.0 / 30.0);
+			}
+		}
+
+		if (mode == GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES)
+			appliedBones = ApplyBonePose(preview, bonePose, missingBones, failedBones, unavailableLocalBones);
+
+		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
+		int deactivatedPhysics = DeactivatePhysicsHierarchy(preview);
+		ChimeraWorld world = ChimeraWorld.CastFrom(m_World);
+		if (world)
+			world.OutlineEntity(preview, outlineColor, 1.0, 0.2, true, 3);
+		vector readback[4];
+		preview.GetWorldTransform(readback);
+		PrintFormat("GC | Killed From | event=inventory-clone result=spawned role=%1 mode=%2 source=%3 preview=%4 previewAnimation=%5 handsIK=%6 armIKVar=%7 initialArmIK=%8", role, GetWeaponPrototypeName(mode), source, preview, previewAnimation, handsIK, armIKVariable, initialArmIK);
+		PrintFormat("GC | Killed From | event=inventory-clone-state role=%1 mode=%2 appliedBones=%3 missingBones=%4 failedBones=%5 unavailableLocal=%6 isolatedPhysics=%7 deactivatedPhysics=%8", role, GetWeaponPrototypeName(mode), appliedBones, missingBones, failedBones, unavailableLocalBones, isolatedPhysics, deactivatedPhysics);
+		PrintFormat("GC | Killed From | event=inventory-clone-transform role=%1 mode=%2 requested=%3 readback=%4 sourceMutation=none", role, GetWeaponPrototypeName(mode), rootTransform, readback);
+		return preview;
+	}
+
+	protected ResourceName ResolveWeaponHandsIK(GC_KilledFromWeaponState weaponState)
+	{
+		if (!weaponState || !weaponState.IsValid())
+			return ResourceName.Empty;
+		Resource weaponResource = Resource.Load(weaponState.GetPrefab());
+		if (!weaponResource || !weaponResource.IsValid())
+			return ResourceName.Empty;
+		IEntitySource weaponSource = SCR_BaseContainerTools.FindEntitySource(weaponResource);
+		if (!weaponSource)
+			return ResourceName.Empty;
+		IEntityComponentSource inventoryItemSource = SCR_ComponentHelper.GetInventoryItemComponentSource(weaponSource);
+		if (!inventoryItemSource)
+			return ResourceName.Empty;
+		BaseContainer attributes = inventoryItemSource.GetObject("Attributes");
+		if (!attributes)
+			return ResourceName.Empty;
+		BaseContainer animationAttributes = attributes.GetObject("ItemAnimationAttributes");
+		if (!animationAttributes)
+			return ResourceName.Empty;
+		ResourceName handsIK;
+		animationAttributes.Get("AnimationIKPose", handsIK);
+		return handsIK;
 	}
 
 	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
@@ -437,7 +560,7 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected bool ApplyWeaponAnimationGraph(IEntity actor, GC_KilledFromWeaponState state, int mode, string role, bool report)
 	{
-		if (!actor || !state || mode == GC_EKilledFromWeaponPrototype.POSE_CONTROL)
+		if (!actor || !state)
 			return false;
 		CharacterAnimationComponent animation = CharacterAnimationComponent.Cast(actor.FindComponent(CharacterAnimationComponent));
 		if (!animation)
@@ -451,7 +574,7 @@ class GC_SpectatorKilledFromVisualizer
 		TAnimGraphVariable lowVariable = animation.BindVariableBool("Low");
 		TAnimGraphVariable obstructionVariable = animation.BindVariableBool("WeaponObstruction");
 		bool ads = state.IsWeaponADSTag();
-		bool shared = mode >= GC_EKilledFromWeaponPrototype.SHARED_ADS;
+		bool shared = true;
 		if (shared)
 		{
 			if (adsVariable != -1)
@@ -473,7 +596,7 @@ class GC_SpectatorKilledFromVisualizer
 
 		TAnimGraphVariable aimXVariable = -1;
 		TAnimGraphVariable aimYVariable = -1;
-		if (mode == GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM && state.HasWeaponCommand())
+		if (state.HasWeaponCommand())
 		{
 			aimXVariable = animation.BindVariableFloat("AimX");
 			aimYVariable = animation.BindVariableFloat("AimY");
@@ -494,6 +617,18 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected void UpdateWeaponPrototypeSet(array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, bool report)
 	{
+		if (m_bKillerInventoryPrototypes)
+		{
+			foreach (int inventoryMode, IEntity inventoryPrototype : m_aKillerWeaponPrototypes)
+			{
+				int isolatedBodies = IsolatePhysicsHierarchy(inventoryPrototype);
+				int deactivatedBodies = DeactivatePhysicsHierarchy(inventoryPrototype);
+				if (report)
+					PrintFormat("GC | Killed From | event=inventory-prototype-maintain index=%1 mode=%2 actor=%3 isolatedBodies=%4 deactivatedBodies=%5 graphReplay=none", inventoryMode, GetWeaponPrototypeName(inventoryMode), inventoryPrototype, isolatedBodies, deactivatedBodies);
+			}
+			return;
+		}
+
 		foreach (int mode, IEntity prototype : m_aKillerWeaponPrototypes)
 		{
 			IsolatePhysicsHierarchy(prototype);
@@ -515,10 +650,10 @@ class GC_SpectatorKilledFromVisualizer
 	{
 		switch (mode)
 		{
-			case GC_EKilledFromWeaponPrototype.POSE_CONTROL: return "POSE-CONTROL";
-			case GC_EKilledFromWeaponPrototype.DIRECT_ADS: return "DIRECT-ADS";
-			case GC_EKilledFromWeaponPrototype.SHARED_ADS: return "SHARED-ADS";
-			case GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM: return "SHARED-ADS-AIM";
+			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW: return "P0-INVENTORY";
+			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK: return "P1-WEAPON-IK";
+			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES: return "P2-IK-BONES";
+			case GC_EKilledFromWeaponPrototype.GAMEPLAY_SHARED_ADS_AIM: return "GAMEPLAY-ADS-AIM";
 		}
 		return "UNKNOWN";
 	}
@@ -627,6 +762,8 @@ class GC_SpectatorKilledFromVisualizer
 			delete victimVehicle;
 		}
 		m_bPhysicsDeactivationReported = false;
+		m_bKillerInventoryPrototypes = false;
+		m_bVictimInventoryPreview = false;
 	}
 
 	protected void Update()
@@ -655,7 +792,9 @@ class GC_SpectatorKilledFromVisualizer
 		int victimMissingBones;
 		int victimFailedBones;
 		int victimUnavailableLocalBones;
-		int victimAppliedBones = ApplyBonePose(m_VictimPreviewEntity, victimBonePose, victimMissingBones, victimFailedBones, victimUnavailableLocalBones);
+		int victimAppliedBones;
+		if (!m_bVictimInventoryPreview)
+			victimAppliedBones = ApplyBonePose(m_VictimPreviewEntity, victimBonePose, victimMissingBones, victimFailedBones, victimUnavailableLocalBones);
 		ApplyVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
 		ApplyVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
 		IEntity killerWeapon;
@@ -663,11 +802,15 @@ class GC_SpectatorKilledFromVisualizer
 		{
 			killerWeapon = SelectWeapon(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
 			ApplyWeaponTransform(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
-			ApplyWeaponAnimationGraph(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM, "killer", !m_bPhysicsDeactivationReported);
+			ApplyWeaponAnimationGraph(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), GC_EKilledFromWeaponPrototype.GAMEPLAY_SHARED_ADS_AIM, "killer", !m_bPhysicsDeactivationReported);
 		}
-		IEntity victimWeapon = SelectWeapon(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
-		ApplyWeaponTransform(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
-		ApplyWeaponAnimationGraph(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM, "victim", !m_bPhysicsDeactivationReported);
+		IEntity victimWeapon;
+		if (!m_bVictimInventoryPreview)
+		{
+			victimWeapon = SelectWeapon(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
+			ApplyWeaponTransform(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
+			ApplyWeaponAnimationGraph(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.GAMEPLAY_SHARED_ADS_AIM, "victim", !m_bPhysicsDeactivationReported);
+		}
 		IsolatePhysicsHierarchy(killerWeapon);
 		IsolatePhysicsHierarchy(victimWeapon);
 		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);
