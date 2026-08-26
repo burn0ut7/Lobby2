@@ -138,6 +138,7 @@ class GC_SpectatorKilledFromVisualizer
 			aiControl.DeactivateAI();
 		ApplyCharacterState(preview, stance, dynamicStance, flags);
 		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
+		ReportPhysicsHierarchy(preview, role);
 
 		ChimeraWorld world = ChimeraWorld.CastFrom(m_World);
 		if (world)
@@ -177,6 +178,9 @@ class GC_SpectatorKilledFromVisualizer
 		if (physics)
 		{
 			physics.SetInteractionLayer(EPhysicsLayerDefs.Unused);
+			int geometryCount = physics.GetNumGeoms();
+			for (int geometryIndex; geometryIndex < geometryCount; geometryIndex++)
+				physics.SetGeomInteractionLayer(geometryIndex, EPhysicsLayerDefs.Unused);
 			count++;
 		}
 		IEntity child = entity.GetChildren();
@@ -186,6 +190,26 @@ class GC_SpectatorKilledFromVisualizer
 			child = child.GetSibling();
 		}
 		return count;
+	}
+
+	protected void ReportPhysicsHierarchy(IEntity entity, string role)
+	{
+		if (!entity)
+			return;
+		Physics physics = entity.GetPhysics();
+		if (physics)
+		{
+			int geometryCount = physics.GetNumGeoms();
+			PrintFormat("GC | Killed From | event=clone-physics role=%1 entity=%2 bodyLayer=%3 simulation=%4 active=%5 dynamic=%6 kinematic=%7 geometries=%8", role, entity, physics.GetInteractionLayer(), physics.GetSimulationState(), physics.IsActive(), physics.IsDynamic(), physics.IsKinematic(), geometryCount);
+			for (int geometryIndex; geometryIndex < geometryCount; geometryIndex++)
+				PrintFormat("GC | Killed From | event=clone-physics-geometry role=%1 entity=%2 index=%3 name=%4 layer=%5", role, entity, geometryIndex, physics.GetGeomName(geometryIndex), physics.GetGeomInteractionLayer(geometryIndex));
+		}
+		IEntity child = entity.GetChildren();
+		while (child)
+		{
+			ReportPhysicsHierarchy(child, role);
+			child = child.GetSibling();
+		}
 	}
 
 	protected void DestroyPreview()
