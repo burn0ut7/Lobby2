@@ -154,7 +154,16 @@ class GC_SpectatorKilledFromVisualizer
 			if (visualPart.m_Shape != EPreviewEntityShape.ELLIPSE && visualPart.m_Shape != EPreviewEntityShape.RECTANGLE)
 				Math3D.MatrixScale(partParams.Transform, visualPart.GetScale());
 
-			SCR_BasePreviewEntity part = SCR_BasePreviewEntity.Cast(GetGame().SpawnEntity(SCR_BasePreviewEntity, m_World, partParams));
+			// A dynamically assigned skinned VObject renders reliably when it is the
+			// preview root. An empty wrapper with the body attached below it produces
+			// valid objects and bounds but no visible runtime character. Entry zero is
+			// the captured character root, so reuse the exact-world root for it.
+			bool reusedRoot = visualPartIndex == 0 && visualPart.m_iParentID == -1;
+			SCR_BasePreviewEntity part;
+			if (reusedRoot)
+				part = preview;
+			else
+				part = SCR_BasePreviewEntity.Cast(GetGame().SpawnEntity(SCR_BasePreviewEntity, m_World, partParams));
 			children.Insert(part);
 			if (!part)
 			{
@@ -167,7 +176,7 @@ class GC_SpectatorKilledFromVisualizer
 			bool resourceValid;
 			bool objectAssigned;
 			int materialCount;
-			string sourceMaterials;
+			string sourceMaterials[256];
 			Resource meshResource;
 			VObject sourceObject;
 			if (visualPart.m_Shape == EPreviewEntityShape.MESH && visualPart.m_Mesh != ResourceName.Empty)
@@ -184,10 +193,14 @@ class GC_SpectatorKilledFromVisualizer
 			}
 
 			TNodeId pivot = -1;
-			Animation parentAnimation = parent.GetAnimation();
-			if (!visualPart.m_iPivotID.IsEmpty() && parentAnimation)
-				pivot = parentAnimation.GetBoneIndex(visualPart.m_iPivotID);
-			int addChildResult = parent.AddChild(part, pivot, EAddChildFlags.AUTO_TRANSFORM);
+			int addChildResult = -1;
+			if (!reusedRoot)
+			{
+				Animation parentAnimation = parent.GetAnimation();
+				if (!visualPart.m_iPivotID.IsEmpty() && parentAnimation)
+					pivot = parentAnimation.GetBoneIndex(visualPart.m_iPivotID);
+				addChildResult = parent.AddChild(part, pivot, EAddChildFlags.AUTO_TRANSFORM);
+			}
 
 			vector localReadback[4];
 			vector worldReadback[4];
@@ -204,7 +217,7 @@ class GC_SpectatorKilledFromVisualizer
 				objectAssigned = true;
 				assignedObjects++;
 			}
-			PrintFormat("GC | Killed From | event=preview-part result=created role=%1 index=%2 parentIndex=%3 parent=%4 pivotName=%5 pivotIndex=%6 attachResult=%7 shape=%8 mesh=%9", role, visualPartIndex, visualPart.m_iParentID, parent, visualPart.m_iPivotID, pivot, addChildResult, visualPart.m_Shape, visualPart.m_Mesh);
+			PrintFormat("GC | Killed From | event=preview-part result=created role=%1 index=%2 parentIndex=%3 parent=%4 pivotName=%5 pivotIndex=%6 attachResult=%7 reusedRoot=%8 mesh=%9", role, visualPartIndex, visualPart.m_iParentID, parent, visualPart.m_iPivotID, pivot, addChildResult, reusedRoot, visualPart.m_Mesh);
 			PrintFormat("GC | Killed From | event=preview-part-object role=%1 index=%2 resourceValid=%3 sourceObject=%4 setObject=%5 assignedObject=%6 materials=%7 physics=%8", role, visualPartIndex, resourceValid, sourceObject, objectAssigned, assignedObjectName, materialCount, part.GetPhysics());
 			PrintFormat("GC | Killed From | event=preview-part-transform role=%1 index=%2 localCaptured=%3 localReadback=%4 worldReadback=%5 boundsMin=%6 boundsMax=%7", role, visualPartIndex, partParams.Transform, localReadback, worldReadback, boundMin, boundMax);
 		}
