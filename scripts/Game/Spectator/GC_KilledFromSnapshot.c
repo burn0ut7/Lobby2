@@ -339,6 +339,15 @@ class GC_KilledFromDamageTracker
 
 	protected void OnDamage(notnull BaseDamageContext damageContext)
 	{
+		IEntity rawInstigatorEntity;
+		int rawInstigatorPlayerId;
+		if (damageContext.instigator)
+		{
+			rawInstigatorEntity = damageContext.instigator.GetInstigatorEntity();
+			rawInstigatorPlayerId = damageContext.instigator.GetInstigatorPlayerID();
+		}
+		PrintFormat("GC | Killed From | event=damage-raw type=%1 victim=%2 damageSource=%3 instigator=%4 instigatorPlayer=%5 hitPosition=%6 hitDirection=%7 impactVelocity=%8 retainedExternal=%9", damageContext.damageType, m_Victim, damageContext.damageSource, rawInstigatorEntity, rawInstigatorPlayerId, damageContext.hitPosition, damageContext.hitDirection, damageContext.impactVelocity, m_LastExternalSnapshot != null);
+
 		if (damageContext.damageType == EDamageType.HEALING || damageContext.damageType == EDamageType.REGENERATION)
 		{
 			PrintFormat("GC | Killed From | event=damage result=ignored reason=non-damage type=%1 victim=%2", damageContext.damageType, m_Victim);
@@ -352,19 +361,24 @@ class GC_KilledFromDamageTracker
 			return;
 		}
 
+		// Some projectiles emit a second direct callback with the same external
+		// instigator but no impact facts. It must not overwrite the complete shot
+		// retained milliseconds earlier.
+		bool emptyImpact = damageContext.hitPosition.LengthSq() < 0.0001 && damageContext.hitDirection.LengthSq() < 0.0001 && damageContext.impactVelocity.LengthSq() < 0.0001;
+		if (!passiveDamage && emptyImpact && m_LastExternalSnapshot)
+		{
+			PrintFormat("GC | Killed From | event=damage result=ignored reason=incomplete-duplicate type=%1 victim=%2 damageSource=%3 instigator=%4 instigatorPlayer=%5 retained={%6}", damageContext.damageType, m_Victim, damageContext.damageSource, rawInstigatorEntity, rawInstigatorPlayerId, m_LastExternalSnapshot.GetDebugReport(), level: LogLevel.WARNING);
+			return;
+		}
+
 		GC_KilledFromSnapshot snapshot = new GC_KilledFromSnapshot();
 		snapshot.Capture(m_Victim, damageContext);
 		m_Snapshot = snapshot;
 
 		// A later bleed-out, unconscious respawn, or self-attributed damage tick
 		// must not replace the player/AI/vehicle that directly caused the state.
-		IEntity instigatorEntity;
-		int instigatorPlayerId;
-		if (damageContext.instigator)
-		{
-			instigatorEntity = damageContext.instigator.GetInstigatorEntity();
-			instigatorPlayerId = damageContext.instigator.GetInstigatorPlayerID();
-		}
+		IEntity instigatorEntity = rawInstigatorEntity;
+		int instigatorPlayerId = rawInstigatorPlayerId;
 		int victimPlayerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(m_Victim);
 		bool externalEntity = instigatorEntity && instigatorEntity != m_Victim;
 		bool externalPlayer = instigatorPlayerId > 0 && instigatorPlayerId != victimPlayerId;
