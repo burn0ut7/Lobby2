@@ -6,10 +6,10 @@ class GC_KilledFromBoneOperation
 
 enum GC_EKilledFromWeaponPrototype
 {
-	NORMAL_ATTACHMENT,
-	ACTOR_RELATIVE_WEAPON,
-	ACTOR_RELATIVE_RIGHT_HAND,
-	ACTOR_RELATIVE_BOTH_HANDS
+	POSE_CONTROL,
+	DIRECT_ADS,
+	SHARED_ADS,
+	SHARED_ADS_AIM
 }
 
 //! Client-only killed-from preview and line renderer. No entity created here is
@@ -130,7 +130,7 @@ class GC_SpectatorKilledFromVisualizer
 			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
 		else
 		{
-			for (int mode; mode <= GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_BOTH_HANDS; mode++)
+			for (int mode; mode <= GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM; mode++)
 			{
 				vector prototypeTransform[4];
 				Math3D.MatrixCopy(killerTransform, prototypeTransform);
@@ -435,44 +435,61 @@ class GC_SpectatorKilledFromVisualizer
 		}
 	}
 
-	protected bool CorrectHandToWeapon(IEntity actor, IEntity weapon, GC_KilledFromWeaponState state, bool leftHand, string role, bool report)
+	protected bool ApplyWeaponAnimationGraph(IEntity actor, GC_KilledFromWeaponState state, int mode, string role, bool report)
 	{
-		if (!actor || !weapon || !state)
+		if (!actor || !state || mode == GC_EKilledFromWeaponPrototype.POSE_CONTROL)
 			return false;
-		if (leftHand && !state.HasWeaponToLeftHandTransform())
-			return false;
-		if (!leftHand && !state.HasWeaponToRightHandTransform())
-			return false;
-		Animation animation = actor.GetAnimation();
+		CharacterAnimationComponent animation = CharacterAnimationComponent.Cast(actor.FindComponent(CharacterAnimationComponent));
 		if (!animation)
+		{
+			if (report)
+				PrintFormat("GC | Killed From | event=weapon-animation role=%1 mode=%2 result=no-character-animation", role, GetWeaponPrototypeName(mode), level: LogLevel.WARNING);
 			return false;
-		string boneName = "RightHand";
-		if (leftHand)
-			boneName = "LeftHand";
-		TNodeId boneIndex = animation.GetBoneIndex(boneName);
-		vector currentModelTransform[4];
-		if (boneIndex < 0 || !animation.GetBoneMatrix(boneIndex, currentModelTransform))
-			return false;
-		vector weaponTransform[4];
-		vector relation[4];
-		vector desiredWorldTransform[4];
-		vector actorTransform[4];
-		vector desiredModelTransform[4];
-		vector deltaTransform[4];
-		weapon.GetWorldTransform(weaponTransform);
-		if (leftHand)
-			state.GetWeaponToLeftHandTransform(relation);
+		}
+
+		TAnimGraphVariable adsVariable = animation.BindVariableBool("ADS");
+		TAnimGraphVariable lowVariable = animation.BindVariableBool("Low");
+		TAnimGraphVariable obstructionVariable = animation.BindVariableBool("WeaponObstruction");
+		bool ads = state.IsWeaponADSTag();
+		bool shared = mode >= GC_EKilledFromWeaponPrototype.SHARED_ADS;
+		if (shared)
+		{
+			if (adsVariable != -1)
+				animation.SetSharedVariableBool(adsVariable, ads, false);
+			if (lowVariable != -1 && ads)
+				animation.SetSharedVariableBool(lowVariable, false, false);
+			if (obstructionVariable != -1 && ads)
+				animation.SetSharedVariableBool(obstructionVariable, false, false);
+		}
 		else
-			state.GetWeaponToRightHandTransform(relation);
-		Math3D.MatrixMultiply4(weaponTransform, relation, desiredWorldTransform);
-		actor.GetWorldTransform(actorTransform);
-		Math3D.MatrixInvMultiply4(actorTransform, desiredWorldTransform, desiredModelTransform);
-		Math3D.MatrixInvMultiply4(currentModelTransform, desiredModelTransform, deltaTransform);
-		bool applied = animation.SetBoneMatrix(actor, boneIndex, deltaTransform);
+		{
+			if (adsVariable != -1)
+				animation.SetVariableBool(adsVariable, ads);
+			if (lowVariable != -1 && ads)
+				animation.SetVariableBool(lowVariable, false);
+			if (obstructionVariable != -1 && ads)
+				animation.SetVariableBool(obstructionVariable, false);
+		}
+
+		TAnimGraphVariable aimXVariable = -1;
+		TAnimGraphVariable aimYVariable = -1;
+		if (mode == GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM && state.HasWeaponCommand())
+		{
+			aimXVariable = animation.BindVariableFloat("AimX");
+			aimYVariable = animation.BindVariableFloat("AimY");
+			if (aimXVariable != -1)
+				animation.SetSharedVariableFloat(aimXVariable, state.GetAimAngleLR(), false);
+			if (aimYVariable != -1)
+				animation.SetSharedVariableFloat(aimYVariable, state.GetAimAngleUD(), false);
+			animation.SetAnimAimY(state.GetAimAngleUD());
+		}
 		actor.Update();
 		if (report)
-			PrintFormat("GC | Killed From | event=hand-correction role=%1 bone=%2 applied=%3 currentModel=%4 desiredModel=%5 delta=%6", role, boneName, applied, currentModelTransform, desiredModelTransform, deltaTransform);
-		return applied;
+		{
+			PrintFormat("GC | Killed From | event=weapon-animation role=%1 mode=%2 result=applied sourceAnimation=%3 sourceRaised=%4 sourceADS=%5 sourceWeaponCommand=%6 aimLR=%7 aimUD=%8", role, GetWeaponPrototypeName(mode), state.HasCharacterAnimation(), state.IsWeaponRaisedTag(), ads, state.HasWeaponCommand(), state.GetAimAngleLR(), state.GetAimAngleUD());
+			PrintFormat("GC | Killed From | event=weapon-animation-bindings role=%1 mode=%2 adsVar=%3 lowVar=%4 obstructionVar=%5 aimXVar=%6 aimYVar=%7 readbackRaised=%8 readbackADS=%9", role, GetWeaponPrototypeName(mode), adsVariable, lowVariable, obstructionVariable, aimXVariable, aimYVariable, animation.IsWeaponRaisedTag(), animation.IsWeaponADSTag());
+		}
+		return adsVariable != -1;
 	}
 
 	protected void UpdateWeaponPrototypeSet(array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, bool report)
@@ -485,12 +502,8 @@ class GC_SpectatorKilledFromVisualizer
 			int unavailableLocalBones;
 			int appliedBones = ApplyBonePose(prototype, bonePose, missingBones, failedBones, unavailableLocalBones);
 			IEntity weapon = SelectWeapon(prototype, weaponState, string.Format("killer-weapon-%1", mode), report);
-			if (mode != GC_EKilledFromWeaponPrototype.NORMAL_ATTACHMENT)
-				ApplyWeaponTransform(prototype, weapon, weaponState, string.Format("killer-weapon-%1", mode), report);
-			if (mode >= GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_RIGHT_HAND)
-				CorrectHandToWeapon(prototype, weapon, weaponState, false, string.Format("killer-weapon-%1", mode), report);
-			if (mode == GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_BOTH_HANDS)
-				CorrectHandToWeapon(prototype, weapon, weaponState, true, string.Format("killer-weapon-%1", mode), report);
+			ApplyWeaponTransform(prototype, weapon, weaponState, string.Format("killer-weapon-%1", mode), report);
+			ApplyWeaponAnimationGraph(prototype, weaponState, mode, string.Format("killer-weapon-%1", mode), report);
 			IsolatePhysicsHierarchy(weapon);
 			int deactivatedBodies = DeactivatePhysicsHierarchy(prototype);
 			if (report)
@@ -502,10 +515,10 @@ class GC_SpectatorKilledFromVisualizer
 	{
 		switch (mode)
 		{
-			case GC_EKilledFromWeaponPrototype.NORMAL_ATTACHMENT: return "NORMAL";
-			case GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_WEAPON: return "ADS-WEAPON";
-			case GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_RIGHT_HAND: return "ADS-RIGHT-HAND";
-			case GC_EKilledFromWeaponPrototype.ACTOR_RELATIVE_BOTH_HANDS: return "ADS-BOTH-HANDS";
+			case GC_EKilledFromWeaponPrototype.POSE_CONTROL: return "POSE-CONTROL";
+			case GC_EKilledFromWeaponPrototype.DIRECT_ADS: return "DIRECT-ADS";
+			case GC_EKilledFromWeaponPrototype.SHARED_ADS: return "SHARED-ADS";
+			case GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM: return "SHARED-ADS-AIM";
 		}
 		return "UNKNOWN";
 	}
@@ -650,13 +663,11 @@ class GC_SpectatorKilledFromVisualizer
 		{
 			killerWeapon = SelectWeapon(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
 			ApplyWeaponTransform(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
-			CorrectHandToWeapon(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), false, "killer", !m_bPhysicsDeactivationReported);
-			CorrectHandToWeapon(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), true, "killer", !m_bPhysicsDeactivationReported);
+			ApplyWeaponAnimationGraph(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM, "killer", !m_bPhysicsDeactivationReported);
 		}
 		IEntity victimWeapon = SelectWeapon(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
 		ApplyWeaponTransform(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
-		CorrectHandToWeapon(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), false, "victim", !m_bPhysicsDeactivationReported);
-		CorrectHandToWeapon(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), true, "victim", !m_bPhysicsDeactivationReported);
+		ApplyWeaponAnimationGraph(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.SHARED_ADS_AIM, "victim", !m_bPhysicsDeactivationReported);
 		IsolatePhysicsHierarchy(killerWeapon);
 		IsolatePhysicsHierarchy(victimWeapon);
 		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);

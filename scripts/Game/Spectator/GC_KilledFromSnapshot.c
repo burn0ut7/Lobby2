@@ -20,9 +20,33 @@ class GC_KilledFromWeaponState
 	protected bool m_bHasWeaponToLeftHandTransform;
 	protected int m_iManagedWeaponIndex = -1;
 	protected int m_iSightsIndex = -1;
+	protected bool m_bHasCharacterAnimation;
+	protected bool m_bWeaponRaisedTag;
+	protected bool m_bWeaponADSTag;
+	protected bool m_bHasWeaponCommand;
+	protected float m_fAimAngleLR;
+	protected float m_fAimAngleUD;
 
 	void Capture(IEntity character)
 	{
+		CharacterAnimationComponent characterAnimation = CharacterAnimationComponent.Cast(character.FindComponent(CharacterAnimationComponent));
+		if (characterAnimation)
+		{
+			m_bHasCharacterAnimation = true;
+			m_bWeaponRaisedTag = characterAnimation.IsWeaponRaisedTag();
+			m_bWeaponADSTag = characterAnimation.IsWeaponADSTag();
+			CharacterCommandHandlerComponent commandHandler = characterAnimation.GetCommandHandler();
+			CharacterCommandWeapon weaponCommand;
+			if (commandHandler)
+				weaponCommand = commandHandler.GetCommandModifier_Weapon();
+			if (weaponCommand)
+			{
+				m_bHasWeaponCommand = true;
+				m_fAimAngleLR = weaponCommand.GetAimAngleLR();
+				m_fAimAngleUD = weaponCommand.GetAimAngleUD();
+			}
+		}
+
 		CharacterWeaponManagerComponent manager = CharacterWeaponManagerComponent.Cast(character.FindComponent(CharacterWeaponManagerComponent));
 		if (!manager)
 			return;
@@ -56,7 +80,8 @@ class GC_KilledFromWeaponState
 		array<IEntity> weapons = {};
 		manager.GetWeaponsList(weapons);
 		m_iManagedWeaponIndex = weapons.Find(weaponEntity);
-		PrintFormat("GC | Killed From | event=weapon-capture character=%1 weapon=%2 prefab=%3 managedIndex=%4 sightsIndex=%5 world=%6 actorRelative=%7 propRelative=%8 rightHand=%9 leftHand=%10", character, weaponEntity, m_sPrefab, m_iManagedWeaponIndex, m_iSightsIndex, m_aWorldTransform, m_aActorRelativeTransform, m_bHasRightHandRelativeTransform, m_bHasWeaponToRightHandTransform, m_bHasWeaponToLeftHandTransform);
+		PrintFormat("GC | Killed From | event=weapon-capture character=%1 weapon=%2 prefab=%3 managedIndex=%4 sightsIndex=%5 world=%6 actorRelative=%7 propRelative=%8 rightHand=%9", character, weaponEntity, m_sPrefab, m_iManagedWeaponIndex, m_iSightsIndex, m_aWorldTransform, m_aActorRelativeTransform, m_bHasRightHandRelativeTransform, m_bHasWeaponToRightHandTransform);
+		PrintFormat("GC | Killed From | event=weapon-animation-capture character=%1 leftHand=%2 animation=%3 raisedTag=%4 adsTag=%5 weaponCommand=%6 aimLR=%7 aimUD=%8", character, m_bHasWeaponToLeftHandTransform, m_bHasCharacterAnimation, m_bWeaponRaisedTag, m_bWeaponADSTag, m_bHasWeaponCommand, m_fAimAngleLR, m_fAimAngleUD);
 	}
 
 	protected bool CaptureWeaponToBone(Animation animation, vector characterTransform[4], vector weaponTransform[4], string boneName, out vector relation[4])
@@ -75,6 +100,12 @@ class GC_KilledFromWeaponState
 	ResourceName GetPrefab() { return m_sPrefab; }
 	int GetManagedWeaponIndex() { return m_iManagedWeaponIndex; }
 	int GetSightsIndex() { return m_iSightsIndex; }
+	bool HasCharacterAnimation() { return m_bHasCharacterAnimation; }
+	bool IsWeaponRaisedTag() { return m_bWeaponRaisedTag; }
+	bool IsWeaponADSTag() { return m_bWeaponADSTag; }
+	bool HasWeaponCommand() { return m_bHasWeaponCommand; }
+	float GetAimAngleLR() { return m_fAimAngleLR; }
+	float GetAimAngleUD() { return m_fAimAngleUD; }
 	bool HasRightHandRelativeTransform() { return m_bHasRightHandRelativeTransform; }
 	bool HasWeaponToRightHandTransform() { return m_bHasWeaponToRightHandTransform; }
 	bool HasWeaponToLeftHandTransform() { return m_bHasWeaponToLeftHandTransform; }
