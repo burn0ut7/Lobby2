@@ -7,8 +7,8 @@ class GC_KilledFromBoneOperation
 enum GC_EKilledFromWeaponPrototype
 {
 	INVENTORY_PREVIEW,
-	INVENTORY_PREVIEW_IK,
-	INVENTORY_PREVIEW_IK_BONES,
+	INVENTORY_PREVIEW_ADS_IK,
+	INVENTORY_PREVIEW_ADS_IK_SETTLED,
 	GAMEPLAY_SHARED_ADS_AIM
 }
 
@@ -133,12 +133,12 @@ class GC_SpectatorKilledFromVisualizer
 		else
 		{
 			bool allInventoryPrototypes = true;
-			for (int mode; mode <= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES; mode++)
+			for (int mode; mode <= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_ADS_IK_SETTLED; mode++)
 			{
 				vector prototypeTransform[4];
 				Math3D.MatrixCopy(killerTransform, prototypeTransform);
 				prototypeTransform[3] = prototypeTransform[3] + killerTransform[0] * ((mode - 1.0) * 3.0);
-				IEntity prototype = CreateInventoryActorClone(m_Snapshot.GetKillerSourceEntity(), prototypeTransform, m_Snapshot.GetKillerBonePose(), m_Snapshot.GetKillerWeapon(), mode, Color.FromRGBA(235, 45, 70, 255), string.Format("killer-inventory-%1", mode));
+				IEntity prototype = CreateInventoryActorClone(m_Snapshot.GetKillerSourceEntity(), prototypeTransform, m_Snapshot.GetKillerWeapon(), m_Snapshot.GetStance(), m_Snapshot.GetKillerLean(), mode, Color.FromRGBA(235, 45, 70, 255), string.Format("killer-inventory-%1", mode));
 				if (!prototype)
 				{
 					allInventoryPrototypes = false;
@@ -152,7 +152,7 @@ class GC_SpectatorKilledFromVisualizer
 				foreach (IEntity incompletePrototype : m_aKillerWeaponPrototypes)
 					delete incompletePrototype;
 				m_aKillerWeaponPrototypes.Clear();
-				for (int fallbackMode; fallbackMode <= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES; fallbackMode++)
+				for (int fallbackMode; fallbackMode <= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_ADS_IK_SETTLED; fallbackMode++)
 				{
 					vector fallbackTransform[4];
 					Math3D.MatrixCopy(killerTransform, fallbackTransform);
@@ -169,7 +169,7 @@ class GC_SpectatorKilledFromVisualizer
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
 		if (!victimVehicle || !victimVehicle.IsValid())
-			m_VictimPreviewEntity = CreateInventoryActorClone(m_Snapshot.GetVictimSourceEntity(), victimTransform, m_Snapshot.GetVictimBonePose(), m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES, Color.FromRGBA(65, 170, 255, 255), "victim-inventory");
+			m_VictimPreviewEntity = CreateInventoryActorClone(m_Snapshot.GetVictimSourceEntity(), victimTransform, m_Snapshot.GetVictimWeapon(), m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimLean(), GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_ADS_IK_SETTLED, Color.FromRGBA(65, 170, 255, 255), "victim-inventory");
 		if (m_VictimPreviewEntity)
 			m_bVictimInventoryPreview = true;
 		else
@@ -307,7 +307,7 @@ class GC_SpectatorKilledFromVisualizer
 		PrintFormat("GC | Killed From | event=vehicle-state role=%1 vehicle=%2 capturedTurrets=%3 cloneTurrets=%4 compartmentType=%5 compartmentIndex=%6", role, vehicle, states.Count(), turretIndex, state.GetCompartmentType(), state.GetCompartmentIndex());
 	}
 
-	protected IEntity CreateInventoryActorClone(IEntity source, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, int mode, Color outlineColor, string role)
+	protected IEntity CreateInventoryActorClone(IEntity source, vector rootTransform[4], GC_KilledFromWeaponState weaponState, int stance, float lean, int mode, Color outlineColor, string role)
 	{
 		if (!source || source.IsDeleted())
 		{
@@ -335,11 +335,24 @@ class GC_SpectatorKilledFromVisualizer
 		ResourceName handsIK;
 		int armIKVariable = -1;
 		int initialArmIK = -1;
-		int appliedBones;
-		int missingBones;
-		int failedBones;
-		int unavailableLocalBones;
-		if (mode >= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK)
+		int adsVariable = -1;
+		int lowVariable = -1;
+		int obstructionVariable = -1;
+		int aimXVariable = -1;
+		int aimYVariable = -1;
+		int leanVariable = -1;
+		int stanceVariable = -1;
+		int frameSteps;
+		bool sourceADS;
+		float sourceAimLR;
+		float sourceAimUD;
+		if (weaponState)
+		{
+			sourceADS = weaponState.IsWeaponADSTag();
+			sourceAimLR = weaponState.GetAimAngleLR();
+			sourceAimUD = weaponState.GetAimAngleUD();
+		}
+		if (mode >= GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_ADS_IK)
 		{
 			if (!previewAnimation)
 			{
@@ -358,12 +371,40 @@ class GC_SpectatorKilledFromVisualizer
 				previewAnimation.SetIkState(true, true);
 				if (handsIK != ResourceName.Empty)
 					previewAnimation.SetHandsIKPose(preview, handsIK);
-				previewAnimation.UpdateFrameStep(preview, 1.0 / 30.0);
+				adsVariable = previewAnimation.BindBoolVariable("ADS");
+				lowVariable = previewAnimation.BindBoolVariable("Low");
+				obstructionVariable = previewAnimation.BindBoolVariable("WeaponObstruction");
+				if (adsVariable != -1)
+					previewAnimation.SetBoolVariable(adsVariable, sourceADS);
+				if (lowVariable != -1 && sourceADS)
+					previewAnimation.SetBoolVariable(lowVariable, false);
+				if (obstructionVariable != -1 && sourceADS)
+					previewAnimation.SetBoolVariable(obstructionVariable, false);
+
+				frameSteps = 1;
+				if (mode == GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_ADS_IK_SETTLED)
+				{
+					aimXVariable = previewAnimation.BindFloatVariable("AimX");
+					aimYVariable = previewAnimation.BindFloatVariable("AimY");
+					leanVariable = previewAnimation.BindFloatVariable("Lean");
+					stanceVariable = previewAnimation.BindIntVariable("Stance");
+					if (weaponState && weaponState.HasWeaponCommand())
+					{
+						if (aimXVariable != -1)
+							previewAnimation.SetFloatVariable(aimXVariable, weaponState.GetAimAngleLR());
+						if (aimYVariable != -1)
+							previewAnimation.SetFloatVariable(aimYVariable, weaponState.GetAimAngleUD());
+					}
+					if (leanVariable != -1)
+						previewAnimation.SetFloatVariable(leanVariable, lean);
+					if (stanceVariable != -1)
+						previewAnimation.SetIntVariable(stanceVariable, stance);
+					frameSteps = 15;
+				}
+				for (int frameStep; frameStep < frameSteps; frameStep++)
+					previewAnimation.UpdateFrameStep(preview, 1.0 / 30.0);
 			}
 		}
-
-		if (mode == GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES)
-			appliedBones = ApplyBonePose(preview, bonePose, missingBones, failedBones, unavailableLocalBones);
 
 		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
 		int deactivatedPhysics = DeactivatePhysicsHierarchy(preview);
@@ -373,7 +414,9 @@ class GC_SpectatorKilledFromVisualizer
 		vector readback[4];
 		preview.GetWorldTransform(readback);
 		PrintFormat("GC | Killed From | event=inventory-clone result=spawned role=%1 mode=%2 source=%3 preview=%4 previewAnimation=%5 handsIK=%6 armIKVar=%7 initialArmIK=%8", role, GetWeaponPrototypeName(mode), source, preview, previewAnimation, handsIK, armIKVariable, initialArmIK);
-		PrintFormat("GC | Killed From | event=inventory-clone-state role=%1 mode=%2 appliedBones=%3 missingBones=%4 failedBones=%5 unavailableLocal=%6 isolatedPhysics=%7 deactivatedPhysics=%8", role, GetWeaponPrototypeName(mode), appliedBones, missingBones, failedBones, unavailableLocalBones, isolatedPhysics, deactivatedPhysics);
+		PrintFormat("GC | Killed From | event=inventory-clone-graph role=%1 mode=%2 adsVar=%3 lowVar=%4 obstructionVar=%5 aimXVar=%6 aimYVar=%7 leanVar=%8 stanceVar=%9", role, GetWeaponPrototypeName(mode), adsVariable, lowVariable, obstructionVariable, aimXVariable, aimYVariable, leanVariable, stanceVariable);
+		PrintFormat("GC | Killed From | event=inventory-clone-state role=%1 mode=%2 sourceADS=%3 sourceAimLR=%4 sourceAimUD=%5 requestedLean=%6 requestedStance=%7 frameSteps=%8", role, GetWeaponPrototypeName(mode), sourceADS, sourceAimLR, sourceAimUD, lean, stance, frameSteps);
+		PrintFormat("GC | Killed From | event=inventory-clone-physics role=%1 mode=%2 isolatedPhysics=%3 deactivatedPhysics=%4", role, GetWeaponPrototypeName(mode), isolatedPhysics, deactivatedPhysics);
 		PrintFormat("GC | Killed From | event=inventory-clone-transform role=%1 mode=%2 requested=%3 readback=%4 sourceMutation=none", role, GetWeaponPrototypeName(mode), rootTransform, readback);
 		return preview;
 	}
@@ -651,8 +694,8 @@ class GC_SpectatorKilledFromVisualizer
 		switch (mode)
 		{
 			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW: return "P0-INVENTORY";
-			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK: return "P1-WEAPON-IK";
-			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_IK_BONES: return "P2-IK-BONES";
+			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_ADS_IK: return "P1-ADS-IK";
+			case GC_EKilledFromWeaponPrototype.INVENTORY_PREVIEW_ADS_IK_SETTLED: return "P2-ADS-IK-SETTLED";
 			case GC_EKilledFromWeaponPrototype.GAMEPLAY_SHARED_ADS_AIM: return "GAMEPLAY-ADS-AIM";
 		}
 		return "UNKNOWN";
