@@ -25,6 +25,8 @@ class GC_KilledFromSnapshot
 	protected float m_fDynamicStance;
 	protected float m_fKillerLean;
 	protected float m_fVictimLean;
+	protected vector m_vKillerAimingAngles;
+	protected vector m_vVictimAimingAngles;
 	protected string m_sLineOriginMode;
 	protected int m_iFlags;
 	protected bool m_bHasLocalDamageCapture;
@@ -106,6 +108,7 @@ class GC_KilledFromSnapshot
 		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
 		m_aVictimBonePose = localDamage.m_aVictimBonePose;
 		m_fVictimLean = localDamage.m_fVictimLean;
+		m_vVictimAimingAngles = localDamage.m_vVictimAimingAngles;
 		m_iVictimStance = localDamage.m_iVictimStance;
 		m_fVictimDynamicStance = localDamage.m_fVictimDynamicStance;
 		m_iVictimFlags = localDamage.m_iVictimFlags;
@@ -118,6 +121,7 @@ class GC_KilledFromSnapshot
 		m_iStance = localDamage.m_iStance;
 		m_fDynamicStance = localDamage.m_fDynamicStance;
 		m_fKillerLean = localDamage.m_fKillerLean;
+		m_vKillerAimingAngles = localDamage.m_vKillerAimingAngles;
 		m_iFlags = localDamage.m_iFlags;
 		m_aKillerPreviewEntries = localDamage.m_aKillerPreviewEntries;
 		m_sKillerVisualObject = localDamage.m_sKillerVisualObject;
@@ -150,9 +154,12 @@ class GC_KilledFromSnapshot
 		m_iStance = controller.GetStance();
 		m_fDynamicStance = controller.GetDynamicStance();
 		m_fKillerLean = controller.GetCurrentLeanAmount();
+		CharacterInputContext inputContext = controller.GetInputContext();
+		if (inputContext)
+			m_vKillerAimingAngles = inputContext.GetAimingAngles();
 		if (controller.IsWeaponRaised())
 			m_iFlags |= FLAG_WEAPON_RAISED;
-		if (controller.IsWeaponADS())
+		if (controller.IsWeaponADS() || (inputContext && inputContext.IsWeaponADS()))
 			m_iFlags |= FLAG_WEAPON_ADS;
 	}
 
@@ -202,11 +209,14 @@ class GC_KilledFromSnapshot
 		if (!victimController)
 			return;
 		m_fVictimLean = victimController.GetCurrentLeanAmount();
+		CharacterInputContext victimInputContext = victimController.GetInputContext();
+		if (victimInputContext)
+			m_vVictimAimingAngles = victimInputContext.GetAimingAngles();
 		m_iVictimStance = victimController.GetStance();
 		m_fVictimDynamicStance = victimController.GetDynamicStance();
 		if (victimController.IsWeaponRaised())
 			m_iVictimFlags |= FLAG_WEAPON_RAISED;
-		if (victimController.IsWeaponADS())
+		if (victimController.IsWeaponADS() || (victimInputContext && victimInputContext.IsWeaponADS()))
 			m_iVictimFlags |= FLAG_WEAPON_ADS;
 	}
 
@@ -268,9 +278,13 @@ class GC_KilledFromSnapshot
 	vector GetHitPosition() { return m_vHitPosition; }
 	int GetStance() { return m_iStance; }
 	float GetDynamicStance() { return m_fDynamicStance; }
+	float GetKillerLean() { return m_fKillerLean; }
+	vector GetKillerAimingAngles() { return m_vKillerAimingAngles; }
 	int GetFlags() { return m_iFlags; }
 	int GetVictimStance() { return m_iVictimStance; }
 	float GetVictimDynamicStance() { return m_fVictimDynamicStance; }
+	float GetVictimLean() { return m_fVictimLean; }
+	vector GetVictimAimingAngles() { return m_vVictimAimingAngles; }
 	int GetVictimFlags() { return m_iVictimFlags; }
 	bool HasKillerPreview() { return (m_iFlags & FLAG_VALID_KILLER) != 0; }
 	bool HasKillerVisual() { return m_sKillerVisualObject != ResourceName.Empty; }
@@ -293,8 +307,8 @@ class GC_KilledFromSnapshot
 			victimBoneCount = m_aVictimBonePose.Count();
 		string report = string.Format("valid=%1 prefab=%2 killerPosition=%3 killerAngles=%4 lineOrigin=%5 hitPosition=%6",
 			HasKillerPreview(), m_sKillerPrefab, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
-		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 weaponRaised=%5 ads=%6", m_iStance, m_fDynamicStance,
-			m_fKillerLean, m_fVictimLean, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
+		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 killerAim=%5 victimAim=%6 weaponRaised=%7 ads=%8", m_iStance, m_fDynamicStance,
+			m_fKillerLean, m_fVictimLean, m_vKillerAimingAngles, m_vVictimAimingAngles, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
 		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasLocalDamageCapture, m_sLineOriginMode);
 		return report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 victimPrefab=%4 victimVisual=%5 victimObject=%6 victimBones=%7", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, m_sVictimPrefab, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount);
 	}

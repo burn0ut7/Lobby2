@@ -102,16 +102,16 @@ class GC_SpectatorKilledFromVisualizer
 		}
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
-		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles(), m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
-		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
+		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), victimTransform, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles(), m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim");
 		m_bPhysicsDeactivationReported = false;
 		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 snapshot={%3}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_Snapshot.GetDebugReport());
 	}
 
-	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], int stance, float dynamicStance, int flags, array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
+	protected IEntity CreateActorClone(ResourceName prefab, vector rootTransform[4], int stance, float dynamicStance, int flags, float lean, vector aimingAngles, array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
 	{
 		if (prefab == ResourceName.Empty)
 		{
@@ -139,7 +139,7 @@ class GC_SpectatorKilledFromVisualizer
 		AIControlComponent aiControl = AIControlComponent.Cast(preview.FindComponent(AIControlComponent));
 		if (aiControl)
 			aiControl.DeactivateAI();
-		ApplyCharacterState(preview, stance, dynamicStance, flags);
+		ApplyCharacterState(preview, stance, dynamicStance, flags, lean, aimingAngles);
 		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
 		ReportPhysicsHierarchy(preview, role);
 
@@ -157,7 +157,7 @@ class GC_SpectatorKilledFromVisualizer
 		return preview;
 	}
 
-	protected void ApplyCharacterState(IEntity entity, int stance, float dynamicStance, int flags)
+	protected void ApplyCharacterState(IEntity entity, int stance, float dynamicStance, int flags, float lean, vector aimingAngles)
 	{
 		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
 		if (!character)
@@ -168,8 +168,35 @@ class GC_SpectatorKilledFromVisualizer
 		controller.ForceStance(stance + 1);
 		if (controller.CanSetDynamicStance(dynamicStance))
 			controller.SetDynamicStance(dynamicStance);
-		controller.SetWeaponRaised((flags & GC_KilledFromSnapshot.FLAG_WEAPON_RAISED) != 0);
-		controller.SetWeaponADS((flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0);
+		bool ads = (flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0;
+		controller.SetWeaponRaised((flags & GC_KilledFromSnapshot.FLAG_WEAPON_RAISED) != 0 || ads);
+		controller.SetWeaponADS(ads);
+		CharacterInputContext inputContext = controller.GetInputContext();
+		if (inputContext)
+		{
+			inputContext.SetLean(lean);
+			inputContext.SetAimingAngles(aimingAngles);
+			inputContext.SetWeaponADS(ads);
+		}
+	}
+
+	protected void ReportCharacterState(IEntity entity, string role, float requestedLean, vector requestedAimingAngles, int flags)
+	{
+		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
+		if (!character)
+			return;
+		CharacterControllerComponent controller = character.GetCharacterController();
+		if (!controller)
+			return;
+		CharacterInputContext inputContext = controller.GetInputContext();
+		if (!inputContext)
+		{
+			PrintFormat("GC | Killed From | event=clone-character-state role=%1 result=no-input-context requestedLean=%2 requestedAim=%3 requestedADS=%4", role, requestedLean, requestedAimingAngles, (flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0, level: LogLevel.WARNING);
+			return;
+		}
+		PrintFormat("GC | Killed From | event=clone-character-state role=%1 requestedLean=%2 inputLean=%3 currentLean=%4 requestedAim=%5 inputAim=%6 requestedADS=%7 controllerADS=%8 inputADS=%9 weaponRaised=%10",
+			role, requestedLean, inputContext.GetLean(), controller.GetCurrentLeanAmount(), requestedAimingAngles, inputContext.GetAimingAngles(),
+			(flags & GC_KilledFromSnapshot.FLAG_WEAPON_ADS) != 0, controller.IsWeaponADS(), inputContext.IsWeaponADS(), controller.IsWeaponRaised());
 	}
 
 	protected int IsolatePhysicsHierarchy(IEntity entity)
@@ -265,13 +292,15 @@ class GC_SpectatorKilledFromVisualizer
 		// the configured simulation state remains unchanged.
 		IsolatePhysicsHierarchy(m_KillerPreviewEntity);
 		IsolatePhysicsHierarchy(m_VictimPreviewEntity);
-		ApplyCharacterState(m_KillerPreviewEntity, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags());
-		ApplyCharacterState(m_VictimPreviewEntity, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags());
+		ApplyCharacterState(m_KillerPreviewEntity, m_Snapshot.GetStance(), m_Snapshot.GetDynamicStance(), m_Snapshot.GetFlags(), m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles());
+		ApplyCharacterState(m_VictimPreviewEntity, m_Snapshot.GetVictimStance(), m_Snapshot.GetVictimDynamicStance(), m_Snapshot.GetVictimFlags(), m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles());
 		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);
 		int victimDeactivatedPhysics = DeactivatePhysicsHierarchy(m_VictimPreviewEntity);
 
 		if (!m_bPhysicsDeactivationReported)
 		{
+			ReportCharacterState(m_KillerPreviewEntity, "killer", m_Snapshot.GetKillerLean(), m_Snapshot.GetKillerAimingAngles(), m_Snapshot.GetFlags());
+			ReportCharacterState(m_VictimPreviewEntity, "victim", m_Snapshot.GetVictimLean(), m_Snapshot.GetVictimAimingAngles(), m_Snapshot.GetVictimFlags());
 			PrintFormat("GC | Killed From | event=clone-physics-deactivation treatment=ALL-OFF killerBodies=%1 victimBodies=%2", killerDeactivatedPhysics, victimDeactivatedPhysics);
 			ReportPhysicsHierarchy(m_KillerPreviewEntity, "killer-post-deactivation");
 			ReportPhysicsHierarchy(m_VictimPreviewEntity, "victim-post-deactivation");
