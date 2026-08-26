@@ -6,6 +6,7 @@ class GC_SpectatorKilledFromVisualizer
 	protected static const float KILLER_LABEL_WIDTH = 160.0;
 	protected static const float KILLER_LABEL_HEIGHT = 36.0;
 	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
+	protected static const ResourceName PREVIEW_MATERIAL = "{58F07022C12D0CF5}Assets/Editor/PlacingPreview/Preview.emat";
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
@@ -123,7 +124,7 @@ class GC_SpectatorKilledFromVisualizer
 		EntitySpawnParams params = new EntitySpawnParams();
 		params.TransformMode = ETransformMode.WORLD;
 		Math3D.MatrixCopy(rootTransform, params.Transform);
-		SCR_BasePreviewEntity preview = SCR_BasePreviewEntity.SpawnPreview(entries, "SCR_BasePreviewEntity", m_World, params);
+		SCR_BasePreviewEntity preview = SCR_BasePreviewEntity.SpawnPreview(entries, "SCR_BasePreviewEntity", m_World, params, PREVIEW_MATERIAL);
 		if (!preview)
 		{
 			PrintFormat("GC | Killed From | event=actor-preview result=failed role=%1 stage=hierarchy-baseline reason=spawn sourceObject=%2 visualParts=%3", role, visualObject, entries.Count(), level: LogLevel.ERROR);
@@ -188,7 +189,7 @@ class GC_SpectatorKilledFromVisualizer
 		Physics previewPhysics;
 		if (skeletalEntity)
 			previewPhysics = skeletalEntity.GetPhysics();
-		PrintFormat("GC | Killed From | event=actor-preview result=spawned role=%1 stage=hierarchy-baseline preview=%2 sourceObject=%3 targetObject=%4 visualParts=%5 physics=%6 exactWorldTransform=%7", role, preview, visualObject, targetObject, entryCount, previewPhysics, rootTransform);
+		PrintFormat("GC | Killed From | event=actor-preview result=spawned role=%1 stage=hierarchy-material-baseline preview=%2 sourceObject=%3 targetObject=%4 visualParts=%5 physics=%6 sourceMutation=none exactWorldTransform=%7", role, preview, visualObject, targetObject, entryCount, previewPhysics, rootTransform);
 		PrintFormat("GC | Killed From | event=actor-preview-compat role=%1 stage=hierarchy-baseline capturedModelBones=%2 capturedLocalBones=%3 targetBones=%4 matchingBones=%5 missingBones=%6 applyBones=0", role, capturedBones, capturedLocalBones, targetBones, matchingBones, missingBones);
 		return preview;
 	}
