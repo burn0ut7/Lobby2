@@ -372,7 +372,7 @@ Use structured prefixes so multiplayer logs can be filtered quickly:
 
 Log the role, previous phase, target phase, base-game state, and requesting player where relevant. Avoid per-frame or repeated retry spam.
 
-Killed-from diagnostics are event-driven. Each captured damage event reports the source facts and whether it replaced the retained external source; each actor-preview spawn reports its captured visual-entry count, captured/applied skeletal-bone count, exact root transform, and whether the actor was unavailable locally. Tracer and label visibility are logged only on their initial evaluation and subsequent visibility transitions, never once per render update.
+Killed-from diagnostics are event-driven. Each captured damage event reports the source facts, signed attacker and victim lean amounts, and whether it replaced the retained external source; each actor-preview spawn reports its captured visual-entry count, captured/applied skeletal-bone count, exact root transform, and whether the actor was unavailable locally. The signed lean values are diagnostic metadata and fallback facts; the captured skeletal matrices remain the visual source of truth so partial lean, ADS, stance, and their blended animation are preserved together. Tracer and label visibility are logged only on their initial evaluation and subsequent visibility transitions, never once per render update.
 
 All authoritative admin-action paths must call `GC_AdminActionLogger.Log` with the requester, action, target or context, and outcome. The logger currently prints one structured record and is the only extension point for future audit destinations; action handlers must not create parallel audit logging.
 

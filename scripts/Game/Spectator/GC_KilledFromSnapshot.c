@@ -21,6 +21,8 @@ class GC_KilledFromSnapshot
 	protected vector m_vHitPosition;
 	protected int m_iStance;
 	protected float m_fDynamicStance;
+	protected float m_fKillerLean;
+	protected float m_fVictimLean;
 	protected int m_iFlags;
 	protected bool m_bHasLocalDamageCapture;
 	protected ref array<ref SCR_BasePreviewEntry> m_aKillerPreviewEntries;
@@ -82,6 +84,7 @@ class GC_KilledFromSnapshot
 		m_aVictimPreviewEntries = localDamage.m_aVictimPreviewEntries;
 		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
 		m_aVictimBonePose = localDamage.m_aVictimBonePose;
+		m_fVictimLean = localDamage.m_fVictimLean;
 		if (!localDamage.HasKillerPreview())
 			return;
 
@@ -90,6 +93,7 @@ class GC_KilledFromSnapshot
 		m_vKillerAngles = localDamage.m_vKillerAngles;
 		m_iStance = localDamage.m_iStance;
 		m_fDynamicStance = localDamage.m_fDynamicStance;
+		m_fKillerLean = localDamage.m_fKillerLean;
 		m_iFlags = localDamage.m_iFlags;
 		m_aKillerPreviewEntries = localDamage.m_aKillerPreviewEntries;
 		Math3D.MatrixCopy(localDamage.m_aKillerRootTransform, m_aKillerRootTransform);
@@ -119,6 +123,7 @@ class GC_KilledFromSnapshot
 
 		m_iStance = controller.GetStance();
 		m_fDynamicStance = controller.GetDynamicStance();
+		m_fKillerLean = controller.GetCurrentLeanAmount();
 		if (controller.IsWeaponRaised())
 			m_iFlags |= FLAG_WEAPON_RAISED;
 		if (controller.IsWeaponADS())
@@ -131,6 +136,12 @@ class GC_KilledFromSnapshot
 	void CaptureVictimVisual(IEntity victim)
 	{
 		CaptureVisual(victim, m_aVictimPreviewEntries, m_aVictimRootTransform, m_aVictimBonePose);
+		ChimeraCharacter victimCharacter = ChimeraCharacter.Cast(victim);
+		if (!victimCharacter)
+			return;
+		CharacterControllerComponent victimController = victimCharacter.GetCharacterController();
+		if (victimController)
+			m_fVictimLean = victimController.GetCurrentLeanAmount();
 	}
 
 	protected void CaptureVisual(IEntity entity, out array<ref SCR_BasePreviewEntry> entries, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
@@ -200,8 +211,9 @@ class GC_KilledFromSnapshot
 			victimBoneCount = m_aVictimBonePose.Count();
 		string report = string.Format("valid=%1 prefab=%2 killerPosition=%3 killerAngles=%4 lineOrigin=%5 hitPosition=%6",
 			HasKillerPreview(), m_sKillerPrefab, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
-		report = report + string.Format(" stance=%1 dynamicStance=%2 weaponRaised=%3 ads=%4 flags=%5 localDamage=%6", m_iStance, m_fDynamicStance,
-			(m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0, m_iFlags, m_bHasLocalDamageCapture);
+		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 weaponRaised=%5 ads=%6", m_iStance, m_fDynamicStance,
+			m_fKillerLean, m_fVictimLean, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
+		report = report + string.Format(" flags=%1 localDamage=%2", m_iFlags, m_bHasLocalDamageCapture);
 		return report + string.Format(" killerVisual=%1 killerBones=%2 victimVisual=%3 victimBones=%4", HasKillerVisual(), killerBoneCount, HasVictimVisual(), victimBoneCount);
 	}
 }
