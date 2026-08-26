@@ -1,6 +1,13 @@
-//! Server-captured facts required to recreate one killed-from presentation.
-//! Base-game damage and character systems remain authoritative; this record is
-//! retained only for the owning KIA player's spectator presentation.
+//! One captured skeletal bone used by a client-only visual reconstruction.
+class GC_KilledFromBonePose
+{
+	string m_sBoneName;
+	vector m_aTransform[4];
+}
+
+//! Facts required to recreate one killed-from presentation. Network-safe
+//! primitive fields provide the authority fallback; visual entries and exact
+//! bone poses exist only on the owning client.
 class GC_KilledFromSnapshot
 {
 	static const int FLAG_VALID_KILLER = 1;
@@ -15,9 +22,17 @@ class GC_KilledFromSnapshot
 	protected int m_iStance;
 	protected float m_fDynamicStance;
 	protected int m_iFlags;
+	protected bool m_bHasLocalDamageCapture;
+	protected ref array<ref SCR_BasePreviewEntry> m_aKillerPreviewEntries;
+	protected vector m_aKillerRootTransform[4];
+	protected ref array<ref GC_KilledFromBonePose> m_aKillerBonePose;
+	protected ref array<ref SCR_BasePreviewEntry> m_aVictimPreviewEntries;
+	protected vector m_aVictimRootTransform[4];
+	protected ref array<ref GC_KilledFromBonePose> m_aVictimBonePose;
 
 	void Capture(IEntity victim, notnull BaseDamageContext damageContext)
 	{
+		m_bHasLocalDamageCapture = true;
 		m_vHitPosition = damageContext.hitPosition;
 		IEntity killer;
 		if (damageContext.instigator)
@@ -34,6 +49,8 @@ class GC_KilledFromSnapshot
 		// impact path, so they continue to point back to the instigator.
 		if (damageSource && damageContext.damageType == EDamageType.EXPLOSIVE)
 			m_vLineOrigin = damageSource.GetOrigin();
+
+		CaptureVictimVisual(victim);
 	}
 
 	//! One-shot server fallback for killers that were not streamed to the owning
@@ -56,8 +73,15 @@ class GC_KilledFromSnapshot
 		if (!localDamage)
 			return;
 
-		m_vLineOrigin = localDamage.m_vLineOrigin;
-		m_vHitPosition = localDamage.m_vHitPosition;
+		if (localDamage.m_bHasLocalDamageCapture)
+		{
+			m_bHasLocalDamageCapture = true;
+			m_vLineOrigin = localDamage.m_vLineOrigin;
+			m_vHitPosition = localDamage.m_vHitPosition;
+		}
+		m_aVictimPreviewEntries = localDamage.m_aVictimPreviewEntries;
+		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
+		m_aVictimBonePose = localDamage.m_aVictimBonePose;
 		if (!localDamage.HasKillerPreview())
 			return;
 
@@ -67,6 +91,9 @@ class GC_KilledFromSnapshot
 		m_iStance = localDamage.m_iStance;
 		m_fDynamicStance = localDamage.m_fDynamicStance;
 		m_iFlags = localDamage.m_iFlags;
+		m_aKillerPreviewEntries = localDamage.m_aKillerPreviewEntries;
+		Math3D.MatrixCopy(localDamage.m_aKillerRootTransform, m_aKillerRootTransform);
+		m_aKillerBonePose = localDamage.m_aKillerBonePose;
 	}
 
 	protected void CaptureKiller(IEntity killer)
@@ -80,6 +107,7 @@ class GC_KilledFromSnapshot
 			m_sKillerPrefab = prefabData.GetPrefabName();
 		if (m_sKillerPrefab != string.Empty)
 			m_iFlags |= FLAG_VALID_KILLER;
+		CaptureVisual(killer, m_aKillerPreviewEntries, m_aKillerRootTransform, m_aKillerBonePose);
 
 		ChimeraCharacter character = ChimeraCharacter.Cast(killer);
 		if (!character)
@@ -95,6 +123,42 @@ class GC_KilledFromSnapshot
 			m_iFlags |= FLAG_WEAPON_RAISED;
 		if (controller.IsWeaponADS())
 			m_iFlags |= FLAG_WEAPON_ADS;
+	}
+
+	//! Refresh immediately before local possession leaves the dead character.
+	//! This preserves the terminal death location and pose even when the retained
+	//! attacker came from an earlier hit that caused unconsciousness or bleed-out.
+	void CaptureVictimVisual(IEntity victim)
+	{
+		CaptureVisual(victim, m_aVictimPreviewEntries, m_aVictimRootTransform, m_aVictimBonePose);
+	}
+
+	protected void CaptureVisual(IEntity entity, out array<ref SCR_BasePreviewEntry> entries, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
+	{
+		if (!entity)
+			return;
+
+		EntitySpawnParams spawnParams;
+		entries = SCR_GenericPreviewEntity.GetPreviewEntriesFromEntity(entity, spawnParams);
+		if (spawnParams)
+			Math3D.MatrixCopy(spawnParams.Transform, rootTransform);
+
+		bonePose = {};
+		Animation animation = entity.GetAnimation();
+		if (!animation)
+			return;
+
+		array<string> boneNames = {};
+		animation.GetBoneNames(boneNames);
+		foreach (string boneName : boneNames)
+		{
+			TNodeId boneIndex = animation.GetBoneIndex(boneName);
+			GC_KilledFromBonePose pose = new GC_KilledFromBonePose();
+			pose.m_sBoneName = boneName;
+			if (!animation.GetBoneMatrix(boneIndex, pose.m_aTransform))
+				continue;
+			bonePose.Insert(pose);
+		}
 	}
 
 	void SetNetworkData(ResourceName killerPrefab, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
@@ -118,10 +182,32 @@ class GC_KilledFromSnapshot
 	float GetDynamicStance() { return m_fDynamicStance; }
 	int GetFlags() { return m_iFlags; }
 	bool HasKillerPreview() { return (m_iFlags & FLAG_VALID_KILLER) != 0; }
+	bool HasKillerVisual() { return m_aKillerPreviewEntries && !m_aKillerPreviewEntries.IsEmpty(); }
+	bool HasVictimVisual() { return m_aVictimPreviewEntries && !m_aVictimPreviewEntries.IsEmpty(); }
+	array<ref SCR_BasePreviewEntry> GetKillerPreviewEntries() { return m_aKillerPreviewEntries; }
+	array<ref SCR_BasePreviewEntry> GetVictimPreviewEntries() { return m_aVictimPreviewEntries; }
+	array<ref GC_KilledFromBonePose> GetKillerBonePose() { return m_aKillerBonePose; }
+	array<ref GC_KilledFromBonePose> GetVictimBonePose() { return m_aVictimBonePose; }
+	void GetKillerRootTransform(out vector transform[4]) { Math3D.MatrixCopy(m_aKillerRootTransform, transform); }
+	void GetVictimRootTransform(out vector transform[4]) { Math3D.MatrixCopy(m_aVictimRootTransform, transform); }
+	string GetDebugReport()
+	{
+		int killerBoneCount;
+		if (m_aKillerBonePose)
+			killerBoneCount = m_aKillerBonePose.Count();
+		int victimBoneCount;
+		if (m_aVictimBonePose)
+			victimBoneCount = m_aVictimBonePose.Count();
+		string report = string.Format("valid=%1 prefab=%2 killerPosition=%3 killerAngles=%4 lineOrigin=%5 hitPosition=%6",
+			HasKillerPreview(), m_sKillerPrefab, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
+		report = report + string.Format(" stance=%1 dynamicStance=%2 weaponRaised=%3 ads=%4 flags=%5 localDamage=%6", m_iStance, m_fDynamicStance,
+			(m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0, m_iFlags, m_bHasLocalDamageCapture);
+		return report + string.Format(" killerVisual=%1 killerBones=%2 victimVisual=%3 victimBones=%4", HasKillerVisual(), killerBoneCount, HasVictimVisual(), victimBoneCount);
+	}
 }
 
-//! One server-only adapter per playable slot entity. It retains only the most
-//! recent damage context, which is the fatal context when destruction follows.
+//! One owning-client adapter for the locally controlled playable entity. It
+//! retains the latest damage plus the last direct external damage source.
 class GC_KilledFromDamageTracker
 {
 	protected IEntity m_Victim;
@@ -132,19 +218,32 @@ class GC_KilledFromDamageTracker
 	bool Start(IEntity victim)
 	{
 		if (!victim)
+		{
+			Print("GC | Killed From | event=tracker-start result=rejected reason=no-victim", LogLevel.WARNING);
 			return false;
+		}
 
 		m_DamageManager = SCR_DamageManagerComponent.Cast(victim.FindComponent(SCR_DamageManagerComponent));
 		if (!m_DamageManager)
+		{
+			PrintFormat("GC | Killed From | event=tracker-start result=rejected reason=no-damage-manager victim=%1", victim, level: LogLevel.WARNING);
 			return false;
+		}
 
 		m_Victim = victim;
 		m_DamageManager.GetOnDamage().Insert(OnDamage);
+		PrintFormat("GC | Killed From | event=tracker-start result=subscribed victim=%1 damageManager=%2", m_Victim, m_DamageManager);
 		return true;
 	}
 
 	void Destroy()
 	{
+		GC_KilledFromSnapshot retainedSnapshot = GetSnapshot();
+		if (retainedSnapshot)
+			PrintFormat("GC | Killed From | event=tracker-stop victim=%1 retainedSnapshot={%2}", m_Victim, retainedSnapshot.GetDebugReport());
+		else
+			PrintFormat("GC | Killed From | event=tracker-stop victim=%1 retainedSnapshot=none", m_Victim);
+
 		if (m_DamageManager)
 			m_DamageManager.GetOnDamage().Remove(OnDamage);
 		m_Victim = null;
@@ -160,14 +259,29 @@ class GC_KilledFromDamageTracker
 		return m_Snapshot;
 	}
 
+	void CaptureTerminalVictim()
+	{
+		if (!m_Snapshot)
+			m_Snapshot = new GC_KilledFromSnapshot();
+		m_Snapshot.CaptureVictimVisual(m_Victim);
+		if (m_LastExternalSnapshot && m_LastExternalSnapshot != m_Snapshot)
+			m_LastExternalSnapshot.CaptureVictimVisual(m_Victim);
+	}
+
 	protected void OnDamage(notnull BaseDamageContext damageContext)
 	{
 		if (damageContext.damageType == EDamageType.HEALING || damageContext.damageType == EDamageType.REGENERATION)
+		{
+			PrintFormat("GC | Killed From | event=damage result=ignored reason=non-damage type=%1 victim=%2", damageContext.damageType, m_Victim);
 			return;
+		}
 
 		bool passiveDamage = damageContext.damageType == EDamageType.BLEEDING || damageContext.damageType == EDamageType.FIRE;
 		if (passiveDamage && m_Snapshot)
+		{
+			PrintFormat("GC | Killed From | event=damage result=ignored reason=passive-after-capture type=%1 victim=%2 retained={%3}", damageContext.damageType, m_Victim, GetSnapshot().GetDebugReport());
 			return;
+		}
 
 		GC_KilledFromSnapshot snapshot = new GC_KilledFromSnapshot();
 		snapshot.Capture(m_Victim, damageContext);
@@ -187,5 +301,9 @@ class GC_KilledFromDamageTracker
 		bool externalPlayer = instigatorPlayerId > 0 && instigatorPlayerId != victimPlayerId;
 		if (!passiveDamage && (externalEntity || externalPlayer))
 			m_LastExternalSnapshot = snapshot;
+
+		PrintFormat("GC | Killed From | event=damage result=captured type=%1 victim=%2 victimPlayer=%3 damageSource=%4 instigator=%5 instigatorPlayer=%6 passive=%7 retainedAsExternal=%8 snapshot={%9}",
+			damageContext.damageType, m_Victim, victimPlayerId, damageContext.damageSource, instigatorEntity, instigatorPlayerId, passiveDamage,
+			m_LastExternalSnapshot == snapshot, snapshot.GetDebugReport());
 	}
 }

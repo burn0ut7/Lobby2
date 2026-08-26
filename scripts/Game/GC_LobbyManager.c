@@ -946,6 +946,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GC_Slot slot = m_Roster.GetSlotByEntity(victim);
 		if (!slot)
 			return;
+		PrintFormat("GC | Killed From | event=authority-destroyed victim=%1 killer=%2 slot=%3 phase=%4", victim, instigatorContextData.GetKillerEntity(), slot.GetID(), GetLobbyPhase());
 
 		if (GetLobbyPhase() == SCR_EGameModeState.GAME)
 		{
@@ -958,6 +959,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				{
 					GC_KilledFromSnapshot killedFromSnapshot = new GC_KilledFromSnapshot();
 					killedFromSnapshot.CaptureDeathFallback(victim, instigatorContextData.GetKillerEntity());
+					PrintFormat("GC | Killed From | event=authority-fallback reason=controllable-destroyed player=%1 snapshot={%2}", playerId, killedFromSnapshot.GetDebugReport());
 					playerController.SendKilledFromSnapshot(killedFromSnapshot);
 				}
 				SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
@@ -988,6 +990,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GC_Slot slot = m_Roster.GetSlotByEntity(entity);
 		if (!slot)
 			return;
+		PrintFormat("GC | Killed From | event=authority-deleted victim=%1 slot=%2 phase=%3", entity, slot.GetID(), GetLobbyPhase());
 
 		if (GetLobbyPhase() == SCR_EGameModeState.GAME)
 		{
@@ -1009,6 +1012,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				{
 					GC_KilledFromSnapshot killedFromSnapshot = new GC_KilledFromSnapshot();
 					killedFromSnapshot.CaptureDeathFallback(entity, killer);
+					PrintFormat("GC | Killed From | event=authority-fallback reason=controllable-deleted player=%1 killer=%2 snapshot={%3}", playerId, killer, killedFromSnapshot.GetDebugReport());
 					playerController.SendKilledFromSnapshot(killedFromSnapshot);
 				}
 			}

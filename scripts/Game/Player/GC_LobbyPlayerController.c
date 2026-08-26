@@ -567,8 +567,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	void SendKilledFromSnapshot(GC_KilledFromSnapshot snapshot)
 	{
 		if (!Replication.IsServer() || !snapshot)
+		{
+			PrintFormat("GC | Killed From | event=snapshot-send result=rejected server=%1 player=%2 snapshot=%3", Replication.IsServer(), GetPlayerId(), snapshot, level: LogLevel.WARNING);
 			return;
+		}
 
+		PrintFormat("GC | Killed From | event=snapshot-send result=rpc-owner player=%1 snapshot={%2}", GetPlayerId(), snapshot.GetDebugReport());
 		Rpc(RpcDo_SetKilledFromSnapshot, snapshot.GetKillerPrefab(), snapshot.GetKillerPosition(), snapshot.GetKillerAngles(), snapshot.GetLineOrigin(), snapshot.GetHitPosition(), snapshot.GetStance(), snapshot.GetDynamicStance(), snapshot.GetFlags());
 	}
 
@@ -577,11 +581,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	{
 		GC_KilledFromSnapshot serverFallback = new GC_KilledFromSnapshot();
 		serverFallback.SetNetworkData(killerPrefab, killerPosition, killerAngles, lineOrigin, hitPosition, stance, dynamicStance, flags);
+		PrintFormat("GC | Killed From | event=snapshot-receive player=%1 serverFallback={%2} localTracker=%3 retainedLocal=%4", GetPlayerId(), serverFallback.GetDebugReport(), m_LocalKilledFromTracker != null, m_KilledFromSnapshot != null);
 		if (m_LocalKilledFromTracker)
 			serverFallback.MergeLocalDamage(m_LocalKilledFromTracker.GetSnapshot());
 		else
 			serverFallback.MergeLocalDamage(m_KilledFromSnapshot);
 		m_KilledFromSnapshot = serverFallback;
+		PrintFormat("GC | Killed From | event=snapshot-merge player=%1 final={%2} overlayReady=%3 enabled=%4", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport(), m_SpectatorMarkerOverlay != null, m_bSpectatorKilledFromEnabled);
 		if (m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
 	}
@@ -630,13 +636,31 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void StartLocalKilledFromTracking(IEntity entity)
 	{
-		if (m_LocalKilledFromTracker || GetGame().GetPlayerController() != this || !entity || entity.FindComponent(GC_LobbySpectatorBodyComponent))
+		if (m_LocalKilledFromTracker)
+		{
+			PrintFormat("GC | Killed From | event=tracker-request result=ignored reason=already-tracking player=%1 entity=%2", GetPlayerId(), entity);
 			return;
+		}
+		if (GetGame().GetPlayerController() != this)
+			return;
+		if (!entity)
+		{
+			PrintFormat("GC | Killed From | event=tracker-request result=ignored reason=no-controlled-entity player=%1", GetPlayerId());
+			return;
+		}
+		if (entity.FindComponent(GC_LobbySpectatorBodyComponent))
+		{
+			PrintFormat("GC | Killed From | event=tracker-request result=ignored reason=spectator-body player=%1 entity=%2 retainedSnapshot=%3", GetPlayerId(), entity, m_KilledFromSnapshot != null);
+			return;
+		}
 
 		m_KilledFromSnapshot = null;
 		m_LocalKilledFromTracker = new GC_KilledFromDamageTracker();
 		if (!m_LocalKilledFromTracker.Start(entity))
+		{
 			m_LocalKilledFromTracker = null;
+			PrintFormat("GC | Killed From | event=tracker-request result=failed player=%1 entity=%2", GetPlayerId(), entity, level: LogLevel.WARNING);
+		}
 	}
 
 	protected void StopLocalKilledFromTracking(bool retainSnapshot)
@@ -644,8 +668,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!m_LocalKilledFromTracker)
 			return;
 
+		PrintFormat("GC | Killed From | event=tracker-retain player=%1 retain=%2 existingSnapshot=%3", GetPlayerId(), retainSnapshot, m_KilledFromSnapshot != null);
+
 		if (retainSnapshot)
 		{
+			m_LocalKilledFromTracker.CaptureTerminalVictim();
 			GC_KilledFromSnapshot localDamage = m_LocalKilledFromTracker.GetSnapshot();
 			if (localDamage)
 			{
@@ -655,6 +682,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 					m_KilledFromSnapshot = localDamage;
 			}
 		}
+		if (m_KilledFromSnapshot)
+			PrintFormat("GC | Killed From | event=tracker-retain result=complete player=%1 snapshot={%2}", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport());
+		else
+			PrintFormat("GC | Killed From | event=tracker-retain result=complete player=%1 snapshot=none", GetPlayerId());
 
 		m_LocalKilledFromTracker.Destroy();
 		m_LocalKilledFromTracker = null;
@@ -898,6 +929,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		else
 		{
 			m_SpectatorMarkerOverlay.SetInterfaceVisible(m_bSpectatorInterfaceVisible);
+			if (m_KilledFromSnapshot)
+				PrintFormat("GC | Killed From | event=overlay-create result=ready player=%1 enabled=%2 snapshot={%3}", GetPlayerId(), m_bSpectatorKilledFromEnabled, m_KilledFromSnapshot.GetDebugReport());
+			else
+				PrintFormat("GC | Killed From | event=overlay-create result=ready player=%1 enabled=%2 snapshot=none", GetPlayerId(), m_bSpectatorKilledFromEnabled);
 		}
 	}
 
@@ -981,6 +1016,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	void SetSpectatorKilledFromEnabled(bool enabled)
 	{
 		m_bSpectatorKilledFromEnabled = enabled;
+		PrintFormat("GC | Killed From | event=toggle player=%1 enabled=%2 snapshot=%3 menuReady=%4 overlayReady=%5", GetPlayerId(), enabled, m_KilledFromSnapshot != null, m_SpectatorMenu != null, m_SpectatorMarkerOverlay != null);
 		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
 		if (spectatorMenu)
 			spectatorMenu.SetKilledFromEnabled(enabled);
@@ -1012,6 +1048,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!m_SpectatorMarkerOverlay)
 			return;
 
+		PrintFormat("GC | Killed From | event=overlay-destroy player=%1 enabled=%2 snapshotRetained=%3", GetPlayerId(), m_bSpectatorKilledFromEnabled, m_KilledFromSnapshot != null);
 		m_SpectatorMarkerOverlay.Destroy();
 		m_SpectatorMarkerOverlay = null;
 	}
