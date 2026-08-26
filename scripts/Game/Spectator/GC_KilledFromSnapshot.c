@@ -25,6 +25,7 @@ class GC_KilledFromSnapshot
 	protected float m_fDynamicStance;
 	protected float m_fKillerLean;
 	protected float m_fVictimLean;
+	protected string m_sLineOriginMode;
 	protected int m_iFlags;
 	protected bool m_bHasLocalDamageCapture;
 	protected ref array<ref SCR_BasePreviewEntry> m_aKillerPreviewEntries;
@@ -46,15 +47,24 @@ class GC_KilledFromSnapshot
 
 		IEntity damageSource = damageContext.damageSource;
 		if (killer)
+		{
 			CaptureKiller(killer);
+			CaptureProjectileLineOrigin(killer, damageContext);
+		}
 		else if (victim)
+		{
 			m_vLineOrigin = victim.GetOrigin();
+			m_sLineOriginMode = "victim-fallback";
+		}
 
 		// For blast damage, the explosive's final position is more truthful than
 		// the thrower's current position. Fragment projectiles retain their own
 		// impact path, so they continue to point back to the instigator.
 		if (damageSource && damageContext.damageType == EDamageType.EXPLOSIVE)
+		{
 			m_vLineOrigin = damageSource.GetOrigin();
+			m_sLineOriginMode = "explosive-source";
+		}
 
 		CaptureVictimVisual(victim);
 	}
@@ -84,6 +94,7 @@ class GC_KilledFromSnapshot
 			m_bHasLocalDamageCapture = true;
 			m_vLineOrigin = localDamage.m_vLineOrigin;
 			m_vHitPosition = localDamage.m_vHitPosition;
+			m_sLineOriginMode = localDamage.m_sLineOriginMode;
 		}
 		m_aVictimPreviewEntries = localDamage.m_aVictimPreviewEntries;
 		m_sVictimVisualObject = localDamage.m_sVictimVisualObject;
@@ -111,6 +122,7 @@ class GC_KilledFromSnapshot
 		m_vKillerPosition = killer.GetOrigin();
 		m_vKillerAngles = killer.GetAngles();
 		m_vLineOrigin = m_vKillerPosition;
+		m_sLineOriginMode = "killer-origin-fallback";
 
 		EntityPrefabData prefabData = killer.GetPrefabData();
 		if (prefabData)
@@ -134,6 +146,33 @@ class GC_KilledFromSnapshot
 			m_iFlags |= FLAG_WEAPON_RAISED;
 		if (controller.IsWeaponADS())
 			m_iFlags |= FLAG_WEAPON_ADS;
+	}
+
+	//! Reconstruct the incoming projectile ray from the impact facts. Projecting
+	//! the attacker onto that ray starts the trace at firing height rather than
+	//! at the character entity's ground-level origin.
+	protected void CaptureProjectileLineOrigin(IEntity killer, notnull BaseDamageContext damageContext)
+	{
+		if (damageContext.damageType == EDamageType.EXPLOSIVE)
+			return;
+
+		vector trajectory = damageContext.impactVelocity;
+		m_sLineOriginMode = "impact-velocity-ray";
+		if (trajectory.LengthSq() < 0.0001)
+		{
+			trajectory = damageContext.hitDirection;
+			m_sLineOriginMode = "hit-direction-ray";
+		}
+		if (trajectory.LengthSq() < 0.0001)
+		{
+			m_sLineOriginMode = "killer-origin-fallback";
+			return;
+		}
+
+		trajectory.Normalize();
+		vector hitToKiller = killer.GetOrigin() - damageContext.hitPosition;
+		float distanceAlongTrajectory = vector.Dot(hitToKiller, trajectory);
+		m_vLineOrigin = damageContext.hitPosition + trajectory * distanceAlongTrajectory;
 	}
 
 	//! Refresh immediately before local possession leaves the dead character.
@@ -231,7 +270,7 @@ class GC_KilledFromSnapshot
 			HasKillerPreview(), m_sKillerPrefab, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
 		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 weaponRaised=%5 ads=%6", m_iStance, m_fDynamicStance,
 			m_fKillerLean, m_fVictimLean, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
-		report = report + string.Format(" flags=%1 localDamage=%2", m_iFlags, m_bHasLocalDamageCapture);
+		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasLocalDamageCapture, m_sLineOriginMode);
 		return report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 victimVisual=%4 victimObject=%5 victimBones=%6", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount);
 	}
 }

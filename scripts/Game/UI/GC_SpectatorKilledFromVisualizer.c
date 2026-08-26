@@ -6,7 +6,6 @@ class GC_SpectatorKilledFromVisualizer
 	protected static const float KILLER_LABEL_WIDTH = 160.0;
 	protected static const float KILLER_LABEL_HEIGHT = 36.0;
 	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
-	protected static const ResourceName PREVIEW_MATERIAL = "{58F07022C12D0CF5}Assets/Editor/PlacingPreview/Preview.emat";
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
@@ -113,17 +112,21 @@ class GC_SpectatorKilledFromVisualizer
 	{
 		if (visualObject == ResourceName.Empty || !entries || entries.IsEmpty())
 		{
-			PrintFormat("GC | Killed From | event=actor-preview result=skipped role=%1 stage=hierarchy-local-pose reason=no-client-visual", role, level: LogLevel.WARNING);
+			PrintFormat("GC | Killed From | event=actor-preview result=skipped role=%1 stage=hierarchy-baseline reason=no-client-visual", role, level: LogLevel.WARNING);
 			return null;
+		}
+		foreach (int visualPartIndex, SCR_BasePreviewEntry visualPart : entries)
+		{
+			PrintFormat("GC | Killed From | event=visual-part role=%1 index=%2 parent=%3 pivot=%4 mesh=%5 shape=%6", role, visualPartIndex, visualPart.m_iParentID, visualPart.m_iPivotID, visualPart.m_Mesh, visualPart.m_Shape);
 		}
 
 		EntitySpawnParams params = new EntitySpawnParams();
 		params.TransformMode = ETransformMode.WORLD;
 		Math3D.MatrixCopy(rootTransform, params.Transform);
-		SCR_BasePreviewEntity preview = SCR_BasePreviewEntity.SpawnPreview(entries, "SCR_BasePreviewEntity", m_World, params, PREVIEW_MATERIAL);
+		SCR_BasePreviewEntity preview = SCR_BasePreviewEntity.SpawnPreview(entries, "SCR_BasePreviewEntity", m_World, params);
 		if (!preview)
 		{
-			PrintFormat("GC | Killed From | event=actor-preview result=failed role=%1 stage=hierarchy-local-pose reason=spawn sourceObject=%2 entries=%3", role, visualObject, entries.Count(), level: LogLevel.ERROR);
+			PrintFormat("GC | Killed From | event=actor-preview result=failed role=%1 stage=hierarchy-baseline reason=spawn sourceObject=%2 visualParts=%3", role, visualObject, entries.Count(), level: LogLevel.ERROR);
 			return null;
 		}
 
@@ -141,8 +144,6 @@ class GC_SpectatorKilledFromVisualizer
 		int matchingBones;
 		int missingBones;
 		int targetBones;
-		int appliedLocalBones;
-		int failedLocalBones;
 		if (bonePose)
 			capturedBones = bonePose.Count();
 		IEntity skeletalEntity;
@@ -170,13 +171,7 @@ class GC_SpectatorKilledFromVisualizer
 					if (targetBone == -1)
 						missingBones++;
 					else
-					{
 						matchingBones++;
-						if (pose.m_bHasLocalTransform && targetAnimation.SetBoneMatrix(skeletalEntity, targetBone, pose.m_aLocalTransform))
-							appliedLocalBones++;
-						else
-							failedLocalBones++;
-					}
 				}
 			}
 		}
@@ -193,8 +188,8 @@ class GC_SpectatorKilledFromVisualizer
 		Physics previewPhysics;
 		if (skeletalEntity)
 			previewPhysics = skeletalEntity.GetPhysics();
-		PrintFormat("GC | Killed From | event=actor-preview result=spawned role=%1 stage=hierarchy-local-pose preview=%2 sourceObject=%3 targetObject=%4 hierarchyEntries=%5 physics=%6 exactWorldTransform=%7", role, preview, visualObject, targetObject, entryCount, previewPhysics, rootTransform);
-		PrintFormat("GC | Killed From | event=actor-preview-compat role=%1 stage=hierarchy-local-pose capturedModelBones=%2 capturedLocalBones=%3 targetBones=%4 matchingBones=%5 missingBones=%6 appliedLocalBones=%7 failedLocalBones=%8", role, capturedBones, capturedLocalBones, targetBones, matchingBones, missingBones, appliedLocalBones, failedLocalBones);
+		PrintFormat("GC | Killed From | event=actor-preview result=spawned role=%1 stage=hierarchy-baseline preview=%2 sourceObject=%3 targetObject=%4 visualParts=%5 physics=%6 exactWorldTransform=%7", role, preview, visualObject, targetObject, entryCount, previewPhysics, rootTransform);
+		PrintFormat("GC | Killed From | event=actor-preview-compat role=%1 stage=hierarchy-baseline capturedModelBones=%2 capturedLocalBones=%3 targetBones=%4 matchingBones=%5 missingBones=%6 applyBones=0", role, capturedBones, capturedLocalBones, targetBones, matchingBones, missingBones);
 		return preview;
 	}
 
