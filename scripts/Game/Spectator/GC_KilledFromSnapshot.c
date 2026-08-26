@@ -11,6 +11,8 @@ class GC_KilledFromWeaponState
 {
 	protected ResourceName m_sPrefab;
 	protected vector m_aWorldTransform[4];
+	protected vector m_aRightHandRelativeTransform[4];
+	protected bool m_bHasRightHandRelativeTransform;
 	protected int m_iManagedWeaponIndex = -1;
 	protected int m_iSightsIndex = -1;
 
@@ -27,18 +29,35 @@ class GC_KilledFromWeaponState
 		if (prefabData)
 			m_sPrefab = prefabData.GetPrefabName();
 		weaponEntity.GetWorldTransform(m_aWorldTransform);
+		Animation animation = character.GetAnimation();
+		if (animation)
+		{
+			TNodeId handBone = animation.GetBoneIndex("RightHandProp");
+			vector handModelTransform[4];
+			if (handBone >= 0 && animation.GetBoneMatrix(handBone, handModelTransform))
+			{
+				vector characterTransform[4];
+				vector handWorldTransform[4];
+				character.GetWorldTransform(characterTransform);
+				Math3D.MatrixMultiply4(characterTransform, handModelTransform, handWorldTransform);
+				Math3D.MatrixInvMultiply4(handWorldTransform, m_aWorldTransform, m_aRightHandRelativeTransform);
+				m_bHasRightHandRelativeTransform = true;
+			}
+		}
 		m_iSightsIndex = manager.GetCurrentSightsIndex();
 		array<IEntity> weapons = {};
 		manager.GetWeaponsList(weapons);
 		m_iManagedWeaponIndex = weapons.Find(weaponEntity);
-		PrintFormat("GC | Killed From | event=weapon-capture character=%1 weapon=%2 prefab=%3 managedIndex=%4 sightsIndex=%5 transform=%6", character, weaponEntity, m_sPrefab, m_iManagedWeaponIndex, m_iSightsIndex, m_aWorldTransform);
+		PrintFormat("GC | Killed From | event=weapon-capture character=%1 weapon=%2 prefab=%3 managedIndex=%4 sightsIndex=%5 transform=%6 handRelative=%7 relativeTransform=%8", character, weaponEntity, m_sPrefab, m_iManagedWeaponIndex, m_iSightsIndex, m_aWorldTransform, m_bHasRightHandRelativeTransform, m_aRightHandRelativeTransform);
 	}
 
 	bool IsValid() { return m_sPrefab != ResourceName.Empty; }
 	ResourceName GetPrefab() { return m_sPrefab; }
 	int GetManagedWeaponIndex() { return m_iManagedWeaponIndex; }
 	int GetSightsIndex() { return m_iSightsIndex; }
+	bool HasRightHandRelativeTransform() { return m_bHasRightHandRelativeTransform; }
 	void GetWorldTransform(out vector transform[4]) { Math3D.MatrixCopy(m_aWorldTransform, transform); }
+	void GetRightHandRelativeTransform(out vector transform[4]) { Math3D.MatrixCopy(m_aRightHandRelativeTransform, transform); }
 }
 
 //! One captured turret animation state. Turrets are recorded and replayed in

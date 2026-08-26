@@ -4,6 +4,14 @@ class GC_KilledFromBoneOperation
 	vector m_aMatrix[4];
 }
 
+enum GC_EKilledFromWeaponPrototype
+{
+	POSE_THEN_NORMAL,
+	POSE_THEN_WORLD,
+	SELECT_POSE_WORLD,
+	SELECT_POSE_HAND_RELATIVE
+}
+
 //! Client-only killed-from preview and line renderer. No entity created here is
 //! inserted on the server or exposed as replicated gameplay state.
 class GC_SpectatorKilledFromVisualizer
@@ -20,6 +28,7 @@ class GC_SpectatorKilledFromVisualizer
 	protected IEntity m_VictimPreviewEntity;
 	protected IEntity m_KillerVehiclePreviewEntity;
 	protected IEntity m_VictimVehiclePreviewEntity;
+	protected ref array<IEntity> m_aKillerWeaponPrototypes = {};
 	protected bool m_bEnabled;
 	protected bool m_bVisibilityReported;
 	protected bool m_bPhysicsDeactivationReported;
@@ -117,7 +126,22 @@ class GC_SpectatorKilledFromVisualizer
 
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
-		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		if (killerVehicle && killerVehicle.IsValid())
+			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+		else
+		{
+			for (int mode; mode <= GC_EKilledFromWeaponPrototype.SELECT_POSE_HAND_RELATIVE; mode++)
+			{
+				vector prototypeTransform[4];
+				Math3D.MatrixCopy(killerTransform, prototypeTransform);
+				prototypeTransform[3] = prototypeTransform[3] + killerTransform[0] * ((mode - 1.5) * 3.0);
+				IEntity prototype = CreateActorClone(m_Snapshot.GetKillerPrefab(), prototypeTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), string.Format("killer-weapon-%1", mode));
+				if (prototype)
+					m_aKillerWeaponPrototypes.Insert(prototype);
+			}
+			if (m_aKillerWeaponPrototypes.Count() > 0)
+				m_KillerPreviewEntity = m_aKillerWeaponPrototypes[0];
+		}
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
@@ -349,7 +373,7 @@ class GC_SpectatorKilledFromVisualizer
 		return operations.Count() - failedBones;
 	}
 
-	protected IEntity ApplyWeaponState(IEntity actor, GC_KilledFromWeaponState state, string role, bool report)
+	protected IEntity SelectWeapon(IEntity actor, GC_KilledFromWeaponState state, string role, bool report)
 	{
 		if (!actor || !state || !state.IsValid())
 			return null;
@@ -386,17 +410,83 @@ class GC_SpectatorKilledFromVisualizer
 		if (weaponComponent)
 			selected = manager.SelectWeapon(weaponComponent);
 		manager.SetVisibleCurrentWeapon(true);
+		if (report)
+			PrintFormat("GC | Killed From | event=weapon-select role=%1 result=applied weapon=%2 requestedPrefab=%3 selected=%4 requestedSights=%5 actualSights=%6", role, selectedWeapon, state.GetPrefab(), selected, state.GetSightsIndex(), manager.GetCurrentSightsIndex());
+		return selectedWeapon;
+	}
+
+	protected void ApplyWeaponTransform(IEntity actor, IEntity weapon, GC_KilledFromWeaponState state, bool handRelative, string role, bool report)
+	{
+		if (!actor || !weapon || !state)
+			return;
 		vector exactTransform[4];
-		state.GetWorldTransform(exactTransform);
-		selectedWeapon.SetWorldTransform(exactTransform);
-		selectedWeapon.Update();
+		string mode = "WORLD";
+		if (handRelative && state.HasRightHandRelativeTransform())
+		{
+			Animation animation = actor.GetAnimation();
+			TNodeId handBone;
+			vector handModelTransform[4];
+			if (animation)
+				handBone = animation.GetBoneIndex("RightHandProp");
+			if (animation && handBone >= 0 && animation.GetBoneMatrix(handBone, handModelTransform))
+			{
+				vector actorTransform[4];
+				vector handWorldTransform[4];
+				vector handRelativeTransform[4];
+				actor.GetWorldTransform(actorTransform);
+				Math3D.MatrixMultiply4(actorTransform, handModelTransform, handWorldTransform);
+				state.GetRightHandRelativeTransform(handRelativeTransform);
+				Math3D.MatrixMultiply4(handWorldTransform, handRelativeTransform, exactTransform);
+				mode = "RIGHT-HAND-RELATIVE";
+			}
+			else
+				state.GetWorldTransform(exactTransform);
+		}
+		else
+			state.GetWorldTransform(exactTransform);
+		weapon.SetWorldTransform(exactTransform);
+		weapon.Update();
 		if (report)
 		{
 			vector readback[4];
-			selectedWeapon.GetWorldTransform(readback);
-			PrintFormat("GC | Killed From | event=weapon-replay role=%1 result=applied weapon=%2 requestedPrefab=%3 selected=%4 requestedSights=%5 actualSights=%6 requestedTransform=%7 readback=%8", role, selectedWeapon, state.GetPrefab(), selected, state.GetSightsIndex(), manager.GetCurrentSightsIndex(), exactTransform, readback);
+			weapon.GetWorldTransform(readback);
+			PrintFormat("GC | Killed From | event=weapon-transform role=%1 mode=%2 weapon=%3 requested=%4 readback=%5", role, mode, weapon, exactTransform, readback);
 		}
-		return selectedWeapon;
+	}
+
+	protected void UpdateWeaponPrototypeSet(array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, bool report)
+	{
+		foreach (int mode, IEntity prototype : m_aKillerWeaponPrototypes)
+		{
+			IsolatePhysicsHierarchy(prototype);
+			IEntity weapon;
+			if (mode >= GC_EKilledFromWeaponPrototype.SELECT_POSE_WORLD)
+				weapon = SelectWeapon(prototype, weaponState, string.Format("killer-weapon-%1", mode), report);
+			int missingBones;
+			int failedBones;
+			int unavailableLocalBones;
+			int appliedBones = ApplyBonePose(prototype, bonePose, missingBones, failedBones, unavailableLocalBones);
+			if (mode < GC_EKilledFromWeaponPrototype.SELECT_POSE_WORLD)
+				weapon = SelectWeapon(prototype, weaponState, string.Format("killer-weapon-%1", mode), report);
+			if (mode != GC_EKilledFromWeaponPrototype.POSE_THEN_NORMAL)
+				ApplyWeaponTransform(prototype, weapon, weaponState, mode == GC_EKilledFromWeaponPrototype.SELECT_POSE_HAND_RELATIVE, string.Format("killer-weapon-%1", mode), report);
+			IsolatePhysicsHierarchy(weapon);
+			int deactivatedBodies = DeactivatePhysicsHierarchy(prototype);
+			if (report)
+				PrintFormat("GC | Killed From | event=weapon-prototype index=%1 mode=%2 actor=%3 weapon=%4 appliedBones=%5 missingBones=%6 failedBones=%7 unavailableLocal=%8 deactivatedBodies=%9", mode, GetWeaponPrototypeName(mode), prototype, weapon, appliedBones, missingBones, failedBones, unavailableLocalBones, deactivatedBodies);
+		}
+	}
+
+	protected string GetWeaponPrototypeName(int mode)
+	{
+		switch (mode)
+		{
+			case GC_EKilledFromWeaponPrototype.POSE_THEN_NORMAL: return "POSE-NORMAL";
+			case GC_EKilledFromWeaponPrototype.POSE_THEN_WORLD: return "POSE-WORLD";
+			case GC_EKilledFromWeaponPrototype.SELECT_POSE_WORLD: return "SELECT-POSE-WORLD";
+			case GC_EKilledFromWeaponPrototype.SELECT_POSE_HAND_RELATIVE: return "SELECT-POSE-HAND";
+		}
+		return "UNKNOWN";
 	}
 
 	protected int IsolatePhysicsHierarchy(IEntity entity)
@@ -464,7 +554,17 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected void DestroyPreview()
 	{
-		if (m_KillerPreviewEntity)
+		if (m_aKillerWeaponPrototypes.Count() > 0)
+		{
+			foreach (IEntity prototype : m_aKillerWeaponPrototypes)
+			{
+				PrintFormat("GC | Killed From | event=preview-destroy role=killer-weapon-prototype preview=%1", prototype);
+				delete prototype;
+			}
+			m_aKillerWeaponPrototypes.Clear();
+			m_KillerPreviewEntity = null;
+		}
+		else if (m_KillerPreviewEntity)
 		{
 			IEntity killer = m_KillerPreviewEntity;
 			m_KillerPreviewEntity = null;
@@ -513,15 +613,25 @@ class GC_SpectatorKilledFromVisualizer
 		int killerMissingBones;
 		int killerFailedBones;
 		int killerUnavailableLocalBones;
-		int killerAppliedBones = ApplyBonePose(m_KillerPreviewEntity, killerBonePose, killerMissingBones, killerFailedBones, killerUnavailableLocalBones);
+		int killerAppliedBones;
+		if (m_aKillerWeaponPrototypes.Count() > 0)
+			UpdateWeaponPrototypeSet(killerBonePose, m_Snapshot.GetKillerWeapon(), !m_bPhysicsDeactivationReported);
+		else
+			killerAppliedBones = ApplyBonePose(m_KillerPreviewEntity, killerBonePose, killerMissingBones, killerFailedBones, killerUnavailableLocalBones);
 		int victimMissingBones;
 		int victimFailedBones;
 		int victimUnavailableLocalBones;
 		int victimAppliedBones = ApplyBonePose(m_VictimPreviewEntity, victimBonePose, victimMissingBones, victimFailedBones, victimUnavailableLocalBones);
 		ApplyVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
 		ApplyVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
-		IEntity killerWeapon = ApplyWeaponState(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
-		IEntity victimWeapon = ApplyWeaponState(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
+		IEntity killerWeapon;
+		if (m_aKillerWeaponPrototypes.Count() == 0)
+		{
+			killerWeapon = SelectWeapon(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), "killer", !m_bPhysicsDeactivationReported);
+			ApplyWeaponTransform(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), true, "killer", !m_bPhysicsDeactivationReported);
+		}
+		IEntity victimWeapon = SelectWeapon(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
+		ApplyWeaponTransform(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), true, "victim", !m_bPhysicsDeactivationReported);
 		IsolatePhysicsHierarchy(killerWeapon);
 		IsolatePhysicsHierarchy(victimWeapon);
 		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);
@@ -573,7 +683,14 @@ class GC_SpectatorKilledFromVisualizer
 		IEntity victimLabelEntity = m_VictimPreviewEntity;
 		if (m_VictimVehiclePreviewEntity)
 			victimLabelEntity = m_VictimVehiclePreviewEntity;
-		bool killerLabelVisible = DrawActorLabel(killerLabelEntity, "KILLED YOU", 0xe6a20f2d);
+		bool killerLabelVisible;
+		if (m_aKillerWeaponPrototypes.Count() > 0)
+		{
+			foreach (int weaponMode, IEntity weaponPrototype : m_aKillerWeaponPrototypes)
+				killerLabelVisible |= DrawActorLabel(weaponPrototype, string.Format("K%1 %2", weaponMode, GetWeaponPrototypeName(weaponMode)), 0xe6a20f2d);
+		}
+		else
+			killerLabelVisible = DrawActorLabel(killerLabelEntity, "KILLED YOU", 0xe6a20f2d);
 		bool victimLabelVisible = DrawActorLabel(victimLabelEntity, "YOU", 0xe63278b7);
 		bool labelVisible = killerLabelVisible || victimLabelVisible;
 		if (!m_bVisibilityReported || traceVisible != m_bLastTraceVisible || labelVisible != m_bLastLabelVisible)
