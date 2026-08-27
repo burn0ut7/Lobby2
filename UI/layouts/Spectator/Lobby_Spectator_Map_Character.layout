@@ -1,0 +1,51 @@
+FrameWidgetClass {
+ Name "LobbySpectatorMapCharacter"
+ Slot FrameWidgetSlot {
+  SizeX 20
+  OffsetRight -20
+  SizeY 20
+  OffsetBottom -20
+ }
+ "Is Visible" 0
+ "Z Order" 11
+ Clipping False
+ "Ignore Cursor" 1
+ {
+  ImageWidgetClass "{6A60000000000101}" {
+   Name "LobbySpectatorMapCharacterDot"
+   Slot FrameWidgetSlot "{6A60000000000102}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 20
+    OffsetRight -20
+    SizeY 20
+    OffsetBottom -20
+   }
+   Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
+   Image "LobbySpectatorCircle"
+   Size 20 20
+   Color 1 1 1 1
+   "Ignore Cursor" 1
+  }
+  ImageWidgetClass "{6A60000000000103}" {
+   Name "LobbySpectatorMapCharacterDirection"
+   Slot FrameWidgetSlot "{6A60000000000104}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 20
+    OffsetRight -20
+    SizeY 20
+    OffsetBottom -20
+   }
+   Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
+   Image "LobbySpectatorPlayer"
+   Size 20 20
+   Color 1 1 1 1
+   "Ignore Cursor" 1
+  }
+ }
+}

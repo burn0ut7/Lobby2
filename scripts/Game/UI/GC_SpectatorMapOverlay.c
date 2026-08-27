@@ -3,41 +3,61 @@
 //! from the base-game entity instead of copied into Lobby2 state.
 class GC_SpectatorMapCharacterSymbol
 {
+	protected static const ResourceName MARKER_LAYOUT = "{6A60000000000100}UI/layouts/Spectator/Lobby_Spectator_Map_Character.layout";
 	protected static const float DOT_RADIUS = 5;
-	protected static const float ARROW_GAP = 1.0;
-	protected static const float ARROW_LENGTH = 3.0;
-	protected static const float ARROW_HALF_WIDTH = 1.75;
 	protected static const float VIEWPORT_MARGIN = 128.0;
 
 	protected SCR_EditableEntityComponent m_Entity;
-	protected ref PolygonDrawCommand m_Dot = new PolygonDrawCommand();
-	protected ref PolygonDrawCommand m_Arrow = new PolygonDrawCommand();
+	protected WorkspaceWidget m_Workspace;
+	protected Widget m_wRoot;
+	protected ImageWidget m_wDot;
+	protected ImageWidget m_wDirection;
 	protected int m_iScreenX;
 	protected int m_iScreenY;
 	protected float m_fHoverRadius;
+	protected float m_fAppliedSize = -1.0;
 	protected bool m_bVisible;
 	protected bool m_bHasWorldState;
 	protected vector m_vWorldPosition;
 	protected vector m_vWorldFacingPosition;
 	protected TNodeId m_iHeadBoneIndex = -1;
 	protected Faction m_Faction;
-	protected int m_iFactionColor;
+	protected ref Color m_FactionColor;
 
-	void GC_SpectatorMapCharacterSymbol(SCR_EditableEntityComponent entity)
+	void GC_SpectatorMapCharacterSymbol(SCR_EditableEntityComponent entity, Widget markerParent, WorkspaceWidget workspace)
 	{
 		m_Entity = entity;
-		m_Dot.m_Vertices = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		m_Arrow.m_Vertices = {0, 0, 0, 0, 0, 0};
+		m_Workspace = workspace;
+		if (!markerParent || !m_Workspace)
+			return;
+
+		m_wRoot = m_Workspace.CreateWidgets(MARKER_LAYOUT, markerParent);
+		if (m_wRoot)
+		{
+			m_wDot = ImageWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorMapCharacterDot"));
+			m_wDirection = ImageWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorMapCharacterDirection"));
+		}
+		if ((!m_wDot || !m_wDirection) && m_wRoot)
+		{
+			m_wRoot.RemoveFromHierarchy();
+			m_wRoot = null;
+		}
 	}
 
-	PolygonDrawCommand GetDotCommand()
+	bool IsReady()
 	{
-		return m_Dot;
+		return m_wRoot && m_wDot && m_wDirection;
 	}
 
-	PolygonDrawCommand GetArrowCommand()
+	void Destroy()
 	{
-		return m_Arrow;
+		if (m_wRoot)
+			m_wRoot.RemoveFromHierarchy();
+		m_wRoot = null;
+		m_wDot = null;
+		m_wDirection = null;
+		m_Workspace = null;
+		m_Entity = null;
 	}
 
 	void SampleWorldState()
@@ -67,7 +87,9 @@ class GC_SpectatorMapCharacterSymbol
 		if (faction != m_Faction)
 		{
 			m_Faction = faction;
-			m_iFactionColor = faction.GetFactionColor().PackToInt();
+			m_FactionColor = faction.GetFactionColor();
+			m_wDot.SetColor(m_FactionColor);
+			m_wDirection.SetColor(m_FactionColor);
 		}
 
 		Animation animation = owner.GetAnimation();
@@ -139,45 +161,27 @@ class GC_SpectatorMapCharacterSymbol
 			directionY /= directionLength;
 		}
 
-		float perpendicularX = -directionY;
-		float perpendicularY = directionX;
 		float dotRadius = DOT_RADIUS * displayScale;
-		float diagonalRadius = dotRadius * 0.7071;
-		float arrowBaseDistance = dotRadius + ARROW_GAP * displayScale;
-		float arrowTipDistance = arrowBaseDistance + ARROW_LENGTH * displayScale;
-		float arrowHalfWidth = ARROW_HALF_WIDTH * displayScale;
-		array<float> dotVertices = m_Dot.m_Vertices;
-		dotVertices[0] = screenX + dotRadius;
-		dotVertices[1] = screenY;
-		dotVertices[2] = screenX + diagonalRadius;
-		dotVertices[3] = screenY + diagonalRadius;
-		dotVertices[4] = screenX;
-		dotVertices[5] = screenY + dotRadius;
-		dotVertices[6] = screenX - diagonalRadius;
-		dotVertices[7] = screenY + diagonalRadius;
-		dotVertices[8] = screenX - dotRadius;
-		dotVertices[9] = screenY;
-		dotVertices[10] = screenX - diagonalRadius;
-		dotVertices[11] = screenY - diagonalRadius;
-		dotVertices[12] = screenX;
-		dotVertices[13] = screenY - dotRadius;
-		dotVertices[14] = screenX + diagonalRadius;
-		dotVertices[15] = screenY - diagonalRadius;
-
-		array<float> arrowVertices = m_Arrow.m_Vertices;
-		arrowVertices[0] = screenX + directionX * arrowTipDistance;
-		arrowVertices[1] = screenY + directionY * arrowTipDistance;
-		arrowVertices[2] = screenX + directionX * arrowBaseDistance + perpendicularX * arrowHalfWidth;
-		arrowVertices[3] = screenY + directionY * arrowBaseDistance + perpendicularY * arrowHalfWidth;
-		arrowVertices[4] = screenX + directionX * arrowBaseDistance - perpendicularX * arrowHalfWidth;
-		arrowVertices[5] = screenY + directionY * arrowBaseDistance - perpendicularY * arrowHalfWidth;
-
-		m_Dot.m_iColor = m_iFactionColor;
-		m_Arrow.m_iColor = m_iFactionColor;
+		float widgetSize = m_Workspace.DPIUnscale(dotRadius * 2.0);
+		if (Math.AbsFloat(widgetSize - m_fAppliedSize) >= 0.01)
+		{
+			m_fAppliedSize = widgetSize;
+			FrameSlot.SetSize(m_wRoot, widgetSize, widgetSize);
+			FrameSlot.SetPos(m_wDot, 0.0, 0.0);
+			FrameSlot.SetSize(m_wDot, widgetSize, widgetSize);
+			FrameSlot.SetPos(m_wDirection, 0.0, 0.0);
+			FrameSlot.SetSize(m_wDirection, widgetSize, widgetSize);
+		}
+		FrameSlot.SetPos(m_wRoot, m_Workspace.DPIUnscale(screenX) - widgetSize * 0.5, m_Workspace.DPIUnscale(screenY) - widgetSize * 0.5);
+		m_wDirection.SetRotation(Math.Atan2(directionY, directionX) * Math.RAD2DEG + 90.0);
 		m_iScreenX = screenX;
 		m_iScreenY = screenY;
 		m_fHoverRadius = dotRadius + 6.0;
-		m_bVisible = true;
+		if (!m_bVisible)
+		{
+			m_bVisible = true;
+			m_wRoot.SetVisible(true);
+		}
 		return true;
 	}
 
@@ -236,9 +240,14 @@ class GC_SpectatorMapCharacterSymbol
 		return owner;
 	}
 
-	protected void Hide()
+	void Hide()
 	{
+		if (!m_bVisible)
+			return;
+
 		m_bVisible = false;
+		if (m_wRoot)
+			m_wRoot.SetVisible(false);
 	}
 }
 
@@ -252,6 +261,7 @@ class GC_SpectatorMapOverlay
 	protected static const float MAX_ZOOM_SCALE = 20.0;
 
 	protected CanvasWidget m_Canvas;
+	protected Widget m_wMarkerParent;
 	protected Widget m_wTooltip;
 	protected TextWidget m_wTooltipText;
 	protected WorkspaceWidget m_Workspace;
@@ -271,12 +281,13 @@ class GC_SpectatorMapOverlay
 			return false;
 
 		m_Canvas = canvas;
+		m_wMarkerParent = m_Canvas.GetParent();
 		m_wTooltip = tooltip;
 		m_wTooltipText = tooltipText;
 		m_Workspace = GetGame().GetWorkspace();
 		m_MapEntity = SCR_MapEntity.GetMapInstance();
 		m_EditableEntityCore = SCR_EditableEntityCore.Cast(SCR_EditableEntityCore.GetInstance(SCR_EditableEntityCore));
-		if (!m_Workspace || !m_MapEntity || !m_EditableEntityCore)
+		if (!m_wMarkerParent || !m_Workspace || !m_MapEntity || !m_EditableEntityCore)
 			return false;
 
 		m_EditableEntityCore.Event_OnEntityRegistered.Insert(OnEntityRegistered);
@@ -299,6 +310,8 @@ class GC_SpectatorMapOverlay
 			m_EditableEntityCore.Event_OnEntityUnregistered.Remove(OnEntityUnregistered);
 		}
 
+		foreach (SCR_EditableEntityComponent entity, GC_SpectatorMapCharacterSymbol symbol : m_mSymbols)
+			symbol.Destroy();
 		m_aVisibleSymbols.Clear();
 		m_aFrameDrawCommands.Clear();
 		if (m_Canvas)
@@ -307,6 +320,7 @@ class GC_SpectatorMapOverlay
 		m_HoveredEntity = null;
 		m_bTooltipVisible = false;
 		m_Canvas = null;
+		m_wMarkerParent = null;
 		m_wTooltip = null;
 		m_wTooltipText = null;
 		m_Workspace = null;
@@ -408,8 +422,6 @@ class GC_SpectatorMapOverlay
 				continue;
 
 			m_aVisibleSymbols.Insert(symbol);
-			m_aFrameDrawCommands.Insert(symbol.GetDotCommand());
-			m_aFrameDrawCommands.Insert(symbol.GetArrowCommand());
 		}
 		if (m_ProjectileTracer)
 			m_ProjectileTracer.AppendMapDrawCommands(m_MapEntity, m_aFrameDrawCommands);
@@ -432,6 +444,8 @@ class GC_SpectatorMapOverlay
 		array<ref CanvasWidgetCommand> noCommands = {};
 		m_Canvas.SetDrawCommands(noCommands);
 		m_fWorldStateSampleAccumulator = 0.0;
+		foreach (SCR_EditableEntityComponent entity, GC_SpectatorMapCharacterSymbol symbol : m_mSymbols)
+			symbol.Hide();
 		m_aVisibleSymbols.Clear();
 		m_aFrameDrawCommands.Clear();
 		m_HoveredEntity = null;
@@ -453,7 +467,12 @@ class GC_SpectatorMapOverlay
 		if (!owner || owner.FindComponent(GC_LobbySpectatorBodyComponent))
 			return;
 
-		GC_SpectatorMapCharacterSymbol symbol = new GC_SpectatorMapCharacterSymbol(entity);
+		GC_SpectatorMapCharacterSymbol symbol = new GC_SpectatorMapCharacterSymbol(entity, m_wMarkerParent, m_Workspace);
+		if (!symbol.IsReady())
+		{
+			symbol.Destroy();
+			return;
+		}
 		m_mSymbols.Insert(entity, symbol);
 		m_fWorldStateSampleAccumulator = WORLD_STATE_SAMPLE_INTERVAL;
 	}
@@ -466,6 +485,7 @@ class GC_SpectatorMapOverlay
 
 		m_mSymbols.Remove(entity);
 		m_aVisibleSymbols.RemoveItem(symbol);
+		symbol.Destroy();
 		m_fWorldStateSampleAccumulator = WORLD_STATE_SAMPLE_INTERVAL;
 	}
 }
