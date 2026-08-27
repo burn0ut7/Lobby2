@@ -279,7 +279,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		return teleportComponent.TeleportCamera(position, forceDefaultDistance, false);
 	}
 
-	//! Teleports the free camera to a character's current animated eye position
+	//! Snaps the free camera to a character's current animated eye transform
 	//! without retaining an attachment to that character.
 	bool TeleportToEntityEye(IEntity target)
 	{
@@ -296,12 +296,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (!GetEyeCameraTransform(animation, targetTransform, eyeCameraTransform))
 			return false;
 
-		SCR_TeleportToCursorManualCameraComponent teleportComponent = SCR_TeleportToCursorManualCameraComponent.Cast(FindCameraComponent(SCR_TeleportToCursorManualCameraComponent));
-		if (!teleportComponent)
-			return false;
-
 		SetFreeMode();
-		return teleportComponent.TeleportCamera(eyeCameraTransform[3], true, false, false, false, 0);
+		SetTransform(eyeCameraTransform);
+		return true;
 	}
 
 	protected void RestoreAttachedPresentation()
