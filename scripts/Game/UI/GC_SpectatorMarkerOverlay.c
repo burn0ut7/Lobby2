@@ -600,6 +600,7 @@ class GC_SpectatorEditableEntityMarker
 
 	protected SCR_EditableEntityComponent m_Entity;
 	protected SCR_EditableEntitySceneSlotUIComponent m_Slot;
+	protected Widget m_wSlotWidget;
 	protected GC_SpectatorCharacterEditableEntityUIComponent m_CharacterUI;
 	protected GC_SpectatorGroupEditableEntityUIComponent m_GroupUI;
 	protected EEditableEntityType m_eType;
@@ -674,6 +675,7 @@ class GC_SpectatorEditableEntityMarker
 		}
 
 		m_Slot.InitSlot(m_Entity);
+		m_wSlotWidget = slotRoot;
 		ResourceName entityLayout = characterLayout;
 		if (m_eType == EEditableEntityType.GROUP)
 			entityLayout = groupLayout;
@@ -683,6 +685,7 @@ class GC_SpectatorEditableEntityMarker
 		{
 			m_Slot.DeleteSlot();
 			m_Slot = null;
+			m_wSlotWidget = null;
 			return false;
 		}
 
@@ -700,6 +703,7 @@ class GC_SpectatorEditableEntityMarker
 			m_Slot.DeleteSlot();
 
 		m_Slot = null;
+		m_wSlotWidget = null;
 		m_CharacterUI = null;
 		m_GroupUI = null;
 		m_fAppliedZDistance = -1.0;
@@ -710,13 +714,12 @@ class GC_SpectatorEditableEntityMarker
 
 	void RefreshPresentation()
 	{
-		if (!m_Slot)
+		if (!m_Slot || !m_wSlotWidget)
 			return;
 
-		Widget slotWidget = m_Slot.GetWidget();
-		if (slotWidget && (m_fAppliedZDistance < 0.0 || Math.AbsFloat(m_fVisibilityDistance - m_fAppliedZDistance) >= 1.0))
+		if (m_fAppliedZDistance < 0.0 || Math.AbsFloat(m_fVisibilityDistance - m_fAppliedZDistance) >= 1.0)
 		{
-			slotWidget.SetZOrder(-m_fVisibilityDistance);
+			m_wSlotWidget.SetZOrder(-m_fVisibilityDistance);
 			m_fAppliedZDistance = m_fVisibilityDistance;
 		}
 
@@ -728,22 +731,18 @@ class GC_SpectatorEditableEntityMarker
 
 	void Update(WorkspaceWidget workspace, BaseWorld world)
 	{
-		if (!m_Slot || !workspace || !world)
+		if (!m_Slot || !m_wSlotWidget || !workspace || !world)
 			return;
 
 		vector worldPosition;
 		if (!m_Entity.GetPos(worldPosition))
 			return;
 
-		Widget slotWidget = m_Slot.GetWidget();
-		if (!slotWidget)
-			return;
-
 		vector screenPosition = workspace.ProjWorldToScreen(worldPosition, world);
 		bool visible = screenPosition[2] > 0.0;
 		if (!m_bProjectionVisibilityInitialized || visible != m_bProjectionVisible)
 		{
-			slotWidget.SetVisible(visible);
+			m_wSlotWidget.SetVisible(visible);
 			m_bProjectionVisible = visible;
 			m_bProjectionVisibilityInitialized = true;
 		}
@@ -751,10 +750,10 @@ class GC_SpectatorEditableEntityMarker
 			return;
 
 		if (!m_bScreenPositionInitialized
-			|| Math.AbsFloat(screenPosition[0] - m_vAppliedScreenPosition[0]) >= 0.25
-			|| Math.AbsFloat(screenPosition[1] - m_vAppliedScreenPosition[1]) >= 0.25)
+			|| screenPosition[0] != m_vAppliedScreenPosition[0]
+			|| screenPosition[1] != m_vAppliedScreenPosition[1])
 		{
-			FrameSlot.SetPos(slotWidget, screenPosition[0], screenPosition[1]);
+			FrameSlot.SetPos(m_wSlotWidget, screenPosition[0], screenPosition[1]);
 			m_vAppliedScreenPosition = screenPosition;
 			m_bScreenPositionInitialized = true;
 		}
