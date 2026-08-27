@@ -28,6 +28,10 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected static const string KILLED_FROM_OPTION_DESCRIPTION = "Show a client-local snapshot of the entity that killed you and trace its firing or explosive origin to the fatal impact point.";
 
 	protected InputManager m_InputManager;
+	protected SCR_MapEntity m_MapEntity;
+	protected Widget m_wMapFrame;
+	protected ref GC_SpectatorMapOverlay m_SpectatorMapOverlay;
+	protected bool m_bSpectatorMapOpen;
 	protected GC_SpectatorOptionButtonComponent m_InterfaceOptionButton;
 	protected Widget m_wInterfaceOptionSource;
 	protected TextWidget m_wInterfaceOptionState;
@@ -61,6 +65,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_InputManager.AddActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
+			m_InputManager.AddActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.AddActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -76,6 +81,18 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		}
 		if (root)
 		{
+			m_wMapFrame = root.FindAnyWidget("SpectatorMapFrame");
+			CanvasWidget mapCanvas = CanvasWidget.Cast(root.FindAnyWidget("LobbySpectatorMapCharacters"));
+			Widget mapTooltip = root.FindAnyWidget("LobbySpectatorMapTooltip");
+			TextWidget mapTooltipText = TextWidget.Cast(root.FindAnyWidget("LobbySpectatorMapTooltipText"));
+			m_MapEntity = SCR_MapEntity.GetMapInstance();
+			m_SpectatorMapOverlay = new GC_SpectatorMapOverlay();
+			if (!m_SpectatorMapOverlay.Start(mapCanvas, mapTooltip, mapTooltipText))
+			{
+				Print("GC | Spectator Map | overlay initialization failed", LogLevel.WARNING);
+				m_SpectatorMapOverlay = null;
+			}
+
 			Widget projectileTracersOptionButton = root.FindAnyWidget("SpectatorProjectileTracersOptionButton");
 			if (projectileTracersOptionButton)
 			{
@@ -147,6 +164,10 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	override void OnMenuClose()
 	{
+		CloseSpectatorMap();
+		if (m_SpectatorMapOverlay)
+			m_SpectatorMapOverlay.Destroy();
+
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
 		if (m_InterfaceOptionButton)
 		{
@@ -172,6 +193,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_InputManager.RemoveActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
+			m_InputManager.RemoveActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.RemoveActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -197,8 +219,24 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		m_wInterfaceOptionState = null;
 		m_wInterfaceOptionSource = null;
 		m_InterfaceOptionButton = null;
+		m_SpectatorMapOverlay = null;
+		m_wMapFrame = null;
+		m_MapEntity = null;
 		m_InputManager = null;
 		super.OnMenuClose();
+	}
+
+	override void OnMenuUpdate(float tDelta)
+	{
+		super.OnMenuUpdate(tDelta);
+		if (!m_bSpectatorMapOpen)
+			return;
+
+		WidgetManager.SetCursor(0);
+		if (m_InputManager)
+			m_InputManager.ActivateContext("MapContext");
+		if (m_SpectatorMapOverlay)
+			m_SpectatorMapOverlay.Update();
 	}
 
 	void SetInterfaceVisible(bool visible)
@@ -223,6 +261,64 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (playerController)
 			playerController.ToggleSpectatorInterface();
+	}
+
+	protected void OnToggleSpectatorMap()
+	{
+		if (m_bSpectatorMapOpen)
+			CloseSpectatorMap();
+		else
+			OpenSpectatorMap();
+	}
+
+	protected void OpenSpectatorMap()
+	{
+		if (!m_wMapFrame || !m_MapEntity)
+			return;
+		if (!m_wMapFrame.FindAnyWidget("MapWidget"))
+		{
+			Print("GC | Spectator Map | map layout has no MapWidget", LogLevel.ERROR);
+			return;
+		}
+		Widget toolMenuBar = m_wMapFrame.FindAnyWidget("ToolMenuHoriz");
+		if (toolMenuBar)
+			SCR_WidgetHelper.RemoveAllChildren(toolMenuBar);
+
+		MapConfiguration mapConfig = m_MapEntity.SetupMapConfig(EMapEntityMode.FULLSCREEN, "{6A115D5DFF7ED871}Configs/Map/MapLobby.conf", m_wMapFrame);
+		if (!mapConfig)
+		{
+			Print("GC | Spectator Map | map configuration failed", LogLevel.ERROR);
+			return;
+		}
+
+		m_wMapFrame.SetVisible(true);
+		m_MapEntity.OpenMap(mapConfig);
+		m_bSpectatorMapOpen = true;
+		SCR_ManualCamera camera = SCR_ManualCamera.Cast(GetGame().GetCameraManager().CurrentCamera());
+		if (camera)
+			camera.SetInputEnabled(false);
+		if (m_SpectatorMapOverlay)
+			m_SpectatorMapOverlay.Update();
+		Print("GC | Spectator Map | opened");
+	}
+
+	protected void CloseSpectatorMap()
+	{
+		if (!m_bSpectatorMapOpen)
+			return;
+
+		m_bSpectatorMapOpen = false;
+		if (m_SpectatorMapOverlay)
+			m_SpectatorMapOverlay.Clear();
+		if (m_MapEntity && m_MapEntity.IsOpen())
+			m_MapEntity.CloseMap();
+		if (m_wMapFrame)
+			m_wMapFrame.SetVisible(false);
+
+		SCR_ManualCamera camera = SCR_ManualCamera.Cast(GetGame().GetCameraManager().CurrentCamera());
+		if (camera)
+			camera.SetInputEnabled(true);
+		Print("GC | Spectator Map | closed");
 	}
 
 	void SetProjectileTracersEnabled(bool enabled)

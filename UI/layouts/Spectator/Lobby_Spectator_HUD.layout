@@ -2,6 +2,139 @@ FrameWidgetClass {
  Name "LobbySpectatorHUD"
  "Z Order" 100
  {
+  FrameWidgetClass "{6A60000000000001}" : "{0651202E9F2646DE}UI/layouts/Map/Map.layout" {
+   Name "SpectatorMapFrame"
+   Slot FrameWidgetSlot "{6A60000000000002}" {
+    Anchor 0 0 1 1
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 0
+    OffsetRight 0
+    SizeY 0
+    OffsetBottom 0
+   }
+   "Is Visible" 0
+   "Z Order" 90
+   "Ignore Cursor" 0
+   {
+    FrameWidgetClass "{6A60000000000005}" : "{2F8AEE78FF5A8104}UI/layouts/Map/ToolMenu.layout" {
+     Name "ToolMenu"
+     Slot FrameWidgetSlot "{6A60000000000006}" {
+      Anchor 0.5 0 0.5 0
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 100
+      OffsetRight -100
+      SizeY 30
+      OffsetBottom -30
+      Alignment 0.5 0
+     }
+     "Is Visible" 0
+     {
+      FrameWidgetClass "{590E7E6C0F9CBE13}" {
+       Prefab "{590E7E6C0F9CBE13}"
+       "Is Visible" 0
+       {
+        SmartPanelWidgetClass "{590E7E6F8F36A661}" {
+         Prefab "{590E7E6F8F36A661}"
+         "Is Visible" 0
+        }
+        VerticalLayoutWidgetClass "{59107CDD977698D2}" {
+         Prefab "{59107CDD977698D2}"
+         "Is Visible" 0
+        }
+       }
+      }
+      RichTextWidgetClass "{59107CD34D2BC078}" {
+       Prefab "{59107CD34D2BC078}"
+       "Is Visible" 0
+      }
+     }
+    }
+    CanvasWidgetClass "{6A60000000000003}" {
+     Name "LobbySpectatorMapCharacters"
+     Slot FrameWidgetSlot "{6A60000000000004}" {
+      Anchor 0 0 1 1
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 0
+      OffsetRight 0
+      SizeY 0
+      OffsetBottom 0
+     }
+     "Z Order" 10
+     "Ignore Cursor" 1
+    }
+    SizeLayoutWidgetClass "{6A60000000000007}" {
+     Name "LobbySpectatorMapTooltip"
+     Slot FrameWidgetSlot "{6A60000000000008}" {
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 100
+      OffsetRight -100
+      SizeY 32
+      OffsetBottom -32
+      SizeToContent 1
+     }
+     "Is Visible" 0
+     "Z Order" 20
+     "Ignore Cursor" 1
+     AllowMaxDesiredWidth 1
+     MaxDesiredWidth 260
+     {
+      OverlayWidgetClass "{6A60000000000009}" {
+       Slot AlignableSlot "{6A6000000000000A}" {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Ignore Cursor" 1
+       {
+        PanelWidgetClass "{6A6000000000000B}" {
+         Slot OverlayWidgetSlot "{6A6000000000000C}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.01 0.018 0.02 0.96
+         style full
+         "Ignore Cursor" 1
+        }
+        PanelWidgetClass "{6A6000000000000D}" {
+         Slot OverlayWidgetSlot "{6A6000000000000E}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         Color 0.7 0.76 0.78 1
+         style outline_2px
+         "Ignore Cursor" 1
+        }
+        TextWidgetClass "{6A6000000000000F}" {
+         Name "LobbySpectatorMapTooltipText"
+         Slot OverlayWidgetSlot "{6A60000000000010}" {
+          HorizontalAlign 3
+          VerticalAlign 3
+          Padding 10 7 10 7
+         }
+         Color 0.94 0.94 0.92 1
+         Text "PLAYER OR ROLE"
+         "Font Size" 17
+         "Min Font Size" 15
+         Wrap 1
+         "Ignore Cursor" 1
+        }
+       }
+      }
+     }
+    }
+   }
+  }
   FrameWidgetClass "{6A58000000000020}" : "{6A58000000000001}UI/layouts/Common/Lobby_Slide_Out.layout" {
    Name "SpectatorPlayerSlideOut"
    Slot FrameWidgetSlot "{6A58000000000021}" {
