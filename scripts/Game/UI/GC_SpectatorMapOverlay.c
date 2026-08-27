@@ -4,9 +4,11 @@
 class GC_SpectatorMapCharacterSymbol
 {
 	protected static const ResourceName MARKER_LAYOUT = "{6A60000000000100}UI/layouts/Spectator/Lobby_Spectator_Map_Character.layout";
-	protected static const float DOT_RADIUS = 5;
-	protected static const float DIRECTION_SIZE = 6;
-	protected static const float DIRECTION_GAP = 1;
+	protected static const float DOT_RADIUS = 7.5;
+	// Preserve the authored 128 px circle, 32 px triangle, and the triangle's
+	// 44 px center offset at every map zoom level.
+	protected static const float DIRECTION_SIZE_RATIO = 0.25;
+	protected static const float DIRECTION_OFFSET_RATIO = 0.34375;
 	protected static const float VIEWPORT_MARGIN = 128.0;
 
 	protected SCR_EditableEntityComponent m_Entity;
@@ -164,19 +166,15 @@ class GC_SpectatorMapCharacterSymbol
 		}
 
 		float dotRadius = DOT_RADIUS * displayScale;
-		float directionSize = DIRECTION_SIZE * displayScale;
-		float directionCenterDistance = dotRadius + DIRECTION_GAP * displayScale + directionSize * 0.5;
-		float markerRadius = directionCenterDistance + directionSize * 0.5;
-		float widgetSize = m_Workspace.DPIUnscale(markerRadius * 2.0);
-		float dotSize = m_Workspace.DPIUnscale(dotRadius * 2.0);
-		float directionWidgetSize = m_Workspace.DPIUnscale(directionSize);
-		float directionWidgetDistance = m_Workspace.DPIUnscale(directionCenterDistance);
+		float widgetSize = m_Workspace.DPIUnscale(dotRadius * 2.0);
+		float directionWidgetSize = widgetSize * DIRECTION_SIZE_RATIO;
+		float directionWidgetDistance = widgetSize * DIRECTION_OFFSET_RATIO;
 		if (Math.AbsFloat(widgetSize - m_fAppliedSize) >= 0.01)
 		{
 			m_fAppliedSize = widgetSize;
 			FrameSlot.SetSize(m_wRoot, widgetSize, widgetSize);
-			FrameSlot.SetPos(m_wDot, (widgetSize - dotSize) * 0.5, (widgetSize - dotSize) * 0.5);
-			FrameSlot.SetSize(m_wDot, dotSize, dotSize);
+			FrameSlot.SetPos(m_wDot, 0.0, 0.0);
+			FrameSlot.SetSize(m_wDot, widgetSize, widgetSize);
 			FrameSlot.SetSize(m_wDirection, directionWidgetSize, directionWidgetSize);
 		}
 		FrameSlot.SetPos(m_wRoot, m_Workspace.DPIUnscale(screenX) - widgetSize * 0.5, m_Workspace.DPIUnscale(screenY) - widgetSize * 0.5);
@@ -186,7 +184,7 @@ class GC_SpectatorMapCharacterSymbol
 		m_wDirection.SetRotation(Math.Atan2(directionY, directionX) * Math.RAD2DEG);
 		m_iScreenX = screenX;
 		m_iScreenY = screenY;
-		m_fHoverRadius = markerRadius + 6.0;
+		m_fHoverRadius = dotRadius + 6.0;
 		if (!m_bVisible)
 		{
 			m_bVisible = true;
