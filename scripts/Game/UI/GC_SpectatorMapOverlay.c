@@ -16,6 +16,9 @@ class GC_SpectatorMapCharacterSymbol
 	protected int m_iScreenY;
 	protected float m_fHoverRadius;
 	protected bool m_bVisible;
+	protected bool m_bHasWorldState;
+	protected vector m_vWorldPosition;
+	protected vector m_vWorldFacingPosition;
 	protected TNodeId m_iHeadBoneIndex = -1;
 	protected Faction m_Faction;
 	protected int m_iFactionColor;
@@ -37,39 +40,29 @@ class GC_SpectatorMapCharacterSymbol
 		return m_Arrow;
 	}
 
-	bool Update(SCR_MapEntity mapEntity, float displayScale, float viewportX, float viewportY, float viewportWidth, float viewportHeight)
+	void SampleWorldState()
 	{
-		if (!mapEntity || !m_Entity)
+		m_bHasWorldState = false;
+		if (!m_Entity)
 		{
 			Hide();
-			return false;
+			return;
 		}
 
 		IEntity owner = m_Entity.GetOwner();
 		if (!owner || owner.IsDeleted())
 		{
 			Hide();
-			return false;
+			return;
 		}
 
 		vector transform[4];
 		owner.GetTransform(transform);
-		vector position = transform[3];
-		int screenX;
-		int screenY;
-		mapEntity.WorldToScreen(position[0], position[2], screenX, screenY, true);
-		if (screenX < viewportX - VIEWPORT_MARGIN || screenX > viewportX + viewportWidth + VIEWPORT_MARGIN
-			|| screenY < viewportY - VIEWPORT_MARGIN || screenY > viewportY + viewportHeight + VIEWPORT_MARGIN)
-		{
-			Hide();
-			return false;
-		}
-
 		Faction faction = m_Entity.GetFaction();
 		if (!faction)
 		{
 			Hide();
-			return false;
+			return;
 		}
 		if (faction != m_Faction)
 		{
@@ -81,7 +74,7 @@ class GC_SpectatorMapCharacterSymbol
 		if (!animation)
 		{
 			Hide();
-			return false;
+			return;
 		}
 
 		if (m_iHeadBoneIndex < 0)
@@ -90,7 +83,7 @@ class GC_SpectatorMapCharacterSymbol
 		if (m_iHeadBoneIndex < 0 || !animation.GetBoneMatrix(m_iHeadBoneIndex, headBoneTransform))
 		{
 			Hide();
-			return false;
+			return;
 		}
 
 		vector headWorldTransform[4];
@@ -102,13 +95,35 @@ class GC_SpectatorMapCharacterSymbol
 		if (aimDirection.LengthSq() <= 0.0001)
 		{
 			Hide();
-			return false;
+			return;
 		}
 		aimDirection.Normalize();
-		vector facingPosition = position + aimDirection * 10.0;
+		m_vWorldPosition = transform[3];
+		m_vWorldFacingPosition = m_vWorldPosition + aimDirection * 10.0;
+		m_bHasWorldState = true;
+	}
+
+	bool ProjectToScreen(SCR_MapEntity mapEntity, float displayScale, float viewportX, float viewportY, float viewportWidth, float viewportHeight)
+	{
+		if (!mapEntity || !m_bHasWorldState)
+		{
+			Hide();
+			return false;
+		}
+
+		int screenX;
+		int screenY;
+		mapEntity.WorldToScreen(m_vWorldPosition[0], m_vWorldPosition[2], screenX, screenY, true);
+		if (screenX < viewportX - VIEWPORT_MARGIN || screenX > viewportX + viewportWidth + VIEWPORT_MARGIN
+			|| screenY < viewportY - VIEWPORT_MARGIN || screenY > viewportY + viewportHeight + VIEWPORT_MARGIN)
+		{
+			Hide();
+			return false;
+		}
+
 		int facingScreenX;
 		int facingScreenY;
-		mapEntity.WorldToScreen(facingPosition[0], facingPosition[2], facingScreenX, facingScreenY, true);
+		mapEntity.WorldToScreen(m_vWorldFacingPosition[0], m_vWorldFacingPosition[2], facingScreenX, facingScreenY, true);
 
 		float directionX = facingScreenX - screenX;
 		float directionY = facingScreenY - screenY;
@@ -232,7 +247,7 @@ class GC_SpectatorMapCharacterSymbol
 //! AI, faction, or affiliation state is owned or replicated by this renderer.
 class GC_SpectatorMapOverlay
 {
-	protected static const float CHARACTER_UPDATE_INTERVAL = 0.2;
+	protected static const float WORLD_STATE_SAMPLE_INTERVAL = 0.2;
 	protected static const float MIN_ZOOM_SCALE = 2.0;
 	protected static const float MAX_ZOOM_SCALE = 20.0;
 
@@ -245,7 +260,7 @@ class GC_SpectatorMapOverlay
 	protected GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected IEntity m_HoveredEntity;
 	protected bool m_bTooltipVisible;
-	protected float m_fCharacterUpdateAccumulator;
+	protected float m_fWorldStateSampleAccumulator;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorMapCharacterSymbol> m_mSymbols = new map<SCR_EditableEntityComponent, ref GC_SpectatorMapCharacterSymbol>();
 	protected ref array<ref GC_SpectatorMapCharacterSymbol> m_aVisibleSymbols = {};
 	protected ref array<ref CanvasWidgetCommand> m_aFrameDrawCommands = {};
@@ -310,12 +325,13 @@ class GC_SpectatorMapOverlay
 		if (!m_Canvas || !m_MapEntity || !m_MapEntity.IsOpen())
 			return;
 
-		m_fCharacterUpdateAccumulator += timeSlice;
-		if (force || m_fCharacterUpdateAccumulator >= CHARACTER_UPDATE_INTERVAL)
+		m_fWorldStateSampleAccumulator += timeSlice;
+		if (force || m_fWorldStateSampleAccumulator >= WORLD_STATE_SAMPLE_INTERVAL)
 		{
-			m_fCharacterUpdateAccumulator = 0.0;
-			RefreshSymbols();
+			m_fWorldStateSampleAccumulator = 0.0;
+			SampleWorldStates();
 		}
+		ProjectFrame();
 
 		int cursorX;
 		int cursorY;
@@ -358,7 +374,13 @@ class GC_SpectatorMapOverlay
 		FrameSlot.SetPos(m_wTooltip, tooltipX, tooltipY);
 	}
 
-	protected void RefreshSymbols()
+	protected void SampleWorldStates()
+	{
+		foreach (SCR_EditableEntityComponent entity, GC_SpectatorMapCharacterSymbol symbol : m_mSymbols)
+			symbol.SampleWorldState();
+	}
+
+	protected void ProjectFrame()
 	{
 		float viewportX;
 		float viewportY;
@@ -382,7 +404,7 @@ class GC_SpectatorMapOverlay
 		m_aFrameDrawCommands.Clear();
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorMapCharacterSymbol symbol : m_mSymbols)
 		{
-			if (!symbol.Update(m_MapEntity, displayScale, viewportX, viewportY, viewportWidth, viewportHeight))
+			if (!symbol.ProjectToScreen(m_MapEntity, displayScale, viewportX, viewportY, viewportWidth, viewportHeight))
 				continue;
 
 			m_aVisibleSymbols.Insert(symbol);
@@ -409,7 +431,7 @@ class GC_SpectatorMapOverlay
 
 		array<ref CanvasWidgetCommand> noCommands = {};
 		m_Canvas.SetDrawCommands(noCommands);
-		m_fCharacterUpdateAccumulator = 0.0;
+		m_fWorldStateSampleAccumulator = 0.0;
 		m_aVisibleSymbols.Clear();
 		m_aFrameDrawCommands.Clear();
 		m_HoveredEntity = null;
@@ -433,7 +455,7 @@ class GC_SpectatorMapOverlay
 
 		GC_SpectatorMapCharacterSymbol symbol = new GC_SpectatorMapCharacterSymbol(entity);
 		m_mSymbols.Insert(entity, symbol);
-		m_fCharacterUpdateAccumulator = CHARACTER_UPDATE_INTERVAL;
+		m_fWorldStateSampleAccumulator = WORLD_STATE_SAMPLE_INTERVAL;
 	}
 
 	protected void OnEntityUnregistered(SCR_EditableEntityComponent entity)
@@ -444,6 +466,6 @@ class GC_SpectatorMapOverlay
 
 		m_mSymbols.Remove(entity);
 		m_aVisibleSymbols.RemoveItem(symbol);
-		m_fCharacterUpdateAccumulator = CHARACTER_UPDATE_INTERVAL;
+		m_fWorldStateSampleAccumulator = WORLD_STATE_SAMPLE_INTERVAL;
 	}
 }
