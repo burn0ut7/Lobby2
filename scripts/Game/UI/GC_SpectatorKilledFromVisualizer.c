@@ -15,7 +15,7 @@ enum GC_EKilledFromWeaponPrototype
 //! inserted on the server or exposed as replicated gameplay state.
 class GC_SpectatorKilledFromVisualizer
 {
-	protected static const float LINE_WIDTH = 3.0;
+	protected static const float LINE_WIDTH = 1.5;
 	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
 	protected static const float MARKER_WIDTH = 152.0;
 	protected static const float MARKER_HEIGHT = 76.0;
@@ -734,13 +734,13 @@ class GC_SpectatorKilledFromVisualizer
 			lineOrigin = m_vMuzzlePosition;
 			muzzleMode = "clone-" + m_sMuzzleMode;
 		}
-		vector start = m_Workspace.ProjWorldToScreen(lineOrigin, m_World);
-		vector end = m_Workspace.ProjWorldToScreen(m_Snapshot.GetHitPosition(), m_World);
-		if (start[2] > 0.0 && end[2] > 0.0)
+		vector start;
+		vector end;
+		if (ProjectTraceToScreen(lineOrigin, m_Snapshot.GetHitPosition(), start, end))
 		{
 			traceVisible = true;
 			LineDrawCommand line = new LineDrawCommand();
-			line.m_iColor = Color.YELLOW;
+			line.m_iColor = Color.RED;
 			line.m_fWidth = LINE_WIDTH;
 			line.m_bShouldEnclose = false;
 			line.m_Vertices = {};
@@ -769,6 +769,45 @@ class GC_SpectatorKilledFromVisualizer
 			m_bLastLabelVisible = labelVisible;
 		}
 		m_wCanvas.SetDrawCommands(m_aDrawCommands);
+	}
+
+	//! Clip the world-space trace against the active camera near plane before
+	//! projecting it. Canvas handles the remaining screen-edge clipping, so a
+	//! side view does not discard the whole trace when only one endpoint is behind.
+	protected bool ProjectTraceToScreen(vector worldStart, vector worldEnd, out vector screenStart, out vector screenEnd)
+	{
+		CameraManager cameraManager = GetGame().GetCameraManager();
+		if (!cameraManager)
+			return false;
+
+		CameraBase camera = cameraManager.CurrentCamera();
+		if (!camera)
+			return false;
+
+		vector cameraTransform[4];
+		camera.GetWorldTransform(cameraTransform);
+		vector cameraPosition = cameraTransform[3];
+		vector cameraForward = cameraTransform[2];
+		float startDepth = vector.Dot(worldStart - cameraPosition, cameraForward);
+		float endDepth = vector.Dot(worldEnd - cameraPosition, cameraForward);
+		float clipDepth = camera.GetNearPlane() + 0.01;
+		if (startDepth <= clipDepth && endDepth <= clipDepth)
+			return false;
+
+		if (startDepth <= clipDepth)
+		{
+			float startBlend = (clipDepth - startDepth) / (endDepth - startDepth);
+			worldStart = worldStart + (worldEnd - worldStart) * startBlend;
+		}
+		else if (endDepth <= clipDepth)
+		{
+			float endBlend = (clipDepth - endDepth) / (startDepth - endDepth);
+			worldEnd = worldEnd + (worldStart - worldEnd) * endBlend;
+		}
+
+		screenStart = m_Workspace.ProjWorldToScreen(worldStart, m_World);
+		screenEnd = m_Workspace.ProjWorldToScreen(worldEnd, m_World);
+		return screenStart[2] > 0.0 && screenEnd[2] > 0.0;
 	}
 
 	protected bool ResolveWeaponMuzzlePosition(IEntity weapon, vector hitPosition, bool allowBounds, out vector muzzlePosition, out string mode)
