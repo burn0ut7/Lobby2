@@ -1068,6 +1068,14 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			GC_ContextMenuComponent.Close();
 	}
 
+	//! The marker, tracer, and killed-from overlay is authored outside the menu
+	//! hierarchy, so menu focus must suspend it explicitly.
+	void SetSpectatorMenuFocused(bool focused)
+	{
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.SetInterfaceVisible(focused && m_bSpectatorInterfaceVisible);
+	}
+
 	bool IsSpectatorNightModeEnabled()
 	{
 		return m_bSpectatorNightModeEnabled;

@@ -158,6 +158,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		super.OnMenuFocusGained();
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		SetInterfaceVisible(!playerController || playerController.IsSpectatorInterfaceVisible());
+		if (playerController)
+			playerController.SetSpectatorMenuFocused(true);
 		SetNightModeEnabled(playerController && playerController.IsSpectatorNightModeEnabled());
 		SetProjectileTracersEnabled(playerController && playerController.AreSpectatorProjectileTracersEnabled());
 		SetKilledFromEnabled(playerController && playerController.IsSpectatorKilledFromEnabled());
@@ -166,7 +168,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	override void OnMenuFocusLost()
 	{
 		super.OnMenuFocusLost();
+		CloseSpectatorMap();
 		HideOptionTooltip();
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (playerController)
+			playerController.SetSpectatorMenuFocused(false);
 		Widget root = GetRootWidget();
 		if (root)
 			root.SetVisible(false);
@@ -175,6 +181,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	override void OnMenuClose()
 	{
 		CloseSpectatorMap();
+		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (playerController)
+			playerController.SetSpectatorMenuFocused(false);
 		if (m_SpectatorMapOverlay)
 			m_SpectatorMapOverlay.Destroy();
 
