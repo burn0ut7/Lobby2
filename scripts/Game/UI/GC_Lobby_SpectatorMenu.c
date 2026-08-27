@@ -32,7 +32,6 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected Widget m_wMapFrame;
 	protected ref GC_SpectatorMapOverlay m_SpectatorMapOverlay;
 	protected bool m_bSpectatorMapOpen;
-	protected bool m_bSpectatorMapSuspendedForPause;
 	protected GC_SpectatorOptionButtonComponent m_InterfaceOptionButton;
 	protected Widget m_wInterfaceOptionSource;
 	protected TextWidget m_wInterfaceOptionState;
@@ -156,7 +155,6 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	override void OnMenuFocusGained()
 	{
 		super.OnMenuFocusGained();
-		RestoreSpectatorMapAfterPause();
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		SetInterfaceVisible(!playerController || playerController.IsSpectatorInterfaceVisible());
 		SetNightModeEnabled(playerController && playerController.IsSpectatorNightModeEnabled());
@@ -164,9 +162,17 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		SetKilledFromEnabled(playerController && playerController.IsSpectatorKilledFromEnabled());
 	}
 
+	override void OnMenuFocusLost()
+	{
+		super.OnMenuFocusLost();
+		HideOptionTooltip();
+		Widget root = GetRootWidget();
+		if (root)
+			root.SetVisible(false);
+	}
+
 	override void OnMenuClose()
 	{
-		m_bSpectatorMapSuspendedForPause = false;
 		CloseSpectatorMap();
 		if (m_SpectatorMapOverlay)
 			m_SpectatorMapOverlay.Destroy();
@@ -232,7 +238,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	override void OnMenuUpdate(float tDelta)
 	{
 		super.OnMenuUpdate(tDelta);
-		if (!m_bSpectatorMapOpen || m_bSpectatorMapSuspendedForPause || !IsFocused())
+		if (!m_bSpectatorMapOpen || !IsFocused())
 			return;
 
 		WidgetManager.SetCursor(0);
@@ -297,7 +303,6 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		m_wMapFrame.SetVisible(true);
 		m_MapEntity.OpenMap(mapConfig);
 		m_bSpectatorMapOpen = true;
-		m_bSpectatorMapSuspendedForPause = false;
 		SCR_ManualCamera camera = SCR_ManualCamera.Cast(GetGame().GetCameraManager().CurrentCamera());
 		if (camera)
 			camera.SetInputEnabled(false);
@@ -312,7 +317,6 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			return;
 
 		m_bSpectatorMapOpen = false;
-		m_bSpectatorMapSuspendedForPause = false;
 		if (m_SpectatorMapOverlay)
 			m_SpectatorMapOverlay.Clear();
 		if (m_MapEntity && m_MapEntity.IsOpen())
@@ -533,13 +537,6 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected void OnPauseMenuRequested()
 	{
 		HideOptionTooltip();
-		if (m_bSpectatorMapOpen && m_wMapFrame)
-		{
-			m_bSpectatorMapSuspendedForPause = true;
-			if (m_SpectatorMapOverlay)
-				m_SpectatorMapOverlay.Clear();
-			m_wMapFrame.SetVisible(false);
-		}
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
 		GetGame().GetCallqueue().CallLater(OpenPauseMenu, 0);
 	}
@@ -547,25 +544,6 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	override protected void OpenPauseMenu()
 	{
 		if (!GetGame().GetMenuManager().IsAnyDialogOpen() && IsFocused())
-		{
 			ArmaReforgerScripted.OpenPauseMenu(false, true);
-			return;
-		}
-
-		RestoreSpectatorMapAfterPause();
-	}
-
-	protected void RestoreSpectatorMapAfterPause()
-	{
-		if (!m_bSpectatorMapSuspendedForPause)
-			return;
-
-		m_bSpectatorMapSuspendedForPause = false;
-		if (!m_bSpectatorMapOpen || !m_wMapFrame)
-			return;
-
-		m_wMapFrame.SetVisible(true);
-		if (m_SpectatorMapOverlay)
-			m_SpectatorMapOverlay.Update();
 	}
 }
