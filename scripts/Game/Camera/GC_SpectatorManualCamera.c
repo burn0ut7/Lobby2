@@ -267,6 +267,18 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		Print("GC | Spectator Camera | free camera entered");
 	}
 
+	//! Routes map-selected world positions through the stock manual-camera
+	//! teleport component inherited from ManualCameraBase.
+	bool TeleportToWorldPosition(vector position)
+	{
+		SCR_TeleportToCursorManualCameraComponent teleportComponent = SCR_TeleportToCursorManualCameraComponent.Cast(FindCameraComponent(SCR_TeleportToCursorManualCameraComponent));
+		if (!teleportComponent)
+			return false;
+
+		SetFreeMode();
+		return teleportComponent.TeleportCamera(position);
+	}
+
 	protected void RestoreAttachedPresentation()
 	{
 		if (m_eMode == GC_ESpectatorCameraMode.NETWORK)

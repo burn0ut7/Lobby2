@@ -62,6 +62,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.AddActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
+			m_InputManager.AddActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToMapCursor);
 		}
 
 		Widget root = GetRootWidget();
@@ -172,6 +173,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.RemoveActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
+			m_InputManager.RemoveActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToMapCursor);
 		}
 
 		HideOptionTooltip();
@@ -275,6 +277,33 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (playerController)
 			playerController.ToggleSpectatorKilledFrom();
+	}
+
+	protected void OnTeleportToMapCursor()
+	{
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		if (!mapEntity || !mapEntity.IsOpen())
+			return;
+
+		int mouseX;
+		int mouseY;
+		WidgetManager.GetMousePos(mouseX, mouseY);
+
+		float worldX;
+		float worldZ;
+		mapEntity.ScreenToWorld(mouseX, mouseY, worldX, worldZ);
+
+		BaseWorld world = GetGame().GetWorld();
+		CameraManager cameraManager = GetGame().GetCameraManager();
+		if (!world || !cameraManager)
+			return;
+
+		GC_SpectatorManualCamera spectatorCamera = GC_SpectatorManualCamera.Cast(cameraManager.CurrentCamera());
+		if (!spectatorCamera)
+			return;
+
+		vector worldPosition = {worldX, world.GetSurfaceY(worldX, worldZ), worldZ};
+		spectatorCamera.TeleportToWorldPosition(worldPosition);
 	}
 
 	protected void OnInterfaceOptionHoverChanged(bool hovered)
