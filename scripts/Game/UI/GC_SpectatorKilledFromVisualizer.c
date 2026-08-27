@@ -832,7 +832,14 @@ class GC_SpectatorKilledFromVisualizer
 
 		screenStart = m_Workspace.ProjWorldToScreen(worldStart, m_World);
 		screenEnd = m_Workspace.ProjWorldToScreen(worldEnd, m_World);
-		return screenStart[2] > 0.0 && screenEnd[2] > 0.0;
+		if (screenStart[2] <= 0.0 || screenEnd[2] <= 0.0)
+			return false;
+
+		screenStart[0] = m_Workspace.DPIUnscale(screenStart[0]);
+		screenStart[1] = m_Workspace.DPIUnscale(screenStart[1]);
+		screenEnd[0] = m_Workspace.DPIUnscale(screenEnd[0]);
+		screenEnd[1] = m_Workspace.DPIUnscale(screenEnd[1]);
+		return true;
 	}
 
 	protected bool ResolveWeaponMuzzlePosition(IEntity weapon, vector hitPosition, bool allowBounds, out vector muzzlePosition, out string mode)

@@ -304,9 +304,13 @@ class GC_SpectatorProjectileTracer
 
 		float initialSpeed = trace.GetInitialSpeed();
 		vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(0), m_World);
+		startScreenPosition[0] = m_Workspace.DPIUnscale(startScreenPosition[0]);
+		startScreenPosition[1] = m_Workspace.DPIUnscale(startScreenPosition[1]);
 		for (int positionIndex = 0; positionIndex < segmentCount; positionIndex++)
 		{
 			vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex + 1), m_World);
+			endScreenPosition[0] = m_Workspace.DPIUnscale(endScreenPosition[0]);
+			endScreenPosition[1] = m_Workspace.DPIUnscale(endScreenPosition[1]);
 			if (startScreenPosition[2] > 0.0 && endScreenPosition[2] > 0.0)
 			{
 				float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
