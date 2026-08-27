@@ -1,12 +1,15 @@
 FrameWidgetClass {
  Name "LobbySpectatorMapCharacter"
- Slot FrameWidgetSlot {
-  SizeX 24
-  OffsetRight -24
-  SizeY 24
-  OffsetBottom -24
+ Slot FrameWidgetSlot "{6A3701FE9C8BBB3F}" {
+  PositionX 0
+  OffsetLeft 0
+  PositionY 0
+  OffsetTop 0
+  SizeX 128
+  OffsetRight -128
+  SizeY 128
+  OffsetBottom -128
  }
- "Is Visible" 0
  "Z Order" 11
  Clipping False
  "Ignore Cursor" 1
@@ -14,38 +17,38 @@ FrameWidgetClass {
   ImageWidgetClass "{6A60000000000101}" {
    Name "LobbySpectatorMapCharacterDot"
    Slot FrameWidgetSlot "{6A60000000000102}" {
-    PositionX 7
-    OffsetLeft 7
-    PositionY 7
-    OffsetTop 7
-    SizeX 10
-    OffsetRight -17
-    SizeY 10
-    OffsetBottom -17
+    PositionX 0
+    OffsetLeft 0
+    PositionY 0
+    OffsetTop 0
+    SizeX 128
+    OffsetRight -128
+    SizeY 128
+    OffsetBottom -128
    }
+   "Ignore Cursor" 1
+   Color 1 1 1 1
    Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
    Image "careerCircle"
    Size 10 10
-   Color 1 1 1 1
-   "Ignore Cursor" 1
   }
   ImageWidgetClass "{6A60000000000103}" {
    Name "LobbySpectatorMapCharacterDirection"
    Slot FrameWidgetSlot "{6A60000000000104}" {
-    PositionX 18
-    OffsetLeft 18
-    PositionY 9
-    OffsetTop 9
-    SizeX 6
-    OffsetRight -24
-    SizeY 6
-    OffsetBottom -15
+    PositionX 92
+    OffsetLeft 92
+    PositionY 48
+    OffsetTop 48
+    SizeX 32
+    OffsetRight -124
+    SizeY 32
+    OffsetBottom -80
    }
+   "Ignore Cursor" 1
+   Color 1 1 1 1
    Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
    Image "continue"
    Size 6 6
-   Color 1 1 1 1
-   "Ignore Cursor" 1
   }
  }
 }
