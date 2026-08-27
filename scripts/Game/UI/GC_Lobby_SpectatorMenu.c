@@ -293,10 +293,25 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (toolMenuBar)
 			SCR_WidgetHelper.RemoveAllChildren(toolMenuBar);
 
-		MapConfiguration mapConfig = m_MapEntity.SetupMapConfig(EMapEntityMode.FULLSCREEN, "{6A115D5DFF7ED871}Configs/Map/MapLobby.conf", m_wMapFrame);
+		BaseGameMode gameMode = GetGame().GetGameMode();
+		if (!gameMode)
+		{
+			Print("GC | Spectator Map | active game mode is unavailable", LogLevel.ERROR);
+			return;
+		}
+
+		SCR_MapConfigComponent mapConfigComponent = SCR_MapConfigComponent.Cast(gameMode.FindComponent(SCR_MapConfigComponent));
+		if (!mapConfigComponent)
+		{
+			Print("GC | Spectator Map | game mode map configuration is unavailable", LogLevel.ERROR);
+			return;
+		}
+
+		ResourceName mapConfigPath = mapConfigComponent.GetEditorMapConfig();
+		MapConfiguration mapConfig = m_MapEntity.SetupMapConfig(EMapEntityMode.FULLSCREEN, mapConfigPath, m_wMapFrame);
 		if (!mapConfig)
 		{
-			Print("GC | Spectator Map | map configuration failed", LogLevel.ERROR);
+			PrintFormat("GC | Spectator Map | map configuration failed config=%1", mapConfigPath, level: LogLevel.ERROR);
 			return;
 		}
 
@@ -308,7 +323,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			camera.SetInputEnabled(false);
 		if (m_SpectatorMapOverlay)
 			m_SpectatorMapOverlay.Update();
-		Print("GC | Spectator Map | opened");
+		PrintFormat("GC | Spectator Map | opened config=%1 markers=%2 drawings=%3", mapConfigPath, m_MapEntity.GetMapUIComponent(SCR_MapMarkersUI) != null, m_MapEntity.GetMapUIComponent(SCR_MapDrawingUI) != null);
 	}
 
 	protected void CloseSpectatorMap()
