@@ -46,6 +46,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Temporary possession suspends the presentation without losing this intent.
 	protected bool m_bSpectatorPresentationRequested;
 	protected bool m_bSpectatorInterfaceVisible = true;
+	//! Client-local spectator night-mode preference. Uses the stock Game Master EV behavior.
+	protected bool m_bSpectatorNightModeEnabled = false;
 	//! Client-local spectator presentation preference. Defaults to disabled.
 	protected bool m_bSpectatorProjectileTracersEnabled = false;
 	//! Client-local killed-from presentation preference. Defaults to disabled.
@@ -855,6 +857,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 		}
 
+		if (m_bSpectatorNightModeEnabled && !m_SpectatorCamera.SetSpectatorNightModeEnabled(true))
+			m_bSpectatorNightModeEnabled = false;
+
 		SetBaseHUDVisible(m_bSpectatorInterfaceVisible);
 		CreateSpectatorMenu();
 		CreateSpectatorMarkerOverlay();
@@ -989,6 +994,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			if (spectatorMenu)
 			{
 				spectatorMenu.SetInterfaceVisible(m_bSpectatorInterfaceVisible);
+				spectatorMenu.SetNightModeEnabled(m_bSpectatorNightModeEnabled);
 				spectatorMenu.SetProjectileTracersEnabled(m_bSpectatorProjectileTracersEnabled);
 				spectatorMenu.SetKilledFromEnabled(m_bSpectatorKilledFromEnabled);
 			}
@@ -1016,6 +1022,32 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_SpectatorMarkerOverlay.SetInterfaceVisible(visible);
 		if (!visible)
 			GC_ContextMenuComponent.Close();
+	}
+
+	bool IsSpectatorNightModeEnabled()
+	{
+		return m_bSpectatorNightModeEnabled;
+	}
+
+	void ToggleSpectatorNightMode()
+	{
+		SetSpectatorNightModeEnabled(!m_bSpectatorNightModeEnabled);
+	}
+
+	void SetSpectatorNightModeEnabled(bool enabled)
+	{
+		bool changed = m_bSpectatorNightModeEnabled != enabled;
+		if (m_SpectatorCamera && !m_SpectatorCamera.SetSpectatorNightModeEnabled(enabled))
+			enabled = false;
+
+		changed = changed && m_bSpectatorNightModeEnabled != enabled;
+		m_bSpectatorNightModeEnabled = enabled;
+		if (changed)
+			SCR_UISoundEntity.SoundEvent("SOUND_E_TOGGLE_FLASHLIGHT");
+
+		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
+		if (spectatorMenu)
+			spectatorMenu.SetNightModeEnabled(enabled);
 	}
 
 	bool AreSpectatorProjectileTracersEnabled()

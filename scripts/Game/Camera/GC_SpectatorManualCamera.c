@@ -61,6 +61,13 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected static AnimationTagID s_MirrorFPCameraTag = -1;
 	protected static const float MIRROR_POSITION_STABILIZATION_SPEED = 6.0;
 	protected static const float MIRROR_ROTATION_STABILIZATION_SPEED = 10.0;
+	protected static const float SPECTATOR_NIGHT_MODE_MAX_SUN_STATE = 0.1;
+	protected static const float SPECTATOR_NIGHT_MODE_EV = 2.0;
+	protected bool m_bSpectatorNightModeEnabled;
+	protected bool m_bSpectatorNightModeApplied;
+	protected float m_fSpectatorNightModeAlpha = -1;
+	protected BaseWorld m_SpectatorNightModeWorld;
+	protected TimeAndWeatherManagerEntity m_SpectatorNightModeWeather;
 	protected bool m_bNetworkSnapshotReceived;
 	protected CharacterAnimationComponent m_NetworkAnimation;
 	protected int m_iNetworkLastSequence = -1;
@@ -378,7 +385,34 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	void ~GC_SpectatorManualCamera()
 	{
+		RestoreSpectatorNightMode();
 		RestoreAttachedPresentation();
+	}
+
+	bool SetSpectatorNightModeEnabled(bool enabled)
+	{
+		if (!enabled)
+		{
+			m_bSpectatorNightModeEnabled = false;
+			RestoreSpectatorNightMode();
+			return true;
+		}
+
+		if (!m_SpectatorNightModeWorld)
+			m_SpectatorNightModeWorld = GetWorld();
+
+		ChimeraWorld chimeraWorld = ChimeraWorld.CastFrom(m_SpectatorNightModeWorld);
+		if (!chimeraWorld)
+			return false;
+
+		m_SpectatorNightModeWeather = chimeraWorld.GetTimeAndWeatherManager();
+		if (!m_SpectatorNightModeWeather)
+			return false;
+
+		m_bSpectatorNightModeEnabled = true;
+		m_fSpectatorNightModeAlpha = -1;
+		UpdateSpectatorNightMode();
+		return true;
 	}
 
 	GC_ESpectatorCameraMode GetMode()
@@ -394,6 +428,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	override protected void EOnPostFrame(IEntity owner, float timeSlice)
 	{
 		super.EOnPostFrame(owner, timeSlice);
+		UpdateSpectatorNightMode();
 
 		if (m_eMode == GC_ESpectatorCameraMode.FREE)
 			return;
@@ -442,6 +477,33 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		}
 
 		UpdateAttachedTransform(timeSlice);
+	}
+
+	protected void UpdateSpectatorNightMode()
+	{
+		if (!m_bSpectatorNightModeEnabled || !m_SpectatorNightModeWorld || !m_SpectatorNightModeWeather)
+			return;
+
+		vector sunDirection;
+		vector moonDirection;
+		float moonPhase;
+		m_SpectatorNightModeWeather.GetCurrentSunMoonDirAndPhase(sunDirection, moonDirection, moonPhase);
+		float alpha = Math.Clamp(sunDirection[1] / SPECTATOR_NIGHT_MODE_MAX_SUN_STATE, 0, 1);
+		if (alpha == m_fSpectatorNightModeAlpha)
+			return;
+
+		m_fSpectatorNightModeAlpha = alpha;
+		m_SpectatorNightModeWorld.AdjustCameraEV(0, Math.Lerp(0, SPECTATOR_NIGHT_MODE_EV, alpha));
+		m_bSpectatorNightModeApplied = true;
+	}
+
+	protected void RestoreSpectatorNightMode()
+	{
+		if (m_bSpectatorNightModeApplied && m_SpectatorNightModeWorld)
+			m_SpectatorNightModeWorld.AdjustCameraEV(0, 0);
+
+		m_bSpectatorNightModeApplied = false;
+		m_fSpectatorNightModeAlpha = -1;
 	}
 
 	protected void UpdateAttachedTransform(float timeSlice)
