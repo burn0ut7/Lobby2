@@ -4,9 +4,9 @@
 class GC_SpectatorMapCharacterSymbol
 {
 	protected static const float DOT_RADIUS = 7.0;
-	protected static const float ARROW_TIP_DISTANCE = 22.0;
-	protected static const float ARROW_BASE_DISTANCE = 10.0;
-	protected static const float ARROW_HALF_WIDTH = 7.0;
+	protected static const float ARROW_GAP = 1.0;
+	protected static const float ARROW_LENGTH = 3.0;
+	protected static const float ARROW_HALF_WIDTH = 1.75;
 	protected static const float MIN_ZOOM_SCALE = 0.8;
 	protected static const float MAX_ZOOM_SCALE = 2.0;
 
@@ -84,8 +84,8 @@ class GC_SpectatorMapCharacterSymbol
 		float displayScale = Math.Clamp(Math.Sqrt(mapEntity.GetCurrentZoom()), MIN_ZOOM_SCALE, MAX_ZOOM_SCALE);
 		float dotRadius = DOT_RADIUS * displayScale;
 		float diagonalRadius = dotRadius * 0.7071;
-		float arrowTipDistance = ARROW_TIP_DISTANCE * displayScale;
-		float arrowBaseDistance = ARROW_BASE_DISTANCE * displayScale;
+		float arrowBaseDistance = dotRadius + ARROW_GAP * displayScale;
+		float arrowTipDistance = arrowBaseDistance + ARROW_LENGTH * displayScale;
 		float arrowHalfWidth = ARROW_HALF_WIDTH * displayScale;
 		array<float> dotVertices = m_Dot.m_Vertices;
 		dotVertices[0] = screenX + dotRadius;
