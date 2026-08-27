@@ -36,11 +36,9 @@ FrameWidgetClass {
   ImageWidgetClass "{6A60000000000103}" {
    Name "LobbySpectatorMapCharacterDirection"
    Slot FrameWidgetSlot "{6A60000000000104}" {
-    Anchor 0.71875 0.375 0.96875 0.625
+    Anchor 0.671875 0.328125 1.015625 0.671875
     PositionX 0
-    OffsetLeft 0
     PositionY 0
-    OffsetTop 0
     SizeX 0
     OffsetRight 0
     SizeY 0
@@ -50,7 +48,7 @@ FrameWidgetClass {
    Color 1 1 1 1
    Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
    Image "continue"
-   Size 6 6
+   Size 44 44
   }
  }
 }
