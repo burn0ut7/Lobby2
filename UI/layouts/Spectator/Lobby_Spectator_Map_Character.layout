@@ -1,10 +1,10 @@
 FrameWidgetClass {
  Name "LobbySpectatorMapCharacter"
  Slot FrameWidgetSlot {
-  SizeX 20
-  OffsetRight -20
-  SizeY 20
-  OffsetBottom -20
+  SizeX 24
+  OffsetRight -24
+  SizeY 24
+  OffsetBottom -24
  }
  "Is Visible" 0
  "Z Order" 11
@@ -14,36 +14,36 @@ FrameWidgetClass {
   ImageWidgetClass "{6A60000000000101}" {
    Name "LobbySpectatorMapCharacterDot"
    Slot FrameWidgetSlot "{6A60000000000102}" {
-    PositionX 0
-    OffsetLeft 0
-    PositionY 0
-    OffsetTop 0
-    SizeX 20
-    OffsetRight -20
-    SizeY 20
-    OffsetBottom -20
+    PositionX 7
+    OffsetLeft 7
+    PositionY 7
+    OffsetTop 7
+    SizeX 10
+    OffsetRight -17
+    SizeY 10
+    OffsetBottom -17
    }
-   Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
-   Image "LobbySpectatorCircle"
-   Size 20 20
+   Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
+   Image "careerCircle"
+   Size 10 10
    Color 1 1 1 1
    "Ignore Cursor" 1
   }
   ImageWidgetClass "{6A60000000000103}" {
    Name "LobbySpectatorMapCharacterDirection"
    Slot FrameWidgetSlot "{6A60000000000104}" {
-    PositionX 0
-    OffsetLeft 0
-    PositionY 0
-    OffsetTop 0
-    SizeX 20
-    OffsetRight -20
-    SizeY 20
-    OffsetBottom -20
+    PositionX 18
+    OffsetLeft 18
+    PositionY 9
+    OffsetTop 9
+    SizeX 6
+    OffsetRight -24
+    SizeY 6
+    OffsetBottom -15
    }
-   Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
-   Image "LobbySpectatorPlayer"
-   Size 20 20
+   Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
+   Image "continue"
+   Size 6 6
    Color 1 1 1 1
    "Ignore Cursor" 1
   }
