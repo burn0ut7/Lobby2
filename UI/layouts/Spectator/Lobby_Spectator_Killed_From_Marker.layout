@@ -1,0 +1,111 @@
+FrameWidgetClass {
+ Name "LobbySpectatorKilledFromMarker"
+ Slot FrameWidgetSlot "{6A5F000000000101}" {
+  SizeX 152
+  OffsetRight -152
+  SizeY 76
+  OffsetBottom -76
+ }
+ "Z Order" 35
+ "Ignore Cursor" 1
+ {
+  OverlayWidgetClass "{6A5F000000000102}" {
+   Name "LobbySpectatorKilledFromMarkerIcon"
+   Slot FrameWidgetSlot "{6A5F000000000103}" {
+    PositionX 52
+    OffsetLeft 52
+    PositionY 0
+    OffsetTop 0
+    SizeX 48
+    OffsetRight -100
+    SizeY 48
+    OffsetBottom -48
+   }
+   "Ignore Cursor" 1
+   {
+    ImageWidgetClass "{6A5F000000000104}" {
+     Name "LobbySpectatorKilledFromMarkerBackground"
+     Slot OverlayWidgetSlot "{6A5F000000000105}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Opacity 0.9
+     Color 0 0 0 1
+     "Ignore Cursor" 1
+     Texture "{8479B3B5347DF5CF}UI/Imagesets/MilitarySymbol/ID_D.imageset"
+     Image "Character_Bcg"
+     Size 48 48
+    }
+    ImageWidgetClass "{6A5F000000000106}" {
+     Name "LobbySpectatorKilledFromMarkerOutline"
+     Slot OverlayWidgetSlot "{6A5F000000000107}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     Color 0.92 0.18 0.27 1
+     "Ignore Cursor" 1
+     Texture "{8479B3B5347DF5CF}UI/Imagesets/MilitarySymbol/ID_D.imageset"
+     Image "Character"
+     Size 48 48
+    }
+    ImageWidgetClass "{6A5F000000000108}" {
+     Name "LobbySpectatorKilledFromMarkerRoleIcon"
+     Slot OverlayWidgetSlot "{6A5F000000000109}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+      Padding 8 8 8 8
+     }
+     Color 1 1 1 1
+     "Ignore Cursor" 1
+     Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
+     Image "LobbySpectatorPlayer"
+     Size 32 32
+    }
+   }
+  }
+  PanelWidgetClass "{6A5F00000000010A}" {
+   Name "LobbySpectatorKilledFromMarkerLabel"
+   Slot FrameWidgetSlot "{6A5F00000000010B}" {
+    PositionX 0
+    OffsetLeft 0
+    PositionY 50
+    OffsetTop 50
+    SizeX 152
+    OffsetRight -152
+    SizeY 26
+    OffsetBottom -76
+   }
+   Color 0.92 0.18 0.27 0.92
+   style pixel_outline
+   "Ignore Cursor" 1
+   {
+    TextWidgetClass "{6A5F00000000010C}" {
+     Name "LobbySpectatorKilledFromMarkerText"
+     Slot FrameWidgetSlot "{6A5F00000000010D}" {
+      Anchor 0 0 1 1
+      PositionX 0
+      OffsetLeft 0
+      PositionY 0
+      OffsetTop 0
+      SizeX 0
+      OffsetRight 0
+      SizeY 0
+      OffsetBottom 0
+     }
+     Color 1 1 1 1
+     Text "KILLED YOU"
+     "Font Size" 17
+     "Min Font Size" 13
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+     "Ignore Cursor" 1
+     FontProperties FontProperties "{6A5F00000000010E}" {
+      Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt"
+      OutlineSize 2
+      OutlineColor 0 0 0 1
+     }
+    }
+   }
+  }
+ }
+}

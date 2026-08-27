@@ -755,7 +755,7 @@ class GC_SpectatorMarkerOverlay
 
 		CanvasWidget killedFromCanvas = CanvasWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorKilledFromTracer"));
 		m_KilledFromVisualizer = new GC_SpectatorKilledFromVisualizer();
-		if (!m_KilledFromVisualizer.Start(killedFromCanvas, m_Workspace, m_World, killedFromSnapshot, killedFromEnabled))
+		if (!m_KilledFromVisualizer.Start(killedFromCanvas, m_wRoot, m_Workspace, m_World, killedFromSnapshot, killedFromEnabled))
 		{
 			m_ProjectileTracer.Destroy();
 			m_wRoot.RemoveFromHierarchy();
