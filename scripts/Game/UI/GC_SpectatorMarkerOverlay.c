@@ -6,7 +6,6 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected static const float MAX_ICON_SIZE = 32.0;
 	protected static const float MIN_ICON_SIZE = 4.0;
 	protected static const float NAME_REVEAL_DISTANCE = 50.0;
-	protected static const float NAME_REVEAL_TRANSITION_FRACTION = 0.1;
 
 	protected ImageWidget m_wSmallBackground;
 	protected ImageWidget m_wBackground;
@@ -22,7 +21,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected string m_sFallbackName;
 	protected bool m_bHasLabel;
 	protected bool m_bHovered;
-	protected float m_fProximityNameOpacity;
+	protected bool m_bProximityNameVisible;
 	protected bool m_bStateInitialized;
 	protected bool m_bDead;
 	protected bool m_bUnconscious;
@@ -31,7 +30,8 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected int m_iOutlineColor;
 	protected float m_fLastPresentationDistance = -1.0;
 	protected float m_fAppliedIconSize = -1.0;
-	protected float m_fAppliedLabelOpacity = -1.0;
+	protected bool m_bAppliedLabelVisible;
+	protected bool m_bLabelVisibilityInitialized;
 	protected float m_fCachedLabelWidth;
 	protected bool m_bLabelLayoutDirty = true;
 
@@ -51,11 +51,14 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		m_wLabelText = RichTextWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerLabelText"));
 		if (m_wLabel)
 		{
-			m_wLabel.SetOpacity(0.0);
-			m_fAppliedLabelOpacity = 0.0;
+			m_wLabel.SetVisible(false);
+			m_bLabelVisibilityInitialized = true;
 		}
 		if (m_wSelectedIcon)
-			m_wSelectedIcon.SetOpacity(0.0);
+		{
+			m_wSelectedIcon.SetOpacity(1.0);
+			m_wSelectedIcon.SetVisible(false);
+		}
 
 		if (!entity || !entity.GetOwner())
 			return;
@@ -111,49 +114,22 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			}
 		}
 
-		if (m_wSelectedIcon)
-		{
-			float highlightOpacity = m_wSelectedIcon.GetOpacity();
-			if ((m_bHovered && highlightOpacity < 1.0) || (!m_bHovered && highlightOpacity > 0.0))
-			{
-				float highlightStep = GetGame().GetWorld().GetTimeSlice() * 5.0;
-				if (m_bHovered)
-				highlightOpacity += highlightStep;
-				else
-					highlightOpacity -= highlightStep;
-
-				m_wSelectedIcon.SetOpacity(Math.Clamp(highlightOpacity, 0.0, 1.0));
-			}
-		}
-
 		if (m_wLabel && (distanceChanged || m_bLabelLayoutDirty))
 		{
-			m_fProximityNameOpacity = 0.0;
-			float nameRevealTransitionDistance = NAME_REVEAL_DISTANCE * NAME_REVEAL_TRANSITION_FRACTION;
-			float fullNameRevealDistance = NAME_REVEAL_DISTANCE - nameRevealTransitionDistance;
+			m_bProximityNameVisible = false;
 			if (distance < NAME_REVEAL_DISTANCE)
 			{
 				if (!m_bHasLabel)
 					m_bHasLabel = RefreshLabel();
-
-				if (m_bHasLabel)
-				{
-					if (distance <= fullNameRevealDistance)
-						m_fProximityNameOpacity = 1.0;
-					else
-						m_fProximityNameOpacity = (NAME_REVEAL_DISTANCE - distance) / nameRevealTransitionDistance;
-
-					m_fProximityNameOpacity = m_fProximityNameOpacity * m_fProximityNameOpacity * (3.0 - 2.0 * m_fProximityNameOpacity);
-				}
+				m_bProximityNameVisible = m_bHasLabel;
 			}
 
-			float labelOpacity = m_fProximityNameOpacity;
-			if (m_bHovered)
-				labelOpacity = 1.0;
-			if (Math.AbsFloat(labelOpacity - m_fAppliedLabelOpacity) >= 0.01)
+			bool labelVisible = m_bHovered || m_bProximityNameVisible;
+			if (!m_bLabelVisibilityInitialized || labelVisible != m_bAppliedLabelVisible)
 			{
-				m_wLabel.SetOpacity(labelOpacity);
-				m_fAppliedLabelOpacity = labelOpacity;
+				m_wLabel.SetVisible(labelVisible);
+				m_bAppliedLabelVisible = labelVisible;
+				m_bLabelVisibilityInitialized = true;
 			}
 
 			if (m_bLabelLayoutDirty)
@@ -174,10 +150,13 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	{
 		m_bHovered = true;
 		m_bHasLabel = RefreshLabel();
+		if (m_wSelectedIcon)
+			m_wSelectedIcon.SetVisible(true);
 		if (m_wLabel && m_bHasLabel)
 		{
-			m_wLabel.SetOpacity(1.0);
-			m_fAppliedLabelOpacity = 1.0;
+			m_wLabel.SetVisible(true);
+			m_bAppliedLabelVisible = true;
+			m_bLabelVisibilityInitialized = true;
 		}
 
 		GetWidget().SetZOrder(100);
@@ -187,10 +166,13 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	override bool OnMouseLeave(Widget w, Widget enterW, int x, int y)
 	{
 		m_bHovered = false;
+		if (m_wSelectedIcon)
+			m_wSelectedIcon.SetVisible(false);
 		if (m_wLabel)
 		{
-			m_wLabel.SetOpacity(m_fProximityNameOpacity);
-			m_fAppliedLabelOpacity = m_fProximityNameOpacity;
+			m_wLabel.SetVisible(m_bProximityNameVisible);
+			m_bAppliedLabelVisible = m_bProximityNameVisible;
+			m_bLabelVisibilityInitialized = true;
 		}
 
 		GetWidget().SetZOrder(0);
@@ -214,7 +196,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		RefreshCharacterState();
 		if (m_bHovered)
 			m_bHasLabel = RefreshLabel();
-		else if (m_fProximityNameOpacity > 0.0)
+		else if (m_bProximityNameVisible)
 			m_bHasLabel = RefreshLabel();
 	}
 
@@ -335,8 +317,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	protected static const ResourceName GROUP_HOVER_LAYOUT = "{6A56000000000009}UI/layouts/Spectator/Lobby_Spectator_Group_Hover.layout";
 	protected static const ResourceName GROUP_MEMBER_ROW_LAYOUT = "{6A5600000000000A}UI/layouts/Spectator/Lobby_Spectator_Group_Member_Row.layout";
 	protected static const float GROUP_ICON_SIZE = 48.0;
-	protected static const float CLOSE_FADE_START = 100.0;
-	protected static const float CLOSE_FADE_TRANSITION_FRACTION = 0.1;
+	protected static const float CLOSE_HIDE_DISTANCE = 100.0;
 	protected static const float HOVER_WIDTH = 220.0;
 	protected static const float HOVER_HEADER_HEIGHT = 34.0;
 	protected static const float HOVER_ROW_HEIGHT = 30.0;
@@ -350,7 +331,6 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	protected SCR_AIGroup m_Group;
 	protected float m_fPopupHeight;
 	protected float m_fLastPresentationDistance = -1.0;
-	protected float m_fAppliedOpacity = -1.0;
 	protected bool m_bAppliedVisibility;
 	protected bool m_bPresentationInitialized;
 
@@ -387,25 +367,12 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 			return;
 		m_fLastPresentationDistance = distance;
 
-		float opacity = 1.0;
-		float closeFadeTransitionDistance = CLOSE_FADE_START * CLOSE_FADE_TRANSITION_FRACTION;
-		float closeFadeEnd = CLOSE_FADE_START - closeFadeTransitionDistance;
-		if (distance <= closeFadeEnd)
-			opacity = 0.0;
-		else if (distance < CLOSE_FADE_START)
-			opacity = (distance - closeFadeEnd) / closeFadeTransitionDistance;
-
-		bool isVisible = m_Group && m_Group.GetAgentsCount() > 0 && opacity > 0.0;
+		bool isVisible = m_Group && m_Group.GetAgentsCount() > 0 && distance >= CLOSE_HIDE_DISTANCE;
 		if (!m_bPresentationInitialized || isVisible != m_bAppliedVisibility)
 		{
 			m_wGroupOverlay.SetVisible(isVisible);
 			m_bAppliedVisibility = isVisible;
 			m_bPresentationInitialized = true;
-		}
-		if (Math.AbsFloat(opacity - m_fAppliedOpacity) >= 0.01)
-		{
-			m_wGroupOverlay.SetOpacity(opacity);
-			m_fAppliedOpacity = opacity;
 		}
 		if (!isVisible)
 			RemoveMemberPopup();
