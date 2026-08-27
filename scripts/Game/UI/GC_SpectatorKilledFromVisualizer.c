@@ -355,7 +355,7 @@ class GC_SpectatorKilledFromVisualizer
 		}
 
 		JsonLoadContext loadoutContext = new JsonLoadContext();
-		bool loadoutApplied = loadoutContext.LoadFromString(loadout) && SCR_PlayerArsenalLoadout.ApplyLoadoutString(preview, loadoutContext);
+		bool loadoutApplied = loadoutContext.LoadFromString(loadout) && GC_KilledFromLoadoutApplicator.Apply(preview, loadoutContext, role);
 		if (!loadoutApplied)
 		{
 			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=loadout prefab=%2 loadoutBytes=%3", role, prefab, loadout.Length(), level: LogLevel.ERROR);
