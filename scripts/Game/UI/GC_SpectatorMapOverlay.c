@@ -3,7 +3,7 @@
 //! from the base-game entity instead of copied into Lobby2 state.
 class GC_SpectatorMapCharacterSymbol
 {
-	protected static const float DOT_RADIUS = 7.0;
+	protected static const float DOT_RADIUS = 5.6;
 	protected static const float ARROW_GAP = 1.0;
 	protected static const float ARROW_LENGTH = 3.0;
 	protected static const float ARROW_HALF_WIDTH = 1.75;
