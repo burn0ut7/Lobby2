@@ -31,7 +31,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected SCR_MapEntity m_MapEntity;
 	protected Widget m_wMapFrame;
 	protected ref GC_SpectatorMapOverlay m_SpectatorMapOverlay;
+	protected GC_SpectatorMarkerOverlay m_SpectatorMarkerOverlay;
 	protected bool m_bSpectatorMapOpen;
+	protected bool m_bInterfaceVisible = true;
 	protected GC_SpectatorOptionButtonComponent m_InterfaceOptionButton;
 	protected Widget m_wInterfaceOptionSource;
 	protected TextWidget m_wInterfaceOptionState;
@@ -239,6 +241,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		m_wInterfaceOptionState = null;
 		m_wInterfaceOptionSource = null;
 		m_InterfaceOptionButton = null;
+		m_SpectatorMarkerOverlay = null;
 		m_SpectatorMapOverlay = null;
 		m_wMapFrame = null;
 		m_MapEntity = null;
@@ -249,6 +252,11 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	override void OnMenuUpdate(float tDelta)
 	{
 		super.OnMenuUpdate(tDelta);
+		if (!m_bInterfaceVisible)
+			return;
+
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.Update();
 		if (!m_bSpectatorMapOpen || !IsFocused())
 			return;
 
@@ -256,13 +264,22 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (m_InputManager)
 			m_InputManager.ActivateContext("MapContext");
 		if (m_SpectatorMapOverlay)
-			m_SpectatorMapOverlay.Update();
+			m_SpectatorMapOverlay.Update(tDelta);
+	}
+
+	void SetMarkerOverlay(GC_SpectatorMarkerOverlay markerOverlay)
+	{
+		m_SpectatorMarkerOverlay = markerOverlay;
 	}
 
 	void SetInterfaceVisible(bool visible)
 	{
+		m_bInterfaceVisible = visible;
 		if (!visible)
+		{
+			CloseSpectatorMap();
 			HideOptionTooltip();
+		}
 
 		if (visible)
 			WidgetManager.SetCursor(0);
@@ -285,6 +302,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	protected void OnToggleSpectatorMap()
 	{
+		if (!m_bInterfaceVisible)
+			return;
+
 		if (m_bSpectatorMapOpen)
 			CloseSpectatorMap();
 		else
@@ -333,7 +353,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (camera)
 			camera.SetInputEnabled(false);
 		if (m_SpectatorMapOverlay)
-			m_SpectatorMapOverlay.Update();
+			m_SpectatorMapOverlay.Update(0.0, true);
 		PrintFormat("GC | Spectator Map | opened config=%1 markers=%2 drawings=%3", mapConfigPath, m_MapEntity.GetMapUIComponent(SCR_MapMarkersUI) != null, m_MapEntity.GetMapUIComponent(SCR_MapDrawingUI) != null);
 	}
 
@@ -363,7 +383,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 		// Refresh the hit test during the input callback so a fast mouse move and
 		// click cannot select the marker hovered on the preceding frame.
-		m_SpectatorMapOverlay.Update();
+		m_SpectatorMapOverlay.Update(0.0);
 		IEntity target = m_SpectatorMapOverlay.GetHoveredEntity();
 		if (!target)
 			return;

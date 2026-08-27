@@ -1001,7 +1001,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		else
 		{
 			m_SpectatorMarkerOverlay.SetInterfaceVisible(m_bSpectatorInterfaceVisible);
-			ConnectSpectatorMapTracer();
+			ConnectSpectatorOverlay();
 			if (m_KilledFromSnapshot)
 				PrintFormat("GC | Killed From | event=overlay-create result=ready player=%1 enabled=%2 snapshot={%3}", GetPlayerId(), m_bSpectatorKilledFromEnabled, m_KilledFromSnapshot.GetDebugReport());
 			else
@@ -1030,19 +1030,22 @@ class GC_LobbyPlayerController : SCR_PlayerController
 				spectatorMenu.SetNightModeEnabled(m_bSpectatorNightModeEnabled);
 				spectatorMenu.SetProjectileTracersEnabled(m_bSpectatorProjectileTracersEnabled);
 				spectatorMenu.SetKilledFromEnabled(m_bSpectatorKilledFromEnabled);
-				ConnectSpectatorMapTracer();
+				ConnectSpectatorOverlay();
 			}
 		}
 	}
 
-	protected void ConnectSpectatorMapTracer()
+	protected void ConnectSpectatorOverlay()
 	{
 		if (!m_SpectatorMarkerOverlay)
 			return;
 
 		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
 		if (spectatorMenu)
+		{
+			spectatorMenu.SetMarkerOverlay(m_SpectatorMarkerOverlay);
 			spectatorMenu.SetMapProjectileTracer(m_SpectatorMarkerOverlay.GetProjectileTracer());
+		}
 	}
 
 	bool IsSpectatorInterfaceVisible()
@@ -1169,7 +1172,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		GC_Lobby_SpectatorMenu spectatorMenu = GC_Lobby_SpectatorMenu.Cast(m_SpectatorMenu);
 		if (spectatorMenu)
+		{
+			spectatorMenu.SetMarkerOverlay(null);
 			spectatorMenu.SetMapProjectileTracer(null);
+		}
 		PrintFormat("GC | Killed From | event=overlay-destroy player=%1 enabled=%2 snapshotRetained=%3", GetPlayerId(), m_bSpectatorKilledFromEnabled, m_KilledFromSnapshot != null);
 		m_SpectatorMarkerOverlay.Destroy();
 		m_SpectatorMarkerOverlay = null;
