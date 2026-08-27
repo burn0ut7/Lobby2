@@ -167,20 +167,17 @@ class GC_SpectatorMapCharacterSymbol
 
 		float dotRadius = DOT_RADIUS * displayScale;
 		float widgetSize = m_Workspace.DPIUnscale(dotRadius * 2.0);
-		float directionWidgetSize = widgetSize * DIRECTION_SIZE_RATIO;
-		float directionWidgetDistance = widgetSize * DIRECTION_OFFSET_RATIO;
 		if (Math.AbsFloat(widgetSize - m_fAppliedSize) >= 0.01)
 		{
 			m_fAppliedSize = widgetSize;
 			FrameSlot.SetSize(m_wRoot, widgetSize, widgetSize);
-			FrameSlot.SetPos(m_wDot, 0.0, 0.0);
-			FrameSlot.SetSize(m_wDot, widgetSize, widgetSize);
-			FrameSlot.SetSize(m_wDirection, directionWidgetSize, directionWidgetSize);
 		}
 		FrameSlot.SetPos(m_wRoot, m_Workspace.DPIUnscale(screenX) - widgetSize * 0.5, m_Workspace.DPIUnscale(screenY) - widgetSize * 0.5);
-		FrameSlot.SetPos(m_wDirection,
-			widgetSize * 0.5 + directionX * directionWidgetDistance - directionWidgetSize * 0.5,
-			widgetSize * 0.5 + directionY * directionWidgetDistance - directionWidgetSize * 0.5);
+		float directionHalfSize = DIRECTION_SIZE_RATIO * 0.5;
+		float directionAnchorX = 0.5 + directionX * DIRECTION_OFFSET_RATIO;
+		float directionAnchorY = 0.5 + directionY * DIRECTION_OFFSET_RATIO;
+		FrameSlot.SetAnchorMin(m_wDirection, directionAnchorX - directionHalfSize, directionAnchorY - directionHalfSize);
+		FrameSlot.SetAnchorMax(m_wDirection, directionAnchorX + directionHalfSize, directionAnchorY + directionHalfSize);
 		m_wDirection.SetRotation(Math.Atan2(directionY, directionX) * Math.RAD2DEG);
 		m_iScreenX = screenX;
 		m_iScreenY = screenY;
