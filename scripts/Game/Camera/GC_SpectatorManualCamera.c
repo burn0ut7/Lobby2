@@ -279,6 +279,31 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		return teleportComponent.TeleportCamera(position, forceDefaultDistance, false);
 	}
 
+	//! Teleports the free camera to a character's current animated eye position
+	//! without retaining an attachment to that character.
+	bool TeleportToEntityEye(IEntity target)
+	{
+		if (!IsEligibleTarget(target))
+			return false;
+
+		Animation animation = target.GetAnimation();
+		if (!animation)
+			return false;
+
+		vector targetTransform[4];
+		target.GetWorldTransform(targetTransform);
+		vector eyeCameraTransform[4];
+		if (!GetEyeCameraTransform(animation, targetTransform, eyeCameraTransform))
+			return false;
+
+		SCR_TeleportToCursorManualCameraComponent teleportComponent = SCR_TeleportToCursorManualCameraComponent.Cast(FindCameraComponent(SCR_TeleportToCursorManualCameraComponent));
+		if (!teleportComponent)
+			return false;
+
+		SetFreeMode();
+		return teleportComponent.TeleportCamera(eyeCameraTransform[3], true, false, false, false, 0);
+	}
+
 	protected void RestoreAttachedPresentation()
 	{
 		if (m_eMode == GC_ESpectatorCameraMode.NETWORK)

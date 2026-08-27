@@ -66,6 +66,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.AddActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
 			m_InputManager.AddActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
+			m_InputManager.AddActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.AddActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -203,6 +204,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.RemoveActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
 			m_InputManager.RemoveActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
+			m_InputManager.RemoveActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.RemoveActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -343,6 +345,30 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (camera)
 			camera.SetInputEnabled(true);
 		Print("GC | Spectator Map | closed");
+	}
+
+	protected void OnSpectatorMapSelect(float value, EActionTrigger reason)
+	{
+		if (!m_bSpectatorMapOpen || !m_SpectatorMapOverlay)
+			return;
+
+		// Refresh the hit test during the input callback so a fast mouse move and
+		// click cannot select the marker hovered on the preceding frame.
+		m_SpectatorMapOverlay.Update();
+		IEntity target = m_SpectatorMapOverlay.GetHoveredEntity();
+		if (!target)
+			return;
+
+		CameraManager cameraManager = GetGame().GetCameraManager();
+		if (!cameraManager)
+			return;
+
+		GC_SpectatorManualCamera spectatorCamera = GC_SpectatorManualCamera.Cast(cameraManager.CurrentCamera());
+		if (!spectatorCamera || !spectatorCamera.TeleportToEntityEye(target))
+			return;
+
+		CloseSpectatorMap();
+		PrintFormat("GC | Spectator Map | eye teleport selected entity=%1", target);
 	}
 
 	void SetProjectileTracersEnabled(bool enabled)

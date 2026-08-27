@@ -165,6 +165,18 @@ class GC_SpectatorMapCharacterSymbol
 		return string.Empty;
 	}
 
+	IEntity GetTargetEntity()
+	{
+		if (!m_Entity)
+			return null;
+
+		IEntity owner = m_Entity.GetOwner();
+		if (!owner || owner.IsDeleted())
+			return null;
+
+		return owner;
+	}
+
 	protected void Hide()
 	{
 		m_bVisible = false;
@@ -186,6 +198,7 @@ class GC_SpectatorMapOverlay
 	protected WorkspaceWidget m_Workspace;
 	protected SCR_MapEntity m_MapEntity;
 	protected SCR_EditableEntityCore m_EditableEntityCore;
+	protected IEntity m_HoveredEntity;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorMapCharacterSymbol> m_mSymbols = new map<SCR_EditableEntityComponent, ref GC_SpectatorMapCharacterSymbol>();
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 
@@ -227,6 +240,7 @@ class GC_SpectatorMapOverlay
 		if (m_Canvas)
 			m_Canvas.SetDrawCommands(m_aDrawCommands);
 		m_mSymbols.Clear();
+		m_HoveredEntity = null;
 		m_Canvas = null;
 		m_wTooltip = null;
 		m_wTooltipText = null;
@@ -257,9 +271,13 @@ class GC_SpectatorMapOverlay
 		}
 
 		m_Canvas.SetDrawCommands(m_aDrawCommands);
+		m_HoveredEntity = null;
 		string hoverLabel;
 		if (hoveredSymbol)
+		{
+			m_HoveredEntity = hoveredSymbol.GetTargetEntity();
 			hoverLabel = hoveredSymbol.GetHoverLabel();
+		}
 		if (hoverLabel.IsEmpty())
 		{
 			m_wTooltip.SetVisible(false);
@@ -277,6 +295,14 @@ class GC_SpectatorMapOverlay
 		m_wTooltip.SetVisible(true);
 	}
 
+	IEntity GetHoveredEntity()
+	{
+		if (!m_HoveredEntity || m_HoveredEntity.IsDeleted())
+			return null;
+
+		return m_HoveredEntity;
+	}
+
 	void Clear()
 	{
 		if (!m_Canvas)
@@ -284,6 +310,7 @@ class GC_SpectatorMapOverlay
 
 		array<ref CanvasWidgetCommand> noCommands = {};
 		m_Canvas.SetDrawCommands(noCommands);
+		m_HoveredEntity = null;
 		if (m_wTooltip)
 			m_wTooltip.SetVisible(false);
 	}
