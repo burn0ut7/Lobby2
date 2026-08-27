@@ -279,8 +279,8 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		return teleportComponent.TeleportCamera(position, forceDefaultDistance, false);
 	}
 
-	//! Snaps the free camera to a character's current animated eye transform
-	//! without retaining an attachment to that character.
+	//! Snaps the free camera to a character's animated eye position, pitch, and
+	//! roll while retaining the spectator's current horizontal heading.
 	bool TeleportToEntityEye(IEntity target)
 	{
 		if (!IsEligibleTarget(target))
@@ -295,6 +295,15 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		vector eyeCameraTransform[4];
 		if (!GetEyeCameraTransform(animation, targetTransform, eyeCameraTransform))
 			return false;
+
+		vector eyeRotation[3] = {eyeCameraTransform[0], eyeCameraTransform[1], eyeCameraTransform[2]};
+		vector eyeAngles;
+		Math3D.MatrixToAnglesAndScale(eyeRotation, eyeAngles);
+		vector currentAngles = GetYawPitchRoll();
+		eyeAngles[0] = currentAngles[0];
+		vector eyePosition = eyeCameraTransform[3];
+		Math3D.AnglesToMatrix(eyeAngles, eyeCameraTransform);
+		eyeCameraTransform[3] = eyePosition;
 
 		SetFreeMode();
 		SetTransform(eyeCameraTransform);
