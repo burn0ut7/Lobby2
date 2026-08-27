@@ -63,11 +63,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected static const float MIRROR_ROTATION_STABILIZATION_SPEED = 10.0;
 	protected static const float SPECTATOR_NIGHT_MODE_MAX_SUN_STATE = 0.1;
 	protected static const float SPECTATOR_NIGHT_MODE_EV = 2.0;
+	protected static const float SPECTATOR_FILL_LIGHT_RADIUS = 100000.0;
+	protected static const float SPECTATOR_FILL_LIGHT_LV = 8.0;
 	protected bool m_bSpectatorNightModeEnabled;
 	protected bool m_bSpectatorNightModeApplied;
 	protected float m_fSpectatorNightModeAlpha = -1;
 	protected BaseWorld m_SpectatorNightModeWorld;
 	protected TimeAndWeatherManagerEntity m_SpectatorNightModeWeather;
+	protected LightEntity m_SpectatorFillLight;
 	protected bool m_bNetworkSnapshotReceived;
 	protected CharacterAnimationComponent m_NetworkAnimation;
 	protected int m_iNetworkLastSequence = -1;
@@ -401,13 +404,24 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (!m_SpectatorNightModeWorld)
 			m_SpectatorNightModeWorld = GetWorld();
 
-		ChimeraWorld chimeraWorld = ChimeraWorld.CastFrom(m_SpectatorNightModeWorld);
-		if (!chimeraWorld)
-			return false;
+		if (!m_SpectatorFillLight)
+		{
+			m_SpectatorFillLight = LightEntity.CreateLight(
+				LightType.AMBIENT,
+				LightFlags.DIFFUSE_ONLY,
+				SPECTATOR_FILL_LIGHT_RADIUS,
+				Color.FromInt(Color.WHITE),
+				SPECTATOR_FILL_LIGHT_LV,
+				GetOrigin());
+			if (!m_SpectatorFillLight)
+				return false;
 
-		m_SpectatorNightModeWeather = chimeraWorld.GetTimeAndWeatherManager();
-		if (!m_SpectatorNightModeWeather)
-			return false;
+			m_SpectatorFillLight.SetCastShadow(false);
+		}
+
+		ChimeraWorld chimeraWorld = ChimeraWorld.CastFrom(m_SpectatorNightModeWorld);
+		if (chimeraWorld)
+			m_SpectatorNightModeWeather = chimeraWorld.GetTimeAndWeatherManager();
 
 		m_bSpectatorNightModeEnabled = true;
 		m_fSpectatorNightModeAlpha = -1;
@@ -501,6 +515,11 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	{
 		if (m_bSpectatorNightModeApplied && m_SpectatorNightModeWorld)
 			m_SpectatorNightModeWorld.AdjustCameraEV(0, 0);
+		if (m_SpectatorFillLight)
+		{
+			delete m_SpectatorFillLight;
+			m_SpectatorFillLight = null;
+		}
 
 		m_bSpectatorNightModeApplied = false;
 		m_fSpectatorNightModeAlpha = -1;
