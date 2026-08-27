@@ -5,10 +5,10 @@ class GC_SpectatorMapCharacterSymbol
 {
 	protected static const ResourceName MARKER_LAYOUT = "{6A60000000000100}UI/layouts/Spectator/Lobby_Spectator_Map_Character.layout";
 	protected static const float DOT_RADIUS = 7.5;
-	// Preserve the authored 128 px circle, 44 px triangle, and the triangle's
-	// 44 px center offset at every map zoom level.
-	protected static const float DIRECTION_SIZE_RATIO = 0.34375;
-	protected static const float DIRECTION_OFFSET_RATIO = 0.34375;
+	// Preserve the authored 70% circle, 44 px triangle, and their touching
+	// edge relationship at every map zoom level.
+	protected static const float DIRECTION_SIZE_RATIO = 0.344;
+	protected static const float DIRECTION_OFFSET_RATIO = 0.194;
 	protected static const float VIEWPORT_MARGIN = 128.0;
 
 	protected SCR_EditableEntityComponent m_Entity;
