@@ -30,7 +30,7 @@ FrameWidgetClass {
    }
    Image ""
    Size 48 48
-   "Ignore Cursor" 1
+   "Ignore Cursor" 0
   }
   FrameWidgetClass "{6A4E000000000009}" {
    Name "BriefingMarkerLabel"
