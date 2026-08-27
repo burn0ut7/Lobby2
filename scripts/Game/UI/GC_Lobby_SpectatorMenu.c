@@ -62,7 +62,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.AddActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
-			m_InputManager.AddActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToMapCursor);
+			m_InputManager.AddActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
 
 		Widget root = GetRootWidget();
@@ -173,7 +173,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.RemoveActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
-			m_InputManager.RemoveActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToMapCursor);
+			m_InputManager.RemoveActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
 
 		HideOptionTooltip();
@@ -279,20 +279,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			playerController.ToggleSpectatorKilledFrom();
 	}
 
-	protected void OnTeleportToMapCursor()
+	protected void OnTeleportToCursor()
 	{
-		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
-		if (!mapEntity || !mapEntity.IsOpen())
-			return;
-
-		int mouseX;
-		int mouseY;
-		WidgetManager.GetMousePos(mouseX, mouseY);
-
-		float worldX;
-		float worldZ;
-		mapEntity.ScreenToWorld(mouseX, mouseY, worldX, worldZ);
-
 		BaseWorld world = GetGame().GetWorld();
 		CameraManager cameraManager = GetGame().GetCameraManager();
 		if (!world || !cameraManager)
@@ -302,8 +290,43 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (!spectatorCamera)
 			return;
 
-		vector worldPosition = {worldX, world.GetSurfaceY(worldX, worldZ), worldZ};
-		spectatorCamera.TeleportToWorldPosition(worldPosition);
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		if (mapEntity && mapEntity.IsOpen())
+		{
+			int mouseX;
+			int mouseY;
+			WidgetManager.GetMousePos(mouseX, mouseY);
+
+			float worldX;
+			float worldZ;
+			mapEntity.ScreenToWorld(mouseX, mouseY, worldX, worldZ);
+
+			vector mapWorldPosition = {worldX, world.GetSurfaceY(worldX, worldZ), worldZ};
+			spectatorCamera.TeleportToWorldPosition(mapWorldPosition);
+			return;
+		}
+
+		WorkspaceWidget workspace = GetGame().GetWorkspace();
+		if (!workspace)
+			return;
+
+		int cursorX;
+		int cursorY;
+		WidgetManager.GetMousePos(cursorX, cursorY);
+
+		vector traceDirection;
+		vector traceStart = workspace.ProjScreenToWorld(workspace.DPIUnscale(cursorX), workspace.DPIUnscale(cursorY), traceDirection, world, -1);
+		traceDirection *= 1000.0;
+
+		autoptr TraceParam trace = new TraceParam();
+		trace.Start = traceStart;
+		trace.End = traceStart + traceDirection;
+		trace.Flags = TraceFlags.ANY_CONTACT | TraceFlags.WORLD | TraceFlags.ENTS | TraceFlags.OCEAN;
+		trace.LayerMask = EPhysicsLayerPresets.Projectile;
+
+		float traceDistance = world.TraceMove(trace, null);
+		vector cursorWorldPosition = traceStart + traceDirection * traceDistance;
+		spectatorCamera.TeleportToWorldPosition(cursorWorldPosition, true);
 	}
 
 	protected void OnInterfaceOptionHoverChanged(bool hovered)

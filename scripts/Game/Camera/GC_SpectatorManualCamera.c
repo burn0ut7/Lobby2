@@ -269,14 +269,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	//! Routes map-selected world positions through the stock manual-camera
 	//! teleport component inherited from ManualCameraBase.
-	bool TeleportToWorldPosition(vector position)
+	bool TeleportToWorldPosition(vector position, bool forceDefaultDistance = false)
 	{
 		SCR_TeleportToCursorManualCameraComponent teleportComponent = SCR_TeleportToCursorManualCameraComponent.Cast(FindCameraComponent(SCR_TeleportToCursorManualCameraComponent));
 		if (!teleportComponent)
 			return false;
 
 		SetFreeMode();
-		return teleportComponent.TeleportCamera(position);
+		return teleportComponent.TeleportCamera(position, forceDefaultDistance, false);
 	}
 
 	protected void RestoreAttachedPresentation()
