@@ -17,7 +17,7 @@ class GC_SpectatorKilledFromVisualizer
 {
 	protected static const float LINE_WIDTH = 1.5;
 	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
-	protected static const float MARKER_WIDTH = 152.0;
+	protected static const float MARKER_WIDTH = 256.0;
 	protected static const float MARKER_HEIGHT = 76.0;
 	protected static const ResourceName MARKER_LAYOUT = "{6A5F000000000100}UI/layouts/Spectator/Lobby_Spectator_Killed_From_Marker.layout";
 	protected CanvasWidget m_wCanvas;
@@ -64,6 +64,7 @@ class GC_SpectatorKilledFromVisualizer
 		ConfigureMarker(m_wKillerMarker, "KILLED YOU", Color.FromRGBA(235, 45, 70, 255));
 		ConfigureMarker(m_wVictimMarker, "YOU", Color.FromRGBA(65, 170, 255, 255));
 		m_Snapshot = snapshot;
+		UpdateKillerMarkerText();
 		if (snapshot)
 			PrintFormat("GC | Killed From | event=visualizer-start result=ready enabled=%1 snapshot={%2}", enabled, snapshot.GetDebugReport());
 		else
@@ -79,6 +80,7 @@ class GC_SpectatorKilledFromVisualizer
 		else
 			PrintFormat("GC | Killed From | event=visualizer-snapshot enabled=%1 killerPreview=%2 victimPreview=%3 snapshot=none", m_bEnabled, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null);
 		m_Snapshot = snapshot;
+		UpdateKillerMarkerText();
 		m_bVisibilityReported = false;
 		m_bPhysicsDeactivationReported = false;
 		DestroyPreview();
@@ -911,6 +913,25 @@ class GC_SpectatorKilledFromVisualizer
 		if (labelBackground)
 			labelBackground.SetColor(accentColor);
 		marker.SetVisible(false);
+	}
+
+	protected void UpdateKillerMarkerText()
+	{
+		if (!m_wKillerMarker)
+			return;
+
+		string markerText = "KILLED YOU";
+		if (m_Snapshot && !m_Snapshot.GetKillerDisplayName().IsEmpty())
+		{
+			string killerDisplayName = m_Snapshot.GetKillerDisplayName();
+			if (m_Snapshot.IsKillerDisplayNameLocalized())
+				killerDisplayName = WidgetManager.Translate(killerDisplayName);
+			markerText = killerDisplayName + " KILLED YOU";
+		}
+
+		TextWidget label = TextWidget.Cast(m_wKillerMarker.FindAnyWidget("LobbySpectatorKilledFromMarkerText"));
+		if (label)
+			label.SetText(markerText);
 	}
 
 	protected bool UpdateActorMarker(Widget marker, IEntity actor)

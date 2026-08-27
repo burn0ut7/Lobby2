@@ -186,6 +186,8 @@ class GC_KilledFromSnapshot
 	static const int FLAG_WEAPON_ADS = 4;
 
 	protected ResourceName m_sKillerPrefab;
+	protected string m_sKillerDisplayName;
+	protected bool m_bKillerDisplayNameLocalized;
 	protected vector m_vKillerPosition;
 	protected vector m_vKillerAngles;
 	protected vector m_vLineOrigin;
@@ -316,10 +318,34 @@ class GC_KilledFromSnapshot
 		m_aKillerBonePose = localDamage.m_aKillerBonePose;
 		m_KillerWeapon = localDamage.m_KillerWeapon;
 		m_KillerVehicle = localDamage.m_KillerVehicle;
+		m_sKillerDisplayName = localDamage.m_sKillerDisplayName;
+		m_bKillerDisplayNameLocalized = localDamage.m_bKillerDisplayNameLocalized;
 	}
 
 	protected void CaptureKiller(IEntity killer)
 	{
+		m_sKillerDisplayName = string.Empty;
+		m_bKillerDisplayNameLocalized = false;
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (playerManager)
+		{
+			int killerPlayerId = playerManager.GetPlayerIdFromControlledEntity(killer);
+			if (killerPlayerId > 0)
+				m_sKillerDisplayName = playerManager.GetPlayerName(killerPlayerId);
+		}
+		if (m_sKillerDisplayName.IsEmpty())
+		{
+			SCR_EditableEntityComponent editableEntity = SCR_EditableEntityComponent.GetEditableEntity(killer);
+			SCR_EditableEntityUIInfo editableInfo;
+			if (editableEntity)
+				editableInfo = SCR_EditableEntityUIInfo.Cast(editableEntity.GetInfo(killer));
+			if (editableInfo)
+			{
+				m_sKillerDisplayName = editableInfo.GetName();
+				m_bKillerDisplayNameLocalized = !m_sKillerDisplayName.IsEmpty();
+			}
+		}
+
 		m_vKillerPosition = killer.GetOrigin();
 		m_vKillerAngles = killer.GetAngles();
 		m_vLineOrigin = m_vKillerPosition;
@@ -581,6 +607,14 @@ class GC_KilledFromSnapshot
 		m_iFlags = flags;
 	}
 
+	void SetNetworkKillerDisplayName(string killerDisplayName, bool killerDisplayNameLocalized)
+	{
+		if (!m_sKillerDisplayName.IsEmpty())
+			return;
+		m_sKillerDisplayName = killerDisplayName;
+		m_bKillerDisplayNameLocalized = killerDisplayNameLocalized;
+	}
+
 	void SetNetworkKillerVehicleData(ResourceName prefab, vector position, vector angles, ECompartmentType compartmentType, int compartmentIndex)
 	{
 		if (prefab == ResourceName.Empty)
@@ -591,6 +625,8 @@ class GC_KilledFromSnapshot
 	}
 
 	ResourceName GetKillerPrefab() { return m_sKillerPrefab; }
+	string GetKillerDisplayName() { return m_sKillerDisplayName; }
+	bool IsKillerDisplayNameLocalized() { return m_bKillerDisplayNameLocalized; }
 	ResourceName GetVictimPrefab() { return m_sVictimPrefab; }
 	vector GetKillerPosition() { return m_vKillerPosition; }
 	vector GetKillerAngles() { return m_vKillerAngles; }
@@ -637,8 +673,8 @@ class GC_KilledFromSnapshot
 		string victimVehicleReport = "none";
 		if (m_VictimVehicle)
 			victimVehicleReport = m_VictimVehicle.GetDebugReport();
-		string report = string.Format("valid=%1 prefab=%2 killerPosition=%3 killerAngles=%4 lineOrigin=%5 hitPosition=%6",
-			HasKillerPreview(), m_sKillerPrefab, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
+		string report = string.Format("valid=%1 prefab=%2 killerName=%3 killerNameLocalized=%4 killerPosition=%5 killerAngles=%6 lineOrigin=%7 hitPosition=%8",
+			HasKillerPreview(), m_sKillerPrefab, m_sKillerDisplayName, m_bKillerDisplayNameLocalized, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
 		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 killerAim=%5 victimAim=%6 weaponRaised=%7 ads=%8", m_iStance, m_fDynamicStance,
 			m_fKillerLean, m_fVictimLean, m_vKillerAimingAngles, m_vVictimAimingAngles, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
 		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasLocalDamageCapture, m_sLineOriginMode);

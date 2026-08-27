@@ -1,8 +1,8 @@
 FrameWidgetClass {
  Name "LobbySpectatorKilledFromMarker"
  Slot FrameWidgetSlot "{6A5F000000000101}" {
-  SizeX 152
-  OffsetRight -152
+  SizeX 256
+  OffsetRight -256
   SizeY 76
   OffsetBottom -76
  }
@@ -12,12 +12,12 @@ FrameWidgetClass {
   OverlayWidgetClass "{6A5F000000000102}" {
    Name "LobbySpectatorKilledFromMarkerIcon"
    Slot FrameWidgetSlot "{6A5F000000000103}" {
-    PositionX 52
-    OffsetLeft 52
+    PositionX 104
+    OffsetLeft 104
     PositionY 0
     OffsetTop 0
     SizeX 48
-    OffsetRight -100
+    OffsetRight -152
     SizeY 48
     OffsetBottom -48
    }
@@ -70,8 +70,8 @@ FrameWidgetClass {
     OffsetLeft 0
     PositionY 50
     OffsetTop 50
-    SizeX 152
-    OffsetRight -152
+    SizeX 256
+    OffsetRight -256
     SizeY 26
     OffsetBottom -76
    }

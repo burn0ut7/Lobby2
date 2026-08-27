@@ -590,6 +590,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 		PrintFormat("GC | Killed From | event=snapshot-send result=rpc-owner player=%1 snapshot={%2}", GetPlayerId(), snapshot.GetDebugReport());
 		Rpc(RpcDo_SetKilledFromSnapshot, snapshot.GetKillerPrefab(), snapshot.GetKillerPosition(), snapshot.GetKillerAngles(), snapshot.GetLineOrigin(), snapshot.GetHitPosition(), snapshot.GetStance(), snapshot.GetDynamicStance(), snapshot.GetFlags());
+		Rpc(RpcDo_SetKilledFromIdentity, snapshot.GetKillerDisplayName(), snapshot.IsKillerDisplayNameLocalized());
 		if (killerVehiclePrefab != ResourceName.Empty)
 			Rpc(RpcDo_SetKilledFromVehicle, killerVehiclePrefab, killerVehiclePosition, killerVehicleAngles, killerCompartmentType, killerCompartmentIndex);
 	}
@@ -606,6 +607,25 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			serverFallback.MergeLocalDamage(m_KilledFromSnapshot);
 		m_KilledFromSnapshot = serverFallback;
 		PrintFormat("GC | Killed From | event=snapshot-merge player=%1 final={%2} overlayReady=%3 enabled=%4", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport(), m_SpectatorMarkerOverlay != null, m_bSpectatorKilledFromEnabled);
+		if (m_SpectatorMarkerOverlay)
+			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_SetKilledFromIdentity(string killerDisplayName, bool killerDisplayNameLocalized)
+	{
+		if (!m_KilledFromSnapshot)
+		{
+			PrintFormat("GC | Killed From | event=identity-fallback-receive result=rejected reason=no-snapshot player=%1", GetPlayerId(), level: LogLevel.WARNING);
+			return;
+		}
+
+		bool hadLocalIdentity = !m_KilledFromSnapshot.GetKillerDisplayName().IsEmpty();
+		m_KilledFromSnapshot.SetNetworkKillerDisplayName(killerDisplayName, killerDisplayNameLocalized);
+		string result = "applied";
+		if (hadLocalIdentity)
+			result = "ignored-local-retained";
+		PrintFormat("GC | Killed From | event=identity-fallback-receive result=%1 player=%2 name=%3 localized=%4", result, GetPlayerId(), m_KilledFromSnapshot.GetKillerDisplayName(), m_KilledFromSnapshot.IsKillerDisplayNameLocalized());
 		if (m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
 	}
