@@ -54,7 +54,33 @@ class GC_SpectatorMapCharacterSymbol
 		vector transform[4];
 		owner.GetTransform(transform);
 		vector position = transform[3];
-		vector facingPosition = position + transform[2] * 10.0;
+		Animation animation = owner.GetAnimation();
+		if (!animation)
+		{
+			Hide();
+			return;
+		}
+
+		vector headBoneTransform[4];
+		if (!animation.GetBoneMatrix(animation.GetBoneIndex("Head"), headBoneTransform))
+		{
+			Hide();
+			return;
+		}
+
+		vector headWorldTransform[4];
+		Math3D.MatrixMultiply4(transform, headBoneTransform, headWorldTransform);
+		// Character head bones face opposite the camera/look direction. Flatten the
+		// animated look basis onto the map so pitch does not change arrow length.
+		vector aimDirection = headWorldTransform[2] * -1.0;
+		aimDirection[1] = 0;
+		if (aimDirection.LengthSq() <= 0.0001)
+		{
+			Hide();
+			return;
+		}
+		aimDirection.Normalize();
+		vector facingPosition = position + aimDirection * 10.0;
 		int screenX;
 		int screenY;
 		int facingScreenX;
