@@ -24,7 +24,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected static const int OPTION_TOOLTIP_DELAY_MS = 1500;
 	protected static const string INTERFACE_OPTION_DESCRIPTION = "Hide the spectator interface, chat, notifications, and all other game HUD elements. Press the shown key to restore them.";
 	protected static const string NIGHT_MODE_OPTION_DESCRIPTION = "Brighten dark scenes locally using the same exposure behavior as the Game Master local light. This does not change lighting for other players.";
-	protected static const string PROJECTILE_TRACERS_OPTION_DESCRIPTION = "Draw client-local paths for bullets and other projectiles fired by tracked characters and vehicles.";
+	protected static const string PROJECTILE_TRACERS_OPTION_DESCRIPTION = "Draw client-local paths in the 3D world and on the spectator map for bullets and other projectiles fired by tracked characters and vehicles.";
 	protected static const string KILLED_FROM_OPTION_DESCRIPTION = "Show a client-local snapshot of the entity that killed you and trace its firing or explosive origin to the fatal impact point.";
 
 	protected InputManager m_InputManager;
@@ -374,6 +374,12 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	void SetProjectileTracersEnabled(bool enabled)
 	{
 		UpdateBooleanOption(m_wProjectileTracersOptionState, m_wProjectileTracersOptionStateBackground, enabled);
+	}
+
+	void SetMapProjectileTracer(GC_SpectatorProjectileTracer projectileTracer)
+	{
+		if (m_SpectatorMapOverlay)
+			m_SpectatorMapOverlay.SetProjectileTracer(projectileTracer);
 	}
 
 	void SetNightModeEnabled(bool enabled)

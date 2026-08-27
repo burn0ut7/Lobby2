@@ -198,9 +198,11 @@ class GC_SpectatorMapOverlay
 	protected WorkspaceWidget m_Workspace;
 	protected SCR_MapEntity m_MapEntity;
 	protected SCR_EditableEntityCore m_EditableEntityCore;
+	protected GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected IEntity m_HoveredEntity;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorMapCharacterSymbol> m_mSymbols = new map<SCR_EditableEntityComponent, ref GC_SpectatorMapCharacterSymbol>();
-	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
+	protected ref array<ref CanvasWidgetCommand> m_aSymbolDrawCommands = {};
+	protected ref array<ref CanvasWidgetCommand> m_aFrameDrawCommands = {};
 
 	bool Start(CanvasWidget canvas, Widget tooltip, TextWidget tooltipText)
 	{
@@ -236,9 +238,10 @@ class GC_SpectatorMapOverlay
 			m_EditableEntityCore.Event_OnEntityUnregistered.Remove(OnEntityUnregistered);
 		}
 
-		m_aDrawCommands.Clear();
+		m_aSymbolDrawCommands.Clear();
+		m_aFrameDrawCommands.Clear();
 		if (m_Canvas)
-			m_Canvas.SetDrawCommands(m_aDrawCommands);
+			m_Canvas.SetDrawCommands(m_aFrameDrawCommands);
 		m_mSymbols.Clear();
 		m_HoveredEntity = null;
 		m_Canvas = null;
@@ -247,6 +250,12 @@ class GC_SpectatorMapOverlay
 		m_Workspace = null;
 		m_MapEntity = null;
 		m_EditableEntityCore = null;
+		m_ProjectileTracer = null;
+	}
+
+	void SetProjectileTracer(GC_SpectatorProjectileTracer projectileTracer)
+	{
+		m_ProjectileTracer = projectileTracer;
 	}
 
 	void Update()
@@ -270,7 +279,12 @@ class GC_SpectatorMapOverlay
 			}
 		}
 
-		m_Canvas.SetDrawCommands(m_aDrawCommands);
+		m_aFrameDrawCommands = {};
+		foreach (CanvasWidgetCommand symbolCommand : m_aSymbolDrawCommands)
+			m_aFrameDrawCommands.Insert(symbolCommand);
+		if (m_ProjectileTracer)
+			m_ProjectileTracer.AppendMapDrawCommands(m_MapEntity, m_aFrameDrawCommands);
+		m_Canvas.SetDrawCommands(m_aFrameDrawCommands);
 		m_HoveredEntity = null;
 		string hoverLabel;
 		if (hoveredSymbol)
@@ -330,8 +344,8 @@ class GC_SpectatorMapOverlay
 
 		GC_SpectatorMapCharacterSymbol symbol = new GC_SpectatorMapCharacterSymbol(entity);
 		m_mSymbols.Insert(entity, symbol);
-		m_aDrawCommands.Insert(symbol.GetDotCommand());
-		m_aDrawCommands.Insert(symbol.GetArrowCommand());
+		m_aSymbolDrawCommands.Insert(symbol.GetDotCommand());
+		m_aSymbolDrawCommands.Insert(symbol.GetArrowCommand());
 	}
 
 	protected void OnEntityUnregistered(SCR_EditableEntityComponent entity)
@@ -341,11 +355,11 @@ class GC_SpectatorMapOverlay
 			return;
 
 		m_mSymbols.Remove(entity);
-		m_aDrawCommands.Clear();
+		m_aSymbolDrawCommands.Clear();
 		foreach (SCR_EditableEntityComponent remainingEntity, GC_SpectatorMapCharacterSymbol remainingSymbol : m_mSymbols)
 		{
-			m_aDrawCommands.Insert(remainingSymbol.GetDotCommand());
-			m_aDrawCommands.Insert(remainingSymbol.GetArrowCommand());
+			m_aSymbolDrawCommands.Insert(remainingSymbol.GetDotCommand());
+			m_aSymbolDrawCommands.Insert(remainingSymbol.GetArrowCommand());
 		}
 	}
 }

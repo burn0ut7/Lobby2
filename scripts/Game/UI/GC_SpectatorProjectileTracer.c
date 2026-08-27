@@ -329,6 +329,49 @@ class GC_SpectatorProjectileTracer
 		}
 	}
 
+	//! Projects the same retained world-space traces used by the 3D overlay onto
+	//! the spectator map. Capture, lifetime, speed colors, and enable state remain
+	//! owned by this single tracer.
+	void AppendMapDrawCommands(SCR_MapEntity mapEntity, array<ref CanvasWidgetCommand> drawCommands)
+	{
+		if (!m_bEnabled || !mapEntity || !mapEntity.IsOpen() || !drawCommands)
+			return;
+
+		foreach (GC_SpectatorProjectileTrace trace : m_aTraces)
+		{
+			int segmentCount = trace.GetSegmentCount();
+			if (segmentCount < 1)
+				continue;
+
+			float initialSpeed = trace.GetInitialSpeed();
+			vector startPosition = trace.GetPosition(0);
+			int startScreenX;
+			int startScreenY;
+			mapEntity.WorldToScreen(startPosition[0], startPosition[2], startScreenX, startScreenY, true);
+			for (int positionIndex = 0; positionIndex < segmentCount; positionIndex++)
+			{
+				vector endPosition = trace.GetPosition(positionIndex + 1);
+				int endScreenX;
+				int endScreenY;
+				mapEntity.WorldToScreen(endPosition[0], endPosition[2], endScreenX, endScreenY, true);
+				float screenDeltaX = endScreenX - startScreenX;
+				float screenDeltaY = endScreenY - startScreenY;
+				if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY > MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
+				{
+					LineDrawCommand line = new LineDrawCommand();
+					line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex), initialSpeed);
+					line.m_fWidth = LINE_WIDTH;
+					line.m_bShouldEnclose = false;
+					line.m_Vertices = {startScreenX, startScreenY, endScreenX, endScreenY};
+					drawCommands.Insert(line);
+				}
+
+				startScreenX = endScreenX;
+				startScreenY = endScreenY;
+			}
+		}
+	}
+
 	//! Holds red through 90% speed, blends to green by 10%, then to white at rest.
 	protected int GetSpeedColor(float speed, float initialSpeed)
 	{

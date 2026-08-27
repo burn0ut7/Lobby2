@@ -834,6 +834,11 @@ class GC_SpectatorMarkerOverlay
 			m_ProjectileTracer.SetEnabled(enabled);
 	}
 
+	GC_SpectatorProjectileTracer GetProjectileTracer()
+	{
+		return m_ProjectileTracer;
+	}
+
 	void SetKilledFromSnapshot(GC_KilledFromSnapshot snapshot)
 	{
 		if (m_KilledFromVisualizer)
