@@ -29,6 +29,11 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected bool m_bDisconnected;
 	protected int m_iFactionColor;
 	protected int m_iOutlineColor;
+	protected float m_fLastPresentationDistance = -1.0;
+	protected float m_fAppliedIconSize = -1.0;
+	protected float m_fAppliedLabelOpacity = -1.0;
+	protected float m_fCachedLabelWidth;
+	protected bool m_bLabelLayoutDirty = true;
 
 	override void OnInit(SCR_EditableEntityComponent entity, SCR_UIInfo info, SCR_EditableEntityBaseSlotUIComponent slot)
 	{
@@ -45,7 +50,10 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		m_wLabel = PanelWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerLabel"));
 		m_wLabelText = RichTextWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerLabelText"));
 		if (m_wLabel)
+		{
 			m_wLabel.SetOpacity(0.0);
+			m_fAppliedLabelOpacity = 0.0;
+		}
 		if (m_wSelectedIcon)
 			m_wSelectedIcon.SetOpacity(0.0);
 
@@ -76,36 +84,49 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		if (!m_wIcon)
 			return;
 
-		float distanceScale = 1.0 - ((distance - MIN_ICON_DISTANCE) / (maxDistance - MIN_ICON_DISTANCE));
-		distanceScale = Math.Clamp(distanceScale, 0.0, 1.0);
-		distanceScale = distanceScale * distanceScale * distanceScale;
-		float iconSize = MIN_ICON_SIZE + (MAX_ICON_SIZE - MIN_ICON_SIZE) * distanceScale;
-		float iconOffset = -iconSize * 0.5;
+		bool distanceChanged = m_fLastPresentationDistance < 0.0 || Math.AbsFloat(distance - m_fLastPresentationDistance) >= 0.5;
+		if (distanceChanged)
+		{
+			m_fLastPresentationDistance = distance;
+			float distanceScale = 1.0 - ((distance - MIN_ICON_DISTANCE) / (maxDistance - MIN_ICON_DISTANCE));
+			distanceScale = Math.Clamp(distanceScale, 0.0, 1.0);
+			distanceScale = distanceScale * distanceScale * distanceScale;
+			float iconSize = MIN_ICON_SIZE + (MAX_ICON_SIZE - MIN_ICON_SIZE) * distanceScale;
+			if (m_fAppliedIconSize < 0.0 || Math.AbsFloat(iconSize - m_fAppliedIconSize) >= 0.25)
+			{
+				m_fAppliedIconSize = iconSize;
+				float iconOffset = -iconSize * 0.5;
+				FrameSlot.SetSize(m_wIcon, iconSize, iconSize);
+				FrameSlot.SetPos(m_wIcon, iconOffset, iconOffset);
+				if (m_wSelectedIcon)
+				{
+					FrameSlot.SetSize(m_wSelectedIcon, iconSize, iconSize);
+					FrameSlot.SetPos(m_wSelectedIcon, iconOffset, iconOffset);
+				}
+				if (m_wButton)
+				{
+					FrameSlot.SetSize(m_wButton, iconSize, iconSize);
+					FrameSlot.SetPos(m_wButton, iconOffset, iconOffset);
+				}
+			}
+		}
 
-		FrameSlot.SetSize(m_wIcon, iconSize, iconSize);
-		FrameSlot.SetPos(m_wIcon, iconOffset, iconOffset);
 		if (m_wSelectedIcon)
 		{
-			FrameSlot.SetSize(m_wSelectedIcon, iconSize, iconSize);
-			FrameSlot.SetPos(m_wSelectedIcon, iconOffset, iconOffset);
-
 			float highlightOpacity = m_wSelectedIcon.GetOpacity();
-			float highlightStep = GetGame().GetWorld().GetTimeSlice() * 5.0;
-			if (m_bHovered)
+			if ((m_bHovered && highlightOpacity < 1.0) || (!m_bHovered && highlightOpacity > 0.0))
+			{
+				float highlightStep = GetGame().GetWorld().GetTimeSlice() * 5.0;
+				if (m_bHovered)
 				highlightOpacity += highlightStep;
-			else
-				highlightOpacity -= highlightStep;
+				else
+					highlightOpacity -= highlightStep;
 
-			m_wSelectedIcon.SetOpacity(Math.Clamp(highlightOpacity, 0.0, 1.0));
+				m_wSelectedIcon.SetOpacity(Math.Clamp(highlightOpacity, 0.0, 1.0));
+			}
 		}
 
-		if (m_wButton)
-		{
-			FrameSlot.SetSize(m_wButton, iconSize, iconSize);
-			FrameSlot.SetPos(m_wButton, iconOffset, iconOffset);
-		}
-
-		if (m_wLabel)
+		if (m_wLabel && (distanceChanged || m_bLabelLayoutDirty))
 		{
 			m_fProximityNameOpacity = 0.0;
 			float nameRevealTransitionDistance = NAME_REVEAL_DISTANCE * NAME_REVEAL_TRANSITION_FRACTION;
@@ -126,17 +147,26 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 				}
 			}
 
+			float labelOpacity = m_fProximityNameOpacity;
 			if (m_bHovered)
-				m_wLabel.SetOpacity(1.0);
-			else
-				m_wLabel.SetOpacity(m_fProximityNameOpacity);
+				labelOpacity = 1.0;
+			if (Math.AbsFloat(labelOpacity - m_fAppliedLabelOpacity) >= 0.01)
+			{
+				m_wLabel.SetOpacity(labelOpacity);
+				m_fAppliedLabelOpacity = labelOpacity;
+			}
 
-			float labelWidth;
-			float labelHeight;
-			m_wLabel.GetScreenSize(labelWidth, labelHeight);
+			if (m_bLabelLayoutDirty)
+			{
+				float labelHeight;
+				m_wLabel.GetScreenSize(m_fCachedLabelWidth, labelHeight);
+				if (m_fCachedLabelWidth > 0.0)
+					m_bLabelLayoutDirty = false;
+			}
+
 			WorkspaceWidget workspace = GetGame().GetWorkspace();
-			if (workspace)
-				FrameSlot.SetPos(m_wLabel, -workspace.DPIUnscale(labelWidth) * 0.5, -iconSize);
+			if (workspace && m_fCachedLabelWidth > 0.0)
+				FrameSlot.SetPos(m_wLabel, -workspace.DPIUnscale(m_fCachedLabelWidth) * 0.5, -m_fAppliedIconSize);
 		}
 	}
 
@@ -145,7 +175,10 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		m_bHovered = true;
 		m_bHasLabel = RefreshLabel();
 		if (m_wLabel && m_bHasLabel)
+		{
 			m_wLabel.SetOpacity(1.0);
+			m_fAppliedLabelOpacity = 1.0;
+		}
 
 		GetWidget().SetZOrder(100);
 		return true;
@@ -155,7 +188,10 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	{
 		m_bHovered = false;
 		if (m_wLabel)
+		{
 			m_wLabel.SetOpacity(m_fProximityNameOpacity);
+			m_fAppliedLabelOpacity = m_fProximityNameOpacity;
+		}
 
 		GetWidget().SetZOrder(0);
 		return true;
@@ -262,6 +298,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		}
 		m_wLabelText.SetText(displayName);
 		GC_PlayerNamePresentation.Apply(m_wLabelText, presentedPlayerId);
+		m_bLabelLayoutDirty = true;
 		return !displayName.IsEmpty();
 	}
 
@@ -312,6 +349,10 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	protected VerticalLayoutWidget m_wMemberList;
 	protected SCR_AIGroup m_Group;
 	protected float m_fPopupHeight;
+	protected float m_fLastPresentationDistance = -1.0;
+	protected float m_fAppliedOpacity = -1.0;
+	protected bool m_bAppliedVisibility;
+	protected bool m_bPresentationInitialized;
 
 	void GC_SpectatorGroupEditableEntityUIComponent()
 	{
@@ -333,6 +374,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 
 	override void OnRefresh(SCR_EditableEntityBaseSlotUIComponent slot)
 	{
+		m_fLastPresentationDistance = -1.0;
 		RefreshGroupPresentation(m_Entity);
 		super.OnRefresh(slot);
 	}
@@ -341,7 +383,9 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 	{
 		if (!m_wGroupOverlay)
 			return;
-		PositionMemberPopup();
+		if (m_fLastPresentationDistance >= 0.0 && Math.AbsFloat(distance - m_fLastPresentationDistance) < 1.0)
+			return;
+		m_fLastPresentationDistance = distance;
 
 		float opacity = 1.0;
 		float closeFadeTransitionDistance = CLOSE_FADE_START * CLOSE_FADE_TRANSITION_FRACTION;
@@ -352,8 +396,17 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 			opacity = (distance - closeFadeEnd) / closeFadeTransitionDistance;
 
 		bool isVisible = m_Group && m_Group.GetAgentsCount() > 0 && opacity > 0.0;
-		m_wGroupOverlay.SetVisible(isVisible);
-		m_wGroupOverlay.SetOpacity(opacity);
+		if (!m_bPresentationInitialized || isVisible != m_bAppliedVisibility)
+		{
+			m_wGroupOverlay.SetVisible(isVisible);
+			m_bAppliedVisibility = isVisible;
+			m_bPresentationInitialized = true;
+		}
+		if (Math.AbsFloat(opacity - m_fAppliedOpacity) >= 0.01)
+		{
+			m_wGroupOverlay.SetOpacity(opacity);
+			m_fAppliedOpacity = opacity;
+		}
 		if (!isVisible)
 			RemoveMemberPopup();
 	}
@@ -557,6 +610,8 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		if (!m_Group || m_Group.GetAgentsCount() == 0)
 		{
 			m_wGroupOverlay.SetVisible(false);
+			m_bAppliedVisibility = false;
+			m_bPresentationInitialized = true;
 			RemoveMemberPopup();
 			return;
 		}
@@ -573,7 +628,8 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 //! allocated while the entity is inside the spectator overlay's draw distance.
 class GC_SpectatorEditableEntityMarker
 {
-	protected static const float Z_ORDER_DISTANCE_PRECISION = 1000.0;
+	protected static const float VIEWPORT_ACTIVATION_MARGIN = 160.0;
+	protected static const float VIEWPORT_DEACTIVATION_MARGIN = 240.0;
 
 	protected SCR_EditableEntityComponent m_Entity;
 	protected SCR_EditableEntitySceneSlotUIComponent m_Slot;
@@ -582,6 +638,12 @@ class GC_SpectatorEditableEntityMarker
 	protected EEditableEntityType m_eType;
 	protected float m_fMaxDistance;
 	protected float m_fMaxDistanceSq;
+	protected float m_fVisibilityDistance;
+	protected float m_fAppliedZDistance = -1.0;
+	protected bool m_bProjectionVisibilityInitialized;
+	protected bool m_bProjectionVisible;
+	protected bool m_bScreenPositionInitialized;
+	protected vector m_vAppliedScreenPosition;
 
 	void GC_SpectatorEditableEntityMarker(SCR_EditableEntityComponent entity, float maxDistance)
 	{
@@ -596,9 +658,9 @@ class GC_SpectatorEditableEntityMarker
 		return m_Slot != null;
 	}
 
-	bool ShouldBeActive(vector cameraPosition)
+	bool ShouldBeActive(vector cameraPosition, WorkspaceWidget workspace, BaseWorld world, int screenWidth, int screenHeight)
 	{
-		if (!m_Entity || !m_Entity.GetOwner() || m_Entity.GetOwner().IsDeleted())
+		if (!m_Entity || !m_Entity.GetOwner() || m_Entity.GetOwner().IsDeleted() || !workspace || !world)
 			return false;
 
 		vector worldPosition;
@@ -609,6 +671,19 @@ class GC_SpectatorEditableEntityMarker
 		if (distanceSq > m_fMaxDistanceSq)
 			return false;
 
+		vector screenPosition = workspace.ProjWorldToScreen(worldPosition, world);
+		if (screenPosition[2] <= 0.0)
+			return false;
+
+		float viewportMargin = VIEWPORT_ACTIVATION_MARGIN;
+		if (m_Slot)
+			viewportMargin = VIEWPORT_DEACTIVATION_MARGIN;
+		if (screenPosition[0] < -viewportMargin || screenPosition[0] > screenWidth + viewportMargin)
+			return false;
+		if (screenPosition[1] < -viewportMargin || screenPosition[1] > screenHeight + viewportMargin)
+			return false;
+
+		m_fVisibilityDistance = vector.Distance(worldPosition, cameraPosition);
 		return true;
 	}
 
@@ -660,31 +735,61 @@ class GC_SpectatorEditableEntityMarker
 		m_Slot = null;
 		m_CharacterUI = null;
 		m_GroupUI = null;
+		m_fAppliedZDistance = -1.0;
+		m_bProjectionVisibilityInitialized = false;
+		m_bProjectionVisible = false;
+		m_bScreenPositionInitialized = false;
 	}
 
-	void Update(int screenWidth, int screenHeight, vector screenCenter, vector cameraPosition)
+	void RefreshPresentation()
 	{
 		if (!m_Slot)
 			return;
 
-		m_Slot.UpdateSlot(screenWidth, screenHeight, screenCenter, cameraPosition);
+		Widget slotWidget = m_Slot.GetWidget();
+		if (slotWidget && (m_fAppliedZDistance < 0.0 || Math.AbsFloat(m_fVisibilityDistance - m_fAppliedZDistance) >= 1.0))
+		{
+			slotWidget.SetZOrder(-m_fVisibilityDistance);
+			m_fAppliedZDistance = m_fVisibilityDistance;
+		}
+
+		if (m_CharacterUI)
+			m_CharacterUI.UpdateDistancePresentation(m_fVisibilityDistance, m_fMaxDistance);
+		else if (m_GroupUI)
+			m_GroupUI.UpdateDistancePresentation(m_fVisibilityDistance, m_fMaxDistance);
+	}
+
+	void Update(WorkspaceWidget workspace, BaseWorld world)
+	{
+		if (!m_Slot || !workspace || !world)
+			return;
 
 		vector worldPosition;
 		if (!m_Entity.GetPos(worldPosition))
 			return;
 
-		float distance = vector.Distance(worldPosition, cameraPosition);
 		Widget slotWidget = m_Slot.GetWidget();
-		if (slotWidget)
-			slotWidget.SetZOrder(-distance * Z_ORDER_DISTANCE_PRECISION);
+		if (!slotWidget)
+			return;
 
-		if (m_CharacterUI)
+		vector screenPosition = workspace.ProjWorldToScreen(worldPosition, world);
+		bool visible = screenPosition[2] > 0.0;
+		if (!m_bProjectionVisibilityInitialized || visible != m_bProjectionVisible)
 		{
-			m_CharacterUI.UpdateDistancePresentation(distance, m_fMaxDistance);
+			slotWidget.SetVisible(visible);
+			m_bProjectionVisible = visible;
+			m_bProjectionVisibilityInitialized = true;
 		}
-		else if (m_GroupUI)
+		if (!visible)
+			return;
+
+		if (!m_bScreenPositionInitialized
+			|| Math.AbsFloat(screenPosition[0] - m_vAppliedScreenPosition[0]) >= 0.25
+			|| Math.AbsFloat(screenPosition[1] - m_vAppliedScreenPosition[1]) >= 0.25)
 		{
-			m_GroupUI.UpdateDistancePresentation(distance, m_fMaxDistance);
+			FrameSlot.SetPos(slotWidget, screenPosition[0], screenPosition[1]);
+			m_vAppliedScreenPosition = screenPosition;
+			m_bScreenPositionInitialized = true;
 		}
 	}
 
@@ -721,11 +826,15 @@ class GC_SpectatorMarkerOverlay
 	protected BaseWorld m_World;
 	protected SCR_EditableEntityCore m_EditableEntityCore;
 	protected GC_LobbyManager m_LobbyManager;
+	protected bool m_bInterfaceVisible = true;
 	protected ref GC_SpectatorProjectileTracer m_ProjectileTracer;
 	protected ref GC_SpectatorKilledFromVisualizer m_KilledFromVisualizer;
 	protected ref map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker> m_mMarkers = new map<SCR_EditableEntityComponent, ref GC_SpectatorEditableEntityMarker>();
+	protected ref array<ref GC_SpectatorEditableEntityMarker> m_aActiveMarkers = {};
+	protected ref set<SCR_EditableEntityComponent> m_sVehicles = new set<SCR_EditableEntityComponent>();
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mCharacterShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mVehicleShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
+	protected ref map<SCR_EditableEntityComponent, CharacterWeaponManagerComponent> m_mCharacterWeaponManagers = new map<SCR_EditableEntityComponent, CharacterWeaponManagerComponent>();
 
 	bool Start(float projectileTraceDuration, bool projectileTracersEnabled, GC_KilledFromSnapshot killedFromSnapshot, bool killedFromEnabled)
 	{
@@ -799,6 +908,7 @@ class GC_SpectatorMarkerOverlay
 			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
 			m_LobbyManager.m_OnSlotPresentationChanged.Remove(OnSlotPresentationChanged);
 		}
+		ClearProjectileShooters();
 		if (m_ProjectileTracer)
 			m_ProjectileTracer.Destroy();
 		if (m_KilledFromVisualizer)
@@ -806,10 +916,13 @@ class GC_SpectatorMarkerOverlay
 
 		m_mCharacterShooters.Clear();
 		m_mVehicleShooters.Clear();
+		m_mCharacterWeaponManagers.Clear();
+		m_sVehicles.Clear();
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 			marker.Deactivate();
 
 		m_mMarkers.Clear();
+		m_aActiveMarkers.Clear();
 		if (m_wRoot)
 			m_wRoot.RemoveFromHierarchy();
 
@@ -826,12 +939,35 @@ class GC_SpectatorMarkerOverlay
 	{
 		if (m_wRoot)
 			m_wRoot.SetVisible(visible);
+		if (visible == m_bInterfaceVisible)
+			return;
+
+		m_bInterfaceVisible = visible;
+		if (visible)
+		{
+			RefreshVisibility();
+			return;
+		}
+
+		foreach (GC_SpectatorEditableEntityMarker marker : m_aActiveMarkers)
+			marker.Deactivate();
+		m_aActiveMarkers.Clear();
 	}
 
 	void SetProjectileTracersEnabled(bool enabled)
 	{
-		if (m_ProjectileTracer)
-			m_ProjectileTracer.SetEnabled(enabled);
+		if (!m_ProjectileTracer || m_ProjectileTracer.IsEnabled() == enabled)
+			return;
+
+		if (!enabled)
+		{
+			ClearProjectileShooters();
+			m_ProjectileTracer.SetEnabled(false);
+			return;
+		}
+
+		m_ProjectileTracer.SetEnabled(true);
+		RefreshProjectileShooters();
 	}
 
 	GC_SpectatorProjectileTracer GetProjectileTracer()
@@ -860,7 +996,9 @@ class GC_SpectatorMarkerOverlay
 		IEntity owner = entity.GetOwner();
 		if (entityType == EEditableEntityType.VEHICLE)
 		{
-			RefreshVehicleShooters(entity);
+			m_sVehicles.Insert(entity);
+			if (m_ProjectileTracer && m_ProjectileTracer.IsEnabled())
+				RefreshVehicleShooters(entity);
 			return;
 		}
 
@@ -874,7 +1012,8 @@ class GC_SpectatorMarkerOverlay
 			return;
 		if (entityType == EEditableEntityType.CHARACTER)
 		{
-			RefreshCharacterShooters(entity);
+			if (m_ProjectileTracer && m_ProjectileTracer.IsEnabled())
+				RefreshCharacterShooters(entity);
 		}
 
 		if (entityType == EEditableEntityType.GROUP)
@@ -899,12 +1038,18 @@ class GC_SpectatorMarkerOverlay
 				foreach (IEntity shooter : vehicleShooters)
 					m_ProjectileTracer.UntrackShooter(shooter);
 			m_mVehicleShooters.Remove(entity);
+			m_sVehicles.RemoveItem(entity);
 			return;
 		}
 
 		GC_SpectatorEditableEntityMarker marker;
 		if (entityType == EEditableEntityType.CHARACTER)
 		{
+			CharacterWeaponManagerComponent weaponManager;
+			if (m_mCharacterWeaponManagers.Find(entity, weaponManager) && weaponManager)
+				weaponManager.m_OnWeaponChangeCompleteInvoker.Remove(OnCharacterWeaponChanged);
+			m_mCharacterWeaponManagers.Remove(entity);
+
 			array<IEntity> characterShooters;
 			if (m_mCharacterShooters.Find(entity, characterShooters) && m_ProjectileTracer)
 				foreach (IEntity shooter : characterShooters)
@@ -914,6 +1059,7 @@ class GC_SpectatorMarkerOverlay
 		if (!m_mMarkers.Find(entity, marker))
 			return;
 
+		m_aActiveMarkers.RemoveItem(marker);
 		marker.Deactivate();
 		m_mMarkers.Remove(entity);
 	}
@@ -932,27 +1078,81 @@ class GC_SpectatorMarkerOverlay
 
 	protected void RefreshVisibility()
 	{
-		if (!m_wRoot || !m_World)
+		if (!m_wRoot || !m_World || !m_bInterfaceVisible)
 			return;
 
 		vector cameraTransform[4];
 		m_World.GetCurrentCamera(cameraTransform);
 		vector cameraPosition = cameraTransform[3];
+		int screenWidth = m_Workspace.DPIUnscale(m_Workspace.GetWidth());
+		int screenHeight = m_Workspace.DPIUnscale(m_Workspace.GetHeight());
+
+		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
+		{
+			bool shouldBeActive = marker.ShouldBeActive(cameraPosition, m_Workspace, m_World, screenWidth, screenHeight);
+			if (shouldBeActive && !marker.IsActive())
+			{
+				if (marker.Activate(m_Workspace, m_wRoot, SLOT_LAYOUT, CHARACTER_LAYOUT, GROUP_LAYOUT))
+					m_aActiveMarkers.Insert(marker);
+			}
+			else if (!shouldBeActive && marker.IsActive())
+			{
+				m_aActiveMarkers.RemoveItem(marker);
+				marker.Deactivate();
+			}
+
+			if (shouldBeActive && marker.IsActive())
+				marker.RefreshPresentation();
+		}
+	}
+
+	protected void RefreshProjectileShooters()
+	{
+		if (!m_ProjectileTracer || !m_ProjectileTracer.IsEnabled())
+			return;
 
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 		{
 			if (entity.GetEntityType() == EEditableEntityType.CHARACTER)
 				RefreshCharacterShooters(entity);
-
-			bool shouldBeActive = marker.ShouldBeActive(cameraPosition);
-			if (shouldBeActive && !marker.IsActive())
-				marker.Activate(m_Workspace, m_wRoot, SLOT_LAYOUT, CHARACTER_LAYOUT, GROUP_LAYOUT);
-			else if (!shouldBeActive && marker.IsActive())
-				marker.Deactivate();
 		}
-
-		foreach (SCR_EditableEntityComponent vehicle, array<IEntity> vehicleShooters : m_mVehicleShooters)
+		foreach (SCR_EditableEntityComponent vehicle : m_sVehicles)
 			RefreshVehicleShooters(vehicle);
+	}
+
+	protected void ClearProjectileShooters()
+	{
+		foreach (SCR_EditableEntityComponent entity, CharacterWeaponManagerComponent weaponManager : m_mCharacterWeaponManagers)
+		{
+			if (weaponManager)
+				weaponManager.m_OnWeaponChangeCompleteInvoker.Remove(OnCharacterWeaponChanged);
+		}
+		m_mCharacterWeaponManagers.Clear();
+
+		if (m_ProjectileTracer)
+		{
+			foreach (SCR_EditableEntityComponent entity, array<IEntity> characterShooters : m_mCharacterShooters)
+			{
+				foreach (IEntity shooter : characterShooters)
+					m_ProjectileTracer.UntrackShooter(shooter);
+			}
+			foreach (SCR_EditableEntityComponent vehicle, array<IEntity> vehicleShooters : m_mVehicleShooters)
+			{
+				foreach (IEntity shooter : vehicleShooters)
+					m_ProjectileTracer.UntrackShooter(shooter);
+			}
+		}
+		m_mCharacterShooters.Clear();
+		m_mVehicleShooters.Clear();
+	}
+
+	protected void OnCharacterWeaponChanged(BaseWeaponComponent newWeaponSlot)
+	{
+		if (!m_ProjectileTracer || !m_ProjectileTracer.IsEnabled())
+			return;
+
+		foreach (SCR_EditableEntityComponent entity, CharacterWeaponManagerComponent weaponManager : m_mCharacterWeaponManagers)
+			RefreshCharacterShooters(entity);
 	}
 
 	protected void RefreshCharacterShooters(SCR_EditableEntityComponent characterEntity)
@@ -963,6 +1163,13 @@ class GC_SpectatorMarkerOverlay
 		IEntity character = characterEntity.GetOwner();
 		if (!character)
 			return;
+
+		CharacterWeaponManagerComponent weaponManager = CharacterWeaponManagerComponent.Cast(character.FindComponent(CharacterWeaponManagerComponent));
+		if (weaponManager && !m_mCharacterWeaponManagers.Contains(characterEntity))
+		{
+			weaponManager.m_OnWeaponChangeCompleteInvoker.Insert(OnCharacterWeaponChanged);
+			m_mCharacterWeaponManagers.Insert(characterEntity, weaponManager);
+		}
 
 		array<IEntity> trackedShooters;
 		if (!m_mCharacterShooters.Find(characterEntity, trackedShooters))
@@ -1077,17 +1284,10 @@ class GC_SpectatorMarkerOverlay
 
 	protected void UpdatePositions()
 	{
-		if (!m_wRoot || !m_Workspace || !m_World)
+		if (!m_wRoot || !m_Workspace || !m_World || !m_bInterfaceVisible)
 			return;
 
-		vector cameraTransform[4];
-		m_World.GetCurrentCamera(cameraTransform);
-		vector cameraPosition = cameraTransform[3];
-		int screenWidth = m_Workspace.DPIUnscale(m_Workspace.GetWidth());
-		int screenHeight = m_Workspace.DPIUnscale(m_Workspace.GetHeight());
-		vector screenCenter = Vector(screenWidth * 0.5, screenHeight * 0.5, 0);
-
-		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
-			marker.Update(screenWidth, screenHeight, screenCenter, cameraPosition);
+		foreach (GC_SpectatorEditableEntityMarker marker : m_aActiveMarkers)
+			marker.Update(m_Workspace, m_World);
 	}
 }

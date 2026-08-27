@@ -1,28 +1,31 @@
-//! One client-local projectile path sampled for spectator presentation.
+//! One client-local projectile trace created by a shot event.
 class GC_SpectatorProjectileTrace
 {
 	protected IEntity m_Projectile;
 	protected ProjectileMoveComponent m_ProjectileMove;
-	protected ref array<vector> m_aPositions = {};
-	protected ref array<float> m_aSampleTimes = {};
-	protected ref array<float> m_aSpeeds = {};
+	protected vector m_vSpawnPosition;
+	protected vector m_vStartPosition;
+	protected vector m_vEndPosition;
 	protected float m_fInitialSpeed;
+	protected float m_fCurrentSpeed;
 	protected float m_fTrailDuration;
-	protected float m_fElapsedTime;
+	protected float m_fFinishedElapsedTime;
+	protected bool m_bHasSegment;
 	protected bool m_bFinished;
 
 	void GC_SpectatorProjectileTrace(IEntity projectile, vector startPosition, float trailDuration)
 	{
 		m_Projectile = projectile;
+		m_vSpawnPosition = startPosition;
+		m_vStartPosition = startPosition;
+		m_vEndPosition = startPosition;
 		m_fTrailDuration = trailDuration;
 		if (m_Projectile)
 		{
 			m_ProjectileMove = ProjectileMoveComponent.Cast(m_Projectile.FindComponent(ProjectileMoveComponent));
-			m_aPositions.Insert(startPosition);
-			m_aSampleTimes.Insert(0.0);
 			if (m_ProjectileMove)
 				m_fInitialSpeed = m_ProjectileMove.GetVelocity().Length();
-			m_aSpeeds.Insert(m_fInitialSpeed);
+			m_fCurrentSpeed = m_fInitialSpeed;
 		}
 	}
 
@@ -36,56 +39,69 @@ class GC_SpectatorProjectileTrace
 		return m_Projectile && m_Projectile == projectile;
 	}
 
-	//! Samples one point every presentation frame. After the configured delay,
-	//! one oldest point is removed per frame so the tail follows the projectile.
+	//! A shot event owns one trace. While its projectile exists, derive one
+	//! bounded segment directly from live position and velocity; retain only the
+	//! final segment for the configured presentation duration after deletion.
 	bool Update(float timeSlice)
 	{
-		m_fElapsedTime += timeSlice;
 		if (!m_bFinished && m_Projectile && !m_Projectile.IsDeleted())
 		{
-			float speed = m_ProjectileMove.GetVelocity().Length();
-			if (m_fInitialSpeed <= 0.0 && speed > 0.0)
-				m_fInitialSpeed = speed;
+			m_vEndPosition = m_Projectile.GetOrigin();
+			vector velocity = m_ProjectileMove.GetVelocity();
+			m_fCurrentSpeed = velocity.Length();
+			if (m_fInitialSpeed <= 0.0 && m_fCurrentSpeed > 0.0)
+				m_fInitialSpeed = m_fCurrentSpeed;
 
-			m_aPositions.Insert(m_Projectile.GetOrigin());
-			m_aSampleTimes.Insert(m_fElapsedTime);
-			m_aSpeeds.Insert(speed);
+			if (m_fCurrentSpeed > 0.001)
+			{
+				vector direction = velocity;
+				direction.Normalize();
+				float trailLength = m_fCurrentSpeed * m_fTrailDuration;
+				float traveledDistance = vector.Distance(m_vSpawnPosition, m_vEndPosition);
+				if (traveledDistance <= trailLength)
+					m_vStartPosition = m_vSpawnPosition;
+				else
+					m_vStartPosition = m_vEndPosition - direction * trailLength;
+
+				m_bHasSegment = vector.DistanceSq(m_vStartPosition, m_vEndPosition) > 0.0001;
+			}
+			return true;
 		}
-		else if (!m_bFinished)
+
+		if (!m_bFinished)
 		{
 			m_Projectile = null;
 			m_ProjectileMove = null;
 			m_bFinished = true;
 		}
 
-		int minimumPointCount = 2;
-		if (m_bFinished)
-			minimumPointCount = 1;
-
-		float tailTime = m_fElapsedTime - m_fTrailDuration;
-		if (m_aPositions.Count() > minimumPointCount && m_aSampleTimes[0] <= tailTime)
-		{
-			m_aPositions.RemoveOrdered(0);
-			m_aSampleTimes.RemoveOrdered(0);
-			m_aSpeeds.RemoveOrdered(0);
-		}
-
-		return !m_bFinished || m_aPositions.Count() > 1;
+		m_fFinishedElapsedTime += timeSlice;
+		return m_bHasSegment && m_fFinishedElapsedTime <= m_fTrailDuration;
 	}
 
-	int GetSegmentCount()
+	bool HasSegment()
 	{
-		return m_aPositions.Count() - 1;
+		return m_bHasSegment;
 	}
 
-	vector GetPosition(int index)
+	bool IsFinished()
 	{
-		return m_aPositions[index];
+		return m_bFinished;
 	}
 
-	float GetSpeed(int index)
+	vector GetStartPosition()
 	{
-		return m_aSpeeds[index];
+		return m_vStartPosition;
+	}
+
+	vector GetEndPosition()
+	{
+		return m_vEndPosition;
+	}
+
+	float GetCurrentSpeed()
+	{
+		return m_fCurrentSpeed;
 	}
 
 	float GetInitialSpeed()
@@ -101,6 +117,7 @@ class GC_SpectatorProjectileTracer
 {
 	protected static const float LINE_WIDTH = 1.5;
 	protected static const float MIN_DRAWABLE_SEGMENT_LENGTH_SQ = 1.0;
+	protected static const int MAX_RETAINED_TRACES = 64;
 
 	protected CanvasWidget m_wCanvas;
 	protected WorkspaceWidget m_Workspace;
@@ -146,30 +163,18 @@ class GC_SpectatorProjectileTracer
 		m_aDrawCommands = {};
 		if (m_wCanvas)
 			m_wCanvas.SetDrawCommands(m_aDrawCommands);
+		ClearShooters();
+	}
+
+	bool IsEnabled()
+	{
+		return m_bEnabled;
 	}
 
 	void Destroy()
 	{
 		GetGame().GetCallqueue().Remove(Update);
-		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mGrenadeEvents)
-		{
-			if (eventManager)
-				eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnGrenadeCreated, false);
-		}
-		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mProjectileEvents)
-		{
-			if (eventManager)
-				eventManager.RemoveScriptHandler("OnProjectileShot", this, OnWeaponProjectileCreated, false);
-		}
-		foreach (IEntity shooter, SCR_MuzzleEffectComponent muzzleEffect : m_mMuzzleEffects)
-		{
-			if (muzzleEffect)
-				muzzleEffect.GetOnWeaponFired().Remove(OnMuzzleWeaponFired);
-		}
-		m_mGrenadeEvents.Clear();
-		m_mProjectileEvents.Clear();
-		m_mMuzzleEffects.Clear();
-		m_mShooterReferences.Clear();
+		ClearShooters();
 		m_aTraces.Clear();
 		m_aDrawCommands.Clear();
 		if (m_wCanvas)
@@ -183,7 +188,7 @@ class GC_SpectatorProjectileTracer
 
 	bool TrackShooter(IEntity shooter, bool trackGrenades, bool trackProjectileEvents)
 	{
-		if (!shooter)
+		if (!m_bEnabled || !shooter)
 			return false;
 
 		int referenceCount;
@@ -271,6 +276,18 @@ class GC_SpectatorProjectileTracer
 				return;
 		}
 
+		if (m_aTraces.Count() >= MAX_RETAINED_TRACES)
+		{
+			for (int traceIndex; traceIndex < m_aTraces.Count(); traceIndex++)
+			{
+				if (!m_aTraces[traceIndex].IsFinished())
+					continue;
+
+				m_aTraces.Remove(traceIndex);
+				break;
+			}
+		}
+
 		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, projectile.GetOrigin(), m_fTrailDuration);
 		if (trace.IsValid())
 			m_aTraces.Insert(trace);
@@ -290,46 +307,59 @@ class GC_SpectatorProjectileTracer
 				m_aTraces.Remove(traceIndex);
 		}
 
-		m_aDrawCommands = {};
+		m_aDrawCommands.Clear();
 		foreach (GC_SpectatorProjectileTrace trace : m_aTraces)
 			DrawTrace(trace);
 		m_wCanvas.SetDrawCommands(m_aDrawCommands);
 	}
 
+	protected void ClearShooters()
+	{
+		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mGrenadeEvents)
+		{
+			if (eventManager)
+				eventManager.RemoveScriptHandler("OnGrenadeThrown", this, OnGrenadeCreated, false);
+		}
+		foreach (IEntity shooter, EventHandlerManagerComponent eventManager : m_mProjectileEvents)
+		{
+			if (eventManager)
+				eventManager.RemoveScriptHandler("OnProjectileShot", this, OnWeaponProjectileCreated, false);
+		}
+		foreach (IEntity shooter, SCR_MuzzleEffectComponent muzzleEffect : m_mMuzzleEffects)
+		{
+			if (muzzleEffect)
+				muzzleEffect.GetOnWeaponFired().Remove(OnMuzzleWeaponFired);
+		}
+		m_mGrenadeEvents.Clear();
+		m_mProjectileEvents.Clear();
+		m_mMuzzleEffects.Clear();
+		m_mShooterReferences.Clear();
+	}
+
 	protected void DrawTrace(GC_SpectatorProjectileTrace trace)
 	{
-		int segmentCount = trace.GetSegmentCount();
-		if (segmentCount < 1)
+		if (!trace.HasSegment())
 			return;
 
-		float initialSpeed = trace.GetInitialSpeed();
-		vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(0), m_World);
+		vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetStartPosition(), m_World);
 		startScreenPosition[0] = m_Workspace.DPIUnscale(startScreenPosition[0]);
 		startScreenPosition[1] = m_Workspace.DPIUnscale(startScreenPosition[1]);
-		for (int positionIndex = 0; positionIndex < segmentCount; positionIndex++)
+		vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetEndPosition(), m_World);
+		endScreenPosition[0] = m_Workspace.DPIUnscale(endScreenPosition[0]);
+		endScreenPosition[1] = m_Workspace.DPIUnscale(endScreenPosition[1]);
+		if (startScreenPosition[2] > 0.0 && endScreenPosition[2] > 0.0)
 		{
-			vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetPosition(positionIndex + 1), m_World);
-			endScreenPosition[0] = m_Workspace.DPIUnscale(endScreenPosition[0]);
-			endScreenPosition[1] = m_Workspace.DPIUnscale(endScreenPosition[1]);
-			if (startScreenPosition[2] > 0.0 && endScreenPosition[2] > 0.0)
+			float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
+			float screenDeltaY = endScreenPosition[1] - startScreenPosition[1];
+			if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY > MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
 			{
-				float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
-				float screenDeltaY = endScreenPosition[1] - startScreenPosition[1];
-				if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY > MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
-				{
-					LineDrawCommand line = new LineDrawCommand();
-					line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex), initialSpeed);
-					line.m_fWidth = LINE_WIDTH;
-					line.m_bShouldEnclose = false;
-					line.m_Vertices = {};
-					line.m_Vertices.Insert(startScreenPosition[0]);
-					line.m_Vertices.Insert(startScreenPosition[1]);
-					line.m_Vertices.Insert(endScreenPosition[0]);
-					line.m_Vertices.Insert(endScreenPosition[1]);
-					m_aDrawCommands.Insert(line);
-				}
+				LineDrawCommand line = new LineDrawCommand();
+				line.m_iColor = GetSpeedColor(trace.GetCurrentSpeed(), trace.GetInitialSpeed());
+				line.m_fWidth = LINE_WIDTH;
+				line.m_bShouldEnclose = false;
+				line.m_Vertices = {startScreenPosition[0], startScreenPosition[1], endScreenPosition[0], endScreenPosition[1]};
+				m_aDrawCommands.Insert(line);
 			}
-			startScreenPosition = endScreenPosition;
 		}
 	}
 
@@ -343,35 +373,27 @@ class GC_SpectatorProjectileTracer
 
 		foreach (GC_SpectatorProjectileTrace trace : m_aTraces)
 		{
-			int segmentCount = trace.GetSegmentCount();
-			if (segmentCount < 1)
+			if (!trace.HasSegment())
 				continue;
 
-			float initialSpeed = trace.GetInitialSpeed();
-			vector startPosition = trace.GetPosition(0);
+			vector startPosition = trace.GetStartPosition();
+			vector endPosition = trace.GetEndPosition();
 			int startScreenX;
 			int startScreenY;
 			mapEntity.WorldToScreen(startPosition[0], startPosition[2], startScreenX, startScreenY, true);
-			for (int positionIndex = 0; positionIndex < segmentCount; positionIndex++)
+			int endScreenX;
+			int endScreenY;
+			mapEntity.WorldToScreen(endPosition[0], endPosition[2], endScreenX, endScreenY, true);
+			float screenDeltaX = endScreenX - startScreenX;
+			float screenDeltaY = endScreenY - startScreenY;
+			if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY > MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
 			{
-				vector endPosition = trace.GetPosition(positionIndex + 1);
-				int endScreenX;
-				int endScreenY;
-				mapEntity.WorldToScreen(endPosition[0], endPosition[2], endScreenX, endScreenY, true);
-				float screenDeltaX = endScreenX - startScreenX;
-				float screenDeltaY = endScreenY - startScreenY;
-				if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY > MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
-				{
-					LineDrawCommand line = new LineDrawCommand();
-					line.m_iColor = GetSpeedColor(trace.GetSpeed(positionIndex), initialSpeed);
-					line.m_fWidth = LINE_WIDTH;
-					line.m_bShouldEnclose = false;
-					line.m_Vertices = {startScreenX, startScreenY, endScreenX, endScreenY};
-					drawCommands.Insert(line);
-				}
-
-				startScreenX = endScreenX;
-				startScreenY = endScreenY;
+				LineDrawCommand line = new LineDrawCommand();
+				line.m_iColor = GetSpeedColor(trace.GetCurrentSpeed(), trace.GetInitialSpeed());
+				line.m_fWidth = LINE_WIDTH;
+				line.m_bShouldEnclose = false;
+				line.m_Vertices = {startScreenX, startScreenY, endScreenX, endScreenY};
+				drawCommands.Insert(line);
 			}
 		}
 	}

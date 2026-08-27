@@ -20,7 +20,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
 	[Attribute("30", desc: "Networked first-person camera snapshots per second (1-60).")]
 	protected int m_iNetworkCameraUpdateRate;
-	[Attribute("0.2", desc: "Seconds of per-frame projectile path retained by the spectator tracer.")]
+	[Attribute("0.2", desc: "Seconds of travel represented by each live projectile segment and final-segment retention.")]
 	protected float m_fProjectileTraceDuration;
 
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;

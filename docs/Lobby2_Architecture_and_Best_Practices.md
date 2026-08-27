@@ -278,7 +278,7 @@ view never requests or performs a backward phase transition.
 
 Full collection reconstruction is limited to initial attachment and a completed JIP/registry reset. Topology events reconcile keyed widgets while preserving unchanged rows and cards. Voice or deafen changes never refresh briefings, briefing markers, faction lists, or unrelated player rows. Player-name role changes update only presentations for the identified player.
 
-Continuous presentation remains lifecycle-owned where no discrete state event can describe the change: spectator world-to-screen projection and distance animation update per frame, spectator draw-distance activation is checked periodically, and the scenario clock refreshes only its time-dependent rows. Zero-delay layout settling and bounded manager/entity attachment retries are lifecycle sequencing rather than steady-state polling. All recurring callbacks are removed when their owner detaches or stops.
+Continuous presentation remains lifecycle-owned where no discrete state event can describe the change: active spectator marker world-to-screen projection updates per frame, while marker distance presentation and draw-distance activation share a bounded periodic refresh. The scenario clock refreshes only its time-dependent rows. Zero-delay layout settling and bounded manager/entity attachment retries are lifecycle sequencing rather than steady-state polling. All recurring callbacks are removed when their owner detaches or stops.
 
 ## Replication and JIP
 
