@@ -53,6 +53,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Client-local killed-from presentation preference. Defaults to disabled.
 	protected bool m_bSpectatorKilledFromEnabled = false;
 	protected ref GC_KilledFromSnapshot m_KilledFromSnapshot;
+	protected string m_sPendingKilledFromLoadout;
 	protected ref GC_KilledFromDamageTracker m_LocalKilledFromTracker;
 	protected PauseMenuUI m_PauseMenu;
 	protected Widget m_wPauseSlottingButton;
@@ -589,6 +590,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			killerCompartmentIndex = killerVehicle.GetCompartmentIndex();
 		}
 		PrintFormat("GC | Killed From | event=snapshot-send result=rpc-owner player=%1 snapshot={%2}", GetPlayerId(), snapshot.GetDebugReport());
+		Rpc(RpcDo_SetKilledFromLoadout, snapshot.GetKillerLoadout());
 		Rpc(RpcDo_SetKilledFromSnapshot, snapshot.GetKillerPrefab(), snapshot.GetKillerPosition(), snapshot.GetKillerAngles(), snapshot.GetLineOrigin(), snapshot.GetHitPosition(), snapshot.GetStance(), snapshot.GetDynamicStance(), snapshot.GetFlags());
 		Rpc(RpcDo_SetKilledFromIdentity, snapshot.GetKillerDisplayName(), snapshot.IsKillerDisplayNameLocalized());
 		if (killerVehiclePrefab != ResourceName.Empty)
@@ -596,16 +598,24 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_SetKilledFromLoadout(string killerLoadout)
+	{
+		m_sPendingKilledFromLoadout = killerLoadout;
+		PrintFormat("GC | Killed From | event=loadout-receive player=%1 bytes=%2", GetPlayerId(), killerLoadout.Length());
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
 	protected void RpcDo_SetKilledFromSnapshot(ResourceName killerPrefab, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
 	{
-		GC_KilledFromSnapshot serverFallback = new GC_KilledFromSnapshot();
-		serverFallback.SetNetworkData(killerPrefab, killerPosition, killerAngles, lineOrigin, hitPosition, stance, dynamicStance, flags);
-		PrintFormat("GC | Killed From | event=snapshot-receive player=%1 serverFallback={%2} localTracker=%3 retainedLocal=%4", GetPlayerId(), serverFallback.GetDebugReport(), m_LocalKilledFromTracker != null, m_KilledFromSnapshot != null);
+		GC_KilledFromSnapshot authoritativeSnapshot = new GC_KilledFromSnapshot();
+		authoritativeSnapshot.SetNetworkData(killerPrefab, m_sPendingKilledFromLoadout, killerPosition, killerAngles, lineOrigin, hitPosition, stance, dynamicStance, flags);
+		m_sPendingKilledFromLoadout = string.Empty;
+		PrintFormat("GC | Killed From | event=snapshot-receive player=%1 authoritative={%2} localTracker=%3 retainedLocal=%4", GetPlayerId(), authoritativeSnapshot.GetDebugReport(), m_LocalKilledFromTracker != null, m_KilledFromSnapshot != null);
 		if (m_LocalKilledFromTracker)
-			serverFallback.MergeLocalDamage(m_LocalKilledFromTracker.GetSnapshot());
+			authoritativeSnapshot.MergeLocalDamage(m_LocalKilledFromTracker.GetSnapshot());
 		else
-			serverFallback.MergeLocalDamage(m_KilledFromSnapshot);
-		m_KilledFromSnapshot = serverFallback;
+			authoritativeSnapshot.MergeLocalDamage(m_KilledFromSnapshot);
+		m_KilledFromSnapshot = authoritativeSnapshot;
 		PrintFormat("GC | Killed From | event=snapshot-merge player=%1 final={%2} overlayReady=%3 enabled=%4", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport(), m_SpectatorMarkerOverlay != null, m_bSpectatorKilledFromEnabled);
 		if (m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
@@ -670,6 +680,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			SetLobbyPlayerState(GC_ELobbyPlayerState.PLAYING);
 			m_KilledFromSnapshot = null;
+			m_sPendingKilledFromLoadout = string.Empty;
 		}
 
 		DestroySpectatorCamera();
@@ -712,6 +723,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 
 		m_KilledFromSnapshot = null;
+		m_sPendingKilledFromLoadout = string.Empty;
 		m_LocalKilledFromTracker = new GC_KilledFromDamageTracker();
 		if (!m_LocalKilledFromTracker.Start(entity))
 		{

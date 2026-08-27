@@ -19,6 +19,10 @@ class GC_SpectatorKilledFromVisualizer
 	protected static const float KILLER_LABEL_WORLD_OFFSET = 2.2;
 	protected static const float MARKER_WIDTH = 256.0;
 	protected static const float MARKER_HEIGHT = 76.0;
+	protected static const float MARKER_LABEL_HEIGHT = 26.0;
+	protected static const float MARKER_LABEL_Y = 50.0;
+	protected static const float MARKER_LABEL_MIN_WIDTH = 52.0;
+	protected static const float MARKER_LABEL_HORIZONTAL_PADDING = 24.0;
 	protected static const ResourceName MARKER_LAYOUT = "{6A5F000000000100}UI/layouts/Spectator/Lobby_Spectator_Killed_From_Marker.layout";
 	protected CanvasWidget m_wCanvas;
 	protected Widget m_wKillerMarker;
@@ -139,33 +143,31 @@ class GC_SpectatorKilledFromVisualizer
 		}
 		GC_KilledFromVehicleState killerVehicle = m_Snapshot.GetKillerVehicle();
 		if (killerVehicle && killerVehicle.IsValid())
-			m_KillerVehiclePreviewEntity = CreateVehicleClone(killerVehicle, Color.FromRGBA(235, 45, 70, 255), "killer-vehicle");
+			m_KillerVehiclePreviewEntity = CreateVehicleClone(killerVehicle, "killer-vehicle");
 		GC_KilledFromVehicleState victimVehicle = m_Snapshot.GetVictimVehicle();
 		if (victimVehicle && victimVehicle.IsValid())
-			m_VictimVehiclePreviewEntity = CreateVehicleClone(victimVehicle, Color.FromRGBA(65, 170, 255, 255), "victim-vehicle");
+			m_VictimVehiclePreviewEntity = CreateVehicleClone(victimVehicle, "victim-vehicle");
 
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
 		if (killerVehicle && killerVehicle.IsValid())
-			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPreviewEntries(), killerTransform, m_Snapshot.GetKillerBonePose(), Color.FromRGBA(235, 45, 70, 255), "killer");
+			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), m_Snapshot.GetKillerLoadout(), killerTransform, m_Snapshot.GetKillerBonePose(), "killer");
 		else
-			m_KillerPreviewEntity = CreateExperimentalActorClone(m_Snapshot.GetKillerPreviewEntries(), killerTransform, m_Snapshot.GetKillerBonePose(), m_Snapshot.GetKillerWeapon(), GC_EKilledFromWeaponPrototype.LIVE_CONTROL, Color.FromRGBA(235, 45, 70, 255), "killer-k0");
+			m_KillerPreviewEntity = CreateExperimentalActorClone(m_Snapshot.GetKillerPrefab(), m_Snapshot.GetKillerLoadout(), killerTransform, m_Snapshot.GetKillerBonePose(), m_Snapshot.GetKillerWeapon(), GC_EKilledFromWeaponPrototype.LIVE_CONTROL, "killer-k0");
 
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
 		if (!victimVehicle || !victimVehicle.IsValid())
-			m_VictimPreviewEntity = CreateExperimentalActorClone(m_Snapshot.GetVictimPreviewEntries(), victimTransform, m_Snapshot.GetVictimBonePose(), m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.POSE_THEN_FREEZE, Color.FromRGBA(65, 170, 255, 255), "victim-frozen");
+			m_VictimPreviewEntity = CreateExperimentalActorClone(m_Snapshot.GetVictimPrefab(), m_Snapshot.GetVictimLoadout(), victimTransform, m_Snapshot.GetVictimBonePose(), m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.POSE_THEN_FREEZE, "victim-frozen");
 		if (m_VictimPreviewEntity)
 			m_bVictimFrozenPreview = true;
-		else
-			m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPreviewEntries(), victimTransform, m_Snapshot.GetVictimBonePose(), Color.FromRGBA(65, 170, 255, 255), "victim-fallback");
 		EnsureActorSeat(m_KillerPreviewEntity, m_KillerVehiclePreviewEntity, killerVehicle, "killer");
 		EnsureActorSeat(m_VictimPreviewEntity, m_VictimVehiclePreviewEntity, victimVehicle, "victim");
 		m_bPhysicsDeactivationReported = false;
 		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 killerVehicle=%3 victimVehicle=%4 snapshot={%5}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_KillerVehiclePreviewEntity, m_VictimVehiclePreviewEntity, m_Snapshot.GetDebugReport());
 	}
 
-	protected IEntity CreateVehicleClone(GC_KilledFromVehicleState state, Color outlineColor, string role)
+	protected IEntity CreateVehicleClone(GC_KilledFromVehicleState state, string role)
 	{
 		if (!state || !state.IsValid())
 			return null;
@@ -190,9 +192,6 @@ class GC_SpectatorKilledFromVisualizer
 		if (aiControl)
 			aiControl.DeactivateAI();
 		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
-		ChimeraWorld world = ChimeraWorld.CastFrom(m_World);
-		if (world)
-			world.OutlineEntity(preview, outlineColor, 1.0, 0.2, true, 3);
 		vector readback[4];
 		preview.GetWorldTransform(readback);
 		PrintFormat("GC | Killed From | event=vehicle-clone result=spawned role=%1 preview=%2 prefab=%3 isolatedPhysics=%4 turrets=%5 requested=%6 readback=%7 sourceMutation=none", role, preview, state.GetPrefab(), isolatedPhysics, state.GetTurrets().Count(), rootTransform, readback);
@@ -292,9 +291,9 @@ class GC_SpectatorKilledFromVisualizer
 		PrintFormat("GC | Killed From | event=vehicle-state role=%1 vehicle=%2 capturedTurrets=%3 cloneTurrets=%4 compartmentType=%5 compartmentIndex=%6", role, vehicle, states.Count(), turretIndex, state.GetCompartmentType(), state.GetCompartmentIndex());
 	}
 
-	protected IEntity CreateExperimentalActorClone(array<ref SCR_BasePreviewEntry> entries, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, int mode, Color outlineColor, string role)
+	protected IEntity CreateExperimentalActorClone(ResourceName prefab, string loadout, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, int mode, string role)
 	{
-		IEntity preview = CreateActorClone(entries, rootTransform, bonePose, outlineColor, role);
+		IEntity preview = CreateActorClone(prefab, loadout, rootTransform, bonePose, role);
 		if (!preview)
 			return null;
 
@@ -326,55 +325,55 @@ class GC_SpectatorKilledFromVisualizer
 		return preview;
 	}
 
-	//! Ask the inventory system to build the same character preview used by the
-	//! base game. Unlike rebuilding captured VObjects as independent entities,
-	//! this preserves the character skeleton and binds the current clothing and
-	//! weapon hierarchy to it.
-	protected IEntity CreateActorClone(array<ref SCR_BasePreviewEntry> entries, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, Color outlineColor, string role)
+	//! Spawn the fully initialized character, then replace its authored inventory
+	//! with the exact recursively serialized death-time loadout. This retains the
+	//! gameplay skeleton/animation path needed for ADS while reflecting changed
+	//! clothing, headgear, weapons, optics, and attachments.
+	protected IEntity CreateActorClone(ResourceName prefab, string loadout, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, string role)
 	{
-		if (!entries || entries.IsEmpty())
+		if (prefab == ResourceName.Empty || loadout.IsEmpty())
 		{
-			PrintFormat("GC | Killed From | event=actor-clone result=skipped role=%1 reason=no-captured-entries", role, level: LogLevel.WARNING);
+			PrintFormat("GC | Killed From | event=actor-clone result=skipped role=%1 reason=missing-capture prefab=%2 loadoutBytes=%3", role, prefab, loadout.Length(), level: LogLevel.WARNING);
 			return null;
 		}
 
-		SCR_BasePreviewEntry actorEntry = entries[0];
-		IEntity sourceEntity;
-		if (actorEntry)
-			sourceEntity = actorEntry.m_Entity;
-		if (!sourceEntity)
+		Resource resource = Resource.Load(prefab);
+		if (!resource || !resource.IsValid())
 		{
-			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=source-entity", role, level: LogLevel.ERROR);
+			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=resource prefab=%2", role, prefab, level: LogLevel.ERROR);
 			return null;
 		}
 
-		InventoryItemComponent inventoryItem = InventoryItemComponent.Cast(sourceEntity.FindComponent(InventoryItemComponent));
-		if (!inventoryItem)
-		{
-			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=inventory-component source=%2", role, sourceEntity, level: LogLevel.ERROR);
-			return null;
-		}
-
-		IEntity preview = inventoryItem.CreatePreviewEntity(m_World, m_World.GetCurrentCameraId());
+		EntitySpawnParams params = new EntitySpawnParams();
+		params.TransformMode = ETransformMode.WORLD;
+		Math3D.MatrixCopy(rootTransform, params.Transform);
+		IEntity preview = GetGame().SpawnEntityPrefabLocal(resource, m_World, params);
 		if (!preview)
 		{
-			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=inventory-preview source=%2", role, sourceEntity, level: LogLevel.ERROR);
+			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=spawn prefab=%2", role, prefab, level: LogLevel.ERROR);
 			return null;
 		}
 
-		preview.SetWorldTransform(rootTransform);
+		JsonLoadContext loadoutContext = new JsonLoadContext();
+		bool loadoutApplied = loadoutContext.LoadFromString(loadout) && SCR_PlayerArsenalLoadout.ApplyLoadoutString(preview, loadoutContext);
+		if (!loadoutApplied)
+		{
+			PrintFormat("GC | Killed From | event=actor-clone result=failed role=%1 stage=loadout prefab=%2 loadoutBytes=%3", role, prefab, loadout.Length(), level: LogLevel.ERROR);
+			delete preview;
+			return null;
+		}
+
+		AIControlComponent aiControl = AIControlComponent.Cast(preview.FindComponent(AIControlComponent));
+		if (aiControl)
+			aiControl.DeactivateAI();
 		preview.Update();
 		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
-		ChimeraWorld world = ChimeraWorld.CastFrom(m_World);
-		if (world)
-			world.OutlineEntity(preview, outlineColor, 1.0, 0.2, true, 3);
-
 		int capturedBones;
 		if (bonePose)
 			capturedBones = bonePose.Count();
 		vector transformReadback[4];
 		preview.GetWorldTransform(transformReadback);
-		PrintFormat("GC | Killed From | event=actor-clone result=spawned role=%1 preview=%2 source=%3 capturedEntries=%4 isolatedPhysics=%5 capturedBones=%6 boneReplay=scheduled sourceMutation=none", role, preview, sourceEntity, entries.Count(), isolatedPhysics, capturedBones);
+		PrintFormat("GC | Killed From | event=actor-clone result=spawned role=%1 preview=%2 prefab=%3 loadoutBytes=%4 isolatedPhysics=%5 capturedBones=%6 boneReplay=scheduled sourceMutation=none", role, preview, prefab, loadout.Length(), isolatedPhysics, capturedBones);
 		PrintFormat("GC | Killed From | event=actor-clone-transform role=%1 requested=%2 readback=%3", role, rootTransform, transformReadback);
 		return preview;
 	}
@@ -702,6 +701,22 @@ class GC_SpectatorKilledFromVisualizer
 		int killerVehicleDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerVehiclePreviewEntity);
 		int victimVehicleDeactivatedPhysics = DeactivatePhysicsHierarchy(m_VictimVehiclePreviewEntity);
 
+		// World.OutlineEntity submits an outline for the current frame only. Keep
+		// every killed-from clone registered after animation and inventory updates
+		// replace child render objects.
+		ChimeraWorld outlineWorld = ChimeraWorld.CastFrom(m_World);
+		if (outlineWorld)
+		{
+			if (m_KillerPreviewEntity)
+				outlineWorld.OutlineEntity(m_KillerPreviewEntity, Color.FromRGBA(235, 45, 70, 255), 1.0, 0.2, true, 2);
+			if (m_KillerVehiclePreviewEntity)
+				outlineWorld.OutlineEntity(m_KillerVehiclePreviewEntity, Color.FromRGBA(235, 45, 70, 255), 1.0, 0.2, true, 2);
+			if (m_VictimPreviewEntity)
+				outlineWorld.OutlineEntity(m_VictimPreviewEntity, Color.FromRGBA(65, 170, 255, 255), 1.0, 0.2, true, 2);
+			if (m_VictimVehiclePreviewEntity)
+				outlineWorld.OutlineEntity(m_VictimVehiclePreviewEntity, Color.FromRGBA(65, 170, 255, 255), 1.0, 0.2, true, 2);
+		}
+
 		if (!m_bPhysicsDeactivationReported)
 		{
 			int killerCapturedBones;
@@ -920,6 +935,7 @@ class GC_SpectatorKilledFromVisualizer
 		PanelWidget labelBackground = PanelWidget.Cast(marker.FindAnyWidget("LobbySpectatorKilledFromMarkerLabel"));
 		if (labelBackground)
 			labelBackground.SetColor(accentColor);
+		SizeMarkerLabel(marker);
 		marker.SetVisible(false);
 	}
 
@@ -940,6 +956,26 @@ class GC_SpectatorKilledFromVisualizer
 		TextWidget label = TextWidget.Cast(m_wKillerMarker.FindAnyWidget("LobbySpectatorKilledFromMarkerText"));
 		if (label)
 			label.SetText(markerText);
+		SizeMarkerLabel(m_wKillerMarker);
+	}
+
+	protected void SizeMarkerLabel(Widget marker)
+	{
+		if (!marker || !m_Workspace)
+			return;
+
+		TextWidget label = TextWidget.Cast(marker.FindAnyWidget("LobbySpectatorKilledFromMarkerText"));
+		Widget labelBackground = marker.FindAnyWidget("LobbySpectatorKilledFromMarkerLabel");
+		if (!label || !labelBackground)
+			return;
+
+		float textWidth;
+		float textHeight;
+		label.GetTextSize(textWidth, textHeight);
+		float labelWidth = m_Workspace.DPIUnscale(textWidth) + MARKER_LABEL_HORIZONTAL_PADDING;
+		labelWidth = Math.Max(MARKER_LABEL_MIN_WIDTH, Math.Min(MARKER_WIDTH, labelWidth));
+		FrameSlot.SetPos(labelBackground, (MARKER_WIDTH - labelWidth) * 0.5, MARKER_LABEL_Y);
+		FrameSlot.SetSize(labelBackground, labelWidth, MARKER_LABEL_HEIGHT);
 	}
 
 	protected bool UpdateActorMarker(Widget marker, IEntity actor)

@@ -176,9 +176,9 @@ class GC_KilledFromVehicleState
 	}
 }
 
-//! Facts required to recreate one killed-from presentation. Network-safe
-//! primitive fields provide the authority fallback; visual entries and exact
-//! bone poses exist only on the owning client.
+//! Facts required to recreate one killed-from presentation. The authoritative
+//! serialized loadout is the sole inventory source used by the renderer; exact
+//! bone poses remain client-local presentation data.
 class GC_KilledFromSnapshot
 {
 	static const int FLAG_VALID_KILLER = 1;
@@ -201,13 +201,13 @@ class GC_KilledFromSnapshot
 	protected string m_sLineOriginMode;
 	protected int m_iFlags;
 	protected bool m_bHasLocalDamageCapture;
-	protected ref array<ref SCR_BasePreviewEntry> m_aKillerPreviewEntries;
+	protected string m_sKillerLoadout;
 	protected ResourceName m_sKillerVisualObject;
 	protected vector m_aKillerRootTransform[4];
 	protected ref array<ref GC_KilledFromBonePose> m_aKillerBonePose;
 	protected ref GC_KilledFromWeaponState m_KillerWeapon;
 	protected ref GC_KilledFromVehicleState m_KillerVehicle;
-	protected ref array<ref SCR_BasePreviewEntry> m_aVictimPreviewEntries;
+	protected string m_sVictimLoadout;
 	protected ResourceName m_sVictimPrefab;
 	protected ResourceName m_sVictimVisualObject;
 	protected vector m_aVictimRootTransform[4];
@@ -289,7 +289,7 @@ class GC_KilledFromSnapshot
 			m_vHitPosition = localDamage.m_vHitPosition;
 			m_sLineOriginMode = localDamage.m_sLineOriginMode;
 		}
-		m_aVictimPreviewEntries = localDamage.m_aVictimPreviewEntries;
+		m_sVictimLoadout = localDamage.m_sVictimLoadout;
 		m_sVictimPrefab = localDamage.m_sVictimPrefab;
 		m_sVictimVisualObject = localDamage.m_sVictimVisualObject;
 		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
@@ -304,22 +304,16 @@ class GC_KilledFromSnapshot
 		if (!localDamage.HasKillerPreview())
 			return;
 
-		m_sKillerPrefab = localDamage.m_sKillerPrefab;
-		m_vKillerPosition = localDamage.m_vKillerPosition;
-		m_vKillerAngles = localDamage.m_vKillerAngles;
-		m_iStance = localDamage.m_iStance;
-		m_fDynamicStance = localDamage.m_fDynamicStance;
+		// Authority owns the killer prefab and serialized inventory. The local
+		// damage capture only contributes render pose data that is not practical
+		// to transmit with the snapshot.
 		m_fKillerLean = localDamage.m_fKillerLean;
 		m_vKillerAimingAngles = localDamage.m_vKillerAimingAngles;
-		m_iFlags = localDamage.m_iFlags;
-		m_aKillerPreviewEntries = localDamage.m_aKillerPreviewEntries;
 		m_sKillerVisualObject = localDamage.m_sKillerVisualObject;
 		Math3D.MatrixCopy(localDamage.m_aKillerRootTransform, m_aKillerRootTransform);
 		m_aKillerBonePose = localDamage.m_aKillerBonePose;
 		m_KillerWeapon = localDamage.m_KillerWeapon;
 		m_KillerVehicle = localDamage.m_KillerVehicle;
-		m_sKillerDisplayName = localDamage.m_sKillerDisplayName;
-		m_bKillerDisplayNameLocalized = localDamage.m_bKillerDisplayNameLocalized;
 	}
 
 	protected void CaptureKiller(IEntity killer)
@@ -367,7 +361,7 @@ class GC_KilledFromSnapshot
 			EntityPrefabData prefabData = killer.GetPrefabData();
 			if (prefabData)
 				m_sKillerPrefab = prefabData.GetPrefabName();
-			CaptureVisual(killer, "killer", m_aKillerPreviewEntries, m_sKillerVisualObject, m_aKillerRootTransform, m_aKillerBonePose);
+			CaptureVisual(killer, "killer", m_sKillerLoadout, m_sKillerVisualObject, m_aKillerRootTransform, m_aKillerBonePose);
 		}
 		if (m_sKillerPrefab != string.Empty || HasKillerVehicle())
 			m_iFlags |= FLAG_VALID_KILLER;
@@ -525,7 +519,7 @@ class GC_KilledFromSnapshot
 		m_iVictimFlags = 0;
 		m_VictimVehicle = null;
 		m_VictimWeapon = null;
-		CaptureVisual(victim, "victim", m_aVictimPreviewEntries, m_sVictimVisualObject, m_aVictimRootTransform, m_aVictimBonePose);
+		CaptureVisual(victim, "victim", m_sVictimLoadout, m_sVictimVisualObject, m_aVictimRootTransform, m_aVictimBonePose);
 		EntityPrefabData victimPrefabData;
 		if (victim)
 			victimPrefabData = victim.GetPrefabData();
@@ -546,9 +540,9 @@ class GC_KilledFromSnapshot
 		m_VictimWeapon.Capture(victimCharacter);
 	}
 
-	protected void CaptureVisual(IEntity entity, string role, out array<ref SCR_BasePreviewEntry> entries, out ResourceName visualObjectName, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
+	protected void CaptureVisual(IEntity entity, string role, out string loadout, out ResourceName visualObjectName, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)
 	{
-		entries = {};
+		loadout = string.Empty;
 		visualObjectName = ResourceName.Empty;
 		bonePose = {};
 		if (!entity)
@@ -558,10 +552,19 @@ class GC_KilledFromSnapshot
 		// deliberately rewrites near-vertical roots, which is inappropriate for
 		// a forensic killed-from reconstruction.
 		entity.GetWorldTransform(rootTransform);
-		EntitySpawnParams spawnParams;
-		// Ignore character preview-component shortcuts so the captured render
-		// hierarchy includes the head, worn gear, weapon, and their bone pivots.
-		entries = SCR_GenericPreviewEntity.GetPreviewEntriesFromEntity(entity, spawnParams, EPreviewEntityFlag.IGNORE_PREFAB);
+		if (!SCR_PlayerArsenalLoadout.ARSENALLOADOUT_COMPONENTS_TO_CHECK)
+			SCR_ArsenalManagerComponent.GetArsenalLoadoutComponentsToCheck(SCR_PlayerArsenalLoadout.ARSENALLOADOUT_COMPONENTS_TO_CHECK);
+		JsonSaveContext loadoutContext = new JsonSaveContext();
+		bool loadoutCaptured = SCR_PlayerArsenalLoadout.ReadLoadoutString(entity, loadoutContext);
+		if (loadoutCaptured)
+		{
+			loadout = loadoutContext.SaveToString();
+			PrintFormat("GC | Killed From | event=loadout-capture role=%1 result=success entity=%2 bytes=%3", role, entity, loadout.Length());
+		}
+		else
+		{
+			PrintFormat("GC | Killed From | event=loadout-capture role=%1 result=failed entity=%2", role, entity, level: LogLevel.ERROR);
+		}
 		VObject visualObject = entity.GetVObject();
 		if (visualObject)
 			visualObjectName = visualObject.GetResourceName();
@@ -595,9 +598,10 @@ class GC_KilledFromSnapshot
 		PrintFormat("GC | Killed From | event=bone-capture-summary role=%1 entity=%2 boneNames=%3 modelMatrices=%4 localMatrices=%5 visualObject=%6 rootTransform=%7", role, entity, boneNames.Count(), bonePose.Count(), localBoneCount, visualObjectName, rootTransform);
 	}
 
-	void SetNetworkData(ResourceName killerPrefab, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
+	void SetNetworkData(ResourceName killerPrefab, string killerLoadout, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
 	{
 		m_sKillerPrefab = killerPrefab;
+		m_sKillerLoadout = killerLoadout;
 		m_vKillerPosition = killerPosition;
 		m_vKillerAngles = killerAngles;
 		m_vLineOrigin = lineOrigin;
@@ -605,6 +609,8 @@ class GC_KilledFromSnapshot
 		m_iStance = stance;
 		m_fDynamicStance = dynamicStance;
 		m_iFlags = flags;
+		Math3D.AnglesToMatrix(killerAngles, m_aKillerRootTransform);
+		m_aKillerRootTransform[3] = killerPosition;
 	}
 
 	void SetNetworkKillerDisplayName(string killerDisplayName, bool killerDisplayNameLocalized)
@@ -651,8 +657,8 @@ class GC_KilledFromSnapshot
 	bool HasKillerPreview() { return (m_iFlags & FLAG_VALID_KILLER) != 0; }
 	bool HasKillerVisual() { return m_sKillerVisualObject != ResourceName.Empty; }
 	bool HasVictimVisual() { return m_sVictimVisualObject != ResourceName.Empty; }
-	array<ref SCR_BasePreviewEntry> GetKillerPreviewEntries() { return m_aKillerPreviewEntries; }
-	array<ref SCR_BasePreviewEntry> GetVictimPreviewEntries() { return m_aVictimPreviewEntries; }
+	string GetKillerLoadout() { return m_sKillerLoadout; }
+	string GetVictimLoadout() { return m_sVictimLoadout; }
 	ResourceName GetKillerVisualObject() { return m_sKillerVisualObject; }
 	ResourceName GetVictimVisualObject() { return m_sVictimVisualObject; }
 	array<ref GC_KilledFromBonePose> GetKillerBonePose() { return m_aKillerBonePose; }
@@ -678,7 +684,8 @@ class GC_KilledFromSnapshot
 		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 killerAim=%5 victimAim=%6 weaponRaised=%7 ads=%8", m_iStance, m_fDynamicStance,
 			m_fKillerLean, m_fVictimLean, m_vKillerAimingAngles, m_vVictimAimingAngles, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
 		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasLocalDamageCapture, m_sLineOriginMode);
-		return report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 victimPrefab=%4 victimVisual=%5 victimObject=%6 victimBones=%7 killerVehicle={%8} victimVehicle={%9}", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, m_sVictimPrefab, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount, killerVehicleReport, victimVehicleReport);
+		report = report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 killerLoadoutBytes=%4 victimPrefab=%5 victimVisual=%6 victimObject=%7 victimBones=%8 victimLoadoutBytes=%9", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, m_sKillerLoadout.Length(), m_sVictimPrefab, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount, m_sVictimLoadout.Length());
+		return report + string.Format(" killerVehicle={%1} victimVehicle={%2}", killerVehicleReport, victimVehicleReport);
 	}
 }
 

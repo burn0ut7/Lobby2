@@ -66,12 +66,12 @@ FrameWidgetClass {
   PanelWidgetClass "{6A5F00000000010A}" {
    Name "LobbySpectatorKilledFromMarkerLabel"
    Slot FrameWidgetSlot "{6A5F00000000010B}" {
-    PositionX 0
-    OffsetLeft 0
+    PositionX 102
+    OffsetLeft 102
     PositionY 50
     OffsetTop 50
-    SizeX 256
-    OffsetRight -256
+    SizeX 52
+    OffsetRight -154
     SizeY 26
     OffsetBottom -76
    }
