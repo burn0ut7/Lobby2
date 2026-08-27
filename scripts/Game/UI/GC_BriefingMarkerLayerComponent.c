@@ -247,8 +247,8 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 			m_aMarkerLabels.Insert(markerLabel);
 			m_aMarkerDescriptions.Insert(markerDescription);
 			m_aMarkers.Insert(marker);
-			PrintFormat("GC | Briefing Marker | event=marker-create result=success marker=%1 image=%2 highlight=%3 quad=%4 baseLoaded=%5 highlightLoaded=%6 root=%7 handler=%8",
-				marker.GetName(), marker.GetImage(), highlightImage, marker.GetQuadName(), loaded, highlightLoaded, markerRoot, markerHandler);
+			PrintFormat("GC | Briefing Marker | event=marker-create result=success marker=%1 image=%2 highlight=%3 quad=%4 baseLoaded=%5 highlightLoaded=%6 root=%7 handler=%8 description=%9",
+				marker.GetName(), marker.GetImage(), highlightImage, marker.GetQuadName(), loaded, highlightLoaded, markerRoot, markerHandler, marker.GetDescription());
 		}
 
 		UpdateMarkerTransforms();
@@ -299,21 +299,22 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 
 			float labelWidth = displayWidth;
 			if (labelWidth < MIN_LABEL_WIDTH) labelWidth = MIN_LABEL_WIDTH;
+			float iconOffsetX = (labelWidth - displayWidth) * 0.5;
 
 			vector worldPosition = marker.GetWorldPosition();
 			int screenX;
 			int screenY;
 			m_MapEntity.WorldToScreen(worldPosition[0], worldPosition[2], screenX, screenY, true);
-			float localX = workspace.DPIUnscale(screenX) - displayWidth * 0.5;
+			float localX = workspace.DPIUnscale(screenX) - labelWidth * 0.5;
 			float localY = workspace.DPIUnscale(screenY) - displayHeight * 0.5;
 
 			FrameSlot.SetPos(markerRoot, localX, localY);
-			FrameSlot.SetSize(markerRoot, displayWidth, displayHeight);
-			FrameSlot.SetPos(markerGlow, 0, 0);
+			FrameSlot.SetSize(markerRoot, labelWidth, displayHeight + LABEL_HEIGHT);
+			FrameSlot.SetPos(markerGlow, iconOffsetX, 0);
 			FrameSlot.SetSize(markerGlow, displayWidth, displayHeight);
-			FrameSlot.SetPos(markerImage, 0, 0);
+			FrameSlot.SetPos(markerImage, iconOffsetX, 0);
 			FrameSlot.SetSize(markerImage, displayWidth, displayHeight);
-			FrameSlot.SetPos(markerLabel, (displayWidth - labelWidth) * 0.5, displayHeight);
+			FrameSlot.SetPos(markerLabel, 0, displayHeight);
 			FrameSlot.SetSize(markerLabel, labelWidth, LABEL_HEIGHT);
 			FrameSlot.SetPos(markerDescription, 0, 0);
 			FrameSlot.SetSize(markerDescription, labelWidth, LABEL_HEIGHT);
