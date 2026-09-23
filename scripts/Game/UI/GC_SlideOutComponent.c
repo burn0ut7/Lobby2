@@ -183,7 +183,7 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnMouseLeftDown()
 	{
-		if (!m_wRoot.IsVisible() || !m_wHandle || !m_wHandle.IsVisible())
+		if (!m_wHandle || !m_wHandle.IsVisibleInHierarchy())
 			return;
 
 		int mouseX;
