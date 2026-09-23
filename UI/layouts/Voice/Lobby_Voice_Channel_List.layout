@@ -26,7 +26,7 @@ SizeLayoutWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0 0 0 0.72
+     Color 0.008 0.012 0.014 0.72
      style full
     }
     ScrollLayoutWidgetClass "{6A35000000000007}" {

@@ -104,10 +104,13 @@ class GC_FactionWidgetComponent : SCR_ScriptedWidgetComponent
 
         ImageWidget color = ImageWidget.Cast(m_wRoot.FindAnyWidget("Color"));
         if (color)
-            color.SetColor(GC_LobbyUIColors.FactionBackground(faction));
+        {
+            Color factionColor = faction.GetFactionColor();
+            SCR_Faction scrFaction = SCR_Faction.Cast(faction);
+            if (scrFaction)
+                factionColor = scrFaction.GetOutlineFactionColor();
 
-        Widget accent = m_wRoot.FindAnyWidget("FactionAccent");
-        if (accent)
-            accent.SetColor(faction.GetFactionColor());
+            color.SetColor(factionColor);
+        }
     }
 }

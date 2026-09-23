@@ -1,17 +1,3 @@
 MetaFileClass {
  Name "{6A32000000000003}UI/layouts/Inventory/Lobby_Inventory_Detail_Item.layout"
- Configurations {
-  LayoutResourceClass PC {
-  }
-  LayoutResourceClass XBOX_ONE : PC {
-  }
-  LayoutResourceClass XBOX_SERIES : PC {
-  }
-  LayoutResourceClass PS4 : PC {
-  }
-  LayoutResourceClass PS5 : PC {
-  }
-  LayoutResourceClass HEADLESS : PC {
-  }
- }
 }

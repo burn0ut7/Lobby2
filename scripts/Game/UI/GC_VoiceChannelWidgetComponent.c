@@ -221,10 +221,6 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		ImageWidget divider = ImageWidget.Cast(m_wRoot.FindAnyWidget("ChannelDivider"));
 		if (divider)
 			divider.SetColor(factionColor);
-
-		Widget background = m_wRoot.FindAnyWidget("ChannelHeaderBackground");
-		if (background)
-			background.SetColor(GC_LobbyUIColors.FactionBackground(m_Faction));
 	}
 
 	protected void ClearPlayerRows()

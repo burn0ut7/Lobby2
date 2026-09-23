@@ -67,7 +67,7 @@ FrameWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0 0 0 0.72
+       Color 0.008 0.012 0.014 0.72
        "Ignore Cursor" 1
       }
       TextWidgetClass "{6A5800000000000E}" {

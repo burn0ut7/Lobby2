@@ -426,22 +426,16 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (state)
 		{
 			if (enabled)
-			{
 				state.SetText("ON");
-				state.SetColor(Color.FromInt(GC_LobbyUIColors.ACCENT));
-			}
 			else
-			{
 				state.SetText("OFF");
-				state.SetColor(Color.FromInt(GC_LobbyUIColors.TEXT_MUTED));
-			}
 		}
 		if (background)
 		{
 			if (enabled)
-				background.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
+				background.SetColor(Color.FromRGBA(48, 148, 112, 255));
 			else
-				background.SetColor(Color.FromInt(GC_LobbyUIColors.ROW));
+				background.SetColor(Color.FromRGBA(82, 88, 90, 255));
 		}
 	}
 

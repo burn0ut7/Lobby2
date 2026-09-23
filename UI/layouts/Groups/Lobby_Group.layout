@@ -22,7 +22,7 @@ VerticalLayoutWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0 0 0 0.72
+     Color 0.0048 0.0048 0.0048 0.78
     }
     HorizontalLayoutWidgetClass "{6A19073206DD8705}" {
      Name "SquadBody"
@@ -81,7 +81,7 @@ VerticalLayoutWidgetClass {
              "Ignore Cursor" 1
              Slot LayoutSlot "{6A2500010000000E}" {
              }
-             Color 0.839 0.839 0.839 1
+             Color 0.62 0.65 0.63 1
              Text "Rifle Squad"
              "Font Size" 15
              "Min Font Size" 11
@@ -115,7 +115,7 @@ VerticalLayoutWidgetClass {
              Slot LayoutSlot "{6A25000100000014}" {
               HorizontalAlign 2
              }
-             Color 0.839 0.839 0.839 1
+             Color 0.52 0.55 0.53 1
              Text "PLAYERS"
              "Font Size" 10
              "Min Font Size" 8
@@ -129,7 +129,7 @@ VerticalLayoutWidgetClass {
          Slot LayoutSlot "{6A190729841F88C0}" {
           Padding 0 4 4 4
          }
-         Color 1 1 1 0.12
+         Color 0.28 0.34 0.34 0.8
          Size 32 3
         }
         VerticalLayoutWidgetClass "{6A25000100000015}" {

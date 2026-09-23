@@ -182,11 +182,11 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (background)
 		{
 			if (!CanInteract())
-				background.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
+				background.SetColor(Color.FromRGBA(1, 1, 1, 100));
 			else if (m_bSlotHovered)
-				background.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_HOVER));
+				background.SetColor(Color.FromRGBA(36, 42, 45, 210));
 			else
-				background.SetColor(Color.FromInt(GC_LobbyUIColors.ROW));
+				background.SetColor(Color.FromRGBA(1, 1, 1, 140));
 		}
 
 		ImageWidget accent = ImageWidget.Cast(m_wRoot.FindAnyWidget("SelectionAccent"));

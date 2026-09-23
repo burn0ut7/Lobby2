@@ -35,7 +35,6 @@ ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_But
        }
        "Z Order" 2
        Opacity 0
-       Color 1 0.816 0.251 1
        Mask "{099C73E0F66A5F28}UI/Textures/Common/gradientTexture_Dither_down_512.edds"
        Progress 0.6
        "Mask Mode" "Include Above"
@@ -48,7 +47,7 @@ ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_But
         Padding 0 0 0 1
        }
        Opacity 0
-       Color 1 0.816 0.251 1
+       Color 0.761 0.386 0.078 1
        Size 2 2
       }
       ImageWidgetClass "{557098260F312273}" {
@@ -56,15 +55,15 @@ ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_But
        "Is Enabled" 0
        "Is Visible" 0
        Opacity 0.3
-       Color 1 0.816 0.251 0
+       Color 0.761 0.392 0.078 0
       }
       PanelWidgetClass "{557098260F31227C}" {
        Prefab "{557098260F31227C}"
        Slot OverlayWidgetSlot "{55367D8E4A13554A}" {
         Padding 0 0 0 0
        }
-       Color 1 0.816 0.251 0
-       style outline_2px
+       Color 1 0 0 0
+       style outline_4px
       }
       HorizontalLayoutWidgetClass "{557098267862A738}" {
        Prefab "{557098267862A738}"

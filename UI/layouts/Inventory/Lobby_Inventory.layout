@@ -30,11 +30,8 @@ OverlayWidgetClass {
      Color 1 1 1 0
      components {
       SCR_ButtonBaseComponent "{6A31000000000079}" {
-       m_BackgroundDefault 0 0 0 0.72
-       m_BackgroundSelected 0 0 0 0.92
-       m_BackgroundSelectedHovered 0 0 0 0.92
-       m_BackgroundClicked 0 0 0 0.92
-       m_BackgroundHovered 0 0 0 0.84
+       m_BackgroundDefault 0.005 0.005 0.005 0.78
+       m_BackgroundHovered 0.136 0.136 0.136 0.392
       }
      }
      {
@@ -51,7 +48,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0 0 0 0.72
+         Color 0.0048 0.0048 0.0048 0.78
          style full
         }
         PanelWidgetClass "{6A31000000000056}" {
@@ -60,7 +57,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 1 1 1 0.12
+         Color 0.45 0.48 0.48 0.9
          style outline_2px
         }
         VerticalLayoutWidgetClass "{6A31000000000058}" {

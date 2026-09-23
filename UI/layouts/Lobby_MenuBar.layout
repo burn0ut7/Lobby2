@@ -29,7 +29,7 @@ FrameWidgetClass {
     SizeY 0
     OffsetBottom 0
    }
-   Color 0.008 0.02 0.045 1
+   Color 0.007 0.012 0.014 1
    Tiling Wrap
    "Transition width" 1
    Progress 0.63
@@ -48,7 +48,7 @@ FrameWidgetClass {
     SizeY 0
     OffsetBottom 0
    }
-   Color 0.008 0.02 0.045 0.35
+   Color 0.0174 0.033 0.0396 1
    Texture "{FA224404BE9B371A}UI/Textures/map_texture.edds"
    Size 1920 1080
    Tiling Wrap
@@ -65,10 +65,10 @@ FrameWidgetClass {
     OffsetBottom -3
     Alignment 0 1
    }
-   Color 1 1 1 0.12
+   Color 0.0307 0.0331 0.0356 1
    Mask "{2ADA399EDE7BE27F}UI/Textures/Common/GradientTexture_Dither_mid_1024x16.edds"
    "Shadow Offset" 0 1
-   "Shadow Color" 0 0 0 0.55
+   "Shadow Color" 0.0162 0.0173 0.0185 1
   }
   HorizontalLayoutWidgetClass "{6A145B24392C23D4}" {
    Name "HorizontalLayout"
@@ -135,7 +135,7 @@ FrameWidgetClass {
       VerticalAlign 1
       Padding 2 0 2 0
      }
-     Color 1 1 1 0.12
+     Color 0.0307 0.0331 0.0356 1
      Size 2 30
     }
     ButtonWidgetClass "{6A145B2F3B7AC20F}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
@@ -187,7 +187,7 @@ FrameWidgetClass {
       VerticalAlign 1
       Padding 2 0 2 0
      }
-     Color 1 1 1 0.12
+     Color 0.0307 0.0331 0.0356 1
      Size 2 30
     }
     ButtonWidgetClass "{6A145B31B6193E6A}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
@@ -239,7 +239,7 @@ FrameWidgetClass {
       VerticalAlign 1
       Padding 2 0 2 0
      }
-     Color 1 1 1 0.12
+     Color 0.0307 0.0331 0.0356 1
      Size 2 30
     }
     ButtonWidgetClass "{6A145B317F5942BB}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
@@ -291,7 +291,7 @@ FrameWidgetClass {
       VerticalAlign 1
       Padding 2 0 2 0
      }
-     Color 1 1 1 0.12
+     Color 0.0307 0.0331 0.0356 1
      Size 2 30
     }
     ButtonWidgetClass "{6A145B3158BF320A}" : "{B7A67F3651819705}UI/layouts/Lobby_MenuBarButton.layout.layout" {
@@ -362,7 +362,7 @@ FrameWidgetClass {
      Name "Description"
      Slot LayoutSlot "{6A1577A7BDB5F4BA}" {
      }
-     Color 1 1 1 0.12
+     Color 0.4287 0.4287 0.4287 1
      Text "COOPERATIVE ATTACK"
      "Font Size" 12
      "Min Font Size" 12

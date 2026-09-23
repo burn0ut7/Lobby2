@@ -25,7 +25,7 @@ ButtonWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0 0 0 0.55
+     Color 0.0048 0.0048 0.0048 0.62
     }
     SizeLayoutWidgetClass "{6A33000000000007}" {
      Name "RowSize"
@@ -126,7 +126,7 @@ ButtonWidgetClass {
           Padding 0 0 4 0
           SizeMode Fill
          }
-         Color 0.839 0.839 0.839 1
+         Color 0.82 0.84 0.84 1
          Text "Aktiv-22"
          "Font Size" 19
          "Min Font Size" 13

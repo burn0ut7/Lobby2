@@ -239,7 +239,7 @@ class GC_BriefingMarkerLayerComponent : SCR_ScriptedWidgetComponent
 			markerImage.SetRotation(marker.GetRotation());
 			markerImage.SetColorInt(marker.GetColor());
 			markerGlow.SetRotation(marker.GetRotation());
-			markerGlow.SetColor(Color.FromRGBA(255, 208, 64, 155));
+			markerGlow.SetColor(Color.FromSRGBA(226, 168, 79, 155));
 			markerDescription.SetText(marker.GetDescription());
 			m_aMarkerRoots.Insert(markerRoot);
 			m_aMarkerImages.Insert(markerImage);

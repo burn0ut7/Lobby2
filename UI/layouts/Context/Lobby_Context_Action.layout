@@ -9,10 +9,10 @@ ButtonWidgetClass {
   GC_ContextMenuActionButtonComponent "{6A57000000000032}" {
    m_bUseColorization 1
    m_BackgroundDefault 0 0 0 0
-   m_BackgroundHovered 0 0 0 0.84
-   m_BackgroundSelected 0 0 0 0.92
-   m_BackgroundSelectedHovered 0 0 0 0.92
-   m_BackgroundClicked 0 0 0 0.92
+   m_BackgroundHovered 0.18 0.2 0.2 0.85
+   m_BackgroundSelected 0.76 0.39 0.08 0.35
+   m_BackgroundSelectedHovered 0.76 0.39 0.08 0.45
+   m_BackgroundClicked 0.76 0.39 0.08 0.55
    m_bShowBorderOnFocus 0
   }
  }
@@ -40,7 +40,7 @@ ButtonWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0 0 0 0.72
+       Color 0.025 0.032 0.034 0.82
        Size 272 36
       }
       ImageWidgetClass "{6A57000000000039}" {

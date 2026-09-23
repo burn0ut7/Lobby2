@@ -85,9 +85,9 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             isLocalPlayer = playerController.GetPlayerId() == m_iPlayerId;
 
         if (isLocalPlayer)
-            background.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
+            background.SetColor(Color.FromRGBA(194, 100, 20, 20));
         else
-            background.SetColor(Color.FromInt(GC_LobbyUIColors.ROW));
+            background.SetColor(Color.FromRGBA(1, 1, 1, 158));
     }
 
     //! Shows the replicated lobby presentation state. The normal microphone

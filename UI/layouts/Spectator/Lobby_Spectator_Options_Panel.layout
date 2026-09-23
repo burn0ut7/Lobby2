@@ -21,7 +21,7 @@ SizeLayoutWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0 0 0 0.92
+     Color 0.025 0.032 0.034 0.98
     }
     VerticalLayoutWidgetClass "{6A5A000000000007}" {
      Name "SpectatorOptionsColumn"
@@ -50,7 +50,7 @@ SizeLayoutWidgetClass {
             HorizontalAlign 0
             VerticalAlign 3
            }
-           Color 1 1 1 1
+           Color 0.94 0.94 0.92 1
            Text "SPECTATOR OPTIONS"
            "Font Size" 24
            "Min Font Size" 16
@@ -61,7 +61,7 @@ SizeLayoutWidgetClass {
             HorizontalAlign 3
             VerticalAlign 2
            }
-           Color 1 0.816 0.251 1
+           Color 0.25 0.72 0.78 1
            Size 0 3
           }
          }
@@ -121,7 +121,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 0 0 0 0.72
+                 Color 0.07 0.1 0.11 0.98
                  style full
                 }
                 PanelWidgetClass "{6A5A00000000001E}" {
@@ -129,7 +129,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 1 1 1 0.12
+                 Color 0.16 0.2 0.21 1
                  style outline_2px
                 }
                 HorizontalLayoutWidgetClass "{6A5A000000000020}" {
@@ -146,7 +146,7 @@ SizeLayoutWidgetClass {
                     FillWeight 1
                     Padding 0 0 12 0
                    }
-                   Color 1 1 1 1
+                   Color 0.96 0.97 0.96 1
                    Text "SHOW INTERFACE"
                    "Font Size" 19
                    "Min Font Size" 15
@@ -187,7 +187,7 @@ SizeLayoutWidgetClass {
                         HorizontalAlign 3
                         VerticalAlign 3
                        }
-                       Color 0 0 0 0.92
+                       Color 0.188 0.58 0.439 1
                        style full
                       }
                       TextWidgetClass "{6A5A00000000002F}" {
@@ -196,7 +196,7 @@ SizeLayoutWidgetClass {
                         HorizontalAlign 3
                         VerticalAlign 3
                        }
-                       Color 1 0.816 0.251 1
+                       Color 1 1 1 1
                        Text "ON"
                        "Font Size" 17
                        "Min Font Size" 12
@@ -250,7 +250,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 0 0 0 0.72
+                 Color 0.07 0.1 0.11 0.98
                  style full
                 }
                 PanelWidgetClass "{6A6100000000000A}" {
@@ -258,7 +258,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 1 1 1 0.12
+                 Color 0.16 0.2 0.21 1
                  style outline_2px
                 }
                 HorizontalLayoutWidgetClass "{6A6100000000000C}" {
@@ -275,7 +275,7 @@ SizeLayoutWidgetClass {
                     FillWeight 1
                     Padding 0 0 12 0
                    }
-                   Color 1 1 1 1
+                   Color 0.96 0.97 0.96 1
                    Text "LOCAL LIGHT"
                    "Font Size" 19
                    "Min Font Size" 15
@@ -316,7 +316,7 @@ SizeLayoutWidgetClass {
                         HorizontalAlign 3
                         VerticalAlign 3
                        }
-                       Color 0 0 0 0.55
+                       Color 0.322 0.345 0.353 1
                        style full
                       }
                       TextWidgetClass "{6A61000000000019}" {
@@ -379,7 +379,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 0 0 0 0.72
+                 Color 0.07 0.1 0.11 0.98
                  style full
                 }
                 PanelWidgetClass "{6A5E00000000000A}" {
@@ -387,7 +387,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 1 1 1 0.12
+                 Color 0.16 0.2 0.21 1
                  style outline_2px
                 }
                 HorizontalLayoutWidgetClass "{6A5E00000000000C}" {
@@ -404,7 +404,7 @@ SizeLayoutWidgetClass {
                     FillWeight 1
                     Padding 0 0 12 0
                    }
-                   Color 1 1 1 1
+                   Color 0.96 0.97 0.96 1
                    Text "BULLET TRACERS"
                    "Font Size" 19
                    "Min Font Size" 15
@@ -431,7 +431,7 @@ SizeLayoutWidgetClass {
                         HorizontalAlign 3
                         VerticalAlign 3
                        }
-                       Color 0 0 0 0.55
+                       Color 0.322 0.345 0.353 1
                        style full
                       }
                       TextWidgetClass "{6A5E000000000016}" {
@@ -494,7 +494,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 0 0 0 0.72
+                 Color 0.07 0.1 0.11 0.98
                  style full
                 }
                 PanelWidgetClass "{6A5F000000000019}" {
@@ -502,7 +502,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 1 1 1 0.12
+                 Color 0.16 0.2 0.21 1
                  style outline_2px
                 }
                 HorizontalLayoutWidgetClass "{6A5F00000000001B}" {
@@ -519,7 +519,7 @@ SizeLayoutWidgetClass {
                     FillWeight 1
                     Padding 0 0 12 0
                    }
-                   Color 1 1 1 1
+                   Color 0.96 0.97 0.96 1
                    Text "KILLED FROM"
                    "Font Size" 19
                    "Min Font Size" 15
@@ -546,7 +546,7 @@ SizeLayoutWidgetClass {
                         HorizontalAlign 3
                         VerticalAlign 3
                        }
-                       Color 0 0 0 0.55
+                       Color 0.322 0.345 0.353 1
                        style full
                       }
                       TextWidgetClass "{6A5F000000000025}" {

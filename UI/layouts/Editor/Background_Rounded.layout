@@ -1,6 +1,6 @@
 HorizontalLayoutWidgetClass : "{F7B5DF87CE1F28E2}UI/layouts/Editor/Effects/Effect_Background_Rounded.layout" {
  Opacity 1
- Color 0 0 0 0.72
+ Color 0.2623 0.2623 0.2623 1
  {
   VerticalLayoutWidgetClass "{59EC7B8322F87B83}" {
    Prefab "{59EC7B8322F87B83}"

@@ -21,7 +21,7 @@ ButtonWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0 0 0 0.55
+     Color 0.0048 0.0048 0.0048 0.55
     }
     SizeLayoutWidgetClass "{6A27000100000001}" {
      Name "RowSize"

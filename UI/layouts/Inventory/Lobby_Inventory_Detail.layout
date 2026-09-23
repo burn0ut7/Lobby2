@@ -60,7 +60,7 @@ OverlayWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0 0 0 0.92
+       Color 0.01 0.018 0.02 0.97
        style full
       }
       PanelWidgetClass "{6A3200000000001B}" {
@@ -69,7 +69,7 @@ OverlayWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 1 1 1 0.12
+       Color 0.45 0.48 0.48 0.95
        style outline_2px
       }
       ButtonWidgetClass "{6A32000000000049}" {
@@ -115,7 +115,7 @@ OverlayWidgetClass {
            Slot LayoutSlot "{6A32000000000025}" {
             Padding 0 8 16 0
            }
-           Color 0.839 0.839 0.839 1
+           Color 0.7 0.72 0.72 1
            Text "PREVIEW ONLY"
            "Font Size" 15
            "Min Font Size" 12
@@ -143,7 +143,7 @@ OverlayWidgetClass {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
-               Color 0 0 0 0.84
+               Color 0.16 0.18 0.18 0.95
                style full
               }
               TextWidgetClass "{6A32000000000029}" {
@@ -220,7 +220,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0 0 0 0.92
+         Color 0.01 0.018 0.02 0.98
          style full
         }
         PanelWidgetClass "{6A32000000000058}" {
@@ -229,7 +229,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 1 0.816 0.251 1
+         Color 0.761 0.392 0.078 1
          style outline_2px
         }
         TextWidgetClass "{6A3200000000005A}" {

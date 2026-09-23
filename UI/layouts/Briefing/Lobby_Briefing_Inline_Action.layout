@@ -8,7 +8,7 @@ OverlayWidgetClass {
    Slot OverlayWidgetSlot "{6A4D000000000102}" {
     Padding 2 0 2 0
    }
-   Color 1 0.816 0.251 1
+   Color 1 0.596 0.196 1
    Text "click here"
    "Font Size" 24
    "Min Font Size" 20
@@ -21,7 +21,7 @@ OverlayWidgetClass {
     Padding 2 0 2 1
    }
    "Is Visible" 0
-   Color 1 0.816 0.251 0.9
+   Color 1 0.596 0.196 0.9
    Size 1 2
   }
   ImageWidgetClass "{6A4D000000000108}" {
@@ -32,7 +32,7 @@ OverlayWidgetClass {
     Padding 2 0 2 0
    }
    "Is Visible" 0
-   Color 1 0.816 0.251 0.9
+   Color 1 0.596 0.196 0.9
    Size 1 2
   }
   ButtonWidgetClass "{6A4D000000000103}" {
@@ -45,10 +45,7 @@ OverlayWidgetClass {
    components {
     SCR_ButtonBaseComponent "{6A4D000000000105}" {
      m_BackgroundDefault 0 0 0 0
-     m_BackgroundSelected 0 0 0 0.92
-     m_BackgroundSelectedHovered 0 0 0 0.92
-     m_BackgroundClicked 0 0 0 0.92
-     m_BackgroundHovered 0 0 0 0.84
+     m_BackgroundHovered 1 0.596 0.196 0.12
     }
    }
   }

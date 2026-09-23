@@ -7,15 +7,15 @@ ButtonWidgetClass {
  components {
   SCR_ButtonTextComponent "{6A4D00000000001B}" {
    m_bCanBeToggled 1
-   m_BackgroundDefault 0 0 0 0.72
-   m_BackgroundHovered 0 0 0 0.84
-   m_BackgroundSelected 0 0 0 0.92
-   m_BackgroundSelectedHovered 0 0 0 0.92
-   m_BackgroundClicked 0 0 0 0.92
+   m_BackgroundDefault 0.025 0.032 0.034 0.98
+   m_BackgroundHovered 0.16 0.18 0.18 1
+   m_BackgroundSelected 0.761 0.392 0.078 0.9
+   m_BackgroundSelectedHovered 0.898 0.541 0.184 1
+   m_BackgroundClicked 0.898 0.541 0.184 1
    m_bShowBorderOnFocus 0
    m_bUseTextColorization 1
-   m_TextDefault 1 1 1 1
-   m_TextToggled 1 0.816 0.251 1
+   m_TextDefault 0.94 0.94 0.92 1
+   m_TextToggled 1 1 1 1
   }
  }
  {
@@ -39,7 +39,7 @@ ButtonWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0 0 0 0.92
+       Color 0.025 0.032 0.034 0.98
        style full
       }
       TextWidgetClass "{6A4D00000000001F}" {
@@ -50,7 +50,7 @@ ButtonWidgetClass {
         Padding 12 0 12 0
        }
        "Ignore Cursor" 1
-       Color 1 1 1 1
+       Color 0.94 0.94 0.92 1
        Text "OPTION"
        "Font Size" 18
        "Vertical Alignment" Center

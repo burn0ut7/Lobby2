@@ -21,7 +21,7 @@ SizeLayoutWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0 0 0 0.72
+     Color 0.02 0.025 0.026 0.94
      style full
     }
     PanelWidgetClass "{6A32000000000036}" {
@@ -30,7 +30,7 @@ SizeLayoutWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 1 1 1 0.12
+     Color 0.45 0.48 0.48 0.9
      style outline_2px
     }
     ItemPreviewWidgetClass "{6A32000000000038}" {

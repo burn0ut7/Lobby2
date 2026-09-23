@@ -8,7 +8,7 @@ OverlayWidgetClass {
    Slot OverlayWidgetSlot "{6A4D000000000202}" {
     Padding 2 0 2 0
    }
-   Color 0.839 0.839 0.839 1
+   Color 0.82 0.84 0.84 1
    Text "decorated text"
    "Font Size" 24
    "Min Font Size" 20
@@ -21,7 +21,7 @@ OverlayWidgetClass {
     Padding 2 0 2 1
    }
    "Is Visible" 0
-   Color 0.839 0.839 0.839 0.9
+   Color 0.82 0.84 0.84 0.9
    Size 1 2
   }
   ImageWidgetClass "{6A4D000000000205}" {
@@ -32,7 +32,7 @@ OverlayWidgetClass {
     Padding 2 0 2 0
    }
    "Is Visible" 0
-   Color 0.839 0.839 0.839 0.9
+   Color 0.82 0.84 0.84 0.9
    Size 1 2
   }
  }

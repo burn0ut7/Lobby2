@@ -110,8 +110,8 @@ FrameWidgetClass "{6A233D0B6063CA4A}" {
         OffsetBottom 0
         SizeToContent 1
        }
-       Opacity 1
-       Color 0 0 0 0.92
+       Opacity 0.98
+       Color 0 0 0 1
        Image ""
        Size 40 40
       }

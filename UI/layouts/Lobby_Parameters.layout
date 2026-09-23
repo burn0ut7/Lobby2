@@ -10,7 +10,7 @@ OverlayWidgetClass {
     HorizontalAlign 3
     VerticalAlign 3
    }
-   Color 0.008 0.02 0.045 1
+   Color 0.008 0.014 0.017 0.96
    style full
   }
   HorizontalLayoutWidgetClass {
@@ -26,7 +26,7 @@ OverlayWidgetClass {
       Padding 0 0 16 0
      }
      AllowWidthOverride 1
-     WidthOverride 276
+     WidthOverride 240
      {
       OverlayWidgetClass {
        Slot AlignableSlot {
@@ -39,7 +39,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0 0 0 0.72
+         Color 0.018 0.027 0.031 1
          style full
         }
         PanelWidgetClass {
@@ -47,7 +47,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 1 1 1 0.12
+         Color 0.15 0.18 0.19 1
          style outline_2px
         }
         VerticalLayoutWidgetClass {
@@ -59,7 +59,7 @@ OverlayWidgetClass {
          {
           TextWidgetClass {
            Text "FACTIONS"
-           Color 1 1 1 1
+           Color 0.94 0.94 0.92 1
            "Font Size" 21
            "Min Font Size" 17
           }
@@ -68,7 +68,7 @@ OverlayWidgetClass {
             HorizontalAlign 3
             Padding 0 8 0 10
            }
-           Color 1 1 1 0.12
+           Color 0.15 0.18 0.19 1
            Size 2 2
           }
           ScrollLayoutWidgetClass : "{A52A9C30E35CAA58}UI/layouts/Factions/Lobby_Factions_List.layout" {
@@ -95,7 +95,7 @@ OverlayWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0 0 0 0.72
+       Color 0.018 0.027 0.031 1
        style full
       }
       PanelWidgetClass {
@@ -103,7 +103,7 @@ OverlayWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 1 1 1 0.12
+       Color 0.15 0.18 0.19 1
        style outline_2px
       }
       VerticalLayoutWidgetClass {
@@ -115,7 +115,7 @@ OverlayWidgetClass {
        {
         TextWidgetClass {
          Text "SCENARIO PARAMETERS"
-         Color 1 1 1 1
+         Color 0.94 0.94 0.92 1
          "Font Size" 26
          "Min Font Size" 20
         }
@@ -124,7 +124,7 @@ OverlayWidgetClass {
           Padding 0 4 0 0
          }
          Text "Select a faction to view its parameters."
-         Color 0.839 0.839 0.839 1
+         Color 0.58 0.62 0.64 1
          "Font Size" 14
          "Min Font Size" 12
         }
@@ -169,7 +169,7 @@ OverlayWidgetClass {
                Padding 0 0 20 0
               }
               Text ""
-              Color 1 0.816 0.251 1
+              Color 1 0.6 0.2 1
               "Font Size" 15
               "Min Font Size" 12
               Wrap 1
@@ -194,14 +194,12 @@ OverlayWidgetClass {
                 components {
                  SCR_ButtonTextComponent "{6A50000000000003}" {
                   m_sText "APPLY CHANGES"
-                  m_BackgroundDefault 0 0 0 0.72
-                  m_BackgroundSelected 0 0 0 0.92
-                  m_BackgroundSelectedHovered 0 0 0 0.92
-                  m_BackgroundHovered 0 0 0 0.84
-                  m_BackgroundClicked 0 0 0 0.92
+                  m_BackgroundDefault 0.761 0.392 0.078 0.95
+                  m_BackgroundHovered 0.898 0.541 0.184 1
+                  m_BackgroundClicked 0.898 0.541 0.184 1
                   m_bShowBorderOnFocus 0
                   m_bUseTextColorization 1
-                  m_TextDefault 1 0.816 0.251 1
+                  m_TextDefault 0.94 0.94 0.92 1
                 }
                 }
                 {
@@ -218,7 +216,7 @@ OverlayWidgetClass {
                      HorizontalAlign 3
                      VerticalAlign 3
                     }
-                    Color 0 0 0 0.84
+                    Color 0.761 0.392 0.078 0.95
                     style full
                    }
                    TextWidgetClass {
@@ -229,7 +227,7 @@ OverlayWidgetClass {
                      Padding 18 0 18 0
                     }
                     "Ignore Cursor" 1
-                    Color 1 0.816 0.251 1
+                    Color 0.94 0.94 0.92 1
                     Text "APPLY CHANGES"
                     "Font Size" 18
                     "Min Font Size" 14

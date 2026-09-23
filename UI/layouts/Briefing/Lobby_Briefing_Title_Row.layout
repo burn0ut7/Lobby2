@@ -3,14 +3,11 @@ ButtonWidgetClass {
  Slot LayoutSlot "{6A4B000000000001}" {
   HorizontalAlign 3
  }
- Color 1 1 1 0
+ Color 0 1 0.019 0
  components {
   GC_BriefingTitleRowComponent "{6A4B000000000002}" {
-   m_BackgroundDefault 0 0 0 0.72
-   m_BackgroundSelected 0 0 0 0.92
-   m_BackgroundSelectedHovered 0 0 0 0.92
-   m_BackgroundClicked 0 0 0 0.92
-   m_BackgroundHovered 0 0 0 0.84
+   m_BackgroundDefault 0.018 0.027 0.031 1
+   m_BackgroundHovered 0.05 0.102 0.125 1
    m_iOrder 1
    m_sTitle "BRIEFING TITLE"
    m_bSelected 0
@@ -46,7 +43,7 @@ ButtonWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0 0 0 0.72
+         Color 0.018 0.027 0.031 1
         }
         ImageWidgetClass "{6A4B000000000009}" {
          Name "SelectedBackground"
@@ -55,7 +52,7 @@ ButtonWidgetClass {
           VerticalAlign 3
          }
          Opacity 0
-         Color 0 0 0 1
+         Color 1 0.596 0.196 1
         }
         HorizontalLayoutWidgetClass "{6A4B000000000019}" {
          Name "RowContent"
@@ -70,7 +67,7 @@ ButtonWidgetClass {
             VerticalAlign 3
            }
            Opacity 0
-           Color 1 0.816 0.251 1
+           Color 1 0.596 0.196 1
            Size 3 56
           }
           SizeLayoutWidgetClass "{6A4B00000000001B}" {
@@ -107,7 +104,7 @@ ButtonWidgetClass {
               HorizontalAlign 3
               VerticalAlign 3
              }
-             Color 0.839 0.839 0.839 1
+             Color 0.862 0.862 0.862 1
              Text "01"
              "Font Size" 18
              "Min Font Size" 18
@@ -123,7 +120,7 @@ ButtonWidgetClass {
             Padding 10 0 8 0
             SizeMode Fill
            }
-           Color 0.839 0.839 0.839 1
+           Color 0.862 0.862 0.862 1
            Text "BRIEFING TITLE"
            "Font Size" 18
            "Min Font Size" 10
@@ -136,7 +133,7 @@ ButtonWidgetClass {
             VerticalAlign 3
            }
            Opacity 0
-           Color 1 0.816 0.251 1
+           Color 1 0.596 0.196 1
            Size 3 56
           }
          }
@@ -147,7 +144,7 @@ ButtonWidgetClass {
           HorizontalAlign 3
           VerticalAlign 2
          }
-         Color 1 1 1 0.12
+         Color 0.08 0.1 0.11 1
          Size 1 1
         }
        }

@@ -20,13 +20,13 @@ SizeLayoutWidgetClass {
    {
     TextWidgetClass {
      Name "ParameterLabel"
-     Color 1 1 1 1
+     Color 0.94 0.94 0.92 1
      Text "PARAMETER"
      "Font Size" 20
     }
     TextWidgetClass {
      Name "ParameterDescription"
-     Color 0.839 0.839 0.839 1
+     Color 0.58 0.62 0.64 1
      Text "Description"
      "Font Size" 14
     }
@@ -50,7 +50,7 @@ SizeLayoutWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0 0 0 0.72
+         Color 0.025 0.032 0.034 0.95
          style full
         }
         EditBoxWidgetClass {
@@ -93,11 +93,9 @@ SizeLayoutWidgetClass {
         SCR_EventHandlerComponent "{6A4D00000000000C}" {
         }
         SCR_ButtonBaseComponent "{6A4D000000000020}" {
-         m_BackgroundDefault 0 0 0 0
-         m_BackgroundSelected 0 0 0 0
-         m_BackgroundSelectedHovered 0 0 0 0
-         m_BackgroundHovered 0 0 0 0
-         m_BackgroundClicked 0 0 0 0
+         m_BackgroundDefault 1 1 1 0
+         m_BackgroundHovered 1 1 1 0
+         m_BackgroundClicked 1 1 1 0
          m_bShowBorderOnFocus 0
          m_bShowBorderOnHover 1
         }
@@ -117,7 +115,7 @@ SizeLayoutWidgetClass {
             VerticalAlign 3
            }
            "Ignore Cursor" 1
-           Color 0 0 0 0.72
+           Color 0.078 0.106 0.118 0.95
           }
           TextWidgetClass {
            Name "ParameterValueBoolText"
@@ -126,7 +124,7 @@ SizeLayoutWidgetClass {
             VerticalAlign 3
            }
            "Ignore Cursor" 1
-           Color 1 1 1 1
+           Color 0.94 0.94 0.92 1
            Text "DISABLED"
            "Font Size" 18
            "Horizontal Alignment" Center
@@ -188,7 +186,7 @@ SizeLayoutWidgetClass {
               HorizontalAlign 3
               VerticalAlign 3
              }
-             Color 0 0 0 0.72
+             Color 0.025 0.032 0.034 0.95
              style full
             }
             TextWidgetClass {
@@ -198,7 +196,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 1
               Padding 12 0 44 0
              }
-             Color 1 1 1 1
+             Color 0.94 0.94 0.92 1
              Text "SELECT"
              "Font Size" 18
             }
@@ -211,7 +209,7 @@ SizeLayoutWidgetClass {
             Padding 0 0 14 0
            }
            "Ignore Cursor" 1
-           Color 1 0.816 0.251 1
+           Color 0.76 0.39 0.08 1
            Text "v"
            "Font Size" 18
           }
@@ -273,7 +271,7 @@ SizeLayoutWidgetClass {
               HorizontalAlign 3
               VerticalAlign 3
              }
-             Color 0 0 0 0.92
+             Color 0.025 0.032 0.034 0.98
              style full
             }
             TextWidgetClass {
@@ -283,7 +281,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 3
              }
              "Ignore Cursor" 1
-             Color 1 1 1 1
+             Color 0.94 0.94 0.92 1
              Text "0"
              "Font Size" 18
              "Horizontal Alignment" Center
@@ -320,7 +318,7 @@ SizeLayoutWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 1 1 1 0.12
+         Color 0.45 0.48 0.48 0.95
          style outline_2px
         }
         HorizontalLayoutWidgetClass {
@@ -342,11 +340,8 @@ SizeLayoutWidgetClass {
              Color 1 1 1 0
              components {
               SCR_ButtonBaseComponent "{6A4D00000000000F}" {
-               m_BackgroundDefault 0 0 0 0.72
-               m_BackgroundSelected 0 0 0 0.92
-               m_BackgroundSelectedHovered 0 0 0 0.92
-               m_BackgroundClicked 0 0 0 0.92
-               m_BackgroundHovered 0 0 0 0.84
+               m_BackgroundDefault 0.12 0.14 0.14 0.98
+               m_BackgroundHovered 0.761 0.392 0.078 0.95
               }
              }
              {
@@ -362,7 +357,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 0 0 0 0.72
+                 Color 0.12 0.14 0.14 0.98
                  style full
                 }
                 TextWidgetClass "{6A4D000000000011}" {
@@ -397,7 +392,7 @@ SizeLayoutWidgetClass {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
-               Color 0 0 0 0.92
+               Color 0.025 0.032 0.034 0.98
                style full
               }
               TextWidgetClass {
@@ -407,7 +402,7 @@ SizeLayoutWidgetClass {
                 VerticalAlign 1
                }
                "Ignore Cursor" 1
-               Color 1 1 1 1
+               Color 0.94 0.94 0.92 1
                Text "0"
                "Font Size" 20
               }
@@ -428,11 +423,8 @@ SizeLayoutWidgetClass {
              Color 1 1 1 0
              components {
               SCR_ButtonBaseComponent "{6A4D000000000010}" {
-               m_BackgroundDefault 0 0 0 0.72
-               m_BackgroundSelected 0 0 0 0.92
-               m_BackgroundSelectedHovered 0 0 0 0.92
-               m_BackgroundClicked 0 0 0 0.92
-               m_BackgroundHovered 0 0 0 0.84
+               m_BackgroundDefault 0.12 0.14 0.14 0.98
+               m_BackgroundHovered 0.761 0.392 0.078 0.95
               }
              }
              {
@@ -448,7 +440,7 @@ SizeLayoutWidgetClass {
                   HorizontalAlign 3
                   VerticalAlign 3
                  }
-                 Color 0 0 0 0.72
+                 Color 0.12 0.14 0.14 0.98
                  style full
                 }
                 TextWidgetClass "{6A4D000000000012}" {
