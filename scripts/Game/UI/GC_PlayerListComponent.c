@@ -331,16 +331,16 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		if (darkBackground)
 		{
 			if (voiceBackground)
-				voiceBackground.SetColor(Color.FromRGBA(2, 4, 4, 245));
+				voiceBackground.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
 			if (playerBackground)
-				playerBackground.SetColor(Color.FromRGBA(2, 4, 4, 245));
+				playerBackground.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
 		}
 		else
 		{
 			if (voiceBackground)
-				voiceBackground.SetColor(Color.FromRGBA(2, 3, 4, 184));
+				voiceBackground.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL));
 			if (playerBackground)
-				playerBackground.SetColor(Color.FromRGBA(2, 3, 4, 184));
+				playerBackground.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL));
 		}
 	}
 
@@ -406,18 +406,18 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		if (background)
 		{
 			if (selected)
-				background.SetColor(Color.FromRGBA(92, 112, 120, 242));
+				background.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
 			else
-				background.SetColor(Color.FromRGBA(18, 26, 28, 242));
+				background.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL));
 		}
 
 		TextWidget label = TextWidget.Cast(m_wRoot.FindAnyWidget(labelName));
 		if (label)
 		{
 			if (selected)
-				label.SetColor(Color.FromRGBA(255, 255, 255, 255));
+				label.SetColor(Color.FromInt(GC_LobbyUIColors.ACCENT));
 			else
-				label.SetColor(Color.FromRGBA(209, 214, 214, 255));
+				label.SetColor(Color.FromInt(GC_LobbyUIColors.TEXT_MUTED));
 		}
 
 		Widget accent = m_wRoot.FindAnyWidget(accentName);

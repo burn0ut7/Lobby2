@@ -490,34 +490,25 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 	protected void UpdateVisuals()
 	{
 		bool pinned = m_SlideOut && m_SlideOut.IsPinned();
-		int backgroundRed = 2;
-		int backgroundGreen = 3;
-		int backgroundBlue = 4;
 		int backgroundAlpha = 184;
-		Color arrowColor = Color.FromRGBA(255, 255, 255, 255);
+		Color arrowColor = Color.FromInt(GC_LobbyUIColors.TEXT);
 
 		if (pinned)
 		{
-			backgroundRed = 255;
-			backgroundGreen = 196;
-			backgroundBlue = 64;
-			backgroundAlpha = 242;
-			arrowColor = Color.FromRGBA(12, 12, 10, 255);
+			backgroundAlpha = 235;
+			arrowColor = Color.FromInt(GC_LobbyUIColors.ACCENT);
 		}
 		else if (m_bHovered)
 		{
-			backgroundRed = 36;
-			backgroundGreen = 42;
-			backgroundBlue = 45;
-			backgroundAlpha = 210;
-			arrowColor = Color.FromRGBA(255, 196, 64, 255);
+			backgroundAlpha = 214;
+			arrowColor = Color.FromInt(GC_LobbyUIColors.ACCENT);
 		}
 
 		if (m_wHandleBackground)
 			m_wHandleBackground.SetColor(Color.FromRGBA(
-				backgroundRed,
-				backgroundGreen,
-				backgroundBlue,
+				0,
+				0,
+				0,
 				Math.Round(backgroundAlpha * m_fProximityOpacity)
 			));
 		if (m_wArrow)

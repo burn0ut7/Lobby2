@@ -53,7 +53,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0.76 0.39 0.08 1
+         Color 0 0 0 0.84
          "Ignore Cursor" 0
          Size 272 34
         }
@@ -64,7 +64,7 @@ OverlayWidgetClass {
           VerticalAlign 3
           Padding 8 0 8 0
          }
-         Color 0 0 0 1
+         Color 1 0.816 0.251 1
          Text "CONTEXT"
          "Font Size" 18
          "Min Font Size" 14

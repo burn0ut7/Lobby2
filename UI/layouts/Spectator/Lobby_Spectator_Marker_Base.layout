@@ -68,7 +68,7 @@ FrameWidgetClass {
    }
    Opacity 0
    "Ignore Cursor" 1
-   Color 0.761 0.386 0.078 1
+   Color 1 0.816 0.251 1
    Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
    Image "LobbySpectatorCircle"
    Size 64 64

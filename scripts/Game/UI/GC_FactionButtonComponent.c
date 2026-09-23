@@ -105,6 +105,14 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
             return;
 
         ColorizeBackground(false);
+        Widget selectionOutline = m_wRoot.FindAnyWidget("SelectionOutline");
+        if (selectionOutline)
+        {
+            if (m_bFactionSelected)
+                selectionOutline.SetOpacity(1);
+            else
+                selectionOutline.SetOpacity(0);
+        }
 		if (m_bFactionInteractable || m_bFactionSelected)
 			m_wRoot.SetOpacity(1);
 		else

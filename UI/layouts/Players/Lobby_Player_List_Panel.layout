@@ -61,7 +61,7 @@ SizeLayoutWidgetClass {
               HorizontalAlign 3
               VerticalAlign 3
              }
-             Color 0.36 0.44 0.47 0.95
+             Color 0 0 0 0.92
             }
             TextWidgetClass "{6A38000000000011}" {
              Name "VoiceChannelsButtonLabel"
@@ -86,7 +86,7 @@ SizeLayoutWidgetClass {
               HorizontalAlign 3
               VerticalAlign 2
              }
-             Color 0.25 0.72 0.78 1
+             Color 1 0.816 0.251 1
              Size 32 3
             }
            }
@@ -118,7 +118,7 @@ SizeLayoutWidgetClass {
               HorizontalAlign 3
               VerticalAlign 3
              }
-             Color 0.07 0.1 0.11 0.95
+             Color 0 0 0 0.72
             }
             TextWidgetClass "{6A3800000000001D}" {
              Name "PlayerListButtonLabel"
@@ -127,7 +127,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 3
               Padding 12 0 12 0
              }
-             Color 0.82 0.84 0.84 1
+             Color 0.839 0.839 0.839 1
              Text "PLAYER LIST"
              "Font Size" 22
              "Min Font Size" 12
@@ -145,7 +145,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 2
              }
              "Is Visible" 0
-             Color 0.25 0.72 0.78 1
+             Color 1 0.816 0.251 1
              Size 32 3
             }
            }
@@ -188,7 +188,7 @@ SizeLayoutWidgetClass {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
-               Color 0.07 0.1 0.11 0.95
+               Color 0 0 0 0.72
               }
               ImageWidgetClass "{6A3800000000002B}" {
                Name "DeafenHearingIcon"

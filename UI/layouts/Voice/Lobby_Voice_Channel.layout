@@ -37,7 +37,7 @@ VerticalLayoutWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0.012 0.018 0.02 0.88
+       Color 0 0 0 0.84
       }
       HorizontalLayoutWidgetClass "{6A34000000000009}" {
        Name "ChannelHeaderContent"
@@ -51,7 +51,7 @@ VerticalLayoutWidgetClass {
          Slot LayoutSlot "{6A3400000000000C}" {
           Padding 0 3 6 0
          }
-         Color 0.76 0.39 0.08 1
+         Color 1 0.816 0.251 1
          Size 3 36
         }
         VerticalLayoutWidgetClass "{6A3400000000000D}" {
@@ -85,7 +85,7 @@ VerticalLayoutWidgetClass {
         HorizontalAlign 3
         VerticalAlign 0
        }
-       Color 0.76 0.39 0.08 1
+       Color 1 0.816 0.251 1
        Size 32 3
       }
      }

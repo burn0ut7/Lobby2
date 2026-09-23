@@ -14,7 +14,7 @@ class GC_PlayerNamePresentation
 			return;
 
 		if (playerId > 0 && SCR_Global.IsAdmin(playerId))
-			nameWidget.SetColor(Color.FromRGBA(255, 196, 64, 255));
+			nameWidget.SetColor(Color.FromInt(GC_LobbyUIColors.ACCENT));
 		else
 			nameWidget.SetColor(Color.FromRGBA(255, 255, 255, 255));
 	}

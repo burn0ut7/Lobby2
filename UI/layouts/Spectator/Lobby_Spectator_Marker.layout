@@ -71,7 +71,7 @@ FrameWidgetClass : "{6A56000000000008}UI/layouts/Spectator/Lobby_Spectator_Marke
          "Z Order" 25
          "Is Visible" 0
          "Ignore Cursor" 1
-         Color 0.855 0.641 0 1
+         Color 1 0.816 0.251 1
          Texture "{6A56000000000007}UI/Textures/Icons/Lobby_Spectator_Atlas_x64.imageset"
          Image "LobbySpectatorWounded"
          Size 32 32
@@ -86,7 +86,7 @@ FrameWidgetClass : "{6A56000000000008}UI/layouts/Spectator/Lobby_Spectator_Marke
          "Z Order" 30
          "Is Visible" 0
          "Ignore Cursor" 1
-         Color 0.855 0.641 0 1
+         Color 1 0.816 0.251 1
          Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset"
          Image "disconnection"
          Size 32 32

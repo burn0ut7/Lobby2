@@ -58,7 +58,7 @@ FrameWidgetClass {
      "Min Font Size" 12
      "Horizontal Alignment" Center
      "Vertical Alignment" Top
-     Color 0.92 0.94 0.95 1
+     Color 1 1 1 1
      "Ignore Cursor" 1
     }
    }

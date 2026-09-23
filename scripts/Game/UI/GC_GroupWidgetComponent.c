@@ -211,6 +211,9 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 			return;
 
 		accent.SetColor(faction.GetFactionColor());
+		Widget background = m_wRoot.FindAnyWidget("SquadBackground");
+		if (background)
+			background.SetColor(GC_LobbyUIColors.FactionBackground(faction));
 	}
 
 	protected void OnFactionUpdated(Faction faction)

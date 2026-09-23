@@ -489,7 +489,7 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		Widget headerBackground = m_wMemberPopup.FindAnyWidget("LobbySpectatorGroupHeaderBackground");
 		Faction faction = m_Group.GetFaction();
 		if (headerBackground && faction)
-			headerBackground.SetColor(faction.GetFactionColor());
+			headerBackground.SetColor(GC_LobbyUIColors.FactionBackground(faction));
 
 		PlayerManager playerManager = GetGame().GetPlayerManager();
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();

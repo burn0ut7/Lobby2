@@ -941,7 +941,7 @@ class GC_SpectatorKilledFromVisualizer
 			outline.SetColor(accentColor);
 		PanelWidget labelBackground = PanelWidget.Cast(marker.FindAnyWidget("LobbySpectatorKilledFromMarkerLabel"));
 		if (labelBackground)
-			labelBackground.SetColor(accentColor);
+			labelBackground.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
 		SizeMarkerLabel(marker);
 		marker.SetVisible(false);
 	}

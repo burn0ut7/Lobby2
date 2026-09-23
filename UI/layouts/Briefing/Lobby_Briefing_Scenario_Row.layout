@@ -28,7 +28,7 @@ SizeLayoutWidgetClass {
         HorizontalAlign 1
         VerticalAlign 1
        }
-       Color 1 0.596 0.196 1
+       Color 1 0.816 0.251 1
        Size 44 44
       }
      }
@@ -40,7 +40,7 @@ SizeLayoutWidgetClass {
       Padding 8 0 4 0
       SizeMode Fill
      }
-     Color 0.82 0.84 0.84 1
+     Color 0.839 0.839 0.839 1
      Text "SCENARIO PARAMETER"
      "Font Size" 21
      "Min Font Size" 18

@@ -294,17 +294,23 @@ class GC_BriefingParameterRowComponent : SCR_ScriptedWidgetComponent
 		if (m_wBoolText)
 		{
 			if (m_bBoolValue)
+			{
 				m_wBoolText.SetText("ENABLED");
+				m_wBoolText.SetColor(Color.FromInt(GC_LobbyUIColors.ACCENT));
+			}
 			else
+			{
 				m_wBoolText.SetText("DISABLED");
+				m_wBoolText.SetColor(Color.FromInt(GC_LobbyUIColors.TEXT_MUTED));
+			}
 		}
 
 		if (m_wBoolBackground)
 		{
 			if (m_bBoolValue)
-				m_wBoolBackground.SetColor(Color.FromRGBA(194, 100, 20, 242));
+				m_wBoolBackground.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL_STRONG));
 			else
-				m_wBoolBackground.SetColor(Color.FromRGBA(20, 27, 30, 242));
+				m_wBoolBackground.SetColor(Color.FromInt(GC_LobbyUIColors.PANEL));
 		}
 	}
 

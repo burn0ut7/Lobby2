@@ -123,7 +123,7 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
 
         Color color = Color.FromRGBA(255, 255, 255, 255);
         if (m_bHeaderSelected)
-            color = Color.FromRGBA(255, 152, 50, 255);
+            color = Color.FromInt(GC_LobbyUIColors.ACCENT);
 
         ImageWidget image = ImageWidget.Cast(m_wRoot.FindAnyWidget("Image0"));
         if (image)
@@ -148,7 +148,7 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
             if (m_bHeaderSelected)
             {
                 lineHighlight2.SetOpacity(1);
-                lineHighlight2.SetColor(Color.FromRGBA(255, 152, 50, 255));
+                lineHighlight2.SetColor(Color.FromInt(GC_LobbyUIColors.ACCENT));
             }
             else if (m_bHeaderHovered)
             {
