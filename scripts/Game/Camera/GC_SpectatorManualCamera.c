@@ -64,7 +64,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected static const float SPECTATOR_NIGHT_MODE_MAX_SUN_STATE = 0.1;
 	protected static const float SPECTATOR_NIGHT_MODE_EV = 2.0;
 	protected static const float SPECTATOR_FILL_LIGHT_RADIUS = 100000.0;
-	protected static const float SPECTATOR_FILL_LIGHT_LV = 8.0;
+	protected static const float SPECTATOR_FILL_LIGHT_LV = 32.0;
 	protected bool m_bSpectatorNightModeEnabled;
 	protected bool m_bSpectatorNightModeApplied;
 	protected float m_fSpectatorNightModeAlpha = -1;

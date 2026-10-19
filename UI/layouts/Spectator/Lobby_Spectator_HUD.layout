@@ -15,8 +15,8 @@ FrameWidgetClass {
     SizeY 0
     OffsetBottom 0
    }
-   "Is Visible" 0
    "Z Order" 90
+   "Is Visible" 0
    "Ignore Cursor" 0
    {
     FrameWidgetClass "{6A60000000000005}" : "{2F8AEE78FF5A8104}UI/layouts/Map/ToolMenu.layout" {
@@ -84,8 +84,8 @@ FrameWidgetClass {
       OffsetBottom -32
       SizeToContent 1
      }
-     "Is Visible" 0
      "Z Order" 20
+     "Is Visible" 0
      "Ignore Cursor" 1
      AllowMaxDesiredWidth 1
      MaxDesiredWidth 260
@@ -102,18 +102,18 @@ FrameWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
+         "Ignore Cursor" 1
          Color 0.01 0.018 0.02 0.96
          style full
-         "Ignore Cursor" 1
         }
         PanelWidgetClass "{6A6000000000000D}" {
          Slot OverlayWidgetSlot "{6A6000000000000E}" {
           HorizontalAlign 3
           VerticalAlign 3
          }
+         "Ignore Cursor" 1
          Color 0.7 0.76 0.78 1
          style outline_2px
-         "Ignore Cursor" 1
         }
         TextWidgetClass "{6A6000000000000F}" {
          Name "LobbySpectatorMapTooltipText"
@@ -122,12 +122,12 @@ FrameWidgetClass {
           VerticalAlign 3
           Padding 10 7 10 7
          }
+         "Ignore Cursor" 1
          Color 0.94 0.94 0.92 1
          Text "PLAYER OR ROLE"
          "Font Size" 17
          "Min Font Size" 15
          Wrap 1
-         "Ignore Cursor" 1
         }
        }
       }
@@ -162,6 +162,26 @@ FrameWidgetClass {
        }
        AllowWidthOverride 0
        AllowHeightOverride 0
+      }
+     }
+    }
+    ButtonWidgetClass "{6A58000000000006}" {
+     Prefab "{6A58000000000006}"
+     {
+      OverlayWidgetClass "{6A58000000000015}" {
+       Prefab "{6A58000000000015}"
+       {
+        HorizontalLayoutWidgetClass "{6A58000000000017}" {
+         Prefab "{6A58000000000017}"
+         {
+          VerticalLayoutWidgetClass "{59EC7B8322F87B89}" {
+           Prefab "{59EC7B8322F87B89}"
+           "Is Enabled" 0
+           "Is Visible" 0
+          }
+         }
+        }
+       }
       }
      }
     }
@@ -202,15 +222,39 @@ FrameWidgetClass {
       }
      }
     }
+    ButtonWidgetClass "{6A58000000000006}" {
+     Prefab "{6A58000000000006}"
+     {
+      OverlayWidgetClass "{6A58000000000015}" {
+       Prefab "{6A58000000000015}"
+       {
+        HorizontalLayoutWidgetClass "{6A58000000000017}" {
+         Prefab "{6A58000000000017}"
+         {
+          VerticalLayoutWidgetClass "{59EC7B8322F87B89}" {
+           Prefab "{59EC7B8322F87B89}"
+           "Is Enabled" 0
+           "Is Visible" 0
+          }
+         }
+        }
+       }
+      }
+     }
+    }
    }
   }
   FrameWidgetClass "{6A5C000000000001}" {
    Name "SpectatorOptionTooltipLayer"
    Slot FrameWidgetSlot "{6A5C000000000002}" {
     Anchor 0 0 1 1
+    PositionX 0
     OffsetLeft 0
+    PositionY 0
     OffsetTop 0
+    SizeX 0
     OffsetRight 0
+    SizeY 0
     OffsetBottom 0
    }
    "Z Order" 120
