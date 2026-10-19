@@ -2,6 +2,33 @@
 class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 {
     protected int m_iPlayerId = -1;
+    protected bool m_bSpeaking;
+    protected GC_LobbyPlayerController m_VoiceController;
+
+    override void HandlerDeattached(Widget w)
+    {
+        if (m_VoiceController)
+            m_VoiceController.m_OnVoiceActivity.Remove(OnVoiceActivity);
+        m_VoiceController = null;
+        GetGame().GetCallqueue().Remove(EndVoiceActivity);
+        super.HandlerDeattached(w);
+    }
+
+    protected void OnVoiceActivity(int playerId)
+    {
+        if (playerId != m_iPlayerId)
+            return;
+        m_bSpeaking = true;
+        UpdateVoiceVisuals();
+        GetGame().GetCallqueue().Remove(EndVoiceActivity);
+        GetGame().GetCallqueue().CallLater(EndVoiceActivity, 500);
+    }
+
+    protected void EndVoiceActivity()
+    {
+        m_bSpeaking = false;
+        UpdateVoiceVisuals();
+    }
     protected GC_Slot m_Slot;
     protected SCR_AIGroup m_Group;
     protected ResourceName m_RoleInfoPrefab;
@@ -9,6 +36,16 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 
     void SetPlayer(int playerId, GC_Slot slot = null)
     {
+        if (m_iPlayerId != playerId)
+        {
+            GetGame().GetCallqueue().Remove(EndVoiceActivity);
+            m_bSpeaking = false;
+        }
+        if (m_VoiceController)
+            m_VoiceController.m_OnVoiceActivity.Remove(OnVoiceActivity);
+        m_VoiceController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+        if (m_VoiceController)
+            m_VoiceController.m_OnVoiceActivity.Insert(OnVoiceActivity);
         m_iPlayerId = playerId;
         m_Slot = slot;
         m_Group = null;
@@ -90,11 +127,10 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             background.SetColor(Color.FromRGBA(1, 1, 1, 158));
     }
 
-    //! Shows the replicated lobby presentation state. The normal microphone
-    //! remains the fallback until talking/muted VoN states are implemented.
+    //! Speech uses native local capture/receive activity; deafen remains replicated.
     protected void UpdateVoiceVisuals()
     {
-        Widget voiceIcon = m_wRoot.FindAnyWidget("VoiceIcon");
+        ImageWidget voiceIcon = ImageWidget.Cast(m_wRoot.FindAnyWidget("VoiceIcon"));
         Widget deafenedIcon = m_wRoot.FindAnyWidget("VoiceDeafenedIcon");
         if (!voiceIcon || !deafenedIcon)
             return;
@@ -104,8 +140,12 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         if (lobbyManager)
             deafened = lobbyManager.IsPlayerVoiceDeafened(m_iPlayerId);
 
-        voiceIcon.SetVisible(!deafened);
-        deafenedIcon.SetVisible(deafened);
+        voiceIcon.SetVisible(m_bSpeaking || !deafened);
+        deafenedIcon.SetVisible(deafened && !m_bSpeaking);
+        if (m_bSpeaking)
+            voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNDirect");
+        else
+            voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNIdle");
     }
 
     protected void UpdateFactionAccent()

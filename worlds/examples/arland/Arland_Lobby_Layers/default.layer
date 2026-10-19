@@ -33,7 +33,10 @@ SCR_ChimeraCharacter : "{1CA3D30464EE4674}Prefabs/Characters/Factions/BLUFOR/US_
  coords 1236.022 39 2739.588
 }
 SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
- coords 1198.357 38.853 2682.561
+ coords 1197.622 38.853 2682.345
+}
+SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
+ coords 1194.502 38.827 2679.399
 }
 SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  coords 1197.625 39 2738.455

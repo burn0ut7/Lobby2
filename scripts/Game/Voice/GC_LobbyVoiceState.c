@@ -4,6 +4,23 @@ class GC_LobbyVoiceState
 {
 	protected ref array<ref GC_VoiceChannelAssignment> m_aAssignments = {};
 	protected ref array<UUID> m_aPersonalChannelOwners = {};
+	//! Server-only transport allocation; controllers replicate resolved frequencies.
+	protected ref map<string, int> m_mFrequencies = new map<string, int>();
+	protected int m_iNextFrequency = 2;
+
+	int GetFrequency(string roomKey)
+	{
+		if (!Replication.IsServer() || roomKey.IsEmpty())
+			return GC_LobbyRadio.INACTIVE_FREQUENCY;
+		if (!m_mFrequencies.Contains(roomKey))
+		{
+			if (m_iNextFrequency >= GC_LobbyRadio.INACTIVE_FREQUENCY)
+				return GC_LobbyRadio.INACTIVE_FREQUENCY;
+			m_mFrequencies.Set(roomKey, m_iNextFrequency);
+			m_iNextFrequency++;
+		}
+		return m_mFrequencies.Get(roomKey);
+	}
 
 	bool RegisterPersonalChannel(UUID ownerIdentity)
 	{
@@ -11,6 +28,8 @@ class GC_LobbyVoiceState
 			return false;
 
 		m_aPersonalChannelOwners.Insert(ownerIdentity);
+		if (Replication.IsServer())
+			GetFrequency("personal:" + ownerIdentity);
 		return true;
 	}
 
@@ -212,6 +231,8 @@ class GC_LobbyVoiceState
 
 	void Clear()
 	{
+		m_mFrequencies.Clear();
+		m_iNextFrequency = 2;
 		m_aAssignments.Clear();
 		m_aPersonalChannelOwners.Clear();
 	}

@@ -13,7 +13,7 @@ modded class SCR_VoNComponent : VoNComponent
 		if(AudioSystem.GetVariableIDByName(VAR_NAME, CONFIG) != -1)
 		{
 			float current = AudioSystem.GetVariableValue(VAR_NAME, CONFIG);
-			//PrintFormat("GC | OnReceive Current:%1",current);
+			PrintFormat("GC | OnReceive Current:%1",current);
 
 			AudioSystem.SetVariableByName(VAR_NAME, 1, CONFIG);
 		}
@@ -43,6 +43,7 @@ modded class SCR_VoNComponent : VoNComponent
 				channelName = "PERSONAL";
 				break;
 		}
+		
 		PrintFormat(
 			"GC | Voice receive | talker=%1 channel=%2 faction=%3 group=%4 personalOwner=%5",
 			playerId,

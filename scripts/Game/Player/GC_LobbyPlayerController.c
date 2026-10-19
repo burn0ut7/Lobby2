@@ -61,9 +61,33 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected SCR_ButtonTextComponent m_PauseSlottingButton;
 	protected SCR_ButtonTextComponent m_PauseBriefingButton;
 	protected InputManager m_LobbyInputManager;
+	[RplProp(onRplName: "ApplyLobbyRadio")]
+	protected int m_iLobbyChatFrequency = GC_LobbyRadio.INACTIVE_FREQUENCY;
+	[RplProp(onRplName: "ApplyLobbyRadio")]
+	protected int m_iLobbyFactionFrequency = GC_LobbyRadio.INACTIVE_FREQUENCY;
+	[RplProp(onRplName: "ApplyLobbyRadio")]
+	protected bool m_bLobbyVoiceDeafened;
+	protected int m_iLobbyVoiceRequest;
+	protected int m_iLobbyVoiceSlot = -1;
+	protected bool m_bLobbyVoiceHeld;
+	protected SCR_VoNComponent m_LobbyObservedVoice;
+	ref ScriptInvokerInt m_OnVoiceActivity = new ScriptInvokerInt();
+	protected VoNComponent m_LobbyCapture;
+	protected bool m_bLobbyDisabledNativeVoice;
 
 	void ~GC_LobbyPlayerController()
 	{
+		StopLobbyVoice();
+		BindLobbyVoiceActivity(null);
+		if (m_LobbyInputManager)
+		{
+			m_LobbyInputManager.RemoveActionListener("VONDirect", EActionTrigger.DOWN, LobbyChatDown);
+			m_LobbyInputManager.RemoveActionListener("VONDirect", EActionTrigger.UP, LobbyChatUp);
+			m_LobbyInputManager.RemoveActionListener("VONChannel", EActionTrigger.DOWN, LobbyFactionDown);
+			m_LobbyInputManager.RemoveActionListener("VONChannel", EActionTrigger.UP, LobbyFactionUp);
+			m_LobbyInputManager.RemoveActionListener("GC_AdminVON", EActionTrigger.DOWN, LobbyAdminDown);
+			m_LobbyInputManager.RemoveActionListener("GC_AdminVON", EActionTrigger.UP, LobbyAdminUp);
+		}
 		StopLocalKilledFromTracking(false);
 		StopServerNetworkCameraStream();
 		GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
@@ -109,15 +133,235 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		PauseMenuUI.m_OnPauseMenuClosed.Insert(OnPauseMenuClosed);
 		m_LobbyInputManager = GetGame().GetInputManager();
 		if (m_LobbyInputManager)
+		{
 			m_LobbyInputManager.AddActionListener("GC_OpenLobby", EActionTrigger.DOWN, OpenSlottingFromPause);
+			m_LobbyInputManager.AddActionListener("VONDirect", EActionTrigger.DOWN, LobbyChatDown);
+			m_LobbyInputManager.AddActionListener("VONDirect", EActionTrigger.UP, LobbyChatUp);
+			m_LobbyInputManager.AddActionListener("VONChannel", EActionTrigger.DOWN, LobbyFactionDown);
+			m_LobbyInputManager.AddActionListener("VONChannel", EActionTrigger.UP, LobbyFactionUp);
+			m_LobbyInputManager.AddActionListener("GC_AdminVON", EActionTrigger.DOWN, LobbyAdminDown);
+			m_LobbyInputManager.AddActionListener("GC_AdminVON", EActionTrigger.UP, LobbyAdminUp);
+		}
+		ApplyLobbyRadio();
 		gameMode.UpdateLocalPhasePresentation(this, "controller-init");
 		StartLocalKilledFromTracking(GetControlledEntity());
+	}
+
+	//! Apply on channel replication, possession, or native radio registration.
+	void SetLobbyRadioChannels(int chatFrequency, int factionFrequency, bool deafened)
+	{
+		if (!Replication.IsServer())
+			return;
+		if (m_iLobbyChatFrequency == chatFrequency && m_iLobbyFactionFrequency == factionFrequency && m_bLobbyVoiceDeafened == deafened)
+			return;
+		m_iLobbyChatFrequency = chatFrequency;
+		m_iLobbyFactionFrequency = factionFrequency;
+		m_bLobbyVoiceDeafened = deafened;
+		Replication.BumpMe();
+		ApplyLobbyRadio();
+	}
+
+	void ApplyLobbyRadio()
+	{
+		if (!GC_LobbyGameMode.GetGameMode())
+			return;
+		IEntity body = GetControlledEntity();
+		bool spectator = body && body.FindComponent(GC_LobbySpectatorBodyComponent);
+		if (GetGame().GetPlayerController() == this)
+		{
+			SCR_VONController nativeVoice = SCR_VONController.Cast(FindComponent(SCR_VONController));
+			if (nativeVoice)
+			{
+				if (spectator && !m_bLobbyDisabledNativeVoice)
+					m_bLobbyDisabledNativeVoice = nativeVoice.SetVONDisabled(true);
+				else if (!spectator && m_bLobbyDisabledNativeVoice)
+				{
+					nativeVoice.SetVONDisabled(false);
+					m_bLobbyDisabledNativeVoice = false;
+				}
+			}
+		}
+		BaseRadioComponent radio = GC_LobbyRadio.FindRadio(body);
+		if (!radio || radio.TransceiversCount() < 3)
+			return;
+		if (GetGame().GetPlayerController() == this)
+			StopLobbyVoice();
+		radio.SetPower(true);
+		radio.GetTransceiver(GC_LobbyRadio.ADMIN).SetFrequency(0);
+		radio.GetTransceiver(GC_LobbyRadio.ADMIN).SetMuteState(false);
+		radio.GetTransceiver(GC_LobbyRadio.CHAT).SetFrequency(m_iLobbyChatFrequency);
+		radio.GetTransceiver(GC_LobbyRadio.CHAT).SetMuteState(!spectator || m_bLobbyVoiceDeafened || m_iLobbyChatFrequency == GC_LobbyRadio.INACTIVE_FREQUENCY);
+		radio.GetTransceiver(GC_LobbyRadio.FACTION).SetFrequency(m_iLobbyFactionFrequency);
+		//! Avoid a duplicate receiver when selected chat is already faction HQ.
+		radio.GetTransceiver(GC_LobbyRadio.FACTION).SetMuteState(!spectator || m_bLobbyVoiceDeafened || m_iLobbyFactionFrequency == GC_LobbyRadio.INACTIVE_FREQUENCY || m_iLobbyFactionFrequency == m_iLobbyChatFrequency);
+		PrintFormat("GC | Voice | tuned: player=%1 admin=0 chat=%2 faction=%3 spectator=%4 deafened=%5", GetPlayerId(), m_iLobbyChatFrequency, m_iLobbyFactionFrequency, spectator, m_bLobbyVoiceDeafened);
+	}
+
+	//! Native capture/receive callbacks describe locally observed speech only.
+	protected void BindLobbyVoiceActivity(IEntity body)
+	{
+		if (m_LobbyObservedVoice)
+		{
+			m_LobbyObservedVoice.m_OnCaptureVON.Remove(OnLobbyVoiceCaptured);
+			m_LobbyObservedVoice.m_OnReceivedVON.Remove(OnLobbyVoiceReceived);
+		}
+		m_LobbyObservedVoice = null;
+		if (body)
+			m_LobbyObservedVoice = SCR_VoNComponent.Cast(body.FindComponent(SCR_VoNComponent));
+		if (m_LobbyObservedVoice)
+		{
+			m_LobbyObservedVoice.m_OnCaptureVON.Insert(OnLobbyVoiceCaptured);
+			m_LobbyObservedVoice.m_OnReceivedVON.Insert(OnLobbyVoiceReceived);
+		}
+	}
+
+	protected void OnLobbyVoiceCaptured(BaseTransceiver transmitter)
+	{
+		m_OnVoiceActivity.Invoke(GetPlayerId());
+	}
+
+	protected void OnLobbyVoiceReceived(int playerId, BaseTransceiver receiver, int frequency, float quality)
+	{
+		if (receiver && receiver.IsMuted())
+			return;
+		m_OnVoiceActivity.Invoke(playerId);
+	}
+
+	protected void LobbyChatDown() { BeginLobbyVoice(GC_LobbyRadio.CHAT); }
+	protected void LobbyFactionDown() { BeginLobbyVoice(GC_LobbyRadio.FACTION); }
+	protected void LobbyAdminDown() { BeginLobbyVoice(GC_LobbyRadio.ADMIN); }
+	protected void LobbyChatUp() { ReleaseLobbyVoice(GC_LobbyRadio.CHAT); }
+	protected void LobbyFactionUp() { ReleaseLobbyVoice(GC_LobbyRadio.FACTION); }
+	protected void LobbyAdminUp() { ReleaseLobbyVoice(GC_LobbyRadio.ADMIN); }
+
+	protected void BeginLobbyVoice(int slot)
+	{
+		IEntity body = GetControlledEntity();
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this || !body)
+			return;
+		if (slot != GC_LobbyRadio.ADMIN && !body.FindComponent(GC_LobbySpectatorBodyComponent))
+			return;
+		StopLobbyVoice();
+		m_iLobbyVoiceSlot = slot;
+		m_bLobbyVoiceHeld = true;
+		PrintFormat("GC | Voice transmit | request player=%1 slot=%2 sequence=%3", GetPlayerId(), slot, m_iLobbyVoiceRequest);
+		Rpc(RpcAsk_LobbyVoice, slot, m_iLobbyVoiceRequest);
+	}
+
+	protected void ReleaseLobbyVoice(int slot)
+	{
+		if (m_iLobbyVoiceSlot == slot)
+			StopLobbyVoice();
+	}
+
+	protected void StopLobbyVoice()
+	{
+		m_iLobbyVoiceRequest++;
+		m_bLobbyVoiceHeld = false;
+		m_iLobbyVoiceSlot = -1;
+		GetGame().GetCallqueue().Remove(CheckLobbyVoiceHold);
+		if (m_LobbyCapture)
+		{
+			m_LobbyCapture.SetCapture(false);
+			m_LobbyCapture.SetTransmitRadio(null);
+			m_LobbyCapture.SetCommMethod(ECommMethod.DIRECT);
+			m_LobbyCapture = null;
+		}
+		IEntity body = GetControlledEntity();
+		if (GetGame().GetPlayerController() == this && m_bLobbyDisabledNativeVoice && (!body || !body.FindComponent(GC_LobbySpectatorBodyComponent)))
+		{
+			SCR_VONController nativeVoice = SCR_VONController.Cast(FindComponent(SCR_VONController));
+			if (nativeVoice)
+				nativeVoice.SetVONDisabled(false);
+			m_bLobbyDisabledNativeVoice = false;
+		}
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_LobbyVoice(int slot, int request)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		IEntity body = GetControlledEntity();
+		bool allowed = manager && body && GetGame().GetPlayerManager().IsPlayerConnected(GetPlayerId());
+		if (slot == GC_LobbyRadio.ADMIN)
+		{
+			allowed = allowed && SCR_Global.IsAdmin(GetPlayerId());
+			string outcome = "rejected-not-logged-in";
+			if (allowed)
+				outcome = "authorized";
+			GC_AdminActionLogger.Log(GetPlayerId(), "voice-broadcast", "all-players", outcome);
+		}
+		else
+		{
+			allowed = allowed && body.FindComponent(GC_LobbySpectatorBodyComponent) && !m_bLobbyVoiceDeafened;
+			if (slot == GC_LobbyRadio.CHAT)
+				allowed = allowed && m_iLobbyChatFrequency != GC_LobbyRadio.INACTIVE_FREQUENCY;
+			else if (slot == GC_LobbyRadio.FACTION)
+				allowed = allowed && m_iLobbyFactionFrequency != GC_LobbyRadio.INACTIVE_FREQUENCY;
+			else
+				allowed = false;
+		}
+		PrintFormat("GC | Voice transmit | authority player=%1 slot=%2 sequence=%3 allowed=%4 chat=%5 faction=%6", GetPlayerId(), slot, request, allowed, m_iLobbyChatFrequency, m_iLobbyFactionFrequency);
+		Rpc(RpcDo_LobbyVoice, slot, request, allowed);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_LobbyVoice(int slot, int request, bool allowed)
+	{
+		PrintFormat("GC | Voice transmit | grant player=%1 slot=%2 sequence=%3 allowed=%4 held=%5 currentSequence=%6 currentSlot=%7", GetPlayerId(), slot, request, allowed, m_bLobbyVoiceHeld, m_iLobbyVoiceRequest, m_iLobbyVoiceSlot);
+		if (!allowed || !m_bLobbyVoiceHeld || request != m_iLobbyVoiceRequest || slot != m_iLobbyVoiceSlot)
+			return;
+		IEntity body = GetControlledEntity();
+		BaseRadioComponent radio = GC_LobbyRadio.FindRadio(body);
+		if (!body || !radio || radio.TransceiversCount() < 3 || !radio.IsPowered())
+		{
+			PrintFormat("GC | Voice transmit | capture unavailable player=%1 body=%2 radio=%3", GetPlayerId(), body, radio, level: LogLevel.WARNING);
+			return;
+		}
+		if (slot == GC_LobbyRadio.ADMIN && !SCR_Global.IsAdmin(GetPlayerId()))
+			return;
+		VoNComponent voice = VoNComponent.Cast(body.FindComponent(VoNComponent));
+		if (!voice)
+			return;
+		SCR_VONController nativeVoice = SCR_VONController.Cast(FindComponent(SCR_VONController));
+		if (nativeVoice && !m_bLobbyDisabledNativeVoice)
+			m_bLobbyDisabledNativeVoice = nativeVoice.SetVONDisabled(true);
+		m_LobbyCapture = voice;
+		voice.SetTransmitRadio(radio.GetTransceiver(slot));
+		voice.SetCommMethod(ECommMethod.SQUAD_RADIO);
+		bool captured = voice.SetCapture(true);
+		PrintFormat("GC | Voice transmit | capture player=%1 slot=%2 frequency=%3 accepted=%4", GetPlayerId(), slot, radio.GetTransceiver(slot).GetFrequency(), captured);
+		GetGame().GetCallqueue().CallLater(CheckLobbyVoiceHold, 50, true);
+	}
+
+	protected void CheckLobbyVoiceHold()
+	{
+		string action = "GC_AdminVON";
+		if (m_iLobbyVoiceSlot == GC_LobbyRadio.CHAT)
+			action = "VONDirect";
+		else if (m_iLobbyVoiceSlot == GC_LobbyRadio.FACTION)
+			action = "VONChannel";
+		if (!GC_LobbyGameMode.GetGameMode() || !m_LobbyInputManager || m_LobbyInputManager.GetActionValue(action) <= 0 || (m_iLobbyVoiceSlot == GC_LobbyRadio.ADMIN && !SCR_Global.IsAdmin(GetPlayerId())))
+			StopLobbyVoice();
+	}
+
+	void RevokeLobbyAdminVoice()
+	{
+		Rpc(RpcDo_RevokeLobbyAdminVoice);
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_RevokeLobbyAdminVoice()
+	{
+		if (m_iLobbyVoiceSlot == GC_LobbyRadio.ADMIN)
+			StopLobbyVoice();
 	}
 
 	//! Adds Lobby2-owned access points to the active pause menu without
 	//! modifying the shared pause-menu class or layout for unrelated modes.
 	protected void OnPauseMenuOpened()
 	{
+		StopLobbyVoice();
 		RemovePauseAccessButtons();
 
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
@@ -688,14 +932,23 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	override void OnControlledEntityChanged(IEntity from, IEntity to)
 	{
+		StopLobbyVoice();
+		BaseRadioComponent oldLobbyRadio = GC_LobbyRadio.FindRadio(from);
+		if (oldLobbyRadio)
+			oldLobbyRadio.SetPower(false);
 		StopLocalKilledFromTracking(true);
 		super.OnControlledEntityChanged(from, to);
+		GC_LobbyManager radioManager = GC_LobbyManager.GetManager();
+		if (Replication.IsServer() && radioManager)
+			radioManager.RefreshPlayerRadio(GetPlayerId());
+		ApplyLobbyRadio();
 
 		// Camera and menu presentation exists only on the owning client. The same
 		// controller class also exists on dedicated servers and remote proxies.
 		if (GetGame().GetPlayerController() != this)
 			return;
 
+		BindLobbyVoiceActivity(to);
 		StartLocalKilledFromTracking(to);
 
 		AttachEditorManager();
