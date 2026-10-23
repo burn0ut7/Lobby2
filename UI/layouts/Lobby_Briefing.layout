@@ -148,5 +148,40 @@ FrameWidgetClass "{6A233D0B6063CA4A}" {
     OffsetBottom 0
    }
   }
+  VerticalLayoutWidgetClass "{6A71000000000020}" {
+   Name "FactionReadiness"
+   Slot FrameWidgetSlot {
+    Anchor 0.5 1 0.5 1
+    PositionX 0
+    PositionY -16
+    OffsetLeft 0
+    OffsetTop -16
+    Alignment 0.5 1
+    SizeToContent 1
+   }
+   "Z Order" 5
+   components {
+    GC_FactionReadinessComponent "{6A71000000000021}" {
+    }
+   }
+   {
+    HorizontalLayoutWidgetClass "{6A71000000000022}" {
+     Name "ReadinessFactions"
+     Slot LayoutSlot {
+      HorizontalAlign 1
+     }
+    }
+    TextWidgetClass "{6A71000000000023}" {
+     Name "ReadinessError"
+     Slot LayoutSlot {
+      HorizontalAlign 1
+      Padding 8 4 8 0
+     }
+     "Is Visible" 0
+     Color 1 0.78 0.4 1
+     "Font Size" 20
+    }
+   }
+  }
  }
 }

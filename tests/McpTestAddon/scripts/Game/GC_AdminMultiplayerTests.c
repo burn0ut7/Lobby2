@@ -66,6 +66,32 @@ modded class GC_LobbyPlayerController
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
 
+		if (action.StartsWith("readiness-"))
+		{
+			if (action == "readiness-open")
+				OpenBriefingFromPause();
+			else if (action == "readiness-long-name")
+				manager.GC_TestReadinessLongName();
+			else if (action == "readiness-focus")
+			{
+				MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
+				if (menu && menu.GetRootWidget())
+					GetGame().GetWorkspace().SetFocusedWidget(menu.GetRootWidget().FindAnyWidget("ReadinessAction_" + message));
+			}
+			else if (action == "readiness-join")
+				RequestLobbySlot(message.ToInt());
+			else if (action == "readiness-ready" || action == "readiness-unready")
+			{
+				GC_Slot slot = manager.GetFactionCommanderSlot(message);
+				int slotId = -1;
+				if (slot)
+					slotId = slot.GetID();
+				RequestFactionReadiness(message, slotId, manager.GetFactionReadinessRevision(), action == "readiness-ready");
+			}
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestReadinessSnapshot());
+			return;
+		}
+
 		if (action.StartsWith("reservation-"))
 		{
 			GC_TestReservationPeer(token, action, message);
@@ -320,6 +346,13 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"readiness-open",
+			"readiness-long-name",
+			"readiness-focus",
+			"readiness-join",
+			"readiness-ready",
+			"readiness-unready",
+			"readiness-snapshot",
 			"snapshot",
 			"reservation-snapshot",
 			"reservation-attempt",

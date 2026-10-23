@@ -1,0 +1,1370 @@
+[
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "ra9fe1d964a16468b93f4c53e711e047a",
+      "returned": "DISPATCHED production controller request; inspect receipt and snapshot",
+      "adapter": {
+        "method": "GC_TestReadinessRequest",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r3692a23f8af346129b4bcbd45348e828",
+      "returned": "phase=PREGAME revision=0\nfaction=USSR commandSlot=1 commander=-1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=Readiness is available during briefing.",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "ra4cda101e1d94cd78cc4ee8759d52923",
+      "returned": "dispatched: Lobby Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "ra2144d78c0ab4113b80890ad232efb6a",
+      "returned": "dispatched: SlotButton",
+      "adapter": {
+        "method": "GC_TestSelectSlot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "redaba102943b42858dbeb7aefb822a0c",
+      "returned": "dispatched: Briefing Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r716d4a8e4ee04c1797662efdcbcb74d6",
+      "returned": "DISPATCHED production controller request; inspect receipt and snapshot",
+      "adapter": {
+        "method": "GC_TestReadinessRequest",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r59f022e3180f471480141a3386a21211",
+      "returned": "phase=BRIEFING revision=0\nfaction=USSR commandSlot=1 commander=-1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=Only your faction's commanding officer can change readiness.",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r5b3cf0474cc74462a6e7d8432f480cd1",
+      "returned": "dispatched: Lobby Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r32d9f046305f4290bec30223ce872c2e",
+      "returned": "dispatched: SlotButton",
+      "adapter": {
+        "method": "GC_TestSelectSlot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rdfffb32ff5b24ed09e10b0493bcf843a",
+      "returned": "dispatched: Briefing Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "ra8946885c9854a96892248af9be68eaf",
+      "returned": "dispatched: ReadinessAction_USSR",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rec22f5e7dbd64a8bbefa44ce784f769e",
+      "returned": "phase=BRIEFING revision=1\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797757699788700.json",
+    "tool": "capture_screenshot",
+    "result": {
+      "windowId": "b32e92a7373e4f189f92087fd148cabc",
+      "target": "workbench",
+      "processId": 38700,
+      "executable": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Arma Reforger Tools\\Workbench\\ArmaReforgerWorkbenchSteamDiag.exe",
+      "windowTitle": "World Editor - Lobby2/worlds/examples/arland/Arland_Lobby.ent",
+      "capturedAt": "2026-10-23T23:22:41.3483431+00:00",
+      "frameSystemRelativeTicks": 2467466632252,
+      "sourceWidth": 3841,
+      "sourceHeight": 2168,
+      "width": 2400,
+      "height": 1355,
+      "mimeType": "image/png",
+      "backend": "Windows.Graphics.Capture",
+      "scope": "One window frame, without cursor. No activation, desktop capture, scripted bridge or injection. Separate dialogs are separate capture_windows entries. A frame is not proof of application readiness; an application may display old or blank content."
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r99ffda6d8cef46078c16f53f9dcfe8a4",
+      "returned": "DISPATCHED production controller request; inspect receipt and snapshot",
+      "adapter": {
+        "method": "GC_TestReadinessRequest",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r9b10fadf83d340b2b46db116378ee65b",
+      "returned": "phase=BRIEFING revision=1\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=Readiness changed. Review the current state and try again.",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r7636c23110334e4c991ad46ad766665a",
+      "returned": "DISPATCHED production controller request; inspect receipt and snapshot",
+      "adapter": {
+        "method": "GC_TestReadinessRequest",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r085123fe9b614611a238be95b1719d63",
+      "returned": "phase=BRIEFING revision=1\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=Only your faction's commanding officer can change readiness.",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rc6ab014ebf124837a003de151778d348",
+      "returned": "dispatched: ReadinessAction_USSR",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rd99420cbb97e45efb20dd7a23375d836",
+      "returned": "phase=BRIEFING revision=2\nfaction=USSR commandSlot=1 commander=1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rd3fbc550973c4ae89d628c2706469762",
+      "returned": "dispatched: ReadinessAction_USSR",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rd9078e676fdd478887c992de9bda40d6",
+      "returned": "phase=BRIEFING revision=3\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r6320acf6e3774df8aa8ee8ba5619e005",
+      "returned": "dispatched: Lobby Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rada7584acd574edd8d73ae1bd5739188",
+      "returned": "dispatched: SlotButton",
+      "adapter": {
+        "method": "GC_TestSelectSlot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r57149b44954045378f87c0d9f3bcc5c9",
+      "returned": "phase=BRIEFING revision=4\nfaction=USSR commandSlot=1 commander=-1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r9ce72739256740819039a83d98d6db37",
+      "returned": "dispatched: Briefing Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "capture_screenshot",
+    "result": {
+      "windowId": "1290b8392fd443f4a5a1e00eaef117cf",
+      "target": "workbench",
+      "processId": 38700,
+      "executable": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Arma Reforger Tools\\Workbench\\ArmaReforgerWorkbenchSteamDiag.exe",
+      "windowTitle": "World Editor - Lobby2/worlds/examples/arland/Arland_Lobby.ent",
+      "capturedAt": "2026-10-23T23:23:00.8736412+00:00",
+      "frameSystemRelativeTicks": 2467661888196,
+      "sourceWidth": 3841,
+      "sourceHeight": 2168,
+      "width": 2400,
+      "height": 1355,
+      "mimeType": "image/png",
+      "backend": "Windows.Graphics.Capture",
+      "scope": "One window frame, without cursor. No activation, desktop capture, scripted bridge or injection. Separate dialogs are separate capture_windows entries. A frame is not proof of application readiness; an application may display old or blank content."
+    }
+  },
+  {
+    "ledger": "live-1792797777339440400.json",
+    "tool": "log_read",
+    "result": {
+      "source": "workbench",
+      "session": "logs_2026-10-23_19-21-57",
+      "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-23_19-21-57\\console.log",
+      "revision": "82276:1B3E31A87DB1C6AC919EA059344180B074E0AA8E3F45524B3CDDEFCCC54E70CE",
+      "header": "Log C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-23_19-21-57\\console.log started at 2026-10-23 19:21:57 (2026-10-23 23:21:57 UTC)",
+      "scope": "latest",
+      "fromLine": 218,
+      "toLine": 704,
+      "totalLines": 704,
+      "cycle": {
+        "startLine": 218,
+        "time": "19:22:05.162",
+        "kind": "reload",
+        "completionLine": 272
+      },
+      "severityCounts": {
+        "error": 10,
+        "warning": 60,
+        "info": 417
+      },
+      "categoryCounts": {
+        "SCRIPT": 266,
+        "PROFILING": 40,
+        "ENGINE": 10,
+        "GUI": 39,
+        "INIT": 9,
+        "DEFAULT": 5,
+        "RESOURCES": 12,
+        "WORLD": 58,
+        "ENTITY": 20,
+        "PATHFINDING": 8,
+        "TERRAIN": 6,
+        "RENDER": 4,
+        "PLATFORM": 3,
+        "NETWORK": 7
+      },
+      "matchedLines": 56,
+      "entries": [
+        {
+          "line": 520,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.321 SCRIPT       : RST_MCP_BEGIN ra9fe1d964a16468b93f4c53e711e047a",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 521,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.321 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=1 revision=0 accepted=0 reason=Readiness is available during briefing.",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 522,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.321 SCRIPT       : RST_MCP_END ra9fe1d964a16468b93f4c53e711e047a invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 523,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.532 SCRIPT       : RST_MCP_BEGIN r3692a23f8af346129b4bcbd45348e828",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 524,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.532 SCRIPT       : RST_MCP_END r3692a23f8af346129b4bcbd45348e828 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 525,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.737 SCRIPT       : RST_MCP_BEGIN ra4cda101e1d94cd78cc4ee8759d52923",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 548,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.760 SCRIPT       : RST_MCP_END ra4cda101e1d94cd78cc4ee8759d52923 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 551,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.985 SCRIPT       : RST_MCP_BEGIN ra2144d78c0ab4113b80890ad232efb6a",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 556,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:38.987 SCRIPT       : RST_MCP_END ra2144d78c0ab4113b80890ad232efb6a invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 557,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.249 SCRIPT       : RST_MCP_BEGIN redaba102943b42858dbeb7aefb822a0c",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 576,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.256 SCRIPT       : RST_MCP_END redaba102943b42858dbeb7aefb822a0c invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 595,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.540 SCRIPT       : RST_MCP_BEGIN r716d4a8e4ee04c1797662efdcbcb74d6",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 596,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.541 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=1 revision=0 accepted=0 reason=Only your faction's commanding officer can change readiness.",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 597,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.541 SCRIPT       : RST_MCP_END r716d4a8e4ee04c1797662efdcbcb74d6 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 599,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.769 SCRIPT       : RST_MCP_BEGIN r59f022e3180f471480141a3386a21211",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 600,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.769 SCRIPT       : RST_MCP_END r59f022e3180f471480141a3386a21211 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 601,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.981 SCRIPT       : RST_MCP_BEGIN r5b3cf0474cc74462a6e7d8432f480cd1",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 603,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:39.982 SCRIPT       : RST_MCP_END r5b3cf0474cc74462a6e7d8432f480cd1 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 609,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.215 SCRIPT       : RST_MCP_BEGIN r32d9f046305f4290bec30223ce872c2e",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 612,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.225 SCRIPT       : RST_MCP_END r32d9f046305f4290bec30223ce872c2e invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 613,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.447 SCRIPT       : RST_MCP_BEGIN rdfffb32ff5b24ed09e10b0493bcf843a",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 615,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.448 SCRIPT       : RST_MCP_END rdfffb32ff5b24ed09e10b0493bcf843a invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 638,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.693 SCRIPT       : RST_MCP_BEGIN ra8946885c9854a96892248af9be68eaf",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 639,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.694 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=1 revision=1 accepted=1 reason=",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 640,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.694 SCRIPT       : RST_MCP_END ra8946885c9854a96892248af9be68eaf invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 642,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.919 SCRIPT       : RST_MCP_BEGIN rec22f5e7dbd64a8bbefa44ce784f769e",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 643,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:40.920 SCRIPT       : RST_MCP_END rec22f5e7dbd64a8bbefa44ce784f769e invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 644,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:57.993 SCRIPT       : RST_MCP_BEGIN r99ffda6d8cef46078c16f53f9dcfe8a4",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 645,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:57.993 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=0 revision=1 accepted=0 reason=Readiness changed. Review the current state and try again.",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 646,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:57.993 SCRIPT       : RST_MCP_END r99ffda6d8cef46078c16f53f9dcfe8a4 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 647,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.215 SCRIPT       : RST_MCP_BEGIN r9b10fadf83d340b2b46db116378ee65b",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 648,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.215 SCRIPT       : RST_MCP_END r9b10fadf83d340b2b46db116378ee65b invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 649,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.437 SCRIPT       : RST_MCP_BEGIN r7636c23110334e4c991ad46ad766665a",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 650,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.438 SCRIPT       : GC | Readiness | player=1 faction=US ready=1 revision=1 accepted=0 reason=Only your faction's commanding officer can change readiness.",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 651,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.438 SCRIPT       : RST_MCP_END r7636c23110334e4c991ad46ad766665a invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 652,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.660 SCRIPT       : RST_MCP_BEGIN r085123fe9b614611a238be95b1719d63",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 653,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.660 SCRIPT       : RST_MCP_END r085123fe9b614611a238be95b1719d63 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 654,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.882 SCRIPT       : RST_MCP_BEGIN rc6ab014ebf124837a003de151778d348",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 655,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.882 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=0 revision=2 accepted=1 reason=",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 656,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:58.882 SCRIPT       : RST_MCP_END rc6ab014ebf124837a003de151778d348 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 657,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.103 SCRIPT       : RST_MCP_BEGIN rd99420cbb97e45efb20dd7a23375d836",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 658,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.103 SCRIPT       : RST_MCP_END rd99420cbb97e45efb20dd7a23375d836 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 659,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.317 SCRIPT       : RST_MCP_BEGIN rd3fbc550973c4ae89d628c2706469762",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 660,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.317 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=1 revision=3 accepted=1 reason=",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 661,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.318 SCRIPT       : RST_MCP_END rd3fbc550973c4ae89d628c2706469762 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 662,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.543 SCRIPT       : RST_MCP_BEGIN rd9078e676fdd478887c992de9bda40d6",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 663,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.543 SCRIPT       : RST_MCP_END rd9078e676fdd478887c992de9bda40d6 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 664,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.765 SCRIPT       : RST_MCP_BEGIN r6320acf6e3774df8aa8ee8ba5619e005",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 666,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.765 SCRIPT       : RST_MCP_END r6320acf6e3774df8aa8ee8ba5619e005 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 672,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.991 SCRIPT       : RST_MCP_BEGIN rada7584acd574edd8d73ae1bd5739188",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 673,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:22:59.991 SCRIPT       : GC | Readiness | revoked faction=USSR revision=4",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 676,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:23:00.000 SCRIPT       : RST_MCP_END rada7584acd574edd8d73ae1bd5739188 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 677,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:23:00.228 SCRIPT       : RST_MCP_BEGIN r57149b44954045378f87c0d9f3bcc5c9",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 678,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:23:00.228 SCRIPT       : RST_MCP_END r57149b44954045378f87c0d9f3bcc5c9 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 679,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:23:00.470 SCRIPT       : RST_MCP_BEGIN r9ce72739256740819039a83d98d6db37",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 681,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:23:00.471 SCRIPT       : RST_MCP_END r9ce72739256740819039a83d98d6db37 invoked",
+          "textTruncated": false,
+          "continuation": false
+        }
+      ],
+      "truncated": false
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r79be3137405d47a593cb6fd4fe771542",
+      "returned": "dispatched: Lobby Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rc960803335554ad28638e9a11a9183b0",
+      "returned": "dispatched: SlotButton",
+      "adapter": {
+        "method": "GC_TestSelectSlot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rb0a99f4ae06b44feaa804cde177d3905",
+      "returned": "dispatched: Briefing Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rbf1321c9c2ac40e9bb2e54bc41edf0a6",
+      "returned": "dispatched: ReadinessAction_USSR",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r8ece365261f04d53a29aa6a22d2e6b37",
+      "returned": "phase=BRIEFING revision=5\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r548b35819085422286cd644d5d7daf51",
+      "returned": "SIMULATED production disconnect handler; phase=BRIEFING revision=6\nfaction=USSR commandSlot=1 commander=-1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessDisconnect",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r34087f4dde304b9db8d5d93a23c53add",
+      "returned": "phase=BRIEFING revision=6\nfaction=USSR commandSlot=1 commander=-1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792797815920123400.json",
+    "tool": "workbench_operation",
+    "result": {
+      "state": "stopped",
+      "processId": 38700,
+      "action": "stop",
+      "wasPlaying": true,
+      "isPlaying": false,
+      "expectedThread": 50384,
+      "actualThread": 50384,
+      "completed": 2,
+      "queued": 1,
+      "elapsedMs": 1714,
+      "foregroundBefore": 21366602,
+      "foregroundAfter": 21366602,
+      "foregrounds": {
+        "21366602": 16348
+      },
+      "allocationsReleased": true
+    }
+  },
+  {
+    "ledger": "live-1792798711119511400.json",
+    "tool": "workbench_operation",
+    "result": {
+      "state": "stopped",
+      "processId": 38700,
+      "action": "stop",
+      "wasPlaying": true,
+      "isPlaying": false,
+      "expectedThread": 50384,
+      "actualThread": 50384,
+      "completed": 2,
+      "queued": 1,
+      "elapsedMs": 1958,
+      "foregroundBefore": 2298146,
+      "foregroundAfter": 2298146,
+      "foregrounds": {
+        "2298146": 29724
+      },
+      "allocationsReleased": true
+    }
+  },
+  {
+    "ledger": "live-1792798711119511400.json",
+    "tool": "workbench_operation",
+    "result": {
+      "state": "reloaded",
+      "processId": 38700,
+      "runReload": true,
+      "plugin": null,
+      "pluginAction": null,
+      "uiAction": null,
+      "requestedWorld": null,
+      "loadedWorld": null,
+      "expectedThread": 50384,
+      "actualThread": 50384,
+      "completed": 2,
+      "nativeResult": 1,
+      "queued": 1,
+      "elapsedMs": 15318,
+      "foregroundBefore": 2298146,
+      "foregroundAfter": 2298146,
+      "foregrounds": {
+        "6750502": 38700,
+        "2298146": 29724,
+        "12976902": 38700,
+        "28180740": 38700
+      },
+      "allocationsReleased": true
+    }
+  },
+  {
+    "ledger": "live-1792798564183589100.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rcf260763f51d48e1ae3a66aba18e68f9",
+      "returned": "CLIENT-REPORTED phase=BRIEFING revision=1\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=2 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestPeerReport",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798564183589100.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r3a43c854e03742cbac4f59fb340a182a",
+      "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+      "adapter": {
+        "method": "GC_TestPeerCommand",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798572353400100.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "ree09ec3a93fb466085b2d66b4a1f5d79",
+      "returned": "phase=BRIEFING revision=2\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=2 ready=1\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798572353400100.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r06b7b91beee64c4e80dd67aede1c99a2",
+      "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+      "adapter": {
+        "method": "GC_TestPeerCommand",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798607421144800.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rf60c00c99c49488e8a4dbeaaecb2810a",
+      "returned": "CLIENT-REPORTED phase=BRIEFING revision=2\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=2 ready=1\nlocalPlayer=2 pending=0 error=Only your faction's commanding officer can change readiness.",
+      "adapter": {
+        "method": "GC_TestPeerReport",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798607421144800.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rd7acd047ecdb469f9885e872d8439598",
+      "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+      "adapter": {
+        "method": "GC_TestPeerCommand",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798608708792900.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r6e8bf9b2c09e4b01843f35d032fd1750",
+      "returned": "phase=BRIEFING revision=3\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=2 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798608708792900.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r2d045058342a402e939fbfc69fd05f51",
+      "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+      "adapter": {
+        "method": "GC_TestPeerCommand",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798609960505400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r168e5383501246548fd9a7b945f98499",
+      "returned": "phase=BRIEFING revision=4\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=2 ready=1\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798609960505400.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r3cbb976864ec48f0a1f5f3778128cfca",
+      "returned": "DISPATCHED production request; inspect connection and audit separately",
+      "adapter": {
+        "method": "GC_TestKickRequest",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798615884242100.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r890e4b3c306946dda21bfc1bf31d76e0",
+      "returned": "player=2 connected=0 controller=0 slot=0 voice=0",
+      "adapter": {
+        "method": "GC_TestKickSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798615884242100.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r92fff3bafd5c4b0ca64e860458c0bce3",
+      "returned": "phase=BRIEFING revision=5\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798615884242100.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "red0e501febd9413fab5bca5c8faa91e6",
+      "returned": "FIXTURE commander label only; normal refresh restores it",
+      "adapter": {
+        "method": "GC_TestReadinessLongName",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798478333816000.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r5b0acd9fc668479da62db2c234ce28ad",
+      "returned": "phase=BRIEFING revision=2\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=2 ready=1\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798478333816000.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r5fab4248f0ac4493979f2b0b5dae2763",
+      "returned": "dispatched: Game Button",
+      "adapter": {
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798478333816000.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rbc5448052cee48e9bae5b6f3e1c99382",
+      "returned": "phase=GAME revision=4\nfaction=USSR commandSlot=1 commander=1 ready=0\nfaction=US commandSlot=9 commander=2 ready=0\nlocalPlayer=1 pending=0 error=",
+      "adapter": {
+        "method": "GC_TestReadinessSnapshot",
+        "error": "",
+        "errorLine": 0
+      }
+    }
+  },
+  {
+    "ledger": "live-1792798617075415900.json",
+    "tool": "capture_screenshot",
+    "result": {
+      "windowId": "1daa1879c00a4447acbae56708c9c7a0",
+      "target": "workbench",
+      "processId": 38700,
+      "executable": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Arma Reforger Tools\\Workbench\\ArmaReforgerWorkbenchSteamDiag.exe",
+      "windowTitle": "World Editor - Lobby2/worlds/examples/arland/Arland_Lobby.ent",
+      "capturedAt": "2026-10-23T23:36:57.756782+00:00",
+      "frameSystemRelativeTicks": 2476031290030,
+      "sourceWidth": 3841,
+      "sourceHeight": 2168,
+      "width": 2400,
+      "height": 1355,
+      "mimeType": "image/png",
+      "backend": "Windows.Graphics.Capture",
+      "scope": "One window frame, without cursor. No activation, desktop capture, scripted bridge or injection. Separate dialogs are separate capture_windows entries. A frame is not proof of application readiness; an application may display old or blank content."
+    }
+  },
+  {
+    "ledger": "live-1792798617075415900.json",
+    "tool": "log_read",
+    "result": {
+      "source": "workbench",
+      "session": "logs_2026-10-23_19-21-57",
+      "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-23_19-21-57\\console.log",
+      "revision": "331446:0997057FD51343A7873AD01B0547FF82F93FDDA463CC4802595CD4BF691B0584",
+      "header": "Log C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-23_19-21-57\\console.log started at 2026-10-23 19:21:57 (2026-10-23 23:21:57 UTC)",
+      "scope": "tail",
+      "fromLine": 2826,
+      "toLine": 2855,
+      "totalLines": 2855,
+      "severityCounts": {
+        "error": 1,
+        "warning": 1,
+        "info": 28
+      },
+      "categoryCounts": {
+        "WORLD": 2,
+        "RPL": 3,
+        "SCRIPT": 22,
+        "DEFAULT": 1,
+        "NETWORK": 2
+      },
+      "matchedLines": 4,
+      "entries": [
+        {
+          "line": 2828,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:36:49.856   SCRIPT       : GC | Readiness | player=2 faction=US ready=1 revision=4 accepted=1 reason=",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 2837,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:36:51.063 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=player-kick target=player=2 identity=00bbbddd-0035-858f-0027-9c18001998a1 duration=0 page=0 reason=Readiness disconnect verification name=Burn0ut7 (0) expiresAt=0 requestId=1 outcome=dispatched-player-kick",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 2843,
+          "category": "NETWORK",
+          "severity": "info",
+          "text": "19:36:51.094 NETWORK      : Player disconnected: connectionID=0",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 2848,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "19:36:51.095 SCRIPT       : GC | Readiness | revoked faction=US revision=5",
+          "textTruncated": false,
+          "continuation": false
+        }
+      ],
+      "truncated": false
+    }
+  },
+  {
+    "ledger": "live-1792798922728344900.json",
+    "tool": "capture_screenshot",
+    "result": {
+      "windowId": "f846274f6456489182dc17ce7c422132",
+      "target": "diagnostic",
+      "processId": 34036,
+      "executable": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Arma Reforger\\ArmaReforgerSteamDiag.exe",
+      "windowTitle": "Arma Reforger",
+      "capturedAt": "2026-10-23T23:42:03.4231786+00:00",
+      "frameSystemRelativeTicks": 2479088512435,
+      "sourceWidth": 1284,
+      "sourceHeight": 767,
+      "width": 1284,
+      "height": 767,
+      "mimeType": "image/png",
+      "backend": "Windows.Graphics.Capture",
+      "scope": "One window frame, without cursor. No activation, desktop capture, scripted bridge or injection. Separate dialogs are separate capture_windows entries. A frame is not proof of application readiness; an application may display old or blank content."
+    }
+  }
+]

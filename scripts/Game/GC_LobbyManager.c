@@ -42,6 +42,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
 
+	protected ref map<string, ref GC_FactionReadiness> m_mFactionReadiness = new map<string, ref GC_FactionReadiness>();
+	protected int m_iFactionReadinessRevision;
+	ref ScriptInvoker<int> m_OnFactionReadinessChanged = new ScriptInvoker<int>();
+
 	protected ref GC_LobbyRoster m_Roster = new GC_LobbyRoster();
 	protected ref GC_LobbyVoiceState m_VoiceState = new GC_LobbyVoiceState();
 	protected ref map<int, float> m_mPriorityVoiceExpiry = new map<int, float>();
@@ -209,6 +213,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (state == SCR_EGameModeState.GAME && Replication.IsServer())
 			QueueCatchUpConnectedPlayers();
 
+		ReconcileFactionReadiness();
 		GetAdminSelectedPlayer();
 		m_OnLobbyPhaseChanged.Invoke(state);
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
@@ -1213,6 +1218,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		// The base event does not identify the group or previous faction. One null
 		// topology event asks consumers to reconcile from authoritative group state.
+		ReconcileFactionReadiness();
 		m_OnFactionTopologyChanged.Invoke(null);
 		array<int> players = {};
 		GetGame().GetPlayerManager().GetPlayers(players);
@@ -1305,6 +1311,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (GetManager() != this)
 			return;
 
+		ReconcileFactionReadiness();
 		foreach (int playerId : m_sPendingAffiliationPlayers)
 		{
 			RefreshPlayerRadio(playerId);
@@ -1347,6 +1354,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (Replication.IsServer())
             UpdateSlot(slot);
 
+		ReconcileFactionReadiness();
         m_OnSlotPresentationChanged.Invoke(slot);
         SCR_AIGroup group = slot.GetGroup();
 		QueueAffiliationPresentation(slot.GetPlayerId(), group);
@@ -1433,6 +1441,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		writer.WriteInt(m_iFactionLockOverride);
 		writer.WriteBool(m_bEnforceFactionBalance);
 		writer.WriteInt(m_iFactionRulesRevision);
+		writer.WriteInt(m_iFactionReadinessRevision);
+		writer.WriteInt(m_mFactionReadiness.Count());
+		foreach (string factionKey, GC_FactionReadiness acknowledgement : m_mFactionReadiness)
+		{
+			writer.WriteString(factionKey);
+			writer.WriteInt(acknowledgement.m_iSlotId);
+			writer.WriteInt(acknowledgement.m_iPlayerId);
+			writer.WriteString(acknowledgement.m_sIdentity);
+		}
 
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
         return true;
@@ -1512,6 +1529,20 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			|| !reader.ReadInt(m_iFactionRulesRevision) || m_iFactionLockOverride < 0 || m_iFactionLockOverride > 2)
 			return false;
 		m_OnFactionRulesChanged.Invoke(m_iFactionRulesRevision);
+		int readinessCount;
+		if (!reader.ReadInt(m_iFactionReadinessRevision) || !reader.ReadInt(readinessCount) || readinessCount < 0 || readinessCount > 256)
+			return false;
+		m_mFactionReadiness.Clear();
+		for (int readinessIndex; readinessIndex < readinessCount; readinessIndex++)
+		{
+			string factionKey, identity;
+			int slotId, playerId;
+			if (!reader.ReadString(factionKey) || !reader.ReadInt(slotId) || !reader.ReadInt(playerId) || !reader.ReadString(identity))
+				return false;
+			m_mFactionReadiness.Set(factionKey, new GC_FactionReadiness(slotId, playerId, identity));
+		}
+		m_OnFactionReadinessChanged.Invoke(m_iFactionReadinessRevision);
+
 
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
@@ -4191,6 +4222,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
+		m_mFactionReadiness.Clear();
 		if (m_AdminBanService)
 			m_AdminBanService.Shutdown();
 		GetGame().GetCallqueue().Remove(ExpirePriorityVoice);
@@ -4235,6 +4267,129 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_ParameterCatalog.Clear();
 		Print("GC | Lifecycle | Lobby2 manager shutdown complete");
     }
+
+	//------------------------------------------------------------------------------------------------
+	//! Command follows the same ordered groups/slots presented by the lobby.
+	//! A vacant first slot never promotes an occupied lower slot.
+	GC_Slot GetFactionCommanderSlot(FactionKey factionKey)
+	{
+		foreach (SCR_AIGroup group : GetGroupsForFaction(factionKey))
+		{
+			array<ref GC_Slot> slots = GetSlotsForGroup(group);
+			if (!slots.IsEmpty())
+				return slots[0];
+		}
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetFactionCommanderPlayerId(FactionKey factionKey)
+	{
+		GC_Slot slot = GetFactionCommanderSlot(factionKey);
+		if (!slot || slot.IsKIA() || slot.GetState() == GC_SlotState.DISCONNECTED || slot.GetPlayerId() <= 0)
+			return -1;
+
+		int playerId = slot.GetPlayerId();
+		PlayerManager playerManager = GetGame().GetPlayerManager();
+		if (!playerManager || !playerManager.IsPlayerConnected(playerId))
+			return -1;
+		Faction faction = GetPlayerFaction(playerId);
+		if (!faction || faction.GetFactionKey() != factionKey)
+			return -1;
+		return playerId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsFactionReady(FactionKey factionKey)
+	{
+		return m_mFactionReadiness.Contains(factionKey);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetFactionReadinessRevision()
+	{
+		return m_iFactionReadinessRevision;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Called only by the owning controller on authority; never trusts a client player ID.
+	string SetFactionReady(int requesterId, FactionKey factionKey, int expectedSlotId, int expectedRevision, bool ready)
+	{
+		string result;
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown)
+			return "Readiness is unavailable.";
+
+		ReconcileFactionReadiness();
+		GC_Slot slot = GetFactionCommanderSlot(factionKey);
+		if (GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+			result = "Readiness is available during briefing.";
+		else if (!slot || requesterId <= 0 || GetFactionCommanderPlayerId(factionKey) != requesterId)
+			result = "Only your faction's commanding officer can change readiness.";
+		else if (slot.GetID() != expectedSlotId || expectedRevision != m_iFactionReadinessRevision)
+			result = "Readiness changed. Review the current state and try again.";
+		else if (ready != IsFactionReady(factionKey))
+		{
+			if (ready)
+				PublishFactionReadiness(factionKey, slot.GetID(), requesterId, slot.GetUUID());
+			else
+				PublishFactionReadiness(factionKey, -1, -1, string.Empty);
+		}
+
+		PrintFormat("GC | Readiness | player=%1 faction=%2 ready=%3 revision=%4 accepted=%5 reason=%6",
+			requesterId, factionKey, ready, m_iFactionReadinessRevision, result.IsEmpty(), result);
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Revoke acknowledgements when their author no longer occupies command.
+	protected void ReconcileFactionReadiness()
+	{
+		if (!Replication.IsServer() || GetManager() != this)
+			return;
+
+		array<string> revoked = {};
+		foreach (string factionKey, GC_FactionReadiness acknowledgement : m_mFactionReadiness)
+		{
+			GC_Slot slot = GetFactionCommanderSlot(factionKey);
+			if (GetLobbyPhase() != SCR_EGameModeState.BRIEFING || !slot
+				|| slot.GetID() != acknowledgement.m_iSlotId || slot.GetUUID() != acknowledgement.m_sIdentity
+				|| GetFactionCommanderPlayerId(factionKey) != acknowledgement.m_iPlayerId)
+				revoked.Insert(factionKey);
+		}
+		foreach (string factionKey : revoked)
+		{
+			PublishFactionReadiness(factionKey, -1, -1, string.Empty);
+			PrintFormat("GC | Readiness | revoked faction=%1 revision=%2", factionKey, m_iFactionReadinessRevision);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PublishFactionReadiness(string factionKey, int slotId, int playerId, string identity)
+	{
+		m_iFactionReadinessRevision++;
+		ApplyFactionReadiness(factionKey, slotId, playerId, identity);
+		Rpc(RpcDo_FactionReadiness, m_iFactionReadinessRevision, factionKey, slotId, playerId, identity);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ApplyFactionReadiness(string factionKey, int slotId, int playerId, string identity)
+	{
+		if (slotId < 0)
+			m_mFactionReadiness.Remove(factionKey);
+		else
+			m_mFactionReadiness.Set(factionKey, new GC_FactionReadiness(slotId, playerId, identity));
+		m_OnFactionReadinessChanged.Invoke(m_iFactionReadinessRevision);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_FactionReadiness(int revision, string factionKey, int slotId, int playerId, string identity)
+	{
+		if (Replication.IsServer() || GetManager() != this || revision <= m_iFactionReadinessRevision)
+			return;
+		m_iFactionReadinessRevision = revision;
+		ApplyFactionReadiness(factionKey, slotId, playerId, identity);
+	}
 
 	static GC_LobbyManager GetManager()
 	{

@@ -315,7 +315,14 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		}
 
 		if (roleName)
-			roleName.SetText(WidgetManager.Translate(roleInfo.GetName()));
+		{
+			string label = WidgetManager.Translate(roleInfo.GetName());
+			GC_LobbyManager manager = GC_LobbyManager.GetManager();
+			SCR_AIGroup group = m_Slot.GetGroup();
+			if (manager && group && group.GetFaction() && manager.GetFactionCommanderSlot(group.GetFaction().GetFactionKey()) == m_Slot)
+				label = "CO - " + label;
+			roleName.SetText(label);
+		}
 
 		if (roleIcon)
 		{

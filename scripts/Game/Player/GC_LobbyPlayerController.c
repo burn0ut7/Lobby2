@@ -12,6 +12,10 @@ class GC_LobbyPlayerControllerClass : SCR_PlayerControllerClass
 //! dedicated player-controller prefab using this class.
 class GC_LobbyPlayerController : SCR_PlayerController
 {
+	protected bool m_bFactionReadinessPending;
+	protected string m_sFactionReadinessError;
+	ref ScriptInvoker<string> m_OnFactionReadinessResult = new ScriptInvoker<string>();
+
 	ref ScriptInvoker<int, string, string, string> m_OnSlotReservationResult = new ScriptInvoker<int, string, string, string>();
 
 	//! The eight-argument RPC ceiling leaves one integer for both sight indexes.
@@ -1332,6 +1336,51 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	{
 		super.OnOwnershipChanged(changing, becameOwner);
 		PrintFormat("GC | Phase UI Trace | player controller ownership: this=%1 player=%2 changing=%3 becameOwner=%4 server=%5 publishedController=%6", this, GetPlayerId(), changing, becameOwner, Replication.IsServer(), GetGame().GetPlayerController());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsFactionReadinessPending()
+	{
+		return m_bFactionReadinessPending;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GetFactionReadinessError()
+	{
+		return m_sFactionReadinessError;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestFactionReadiness(string factionKey, int slotId, int revision, bool ready)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this || m_bFactionReadinessPending)
+			return;
+		m_bFactionReadinessPending = true;
+		m_sFactionReadinessError = string.Empty;
+		m_OnFactionReadinessResult.Invoke(string.Empty);
+		Rpc(RpcAsk_FactionReadiness, factionKey, slotId, revision, ready);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_FactionReadiness(string factionKey, int slotId, int revision, bool ready)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string error = "Readiness is unavailable.";
+		if (manager)
+			error = manager.SetFactionReady(GetPlayerId(), factionKey, slotId, revision, ready);
+		Rpc(RpcDo_FactionReadinessResult, error);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_FactionReadinessResult(string error)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return;
+		m_bFactionReadinessPending = false;
+		m_sFactionReadinessError = error;
+		m_OnFactionReadinessResult.Invoke(error);
 	}
 
 	void RequestLobbySlot(int slotId)

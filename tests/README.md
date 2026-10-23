@@ -31,6 +31,24 @@ Most helpers require `WORKBENCH` and run only in embedded Play.
 `GC_AdminMultiplayerTests.c` also compiles in test-addon peers. It grants no roles
 or permissions and runs nothing automatically. Never include it in production.
 
+## Faction readiness
+
+`GC_TestReadinessSnapshot()` reports phase, revision, command slots, commanders,
+ready state and local request status. `GC_TestReadinessRequest(key, slot, revision,
+ready)` exercises the owning production controller, including stale/unauthorized
+requests. `GC_TestReadinessDisconnect()` is explicitly a simulated handler check;
+use a connected peer and the existing kick fixture for actual network departure.
+
+The existing correlated peer transport accepts `readiness-snapshot`,
+`readiness-join` (slot ID), `readiness-open`, `readiness-ready` and
+`readiness-unready` (faction key). Read a fresh snapshot after asynchronous
+requests; the immediate report is not acceptance. `readiness-focus` sets native
+focus to the named faction action; `readiness-long-name` and
+`GC_TestReadinessLongName()` change only visible label text for layout inspection.
+These fixtures do not establish physical mouse/gamepad navigation coverage.
+
+See `Art/References/faction-readiness/validation.md` for observed results.
+
 ## Connected admin test fixture
 
 Nearby heal accepts 1–1,000 metres (default 15), measured from the authenticated

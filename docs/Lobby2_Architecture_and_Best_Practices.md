@@ -36,6 +36,27 @@ The active `GC_LobbyGameMode` owns this sequence through the base
 The base game-mode state property remains the single automatically replicated
 authority used by Lobby2 and other game-mode systems.
 
+## Faction commanding officer and readiness
+
+During BRIEFING, the first sorted slot in the first displayed group of each
+faction is its command slot. Numeric IDs are identifiers, not rank. An empty,
+disconnected or KIA command slot does not promote a lower occupant. Command is
+derived from existing group order, slots and native player affiliation; there is
+no separate commander ownership record.
+
+`GC_LobbyManager` owns readiness acknowledgements, bound to the command slot,
+player and identity. The owning controller requests an explicit ready/unready
+value; authority checks the live commander, phase and displayed revision before
+applying it. Reliable broadcasts update clients, and the manager snapshot carries
+the same state for joining players. Acknowledgements are revoked on command
+changes or leaving BRIEFING. Client presentation uses native connected-player
+state without requiring another player's controller to exist locally.
+
+The bottom-center briefing tiles show faction, state and commander to everyone.
+Only the local commander sees the action. Readiness is advisory: the existing
+admin phase transition remains unchanged. Group ordering overrides, commander
+selection overrides and automatic start are outside this slice.
+
 ## Architectural principles
 
 ### 1. Opt in instead of modifying globally

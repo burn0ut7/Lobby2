@@ -1,0 +1,168 @@
+SizeLayoutWidgetClass {
+ Name "FactionReadinessTile"
+ Slot LayoutSlot {
+  Padding 4 0 4 0
+ }
+ AllowWidthOverride 1
+ WidthOverride 220
+ AllowHeightOverride 1
+ HeightOverride 196
+ components {
+  GC_FactionReadyTileComponent "{6A71000000000003}" {
+  }
+ }
+ {
+  FrameWidgetClass "{6A71000000000004}" {
+   Slot AlignableSlot {
+    HorizontalAlign 3
+    VerticalAlign 3
+   }
+   {
+    PanelWidgetClass "{6A71000000000005}" {
+     Name "ReadinessBackground"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 1
+      OffsetLeft 0
+      OffsetTop 0
+      OffsetRight 0
+      OffsetBottom 0
+     }
+     "Ignore Cursor" 1
+     Color 0.025 0.032 0.034 0.92
+     style full
+    }
+    ImageWidgetClass "{6A71000000000006}" {
+     Name "ReadinessAccent"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 0 1
+      OffsetLeft 0
+      OffsetTop 0
+      OffsetRight -4
+      OffsetBottom 0
+     }
+     "Ignore Cursor" 1
+     Color 0.2 0.4 0.7 1
+    }
+    TextWidgetClass "{6A71000000000007}" {
+     Name "ReadinessFactionName"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 0
+      OffsetLeft 10
+      OffsetTop 6
+      OffsetRight 10
+      OffsetBottom -32
+     }
+     "Ignore Cursor" 1
+     Text "Faction"
+     "Font Size" 22
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+    ImageWidgetClass "{6A71000000000008}" {
+     Name "ReadinessIcon"
+     Slot FrameWidgetSlot {
+      Anchor 0.5 0 0.5 0
+      OffsetLeft -18
+      OffsetTop 36
+      OffsetRight -18
+      OffsetBottom -72
+     }
+     "Ignore Cursor" 1
+    }
+    TextWidgetClass "{6A71000000000009}" {
+     Name "ReadinessState"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 0
+      OffsetLeft 8
+      OffsetTop 74
+      OffsetRight 8
+      OffsetBottom -98
+     }
+     "Ignore Cursor" 1
+     Text "Not ready"
+     "Font Size" 20
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+    TextWidgetClass "{6A7100000000000A}" {
+     Name "ReadinessCommander"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 0
+      OffsetLeft 8
+      OffsetTop 100
+      OffsetRight 8
+      OffsetBottom -144
+     }
+     "Ignore Cursor" 1
+     Color 0.8 0.82 0.82 1
+     Text "CO: Vacant"
+     Wrap 1
+     "Font Size" 18
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+    }
+    ButtonWidgetClass "{6A7100000000000B}" {
+     Name "ReadinessAction"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 0
+      OffsetLeft 8
+      OffsetTop 150
+      OffsetRight 8
+      OffsetBottom -188
+     }
+     Color 1 1 1 0
+     components {
+      SCR_ButtonTextComponent "{6A7100000000000C}" {
+       m_BackgroundDefault 0.12 0.13 0.13 1
+       m_BackgroundHovered 0.55 0.38 0.13 1
+       m_BackgroundClicked 0.72 0.48 0.15 1
+       m_bShowBorderOnFocus 1
+      }
+     }
+     {
+      OverlayWidgetClass "{6A7100000000000D}" {
+       Slot ButtonWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       {
+        PanelWidgetClass "{6A7100000000000E}" {
+         Name "Background"
+         Slot OverlayWidgetSlot {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         "Ignore Cursor" 1
+         Color 0.12 0.13 0.13 1
+         style full
+        }
+        TextWidgetClass "{6A7100000000000F}" {
+         Name "Text"
+         Slot OverlayWidgetSlot {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         "Ignore Cursor" 1
+         Text "Mark ready"
+         "Font Size" 20
+         "Horizontal Alignment" Center
+         "Vertical Alignment" Center
+        }
+        PanelWidgetClass "{6A71000000000010}" {
+         Name "Border"
+         Slot OverlayWidgetSlot {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         "Ignore Cursor" 1
+         Color 0.86 0.62 0.26 1
+         style pixel_outline
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
