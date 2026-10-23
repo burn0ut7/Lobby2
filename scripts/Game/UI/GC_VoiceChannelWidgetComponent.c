@@ -6,6 +6,7 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 	protected GC_VoiceChannelType m_ChannelType;
 	protected Faction m_Faction;
 	protected SCR_AIGroup m_Group;
+	protected SCR_CallsignGroupComponent m_CallsignComponent;
 	protected UUID m_PersonalOwnerIdentity;
 	protected int m_iPersonalOwnerPlayerId = -1;
 	protected Widget m_wPlayers;
@@ -69,12 +70,38 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 
 	void Configure(GC_VoiceChannelType channelType, Faction faction = null, SCR_AIGroup group = null, UUID personalOwnerIdentity = "", int personalOwnerPlayerId = -1)
 	{
+		if (m_CallsignComponent)
+			m_CallsignComponent.GetOnCallsignChanged().Remove(OnCallsignChanged);
+		m_CallsignComponent = null;
+
 		m_ChannelType = channelType;
 		m_Faction = faction;
 		m_Group = group;
 		m_PersonalOwnerIdentity = personalOwnerIdentity;
 		m_iPersonalOwnerPlayerId = personalOwnerPlayerId;
+		if (channelType == GC_VoiceChannelType.GROUP && group)
+		{
+			m_CallsignComponent = SCR_CallsignGroupComponent.Cast(group.FindComponent(SCR_CallsignGroupComponent));
+			if (m_CallsignComponent)
+				m_CallsignComponent.GetOnCallsignChanged().Insert(OnCallsignChanged);
+		}
 		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Preview cards can exist before the base game assigns or replicates callsigns.
+	protected void OnCallsignChanged(int companyIndex, int platoonIndex, int squadIndex, int characterNumber, ERoleCallsign characterRole)
+	{
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void HandlerDeattached(Widget w)
+	{
+		if (m_CallsignComponent)
+			m_CallsignComponent.GetOnCallsignChanged().Remove(OnCallsignChanged);
+		m_CallsignComponent = null;
+		super.HandlerDeattached(w);
 	}
 
 	void RefreshPresentation()
