@@ -76,6 +76,8 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 	protected void OnPlayerRoleChanged(int playerId)
 	{
 		RefreshAdminNamePresentation(playerId);
+		if (ReconcileChannels())
+			RefreshPlayers();
 	}
 
 	//! Rebuilds shared channels first, followed by discoverable personal channels.
@@ -97,8 +99,9 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 		array<string> desiredKeys = {};
 		bool changed;
+		bool admin = SCR_Global.IsAdmin(GetLocalPlayerId());
 		Faction localFaction = GetLocalPlayerFaction();
-		if (m_LobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING || !localFaction)
+		if (admin || m_LobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING || !localFaction)
 			changed = EnsureChannel(desiredKeys, GC_VoiceChannelType.GLOBAL) || changed;
 
 		array<Faction> factions = m_LobbyManager.GetRegisteredFactions();
@@ -110,7 +113,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 		// as one hierarchy: Global, faction, that faction's groups, next faction.
 		foreach (Faction faction : factions)
 		{
-			if (!faction || !localFaction || faction != localFaction)
+			if (!faction || (!admin && (!localFaction || faction != localFaction)))
 				continue;
 
 			changed = EnsureChannel(desiredKeys, GC_VoiceChannelType.FACTION, faction) || changed;
@@ -127,7 +130,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 			if (ownerPlayerId == excludedPlayerId)
 				continue;
 			UUID ownerIdentity = m_LobbyManager.GetPlayerVoiceIdentity(ownerPlayerId);
-			if (ownerPlayerId != localPlayerId && m_LobbyManager.CanAccessPersonalVoiceChannel(localPlayerId, ownerIdentity))
+			if (ownerPlayerId != localPlayerId && (admin || m_LobbyManager.CanAccessPersonalVoiceChannel(localPlayerId, ownerIdentity)))
 				changed = EnsureChannel(desiredKeys, GC_VoiceChannelType.PERSONAL, m_LobbyManager.GetPersonalVoiceChannelFaction(ownerIdentity), null, ownerIdentity, ownerPlayerId) || changed;
 		}
 

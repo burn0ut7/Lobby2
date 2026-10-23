@@ -1696,7 +1696,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			switch (assignment.GetChannelType())
 			{
 				case GC_VoiceChannelType.FACTION:
-					chatFrequency = factionFrequency;
+					chatFrequency = m_VoiceState.GetFrequency("faction:" + assignment.GetFactionKey());
 					break;
 				case GC_VoiceChannelType.GROUP:
 					chatFrequency = m_VoiceState.GetFrequency(string.Format("group:%1", assignment.GetGroupRplId()));
@@ -1727,6 +1727,69 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return true;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	bool AuthorizeAdminAction(int requesterId, string action, string target)
+	{
+		if (GetManager() != this || m_bShutdown || !Replication.IsServer() || requesterId <= 0 || !GetGame().GetPlayerManager().IsPlayerConnected(requesterId) || !SCR_Global.IsAdmin(requesterId))
+		{
+			GC_AdminActionLogger.Log(requesterId, action, target, "rejected-not-logged-in");
+			return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsAdminVoiceDestinationValid(GC_VoiceChannelType channelType, string factionKey, RplId groupRplId, UUID personalOwnerIdentity)
+	{
+		switch (channelType)
+		{
+			case GC_VoiceChannelType.GLOBAL:
+				return factionKey.IsEmpty() && groupRplId == RplId.Invalid() && personalOwnerIdentity.IsEmpty();
+			case GC_VoiceChannelType.FACTION:
+				return GetRegisteredFaction(factionKey) && groupRplId == RplId.Invalid() && personalOwnerIdentity.IsEmpty();
+			case GC_VoiceChannelType.GROUP:
+			{
+				SCR_AIGroup group = GetRegisteredGroupByRplId(groupRplId);
+				return group && group.GetFaction() && group.GetFaction().GetFactionKey() == factionKey && personalOwnerIdentity.IsEmpty();
+			}
+			case GC_VoiceChannelType.PERSONAL:
+				return factionKey.IsEmpty() && groupRplId == RplId.Invalid() && m_VoiceState.HasPersonalChannel(personalOwnerIdentity) && GetConnectedPlayerIdByIdentity(personalOwnerIdentity) > 0;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string ExecuteAdminVoiceChannel(int requesterId, int targetId, UUID expectedIdentity,
+		GC_VoiceChannelType channelType, string factionKey, RplId groupRplId, UUID personalOwnerIdentity)
+	{
+		string context = string.Format("player=%1 identity=%2 type=%3 faction=%4 group=%5 personalOwner=%6",
+			targetId, expectedIdentity, channelType, factionKey, groupRplId, personalOwnerIdentity);
+		if (!AuthorizeAdminAction(requesterId, "voice-channel", context))
+			return "rejected-not-logged-in";
+		string outcome;
+		GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(targetId);
+		SCR_EGameModeState phase = GetLobbyPhase();
+		// Admins may join a room themselves in any phase; moving other players
+		// retains the existing lobby-only rule.
+		if (requesterId != targetId && phase != SCR_EGameModeState.PREGAME
+			&& phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
+			outcome = "rejected-lobby-voice-inactive";
+		else if (!assignment || expectedIdentity.IsEmpty() || assignment.GetPlayerIdentity() != expectedIdentity || !GetGame().GetPlayerManager().IsPlayerConnected(targetId))
+			outcome = "rejected-stale-target";
+		else if (!IsAdminVoiceDestinationValid(channelType, factionKey, groupRplId, personalOwnerIdentity))
+			outcome = "rejected-voice-destination";
+		else
+		{
+			context += string.Format(" previousType=%1 previousFaction=%2 previousGroup=%3 previousOwner=%4",
+				assignment.GetChannelType(), assignment.GetFactionKey(), assignment.GetGroupRplId(), assignment.GetPersonalOwnerIdentity());
+			outcome = "failed-voice-channel";
+			if (SetPlayerVoiceChannel(targetId, channelType, factionKey, groupRplId, personalOwnerIdentity, true, true))
+				outcome = "applied";
+		}
+		GC_AdminActionLogger.Log(requesterId, "voice-channel", context, outcome);
+		return outcome;
+	}
+
 	bool TrySetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
 	{
 		if (!Replication.IsServer() || playerId <= 0)
@@ -1737,20 +1800,20 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			case GC_VoiceChannelType.GLOBAL:
 				if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING && GetPlayerFaction(playerId))
 					return false;
-				return SetPlayerVoiceChannel(playerId, channelType);
+				return SetPlayerVoiceChannel(playerId, channelType, "", RplId.Invalid(), "", true);
 			case GC_VoiceChannelType.FACTION:
 			{
 				Faction requestedFaction = GetRegisteredFaction(factionKey);
 				if (!requestedFaction || GetPlayerFaction(playerId) != requestedFaction)
 					return false;
-				return SetPlayerVoiceChannel(playerId, channelType, factionKey);
+				return SetPlayerVoiceChannel(playerId, channelType, factionKey, RplId.Invalid(), "", true);
 			}
 			case GC_VoiceChannelType.GROUP:
 				return TryJoinGroupFromVoiceHeader(playerId, groupRplId);
 			case GC_VoiceChannelType.PERSONAL:
 				if (!CanAccessPersonalVoiceChannel(playerId, personalOwnerIdentity))
 					return false;
-				return SetPlayerVoiceChannel(playerId, channelType, "", RplId.Invalid(), personalOwnerIdentity);
+				return SetPlayerVoiceChannel(playerId, channelType, "", RplId.Invalid(), personalOwnerIdentity, true);
 		}
 
 		return false;
@@ -1800,12 +1863,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 	}
 
-	protected bool SetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
+	protected bool SetPlayerVoiceChannel(int playerId, GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "", bool explicitChange = false, bool adminAssigned = false)
 	{
 		if (!Replication.IsServer() || playerId <= 0)
 			return false;
 
 		GC_VoiceChannelAssignment previousAssignment = m_VoiceState.Get(playerId);
+		if (previousAssignment && previousAssignment.IsAdminAssigned() && !explicitChange
+			&& IsAdminVoiceDestinationValid(previousAssignment.GetChannelType(), previousAssignment.GetFactionKey(), previousAssignment.GetGroupRplId(), previousAssignment.GetPersonalOwnerIdentity()))
+			return true;
+		if (previousAssignment)
+			previousAssignment.SetAdminAssigned(adminAssigned);
 		UUID playerIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		bool wasOpenPersonalOwner = previousAssignment && previousAssignment.GetChannelType() == GC_VoiceChannelType.PERSONAL && previousAssignment.GetPersonalOwnerIdentity() == playerIdentity;
 
@@ -1813,6 +1881,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!m_VoiceState.SetChannel(playerId, channelType, factionKey, groupRplId, personalOwnerIdentity, assignment))
 			return assignment != null;
 
+		assignment.SetAdminAssigned(adminAssigned);
 		PrintFormat("GC | Voice assignment changed: player=%1 type=%2 faction=%3 group=%4 personalOwner=%5", playerId, channelType, factionKey, groupRplId, personalOwnerIdentity);
 		RefreshPlayerRadio(playerId);
 		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
@@ -1914,13 +1983,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_OnVoiceTopologyChanged.Invoke(GetConnectedPlayerIdByIdentity(ownerIdentity));
 	}
 
-	protected void ClosePersonalVoiceChannel(UUID ownerIdentity)
+	protected void ClosePersonalVoiceChannel(UUID ownerIdentity, bool ownerDisconnected = false)
 	{
 		array<int> members = m_VoiceState.GetPersonalChannelMembers(ownerIdentity);
 		foreach (int memberPlayerId : members)
 		{
 			if (m_VoiceState.GetPlayerIdentity(memberPlayerId) != ownerIdentity)
-				SetPlayerVoiceChannel(memberPlayerId, GC_VoiceChannelType.GLOBAL);
+				SetPlayerVoiceChannel(memberPlayerId, GC_VoiceChannelType.GLOBAL, "", RplId.Invalid(), "", ownerDisconnected);
 		}
 	}
 
@@ -1929,7 +1998,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!Replication.IsServer())
 			return;
 
-		ClosePersonalVoiceChannel(m_VoiceState.GetPlayerIdentity(playerId));
+		ClosePersonalVoiceChannel(m_VoiceState.GetPlayerIdentity(playerId), true);
 		if (!m_VoiceState.Remove(playerId))
 			return;
 
@@ -2408,7 +2477,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		SCR_AIGroup targetGroup = GetRegisteredGroupByRplId(groupRplId);
 		// Voice selection must not change native group membership or the lobby slot.
-		return SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), groupRplId);
+		return SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), groupRplId, "", true);
 	}
 
     //! Validates and applies a player-owned slot request on the server authority.

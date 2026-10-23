@@ -1,0 +1,8 @@
+GameProject {
+ ID "Lobby2McpTests"
+ GUID "6A115D5DFF7ED8A1"
+ TITLE "Lobby2 MCP Tests"
+ Dependencies {
+  "6A115D5DFF7ED870"
+ }
+}

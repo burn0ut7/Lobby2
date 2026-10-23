@@ -23,6 +23,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[Attribute("0.2", desc: "Seconds of travel represented by each live projectile segment and final-segment retention.")]
 	protected float m_fProjectileTraceDuration;
 
+	protected int m_iAdminActionRequestId;
+	ref ScriptInvoker m_OnAdminVoiceChannelResult = new ScriptInvoker();
+
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
 	protected GC_SpectatorManualCamera m_SpectatorCamera;
 	protected ref GC_SpectatorCameraContextAction m_ShoulderCameraAction;
@@ -484,8 +487,73 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		Rpc(RpcAsk_RequestLobbySlot, slotId);
 	}
 
+	//------------------------------------------------------------------------------------------------
+	int ReserveAdminVoiceChannelRequestId()
+	{
+		m_iAdminActionRequestId++;
+		return m_iAdminActionRequestId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int RequestAdminVoiceChannel(int targetId, UUID expectedIdentity, GC_VoiceChannelType channelType,
+		string factionKey, RplId groupRplId, UUID personalOwnerIdentity, int requestId = -1)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return -1;
+		if (requestId < 0)
+			requestId = ReserveAdminVoiceChannelRequestId();
+		Rpc(RpcAsk_AdminVoiceChannel, targetId, expectedIdentity, channelType, factionKey,
+			groupRplId, personalOwnerIdentity, requestId);
+		return requestId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminVoiceChannel(int targetId, string expectedIdentity, GC_VoiceChannelType channelType,
+		string factionKey, RplId groupRplId, string personalOwnerIdentity, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string outcome = "rejected-inactive-mode";
+		if (manager)
+			outcome = manager.ExecuteAdminVoiceChannel(GetPlayerId(), targetId, expectedIdentity,
+				channelType, factionKey, groupRplId, personalOwnerIdentity);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "voice-channel", targetId.ToString(), outcome);
+		Rpc(RpcDo_AdminVoiceChannelResult, outcome, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminVoiceChannelResult(string outcome, int requestId)
+	{
+		m_OnAdminVoiceChannelResult.Invoke(requestId, outcome);
+	}
+
 	void RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
 	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!manager || GetGame().GetPlayerController() != this)
+			return;
+
+		if (SCR_Global.IsAdmin(GetPlayerId()))
+		{
+			// The normal header supplies presentation metadata for personal rooms;
+			// the admin request requires only the destination's canonical identity.
+			if (channelType == GC_VoiceChannelType.PERSONAL || channelType == GC_VoiceChannelType.GLOBAL)
+				factionKey = string.Empty;
+			else if (channelType == GC_VoiceChannelType.GROUP)
+			{
+				SCR_AIGroup group = manager.GetRegisteredGroupByRplId(groupRplId);
+				if (group && group.GetFaction())
+					factionKey = group.GetFaction().GetFactionKey();
+			}
+
+			// Use the authenticated, audited request even if login changes in transit.
+			RequestAdminVoiceChannel(GetPlayerId(), manager.GetPlayerVoiceIdentity(GetPlayerId()),
+				channelType, factionKey, groupRplId, personalOwnerIdentity);
+			return;
+		}
+
 		Rpc(RpcAsk_RequestVoiceChannel, channelType, factionKey, groupRplId, personalOwnerIdentity);
 	}
 

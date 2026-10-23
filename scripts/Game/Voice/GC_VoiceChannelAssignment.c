@@ -22,7 +22,21 @@ class GC_VoiceChannelAssignment
 	protected string m_sFactionKey;
 	protected RplId m_GroupRplId = RplId.Invalid();
 	protected UUID m_PersonalOwnerIdentity;
+	//! Authority-only provenance; clients render the replicated destination itself.
+	protected bool m_bAdminAssigned;
 	protected bool m_bDeafened;
+
+	//------------------------------------------------------------------------------------------------
+	bool IsAdminAssigned()
+	{
+		return m_bAdminAssigned;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetAdminAssigned(bool value)
+	{
+		m_bAdminAssigned = value;
+	}
 
 	int GetPlayerId()
 	{

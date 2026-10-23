@@ -26,7 +26,11 @@ class GC_JoinGroupVoiceAction : GC_ContextMenuAction
 
 		RplId groupId = Replication.FindItemId(context.GetGroup());
 		int playerId = controller.GetPlayerId();
-		if (!manager.CanPlayerJoinGroupVoiceChannel(playerId, groupId))
+		bool canJoin = manager.CanPlayerJoinGroupVoiceChannel(playerId, groupId);
+		if (SCR_Global.IsAdmin(playerId) && context.GetGroup().GetFaction())
+			canJoin = manager.IsAdminVoiceDestinationValid(GC_VoiceChannelType.GROUP,
+				context.GetGroup().GetFaction().GetFactionKey(), groupId, string.Empty);
+		if (!canJoin)
 			return false;
 
 		GC_VoiceChannelAssignment assignment = manager.GetPlayerVoiceAssignment(playerId);
