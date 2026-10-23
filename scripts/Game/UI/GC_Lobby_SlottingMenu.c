@@ -11,6 +11,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     protected Widget m_wGroups;
     protected ScrollLayoutWidget m_wGroupScroll;
     protected ref array<Widget> m_aGroupCards = {};
+	protected ref array<SCR_AIGroup> m_aCollapsedGroups = {};
     protected FactionKey m_SelectedFactionKey;
     protected ItemPreviewWidget m_wPlayerRender;
     protected Widget m_wLoadoutInventory;
@@ -159,6 +160,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
         m_FactionList = null;
 		m_LobbyManager = null;
         m_aGroupCards.Clear();
+		m_aCollapsedGroups.Clear();
         m_wGroups = null;
 		m_wGroupScroll = null;
 		m_InputManager = null;
@@ -409,6 +411,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			groupWidget.m_OnSlotHovered.Insert(OnSlotHovered);
 			groupWidget.m_OnSlotHoverEnded.Insert(OnSlotHoverEnded);
             groupWidget.SetGroup(group);
+			groupWidget.SetCollapsed(m_aCollapsedGroups.Contains(group));
             m_aGroupCards.Insert(groupCard);
         }
 
@@ -434,6 +437,12 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 				GC_GroupWidgetComponent groupWidget = GC_GroupWidgetComponent.Cast(groupCard.FindHandler(GC_GroupWidgetComponent));
 				if (groupWidget)
 				{
+					// Preserve local disclosure state through card rebuilds and faction switches.
+					SCR_AIGroup group = groupWidget.GetGroup();
+					m_aCollapsedGroups.RemoveItem(group);
+					if (group && groupWidget.IsCollapsed())
+						m_aCollapsedGroups.Insert(group);
+
 					groupWidget.m_OnSlotHovered.Remove(OnSlotHovered);
 					groupWidget.m_OnSlotHoverEnded.Remove(OnSlotHoverEnded);
 				}

@@ -1,15 +1,25 @@
-//! Right-click target for the header of one slotting group card.
+//! Header interaction for one slotting group card.
 class GC_GroupHeaderContextComponent : SCR_ScriptedWidgetComponent
 {
 	protected SCR_AIGroup m_Group;
+	protected GC_GroupWidgetComponent m_GroupWidget;
 
-	void SetGroup(SCR_AIGroup group)
+	//------------------------------------------------------------------------------------------------
+	void SetGroup(SCR_AIGroup group, GC_GroupWidgetComponent groupWidget)
 	{
 		m_Group = group;
+		m_GroupWidget = groupWidget;
 	}
 
+	//------------------------------------------------------------------------------------------------
 	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
+		if (button == 0 && m_Group && m_GroupWidget)
+		{
+			m_GroupWidget.SetCollapsed(!m_GroupWidget.IsCollapsed());
+			return true;
+		}
+
 		if (button != 1 || !m_Group)
 			return false;
 
@@ -25,6 +35,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 	ref ScriptInvoker<GC_Slot> m_OnSlotHoverEnded = new ScriptInvoker<GC_Slot>();
 
 	protected Widget m_wSlots;
+	protected Widget m_wHeaderDivider;
 	protected TextWidget m_wSquadName;
 	protected TextWidget m_wPlayerCount;
 	protected GC_GroupHeaderContextComponent m_GroupHeaderContext;
@@ -32,6 +43,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 	protected SCR_AIGroup m_Group;
 	protected ref array<Widget> m_aSlotWidgets = {};
 
+	//------------------------------------------------------------------------------------------------
 	override void HandlerAttached(Widget w)
 	{
 		super.HandlerAttached(w);
@@ -40,6 +52,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 			return;
 
 		m_wSlots = m_wRoot.FindAnyWidget("Slots");
+		m_wHeaderDivider = m_wRoot.FindAnyWidget("HeaderDivider");
 		m_wSquadName = TextWidget.Cast(m_wRoot.FindAnyWidget("SquadName"));
 		m_wPlayerCount = TextWidget.Cast(m_wRoot.FindAnyWidget("PlayerCount"));
 		Widget groupHeader = m_wRoot.FindAnyWidget("SquadHeader");
@@ -55,6 +68,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		ClearSlotWidgets();
 	}
 
+	//------------------------------------------------------------------------------------------------
 	override void HandlerDeattached(Widget w)
 	{
 		if (m_LobbyManager)
@@ -70,10 +84,12 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_wPlayerCount = null;
 		m_wSquadName = null;
 		m_GroupHeaderContext = null;
+		m_wHeaderDivider = null;
 		m_wSlots = null;
 		super.HandlerDeattached(w);
 	}
 
+	//------------------------------------------------------------------------------------------------
 	//! Binds this presentation to one authoritative base-game group.
 	void SetGroup(SCR_AIGroup group)
 	{
@@ -85,8 +101,50 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 
 		m_Group = group;
 		if (m_GroupHeaderContext)
-			m_GroupHeaderContext.SetGroup(group);
+			m_GroupHeaderContext.SetGroup(group, this);
+		SetCollapsed(false);
 		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsCollapsed()
+	{
+		return m_wSlots && !m_wSlots.IsVisible();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetCollapsed(bool collapsed)
+	{
+		if (!m_wSlots)
+			return;
+
+		if (collapsed && !IsCollapsed())
+		{
+			// Hidden rows must not retain keyboard focus or a loadout hover preview.
+			WorkspaceWidget workspace = GetGame().GetWorkspace();
+			Widget focusedWidget = workspace.GetFocusedWidget();
+			while (focusedWidget)
+			{
+				if (focusedWidget == m_wSlots)
+				{
+					workspace.SetFocusedWidget(null);
+					break;
+				}
+
+				focusedWidget = focusedWidget.GetParent();
+			}
+
+			foreach (Widget slotWidget : m_aSlotWidgets)
+			{
+				GC_SlotButtonComponent slotButton = GC_SlotButtonComponent.Cast(slotWidget.FindHandler(GC_SlotButtonComponent));
+				if (slotButton)
+					m_OnSlotHoverEnded.Invoke(slotButton.GetSlot());
+			}
+		}
+
+		m_wSlots.SetVisible(!collapsed);
+		if (m_wHeaderDivider)
+			m_wHeaderDivider.SetVisible(!collapsed);
 	}
 
 	SCR_AIGroup GetGroup()
