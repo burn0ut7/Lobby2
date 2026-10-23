@@ -15,7 +15,7 @@ This add-on is for an Arma Reforger game mode:
 
 Treat the lobby, briefing, match, and after-action report as distinct phases. Keep the phase transitions explicit and easy to test.
 
-Invoke the $Reforger skill for anything related to arma reforger.
+Use the `$reforger` skill for every Lobby2 or Arma Reforger question or task. Use the Reforger MCP server for game and Workbench interactions, and pass the applicable instructions and skill to subagents handling related work.
 
 ## Game-mode isolation
 
