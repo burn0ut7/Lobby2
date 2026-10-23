@@ -4,6 +4,9 @@ ScriptedChatEntity AdminTestChat : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et
 RadioManagerEntity AdminTestRadioManager : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
  coords 130 1 130
 }
+SCR_AIGroup GC_GMPlayableFixture : "{43C7A28EEB660FF8}Prefabs/Groups/OPFOR/Group_USSR_Team_GL.et" {
+ coords 140 1 140
+}
 SCR_LoadoutManager AdminTestLoadoutManager : "{97EF4C1A41F63DDB}Prefabs/MP/Managers/Loadouts/LoadoutManager_USxUSSR.et" {
  coords 132 1 130
 }

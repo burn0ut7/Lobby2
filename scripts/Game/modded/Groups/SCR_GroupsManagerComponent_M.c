@@ -10,6 +10,7 @@ modded class SCR_GroupsManagerComponent
 			return;
 
 		AssignGroupID(group);
+		group.GC_PublishLobbyGroupID();
 		if (group.GetRadioFrequency() <= 0)
 			AssignGroupFrequency(group);
 		else
@@ -29,10 +30,52 @@ modded class SCR_GroupsManagerComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Release only a registration recorded as Lobby2-owned by its manager.
+	//! Native UnregisterGroup can delete a slave and leaves agent listeners attached;
+	//! returning a live GM group to AI must do neither of those things.
+	void GC_ReleaseLobbyGroup(SCR_AIGroup group)
+	{
+		if (!group)
+			return;
+
+		for (int index = m_mPlayableGroups.Count() - 1; index >= 0; index--)
+		{
+			array<SCR_AIGroup> groups = m_mPlayableGroups.GetElement(index);
+			if (!groups || !groups.Contains(group))
+				continue;
+			groups.RemoveItem(group);
+			bool frequencyInUse;
+			foreach (SCR_AIGroup other : groups)
+			{
+				if (other && other.GetRadioFrequency() == group.GetRadioFrequency())
+					frequencyInUse = true;
+			}
+			if (!frequencyInUse)
+				ReleaseFrequency(group.GetRadioFrequency(), m_mPlayableGroups.GetKey(index));
+		}
+		group.GetOnAgentAdded().Remove(OnGroupAgentAdded);
+		group.GetOnAgentRemoved().Remove(OnGroupAgentRemoved);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! A GM group can change faction; repair the native index without shadow ownership.
+	void GC_ReconcileLobbyGroupFaction(SCR_AIGroup group)
+	{
+		if (!group || !group.GetFaction())
+			return;
+		array<SCR_AIGroup> groups = GetPlayableGroupsByFaction(group.GetFaction());
+		if (groups && groups.Contains(group))
+			return;
+		GC_ReleaseLobbyGroup(group);
+		RegisterGroup(group);
+		ClaimFrequency(group.GetRadioFrequency(), group.GetFaction());
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override void OnGroupPlayerRemoved(SCR_AIGroup group, int playerID)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (IsProxy() || !manager || !group || !group.IsPlayable() || group.GetPlayerCount() > 0 || !group.GetDeleteIfNoPlayer())
+		if (IsProxy() || !manager || !group || !manager.GetRegisteredGroups().Contains(group) || group.GetPlayerCount() > 0 || !group.GetDeleteIfNoPlayer())
 		{
 			super.OnGroupPlayerRemoved(group, playerID);
 			return;

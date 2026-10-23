@@ -1,0 +1,15 @@
+MetaFileClass {
+ Name "{6A24B4A21C000003}Configs/Editor/AttributeCategories/GC_Lobby.conf"
+ Configurations {
+  CONFResourceClass PC {
+  }
+  CONFResourceClass XBOX_ONE : PC {
+  }
+  CONFResourceClass XBOX_SERIES : PC {
+  }
+  CONFResourceClass PS4 : PC {
+  }
+  CONFResourceClass HEADLESS : PC {
+  }
+ }
+}

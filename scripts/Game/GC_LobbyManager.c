@@ -90,6 +90,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref map<int, int> m_mPendingRoleAttempts = new map<int, int>();
 	protected ref set<int> m_sPendingAffiliationPlayers = new set<int>();
 	protected ref set<Faction> m_sPendingFactionPresentation = new set<Faction>();
+	//! Cleanup ownership only; membership remains in the native groups manager.
+	protected ref set<SCR_AIGroup> m_NativeGroupRegistrations = new set<SCR_AIGroup>();
 	protected bool m_bBriefingSpawnQueued;
 	protected bool m_bCatchUpQueued;
 
@@ -1058,7 +1060,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		UpdateSlot(slot);
 	}
 
-    void RegisterGroup(SCR_AIGroup group)
+    void RegisterGroup(SCR_AIGroup group, bool createAuthoredSlots = true)
     {
         PrintFormat("GC | RegisterGroup: %1", group);
         if (!group)
@@ -1077,7 +1079,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			// can be published to native chat and other group consumers.
 			SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
 			if (groupsManager)
+			{
+				if (groupsManager.FindGroup(group.GetGroupID()) != group)
+					m_NativeGroupRegistrations.Insert(group);
 				groupsManager.GC_RegisterLobbyGroup(group);
+			}
 			CacheGroupSpawnTransform(group);
 		}
 
@@ -1097,7 +1103,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             if (voiceGroupId != RplId.Invalid())
                 m_VoiceState.GetFrequency(string.Format("group:%1", voiceGroupId));
             EnsureFormationCatalog();
-            RegisterGroupMembers(group);
+            if (createAuthoredSlots)
+                RegisterGroupMembers(group);
         }
 
         // RegisterFaction already notifies when this is a new faction. Notify
@@ -1119,6 +1126,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
         Faction faction = group.GetFaction();
         UnsubscribeFromGroupEvents(group);
+		if (m_NativeGroupRegistrations.Contains(group))
+		{
+			SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+			if (groupsManager)
+				groupsManager.GC_ReleaseLobbyGroup(group);
+			m_NativeGroupRegistrations.RemoveItem(group);
+		}
 		RemoveGroupSpawnTransform(group);
         m_Roster.RemoveGroup(group);
 
@@ -1137,6 +1151,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
         if (faction)
             m_OnFactionTopologyChanged.Invoke(faction);
+		QueueAffiliationPresentation(-1, group);
 
         return true;
     }
@@ -1181,6 +1196,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     {
 		if (GetManager() != this)
 			return;
+
+		SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+		if (groupsManager)
+		{
+			foreach (SCR_AIGroup ownedGroup : m_NativeGroupRegistrations)
+				groupsManager.GC_ReconcileLobbyGroupFaction(ownedGroup);
+		}
 
         if (faction)
         {
@@ -1264,6 +1286,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         Faction faction = group.GetFaction();
         if (faction)
             m_OnFactionTopologyChanged.Invoke(faction);
+		QueueAffiliationPresentation(-1, group);
     }
 
 	protected void QueueAffiliationPresentation(int playerId, SCR_AIGroup group)
@@ -1519,6 +1542,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		Faction faction = group.GetFaction();
 		if (!faction)
 			return false;
+
+		SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+		if (groupsManager && groupsManager.FindGroup(group.GetGroupID()) != group)
+		{
+			groupsManager.RegisterGroup(group);
+			m_NativeGroupRegistrations.Insert(group);
+		}
 
 		RegisterFaction(faction.GetFactionKey());
 		return true;
@@ -2465,6 +2495,136 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Resolve Game Master's selected group or character through native membership.
+	bool GetEditorPlayableCharacters(IEntity entity, out array<IEntity> characters)
+	{
+		characters = {};
+		if (GetManager() != this || !entity || GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
+			return false;
+
+		SCR_AIGroup group = SCR_AIGroup.Cast(entity);
+		if (group)
+		{
+			array<AIAgent> agents = {};
+			group.GetAgents(agents);
+			foreach (AIAgent agent : agents)
+			{
+				if (agent && agent.GetControlledEntity())
+					characters.Insert(agent.GetControlledEntity());
+			}
+			foreach (GC_Slot slot : m_Roster.GetSlotsForGroup(group))
+			{
+				IEntity member = slot.GetEntity();
+				if (member && !characters.Contains(member))
+					characters.Insert(member);
+			}
+		}
+		else if (ChimeraCharacter.Cast(entity))
+		{
+			characters.Insert(entity);
+		}
+
+		return !characters.IsEmpty();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Game Master's server attribute supplies the editor owner's authenticated ID.
+	//! Preflight the whole selection before changing any slot or AI state.
+	string ExecuteEditorPlayable(int requesterId, IEntity entity, bool playable)
+	{
+		string target = string.Format("entity=%1 playable=%2", entity, playable);
+		if (!AuthorizeAdminAction(requesterId, "editor-playable", target))
+		{
+			GC_LobbyPlayerController rejectedController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requesterId));
+			if (rejectedController)
+				rejectedController.SendEditorPlayableResult("rejected-not-logged-in");
+			return "rejected-not-logged-in";
+		}
+
+		string outcome = ApplyEditorPlayable(entity, playable);
+		GC_AdminActionLogger.Log(requesterId, "editor-playable", target, outcome);
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requesterId));
+		if (controller)
+			controller.SendEditorPlayableResult(outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string ApplyEditorPlayable(IEntity entity, bool playable)
+	{
+		array<IEntity> characters;
+		if (!GetEditorPlayableCharacters(entity, characters))
+			return "rejected-incompatible-character";
+
+		SCR_AIGroup selectedGroup = SCR_AIGroup.Cast(entity);
+		if (!playable && selectedGroup)
+		{
+			foreach (GC_Slot groupSlot : m_Roster.GetSlotsForGroup(selectedGroup))
+			{
+				if (groupSlot.HasClaim() || !groupSlot.GetEntity())
+					return "rejected-playable-occupied";
+			}
+		}
+
+		int addedSlots;
+		foreach (IEntity character : characters)
+		{
+			GC_Slot existing = m_Roster.GetSlotByEntity(character);
+			if (playable)
+			{
+				if (existing)
+					continue;
+				if (!GetPlayableCharacterGroup(character))
+					return "rejected-incompatible-character";
+				addedSlots++;
+			}
+			else if (existing)
+			{
+				// Removing a property must never evict a player or release a reservation.
+				ChimeraCharacter soldier = ChimeraCharacter.Cast(character);
+				if (existing.HasClaim() || !soldier || !soldier.GetCharacterController()
+					|| soldier.GetCharacterController().IsPlayerControlled()
+					|| !character.FindComponent(AIControlComponent))
+					return "rejected-playable-occupied";
+			}
+		}
+
+		if (m_Roster.GetSlots().Count() + addedSlots > 512)
+			return "rejected-slot-limit";
+
+		int changed;
+		foreach (IEntity character : characters)
+		{
+			GC_Slot existing = m_Roster.GetSlotByEntity(character);
+			if (playable && !existing)
+			{
+				RplComponent replication = RplComponent.Cast(character.FindComponent(RplComponent));
+				SCR_AIGroup group = GetPlayableCharacterGroup(character);
+				int createdSlotId;
+				string result = MakeAdminCharacterPlayable(replication.Id(), Replication.FindItemId(group), createdSlotId);
+				if (result != "applied")
+					return string.Format("%1 changed=%2", result, changed);
+				changed++;
+			}
+			else if (!playable && existing)
+			{
+				AIControlComponent aiControl = AIControlComponent.Cast(character.FindComponent(AIControlComponent));
+				aiControl.ActivateAI();
+				if (!aiControl.IsAIActivated())
+					return string.Format("failed-ai-activation changed=%1", changed);
+				string result = ApplyAdminSlotAction(existing, GC_EAdminSlotAction.REMOVE);
+				if (result != "applied")
+				{
+					aiControl.DeactivateAI();
+					return string.Format("%1 changed=%2", result, changed);
+				}
+				changed++;
+			}
+		}
+		return "applied";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Shared presentation preflight. The server repeats it at execution time.
 	SCR_AIGroup GetPlayableCharacterGroup(IEntity entity)
 	{
@@ -2482,7 +2642,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!aiControl || !aiControl.GetAIAgent())
 			return null;
 		SCR_AIGroup group = SCR_AIGroup.Cast(aiControl.GetAIAgent().GetParentGroup());
-		if (!group || !m_Roster.ContainsGroup(group) || !group.GetFaction())
+		if (!group || !group.GetFaction() || !Replication.FindItemId(group).IsValid())
 			return null;
 		FactionAffiliationComponent affiliation = FactionAffiliationComponent.Cast(entity.FindComponent(FactionAffiliationComponent));
 		if (!affiliation || affiliation.GetAffiliatedFaction() != group.GetFaction())
@@ -2524,6 +2684,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		aiControl.DeactivateAI();
 		if (aiControl.IsAIActivated())
 			return "failed-ai-deactivation";
+		// Game Master groups already have their soldiers. Register only their
+		// native group here; the authored-prefab path would duplicate their slots.
+		RegisterGroup(group, false);
 		int nextIndex;
 		foreach (GC_Slot existing : m_Roster.GetSlotsForGroup(group))
 		{
@@ -2706,10 +2869,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			case GC_EAdminSlotAction.REMOVE:
 				if (!ReleaseAdminSlotPlayer(slot))
 					return "failed-spectator-transfer";
-				UnsubscribeFromSlotEvents(slot);
-				m_Roster.RemoveSlot(slot);
+				RemoveRegisteredSlot(slot);
 				Rpc(RpcDo_RemoveAdminSlot, slot.GetID());
-				NotifyGroupFactionUpdated(slot.GetGroup());
 				return "applied";
 			case GC_EAdminSlotAction.RESPAWN_ORIGINAL:
 				return RespawnAdminSlot(slot, false);
@@ -2845,9 +3006,21 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GC_Slot slot = GetSlot(slotId);
 		if (!slot)
 			return;
+		RemoveRegisteredSlot(slot);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Both peers remove an adopted group's card when its final slot is removed.
+	protected void RemoveRegisteredSlot(GC_Slot slot)
+	{
 		UnsubscribeFromSlotEvents(slot);
 		m_Roster.RemoveSlot(slot);
-		NotifyGroupFactionUpdated(slot.GetGroup());
+		m_Roster.CancelPendingGroupWithoutSlots(slot.GetGroupRplId());
+		SCR_AIGroup group = slot.GetGroup();
+		if (group && !group.IsPlayable() && m_Roster.GetSlotsForGroup(group).IsEmpty() && group.GetPlayerCount() == 0)
+			UnregisterGroup(group);
+		else
+			NotifyGroupFactionUpdated(group);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -3985,8 +4158,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         }
 
         slot.CopyFrom(updateSlot);
-		if (!slot.GetGroup() && slot.GetGroupRplId() != RplId.Invalid())
-			ResolvePendingJipReferences();
+		RplId groupId = slot.GetGroupRplId();
+		if (groupId != RplId.Invalid())
+		{
+			if (!slot.GetGroup() || !m_Roster.ContainsGroup(slot.GetGroup()))
+			{
+				m_Roster.QueueJipGroup(groupId);
+				ResolvePendingJipReferences();
+			}
+			NotifyGroupFactionUpdated(slot.GetGroup());
+		}
     }
 
 	//------------------------------------------------------------------------------------------------
@@ -4034,6 +4215,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_aGroupSpawnTransforms.Clear();
         UnsubscribeFromAllGroupEvents();
         UnsubscribeFromAllSlotEvents();
+		SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+		if (groupsManager)
+		{
+			foreach (SCR_AIGroup group : m_NativeGroupRegistrations)
+				groupsManager.GC_ReleaseLobbyGroup(group);
+		}
+		m_NativeGroupRegistrations.Clear();
 		m_Roster.Clear();
 		m_VoiceState.Clear();
 		m_BriefingCatalog.Clear();

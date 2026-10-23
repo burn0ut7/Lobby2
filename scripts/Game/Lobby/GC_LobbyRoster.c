@@ -39,11 +39,10 @@ class GC_LobbyRoster
 	//! Retain snapshot order even after a reference has resolved.
 	void QueueJipGroup(RplId groupId)
 	{
-		if (m_aGroupOrder.Contains(groupId))
-			return;
-
-		m_aGroupOrder.Insert(groupId);
-		m_aPendingGroupIds.Insert(groupId);
+		if (!m_aGroupOrder.Contains(groupId))
+			m_aGroupOrder.Insert(groupId);
+		if (!m_aPendingGroupIds.Contains(groupId))
+			m_aPendingGroupIds.Insert(groupId);
 	}
 
 	bool RemoveGroup(SCR_AIGroup group)
@@ -54,6 +53,18 @@ class GC_LobbyRoster
 
 		m_aGroups.RemoveOrdered(index);
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! A removed slot must not leave a deferred, now-empty dynamic group behind.
+	void CancelPendingGroupWithoutSlots(RplId groupId)
+	{
+		foreach (GC_Slot slot : m_aSlots)
+		{
+			if (slot && slot.GetGroupRplId() == groupId)
+				return;
+		}
+		m_aPendingGroupIds.RemoveItem(groupId);
 	}
 
 	bool ContainsGroup(SCR_AIGroup group) { return m_aGroups.Contains(group); }

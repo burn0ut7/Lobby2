@@ -289,6 +289,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 			// them alive so hover/pressed presentation is not reset by a routine
 			// occupancy update.
 			UpdateFactionAccent();
+			UpdateGroupName();
 			UpdatePlayerCount();
 		}
 	}

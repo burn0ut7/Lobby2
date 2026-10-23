@@ -833,6 +833,23 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Attribute edits have no lobby-menu request ID. Report to their owner directly.
+	void SendEditorPlayableResult(string outcome)
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager())
+			Rpc(RpcDo_EditorPlayableResult, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_EditorPlayableResult(string outcome)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return;
+		SCR_HintManagerComponent.ShowCustomHint(GC_AdminActionResultText.Get(outcome), "Playable slots", 8);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void SendAdminBanPage(array<string> identities, array<string> labels, int page, int total, int requestId)
 	{
 		if (Replication.IsServer() && GC_LobbyManager.GetManager() && SCR_Global.IsAdmin(GetPlayerId()))

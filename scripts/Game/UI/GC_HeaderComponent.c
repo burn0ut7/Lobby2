@@ -28,11 +28,14 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
     {
         GetGame().GetCallqueue().Remove(InitializeHeader);
         GetGame().GetCallqueue().Remove(AttachLobbyManager);
+		GetGame().GetCallqueue().Remove(RefreshPlayerCount);
 
         if (m_LobbyManager)
         {
             m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
 			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
+			m_LobbyManager.m_OnPlayerConnected.Remove(OnPlayerCountChanged);
+			m_LobbyManager.m_OnPlayerDisconnected.Remove(OnPlayerCountChanged);
 		}
 
         foreach (GC_HeaderButtonComponent button : m_aButtons)
@@ -82,12 +85,35 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         m_iManagerCheckAttempts = 0;
         m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
 		m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
+		m_LobbyManager.m_OnPlayerConnected.Insert(OnPlayerCountChanged);
+		m_LobbyManager.m_OnPlayerDisconnected.Insert(OnPlayerCountChanged);
+		RefreshPlayerCount();
 
         if (m_iActiveState < 0)
             m_iActiveState = GetPhaseView(m_LobbyManager.GetLobbyPhase());
 
         RefreshButtonStates();
     }
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnPlayerCountChanged(int playerId)
+	{
+		// Disconnect notification precedes native player-list cleanup.
+		GetGame().GetCallqueue().Remove(RefreshPlayerCount);
+		GetGame().GetCallqueue().CallLater(RefreshPlayerCount, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshPlayerCount()
+	{
+		TextWidget count = TextWidget.Cast(m_wRoot.FindAnyWidget("PlayerCountText"));
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (!count || !players)
+			return;
+		array<int> connected = {};
+		players.GetPlayers(connected);
+		count.SetText(connected.Count().ToString());
+	}
 
     protected void OnPlayerRoleChanged(int playerId)
     {

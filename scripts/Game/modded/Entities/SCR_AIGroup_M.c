@@ -17,6 +17,24 @@ modded class SCR_AIGroup : ChimeraAIGroup
 		return m_bSnapToTerrain;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Native group IDs are snapshot-only. Publish assignment to existing proxies;
+	//! proxies streamed later receive the same field through native RplLoad.
+	void GC_PublishLobbyGroupID()
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager() && GetGroupID() >= 0)
+			Rpc(GC_RpcDoLobbyGroupID, GetGroupID());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void GC_RpcDoLobbyGroupID(int groupId)
+	{
+		if (Replication.IsServer() || !GC_LobbyManager.GetManager() || groupId < 0)
+			return;
+		SetGroupID(groupId);
+	}
+
 	override void EOnInit(IEntity owner)
 	{
 		super.EOnInit(owner);
@@ -97,7 +115,7 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	override void OnEmpty()
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (!manager || !m_bPlayable)
+		if (!manager || !manager.GetRegisteredGroups().Contains(this))
 		{
 			super.OnEmpty();
 			return;

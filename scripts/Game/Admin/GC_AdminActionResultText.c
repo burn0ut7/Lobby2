@@ -4,10 +4,14 @@ class GC_AdminActionResultText
 	//------------------------------------------------------------------------------------------------
 	static string Get(string outcome)
 	{
+		if (outcome == "rejected-playable-occupied")
+			return "Release occupied or reserved slots first. Every slot in the selected group must have a character before Playable can be disabled.";
+		if (outcome.StartsWith("failed-ai-") || outcome.Contains("changed="))
+			return "The playable change could not finish. Check the group's current slots before making another change.";
 		if (outcome == "unavailable-follow-camera")
 			return "Use Follow while spectating, and select another player with a living character.";
 		if (outcome == "rejected-stale-character" || outcome == "rejected-incompatible-character")
-			return "The character is no longer available: select a living, unoccupied character in a lobby group.";
+			return "Select living, unoccupied soldiers in a group with a faction. Playable changes are unavailable after the match.";
 		if (outcome == "rejected-stale-rules")
 			return "Another admin changed the faction rules. Review their current state.";
 		if (outcome == "unsupported-local-host-kick")

@@ -15,13 +15,17 @@ class GC_FactionWidgetComponent : SCR_ScriptedWidgetComponent
             return;
 
         m_LobbyManager.m_OnFactionPresentationChanged.Insert(OnFactionUpdated);
+		m_LobbyManager.m_OnFactionTopologyChanged.Insert(OnFactionUpdated);
         Refresh();
     }
 
     override void HandlerDeattached(Widget w)
     {
         if (m_LobbyManager)
+        {
             m_LobbyManager.m_OnFactionPresentationChanged.Remove(OnFactionUpdated);
+			m_LobbyManager.m_OnFactionTopologyChanged.Remove(OnFactionUpdated);
+        }
 
         m_LobbyManager = null;
         super.HandlerDeattached(w);
@@ -44,7 +48,7 @@ class GC_FactionWidgetComponent : SCR_ScriptedWidgetComponent
 
     protected void OnFactionUpdated(Faction faction)
     {
-        if (!faction || faction.GetFactionKey() != m_FactionKey)
+        if (faction && faction.GetFactionKey() != m_FactionKey)
             return;
 
         Refresh();
