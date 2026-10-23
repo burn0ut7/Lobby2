@@ -27,7 +27,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected GC_EBriefingVoiceChannel m_eBriefingDefaultVoiceChannel;
 
 	//! Server-side grace period for reconnecting to a claimed slot.
-	[Attribute("120", UIWidgets.EditBox, "Slot reservation timeout in seconds")]
+	[Attribute("120", UIWidgets.EditBox, "Reconnect grace period in seconds (0 releases immediately)")]
 	protected int m_iSlotReservationTimeoutSeconds;
 
 	[Attribute("{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et", UIWidgets.ResourcePickerThumbnail, "AI world resource used only as a formation-data source", params: "et")]
@@ -498,6 +498,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     }
 
+	//------------------------------------------------------------------------------------------------
 	protected void HandlePlayerDisconnected(int playerId)
 	{
 		UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
@@ -508,7 +509,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_mLobbySpectators.Remove(playerId);
 
 		if (!slot)
+		{
+			if (GetSlotReservationTimeoutSeconds() == 0)
+				OnLobbyReservationExpired(identity, spectator);
 			return;
+		}
 		if (slot.GetUUID().IsEmpty())
 		{
 			ReleaseSlotClaim(slot);
@@ -519,14 +524,21 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		slot.MarkDisconnected();
 		UpdateSlot(slot);
+		if (GetSlotReservationTimeoutSeconds() == 0)
+			OnLobbyReservationExpired(slot.GetUUID(), spectator);
 	}
 
+	//------------------------------------------------------------------------------------------------
 	void OnLobbyReservationExpired(UUID identity, IEntity reservedEntity)
 	{
-		if (!Replication.IsServer() || identity.IsEmpty())
+		if (!Replication.IsServer() || GetManager() != this || identity.IsEmpty())
 			return;
 
 		GC_Slot slot = m_Roster.GetSlotByUUID(identity);
+		// A stale expiry must never release a currently connected assignment.
+		if (slot && slot.GetPlayerId() > 0)
+			return;
+
 		IEntity spectator = m_mReservedSpectators.Get(identity);
 		if (spectator && spectator == reservedEntity)
 		{
@@ -679,6 +691,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 
 		IEntity spectator = m_mLobbySpectators.Get(playerId);
+		if (!spectator)
+		{
+			// A briefing disconnect can reconnect after GAME has begun. Its old
+			// spectator body was reserved by identity, not by the new session ID.
+			UUID identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+			spectator = m_mReservedSpectators.Get(identity);
+			m_mReservedSpectators.Remove(identity);
+		}
 		if (spectator && spectator != slot.GetEntity())
 		{
 			SCR_EntityHelper.DeleteEntityAndChildren(spectator);

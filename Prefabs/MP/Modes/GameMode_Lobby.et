@@ -15,7 +15,7 @@ GC_LobbyGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
    }
    m_sLoadingLayout ""
   }
-  GC_LobbyReconnectComponent "{6A1B000000000001}" {
+  GC_LobbyReconnectComponent "{5A02809D5E8ABE42}" {
   }
  }
  PlayerControllerPrefab "{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et"
