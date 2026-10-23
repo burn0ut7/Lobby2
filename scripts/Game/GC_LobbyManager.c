@@ -2376,46 +2376,40 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
     }
 
-    bool TryJoinGroupFromVoiceHeader(int playerId, RplId groupRplId)
-    {
-        if (!Replication.IsServer())
-        {
-            Print("GC | Voice group join rejected: request reached a non-authority instance", level: LogLevel.ERROR);
-            return false;
-        }
+	//------------------------------------------------------------------------------------------------
+	//! Shared by player menus and the authority; membership is always queried live.
+	bool CanPlayerJoinGroupVoiceChannel(int playerId, RplId groupRplId)
+	{
+		if (GetManager() != this || playerId <= 0 || !m_bVoiceGroupHeaderSwitchesGroup || groupRplId == RplId.Invalid())
+			return false;
 
-        if (playerId <= 0)
-        {
-            PrintFormat("GC | Voice group join rejected: invalid player id=%1", playerId, level: LogLevel.ERROR);
-            return false;
-        }
+		SCR_AIGroup targetGroup = GetRegisteredGroupByRplId(groupRplId);
+		if (!targetGroup)
+			return false;
 
-        if (!m_bVoiceGroupHeaderSwitchesGroup)
-        {
-            Print("GC | Voice group join rejected: group voice-channel selection is disabled in the Lobby2 component", level: LogLevel.WARNING);
-            return false;
-        }
+		Faction playerFaction = GetPlayerFaction(playerId);
+		return playerFaction && playerFaction == targetGroup.GetFaction();
+	}
 
-        SCR_AIGroup targetGroup = GetRegisteredGroupByRplId(groupRplId);
-        if (!targetGroup)
-        {
-            PrintFormat("GC | Voice group join rejected: unknown group rplId=%1 player=%2", groupRplId, playerId, level: LogLevel.WARNING);
-            return false;
-        }
+	//------------------------------------------------------------------------------------------------
+	bool TryJoinGroupFromVoiceHeader(int playerId, RplId groupRplId)
+	{
+		if (!Replication.IsServer())
+		{
+			Print("GC | Voice group join rejected: request reached a non-authority instance", level: LogLevel.ERROR);
+			return false;
+		}
 
-        Faction playerFaction = GetPlayerFaction(playerId);
-        if (!playerFaction || playerFaction != targetGroup.GetFaction())
-        {
-            PrintFormat("GC | Voice group join rejected: player=%1 faction=%2 targetFaction=%3", playerId, playerFaction, targetGroup.GetFaction(), level: LogLevel.WARNING);
-            return false;
-        }
+		if (!CanPlayerJoinGroupVoiceChannel(playerId, groupRplId))
+		{
+			PrintFormat("GC | Voice group join rejected: player=%1 group=%2 channel is unavailable", playerId, groupRplId, level: LogLevel.WARNING);
+			return false;
+		}
 
-        // Voice-channel selection is presentation/routing state only. Do not
-        // move the player between authoritative base-game groups or clear the
-        // Lobby2 slot that supplies their role and slot metadata.
-        SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), groupRplId);
-        return true;
-    }
+		SCR_AIGroup targetGroup = GetRegisteredGroupByRplId(groupRplId);
+		// Voice selection must not change native group membership or the lobby slot.
+		return SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), groupRplId);
+	}
 
     //! Validates and applies a player-owned slot request on the server authority.
     bool TryAssignPlayerToSlot(int playerId, int slotId)

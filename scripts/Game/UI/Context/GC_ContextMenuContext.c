@@ -325,6 +325,7 @@ class GC_ContextMenuActionRegistry
 			return;
 
 		s_aActions = {};
+		s_aActions.Insert(new GC_JoinGroupVoiceAction());
 		s_aActions.Insert(new GC_ContextMenuPrintTestAction());
 	}
 
