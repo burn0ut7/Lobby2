@@ -1,0 +1,9 @@
+ScriptedChatEntity AdminTestChat : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
+ coords 134 1 130
+}
+RadioManagerEntity AdminTestRadioManager : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
+ coords 130 1 130
+}
+SCR_LoadoutManager AdminTestLoadoutManager : "{97EF4C1A41F63DDB}Prefabs/MP/Managers/Loadouts/LoadoutManager_USxUSSR.et" {
+ coords 132 1 130
+}

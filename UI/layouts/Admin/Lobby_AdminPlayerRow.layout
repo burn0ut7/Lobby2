@@ -1,0 +1,130 @@
+ButtonWidgetClass {
+ Name "PlayerRow"
+ Slot LayoutSlot {
+  HorizontalAlign 3
+ }
+ Color 1 1 1 0
+ components {
+  SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+   m_bCanBeToggled 1
+   m_BackgroundDefault 0.005 0.009 0.012 1
+   m_BackgroundHovered 0.16 0.18 0.18 1
+   m_BackgroundSelected 0.11 0.075 0.025 1
+   m_BackgroundSelectedHovered 0.18 0.13 0.05 1
+   m_BackgroundClicked 0.18 0.13 0.05 1
+   m_bShowBorderOnFocus 0
+   m_bUseTextColorization 1
+   m_TextDefault 0.94 0.94 0.92 1
+   m_TextToggled 1 1 1 1
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+   Slot ButtonWidgetSlot {
+    HorizontalAlign 3
+   }
+   AllowHeightOverride 1
+   HeightOverride 64
+   "Ignore Cursor" 1
+   {
+    OverlayWidgetClass "{7C41F8A018B24C02}" {
+     Slot AlignableSlot {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      PanelWidgetClass "{7C41F8A018B24C03}" {
+       Name "Background"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.005 0.009 0.012 1
+       style full
+      }
+      PanelWidgetClass "{7C41F8A018B24C04}" {
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Ignore Cursor" 1
+       Color 0.19 0.23 0.24 0.8
+       style outline_2px
+      }
+      TextWidgetClass "{7C41F8A018B24C05}" {
+       Name "Text"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 52 3 12 24
+       }
+       "Ignore Cursor" 1
+       Color 0.94 0.94 0.92 1
+       Text "OPTION"
+       "Font Size" 25
+       "Vertical Alignment" Center
+      }
+      TextWidgetClass {
+       Name "PlayerDetail"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 52 32 12 2
+       }
+       "Ignore Cursor" 1
+       Color 0.69 0.76 0.80 1
+       "Font Size" 19
+       "Vertical Alignment" Center
+      }
+      SizeLayoutWidgetClass {
+       Name "PlayerCheckBox"
+       "Is Visible" 0
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 0
+        VerticalAlign 1
+        Padding 12 0 0 0
+       }
+       "Ignore Cursor" 1
+       AllowWidthOverride 1
+       WidthOverride 24
+       AllowHeightOverride 1
+       HeightOverride 24
+       {
+        OverlayWidgetClass {
+         Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+         "Ignore Cursor" 1
+         {
+          PanelWidgetClass {
+           Name "PlayerCheckFill"
+           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+           "Ignore Cursor" 1
+           Color 1 0.5 0.04 1
+           style full
+          }
+          PanelWidgetClass {
+           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+           "Ignore Cursor" 1
+           Color 0.5 0.6 0.65 1
+           style outline_2px
+          }
+          TextWidgetClass {
+           Name "PlayerCheck"
+           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+           "Ignore Cursor" 1
+           Color 0.005 0.009 0.012 1
+           Text "X"
+           "Font Size" 21
+           "Horizontal Alignment" Center
+           "Vertical Alignment" Center
+          }
+         }
+        }
+       }
+      }
+
+     }
+    }
+   }
+  }
+ }
+}

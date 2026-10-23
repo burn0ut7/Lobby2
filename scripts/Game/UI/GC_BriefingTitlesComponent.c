@@ -3,6 +3,7 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
     protected static const ResourceName TITLE_ROW_LAYOUT = "{6A4B000000000001}UI/layouts/Briefing/Lobby_Briefing_Title_Row.layout";
     protected static const float BOTTOM_MARGIN = 14;
     protected static const float FIT_PADDING = 2;
+	protected static const int LAYOUT_SETTLE_DELAY_MS = 50;
 
     ref ScriptInvoker<GC_BriefingTitleRowComponent> m_OnTitleSelected = new ScriptInvoker<GC_BriefingTitleRowComponent>();
 
@@ -106,7 +107,8 @@ class GC_BriefingTitlesComponent : SCR_ScriptedWidgetComponent
     protected void ScheduleLayoutRefresh()
     {
         GetGame().GetCallqueue().Remove(UpdateViewportHeight);
-        GetGame().GetCallqueue().CallLater(UpdateViewportHeight, 0);
+		// Read dimensions after the view's width/height change reaches layout.
+        GetGame().GetCallqueue().CallLater(UpdateViewportHeight, LAYOUT_SETTLE_DELAY_MS);
     }
 
     protected void UpdateViewportHeight()

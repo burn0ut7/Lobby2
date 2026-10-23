@@ -25,6 +25,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected GC_Slot m_PendingHoveredSlot;
 	protected bool m_bWasManipulatingPreview;
 	protected InputManager m_InputManager;
+	protected ref GC_LobbyMenuChat m_MenuChat;
 
     override void OnMenuOpen()
     {
@@ -42,6 +43,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			m_InputManager.AddActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 
         m_wRoot = GetRootWidget();
+		m_MenuChat = new GC_LobbyMenuChat();
+		m_MenuChat.Start(this);
 
         InitializeFactionList();
         InitializeGroupWidget();
@@ -69,6 +72,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     override void OnMenuUpdate(float tDelta)
     {
         super.OnMenuUpdate(tDelta);
+		if (m_MenuChat)
+			m_MenuChat.Update(tDelta);
 
 		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
 		{
@@ -107,6 +112,22 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		}
 	}
 
+	//------------------------------------------------------------------------------------------------
+	override void OnMenuFocusGained()
+	{
+		super.OnMenuFocusGained();
+		if (m_MenuChat)
+			m_MenuChat.Show();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnMenuFocusLost()
+	{
+		if (m_MenuChat)
+			m_MenuChat.Hide();
+		super.OnMenuFocusLost();
+	}
+
     override void OnMenuClose()
     {
 		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
@@ -141,6 +162,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			m_LobbyManager.m_OnFactionPresentationChanged.Remove(OnLobbyFactionUpdated);
 			m_LobbyManager.m_OnPlayerAffiliationChanged.Remove(OnPlayerAffiliationChanged);
 			m_LobbyManager.m_OnLobbyPhaseChanged.Remove(OnLobbyPhaseChanged);
+			m_LobbyManager.m_OnFactionRulesChanged.Remove(OnFactionRulesChanged);
+			m_LobbyManager.m_OnPlayerConnected.Remove(OnBalancePopulationChanged);
+			m_LobbyManager.m_OnPlayerDisconnected.Remove(OnBalancePopulationChanged);
 			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
 		}
 
@@ -166,6 +190,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		m_InputManager = null;
 		m_SelectedFactionKey = string.Empty;
 
+		if (m_MenuChat)
+			m_MenuChat.Stop();
+		m_MenuChat = null;
         super.OnMenuClose();
     }
 
@@ -176,6 +203,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OnPauseMenuRequested()
 	{
+		if (!IsFocused())
+			return;
 		if (m_InventoryDetail && m_InventoryDetail.IsOpen())
 		{
 			m_InventoryDetail.Close();
@@ -292,6 +321,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		m_LobbyManager.m_OnFactionPresentationChanged.Insert(OnLobbyFactionUpdated);
 		m_LobbyManager.m_OnPlayerAffiliationChanged.Insert(OnPlayerAffiliationChanged);
 		m_LobbyManager.m_OnLobbyPhaseChanged.Insert(OnLobbyPhaseChanged);
+		m_LobbyManager.m_OnFactionRulesChanged.Insert(OnFactionRulesChanged);
+		m_LobbyManager.m_OnPlayerConnected.Insert(OnBalancePopulationChanged);
+		m_LobbyManager.m_OnPlayerDisconnected.Insert(OnBalancePopulationChanged);
 		m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
 		ApplyFactionLock();
 		RefreshGroupWidget();
@@ -312,6 +344,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OnPlayerAffiliationChanged(int playerId)
 	{
+		OnBalancePopulationChanged(playerId);
 		PlayerController playerController = GetGame().GetPlayerController();
 		if (!playerController || playerController.GetPlayerId() != playerId)
 			return;
@@ -326,13 +359,31 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		ApplyFactionLock();
 	}
 
+	protected void OnBalancePopulationChanged(int playerId)
+	{
+		if (!m_LobbyManager || !m_LobbyManager.IsFactionBalanceEnforced())
+			return;
+		foreach (Widget card : m_aGroupCards)
+		{
+			GC_GroupWidgetComponent group = GC_GroupWidgetComponent.Cast(card.FindHandler(GC_GroupWidgetComponent));
+			if (group)
+				group.RefreshSlotInteraction();
+		}
+	}
+
+	protected void OnFactionRulesChanged(int revision)
+	{
+		ApplyFactionLock();
+		RefreshGroupWidget();
+	}
+
 	protected void ApplyFactionLock()
 	{
 		if (!m_FactionList || !m_LobbyManager)
 			return;
 
 		FactionKey lockedFactionKey;
-		if (GC_LobbyPhase.IsAtOrAfter(m_LobbyManager.GetLobbyPhase(), SCR_EGameModeState.BRIEFING))
+		if (m_LobbyManager.IsFactionSwitchLocked())
 		{
 			PlayerController playerController = GetGame().GetPlayerController();
 			Faction playerFaction;

@@ -70,7 +70,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 3
               Padding 12 0 12 0
              }
-             Text "VOICE CHANNELS"
+             Text "VOICE"
              "Font Size" 22
              "Min Font Size" 12
              "Horizontal Alignment" Center
@@ -128,7 +128,7 @@ SizeLayoutWidgetClass {
               Padding 12 0 12 0
              }
              Color 0.82 0.84 0.84 1
-             Text "PLAYER LIST"
+             Text "PLAYERS"
              "Font Size" 22
              "Min Font Size" 12
              "Horizontal Alignment" Center

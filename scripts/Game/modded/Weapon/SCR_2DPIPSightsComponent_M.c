@@ -4,6 +4,9 @@ modded class SCR_2DPIPSightsComponent
 	//! replicated spectator camera remains authoritative for view and parallax.
 	void GC_UpdateSpectatorPIP(float timeSlice, float authoritativePIPFOV, float authoritativeSightFOV)
 	{
+		if (!GC_LobbyGameMode.GetGameMode())
+			return;
+
 		if (!IsPIPEnabled() || !m_PIPCamera || !m_pMaterial || authoritativePIPFOV <= 0 || authoritativeSightFOV <= 0)
 			return;
 

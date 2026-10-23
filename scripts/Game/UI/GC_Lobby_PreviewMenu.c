@@ -4,7 +4,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
 
     protected SCR_MapEntity m_MapEntity;
-    protected SCR_ChatPanel m_ChatPanel;
+	protected ref GC_LobbyMenuChat m_MenuChat;
 	protected GC_HeaderComponent m_Header;
 	protected GC_LobbyManager m_LobbyManager;
 	protected GC_PlayerListTabsComponent m_PlayerListTabs;
@@ -29,9 +29,8 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 			phaseName = GC_LobbyManager.GetPhaseName(gameMode.GetState());
 		PrintFormat("GC | Phase UI | preview/briefing menu opened: menu=%1 state=%2", this, phaseName);
 
-        Widget wChatPanel = GetRootWidget().FindAnyWidget("ChatPanel");
-        if (wChatPanel)
-            m_ChatPanel = SCR_ChatPanel.Cast(wChatPanel.FindHandler(SCR_ChatPanel));
+		m_MenuChat = new GC_LobbyMenuChat();
+		m_MenuChat.Start(this);
 
 		Widget headerRoot = GetRootWidget().FindAnyWidget("MenuBar");
 		if (headerRoot)
@@ -56,7 +55,6 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		m_InputManager = GetGame().GetInputManager();
 		if (m_InputManager)
 		{
-			m_InputManager.AddActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
 			m_InputManager.AddActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 		}
 
@@ -67,9 +65,25 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 
     override void OnMenuUpdate(float tDelta)
     {
-        if (m_ChatPanel)
-            m_ChatPanel.OnUpdateChat(tDelta);
+		if (m_MenuChat)
+			m_MenuChat.Update(tDelta);
     }
+
+	//------------------------------------------------------------------------------------------------
+	override void OnMenuFocusGained()
+	{
+		super.OnMenuFocusGained();
+		if (m_MenuChat)
+			m_MenuChat.Show();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnMenuFocusLost()
+	{
+		if (m_MenuChat)
+			m_MenuChat.Hide();
+		super.OnMenuFocusLost();
+	}
 
     override void OnMenuClose()
     {
@@ -88,17 +102,15 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		GetGame().GetCallqueue().Remove(RestoreMapActionsAfterEditor);
         GetGame().GetCallqueue().Remove(OpenMap);
 		GetGame().GetCallqueue().Remove(OpenMapNow);
-		GetGame().GetCallqueue().Remove(ToggleChatWrap);
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
 
 		if (m_InputManager)
 		{
-			m_InputManager.RemoveActionListener("ChatToggle", EActionTrigger.DOWN, Action_OnChatToggleAction);
 			m_InputManager.RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 		}
 
-        if (m_ChatPanel && m_ChatPanel.IsOpen())
-            SCR_ChatPanelManager.GetInstance().CloseChatPanel(m_ChatPanel);
+		if (m_MenuChat)
+			m_MenuChat.Stop();
 
         if (m_MapEntity)
             m_MapEntity.CloseMap();
@@ -107,12 +119,14 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		m_EditorManager = null;
 		m_LobbyManager = null;
 		m_PlayerListTabs = null;
-		m_ChatPanel = null;
+		m_MenuChat = null;
 		m_InputManager = null;
     }
 
 	protected void OnPauseMenuRequested()
 	{
+		if (!IsFocused())
+			return;
 		// Let the MenuBack event finish before opening the pause menu, otherwise
 		// the same Escape press can immediately close the menu it just opened.
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
@@ -194,25 +208,6 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 			m_PlayerListTabs.SetDarkBackground(!isBriefing);
 		}
 	}
-
-    protected void Action_OnChatToggleAction()
-    {
-        if (!m_ChatPanel)
-            return;
-
-        GetGame().GetCallqueue().CallLater(ToggleChatWrap, 0);
-    }
-
-    protected void ToggleChatWrap()
-    {
-        if (!m_ChatPanel)
-            return;
-
-        if (m_ChatPanel.IsOpen())
-            SCR_ChatPanelManager.GetInstance().CloseChatPanel(m_ChatPanel);
-        else
-            SCR_ChatPanelManager.GetInstance().OpenChatPanel(m_ChatPanel);
-    }
 
 	protected void OpenMap()
     {

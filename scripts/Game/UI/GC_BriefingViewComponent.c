@@ -376,6 +376,12 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         if (!briefing)
         {
             SetViewWidth(COMPACT_WIDTH);
+			// The index establishes its own content height. Measuring the outer
+			// panel before that layout settles feeds its one-pixel viewport back
+			// into the available height and can permanently collapse the index.
+			SetViewHeight(m_fMaxViewHeight);
+			GetGame().GetCallqueue().Remove(PrepareSectionLayout);
+			GetGame().GetCallqueue().Remove(CommitSectionLayout);
 
             if (m_wDocumentPanel)
                 m_wDocumentPanel.SetVisible(false);
@@ -403,7 +409,8 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
             if (m_wSectionScroll)
                 m_wSectionScroll.SetSliderPos(0, 0);
 
-            ScheduleSectionLayoutUpdate();
+			if (m_Titles)
+				m_Titles.RefreshLayout();
 
             return;
         }

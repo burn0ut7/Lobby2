@@ -25,6 +25,10 @@ class GC_VoiceChannelAssignment
 	//! Authority-only provenance; clients render the replicated destination itself.
 	protected bool m_bAdminAssigned;
 	protected bool m_bDeafened;
+	protected bool m_bAdminMuted;
+	protected bool m_bPrioritySpeaker;
+	protected bool m_bPriorityTransmitting;
+
 
 	//------------------------------------------------------------------------------------------------
 	bool IsAdminAssigned()
@@ -36,6 +40,42 @@ class GC_VoiceChannelAssignment
 	void SetAdminAssigned(bool value)
 	{
 		m_bAdminAssigned = value;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsAdminMuted()
+	{
+		return m_bAdminMuted;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetAdminMuted(bool value)
+	{
+		m_bAdminMuted = value;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsPrioritySpeaker()
+	{
+		return m_bPrioritySpeaker;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetPrioritySpeaker(bool value)
+	{
+		m_bPrioritySpeaker = value;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsPriorityTransmitting()
+	{
+		return m_bPriorityTransmitting;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetPriorityTransmitting(bool value)
+	{
+		m_bPriorityTransmitting = value;
 	}
 
 	int GetPlayerId()
@@ -100,6 +140,10 @@ class GC_VoiceChannelAssignment
 		Set(source.m_iPlayerId, source.m_eChannelType, source.m_sFactionKey, source.m_GroupRplId, source.m_PersonalOwnerIdentity);
 		m_PlayerIdentity = source.m_PlayerIdentity;
 		m_bDeafened = source.m_bDeafened;
+		m_bAdminMuted = source.m_bAdminMuted;
+		m_bPrioritySpeaker = source.m_bPrioritySpeaker;
+		m_bPriorityTransmitting = source.m_bPriorityTransmitting;
+
 	}
 
 	bool RplSave(ScriptBitWriter writer)
@@ -113,6 +157,10 @@ class GC_VoiceChannelAssignment
 		string personalOwnerIdentity = m_PersonalOwnerIdentity;
 		writer.WriteString(personalOwnerIdentity);
 		writer.WriteBool(m_bDeafened);
+		writer.WriteBool(m_bAdminMuted);
+		writer.WriteBool(m_bPrioritySpeaker);
+		writer.WriteBool(m_bPriorityTransmitting);
+
 		return true;
 	}
 
@@ -136,6 +184,13 @@ class GC_VoiceChannelAssignment
 		m_PersonalOwnerIdentity = personalOwnerIdentity;
 		if (!reader.ReadBool(m_bDeafened))
 			return false;
+		if (!reader.ReadBool(m_bAdminMuted))
+			return false;
+		if (!reader.ReadBool(m_bPrioritySpeaker))
+			return false;
+		if (!reader.ReadBool(m_bPriorityTransmitting))
+			return false;
+
 
 		return true;
 	}
@@ -152,6 +207,10 @@ class GC_VoiceChannelAssignment
 		string personalOwnerIdentity = instance.m_PersonalOwnerIdentity;
 		snapshot.SerializeString(personalOwnerIdentity);
 		snapshot.SerializeBool(instance.m_bDeafened);
+		snapshot.SerializeBool(instance.m_bAdminMuted);
+		snapshot.SerializeBool(instance.m_bPrioritySpeaker);
+		snapshot.SerializeBool(instance.m_bPriorityTransmitting);
+
 		return true;
 	}
 
@@ -170,6 +229,10 @@ class GC_VoiceChannelAssignment
 		snapshot.SerializeString(personalOwnerIdentity);
 		instance.m_PersonalOwnerIdentity = personalOwnerIdentity;
 		snapshot.SerializeBool(instance.m_bDeafened);
+		snapshot.SerializeBool(instance.m_bAdminMuted);
+		snapshot.SerializeBool(instance.m_bPrioritySpeaker);
+		snapshot.SerializeBool(instance.m_bPriorityTransmitting);
+
 		return true;
 	}
 
@@ -184,6 +247,10 @@ class GC_VoiceChannelAssignment
 		packet.Serialize(groupRplId, 32);
 		snapshot.EncodeString(packet);
 		snapshot.EncodeBool(packet);
+		snapshot.EncodeBool(packet);
+		snapshot.EncodeBool(packet);
+		snapshot.EncodeBool(packet);
+
 	}
 
 	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
@@ -197,6 +264,10 @@ class GC_VoiceChannelAssignment
 		snapshot.SerializeBytes(groupRplId, 4);
 		snapshot.DecodeString(packet);
 		snapshot.DecodeBool(packet);
+		snapshot.DecodeBool(packet);
+		snapshot.DecodeBool(packet);
+		snapshot.DecodeBool(packet);
+
 		return true;
 	}
 
@@ -208,6 +279,9 @@ class GC_VoiceChannelAssignment
 			&& lhs.CompareStringSnapshots(rhs)
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareStringSnapshots(rhs)
+			&& lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4);
 	}
 
@@ -219,6 +293,9 @@ class GC_VoiceChannelAssignment
 			&& snapshot.CompareString(instance.m_sFactionKey)
 			&& snapshot.Compare(instance.m_GroupRplId, 4)
 			&& snapshot.CompareString(instance.m_PersonalOwnerIdentity)
-			&& snapshot.CompareBool(instance.m_bDeafened);
+			&& snapshot.CompareBool(instance.m_bDeafened)
+			&& snapshot.CompareBool(instance.m_bAdminMuted)
+			&& snapshot.CompareBool(instance.m_bPrioritySpeaker)
+			&& snapshot.CompareBool(instance.m_bPriorityTransmitting);
 	}
 }

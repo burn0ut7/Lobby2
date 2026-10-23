@@ -1,0 +1,4 @@
+OverlayWidgetClass : "{B8C4345E3A833B05}UI/layouts/WidgetLibrary/ComboBox/WLib_OpenedComboRoot.layout" {
+ Name "ModerationComboList"
+ "Z Order" 20001
+}

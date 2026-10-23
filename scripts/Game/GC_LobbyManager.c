@@ -7,7 +7,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
 	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
 	protected const string DEFAULT_FORMATION_NAME = "File";
-	protected const bool FORMATION_DEBUG_LOGGING = true;
+	protected const bool FORMATION_DEBUG_LOGGING = false;
 	protected const int FORMATION_DEBUG_LOG_LIMIT = 64;
 	protected const int JIP_REFERENCE_RETRY_MS = 1000;
 	protected const int PLAYER_CATCHUP_RETRY_MS = 250;
@@ -44,6 +44,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected ref GC_LobbyRoster m_Roster = new GC_LobbyRoster();
 	protected ref GC_LobbyVoiceState m_VoiceState = new GC_LobbyVoiceState();
+	protected ref map<int, float> m_mPriorityVoiceExpiry = new map<int, float>();
+	protected ref map<int, float> m_mAdminMessageTimes = new map<int, float>();
+	protected int m_iAdminMessageSequence;
+	protected ref GC_AdminBanService m_AdminBanService;
+	//! 0 follows the phase, 1 locks faction switching, 2 permits switching.
+	protected int m_iFactionLockOverride;
+	protected bool m_bEnforceFactionBalance;
+	protected int m_iFactionRulesRevision;
+	ref ScriptInvoker<int> m_OnFactionRulesChanged = new ScriptInvoker<int>();
+	protected ref array<string> m_aAdminSessionHistory = {};
+	protected ref array<ref GC_AdminSessionPlayer> m_aModerationHistory = {};
+	protected ref map<int, string> m_mAdminSessionLabels = new map<int, string>();
     //! Narrow presentation events. Payloads identify the changed authoritative
     //! record; consumers re-query base-game state and update only affected widgets.
     ref ScriptInvoker<int> m_OnRegistryReset = new ScriptInvoker<int>();
@@ -195,6 +207,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (state == SCR_EGameModeState.GAME && Replication.IsServer())
 			QueueCatchUpConnectedPlayers();
 
+		GetAdminSelectedPlayer();
 		m_OnLobbyPhaseChanged.Invoke(state);
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
@@ -216,16 +229,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	static string GetBaseStateName(SCR_EGameModeState state)
 	{
-		switch (state)
-		{
-			case SCR_EGameModeState.PREGAME: return "PREGAME";
-			case SCR_EGameModeState.SLOTTING: return "SLOTTING";
-			case SCR_EGameModeState.BRIEFING: return "BRIEFING";
-			case SCR_EGameModeState.GAME: return "GAME";
-			case SCR_EGameModeState.POSTGAME: return "POSTGAME";
-		}
-
-		return "UNKNOWN";
+		return GC_LobbyPhase.GetName(state);
 	}
 
 	int GetSlotReservationTimeoutSeconds()
@@ -237,43 +241,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	bool TryAdvanceLobbyPhase(int playerId, SCR_EGameModeState requestedPhase)
 	{
 		string requestedPhaseName = GetPhaseName(requestedPhase);
-		if (m_bShutdown)
-		{
-			Print("GC | Phase | request rejected: Lobby2 manager is shutting down", LogLevel.WARNING);
-			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-manager-shutdown");
+		if (!AuthorizeAdminAction(playerId, "advance-phase", requestedPhaseName))
 			return false;
-		}
-
-		if (!Replication.IsServer())
-		{
-			Print("GC | Phase | request rejected: handler is not running on authority", LogLevel.ERROR);
-			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-not-authority");
-			return false;
-		}
-
-		PrintFormat("GC | Phase | request received: player=%1 current=%2 requested=%3 requestedValue=%4", playerId, GetPhaseName(GetLobbyPhase()), requestedPhaseName, requestedPhase);
-
-		PlayerManager playerManager = GetGame().GetPlayerManager();
-		if (playerId <= 0 || !playerManager || !playerManager.IsPlayerConnected(playerId))
-		{
-			PrintFormat("GC | Phase | request rejected: player=%1 is not connected", playerId, level: LogLevel.WARNING);
-			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-not-logged-in");
-			return false;
-		}
-
 		if (!GC_LobbyPhase.IsValid(requestedPhase))
 		{
-			PrintFormat("GC | Phase | request rejected: invalid target value=%1", requestedPhase, level: LogLevel.WARNING);
 			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-invalid-target");
-			return false;
-		}
-
-		if (!SCR_Global.IsAdmin(playerId))
-		{
-			if (GC_UIEventDiagnostics.ENABLED)
-				PrintFormat("GC | Admin Trace | server action rejected: action=advance-phase player=%1 queriedAdmin=false", playerId, level: LogLevel.WARNING);
-			PrintFormat("GC | Phase | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
-			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-not-admin");
 			return false;
 		}
 
@@ -377,11 +349,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		if (!endData)
-			endData = SCR_GameModeEndData.CreateSimple();
+		// Parameters are weak references. Retain a newly created result until
+		// EndGameMode takes ownership, including throughout its callbacks.
+		ref SCR_GameModeEndData resolvedEndData = endData;
+		if (!resolvedEndData)
+			resolvedEndData = SCR_GameModeEndData.CreateSimple();
 
 		PrintFormat("GC | Phase | invoking native EndGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
-		gameMode.EndGameMode(endData);
+		gameMode.EndGameMode(resolvedEndData);
 		if (gameMode.GetState() != SCR_EGameModeState.POSTGAME)
 		{
 			PrintFormat("GC | Phase | native EndGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
@@ -396,7 +371,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         PrintFormat("GC | OnPlayerAuditSuccess: %1, connected!", playerId);
 
 		if (Replication.IsServer())
+		{
+			RecordAdminSessionEvent(playerId, true, 0);
 			QueuePlayerCatchUp(playerId);
+		}
 
     }
 
@@ -416,11 +394,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		const KickCauseGroup2 causeGroup = KickCauseCodeAPI.GetGroup(cause);
 		bool isShutdown = causeGroup == RplKickCauseGroup.REPLICATION && KickCauseCodeAPI.GetReason(cause) == RplError.SHUTDOWN;
 		if (Replication.IsServer() && !isShutdown)
+		{
+			RecordAdminSessionEvent(playerId, false, KickCauseCodeAPI.GetReason(cause));
 			HandlePlayerDisconnected(playerId);
+		}
 
 		if (!isShutdown)
 		{
 			RemovePlayerVoiceAssignment(playerId);
+			if (m_iAdminSelectedPlayer == playerId)
+				SelectAdminPlayer(-1);
 			m_OnPlayerDisconnected.Invoke(playerId);
 		}
         super.OnPlayerDisconnected(playerId, cause, timeout);
@@ -549,6 +532,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!slot)
 			return;
 
+		// A timer from an older claim cannot expire a new initial reservation.
+		if (slot.IsAwaitingInitialJoin())
+			return;
+
 		ReleaseSlotClaim(slot);
 		UpdateSlot(slot);
 		PrintFormat("GC | Lifecycle | slot reservation expired: slot=%1", slot.GetID());
@@ -581,10 +568,23 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 		}
 
-		slot.ReconnectPlayer(playerId);
+		// Initial pre-assignment uses the same native group/slot transition as
+		// ordinary assignment; reconnects keep their existing lifecycle.
+		if (slot.IsAwaitingInitialJoin())
+		{
+			if (!ApplyPlayerSlotAssignment(playerId, slot, false, false))
+			{
+				PrintFormat("GC | Lifecycle | initial reservation assignment failed: player=%1 slot=%2", playerId, slot.GetID(), level: LogLevel.WARNING);
+				SetSpectator(playerId, true);
+				return;
+			}
+		}
+		else
+			slot.ReconnectPlayer(playerId);
 		SCR_AIGroup group = slot.GetGroup();
 		if (group && !group.GetPlayerIDs().Contains(playerId))
 			group.AddPlayer(playerId);
+		SynchronizePlayerNativeMembership(playerId);
 
 		if (group && group.GetFaction() && phase == SCR_EGameModeState.BRIEFING)
 			AssignPlayerToBriefingVoiceChannel(playerId);
@@ -710,7 +710,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return true;
 	}
 
-	protected bool SpawnSlotEntity(GC_Slot slot, bool force, SCR_AIGroup expectedGroup = null)
+	protected bool SpawnSlotEntity(GC_Slot slot, bool force, SCR_AIGroup expectedGroup = null, EntitySpawnParams spawnOverride = null)
 	{
 		if (!Replication.IsServer() || !slot || slot.IsKIA())
 			return false;
@@ -774,6 +774,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			PrintFormat("GC | Formation | debug spawn slot=%1 index=%2 formation=%3 originMode=%4 snapToTerrain=%5 localOffset=%6 transformed=%7 final=%8", slot.GetID(), slot.GetGroupSlotIndex(), formationName, isExactGroupOrigin, snapToTerrain, offset, formationWorldPosition, terrainPosition);
 		}
 
+		GC_SlotSpawnPoint adminSpawnPoint = slot.GetAdminSpawnPoint();
+		if (adminSpawnPoint)
+			params = adminSpawnPoint.CreateParams();
+		if (spawnOverride)
+			params = spawnOverride;
 		IEntity entity = GetGame().SpawnEntityPrefab(prefab, null, params);
 		if (!entity)
 		{
@@ -1067,7 +1072,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return;
 
 		if (Replication.IsServer())
+		{
+			// Authored lobby groups need native IDs before controller membership
+			// can be published to native chat and other group consumers.
+			SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
+			if (groupsManager)
+				groupsManager.GC_RegisterLobbyGroup(group);
 			CacheGroupSpawnTransform(group);
+		}
 
         SubscribeToGroupEvents(group);
 
@@ -1167,6 +1179,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void OnGroupFactionChanged(Faction faction)
     {
+		if (GetManager() != this)
+			return;
+
         if (faction)
         {
             m_Roster.AddFaction(faction);
@@ -1209,6 +1224,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void OnGroupPlayerAdded(SCR_AIGroup group, int playerId)
     {
+		if (GetManager() != this)
+			return;
+
 		if (Replication.IsServer() && group && group.GetFaction())
 		{
 			if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
@@ -1222,6 +1240,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     protected void OnGroupPlayerRemoved(SCR_AIGroup group, int playerId)
     {
+		if (GetManager() != this)
+			return;
+
         if (Replication.IsServer() && group)
         {
 			GC_VoiceChannelAssignment assignment = GetPlayerVoiceAssignment(playerId);
@@ -1258,6 +1279,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected void FlushAffiliationPresentation()
 	{
+		if (GetManager() != this)
+			return;
+
 		foreach (int playerId : m_sPendingAffiliationPlayers)
 		{
 			RefreshPlayerRadio(playerId);
@@ -1383,6 +1407,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!m_VoiceState.Save(writer) || !m_BriefingCatalog.Save(writer) || !m_ParameterCatalog.Save(writer))
 			return false;
 
+		writer.WriteInt(m_iFactionLockOverride);
+		writer.WriteBool(m_bEnforceFactionBalance);
+		writer.WriteInt(m_iFactionRulesRevision);
+
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
         return true;
     }
@@ -1420,9 +1448,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				continue;
 			}
 
-			// Preserve the authority's serialized order independently of proxy
-			// streaming timing. Ordered resolution below owns roster insertion.
-			m_Roster.GetPendingGroupIds().Insert(groupRplId);
+			m_Roster.QueueJipGroup(groupRplId);
 		}
 
 		int slotCount;
@@ -1458,6 +1484,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			Print("GC | JIP load failed: domain=parameters", level: LogLevel.ERROR);
 			return false;
 		}
+
+		if (!reader.ReadInt(m_iFactionLockOverride) || !reader.ReadBool(m_bEnforceFactionBalance)
+			|| !reader.ReadInt(m_iFactionRulesRevision) || m_iFactionLockOverride < 0 || m_iFactionLockOverride > 2)
+			return false;
+		m_OnFactionRulesChanged.Invoke(m_iFactionRulesRevision);
 
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
 		m_OnBriefingMarkersChanged.Invoke(m_BriefingCatalog.GetMarkerRevision());
@@ -1495,19 +1526,23 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected void ResolvePendingJipReferences()
 	{
+		if (GetManager() != this)
+			return;
+
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
 		int attempt = m_Roster.IncrementJipAttempt();
 		array<RplId> pendingGroups = m_Roster.GetPendingGroupIds();
 
-		// Resolve only the available prefix. Allowing later proxies to register
-		// ahead of an earlier unresolved proxy would make client faction/group
-		// presentation order depend on streaming timing instead of server order.
-		while (!pendingGroups.IsEmpty())
+		// Resolve every available group. The roster preserves snapshot order
+		// independently, so one delayed proxy cannot hide all subsequent groups.
+		bool topologyChanged;
+		for (int groupIndex = pendingGroups.Count() - 1; groupIndex >= 0; groupIndex--)
 		{
-			if (!ResolveJipGroup(pendingGroups[0]))
-				break;
+			if (!ResolveJipGroup(pendingGroups[groupIndex]))
+				continue;
 
-			pendingGroups.RemoveOrdered(0);
+			pendingGroups.RemoveOrdered(groupIndex);
+			topologyChanged = true;
 		}
 
 		int pendingSlotGroups;
@@ -1536,6 +1571,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (!pendingGroups.IsEmpty() || pendingSlotGroups > 0 || pendingSlotEntities > 0)
 		{
+			if (topologyChanged)
+				m_OnRegistryReset.Invoke(attempt);
 			GetGame().GetCallqueue().CallLater(ResolvePendingJipReferences, JIP_REFERENCE_RETRY_MS);
 			return;
 		}
@@ -1641,6 +1678,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected void ReconcilePendingPlayerRoles()
 	{
+		if (GetManager() != this)
+			return;
+
 		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);
 		array<int> completed = {};
 		bool retry;
@@ -1656,6 +1696,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				else if (GC_UIEventDiagnostics.ENABLED)
 					PrintFormat("GC | Admin Trace | role converged: player=%1 admin=%2 attempts=%3", playerId, queriedAdmin, attempts);
 
+				GetAdminSelectedPlayer();
+				m_OnAdminSelectionChanged.Invoke();
 				m_OnPlayerRoleChanged.Invoke(playerId);
 				completed.Insert(playerId);
 				continue;
@@ -1673,6 +1715,1252 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (retry)
 			GetGame().GetCallqueue().CallLater(ReconcilePendingPlayerRoles, ROLE_PRESENTATION_RETRY_MS);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Resolve announcement recipients on authority. Admin chat uses native channels.
+	string SendAdminMessage(int requesterId, GC_EAdminMessageAudience audience, string message, array<string> selectedIdentities, string factionKey = "")
+	{
+		message.TrimInPlace();
+		string target = string.Format("audience=%1 faction=%2 length=%3", audience, factionKey, message.Length());
+		if (!AuthorizeAdminAction(requesterId, "message-send", target))
+			return "rejected-not-logged-in";
+		string outcome = "rejected-message";
+		if (message.IsEmpty() || message.Length() > 512 || message.Contains("<") || message.Contains(">"))
+		{
+			GC_AdminActionLogger.Log(requesterId, "message-send", target, outcome);
+			return outcome;
+		}
+		float now = GetGame().GetWorld().GetWorldTime();
+		float previous;
+		if (m_mAdminMessageTimes.Find(requesterId, previous) && now - previous < 500)
+		{
+			GC_AdminActionLogger.Log(requesterId, "message-send", target, "rejected-rate-limit");
+			return "rejected-rate-limit";
+		}
+
+		array<int> recipients = {};
+		if (audience == GC_EAdminMessageAudience.SELECTED_PLAYERS)
+		{
+			if (!selectedIdentities || selectedIdentities.IsEmpty() || selectedIdentities.Count() > 64)
+			{
+				GC_AdminActionLogger.Log(requesterId, "message-send", target, "rejected-recipients");
+				return "rejected-recipients";
+			}
+			foreach (string identity : selectedIdentities)
+			{
+				int playerId = GetConnectedPlayerIdByIdentity(identity);
+				if (playerId <= 0)
+				{
+					GC_AdminActionLogger.Log(requesterId, "message-send", target, "rejected-stale-recipient");
+					return "rejected-stale-recipient";
+				}
+				if (!recipients.Contains(playerId))
+					recipients.Insert(playerId);
+			}
+		}
+		else if (audience == GC_EAdminMessageAudience.ALL_PLAYERS)
+		{
+			GetGame().GetPlayerManager().GetPlayers(recipients);
+		}
+		else if (audience == GC_EAdminMessageAudience.FACTION)
+		{
+			foreach (GC_Slot slot : GetSlots())
+			{
+				SCR_AIGroup group = slot.GetGroup();
+				if (!group || !group.GetFaction() || group.GetFaction().GetFactionKey() != factionKey)
+					continue;
+				int memberId = slot.GetPlayerId();
+				if (memberId > 0 && GetGame().GetPlayerManager().IsPlayerConnected(memberId) && !recipients.Contains(memberId))
+					recipients.Insert(memberId);
+			}
+		}
+		else
+		{
+			GC_AdminActionLogger.Log(requesterId, "message-send", target, "rejected-audience");
+			return "rejected-audience";
+		}
+
+		if (recipients.IsEmpty())
+		{
+			GC_AdminActionLogger.Log(requesterId, "message-send", target, "rejected-empty-audience");
+			return "rejected-empty-audience";
+		}
+		target += " players=";
+		foreach (int targetId : recipients)
+			target += string.Format("%1,", targetId);
+		m_mAdminMessageTimes.Set(requesterId, now);
+		m_iAdminMessageSequence++;
+		int sent;
+		string senderName = GetGame().GetPlayerManager().GetPlayerName(requesterId);
+		foreach (int recipientId : recipients)
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(recipientId));
+			if (!controller)
+				continue;
+			controller.DeliverAdminMessage(m_iAdminMessageSequence, requesterId, senderName, audience, message);
+			sent++;
+		}
+		outcome = string.Format("dispatched message=%1 recipients=%2", m_iAdminMessageSequence, sent);
+		GC_AdminActionLogger.Log(requesterId, "message-send", target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! One server entry for manual reservations and versioned roster transfer.
+	string ExecuteSlotReservation(int requesterId, string action, int slotId, UUID expectedClaim, string identityText, string playerName, string input, out string output)
+	{
+		output = "";
+		string target = string.Format("slot=%1 operation=%2", slotId, action);
+		if (!AuthorizeAdminAction(requesterId, "slot-reservation", target))
+			return "Sign in as an administrator to manage reservations.";
+
+		string outcome;
+		if (action == "export")
+			outcome = ExportSlotReservations(output);
+		else if (GC_LobbyPhase.IsAtOrAfter(GetLobbyPhase(), SCR_EGameModeState.GAME))
+			outcome = "Reservations can be changed during slotting or briefing.";
+		else if (action == "import")
+			outcome = ImportSlotReservations(input);
+		else
+		{
+			GC_Slot slot = GetSlot(slotId);
+			outcome = "The slot changed. Select it again and retry.";
+			if (slot && slot.GetUUID() == expectedClaim)
+			{
+				if (action == "clear" && slot.IsAwaitingInitialJoin() && slot.GetPlayerId() <= 0)
+				{
+					ReleaseSlotClaim(slot);
+					outcome = "Reservation cleared.";
+				}
+				else if (action == "reserve")
+				{
+					identityText.TrimInPlace();
+					identityText.ToLower();
+					UUID identity = identityText;
+					playerName.TrimInPlace();
+					target += " identity=" + identity;
+					outcome = ValidateSlotReservation(slot, identity);
+					if (playerName.Length() > 128 || playerName.Contains("\n") || playerName.Contains("\r"))
+						outcome = "Use a player name of 128 characters or fewer on one line.";
+					if (outcome.IsEmpty())
+					{
+						int playerId = GetConnectedPlayerIdByIdentity(identity);
+						if (slot.HasClaim())
+							outcome = "This player already holds the slot. Its existing claim was kept.";
+						else if (playerId > 0)
+						{
+							// Reuse the authoritative assignment path for connected players.
+							string assigned = ExecuteAdminAssignSlot(requesterId, playerId, identity, slotId, expectedClaim);
+							outcome = GC_AdminActionResultText.Get(assigned);
+						}
+						else
+						{
+							slot.ReserveIdentity(identity, playerName);
+							outcome = "Slot reserved. The player will be assigned when they join.";
+						}
+					}
+				}
+				else
+					outcome = "Only a reservation awaiting its first join can be cleared here.";
+			}
+		}
+		GC_AdminActionLogger.Log(requesterId, "slot-reservation", target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string ValidateSlotReservation(GC_Slot slot, UUID identity)
+	{
+		if (!UUID.IsUUID(identity) || identity.IsNull())
+			return "Enter a valid Arma UID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).";
+		if (!slot || slot.IsKIA() || slot.IsAdminLocked())
+			return "This slot is unavailable or locked.";
+		SCR_AIGroup group = ResolveSlotGroup(slot);
+		if (!group || !group.GetFaction())
+			return "The slot's group is unavailable.";
+		if (slot.HasClaim() && slot.GetUUID() != identity)
+			return "This slot is already claimed. Clear its reservation or remove its player first.";
+		GC_Slot current = m_Roster.GetSlotByUUID(identity);
+		if (current && current != slot && current.GetPlayerId() <= 0)
+			return "This UID already holds another slot. Clear that claim first.";
+		return "";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Stable keys derive from authored group geometry, never runtime callsigns or IDs.
+	protected string GetReservationGroupKey(GC_Slot slot)
+	{
+		SCR_AIGroup group = ResolveSlotGroup(slot);
+		if (!group || !group.GetFaction() || !group.GetPrefabData() || slot.GetGroupSlotIndex() < 0 || slot.GetAdminSpawnPoint())
+			return "";
+		GC_PlayerGroupSpawnTransform transform = FindGroupSpawnTransform(group);
+		if (!transform)
+			return "";
+		string source = string.Format("%1|%2|%3|%4|%5", GetGame().GetWorldFile(),
+			group.GetPrefabData().GetPrefabName(), transform.GetOrigin(), transform.GetAngles(), group.GetFaction().GetFactionKey());
+		return UUID.GenV8(UUID.NAMESPACE_URL, source);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string GetReservationSlotKey(GC_Slot slot)
+	{
+		string groupKey = GetReservationGroupKey(slot);
+		if (groupKey.IsEmpty())
+			return "";
+		return UUID.GenV8(UUID.NAMESPACE_URL, string.Format("%1|%2|%3", groupKey, slot.GetGroupSlotIndex(), slot.GetAuthoredPrefab()));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string ExportSlotReservations(out string output)
+	{
+		array<ref map<string, string>> rows = {};
+		array<string> keys = {};
+		int excluded;
+		foreach (GC_Slot slot : GetSlots())
+		{
+			string key = GetReservationSlotKey(slot);
+			if (key.IsEmpty())
+			{
+				excluded++;
+				continue;
+			}
+			if (keys.Contains(key))
+				return "Export rejected: authored slots have ambiguous locations and roles.";
+			keys.Insert(key);
+			SCR_AIGroup group = ResolveSlotGroup(slot);
+			GC_PlayerGroupSpawnTransform transform = FindGroupSpawnTransform(group);
+			map<string, string> row = new map<string, string>();
+			row.Set("slotKey", key);
+			row.Set("slotNumber", slot.GetID().ToString());
+			row.Set("teamKey", group.GetFaction().GetFactionKey());
+			row.Set("teamName", WidgetManager.Translate(group.GetFaction().GetFactionName()));
+			row.Set("groupKey", GetReservationGroupKey(slot));
+			row.Set("groupName", GC_GroupCallsignHelper.GetDisplayName(group));
+			row.Set("groupPrefab", group.GetPrefabData().GetPrefabName());
+			row.Set("groupPosition", transform.GetOrigin().ToString());
+			row.Set("unitIndex", slot.GetGroupSlotIndex().ToString());
+			row.Set("rolePrefab", slot.GetAuthoredPrefab());
+			SCR_UIInfo role = GC_Slot.GetPrefabRoleInfo(slot.GetAuthoredPrefab());
+			if (role)
+			{
+				row.Set("roleNameKey", role.GetName());
+				row.Set("roleName", WidgetManager.Translate(role.GetName()));
+			}
+			else
+				row.Set("roleName", "Unit " + (slot.GetGroupSlotIndex() + 1).ToString());
+			row.Set("playerName", slot.GetCachedPlayerName());
+			row.Set("armaUid", slot.GetUUID());
+			rows.Insert(row);
+		}
+		JsonSaveContext context = new JsonSaveContext();
+		if (!context.WriteValue("version", 1) || !context.WriteValue("world", GetGame().GetWorldFile()) || !context.WriteValue("slots", rows))
+			return "The roster could not be serialized.";
+		output = context.SaveToString();
+		if (output.Length() > 32768 || rows.Count() > 128)
+		{
+			output = "";
+			return "This roster exceeds the transfer limit of 128 slots / 32 KiB.";
+		}
+		return string.Format("Exported %1 authored slots. %2 runtime-only slots excluded. Copy the text to save it.", rows.Count(), excluded);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Descriptive metadata is an export snapshot; only stable keys select live slots.
+	//! Validate all claims first. Blank UIDs are no-ops, never a bulk removal request.
+	protected string ImportSlotReservations(string input)
+	{
+		if (input.IsEmpty() || input.Length() > 32768)
+			return "Paste a reservation export of 32 KiB or less.";
+		JsonLoadContext context = new JsonLoadContext(false);
+		int version;
+		string world;
+		array<ref map<string, string>> rows;
+		if (!context.LoadFromString(input) || !context.ReadValue("version", version) || version != 1
+			|| !context.ReadValue("world", world) || !context.ReadValue("slots", rows) || !rows)
+			return "Invalid reservation document. Use a version 1 Lobby2 export.";
+		if (world != GetGame().GetWorldFile())
+			return "This export belongs to a different scenario.";
+		if (rows.Count() > 128)
+			return "Import supports at most 128 slots.";
+
+		map<string, GC_Slot> currentSlots = new map<string, GC_Slot>();
+		foreach (GC_Slot existing : GetSlots())
+		{
+			string currentKey = GetReservationSlotKey(existing);
+			if (currentKey.IsEmpty())
+				continue;
+			if (currentSlots.Contains(currentKey))
+				return "Import rejected: authored slot locations are ambiguous.";
+			currentSlots.Set(currentKey, existing);
+		}
+		array<GC_Slot> pending = {};
+		array<string> identities = {};
+		array<string> names = {};
+		array<string> seenKeys = {};
+		array<string> seenIdentities = {};
+		foreach (map<string, string> row : rows)
+		{
+			string key;
+			string value;
+			if (!row || !row.Find("slotKey", key) || !row.Find("armaUid", value))
+				return "Each slot needs slotKey and armaUid fields. No reservations were changed.";
+			GC_Slot slot = currentSlots.Get(key);
+			if (!slot || seenKeys.Contains(key))
+				return "A slot is missing, changed, or repeated. Export the current scenario again.";
+			seenKeys.Insert(key);
+			value.TrimInPlace();
+			value.ToLower();
+			if (value.IsEmpty())
+				continue;
+			if (seenIdentities.Contains(value))
+				return "The same Arma UID appears more than once. No reservations were changed.";
+			seenIdentities.Insert(value);
+			string error = ValidateSlotReservation(slot, value);
+			if (!error.IsEmpty())
+				return string.Format("Slot %1: %2 No reservations were changed.", slot.GetID(), error);
+			string playerName = row.Get("playerName");
+			playerName.TrimInPlace();
+			if (playerName.Length() > 128 || playerName.Contains("\n") || playerName.Contains("\r"))
+				return "Player names must be 128 characters or fewer on one line. No reservations were changed.";
+			GC_Slot existingClaim = m_Roster.GetSlotByUUID(value);
+			if (existingClaim && existingClaim != slot)
+				return "An imported player already occupies another slot. Use manual assignment to move them.";
+			if (existingClaim == slot)
+				continue;
+			pending.Insert(slot);
+			identities.Insert(value);
+			names.Insert(playerName);
+		}
+		foreach (int index, GC_Slot reserved : pending)
+			reserved.ReserveIdentity(identities[index], names[index]);
+		foreach (string identity : identities)
+		{
+			int playerId = GetConnectedPlayerIdByIdentity(identity);
+			if (playerId > 0)
+				QueuePlayerCatchUp(playerId);
+		}
+		return string.Format("Reserved %1 slots. Connected players will join their slots. Matching claims and blank UIDs made no changes.", pending.Count());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string ExecuteAdminAssignSlot(int requesterId, int playerId, UUID expectedIdentity, int slotId, UUID expectedClaim)
+	{
+		string target = string.Format("player=%1 identity=%2 slot=%3 claim=%4", playerId, expectedIdentity, slotId, expectedClaim);
+		if (!AuthorizeAdminAction(requesterId, "slot-assign", target))
+			return "rejected-not-logged-in";
+		string outcome = "rejected-stale-target";
+		GC_Slot slot = GetSlot(slotId);
+		if (slot && slot.GetUUID() == expectedClaim && !expectedIdentity.IsEmpty() && GetConnectedPlayerIdByIdentity(expectedIdentity) == playerId)
+		{
+			outcome = "rejected-slot-unavailable";
+			SCR_EGameModeState phase = GetLobbyPhase();
+			SCR_AIGroup group = ResolveSlotGroup(slot);
+			if (!slot.IsKIA() && (!slot.HasClaim() || slot.GetPlayerId() == playerId) && group && group.GetFaction() && phase != SCR_EGameModeState.POSTGAME)
+			{
+				bool spawned = true;
+				if (phase == SCR_EGameModeState.BRIEFING || phase == SCR_EGameModeState.GAME)
+					spawned = SpawnSlotEntity(slot, true, group);
+				outcome = "failed-character-spawn";
+				if (spawned)
+				{
+					outcome = "failed-group-assignment";
+					if (ApplyPlayerSlotAssignment(playerId, slot, false, true))
+					{
+						outcome = "applied";
+						PlayerController controller = GetGame().GetPlayerManager().GetPlayerController(playerId);
+						if (phase == SCR_EGameModeState.GAME && (!controller || controller.GetControlledEntity() != slot.GetEntity()))
+							outcome = "assigned-character-entry-failed";
+					}
+				}
+			}
+		}
+		GC_AdminActionLogger.Log(requesterId, "slot-assign", target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetFactionLockOverride() { return m_iFactionLockOverride; }
+	bool IsFactionBalanceEnforced() { return m_bEnforceFactionBalance; }
+	int GetFactionRulesRevision() { return m_iFactionRulesRevision; }
+
+	//------------------------------------------------------------------------------------------------
+	bool IsFactionSwitchLocked()
+	{
+		if (m_iFactionLockOverride == 1)
+			return true;
+		if (m_iFactionLockOverride == 2)
+			return false;
+		return GC_LobbyPhase.IsAtOrAfter(GetLobbyPhase(), SCR_EGameModeState.BRIEFING);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string ExecuteAdminFactionRules(int requesterId, int expectedRevision, int lockOverride, bool enforceBalance)
+	{
+		string target = string.Format("revision=%1 lockMode=%2 balance=%3", expectedRevision, lockOverride, enforceBalance);
+		if (!AuthorizeAdminAction(requesterId, "faction-rules", target))
+			return "rejected-not-logged-in";
+		string outcome = "applied";
+		if (expectedRevision != m_iFactionRulesRevision)
+			outcome = "rejected-stale-rules";
+		else if (lockOverride < 0 || lockOverride > 2 || GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
+			outcome = "rejected-faction-rules";
+		else
+		{
+			m_iFactionLockOverride = lockOverride;
+			m_bEnforceFactionBalance = enforceBalance;
+			m_iFactionRulesRevision++;
+			Rpc(RpcDo_AdminFactionRules, m_iFactionRulesRevision, lockOverride, enforceBalance);
+			m_OnFactionRulesChanged.Invoke(m_iFactionRulesRevision);
+		}
+		GC_AdminActionLogger.Log(requesterId, "faction-rules", target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_AdminFactionRules(int revision, int lockOverride, bool enforceBalance)
+	{
+		if (Replication.IsServer() || GC_LobbyManager.GetManager() != this || m_bShutdown || revision <= m_iFactionRulesRevision)
+			return;
+		m_iFactionRulesRevision = revision;
+		m_iFactionLockOverride = lockOverride;
+		m_bEnforceFactionBalance = enforceBalance;
+		m_OnFactionRulesChanged.Invoke(revision);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Ordinary choices obey proportional quotas. Explicit administrator assignment
+	//! uses its separately authorized route and can override these lobby rules.
+	bool CanPlayerJoinBalancedFaction(int playerId, Faction targetFaction)
+	{
+		if (!targetFaction)
+			return false;
+		if (!m_bEnforceFactionBalance || GetPlayerFaction(playerId) == targetFaction)
+			return true;
+		array<string> keys = {};
+		foreach (Faction faction : GetRegisteredFactions())
+		{
+			if (faction && GetFactionSlotCount(faction.GetFactionKey()) > 0)
+				keys.Insert(faction.GetFactionKey());
+		}
+		if (keys.Count() < 2)
+			return true;
+		keys.Sort();
+		array<int> capacities = {};
+		foreach (string key : keys)
+			capacities.Insert(GetFactionSlotCount(key));
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		array<int> quotas;
+		GC_FactionBalancePolicy.Calculate(capacities, players.Count(), quotas);
+		int index = keys.Find(targetFaction.GetFactionKey());
+		if (index < 0)
+			return false;
+		int occupants;
+		foreach (int connectedPlayerId : players)
+		{
+			if (GetPlayerFaction(connectedPlayerId) == targetFaction)
+				occupants++;
+		}
+		return occupants < quotas[index];
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Session history is presentation evidence, never player or permission authority.
+	protected void RecordAdminSessionEvent(int playerId, bool connected, int cause)
+	{
+		if (connected)
+		{
+			string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+			GC_AdminSessionPlayer record;
+			foreach (GC_AdminSessionPlayer prior : m_aModerationHistory)
+			{
+				if (prior.m_sIdentity == identity && !identity.IsEmpty())
+					record = prior;
+			}
+			if (!record)
+			{
+				record = new GC_AdminSessionPlayer();
+				m_aModerationHistory.Insert(record);
+			}
+			record.m_iPlayerId = playerId;
+			record.m_sName = GetGame().GetPlayerManager().GetPlayerName(playerId);
+			record.m_sIdentity = identity;
+			// Installed native API; obsolete but no replacement platform-ID accessor is exposed.
+			if (GetGame().GetPlayerManager().GetPlatformKind(playerId) == PlatformKind.STEAM)
+				record.m_sSteamId = GetGame().GetBackendApi().GetPlayerPlatformId(playerId);
+		}
+		string label;
+		if (connected)
+		{
+			label = string.Format("%1 / %2 / session %3", GetGame().GetPlayerManager().GetPlayerName(playerId), SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId), playerId);
+			label.Replace("\n", " ");
+			label.Replace("\r", " ");
+			m_mAdminSessionLabels.Set(playerId, label);
+		}
+		else
+		{
+			if (!m_mAdminSessionLabels.Find(playerId, label))
+				label = string.Format("session %1", playerId);
+			m_mAdminSessionLabels.Remove(playerId);
+		}
+		string eventName = "left";
+		if (connected)
+			eventName = "joined";
+		m_aAdminSessionHistory.Insert(string.Format("%1 / %2 / %3 / cause %4", System.GetUnixTime(), eventName, label, cause));
+		if (m_aAdminSessionHistory.Count() > 256)
+			m_aAdminSessionHistory.RemoveOrdered(0);
+		NotifyModerationChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Validates a player target against the current session and character, not a cached menu.
+	string ValidateAdminFollowPlayer(int requesterId, int targetId, UUID expectedIdentity, out RplId entityId)
+	{
+		entityId = RplId.Invalid();
+		string target = string.Format("player=%1 identity=%2", targetId, expectedIdentity);
+		if (!AuthorizeAdminAction(requesterId, "spectator-follow", target))
+			return "rejected-not-logged-in";
+		string outcome = "rejected-stale-player";
+		PlayerManager players = GetGame().GetPlayerManager();
+		GC_LobbyPlayerController requester = GC_LobbyPlayerController.Cast(players.GetPlayerController(requesterId));
+		if (!expectedIdentity.IsEmpty() && players.IsPlayerConnected(targetId) && GetPlayerVoiceIdentity(targetId) == expectedIdentity)
+		{
+			outcome = "unavailable-follow-camera";
+			IEntity entity = players.GetPlayerControlledEntity(targetId);
+			if (requester && requester.GetLobbyPlayerState() == GC_ELobbyPlayerState.SPECTATOR && requesterId != targetId && entity && !entity.FindComponent(GC_LobbySpectatorBodyComponent))
+			{
+				CharacterControllerComponent character = CharacterControllerComponent.Cast(entity.FindComponent(CharacterControllerComponent));
+				RplComponent replication = RplComponent.Cast(entity.FindComponent(RplComponent));
+				if (character && !character.IsDead() && !character.IsUnconscious() && replication)
+				{
+					entityId = replication.Id();
+					if (entityId.IsValid())
+						outcome = "authorized";
+				}
+			}
+		}
+		// Authorization is not proof that the owner's local camera attached successfully.
+		GC_AdminActionLogger.Log(requesterId, "spectator-follow", target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GetAdminSessionReport(int requesterId, string search)
+	{
+		if (!AuthorizeAdminAction(requesterId, "admin-session-report", search))
+			return "A current admin login is required.";
+		if (search.Length() > 64)
+		{
+			GC_AdminActionLogger.Log(requesterId, "admin-session-report", "search-length=" + search.Length().ToString(), "rejected-search-length");
+			return "Search is limited to 64 characters.";
+		}
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		float uptimeSeconds = System.GetTickCount() * 0.001;
+		string report = string.Format("Server FPS (last 10 frames): %1\nServer uptime: %2 seconds\nPlayers online: %3 / Slots: %4\nSession history (last 256 events; newest 64 matches):\n", System.GetFPS(), uptimeSeconds, players.Count(), GetSlots().Count());
+		search.ToLower();
+		int count;
+		for (int index = m_aAdminSessionHistory.Count() - 1; index >= 0 && count < 64; index--)
+		{
+			string entry = m_aAdminSessionHistory[index];
+			string lower = entry;
+			lower.ToLower();
+			if (!search.IsEmpty() && !lower.Contains(search))
+				continue;
+			report += entry + "\n";
+			count++;
+		}
+		if (count == 0)
+			report += "No matching session events.";
+		GC_AdminActionLogger.Log(requesterId, "admin-session-report", search, string.Format("returned matches=%1", count));
+		return report;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string ExecuteAdminPlayerAction(int requesterId, string action, int targetId, UUID expectedIdentity, string reason, int duration, int page, int requestId = 0, int expiresAt = 0)
+	{
+		string target = string.Format("player=%1 identity=%2 duration=%3 page=%4 reason=%5", targetId, expectedIdentity, duration, page, reason);
+		target += string.Format(" name=%1 expiresAt=%2 requestId=%3", GetGame().GetPlayerManager().GetPlayerName(targetId), expiresAt, requestId);
+		if (!AuthorizeAdminAction(requesterId, action, target))
+			return "rejected-not-logged-in";
+		if (expiresAt != 0)
+		{
+			int now = System.GetUnixTime();
+			if (action != "player-ban" || duration != 0 || expiresAt <= now || expiresAt - now > 315360000)
+			{
+				GC_AdminActionLogger.Log(requesterId, action, target, "rejected-ban-expiry");
+				return "rejected-ban-expiry";
+			}
+			duration = expiresAt - now;
+		}
+		string outcome = ValidateAdminPlayerAction(action, targetId, expectedIdentity, reason, duration, page);
+		if (outcome.IsEmpty())
+		{
+			if (action == "player-kick")
+			{
+				GetGame().GetPlayerManager().KickPlayer(targetId, PlayerManagerKickReason.KICK);
+				RecordModerationAction(expectedIdentity, "Kick requested", reason, 0);
+				outcome = "dispatched-player-kick";
+			}
+			else
+			{
+				if (!m_AdminBanService)
+					m_AdminBanService = new GC_AdminBanService(this);
+				outcome = m_AdminBanService.Request(requesterId, action, targetId, expectedIdentity, reason, duration, page, requestId);
+			}
+		}
+		GC_AdminActionLogger.Log(requesterId, action, target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string ValidateAdminPlayerAction(string action, int targetId, UUID expectedIdentity, string reason, int duration, int page)
+	{
+		if (action != "player-kick" && action != "player-ban" && action != "player-unban" && action != "ban-list")
+			return "rejected-unknown-action";
+		if (action == "ban-list")
+		{
+			if (page < 0 || page > 100000)
+				return "rejected-ban-page";
+			return "";
+		}
+		if (!IsAdminAccountIdentity(expectedIdentity))
+			return "rejected-account-identity";
+		if (action == "player-unban")
+			return "";
+		if ((targetId > 0 || action == "player-kick") && (!GetGame().GetPlayerManager().IsPlayerConnected(targetId)
+			|| SCR_PlayerIdentityUtils.GetPlayerIdentityId(targetId) != expectedIdentity))
+			return "rejected-stale-player";
+		reason.TrimInPlace();
+		if (reason.IsEmpty() || reason.Length() > 256 || reason.Contains("\n") || reason.Contains("\r"))
+			return "rejected-admin-reason";
+		PlayerController localController = GetGame().GetPlayerController();
+		if (action == "player-kick" && localController && localController.GetPlayerId() == targetId)
+			return "unsupported-local-host-kick";
+		if (action == "player-ban" && (duration < 0 || duration > 315360000))
+			return "rejected-ban-duration";
+		return "";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool IsAdminAccountIdentity(string identity)
+	{
+		if (identity.Length() != 36)
+			return false;
+		string lower = identity;
+		lower.ToLower();
+		for (int index; index < 36; index++)
+		{
+			string character = lower.Substring(index, 1);
+			if (index == 8 || index == 13 || index == 18 || index == 23)
+			{
+				if (character != "-")
+					return false;
+			}
+			else if (!"0123456789abcdef".Contains(character))
+				return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RecordModerationAction(string identity, string action, string reason, int expiresAt)
+	{
+		foreach (GC_AdminSessionPlayer record : m_aModerationHistory)
+		{
+			if (record.m_sIdentity != identity)
+				continue;
+			record.m_sAction = action;
+			record.m_sReason = reason;
+			record.m_iExpiresAt = expiresAt;
+		}
+		NotifyModerationChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Export only a server-observed session identity; never accept client-supplied names or platform IDs.
+	string CopyAdminPlayerDetails(int requesterId, UUID identity)
+	{
+		if (!AuthorizeAdminAction(requesterId, "copy-player-details", identity))
+			return "rejected-not-logged-in";
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requesterId));
+		foreach (GC_AdminSessionPlayer record : m_aModerationHistory)
+		{
+			if (record.m_sIdentity != identity || !controller)
+				continue;
+			string name = record.m_sName;
+			PlayerManager players = GetGame().GetPlayerManager();
+			if (players.IsPlayerConnected(record.m_iPlayerId)
+				&& SCR_PlayerIdentityUtils.GetPlayerIdentityId(record.m_iPlayerId) == identity)
+				name = players.GetPlayerName(record.m_iPlayerId);
+			// Keep the three labels unambiguous even if a displayed name contains line breaks.
+			name.Replace("\r", " ");
+			name.Replace("\n", " ");
+			string steamId = record.m_sSteamId;
+			if (steamId.IsEmpty())
+				steamId = "Unavailable";
+			controller.SendPlayerDetailsToClipboard("Name: " + name + "\nSteam ID: " + steamId + "\nArma UID: " + identity);
+			GC_AdminActionLogger.Log(requesterId, "copy-player-details", identity, "dispatched-owner-clipboard");
+			return "dispatched-owner-clipboard";
+		}
+		GC_AdminActionLogger.Log(requesterId, "copy-player-details", identity, "rejected-unknown-identity");
+		return "rejected-unknown-identity";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void NotifyModerationChanged()
+	{
+		if (!Replication.IsServer() || GetManager() != this)
+			return;
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		foreach (int playerId : players)
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (controller)
+				controller.SendModerationChanged();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Admin-only presentation snapshot. Live membership is always re-queried.
+	void SendModerationSession(int requesterId, int requestId)
+	{
+		if (!AuthorizeAdminAction(requesterId, "moderation-session", ""))
+			return;
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requesterId));
+		if (!controller)
+			return;
+		array<string> rows = {};
+		PlayerManager players = GetGame().GetPlayerManager();
+		foreach (GC_AdminSessionPlayer record : m_aModerationHistory)
+		{
+			bool connected = players.IsPlayerConnected(record.m_iPlayerId)
+				&& SCR_PlayerIdentityUtils.GetPlayerIdentityId(record.m_iPlayerId) == record.m_sIdentity;
+			string status = "Disconnected";
+			int playerId;
+			if (connected)
+			{
+				playerId = record.m_iPlayerId;
+				record.m_sName = players.GetPlayerName(playerId);
+				status = "Connected";
+			}
+			if (record.m_sAction == "Banned" && (record.m_iExpiresAt == 0 || record.m_iExpiresAt > System.GetUnixTime()))
+				status = "Banned (session record)";
+			rows.Insert(playerId.ToString());
+			rows.Insert(record.m_sName);
+			rows.Insert(record.m_sIdentity);
+			rows.Insert(record.m_sSteamId);
+			rows.Insert(status);
+			rows.Insert(record.m_sReason);
+			string expiry;
+			if (record.m_sAction == "Banned")
+				expiry = record.m_iExpiresAt.ToString();
+			rows.Insert(expiry);
+		}
+		controller.SendModerationRows(rows, requestId);
+		GC_AdminActionLogger.Log(requesterId, "moderation-session", "", "returned");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Shared presentation preflight. The server repeats it at execution time.
+	SCR_AIGroup GetPlayableCharacterGroup(IEntity entity)
+	{
+		if (!entity || GetLobbyPhase() == SCR_EGameModeState.POSTGAME || m_Roster.GetSlotByEntity(entity))
+			return null;
+		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
+		if (!character || !character.GetCharacterController())
+			return null;
+		CharacterControllerComponent controller = character.GetCharacterController();
+		if (controller.IsDead() || controller.IsUnconscious() || controller.IsPlayerControlled())
+			return null;
+		if (GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(entity) > 0)
+			return null;
+		AIControlComponent aiControl = AIControlComponent.Cast(entity.FindComponent(AIControlComponent));
+		if (!aiControl || !aiControl.GetAIAgent())
+			return null;
+		SCR_AIGroup group = SCR_AIGroup.Cast(aiControl.GetAIAgent().GetParentGroup());
+		if (!group || !m_Roster.ContainsGroup(group) || !group.GetFaction())
+			return null;
+		FactionAffiliationComponent affiliation = FactionAffiliationComponent.Cast(entity.FindComponent(FactionAffiliationComponent));
+		if (!affiliation || affiliation.GetAffiliatedFaction() != group.GetFaction())
+			return null;
+		EntityPrefabData prefabData = entity.GetPrefabData();
+		RplComponent replication = RplComponent.Cast(entity.FindComponent(RplComponent));
+		if (!prefabData || prefabData.GetPrefabName().IsEmpty() || !replication || !replication.Id().IsValid())
+			return null;
+		return group;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string ExecuteAdminMakePlayable(int requesterId, RplId entityId, RplId expectedGroup)
+	{
+		string target = string.Format("character=%1 group=%2", entityId, expectedGroup);
+		if (!AuthorizeAdminAction(requesterId, "slot-make-playable", target))
+			return "rejected-not-logged-in";
+		int createdSlotId = -1;
+		string outcome = MakeAdminCharacterPlayable(entityId, expectedGroup, createdSlotId);
+		GC_AdminActionLogger.Log(requesterId, "slot-make-playable", target, string.Format("%1 slot=%2", outcome, createdSlotId));
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string MakeAdminCharacterPlayable(RplId entityId, RplId expectedGroup, out int createdSlotId)
+	{
+		createdSlotId = -1;
+		RplComponent replication = RplComponent.Cast(Replication.FindItem(entityId));
+		if (!replication || replication.IsProxy())
+			return "rejected-stale-character";
+		IEntity entity = replication.GetEntity();
+		SCR_AIGroup group = GetPlayableCharacterGroup(entity);
+		if (!group || Replication.FindItemId(group) != expectedGroup)
+			return "rejected-incompatible-character";
+		if (m_Roster.GetSlots().Count() >= 512)
+			return "rejected-slot-limit";
+
+		AIControlComponent aiControl = AIControlComponent.Cast(entity.FindComponent(AIControlComponent));
+		aiControl.DeactivateAI();
+		if (aiControl.IsAIActivated())
+			return "failed-ai-deactivation";
+		int nextIndex;
+		foreach (GC_Slot existing : m_Roster.GetSlotsForGroup(group))
+		{
+			if (existing.GetGroupSlotIndex() >= nextIndex)
+				nextIndex = existing.GetGroupSlotIndex() + 1;
+		}
+		ResourceName prefab = entity.GetPrefabData().GetPrefabName();
+		GC_Slot slot = new GC_Slot();
+		slot.SetID(m_Roster.AllocateSlotId());
+		slot.SetGroup(group);
+		slot.SetGroupSlotIndex(nextIndex);
+		slot.SetAuthoredPrefab(prefab);
+		slot.SetResolvedPrefab(prefab);
+		slot.SetAdminSpawnPoint(new GC_SlotSpawnPoint(entity.GetOrigin(), entity.GetAngles()));
+		slot.SetEntity(entity);
+		m_Roster.AddSlot(slot);
+		SubscribeToSlotEvents(slot);
+		UpdateSlot(slot);
+		NotifyGroupFactionUpdated(group);
+		createdSlotId = slot.GetID();
+		return "applied";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! The existing registered slot supplies the approved prefab and group.
+	//! No client-supplied resource name is loaded or spawned.
+	string ExecuteAdminCreateSlot(int requesterId, int templateSlotId, RplId expectedGroup, vector position)
+	{
+		string target = string.Format("template=%1 group=%2 position=%3", templateSlotId, expectedGroup, position);
+		if (!AuthorizeAdminAction(requesterId, "slot-create", target))
+			return "rejected-not-logged-in";
+		int createdSlotId = -1;
+		string outcome = CreateAdminSlot(templateSlotId, expectedGroup, position, createdSlotId);
+		GC_AdminActionLogger.Log(requesterId, "slot-create", target, string.Format("%1 slot=%2", outcome, createdSlotId));
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string CreateAdminSlot(int templateSlotId, RplId expectedGroup, vector position, out int createdSlotId)
+	{
+		createdSlotId = -1;
+		if (GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
+			return "rejected-create-state";
+		GC_Slot source = GetSlot(templateSlotId);
+		if (!source || source.GetGroupRplId() != expectedGroup)
+			return "rejected-stale-template";
+		SCR_AIGroup group = ResolveSlotGroup(source);
+		if (!group || !m_Roster.ContainsGroup(group) || source.GetResolvedPrefab().IsEmpty())
+			return "rejected-stale-template";
+
+		vector minimum;
+		vector maximum;
+		GetGame().GetWorld().GetBoundBox(minimum, maximum);
+		// Positive bounds checks reject NaN and infinity as well as outside-world positions.
+		for (int axis; axis < 3; axis++)
+		{
+			if (!(position[axis] >= minimum[axis] && position[axis] <= maximum[axis]))
+				return "rejected-spawn-position";
+		}
+		if (m_Roster.GetSlots().Count() >= 512)
+			return "rejected-slot-limit";
+
+		int nextIndex;
+		foreach (GC_Slot existing : m_Roster.GetSlotsForGroup(group))
+		{
+			if (existing.GetGroupSlotIndex() >= nextIndex)
+				nextIndex = existing.GetGroupSlotIndex() + 1;
+		}
+		GC_Slot slot = new GC_Slot();
+		slot.SetID(m_Roster.AllocateSlotId());
+		slot.SetGroup(group);
+		slot.SetGroupSlotIndex(nextIndex);
+		slot.SetAuthoredPrefab(source.GetAuthoredPrefab());
+		slot.SetResolvedPrefab(source.GetResolvedPrefab());
+		slot.SetVariantPolicy(source.GetVariantPolicy());
+		slot.SetAdminSpawnPoint(new GC_SlotSpawnPoint(position, group.GetAngles()));
+		// Stage successfully before publishing the slot. Failure leaves the roster unchanged.
+		if (!SpawnSlotEntity(slot, true, group))
+			return "failed-character-spawn";
+		createdSlotId = slot.GetID();
+		m_Roster.AddSlot(slot);
+		SubscribeToSlotEvents(slot);
+		UpdateSlot(slot);
+		NotifyGroupFactionUpdated(group);
+		return "applied";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Occupied slots stay occupied when locked. Free/remove explicitly release
+	//! possession first; removal never deletes the represented character.
+	string ExecuteAdminSlotAction(int requesterId, int slotId, UUID expectedClaim, GC_EAdminSlotAction action)
+	{
+		string actionName = GetAdminSlotActionName(action);
+		string target = string.Format("slot=%1 claim=%2", slotId, expectedClaim);
+		if (!AuthorizeAdminAction(requesterId, actionName, target))
+			return "rejected-not-logged-in";
+		GC_Slot slot = GetSlot(slotId);
+		string outcome = "rejected-stale-slot";
+		if (slot && slot.GetUUID() == expectedClaim)
+			outcome = ApplyAdminSlotAction(slot, action);
+		GC_AdminActionLogger.Log(requesterId, actionName, target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string GetAdminSlotActionName(GC_EAdminSlotAction action)
+	{
+		switch (action)
+		{
+			case GC_EAdminSlotAction.LOCK:
+				return "slot-lock";
+			case GC_EAdminSlotAction.UNLOCK:
+				return "slot-unlock";
+			case GC_EAdminSlotAction.PIN:
+				return "slot-pin";
+			case GC_EAdminSlotAction.UNPIN:
+				return "slot-unpin";
+			case GC_EAdminSlotAction.FREE:
+				return "slot-free";
+			case GC_EAdminSlotAction.REMOVE:
+				return "slot-remove";
+			case GC_EAdminSlotAction.RESPAWN_ORIGINAL:
+				return "slot-respawn-original";
+			case GC_EAdminSlotAction.RESPAWN_CURRENT:
+				return "slot-respawn-current";
+			case GC_EAdminSlotAction.FORCE_ENTRY:
+				return "slot-force-entry";
+			case GC_EAdminSlotAction.HEAL_OR_RESPAWN:
+				return "slot-heal-respawn";
+		}
+		return "slot-unknown";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Shared native healing for player tools and slot-targeted recovery.
+	protected bool GC_HealAdminCharacter(ChimeraCharacter character)
+	{
+		if (!Replication.IsServer() || !character || character.FindComponent(GC_LobbySpectatorBodyComponent))
+			return false;
+		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(character.FindComponent(SCR_CharacterDamageManagerComponent));
+		if (!damage || damage.GetState() == EDamageState.DESTROYED)
+			return false;
+		damage.FullHeal();
+		array<HitZone> zones = {};
+		damage.GetAllHitZonesInHierarchy(zones);
+		if (zones.IsEmpty())
+			return false;
+		foreach (HitZone zone : zones)
+		{
+			if (zone && zone.GetDamageState() != EDamageState.UNDAMAGED)
+				return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string ApplyAdminSlotAction(GC_Slot slot, GC_EAdminSlotAction action)
+	{
+		switch (action)
+		{
+			case GC_EAdminSlotAction.LOCK:
+				slot.SetAdminLocked(true);
+				return "applied";
+			case GC_EAdminSlotAction.UNLOCK:
+				slot.SetAdminLocked(false);
+				return "applied";
+			case GC_EAdminSlotAction.PIN:
+				if (!slot.HasClaim())
+					return "rejected-empty-slot";
+				slot.SetAssignmentPinned(true);
+				return "applied";
+			case GC_EAdminSlotAction.UNPIN:
+				slot.SetAssignmentPinned(false);
+				return "applied";
+			case GC_EAdminSlotAction.FREE:
+				if (!ReleaseAdminSlotPlayer(slot))
+					return "failed-spectator-transfer";
+				slot.SetAdminLocked(false);
+				return "applied";
+			case GC_EAdminSlotAction.REMOVE:
+				if (!ReleaseAdminSlotPlayer(slot))
+					return "failed-spectator-transfer";
+				UnsubscribeFromSlotEvents(slot);
+				m_Roster.RemoveSlot(slot);
+				Rpc(RpcDo_RemoveAdminSlot, slot.GetID());
+				NotifyGroupFactionUpdated(slot.GetGroup());
+				return "applied";
+			case GC_EAdminSlotAction.RESPAWN_ORIGINAL:
+				return RespawnAdminSlot(slot, false);
+			case GC_EAdminSlotAction.RESPAWN_CURRENT:
+				return RespawnAdminSlot(slot, true);
+			case GC_EAdminSlotAction.HEAL_OR_RESPAWN:
+				if (GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
+					return "rejected-respawn-state";
+				if (slot.IsKIA())
+					return RespawnAdminSlot(slot, slot.GetEntity() != null);
+				if (GC_HealAdminCharacter(ChimeraCharacter.Cast(slot.GetEntity())))
+					return "applied";
+				return "failed-character-heal";
+			case GC_EAdminSlotAction.FORCE_ENTRY:
+				if (GetLobbyPhase() != SCR_EGameModeState.GAME || slot.IsKIA() || slot.GetPlayerId() <= 0)
+					return "rejected-entry-state";
+				if (!SpawnSlotEntity(slot, true) || !AssignSlotEntity(slot.GetPlayerId(), slot))
+					return "failed-character-entry";
+				return "applied";
+		}
+		return "rejected-unknown-action";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ReleaseAdminSlotPlayer(GC_Slot slot)
+	{
+		int playerId = slot.GetPlayerId();
+		if (playerId > 0 && GetGame().GetPlayerManager().IsPlayerConnected(playerId))
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (!controller)
+				return false;
+			SetSpectator(playerId, true);
+			IEntity body = controller.GetControlledEntity();
+			if (!body || !body.FindComponent(GC_LobbySpectatorBodyComponent))
+				return false;
+			SCR_AIGroup group = GetPlayerGroup(playerId);
+			if (group)
+				group.RemovePlayer(playerId);
+			SynchronizePlayerNativeMembership(playerId);
+			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
+		}
+		slot.ReleaseClaim();
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Stage a replacement before changing the claim or deleting the old body.
+	//! A failed spawn/possession keeps the original slot and character intact.
+	protected string RespawnAdminSlot(GC_Slot slot, bool atCurrentPosition)
+	{
+		int playerId = slot.GetPlayerId();
+		SCR_AIGroup group = ResolveSlotGroup(slot);
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		if (!group || GetLobbyPhase() == SCR_EGameModeState.POSTGAME
+			|| (playerId > 0 && (!controller || !GetGame().GetPlayerManager().IsPlayerConnected(playerId))))
+			return "rejected-respawn-state";
+		IEntity previous = slot.GetEntity();
+		if (atCurrentPosition && !previous)
+			return "rejected-no-current-character";
+
+		GC_Slot replacement = new GC_Slot();
+		replacement.SetID(slot.GetID());
+		replacement.SetAdminSpawnPoint(slot.GetAdminSpawnPoint());
+		replacement.SetGroup(group);
+		replacement.SetGroupSlotIndex(slot.GetGroupSlotIndex());
+		replacement.SetAuthoredPrefab(slot.GetAuthoredPrefab());
+		ResourceName prefab = slot.GetResolvedPrefab();
+		if (slot.GetVariantPolicy() == GC_SlotVariantPolicy.REROLL_ON_RESPAWN)
+			prefab = SCR_EditableEntityComponentClass.GetRandomVariant(slot.GetAuthoredPrefab());
+		if (prefab.IsEmpty())
+			return "failed-prefab-resolution";
+		replacement.SetResolvedPrefab(prefab);
+		EntitySpawnParams spawnOverride;
+		if (atCurrentPosition)
+		{
+			spawnOverride = new EntitySpawnParams();
+			spawnOverride.TransformMode = ETransformMode.WORLD;
+			previous.GetWorldTransform(spawnOverride.Transform);
+		}
+		if (!SpawnSlotEntity(replacement, true, group, spawnOverride))
+			return "failed-character-spawn";
+		IEntity character = replacement.GetEntity();
+		if (playerId > 0 && GetLobbyPhase() == SCR_EGameModeState.GAME && !AssignSlotEntity(playerId, replacement))
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(character);
+			return "failed-character-possession";
+		}
+
+		slot.SetResolvedPrefab(prefab);
+		slot.SetEntity(character);
+		if (playerId > 0)
+		{
+			slot.SetState(GC_SlotState.LOCKED);
+			RefreshPlayerRadio(playerId);
+		}
+		else if (slot.HasClaim())
+			slot.SetState(GC_SlotState.DISCONNECTED);
+		else
+			slot.SetState(GC_SlotState.FREE);
+		if (previous && previous != character)
+			SCR_EntityHelper.DeleteEntityAndChildren(previous);
+		return "applied";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string ExecuteAdminGroupLock(int requesterId, RplId groupId, bool locked)
+	{
+		string target = string.Format("group=%1 locked=%2", groupId, locked);
+		if (!AuthorizeAdminAction(requesterId, "slot-group-lock", target))
+			return "rejected-not-logged-in";
+		int changed;
+		foreach (GC_Slot slot : m_Roster.GetSlots())
+		{
+			if (groupId != RplId.Invalid() && slot.GetGroupRplId() != groupId)
+				continue;
+			slot.SetAdminLocked(locked);
+			changed++;
+		}
+		string outcome = "applied";
+		if (changed == 0)
+			outcome = "rejected-no-slots";
+		GC_AdminActionLogger.Log(requesterId, "slot-group-lock", target, string.Format("%1 slots=%2", outcome, changed));
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_RemoveAdminSlot(int slotId)
+	{
+		if (Replication.IsServer())
+			return;
+		GC_Slot slot = GetSlot(slotId);
+		if (!slot)
+			return;
+		UnsubscribeFromSlotEvents(slot);
+		m_Roster.RemoveSlot(slot);
+		NotifyGroupFactionUpdated(slot.GetGroup());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Call only on authority with a requester derived from the owning controller.
+	bool AuthorizeAdminAction(int requesterId, string action, string target)
+	{
+		if (GetManager() != this || m_bShutdown || !Replication.IsServer() || requesterId <= 0 || !GetGame().GetPlayerManager().IsPlayerConnected(requesterId) || !SCR_Global.IsAdmin(requesterId))
+		{
+			GC_AdminActionLogger.Log(requesterId, action, target, "rejected-not-logged-in");
+			return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Expected identity prevents a stale menu from targeting a recycled player ID.
+	bool TrySetAdminVoice(int requesterId, int targetId, UUID expectedIdentity, bool priorityControl, bool enabled)
+	{
+		string action = "voice-mute";
+		if (priorityControl)
+			action = "voice-priority";
+		string target = string.Format("player=%1 identity=%2 enabled=%3", targetId, expectedIdentity, enabled);
+		if (!AuthorizeAdminAction(requesterId, action, target))
+			return false;
+
+		GC_VoiceChannelAssignment assignment = m_VoiceState.Get(targetId);
+		if (!assignment || expectedIdentity.IsEmpty() || assignment.GetPlayerIdentity() != expectedIdentity || !GetGame().GetPlayerManager().IsPlayerConnected(targetId))
+		{
+			GC_AdminActionLogger.Log(requesterId, action, target, "rejected-stale-target");
+			return false;
+		}
+
+		if (priorityControl)
+			assignment.SetPrioritySpeaker(enabled);
+		else
+			assignment.SetAdminMuted(enabled);
+		if (!assignment.IsPrioritySpeaker() || assignment.IsAdminMuted())
+		{
+			assignment.SetPriorityTransmitting(false);
+			m_mPriorityVoiceExpiry.Remove(targetId);
+		}
+		PublishVoiceModeration(assignment);
+		GC_AdminActionLogger.Log(requesterId, action, target, "applied");
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool CanTransmitLobbyVoice(int playerId)
+	{
+		return !m_bShutdown && m_VoiceState.CanTransmit(playerId, SCR_Global.IsAdmin(playerId));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Only the server's native VoN-used event acquires/renews a priority lease.
+	void ObserveLobbyVoiceTransmission(int playerId)
+	{
+		if (m_bShutdown || !Replication.IsServer())
+			return;
+		GC_VoiceChannelAssignment assignment = m_VoiceState.Get(playerId);
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		if (!assignment || !assignment.IsPrioritySpeaker() || assignment.IsAdminMuted() || !controller || !controller.HasAuthorizedLobbyCapture())
+			return;
+
+		bool startExpiry = m_mPriorityVoiceExpiry.IsEmpty();
+		m_mPriorityVoiceExpiry.Set(playerId, GetGame().GetWorld().GetWorldTime() + 750);
+		if (!assignment.IsPriorityTransmitting())
+		{
+			assignment.SetPriorityTransmitting(true);
+			PublishVoiceModeration(assignment);
+		}
+		if (startExpiry)
+		{
+			GetGame().GetCallqueue().Remove(ExpirePriorityVoice);
+			GetGame().GetCallqueue().CallLater(ExpirePriorityVoice, 250);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ReleaseLobbyVoiceTransmission(int playerId)
+	{
+		if (!Replication.IsServer())
+			return;
+		m_mPriorityVoiceExpiry.Remove(playerId);
+		GC_VoiceChannelAssignment assignment = m_VoiceState.Get(playerId);
+		if (assignment && assignment.IsPriorityTransmitting())
+		{
+			assignment.SetPriorityTransmitting(false);
+			PublishVoiceModeration(assignment);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ExpirePriorityVoice()
+	{
+		if (m_bShutdown || !Replication.IsServer())
+			return;
+		float now = GetGame().GetWorld().GetWorldTime();
+		for (int i = m_mPriorityVoiceExpiry.Count() - 1; i >= 0; i--)
+		{
+			int playerId = m_mPriorityVoiceExpiry.GetKey(i);
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (m_mPriorityVoiceExpiry.GetElement(i) <= now || !controller || !controller.HasAuthorizedLobbyCapture())
+				ReleaseLobbyVoiceTransmission(playerId);
+		}
+		if (!m_mPriorityVoiceExpiry.IsEmpty())
+			GetGame().GetCallqueue().CallLater(ExpirePriorityVoice, 250);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PublishVoiceModeration(GC_VoiceChannelAssignment assignment)
+	{
+		Rpc(RpcDo_UpdateVoiceAssignment, assignment);
+		m_OnVoiceAssignmentChanged.Invoke(assignment.GetPlayerId());
 	}
 
 	GC_VoiceChannelAssignment GetPlayerVoiceAssignment(int playerId) { return m_VoiceState.Get(playerId); }
@@ -1728,14 +3016,38 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool AuthorizeAdminAction(int requesterId, string action, string target)
+	//! Destination existence is independent of the moved player's faction or slot.
+	//! Client-local interaction selection, never a permission or gameplay owner.
+	protected int m_iAdminSelectedPlayer = -1;
+	protected UUID m_AdminSelectedIdentity;
+	ref ScriptInvoker m_OnAdminSelectionChanged = new ScriptInvoker();
+
+	//------------------------------------------------------------------------------------------------
+	void SelectAdminPlayer(int playerId)
 	{
-		if (GetManager() != this || m_bShutdown || !Replication.IsServer() || requesterId <= 0 || !GetGame().GetPlayerManager().IsPlayerConnected(requesterId) || !SCR_Global.IsAdmin(requesterId))
+		PlayerController local = GetGame().GetPlayerController();
+		if (GetManager() != this || !local || !SCR_Global.IsAdmin(local.GetPlayerId()))
+			playerId = -1;
+		if (playerId > 0 && !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
+			playerId = -1;
+		m_iAdminSelectedPlayer = playerId;
+		m_AdminSelectedIdentity = GetPlayerVoiceIdentity(playerId);
+		m_OnAdminSelectionChanged.Invoke();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetAdminSelectedPlayer()
+	{
+		PlayerController local = GetGame().GetPlayerController();
+		if (GetManager() != this || !local || !SCR_Global.IsAdmin(local.GetPlayerId())
+			|| GC_LobbyPhase.IsAtOrAfter(GetLobbyPhase(), SCR_EGameModeState.GAME)
+			|| m_AdminSelectedIdentity.IsEmpty() || GetPlayerVoiceIdentity(m_iAdminSelectedPlayer) != m_AdminSelectedIdentity
+			|| !GetGame().GetPlayerManager().IsPlayerConnected(m_iAdminSelectedPlayer))
 		{
-			GC_AdminActionLogger.Log(requesterId, action, target, "rejected-not-logged-in");
-			return false;
+			m_iAdminSelectedPlayer = -1;
+			m_AdminSelectedIdentity = string.Empty;
 		}
-		return true;
+		return m_iAdminSelectedPlayer;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1874,6 +3186,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return true;
 		if (previousAssignment)
 			previousAssignment.SetAdminAssigned(adminAssigned);
+		ReleaseLobbyVoiceTransmission(playerId);
 		UUID playerIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		bool wasOpenPersonalOwner = previousAssignment && previousAssignment.GetChannelType() == GC_VoiceChannelType.PERSONAL && previousAssignment.GetPersonalOwnerIdentity() == playerIdentity;
 
@@ -1892,9 +3205,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return true;
 	}
 
-	//! The owner always sees their channel. Other players may discover and join
-	//! it only while the owner is inside it and both players share the same
-	//! authoritative faction scope (or both are unassigned spectators).
+	//! Admin-owned rooms permit voluntary entry only by logged-in admins.
+	//! Other personal rooms require the owner to be inside and both players to
+	//! share a faction scope (or both be unassigned spectators).
 	bool CanAccessPersonalVoiceChannel(int playerId, UUID ownerIdentity)
 	{
 		if (playerId <= 0 || ownerIdentity.IsEmpty() || !m_VoiceState.HasPersonalChannel(ownerIdentity))
@@ -1905,6 +3218,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		if (m_VoiceState.GetPlayerIdentity(playerId) == ownerIdentity)
 			return true;
+
+		// Admin-owned rooms require an authenticated admin for voluntary entry.
+		// Server-authorized moves use ExecuteAdminVoiceChannel instead.
+		if (SCR_Global.IsAdmin(ownerPlayerId))
+			return SCR_Global.IsAdmin(playerId);
 
 		GC_VoiceChannelAssignment ownerAssignment = m_VoiceState.Get(ownerPlayerId);
 		if (!ownerAssignment || ownerAssignment.GetChannelType() != GC_VoiceChannelType.PERSONAL || ownerAssignment.GetPersonalOwnerIdentity() != ownerIdentity)
@@ -1998,6 +3316,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!Replication.IsServer())
 			return;
 
+		ReleaseLobbyVoiceTransmission(playerId);
+		m_mAdminMessageTimes.Remove(playerId);
 		ClosePersonalVoiceChannel(m_VoiceState.GetPlayerIdentity(playerId), true);
 		if (!m_VoiceState.Remove(playerId))
 			return;
@@ -2494,6 +3814,26 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             return false;
 		}
 
+		return ApplyPlayerSlotAssignment(playerId, targetSlot, true, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SynchronizePlayerNativeMembership(int playerId)
+	{
+		PlayerController player = GetGame().GetPlayerManager().GetPlayerController(playerId);
+		if (!player)
+			return;
+		SCR_PlayerControllerGroupComponent membership = SCR_PlayerControllerGroupComponent.Cast(player.FindComponent(SCR_PlayerControllerGroupComponent));
+		if (membership)
+			membership.GC_SynchronizeLobbyMembership();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Canonical claim/group/voice transition for both self-service and admin requests.
+	protected bool ApplyPlayerSlotAssignment(int playerId, GC_Slot targetSlot, bool toggleCurrent, bool immediateCatchUp)
+	{
+		SCR_EGameModeState phase = GetLobbyPhase();
+		int slotId = targetSlot.GetID();
         int occupyingPlayerId = targetSlot.GetPlayerId();
 		SCR_AIGroup targetGroup = ResolveSlotGroup(targetSlot);
 
@@ -2516,8 +3856,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		// authoritative group is also the player's faction lock.
 		if (occupyingPlayerId == playerId)
 		{
+			if (!toggleCurrent)
+				return true;
 			if (currentGroup)
 				currentGroup.RemovePlayer(playerId);
+			SynchronizePlayerNativeMembership(playerId);
 
 			ReleaseSlotClaim(targetSlot);
 			SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
@@ -2541,19 +3884,30 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
             }
         }
 
+		SynchronizePlayerNativeMembership(playerId);
 		if (currentSlot && currentSlot != targetSlot)
 			ReleaseSlotClaim(currentSlot);
 
 		targetSlot.SetPlayer(playerId);
-		if (phase != SCR_EGameModeState.SLOTTING && targetSlot.GetEntity())
-			targetSlot.SetState(GC_SlotState.LOCKED);
-		else
-			targetSlot.SetState(GC_SlotState.RESERVED);
+		// Binding a first-join reservation must not revive a character killed
+		// while its claimant was offline.
+		if (!targetSlot.IsKIA())
+		{
+			if (phase != SCR_EGameModeState.SLOTTING && targetSlot.GetEntity())
+				targetSlot.SetState(GC_SlotState.LOCKED);
+			else
+				targetSlot.SetState(GC_SlotState.RESERVED);
+		}
         SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GROUP, targetGroup.GetFaction().GetFactionKey(), Replication.FindItemId(targetGroup));
 		if (phase == SCR_EGameModeState.BRIEFING && !targetSlot.GetEntity())
 			SpawnSlotEntity(targetSlot, false);
 		else if (phase == SCR_EGameModeState.GAME)
-			QueuePlayerCatchUp(playerId);
+		{
+			if (immediateCatchUp)
+				CatchUpPlayer(playerId);
+			else
+				QueuePlayerCatchUp(playerId);
+		}
 
         PrintFormat("GC | Slot request accepted: player=%1 slot=%2", playerId, slotId);
         return true;
@@ -2565,6 +3919,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	bool CanPlayerRequestSlot(int playerId, GC_Slot targetSlot)
 	{
 		if (playerId <= 0 || !targetSlot)
+			return false;
+
+		GC_Slot pinnedSlot = GetSlotByPlayerId(playerId);
+		if (pinnedSlot && pinnedSlot.IsAssignmentPinned())
+			return false;
+		if (targetSlot.IsAdminLocked() && targetSlot.GetPlayerId() != playerId)
 			return false;
 
 		SCR_EGameModeState phase = GetLobbyPhase();
@@ -2579,13 +3939,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
 			return false;
 		if (occupyingPlayerId == playerId)
-			return phase == SCR_EGameModeState.SLOTTING;
+			return phase == SCR_EGameModeState.SLOTTING && !IsFactionSwitchLocked();
 
 		SCR_AIGroup targetGroup = ResolveSlotGroup(targetSlot);
 		if (!targetGroup || !targetGroup.GetFaction())
 			return false;
 
-		if (phase == SCR_EGameModeState.SLOTTING)
+		if (!CanPlayerJoinBalancedFaction(playerId, targetGroup.GetFaction()))
+			return false;
+		if (phase == SCR_EGameModeState.SLOTTING && !IsFactionSwitchLocked())
 			return true;
 
 		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
@@ -2593,7 +3955,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 
 		Faction lockedFaction = GetPlayerFaction(playerId);
-		return !lockedFaction || lockedFaction == targetGroup.GetFaction();
+		return !IsFactionSwitchLocked() || !lockedFaction || lockedFaction == targetGroup.GetFaction();
 	}
 
     //! Broadcasts a complete server-authoritative slot state.
@@ -2627,12 +3989,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			ResolvePendingJipReferences();
     }
 
-    override void OnGameModeEnd(SCR_GameModeEndData data)
-    {
-		Shutdown();
-		super.OnGameModeEnd(data);
-	}
-
+	//------------------------------------------------------------------------------------------------
+	//! POSTGAME still serves roster and briefing views. Only world termination
+	//! releases their data; the base OnGameModeEnd callback is a phase event.
 	override void OnGameEnd()
 	{
 		Shutdown();
@@ -2645,6 +4004,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
+		if (m_AdminBanService)
+			m_AdminBanService.Shutdown();
+		GetGame().GetCallqueue().Remove(ExpirePriorityVoice);
+		m_mPriorityVoiceExpiry.Clear();
+		m_mAdminMessageTimes.Clear();
+		m_aAdminSessionHistory.Clear();
+		m_aModerationHistory.Clear();
+		m_mAdminSessionLabels.Clear();
+		GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (localController)
+			localController.ShutdownLobbyPresentation();
 		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);
 		GetGame().GetCallqueue().Remove(FlushAffiliationPresentation);
 		GetGame().GetCallqueue().Remove(ResolvePendingJipReferences);
@@ -2678,6 +4048,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!lobbyGameMode)
 			return null;
 
-		return GC_LobbyManager.Cast(lobbyGameMode.FindComponent(GC_LobbyManager));
+		GC_LobbyManager manager = GC_LobbyManager.Cast(lobbyGameMode.FindComponent(GC_LobbyManager));
+		if (!manager || manager.m_bShutdown)
+			return null;
+
+		return manager;
 	}
 }

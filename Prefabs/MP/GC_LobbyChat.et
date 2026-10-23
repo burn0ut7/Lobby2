@@ -1,0 +1,39 @@
+ScriptedChatEntity {
+ ID "6A63000000000001"
+ components {
+  RplComponent "{6A63000000000002}" {
+  }
+ }
+ editor EntityEditorProps "{6A63000000000003}" {
+  Style icon
+  Icon "{6F6D4174AF1AC29B}Prefabs/WorldEditor/EntityIcons/Decal/ChatDecal.et"
+  Scale 3
+ }
+ Channels {
+  BaseChatChannel "{6A63000000000004}" {
+   "Channel name" "Global"
+  }
+  GC_LobbyFactionChatChannel "{6A63000000000005}" {
+   "Channel name" "Faction"
+  }
+  GC_LobbyGroupChatChannel "{6A63000000000006}" {
+   "Channel name" "Group"
+  }
+  GC_LobbyVehicleChatChannel "{6A63000000000007}" {
+   "Channel name" "Vehicle"
+  }
+  GC_LobbyLocalChatChannel "{6A63000000000008}" {
+   "Channel name" "Local"
+  }
+  GC_LobbyAdminChatChannel "{6A63000000000009}" {
+   "Channel name" "Admin"
+  }
+  GC_LobbySpectatorChatChannel "{6A6300000000000A}" {
+   "Channel name" "Spectator"
+  }
+ }
+ "Whisper channel" PrivateMessageChannel "{6A6300000000000B}" {
+  "Channel name" "Whisper"
+ }
+ "Default channel" "Global"
+}

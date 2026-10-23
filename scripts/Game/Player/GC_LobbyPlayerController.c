@@ -12,6 +12,8 @@ class GC_LobbyPlayerControllerClass : SCR_PlayerControllerClass
 //! dedicated player-controller prefab using this class.
 class GC_LobbyPlayerController : SCR_PlayerController
 {
+	ref ScriptInvoker<int, string, string, string> m_OnSlotReservationResult = new ScriptInvoker<int, string, string, string>();
+
 	//! The eight-argument RPC ceiling leaves one integer for both sight indexes.
 	//! Each index is offset by one so zero represents the no-sight/no-zoom state.
 	static const int NETWORK_CAMERA_SIGHT_STATE_SCALE = 65536;
@@ -23,9 +25,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[Attribute("0.2", desc: "Seconds of travel represented by each live projectile segment and final-segment retention.")]
 	protected float m_fProjectileTraceDuration;
 
-	protected int m_iAdminActionRequestId;
-	ref ScriptInvoker m_OnAdminVoiceChannelResult = new ScriptInvoker();
-
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
 	protected GC_SpectatorManualCamera m_SpectatorCamera;
 	protected ref GC_SpectatorCameraContextAction m_ShoulderCameraAction;
@@ -36,6 +35,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected int m_iServerNetworkCameraTargetPlayerId = -1;
 	protected int m_iServerNetworkCameraSpectatorPlayerId = -1;
 	protected ref array<int> m_aNetworkCameraSpectators = new array<int>();
+	protected bool m_bPublishNetworkCamera;
 	protected int m_iNetworkCameraSequence;
 	protected bool m_bNetworkCameraDiagnosticsInitialized;
 	protected bool m_bNetworkCameraDiagnosticsADS;
@@ -59,6 +59,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected string m_sPendingKilledFromLoadout;
 	protected ref GC_KilledFromDamageTracker m_LocalKilledFromTracker;
 	protected PauseMenuUI m_PauseMenu;
+	protected Widget m_wPauseAdminButton;
+	protected SCR_ButtonTextComponent m_PauseAdminButton;
+	protected ref GC_AdminSignInDialog m_AdminSignInDialog;
 	protected Widget m_wPauseSlottingButton;
 	protected Widget m_wPauseBriefingButton;
 	protected SCR_ButtonTextComponent m_PauseSlottingButton;
@@ -75,12 +78,64 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected bool m_bLobbyVoiceHeld;
 	protected SCR_VoNComponent m_LobbyObservedVoice;
 	ref ScriptInvokerInt m_OnVoiceActivity = new ScriptInvokerInt();
-	protected VoNComponent m_LobbyCapture;
+	ref ScriptInvoker<bool, int> m_OnScenarioParameterResult = new ScriptInvoker<bool, int>();
+	protected int m_iScenarioParameterRequest;
+	protected SCR_VoNComponent m_LobbyCapture;
+	protected int m_iServerLobbyVoiceSlot = -1;
+	protected ref array<ref GC_AdminMessage> m_aAdminMessages = {};
+	ref ScriptInvoker m_OnAdminMessagesChanged = new ScriptInvoker();
+	ref ScriptInvoker m_OnAdminMessageResult = new ScriptInvoker();
+	protected int m_iAdminMessageRequestId;
+	//! Matches feedback to the latest action; never used as authorization.
+	protected int m_iAdminActionRequestId;
+	protected int m_iAdminFollowPendingRequest;
+	protected int m_iAdminFollowPendingTarget;
+	protected UUID m_sAdminFollowPendingIdentity;
+	protected int m_iAdminFollowIssuedAt;
+	protected bool m_bAdminFollowPending;
+	ref ScriptInvoker m_OnAdminReport = new ScriptInvoker();
+	ref ScriptInvoker m_OnAdminBanPage = new ScriptInvoker();
+	ref ScriptInvoker m_OnAdminActionResult = new ScriptInvoker();
+	ref ScriptInvoker m_OnAdminModerationResult = new ScriptInvoker();
+	ref ScriptInvoker m_OnModerationRows = new ScriptInvoker();
+	ref ScriptInvoker m_OnModerationChanged = new ScriptInvoker();
+	ref ScriptInvoker m_OnPlayerDetailsCopied = new ScriptInvoker();
 	protected bool m_bLobbyDisabledNativeVoice;
+	//! Server-only, session-local permission to receive new Admin-channel messages.
+	protected float m_fAdminChatReceiveUntil;
+
+	//------------------------------------------------------------------------------------------------
+	void RenewAdminChatReceiveWindow()
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager())
+			m_fAdminChatReceiveUntil = GetGame().GetWorld().GetWorldTime() + 180000;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool CanReceiveAdminChat()
+	{
+		if (!Replication.IsServer() || !GC_LobbyManager.GetManager())
+			return false;
+
+		return SCR_Global.IsAdmin(GetPlayerId()) || GetGame().GetWorld().GetWorldTime() < m_fAdminChatReceiveUntil;
+	}
 
 	void ~GC_LobbyPlayerController()
 	{
-		StopLobbyVoice();
+		ShutdownLobbyPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Release owned local state before the world changes, not only on destruction.
+	void ShutdownLobbyPresentation()
+	{
+		m_aAdminMessages.Clear();
+		if (GetGame().GetPlayerController() == this)
+		{
+			GC_AdminMessagePopupComponent.CloseAll();
+			GC_AdminToolsComponent.Close();
+		}
+		StopLobbyVoice(true);
 		BindLobbyVoiceActivity(null);
 		if (m_LobbyInputManager)
 		{
@@ -98,6 +153,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
 		GetGame().GetCallqueue().Remove(OpenSlottingFromPause);
 		GetGame().GetCallqueue().Remove(OpenBriefingFromPause);
+		GetGame().GetCallqueue().Remove(OpenAdminToolsFromPause);
+		CloseAdminSignIn();
 		PauseMenuUI.m_OnPauseMenuOpened.Remove(OnPauseMenuOpened);
 		PauseMenuUI.m_OnPauseMenuClosed.Remove(OnPauseMenuClosed);
 		if (m_LobbyInputManager)
@@ -111,6 +168,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_EditorManager.GetOnOpened().Remove(OnEditorOpened);
 			m_EditorManager.GetOnClosed().Remove(OnEditorClosed);
 		}
+		m_EditorManager = null;
+		m_bSpectatorPresentationRequested = false;
+		m_bPublishNetworkCamera = false;
 	}
 
 	//! The owning client controller is the local UI lifecycle boundary. As soon
@@ -257,21 +317,23 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			StopLobbyVoice();
 	}
 
-	protected void StopLobbyVoice()
+	protected void StopLobbyVoice(bool releaseNativeVoice = false)
 	{
+		if (m_bLobbyVoiceHeld && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_ReleaseLobbyVoice);
 		m_iLobbyVoiceRequest++;
 		m_bLobbyVoiceHeld = false;
 		m_iLobbyVoiceSlot = -1;
 		GetGame().GetCallqueue().Remove(CheckLobbyVoiceHold);
 		if (m_LobbyCapture)
 		{
-			m_LobbyCapture.SetCapture(false);
+			m_LobbyCapture.GC_EndLobbyCapture();
 			m_LobbyCapture.SetTransmitRadio(null);
 			m_LobbyCapture.SetCommMethod(ECommMethod.DIRECT);
 			m_LobbyCapture = null;
 		}
 		IEntity body = GetControlledEntity();
-		if (GetGame().GetPlayerController() == this && m_bLobbyDisabledNativeVoice && (!body || !body.FindComponent(GC_LobbySpectatorBodyComponent)))
+		if (m_bLobbyDisabledNativeVoice && (releaseNativeVoice || !GC_LobbyGameMode.GetGameMode() || !body || !body.FindComponent(GC_LobbySpectatorBodyComponent)))
 		{
 			SCR_VONController nativeVoice = SCR_VONController.Cast(FindComponent(SCR_VONController));
 			if (nativeVoice)
@@ -305,12 +367,18 @@ class GC_LobbyPlayerController : SCR_PlayerController
 				allowed = false;
 		}
 		PrintFormat("GC | Voice transmit | authority player=%1 slot=%2 sequence=%3 allowed=%4 chat=%5 faction=%6", GetPlayerId(), slot, request, allowed, m_iLobbyChatFrequency, m_iLobbyFactionFrequency);
+		m_iServerLobbyVoiceSlot = -1;
+		if (allowed)
+			m_iServerLobbyVoiceSlot = slot;
 		Rpc(RpcDo_LobbyVoice, slot, request, allowed);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
 	protected void RpcDo_LobbyVoice(int slot, int request, bool allowed)
 	{
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this)
+			return;
+
 		PrintFormat("GC | Voice transmit | grant player=%1 slot=%2 sequence=%3 allowed=%4 held=%5 currentSequence=%6 currentSlot=%7", GetPlayerId(), slot, request, allowed, m_bLobbyVoiceHeld, m_iLobbyVoiceRequest, m_iLobbyVoiceSlot);
 		if (!allowed || !m_bLobbyVoiceHeld || request != m_iLobbyVoiceRequest || slot != m_iLobbyVoiceSlot)
 			return;
@@ -323,7 +391,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 		if (slot == GC_LobbyRadio.ADMIN && !SCR_Global.IsAdmin(GetPlayerId()))
 			return;
-		VoNComponent voice = VoNComponent.Cast(body.FindComponent(VoNComponent));
+		SCR_VoNComponent voice = SCR_VoNComponent.Cast(body.FindComponent(SCR_VoNComponent));
 		if (!voice)
 			return;
 		SCR_VONController nativeVoice = SCR_VONController.Cast(FindComponent(SCR_VONController));
@@ -332,7 +400,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		m_LobbyCapture = voice;
 		voice.SetTransmitRadio(radio.GetTransceiver(slot));
 		voice.SetCommMethod(ECommMethod.SQUAD_RADIO);
-		bool captured = voice.SetCapture(true);
+		bool captured = voice.GC_SetLobbyCapture(true, GetPlayerId());
 		PrintFormat("GC | Voice transmit | capture player=%1 slot=%2 frequency=%3 accepted=%4", GetPlayerId(), slot, radio.GetTransceiver(slot).GetFrequency(), captured);
 		GetGame().GetCallqueue().CallLater(CheckLobbyVoiceHold, 50, true);
 	}
@@ -346,6 +414,694 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			action = "VONChannel";
 		if (!GC_LobbyGameMode.GetGameMode() || !m_LobbyInputManager || m_LobbyInputManager.GetActionValue(action) <= 0 || (m_iLobbyVoiceSlot == GC_LobbyRadio.ADMIN && !SCR_Global.IsAdmin(GetPlayerId())))
 			StopLobbyVoice();
+		else if (m_LobbyCapture)
+			m_LobbyCapture.GC_SetLobbyCapture(true, GetPlayerId());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool HasAuthorizedLobbyCapture()
+	{
+		IEntity body = GetControlledEntity();
+		if (!Replication.IsServer() || !GC_LobbyManager.GetManager() || m_iServerLobbyVoiceSlot < 0 || !body)
+			return false;
+		// Normal character/gameplay VON never participates in lobby moderation.
+		if (!body.FindComponent(GC_LobbySpectatorBodyComponent))
+			return false;
+		if (m_iServerLobbyVoiceSlot == GC_LobbyRadio.ADMIN)
+			return SCR_Global.IsAdmin(GetPlayerId());
+		return !m_bLobbyVoiceDeafened;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_ReleaseLobbyVoice()
+	{
+		m_iServerLobbyVoiceSlot = -1;
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			manager.ReleaseLobbyVoiceTransmission(GetPlayerId());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	ref ScriptInvoker m_OnAdminPlayerToolResult = new ScriptInvoker();
+	protected int m_iAdminPlayerToolRequest;
+
+	//------------------------------------------------------------------------------------------------
+	int ReserveAdminPlayerToolRequest()
+	{
+		m_iAdminPlayerToolRequest++;
+		return m_iAdminPlayerToolRequest;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminHeal(GC_EAdminHealScope scope, array<int> players, array<string> identities, int requestId, int radiusMeters = GC_LobbyManager.GC_DEFAULT_HEAL_RADIUS, string factionKey = "")
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_AdminHeal, scope, players, identities, requestId, radiusMeters, factionKey);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminHeal(GC_EAdminHealScope scope, array<int> players, array<string> identities, int requestId, int radiusMeters, string factionKey)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string outcome = "Admin tools are unavailable in this game mode.";
+		if (manager)
+			outcome = manager.GC_ExecuteAdminHeal(GetPlayerId(), scope, players, identities, requestId, radiusMeters, factionKey);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "heal", "", "rejected-inactive-mode");
+		Rpc(RpcDo_AdminPlayerToolResult, requestId, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminPlayerToolResult(int requestId, string outcome)
+	{
+		m_OnAdminPlayerToolResult.Invoke(requestId, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int NextAdminMessageRequestId()
+	{
+		m_iAdminMessageRequestId++;
+		return m_iAdminMessageRequestId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminMessage(GC_EAdminMessageAudience audience, string message, array<string> selectedIdentities, int requestId = 0, string factionKey = "")
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_AdminMessage, audience, message, selectedIdentities, requestId, factionKey);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminMessage(GC_EAdminMessageAudience audience, string message, array<string> selectedIdentities, int requestId, string factionKey)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_AdminMessageResult, requestId, manager.SendAdminMessage(GetPlayerId(), audience, message, selectedIdentities, factionKey));
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "message-send", "", "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminMessageResult(int requestId, string outcome)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			m_OnAdminMessageResult.Invoke(requestId, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void DeliverAdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message)
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager())
+			Rpc(RpcDo_AdminMessage, messageId, senderId, senderName, audience, message);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return;
+		if (audience == GC_EAdminMessageAudience.ADMINS && !SCR_Global.IsAdmin(GetPlayerId()))
+			return;
+		GC_AdminMessage entry = new GC_AdminMessage();
+		entry.m_iMessageId = messageId;
+		entry.m_iSenderId = senderId;
+		entry.m_sSenderName = senderName;
+		entry.m_sText = message;
+		entry.m_eAudience = audience;
+		if (m_aAdminMessages.Count() >= 100)
+			m_aAdminMessages.RemoveOrdered(0);
+		m_aAdminMessages.Insert(entry);
+		m_OnAdminMessagesChanged.Invoke();
+		if (audience != GC_EAdminMessageAudience.ADMINS)
+			GC_AdminMessagePopupComponent.Show(entry);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	array<ref GC_AdminMessage> GetAdminMessages()
+	{
+		if (!SCR_Global.IsAdmin(GetPlayerId()))
+		{
+			for (int i = m_aAdminMessages.Count() - 1; i >= 0; i--)
+			{
+				if (m_aAdminMessages[i].m_eAudience == GC_EAdminMessageAudience.ADMINS)
+					m_aAdminMessages.RemoveOrdered(i);
+			}
+		}
+		return m_aAdminMessages;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestSlotReservation(string action, int slotId, UUID expectedClaim, string identity, string playerName, string input, int requestId)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_SlotReservation, action, slotId, expectedClaim, identity, playerName, input, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_SlotReservation(string action, int slotId, string expectedClaim, string identity, string playerName, string input, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string output;
+		string outcome = "Lobby2 is no longer active.";
+		if (manager)
+			outcome = manager.ExecuteSlotReservation(GetPlayerId(), action, slotId, expectedClaim, identity, playerName, input, output);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "slot-reservation", action, "rejected-inactive-mode");
+		string currentClaim;
+		if (manager)
+		{
+			GC_Slot slot = manager.GetSlot(slotId);
+			if (slot)
+				currentClaim = slot.GetUUID();
+		}
+		Rpc(RpcDo_SlotReservation, requestId, outcome, output, currentClaim);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_SlotReservation(int requestId, string outcome, string output, string currentClaim)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			m_OnSlotReservationResult.Invoke(requestId, outcome, output, currentClaim);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminAssignSlot(int playerId, UUID expectedIdentity, int slotId, UUID expectedClaim)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminAssignSlot, playerId, expectedIdentity, slotId, expectedClaim, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminAssignSlot(int playerId, string expectedIdentity, int slotId, string expectedClaim, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_AdminActionResult, manager.ExecuteAdminAssignSlot(GetPlayerId(), playerId, expectedIdentity, slotId, expectedClaim), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "slot-assign", slotId.ToString(), "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminFactionRules(int expectedRevision, int lockOverride, bool enforceBalance)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminFactionRules, expectedRevision, lockOverride, enforceBalance, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminFreeze(int expectedRevision, string action, int seconds)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminFreeze, expectedRevision, action, seconds, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Authority chooses the destination; native teleport must run on the owner
+	//! of the controlled character. Client requests cannot choose corrections.
+	void ApplyFreezeBoundary(vector position)
+	{
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+		IEntity character = GetControlledEntity();
+		if (!Replication.IsServer() || !freeze || !freeze.IsFreezeActive() || !character)
+			return;
+		RplId characterId = Replication.FindItemId(character);
+		if (characterId == RplId.Invalid())
+			return;
+		Rpc(RpcDo_FreezeBoundary, characterId, position, freeze.GetRevision());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_FreezeBoundary(RplId characterId, vector position, int freezeRevision)
+	{
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+		IEntity character = GetControlledEntity();
+		if (GetGame().GetPlayerController() != this || !freeze || !freeze.IsFreezeActive() || !character || Replication.FindItemId(character) != characterId)
+			return;
+		if (freeze.GetRevision() != freezeRevision)
+			return;
+		SCR_Global.TeleportPlayer(GetPlayerId(), position);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminFreeze(int expectedRevision, string action, int seconds, int requestId)
+	{
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+		if (freeze)
+			SendAdminActionResult(freeze.ExecuteAdminAction(GetPlayerId(), expectedRevision, action, seconds), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "mission-freeze", action, "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminFactionRules(int expectedRevision, int lockOverride, bool enforceBalance, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			SendAdminActionResult(manager.ExecuteAdminFactionRules(GetPlayerId(), expectedRevision, lockOverride, enforceBalance), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "faction-rules", "", "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminSessionReport(string search)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_AdminSessionReport, search);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminSessionReport(string search)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!manager)
+			return;
+		string report = manager.GetAdminSessionReport(GetPlayerId(), search);
+		if (SCR_Global.IsAdmin(GetPlayerId()))
+			Rpc(RpcDo_AdminSessionReport, report);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminSessionReport(string report)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this && SCR_Global.IsAdmin(GetPlayerId()))
+			m_OnAdminReport.Invoke(report);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int ReserveAdminActionRequest()
+	{
+		return ++m_iAdminActionRequestId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestModerationSession(int requestId)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_ModerationSession, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestCopyPlayerDetails(UUID identity)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_CopyPlayerDetails, identity);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_CopyPlayerDetails(UUID identity)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			manager.CopyAdminPlayerDetails(GetPlayerId(), identity);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SendPlayerDetailsToClipboard(string details)
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager() && SCR_Global.IsAdmin(GetPlayerId()))
+			Rpc(RpcDo_CopyPlayerDetails, details);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_CopyPlayerDetails(string details)
+	{
+		GetGame().GetCallqueue().CallLater(CopyPlayerDetailsToClipboard, 0, false, details);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CopyPlayerDetailsToClipboard(string details)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this || !SCR_Global.IsAdmin(GetPlayerId()))
+			return;
+		System.ExportToClipboard(details);
+		string clipboard = System.ImportFromClipboard();
+		clipboard.Replace("\r", "");
+		m_OnPlayerDetailsCopied.Invoke(clipboard == details);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_ModerationSession(int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			manager.SendModerationSession(GetPlayerId(), requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SendModerationRows(array<string> rows, int requestId)
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager() && SCR_Global.IsAdmin(GetPlayerId()))
+			Rpc(RpcDo_ModerationRows, rows, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SendModerationChanged()
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager() && SCR_Global.IsAdmin(GetPlayerId()))
+			Rpc(RpcDo_ModerationChanged);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_ModerationChanged()
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this && SCR_Global.IsAdmin(GetPlayerId()))
+			m_OnModerationChanged.Invoke();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_ModerationRows(array<string> rows, int requestId)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this && SCR_Global.IsAdmin(GetPlayerId()))
+			m_OnModerationRows.Invoke(rows, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminPlayerAction(string action, int targetId, UUID identity, string reason, int duration = 0, int page = 0, int requestId = -1, int expiresAt = 0)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			if (requestId < 0)
+				requestId = ReserveAdminActionRequest();
+			Rpc(RpcAsk_AdminPlayerAction, action, targetId, identity, reason, duration, page, requestId, expiresAt);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminPlayerAction(string action, int targetId, string identity, string reason, int duration, int page, int requestId, int expiresAt)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			SendAdminActionResult(manager.ExecuteAdminPlayerAction(GetPlayerId(), action, targetId, identity, reason, duration, page, requestId, expiresAt), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), action, identity, "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SendAdminActionResult(string outcome, int requestId)
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager() && SCR_Global.IsAdmin(GetPlayerId()))
+			Rpc(RpcDo_AdminActionResult, outcome, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SendAdminBanPage(array<string> identities, array<string> labels, int page, int total, int requestId)
+	{
+		if (Replication.IsServer() && GC_LobbyManager.GetManager() && SCR_Global.IsAdmin(GetPlayerId()))
+			Rpc(RpcDo_AdminBanPage, identities, labels, page, total, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminBanPage(array<string> identities, array<string> labels, int page, int total, int requestId)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this || !SCR_Global.IsAdmin(GetPlayerId()) || requestId != m_iAdminActionRequestId)
+			return;
+		m_OnAdminBanPage.Invoke(identities, labels, page, total);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool CanUseAdminFollowCamera()
+	{
+		return GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this && m_SpectatorCamera && GetLobbyPlayerState() == GC_ELobbyPlayerState.SPECTATOR;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminFollowPlayer(int targetId, UUID expectedIdentity)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminFollowPlayer, targetId, expectedIdentity, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminFollowPlayer(int targetId, UUID expectedIdentity, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!manager)
+		{
+			GC_AdminActionLogger.Log(GetPlayerId(), "spectator-follow", targetId.ToString(), "rejected-inactive-mode");
+			return;
+		}
+		RplId entityId;
+		string outcome = manager.ValidateAdminFollowPlayer(GetPlayerId(), targetId, expectedIdentity, entityId);
+		if (outcome != "authorized")
+		{
+			SendAdminActionResult(outcome, requestId);
+			return;
+		}
+		m_iAdminFollowPendingRequest = requestId;
+		m_iAdminFollowPendingTarget = targetId;
+		m_sAdminFollowPendingIdentity = expectedIdentity;
+		m_iAdminFollowIssuedAt = System.GetTickCount();
+		m_bAdminFollowPending = true;
+		Rpc(RpcDo_AdminFollowPlayer, targetId, expectedIdentity, entityId, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminFollowPlayer(int targetId, UUID expectedIdentity, RplId entityId, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!manager || GetGame().GetPlayerController() != this || !SCR_Global.IsAdmin(GetPlayerId()) || requestId != m_iAdminActionRequestId)
+			return;
+		RplComponent replication = RplComponent.Cast(Replication.FindItem(entityId));
+		IEntity entity;
+		if (replication)
+			entity = replication.GetEntity();
+		string outcome = "unavailable-follow-camera";
+		if (CanUseAdminFollowCamera() && entity && manager.GetPlayerVoiceIdentity(targetId) == expectedIdentity && GetGame().GetPlayerManager().GetPlayerControlledEntity(targetId) == entity)
+		{
+			if (m_SpectatorCamera.TryFollowPlayer(entity))
+				outcome = "applied";
+		}
+		m_OnAdminActionResult.Invoke(outcome);
+		// Camera state is client-local; this evidence must not be represented as server observation.
+		GC_AdminActionLogger.Log(GetPlayerId(), "spectator-follow-local", string.Format("player=%1 identity=%2", targetId, expectedIdentity), outcome);
+		Rpc(RpcAsk_AdminFollowReceipt, requestId, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminFollowReceipt(int requestId, string outcome)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!Replication.IsServer() || !manager)
+			return;
+		if (!m_bAdminFollowPending || requestId != m_iAdminFollowPendingRequest)
+			return;
+		m_bAdminFollowPending = false;
+		string target = string.Format("request=%1 player=%2 identity=%3", requestId, m_iAdminFollowPendingTarget, m_sAdminFollowPendingIdentity);
+		if (!manager.AuthorizeAdminAction(GetPlayerId(), "spectator-follow-receipt", target))
+			return;
+		if (System.GetTickCount() - m_iAdminFollowIssuedAt > 10000)
+		{
+			GC_AdminActionLogger.Log(GetPlayerId(), "spectator-follow-receipt", target, "rejected-expired-receipt");
+			return;
+		}
+		if (outcome != "applied" && outcome != "unavailable-follow-camera")
+		{
+			GC_AdminActionLogger.Log(GetPlayerId(), "spectator-follow-receipt", target, "rejected-invalid-outcome");
+			return;
+		}
+		// The server records provenance without claiming to observe local camera state.
+		GC_AdminActionLogger.Log(GetPlayerId(), "spectator-follow-receipt", target, "client-reported-" + outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminMakePlayable(RplId entityId, RplId expectedGroup)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminMakePlayable, entityId, expectedGroup, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminMakePlayable(RplId entityId, RplId expectedGroup, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			SendAdminActionResult(manager.ExecuteAdminMakePlayable(GetPlayerId(), entityId, expectedGroup), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "slot-make-playable", entityId.ToString(), "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminCreateSlot(int templateSlotId, RplId expectedGroup, vector position)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminCreateSlot, templateSlotId, expectedGroup, position, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminCreateSlot(int templateSlotId, RplId expectedGroup, vector position, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_AdminActionResult, manager.ExecuteAdminCreateSlot(GetPlayerId(), templateSlotId, expectedGroup, position), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "slot-create", templateSlotId.ToString(), "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminSlot(int slotId, UUID expectedClaim, GC_EAdminSlotAction action)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminSlot, slotId, expectedClaim, action, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminSlot(int slotId, string expectedClaim, GC_EAdminSlotAction action, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_AdminActionResult, manager.ExecuteAdminSlotAction(GetPlayerId(), slotId, expectedClaim, action), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "slot-action", slotId.ToString(), "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminGroupLock(RplId groupId, bool locked)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminGroupLock, groupId, locked, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminGroupLock(RplId groupId, bool locked, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_AdminActionResult, manager.ExecuteAdminGroupLock(GetPlayerId(), groupId, locked), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "slot-group-lock", groupId.ToString(), "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminActionResult(string outcome, int requestId)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this || requestId != m_iAdminActionRequestId)
+			return;
+		m_OnAdminModerationResult.Invoke(requestId, outcome);
+		m_OnAdminActionResult.Invoke(outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	ref ScriptInvoker m_OnAdminVoiceChannelResult = new ScriptInvoker();
+
+	//------------------------------------------------------------------------------------------------
+	int ReserveAdminVoiceChannelRequestId()
+	{
+		m_iAdminActionRequestId++;
+		return m_iAdminActionRequestId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int RequestAdminVoiceChannel(int targetId, UUID expectedIdentity, GC_VoiceChannelType channelType,
+		string factionKey, RplId groupRplId, UUID personalOwnerIdentity, int requestId = -1)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return -1;
+		if (requestId < 0)
+			requestId = ReserveAdminVoiceChannelRequestId();
+		Rpc(RpcAsk_AdminVoiceChannel, targetId, expectedIdentity, channelType, factionKey,
+			groupRplId, personalOwnerIdentity, requestId);
+		return requestId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminVoiceChannel(int targetId, string expectedIdentity, GC_VoiceChannelType channelType,
+		string factionKey, RplId groupRplId, string personalOwnerIdentity, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string outcome = "rejected-inactive-mode";
+		if (manager)
+			outcome = manager.ExecuteAdminVoiceChannel(GetPlayerId(), targetId, expectedIdentity,
+				channelType, factionKey, groupRplId, personalOwnerIdentity);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "voice-channel", targetId.ToString(), outcome);
+		Rpc(RpcDo_AdminVoiceChannelResult, outcome, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminVoiceChannelResult(string outcome, int requestId)
+	{
+		m_OnAdminVoiceChannelResult.Invoke(requestId, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminVoice(int targetId, UUID expectedIdentity, bool priorityControl, bool enabled)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminVoice, targetId, expectedIdentity, priorityControl, enabled, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminVoice(int targetId, string expectedIdentity, bool priorityControl, bool enabled, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			{
+			string outcome = "rejected-voice";
+			if (manager.TrySetAdminVoice(GetPlayerId(), targetId, expectedIdentity, priorityControl, enabled))
+				outcome = "applied";
+			Rpc(RpcDo_AdminActionResult, outcome, requestId);
+		}
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "voice-moderation", targetId.ToString(), "rejected-inactive-mode");
 	}
 
 	void RevokeLobbyAdminVoice()
@@ -356,6 +1112,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
 	protected void RpcDo_RevokeLobbyAdminVoice()
 	{
+		for (int i = m_aAdminMessages.Count() - 1; i >= 0; i--)
+		{
+			if (m_aAdminMessages[i].m_eAudience == GC_EAdminMessageAudience.ADMINS)
+				m_aAdminMessages.RemoveOrdered(i);
+		}
+		m_OnAdminMessagesChanged.Invoke();
 		if (m_iLobbyVoiceSlot == GC_LobbyRadio.ADMIN)
 			StopLobbyVoice();
 	}
@@ -368,7 +1130,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		RemovePauseAccessButtons();
 
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (!lobbyManager || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.SLOTTING))
+		if (!lobbyManager)
 			return;
 
 		MenuManager menuManager = GetGame().GetMenuManager();
@@ -377,6 +1139,20 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		m_PauseMenu = PauseMenuUI.Cast(menuManager.GetTopMenu());
 		if (!m_PauseMenu)
+			return;
+
+		m_wPauseAdminButton = GetGame().GetWorkspace().CreateWidgets("{A934F7BC18E24510}UI/layouts/Admin/Lobby_PauseAdminButton.layout", m_PauseMenu.GetRootWidget());
+		if (m_wPauseAdminButton)
+		{
+			m_PauseAdminButton = SCR_ButtonTextComponent.Cast(m_wPauseAdminButton.FindHandler(SCR_ButtonTextComponent));
+			if (m_PauseAdminButton)
+			{
+				m_PauseAdminButton.SetText("ADMIN TOOLS");
+				m_PauseAdminButton.m_OnClicked.Insert(OnPauseAdminToolsClicked);
+			}
+		}
+
+		if (!GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.SLOTTING))
 			return;
 
 		SCR_ButtonTextComponent continueButton = SCR_ButtonTextComponent.GetButtonText("Continue", m_PauseMenu.GetRootWidget());
@@ -416,12 +1192,19 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void OnPauseMenuClosed()
 	{
+		CloseAdminSignIn();
 		RemovePauseAccessButtons();
 		m_PauseMenu = null;
 	}
 
 	protected void RemovePauseAccessButtons()
 	{
+		if (m_PauseAdminButton)
+			m_PauseAdminButton.m_OnClicked.Remove(OnPauseAdminToolsClicked);
+		if (m_wPauseAdminButton)
+			m_wPauseAdminButton.RemoveFromHierarchy();
+		m_PauseAdminButton = null;
+		m_wPauseAdminButton = null;
 		if (m_PauseSlottingButton)
 			m_PauseSlottingButton.m_OnClicked.Remove(RequestOpenSlottingFromPause);
 		if (m_PauseBriefingButton)
@@ -435,6 +1218,61 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		m_PauseBriefingButton = null;
 		m_wPauseSlottingButton = null;
 		m_wPauseBriefingButton = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnPauseAdminToolsClicked()
+	{
+		if (!m_PauseMenu || !GC_LobbyManager.GetManager())
+			return;
+
+		if (SCR_Global.IsAdmin(GetPlayerId()))
+		{
+			RequestOpenAdminToolsFromPause();
+			return;
+		}
+
+		CloseAdminSignIn();
+		m_AdminSignInDialog = new GC_AdminSignInDialog();
+		m_AdminSignInDialog.m_OnAuthenticated.Insert(RequestOpenAdminToolsFromPause);
+		SCR_ConfigurableDialogUi.CreateFromPreset("{471EFCF445C3E9C6}Configs/ServerBrowser/JoiningDialogs.conf", "PASSWORD_REQUIRED", m_AdminSignInDialog);
+		m_AdminSignInDialog.m_OnClose.Insert(OnAdminSignInClosed);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnAdminSignInClosed()
+	{
+		if (!m_AdminSignInDialog)
+			return;
+		m_AdminSignInDialog.m_OnAuthenticated.Remove(RequestOpenAdminToolsFromPause);
+		m_AdminSignInDialog.m_OnClose.Remove(OnAdminSignInClosed);
+		m_AdminSignInDialog = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CloseAdminSignIn()
+	{
+		if (!m_AdminSignInDialog)
+			return;
+
+		m_AdminSignInDialog.m_OnAuthenticated.Remove(RequestOpenAdminToolsFromPause);
+		m_AdminSignInDialog.m_OnClose.Remove(OnAdminSignInClosed);
+		m_AdminSignInDialog.Close();
+		m_AdminSignInDialog = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RequestOpenAdminToolsFromPause()
+	{
+		if (m_PauseMenu)
+			m_PauseMenu.Close();
+		GetGame().GetCallqueue().CallLater(OpenAdminToolsFromPause, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OpenAdminToolsFromPause()
+	{
+		GC_AdminToolsComponent.Open();
 	}
 
 	protected void RequestOpenSlottingFromPause()
@@ -485,48 +1323,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 
 		Rpc(RpcAsk_RequestLobbySlot, slotId);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	int ReserveAdminVoiceChannelRequestId()
-	{
-		m_iAdminActionRequestId++;
-		return m_iAdminActionRequestId;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	int RequestAdminVoiceChannel(int targetId, UUID expectedIdentity, GC_VoiceChannelType channelType,
-		string factionKey, RplId groupRplId, UUID personalOwnerIdentity, int requestId = -1)
-	{
-		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
-			return -1;
-		if (requestId < 0)
-			requestId = ReserveAdminVoiceChannelRequestId();
-		Rpc(RpcAsk_AdminVoiceChannel, targetId, expectedIdentity, channelType, factionKey,
-			groupRplId, personalOwnerIdentity, requestId);
-		return requestId;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_AdminVoiceChannel(int targetId, string expectedIdentity, GC_VoiceChannelType channelType,
-		string factionKey, RplId groupRplId, string personalOwnerIdentity, int requestId)
-	{
-		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		string outcome = "rejected-inactive-mode";
-		if (manager)
-			outcome = manager.ExecuteAdminVoiceChannel(GetPlayerId(), targetId, expectedIdentity,
-				channelType, factionKey, groupRplId, personalOwnerIdentity);
-		else
-			GC_AdminActionLogger.Log(GetPlayerId(), "voice-channel", targetId.ToString(), outcome);
-		Rpc(RpcDo_AdminVoiceChannelResult, outcome, requestId);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_AdminVoiceChannelResult(string outcome, int requestId)
-	{
-		m_OnAdminVoiceChannelResult.Invoke(requestId, outcome);
 	}
 
 	void RequestVoiceChannel(GC_VoiceChannelType channelType, string factionKey = "", RplId groupRplId = RplId.Invalid(), UUID personalOwnerIdentity = "")
@@ -599,7 +1395,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 
 		PrintFormat("GC | Parameters RPC | request queued: player=%1 revision=%2 values=%3", GetPlayerId(), baseRevision, values.Count());
-		Rpc(RpcAsk_RequestScenarioParameters, baseRevision, values);
+		m_iScenarioParameterRequest++;
+		Rpc(RpcAsk_RequestScenarioParameters, m_iScenarioParameterRequest, baseRevision, values);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
@@ -635,11 +1432,29 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_RequestScenarioParameters(int baseRevision, array<ref GC_LobbyParameterValue> values)
+	protected void RpcAsk_RequestScenarioParameters(int requestId, int baseRevision, array<ref GC_LobbyParameterValue> values)
 	{
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		bool accepted;
+		int revision = -1;
 		if (lobbyManager)
-			lobbyManager.TryApplyScenarioParameters(GetPlayerId(), baseRevision, values);
+		{
+			accepted = lobbyManager.TryApplyScenarioParameters(GetPlayerId(), baseRevision, values);
+			revision = lobbyManager.GetScenarioParameterRevision();
+		}
+		Rpc(RpcDo_ScenarioParameterResult, requestId, accepted, revision);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Acknowledgement is separate from the authoritative snapshot broadcast.
+	//! Ignore responses superseded by a newer request from this controller.
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_ScenarioParameterResult(int requestId, bool accepted, int revision)
+	{
+		if (GetGame().GetPlayerController() != this || requestId != m_iScenarioParameterRequest)
+			return;
+
+		m_OnScenarioParameterResult.Invoke(accepted, revision);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
@@ -688,30 +1503,30 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void ServerSetNetworkCameraSpectator(int spectatorPlayerId, bool enabled)
 	{
-		Rpc(RpcDo_SetNetworkCameraSpectator, spectatorPlayerId, enabled);
+		bool wasPublishing = !m_aNetworkCameraSpectators.IsEmpty();
+		int spectatorIndex = m_aNetworkCameraSpectators.Find(spectatorPlayerId);
+		if (enabled && spectatorIndex == -1)
+			m_aNetworkCameraSpectators.Insert(spectatorPlayerId);
+		else if (!enabled && spectatorIndex != -1)
+			m_aNetworkCameraSpectators.Remove(spectatorIndex);
+
+		bool publishing = !m_aNetworkCameraSpectators.IsEmpty();
+		if (publishing != wasPublishing)
+			Rpc(RpcDo_SetNetworkCameraPublishing, publishing);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_SetNetworkCameraSpectator(int spectatorPlayerId, bool enabled)
+	protected void RpcDo_SetNetworkCameraPublishing(bool enabled)
 	{
 		if (GetGame().GetPlayerController() != this)
 			return;
+		if (!GC_LobbyGameMode.GetGameMode())
+			enabled = false;
 
-		int spectatorIndex = m_aNetworkCameraSpectators.Find(spectatorPlayerId);
-		if (enabled)
-		{
-			if (spectatorIndex == -1)
-				m_aNetworkCameraSpectators.Insert(spectatorPlayerId);
-
-			m_bNetworkCameraDiagnosticsInitialized = false;
-		}
-		else if (spectatorIndex != -1)
-		{
-			m_aNetworkCameraSpectators.Remove(spectatorIndex);
-		}
-
+		m_bPublishNetworkCamera = enabled;
+		m_bNetworkCameraDiagnosticsInitialized = false;
 		GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
-		if (m_aNetworkCameraSpectators.IsEmpty())
+		if (!enabled)
 			return;
 
 		PublishNetworkCameraTransform();
@@ -720,7 +1535,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void PublishNetworkCameraTransform()
 	{
-		if (GetGame().GetPlayerController() != this || m_aNetworkCameraSpectators.IsEmpty())
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this || !m_bPublishNetworkCamera)
 		{
 			GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
 			return;
@@ -785,24 +1600,29 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		m_bNetworkCameraDiagnosticsInitialized = true;
 		m_bNetworkCameraDiagnosticsADS = isADS;
 		m_iNetworkCameraDiagnosticsSightState = sightState;
-		foreach (int spectatorPlayerId : m_aNetworkCameraSpectators)
-			Rpc(RpcAsk_PublishNetworkCameraTransform, spectatorPlayerId, m_iNetworkCameraSequence, snapshotPosition, snapshotForward, snapshotUp, lensState, isADS, sightState);
+		Rpc(RpcAsk_PublishNetworkCameraTransform, m_iNetworkCameraSequence, snapshotPosition, snapshotForward, snapshotUp, lensState, isADS, sightState);
 	}
 
 	[RplRpc(RplChannel.Unreliable, RplRcver.Server)]
-	protected void RpcAsk_PublishNetworkCameraTransform(int spectatorPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
+	protected void RpcAsk_PublishNetworkCameraTransform(int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
 	{
-		if (m_eLobbyPlayerState != GC_ELobbyPlayerState.PLAYING)
+		if (!GC_LobbyGameMode.GetGameMode() || m_eLobbyPlayerState != GC_ELobbyPlayerState.PLAYING)
 			return;
 
 		PlayerManager playerManager = GetGame().GetPlayerManager();
-		GC_LobbyPlayerController spectatorController;
-		if (playerManager)
-			spectatorController = GC_LobbyPlayerController.Cast(playerManager.GetPlayerController(spectatorPlayerId));
-		if (!spectatorController || spectatorController.m_iServerNetworkCameraTargetPlayerId != GetPlayerId() || spectatorController.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
+		if (!playerManager)
 			return;
 
-		spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up, lensState, isADS, sightState);
+		// The authority owns subscriptions. Upload one owner sample, then publish
+		// only to controllers that still observe this player as spectators.
+		foreach (int spectatorPlayerId : m_aNetworkCameraSpectators)
+		{
+			GC_LobbyPlayerController spectatorController = GC_LobbyPlayerController.Cast(playerManager.GetPlayerController(spectatorPlayerId));
+			if (!spectatorController || spectatorController.m_iServerNetworkCameraTargetPlayerId != GetPlayerId() || spectatorController.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
+				continue;
+
+			spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up, lensState, isADS, sightState);
+		}
 	}
 
 	protected void ServerSendNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
@@ -813,7 +1633,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[RplRpc(RplChannel.Unreliable, RplRcver.Owner)]
 	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
 	{
-		if (GetGame().GetPlayerController() != this || !m_SpectatorCamera)
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this || !m_SpectatorCamera)
 			return;
 
 		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, sequence, position, forward, up, lensState, isADS, sightState);
@@ -974,6 +1794,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
 	protected void RpcDo_EnterLobbySpectatorMode()
 	{
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this)
+			return;
+
 		SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
 		m_bSpectatorPresentationRequested = true;
 		m_iEditorManagerAttachAttempts = 0;
@@ -1016,6 +1839,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (GetGame().GetPlayerController() != this)
 			return;
 
+		if (!GC_LobbyGameMode.GetGameMode())
+		{
+			ShutdownLobbyPresentation();
+			return;
+		}
+
 		BindLobbyVoiceActivity(to);
 		StartLocalKilledFromTracking(to);
 
@@ -1025,6 +1854,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void StartLocalKilledFromTracking(IEntity entity)
 	{
+		if (!GC_LobbyGameMode.GetGameMode())
+			return;
+
 		if (m_LocalKilledFromTracker)
 		{
 			PrintFormat("GC | Killed From | event=tracker-request result=ignored reason=already-tracking player=%1 entity=%2", GetPlayerId(), entity);
@@ -1083,7 +1915,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void AttachEditorManager()
 	{
-		if (m_EditorManager || GetGame().GetPlayerController() != this)
+		if (!GC_LobbyGameMode.GetGameMode() || m_EditorManager || GetGame().GetPlayerController() != this)
 			return;
 
 		m_EditorManager = SCR_EditorManagerEntity.GetInstance();
@@ -1128,7 +1960,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void ReconcileSpectatorPresentation()
 	{
-		if (!m_bSpectatorPresentationRequested)
+		if (!GC_LobbyGameMode.GetGameMode() || !m_bSpectatorPresentationRequested)
 		{
 			DestroySpectatorCamera();
 			return;

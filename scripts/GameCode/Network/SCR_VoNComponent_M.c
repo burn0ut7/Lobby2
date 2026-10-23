@@ -1,26 +1,56 @@
 modded class SCR_VoNComponent : VoNComponent
 {
-	protected static const string CONFIG = "{49CE1A7D3B74F5F3}Sounds/VON/GC_VAR_VON.conf";
-	protected static const string VAR_NAME   = "GC_SPEC";
+	protected bool m_bGC_LobbyCaptureActive;
 
+	//------------------------------------------------------------------------------------------------
+	//! Explicit Lobby VON boundary; never changes normal game capture or social mute.
+	bool GC_SetLobbyCapture(bool requested, int playerId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!manager)
+			return false;
+		bool allowed = requested;
+		PlayerController controller = GetGame().GetPlayerManager().GetPlayerController(playerId);
+		IEntity body;
+		if (controller)
+			body = controller.GetControlledEntity();
+		if (!body || body.FindComponent(VoNComponent) != this)
+			return false;
+		if (body.FindComponent(GC_LobbySpectatorBodyComponent))
+			allowed = requested && manager.CanTransmitLobbyVoice(playerId);
+		if (allowed == m_bGC_LobbyCaptureActive)
+			return m_bGC_LobbyCaptureActive;
+		if (allowed)
+			m_bGC_LobbyCaptureActive = SetCapture(true);
+		else
+			GC_EndLobbyCapture();
+		return m_bGC_LobbyCaptureActive;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Release only capture explicitly acquired through the Lobby VON entry point.
+	void GC_EndLobbyCapture()
+	{
+		if (m_bGC_LobbyCaptureActive)
+			SetCapture(false);
+		m_bGC_LobbyCaptureActive = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected event void OnVoNUsed(int senderId)
+	{
+		super.OnVoNUsed(senderId);
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			manager.ObserveLobbyVoiceTransmission(senderId);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override protected event void OnReceive(int playerId, bool isSenderEditor, BaseTransceiver receiver, int frequency, float quality)
 	{
 		super.OnReceive(playerId, isSenderEditor, receiver, frequency, quality);
-		
-
-		//PrintFormat("GC | Source:%1",AudioSystem.GetVariableIDByName(VAR_NAME, CONFIG));
-		
-		if(AudioSystem.GetVariableIDByName(VAR_NAME, CONFIG) != -1)
-		{
-			float current = AudioSystem.GetVariableValue(VAR_NAME, CONFIG);
-			PrintFormat("GC | OnReceive Current:%1",current);
-
-			AudioSystem.SetVariableByName(VAR_NAME, 1, CONFIG);
-		}
-		
-
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-		if (!lobbyManager)
+		if (!lobbyManager || !GC_UIEventDiagnostics.ENABLED)
 			return;
 
 		GC_VoiceChannelAssignment assignment = lobbyManager.GetPlayerVoiceAssignment(playerId);

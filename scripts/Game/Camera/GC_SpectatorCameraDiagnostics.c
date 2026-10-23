@@ -1,10 +1,11 @@
 class GC_SpectatorCameraDiagnostics
 {
+	static const bool ENABLED = false;
 	static const int SAMPLE_INTERVAL = 30;
 
 	static void LogSnapshot(string role, int sequence, IEntity character, vector cameraWorldTransform[4], vector cameraOffset, float mainFOV, float pipFOV, float networkSightFOV, bool isADS, int sightState)
 	{
-		if (!character)
+		if (!ENABLED || !character)
 			return;
 
 		int sightsIndex = -1;

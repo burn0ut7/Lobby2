@@ -2,6 +2,33 @@
 //! while players change or release lobby slots.
 modded class SCR_GroupsManagerComponent
 {
+	//------------------------------------------------------------------------------------------------
+	//! Complete native setup for authored groups before members can tune radios.
+	void GC_RegisterLobbyGroup(notnull SCR_AIGroup group)
+	{
+		if (IsProxy() || !GC_LobbyManager.GetManager())
+			return;
+
+		AssignGroupID(group);
+		if (group.GetRadioFrequency() <= 0)
+			AssignGroupFrequency(group);
+		else
+			ClaimFrequency(group.GetRadioFrequency(), group.GetFaction());
+		RegisterGroup(group);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnPlayerFactionChanged(notnull FactionAffiliationComponent owner, Faction previousFaction, Faction newFaction)
+	{
+		// Lobby2 already selected the authored group through its slot workflow.
+		// Native automatic group creation would introduce an unrelated extra squad.
+		if (GC_LobbyManager.GetManager())
+			return;
+
+		super.OnPlayerFactionChanged(owner, previousFaction, newFaction);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override void OnGroupPlayerRemoved(SCR_AIGroup group, int playerID)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();

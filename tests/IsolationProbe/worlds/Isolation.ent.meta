@@ -1,0 +1,7 @@
+MetaFileClass {
+ Name "{6A115D5DFF7ED8A3}worlds/Isolation.ent"
+ Configurations {
+  ENTResourceClass PC {
+  }
+ }
+}

@@ -74,7 +74,7 @@ modded class SCR_MapMarkersUI
 	//------------------------------------------------------------------------------------------------
 	protected void GC_RaiseLobbyMarkerDialog()
 	{
-		if (!m_MarkerEditRoot || !m_RootWidget)
+		if (!GC_LobbyGameMode.GetGameMode() || !m_MarkerEditRoot || !m_RootWidget)
 			return;
 
 		// The stock marker editor is created below the Lobby2 side panels because

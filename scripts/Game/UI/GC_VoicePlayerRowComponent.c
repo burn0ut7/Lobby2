@@ -4,6 +4,7 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
     protected int m_iPlayerId = -1;
     protected bool m_bSpeaking;
     protected GC_LobbyPlayerController m_VoiceController;
+	protected GC_LobbyManager m_SelectionManager;
 
     override void HandlerDeattached(Widget w)
     {
@@ -11,6 +12,9 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             m_VoiceController.m_OnVoiceActivity.Remove(OnVoiceActivity);
         m_VoiceController = null;
         GetGame().GetCallqueue().Remove(EndVoiceActivity);
+        if (m_SelectionManager)
+			m_SelectionManager.m_OnAdminSelectionChanged.Remove(Refresh);
+		m_SelectionManager = null;
         super.HandlerDeattached(w);
     }
 
@@ -46,6 +50,11 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         m_VoiceController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
         if (m_VoiceController)
             m_VoiceController.m_OnVoiceActivity.Insert(OnVoiceActivity);
+		if (m_SelectionManager)
+			m_SelectionManager.m_OnAdminSelectionChanged.Remove(Refresh);
+		m_SelectionManager = GC_LobbyManager.GetManager();
+		if (m_SelectionManager)
+			m_SelectionManager.m_OnAdminSelectionChanged.Insert(Refresh);
         m_iPlayerId = playerId;
         m_Slot = slot;
         m_Group = null;
@@ -57,6 +66,12 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		PlayerController local = GetGame().GetPlayerController();
+		if ((button == 0 || button == 1) && manager && local && SCR_Global.IsAdmin(local.GetPlayerId()))
+			manager.SelectAdminPlayer(m_iPlayerId);
+		if (button == 0)
+			return manager && local && SCR_Global.IsAdmin(local.GetPlayerId());
 		if (button != 1 || m_iPlayerId < 0)
 			return false;
 
@@ -81,6 +96,8 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             if (name.IsEmpty() && m_Slot)
                 name = m_Slot.GetCachedPlayerName();
 
+			if (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId)
+				name += "  [SELECTED]";
             playerName.SetText(name);
 			GC_PlayerNamePresentation.Apply(playerName, m_iPlayerId);
         }
@@ -121,7 +138,9 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         if (playerController)
             isLocalPlayer = playerController.GetPlayerId() == m_iPlayerId;
 
-        if (isLocalPlayer)
+		if (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId)
+			background.SetColor(Color.FromRGBA(146, 104, 35, 180));
+        else if (isLocalPlayer)
             background.SetColor(Color.FromRGBA(194, 100, 20, 20));
         else
             background.SetColor(Color.FromRGBA(1, 1, 1, 158));

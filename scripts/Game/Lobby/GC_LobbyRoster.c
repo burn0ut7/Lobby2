@@ -6,6 +6,8 @@ class GC_LobbyRoster
 	protected ref array<Faction> m_aFactions = {};
 	protected ref array<ref GC_Slot> m_aSlots = {};
 	protected ref array<RplId> m_aPendingGroupIds = {};
+	//! Snapshot presentation order, independent of entity streaming readiness.
+	protected ref array<RplId> m_aGroupOrder = {};
 	protected int m_iNextSlotId = 1;
 	protected int m_iJipResolveAttempt;
 
@@ -15,8 +17,33 @@ class GC_LobbyRoster
 		if (!group || m_aGroups.Contains(group))
 			return false;
 
-		m_aGroups.Insert(group);
+		int order = m_aGroupOrder.Find(Replication.FindItemId(group));
+		int insertionIndex = m_aGroups.Count();
+		if (order >= 0)
+		{
+			foreach (int index, SCR_AIGroup existingGroup : m_aGroups)
+			{
+				int existingOrder = m_aGroupOrder.Find(Replication.FindItemId(existingGroup));
+				if (existingOrder < 0 || existingOrder > order)
+				{
+					insertionIndex = index;
+					break;
+				}
+			}
+		}
+		m_aGroups.InsertAt(group, insertionIndex);
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Retain snapshot order even after a reference has resolved.
+	void QueueJipGroup(RplId groupId)
+	{
+		if (m_aGroupOrder.Contains(groupId))
+			return;
+
+		m_aGroupOrder.Insert(groupId);
+		m_aPendingGroupIds.Insert(groupId);
 	}
 
 	bool RemoveGroup(SCR_AIGroup group)
@@ -53,7 +80,27 @@ class GC_LobbyRoster
 	}
 
 	bool ContainsFaction(Faction faction) { return m_aFactions.Contains(faction); }
-	array<Faction> GetFactions() { return m_aFactions; }
+	//------------------------------------------------------------------------------------------------
+	//! Present factions in their first group's order, followed by any explicitly
+	//! registered factions without groups. Membership still comes from the engine.
+	array<Faction> GetFactions()
+	{
+		array<Faction> orderedFactions = {};
+		foreach (SCR_AIGroup group : m_aGroups)
+		{
+			if (!group)
+				continue;
+			Faction faction = group.GetFaction();
+			if (faction && m_aFactions.Contains(faction) && !orderedFactions.Contains(faction))
+				orderedFactions.Insert(faction);
+		}
+		foreach (Faction faction : m_aFactions)
+		{
+			if (faction && !orderedFactions.Contains(faction))
+				orderedFactions.Insert(faction);
+		}
+		return orderedFactions;
+	}
 
 	Faction GetFaction(FactionKey factionKey)
 	{
@@ -246,6 +293,7 @@ class GC_LobbyRoster
 		m_aFactions.Clear();
 		m_aSlots.Clear();
 		m_aPendingGroupIds.Clear();
+		m_aGroupOrder.Clear();
 		m_iJipResolveAttempt = 0;
 	}
 }

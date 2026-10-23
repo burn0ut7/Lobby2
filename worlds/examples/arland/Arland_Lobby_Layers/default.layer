@@ -1,3 +1,6 @@
+SCR_AIWorld : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
+ coords 1165.056 39 2712.759
+}
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  coords 1195.314 39 2720.544
 }
@@ -7,7 +10,7 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_
 RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
  coords 1205.665 38.911 2686.31
 }
-ScriptedChatEntity : "{F69BC912AC8236F9}Prefabs/MP/ScriptedChatEntity.et" {
+ScriptedChatEntity : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
  coords 1222.934 39 2701.818
 }
 GenericEntity marker2 {

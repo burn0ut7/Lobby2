@@ -1,0 +1,72 @@
+ButtonWidgetClass {
+ Name "AdminOption"
+ Slot LayoutSlot {
+  HorizontalAlign 3
+ }
+ Color 1 1 1 0
+ components {
+  SCR_ButtonTextComponent "{6A5A00000000002B}" {
+   m_bCanBeToggled 1
+   m_BackgroundDefault 0.025 0.032 0.034 0.98
+   m_BackgroundHovered 0.16 0.18 0.18 1
+   m_BackgroundSelected 0.36 0.28 0.13 1
+   m_BackgroundSelectedHovered 0.43 0.34 0.16 1
+   m_BackgroundClicked 0.43 0.34 0.16 1
+   m_bShowBorderOnFocus 0
+   m_bUseTextColorization 1
+   m_TextDefault 0.94 0.94 0.92 1
+   m_TextToggled 1 1 1 1
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{6A5A00000000002C}" {
+   Slot ButtonWidgetSlot {
+    HorizontalAlign 3
+   }
+   AllowHeightOverride 1
+   HeightOverride 40
+   "Ignore Cursor" 1
+   {
+    OverlayWidgetClass "{6A5A00000000002D}" {
+     Slot AlignableSlot {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      PanelWidgetClass "{6A5A00000000002E}" {
+       Name "Background"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 0.025 0.032 0.034 0.98
+       style full
+      }
+      PanelWidgetClass "{6A5A000000000030}" {
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Ignore Cursor" 1
+       Color 0.19 0.23 0.24 0.8
+       style outline_2px
+      }
+      TextWidgetClass "{6A5A00000000002F}" {
+       Name "Text"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 12 0 12 0
+       }
+       "Ignore Cursor" 1
+       Color 0.94 0.94 0.92 1
+       Text "OPTION"
+       "Font Size" 22
+       "Vertical Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

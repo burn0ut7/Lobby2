@@ -70,7 +70,7 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_
 RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
  coords 10358.268 28.752 313.506
 }
-ScriptedChatEntity : "{F69BC912AC8236F9}Prefabs/MP/ScriptedChatEntity.et" {
+ScriptedChatEntity : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
  coords 10348.504 33.19 370.834
 }
 GenericEntity marker2 {

@@ -293,6 +293,17 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		}
 	}
 
+	//! Player-count changes can alter balance eligibility across groups.
+	void RefreshSlotInteraction()
+	{
+		foreach (Widget widget : m_aSlotWidgets)
+		{
+			GC_SlotButtonComponent button = GC_SlotButtonComponent.Cast(widget.FindHandler(GC_SlotButtonComponent));
+			if (button)
+				button.RefreshInteractionPresentation();
+		}
+	}
+
 	protected void OnSlotUpdated(GC_Slot slot)
 	{
 		if (!slot || slot.GetGroup() != m_Group)
@@ -300,6 +311,8 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 
 		if (!HasCurrentSlotTopology())
 			Refresh();
+		else
+			UpdatePlayerCount();
 	}
 
 	protected void ClearSlotWidgets()

@@ -31,13 +31,29 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	override protected void OnGameStateChanged()
 	{
 		super.OnGameStateChanged();
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.Cast(FindComponent(GC_LobbyFreezeComponent));
+		if (freeze)
+			freeze.OnPhaseChanged();
 
 		PrintFormat("GC | Phase UI Trace | game state callback: state=%1 server=%2 playerController=%3 menuManager=%4", GC_LobbyManager.GetPhaseName(GetState()), Replication.IsServer(), GetGame().GetPlayerController(), GetGame().GetMenuManager());
 		UpdateLocalPhasePresentation(null, "game-state-changed");
 	}
 
+	//------------------------------------------------------------------------------------------------
 	override protected void OnPlayerRoleChange(int playerId, EPlayerRole roleFlags)
 	{
+		// Native editor-mode listeners may change GAME_MASTER during an admin
+		// notification. Dispatch outside that native stack to avoid recursive
+		// invocation of the base game mode's role event. Authority remains native.
+		GetGame().GetCallqueue().CallLater(DispatchPlayerRoleChange, 0, false, playerId, roleFlags);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void DispatchPlayerRoleChange(int playerId, EPlayerRole roleFlags)
+	{
+		if (GetGame().GetGameMode() != this)
+			return;
+
 		super.OnPlayerRoleChange(playerId, roleFlags);
 
 		if (GC_UIEventDiagnostics.ENABLED)
@@ -123,4 +139,11 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 
 		return false;
 	}
+	//------------------------------------------------------------------------------------------------
+	void ~GC_LobbyGameMode()
+	{
+		if (GetGame())
+			GetGame().GetCallqueue().Remove(DispatchPlayerRoleChange);
+	}
+
 }

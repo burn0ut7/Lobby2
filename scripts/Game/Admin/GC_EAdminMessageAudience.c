@@ -1,0 +1,7 @@
+enum GC_EAdminMessageAudience
+{
+	ADMINS,
+	ALL_PLAYERS,
+	SELECTED_PLAYERS,
+	FACTION
+}

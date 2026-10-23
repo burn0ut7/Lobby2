@@ -363,10 +363,15 @@ FrameWidgetClass {
    }
   }
   FrameWidgetClass "{6A1F001886A5B812}" : "{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout" {
-   Name "Chat0"
+   Name "Chat"
    Slot FrameWidgetSlot "{5D4881250D202DF3}" {
+    Anchor 0 0 1 1
+    OffsetLeft 8
+    OffsetTop 80
+    OffsetRight 8
+    OffsetBottom 0
    }
-   "Is Visible" 0
+   "Is Visible" 1
   }
  }
 }

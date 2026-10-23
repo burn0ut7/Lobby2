@@ -99,6 +99,25 @@ class GC_LobbyVoiceState
 		return assignment && assignment.IsDeafened();
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Priority speakers and current admins share the floor; explicit mute takes precedence.
+	//! Admin immunity does not designate a speaker or acquire a priority lease.
+	bool CanTransmit(int playerId, bool isAdmin = false)
+	{
+		GC_VoiceChannelAssignment speaker = Get(playerId);
+		if (!speaker || speaker.IsAdminMuted())
+			return false;
+		if (speaker.IsPrioritySpeaker() || isAdmin)
+			return true;
+
+		foreach (GC_VoiceChannelAssignment assignment : m_aAssignments)
+		{
+			if (assignment && assignment.IsPrioritySpeaker() && !assignment.IsAdminMuted() && assignment.IsPriorityTransmitting())
+				return false;
+		}
+		return true;
+	}
+
 	bool SetDeafened(int playerId, bool deafened, out GC_VoiceChannelAssignment changed)
 	{
 		changed = Get(playerId);

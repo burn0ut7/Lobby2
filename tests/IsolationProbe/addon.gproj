@@ -1,0 +1,8 @@
+GameProject {
+ ID "Lobby2IsolationProbe"
+ GUID "6A115D5DFF7ED8A2"
+ TITLE "Lobby2 isolation baseline probe"
+ Dependencies {
+  "58D0FB3206B6F859"
+ }
+}

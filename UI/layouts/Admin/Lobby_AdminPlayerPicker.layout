@@ -1,0 +1,28 @@
+FrameWidgetClass {
+ Name "PlayerPicker"
+ Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetBottom -60
+  OffsetLeft 0
+  OffsetTop 0
+  OffsetRight 0
+ }
+ components { GC_AdminPlayerPicker "{7C41F8A018B24B02}" {} }
+ {
+  ButtonWidgetClass : "{7C41F8A018B24C11}UI/layouts/Admin/Lobby_AdminPlayerRow.layout" {
+   Name "PickerField"
+   components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+   Slot FrameWidgetSlot { Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+  }
+  ImageWidgetClass {
+   Slot FrameWidgetSlot { Anchor 0 0.5 0 0.5 OffsetLeft 12 OffsetTop -12 OffsetRight -36 OffsetBottom -12 }
+   "Ignore Cursor" 1
+   Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+   Image "search"
+   Size 24 24
+  }
+ }
+}

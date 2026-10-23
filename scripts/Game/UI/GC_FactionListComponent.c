@@ -215,7 +215,9 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
 		if (!m_mFactionCards.Find(factionKey, card))
 			return;
 
-		GC_FactionButtonComponent button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
+		GC_FactionButtonComponent button;
+		if (card)
+			button = GC_FactionButtonComponent.Cast(card.FindHandler(GC_FactionButtonComponent));
 		if (button)
 			button.m_OnClicked.Remove(OnFactionButtonClicked);
 		if (card)

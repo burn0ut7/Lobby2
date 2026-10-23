@@ -5,7 +5,7 @@ modded class SCR_BaseGameMode
 {
 	bool GC_SetLobbyState(SCR_EGameModeState state)
 	{
-		if (!GC_LobbyGameMode.Cast(this) || !IsMaster())
+		if (GC_LobbyGameMode.GetGameMode() != this || !IsMaster())
 			return false;
 
 		if (state != SCR_EGameModeState.SLOTTING && state != SCR_EGameModeState.BRIEFING)

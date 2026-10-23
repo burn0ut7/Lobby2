@@ -1,0 +1,76 @@
+FrameWidgetClass {
+ Name "AdminMessagePopup"
+ "Ignore Cursor" 1
+ Slot FrameWidgetSlot {
+  Anchor 0.5 0 0.5 0
+  OffsetLeft 0
+  OffsetTop 86
+  SizeX 780
+  OffsetRight -780
+  SizeY 110
+  OffsetBottom -110
+  Alignment 0.5 0
+ }
+ "Z Order" 20000
+ components {
+  GC_AdminMessagePopupComponent "{6A58000000000002}" {
+  }
+ }
+ {
+  PanelWidgetClass {
+   "Ignore Cursor" 1
+   Slot FrameWidgetSlot {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   Color 0.018 0.018 0.018 0.88
+   style full
+  }
+  TextWidgetClass {
+   Name "AdminMessageTitle"
+   "Ignore Cursor" 1
+   Slot FrameWidgetSlot {
+    Anchor 0 0 1 0
+    OffsetLeft 20
+    OffsetTop 14
+    OffsetRight 20
+    SizeY 24
+    OffsetBottom -40
+   }
+   Color 0.72 0.72 0.72 1
+   Text "Admin"
+   "Font Size" 18
+  }
+  FrameWidgetClass {
+   Name "AdminMessageScroll"
+   "Ignore Cursor" 1
+   Slot FrameWidgetSlot {
+    Anchor 0 0 1 1
+    OffsetLeft 20
+    OffsetTop 44
+    OffsetRight 20
+    OffsetBottom 20
+   }
+   {
+    TextWidgetClass {
+     Name "AdminMessageText"
+     "Ignore Cursor" 1
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 1
+      OffsetLeft 0
+      OffsetTop 0
+      OffsetRight 0
+      OffsetBottom 0
+     }
+     Color 0.95 0.95 0.95 1
+     Text ""
+     "Font Size" 22
+     Wrap 1
+    }
+   }
+  }
+ }
+}

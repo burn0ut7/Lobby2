@@ -33,6 +33,12 @@ class GC_Slot
 
 	//! Current slot state represented by this slot.
 	protected GC_SlotState m_eState = GC_SlotState.FREE;
+	//! Availability and pinning are independent of character/claim lifecycle.
+	protected bool m_bAdminLocked;
+	protected bool m_bAssignmentPinned;
+	//! Initial admin reservation has no reconnect deadline until its first join.
+	protected bool m_bAwaitingInitialJoin;
+
 
 	//! Character or spectator prefab authored on the group slot.
 	protected ResourceName m_Prefab;
@@ -57,6 +63,94 @@ class GC_Slot
 
 	//! Replicated entity reference retained while the proxy streams in.
 	protected RplId m_EntityRplId = RplId.Invalid();
+
+	//! Authority-only geometry, deliberately excluded from presentation replication.
+	protected ref GC_SlotSpawnPoint m_AdminSpawnPoint;
+
+	//------------------------------------------------------------------------------------------------
+	static SCR_UIInfo GetPrefabRoleInfo(ResourceName prefab)
+	{
+		Resource prefabResource = Resource.Load(prefab);
+		if (!prefabResource || !prefabResource.IsValid())
+		{
+			PrintFormat("[GC_Slot] Invalid role prefab resource '%1'", prefab, level: LogLevel.ERROR);
+			return null;
+		}
+
+		IEntityComponentSource editableCharacterSource = SCR_EditableEntityComponentClass.GetEditableEntitySource(prefabResource);
+		if (!editableCharacterSource)
+		{
+			PrintFormat("[GC_Slot] No editable-character source on '%1'", prefab, level: LogLevel.ERROR);
+			return null;
+		}
+
+		BaseContainer uiInfoContainer = editableCharacterSource.GetObject("m_UIInfo");
+		if (uiInfoContainer)
+			return SCR_UIInfo.Cast(BaseContainerTools.CreateInstanceFromContainer(uiInfoContainer));
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetAdminSpawnPoint(GC_SlotSpawnPoint spawnPoint)
+	{
+		m_AdminSpawnPoint = spawnPoint;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_SlotSpawnPoint GetAdminSpawnPoint()
+	{
+		return m_AdminSpawnPoint;
+	}
+
+
+	//------------------------------------------------------------------------------------------------
+	bool IsAdminLocked()
+	{
+		return m_bAdminLocked;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetAdminLocked(bool value)
+	{
+		if (m_bAdminLocked == value)
+			return;
+		m_bAdminLocked = value;
+		NotifyChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsAssignmentPinned()
+	{
+		return m_bAssignmentPinned;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetAssignmentPinned(bool value)
+	{
+		if (m_bAssignmentPinned == value)
+			return;
+		m_bAssignmentPinned = value;
+		NotifyChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsAwaitingInitialJoin()
+	{
+		return m_bAwaitingInitialJoin;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Authority validates availability and identity before reserving the existing claim.
+	void ReserveIdentity(UUID identity, string playerName)
+	{
+		m_iPlayerId = -1;
+		m_PlayerUUID = identity;
+		m_sCachedPlayerName = playerName;
+		m_bAwaitingInitialJoin = true;
+		m_bAssignmentPinned = false;
+		m_eState = GC_SlotState.RESERVED;
+		NotifyChanged();
+	}
 
 	int GetID()
 	{
@@ -294,6 +388,7 @@ class GC_Slot
 		{
 			string playerIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 			m_iPlayerId = playerId;
+			m_bAwaitingInitialJoin = false;
 			m_PlayerUUID = playerIdentity;
 			m_sCachedPlayerName = GetGame().GetPlayerManager().GetPlayerNameByIdentity(playerIdentity);
 			if (!m_sCachedPlayerName)
@@ -321,6 +416,7 @@ class GC_Slot
 			return;
 
 		m_iPlayerId = playerId;
+		m_bAwaitingInitialJoin = false;
 		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		if (!identity.IsEmpty())
 			m_PlayerUUID = identity;
@@ -345,7 +441,9 @@ class GC_Slot
 	{
 		m_iPlayerId = -1;
 		m_PlayerUUID = "";
+		m_bAwaitingInitialJoin = false;
 		m_sCachedPlayerName = "";
+		m_bAssignmentPinned = false;
 		if (m_eState != GC_SlotState.KIA)
 			m_eState = GC_SlotState.FREE;
 		NotifyChanged();
@@ -375,6 +473,10 @@ class GC_Slot
 		m_PlayerUUID = source.m_PlayerUUID;
 		m_sCachedPlayerName = source.m_sCachedPlayerName;
 		m_eState = source.m_eState;
+		m_bAdminLocked = source.m_bAdminLocked;
+		m_bAssignmentPinned = source.m_bAssignmentPinned;
+		m_bAwaitingInitialJoin = source.m_bAwaitingInitialJoin;
+
 		m_Prefab = source.m_Prefab;
 		m_ResolvedPrefab = source.m_ResolvedPrefab;
 		m_iGroupSlotIndex = source.m_iGroupSlotIndex;
@@ -409,6 +511,10 @@ class GC_Slot
 
 		writer.WriteRplId(GetGroupRplId());
 		writer.WriteRplId(GetEntityRplId());
+		writer.WriteBool(m_bAdminLocked);
+		writer.WriteBool(m_bAssignmentPinned);
+		writer.WriteBool(m_bAwaitingInitialJoin);
+
 		return true;
 	}
 
@@ -489,6 +595,13 @@ class GC_Slot
 
 		m_Entity = null;
 		ResolveReplicatedEntity();
+		if (!reader.ReadBool(m_bAdminLocked))
+			return false;
+		if (!reader.ReadBool(m_bAssignmentPinned))
+			return false;
+		if (!reader.ReadBool(m_bAwaitingInitialJoin))
+			return false;
+
 
 		return true;
 	}
@@ -516,6 +629,9 @@ class GC_Slot
 		RplId entityRplId = instance.GetEntityRplId();
 		snapshot.SerializeBytes(groupRplId, 4);
 		snapshot.SerializeBytes(entityRplId, 4);
+		snapshot.SerializeBool(instance.m_bAdminLocked);
+		snapshot.SerializeBool(instance.m_bAssignmentPinned);
+		snapshot.SerializeBool(instance.m_bAwaitingInitialJoin);
 
 		return true;
 	}
@@ -559,6 +675,10 @@ class GC_Slot
 		instance.m_EntityRplId = entityRplId;
 		instance.m_Entity = null;
 		instance.ResolveReplicatedEntity();
+		snapshot.SerializeBool(instance.m_bAdminLocked);
+		snapshot.SerializeBool(instance.m_bAssignmentPinned);
+		snapshot.SerializeBool(instance.m_bAwaitingInitialJoin);
+
 
 		return true;
 	}
@@ -584,6 +704,9 @@ class GC_Slot
 		RplId entityRplId;
 		snapshot.SerializeBytes(entityRplId, 4);
 		packet.Serialize(entityRplId, 32);
+		snapshot.EncodeBool(packet);
+		snapshot.EncodeBool(packet);
+		snapshot.EncodeBool(packet);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -607,6 +730,9 @@ class GC_Slot
 		RplId entityRplId;
 		packet.Serialize(entityRplId, 32);
 		snapshot.SerializeBytes(entityRplId, 4);
+		snapshot.DecodeBool(packet);
+		snapshot.DecodeBool(packet);
+		snapshot.DecodeBool(packet);
 		return true;
 	}
 
@@ -621,6 +747,10 @@ class GC_Slot
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareStringSnapshots(rhs)
 			&& lhs.CompareStringSnapshots(rhs)
+			&& lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4);
@@ -647,7 +777,10 @@ class GC_Slot
 			&& snapshot.CompareInt(groupSlotIndex)
 			&& snapshot.CompareInt(instance.m_eVariantPolicy)
 			&& snapshot.Compare(groupRplId, 4)
-			&& snapshot.Compare(entityRplId, 4);
+			&& snapshot.Compare(entityRplId, 4)
+			&& snapshot.CompareBool(instance.m_bAdminLocked)
+			&& snapshot.CompareBool(instance.m_bAssignmentPinned)
+			&& snapshot.CompareBool(instance.m_bAwaitingInitialJoin);
 	}
 
 }

@@ -300,7 +300,7 @@ FrameWidgetClass {
      }
      components {
       GC_HeaderButtonComponent "{5548F0143AE99095}" {
-       m_sText "DEBREIF"
+       m_sText "DEBRIEF"
        m_iHeaderState 4
       }
      }

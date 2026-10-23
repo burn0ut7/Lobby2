@@ -115,7 +115,9 @@ modded class SCR_AIGroup : ChimeraAIGroup
 
 	override void SpawnUnits()
 	{
-		if (GetWorld().IsEditMode() && m_bPlayable)
+		// Editor previews opt in through the world's mode too. The runtime lookup
+		// deliberately excludes edit mode, so inspect the authored mode directly.
+		if (GetWorld().IsEditMode() && m_bPlayable && GC_LobbyGameMode.Cast(GetGame().GetGameMode()))
 		{
 #ifdef WORKBENCH
 			SpawnWorkbenchPreview();
@@ -241,6 +243,9 @@ modded class SCR_AIGroup : ChimeraAIGroup
 
 	override bool _WB_OnKeyChanged(BaseContainer src, string key, BaseContainerList ownerContainers, IEntity parent)
 	{
+		if (!GC_LobbyGameMode.Cast(GetGame().GetGameMode()))
+			return super._WB_OnKeyChanged(src, key, ownerContainers, parent);
+
 		if (key == "coords" || key == "angles" || key == "m_aUnitPrefabSlots" || key == "m_bSnapToTerrain" || key == "m_bPlayable" || key == "DefaultFormation")
 		{
 			if (m_bPlayable)

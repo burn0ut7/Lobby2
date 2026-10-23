@@ -2,6 +2,17 @@ FrameWidgetClass {
  Name "LobbySpectatorHUD"
  "Z Order" 100
  {
+  FrameWidgetClass "{6A63000000000010}" : "{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout" {
+   Name "Chat"
+   Slot FrameWidgetSlot "{6A63000000000011}" {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   "Z Order" 110
+  }
   FrameWidgetClass "{6A60000000000001}" : "{0651202E9F2646DE}UI/layouts/Map/Map.layout" {
    Name "SpectatorMapFrame"
    Slot FrameWidgetSlot "{6A60000000000002}" {

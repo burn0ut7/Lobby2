@@ -171,6 +171,12 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		return lobbyManager && playerController && lobbyManager.CanPlayerRequestSlot(playerController.GetPlayerId(), m_Slot);
 	}
 
+	//! Re-evaluate shared eligibility without replacing this button or its focus.
+	void RefreshInteractionPresentation()
+	{
+		UpdateSlotVisuals();
+	}
+
 	protected void UpdateSlotVisuals()
 	{
 		if (!m_wRoot)
@@ -205,14 +211,22 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		Widget statusSection = m_wRoot.FindAnyWidget("StatusSection");
 		if (statusSection)
 		{
-			bool showStatus = m_Slot && (m_Slot.GetPlayerId() >= 0 || m_Slot.GetState() != GC_SlotState.FREE);
+			bool showStatus = m_Slot && (m_Slot.GetPlayerId() >= 0 || m_Slot.GetState() != GC_SlotState.FREE || m_Slot.IsAdminLocked() || m_Slot.IsAssignmentPinned());
 			statusSection.SetVisible(showStatus);
 		}
 
 		TextWidget statusText = TextWidget.Cast(m_wRoot.FindAnyWidget("StatusText"));
 		if (statusText && m_Slot)
 		{
-			if (m_Slot.GetPlayerId() >= 0 && !m_Slot.GetCachedPlayerName().IsEmpty())
+			if (m_Slot.IsAwaitingInitialJoin() && !m_Slot.IsKIA())
+			{
+				string reservedName = "Reserved";
+				if (!m_Slot.GetCachedPlayerName().IsEmpty())
+					reservedName += ": " + m_Slot.GetCachedPlayerName();
+				statusText.SetText(reservedName);
+				GC_PlayerNamePresentation.Apply(statusText, -1);
+			}
+			else if (m_Slot.GetPlayerId() >= 0 && !m_Slot.GetCachedPlayerName().IsEmpty())
 			{
 				statusText.SetText(m_Slot.GetCachedPlayerName());
 				GC_PlayerNamePresentation.Apply(statusText, m_Slot.GetPlayerId());
@@ -243,6 +257,16 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 				}
 			}
 		}
+		if (statusText && m_Slot)
+		{
+			string label = statusText.GetText();
+			if (m_Slot.IsAssignmentPinned())
+				label += " [Pinned]";
+			if (m_Slot.IsAdminLocked())
+				label += " [Locked]";
+			statusText.SetText(label);
+		}
+
 	}
 
 	void RefreshAdminNamePresentation()
@@ -314,29 +338,10 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		m_RoleInfoPrefab = prefab;
 		m_RoleInfo = null;
 
-		Resource prefabResource = Resource.Load(prefab);
-		if (!prefabResource || !prefabResource.IsValid())
-		{
-			PrintFormat("[GC_SlotButtonComponent] Invalid role prefab resource '%1'", prefab, level: LogLevel.ERROR);
-			return null;
-		}
-
-		IEntityComponentSource editableCharacterSource = SCR_EditableEntityComponentClass.GetEditableEntitySource(prefabResource);
-		if (!editableCharacterSource)
-		{
-			PrintFormat("[GC_SlotButtonComponent] No editable-character source on '%1'", prefab, level: LogLevel.ERROR);
-			return null;
-		}
-
-		BaseContainer uiInfoContainer = editableCharacterSource.GetObject("m_UIInfo");
-		if (uiInfoContainer)
-			m_RoleInfo = SCR_UIInfo.Cast(BaseContainerTools.CreateInstanceFromContainer(uiInfoContainer));
-
-		if (!m_RoleInfo)
-			PrintFormat("[GC_SlotButtonComponent] Editable-character source has no UI info on '%1'", prefab, level: LogLevel.ERROR);
-
+		m_RoleInfo = GC_Slot.GetPrefabRoleInfo(prefab);
 		return m_RoleInfo;
 	}
+
 
 	protected void OnSlotChanged(GC_Slot slot)
 	{

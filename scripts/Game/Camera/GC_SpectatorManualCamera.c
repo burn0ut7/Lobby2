@@ -107,6 +107,48 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected int m_iNetworkDiagnosticsSightState;
 	protected bool m_bNetworkDiagnosticsPending;
 
+	//------------------------------------------------------------------------------------------------
+	//! Admin target selection starts from a clear view of the character. Ordinary
+	//! manual Follow still preserves the operator's existing offset and orientation.
+	bool TryFollowPlayer(IEntity target)
+	{
+		if (!IsEligibleTarget(target) || !FindCameraComponent(SCR_AttachManualCameraComponent))
+			return false;
+
+		vector targetTransform[4];
+		target.GetWorldTransform(targetTransform);
+		vector backward = -targetTransform[2];
+		backward[1] = 0;
+		if (backward.LengthSq() < 0.001)
+			return false;
+		backward.Normalize();
+
+		vector boundsMin, boundsMax;
+		target.GetBounds(boundsMin, boundsMax);
+		vector focus = target.CoordToParent((boundsMin + boundsMax) * 0.5);
+		vector offset = backward * 4 + "0 1 0";
+		TraceParam trace = new TraceParam();
+		trace.Start = focus;
+		trace.End = focus + offset;
+		trace.Exclude = target;
+		trace.Flags = TraceFlags.WORLD | TraceFlags.ENTS;
+		trace.LayerMask = TRACE_LAYER_CAMERA;
+		float fraction = GetWorld().TraceMove(trace, null);
+		if (fraction < 1)
+			fraction = Math.Max(0, fraction - 0.2 / offset.Length());
+		if (fraction * offset.Length() < 0.5)
+			return false;
+
+		vector cameraTransform[4];
+		vector position = focus + offset * fraction;
+		Math3D.AnglesToMatrix((focus - position).VectorToAngles(), cameraTransform);
+		cameraTransform[3] = position;
+		SetFreeMode();
+		SetTransform(cameraTransform);
+		return TrySetMode(GC_ESpectatorCameraMode.FOLLOW, target);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool TrySetMode(GC_ESpectatorCameraMode mode, IEntity target = null)
 	{
 		if (mode == GC_ESpectatorCameraMode.FREE)

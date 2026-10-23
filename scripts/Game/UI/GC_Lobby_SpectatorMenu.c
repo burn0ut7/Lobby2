@@ -70,7 +70,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.AddActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.AddActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
-			m_InputManager.AddActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
+			m_InputManager.AddActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
 
 		Widget root = GetRootWidget();
@@ -169,7 +169,10 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	override void OnMenuFocusLost()
 	{
+		GetGame().GetCallqueue().Remove(OpenNativeChat);
 		super.OnMenuFocusLost();
+		if (m_ChatPanel && m_ChatPanel.IsOpen())
+			SCR_ChatPanelManager.GetInstance().CloseChatPanel(m_ChatPanel);
 		CloseSpectatorMap();
 		HideOptionTooltip();
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
@@ -182,6 +185,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	override void OnMenuClose()
 	{
+		GetGame().GetCallqueue().Remove(OpenNativeChat);
+		if (m_ChatPanel && m_ChatPanel.IsOpen())
+			SCR_ChatPanelManager.GetInstance().CloseChatPanel(m_ChatPanel);
 		CloseSpectatorMap();
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (playerController)
@@ -217,7 +223,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.RemoveActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.RemoveActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
-			m_InputManager.RemoveActionListener("ManualCameraTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
+			m_InputManager.RemoveActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
 
 		HideOptionTooltip();
@@ -277,6 +283,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		m_bInterfaceVisible = visible;
 		if (!visible)
 		{
+			GetGame().GetCallqueue().Remove(OpenNativeChat);
+			if (m_ChatPanel && m_ChatPanel.IsOpen())
+				SCR_ChatPanelManager.GetInstance().CloseChatPanel(m_ChatPanel);
 			CloseSpectatorMap();
 			HideOptionTooltip();
 		}
@@ -291,6 +300,24 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		Widget root = GetRootWidget();
 		if (root)
 			root.SetVisible(visible);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void ChatToggle()
+	{
+		// Native gameplay HUD also handles this action. Select our visible panel
+		// after its callback, as the other lobby menus do.
+		GetGame().GetCallqueue().Remove(OpenNativeChat);
+		GetGame().GetCallqueue().CallLater(OpenNativeChat, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OpenNativeChat()
+	{
+		if (!IsFocused() || !m_bInterfaceVisible || !GC_LobbyManager.GetManager())
+			return;
+		ShowChat();
+		super.ChatToggle();
 	}
 
 	protected void OnToggleSpectatorInterface()

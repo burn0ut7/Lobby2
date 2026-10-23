@@ -10,11 +10,14 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 	protected TextWidget m_wStatus;
 	protected SCR_ButtonBaseComponent m_ApplyButton;
 	protected GC_LobbyManager m_LobbyManager;
+	protected GC_LobbyPlayerController m_Controller;
 	protected ref array<GC_BriefingParameterRowComponent> m_aRows = {};
 	protected FactionKey m_SelectedFactionKey;
 	protected int m_iBaseRevision;
 	protected bool m_bDirty;
 	protected bool m_bStale;
+	protected bool m_bSubmitting;
+	protected int m_iAcceptedRevision = -1;
 	protected int m_iEditableRowCount;
 	protected int m_iInitializeAttempts;
 
@@ -51,6 +54,9 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 	override void HandlerDeattached(Widget w)
 	{
 		GetGame().GetCallqueue().Remove(InitializeView);
+		if (m_Controller)
+			m_Controller.m_OnScenarioParameterResult.Remove(OnSubmissionResult);
+		m_Controller = null;
 		if (m_LobbyManager)
 		{
 			m_LobbyManager.m_OnScenarioParametersChanged.Remove(OnParametersChanged);
@@ -97,6 +103,9 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		}
 
 		m_iInitializeAttempts = 0;
+		m_Controller = GC_LobbyPlayerController.Cast(playerController);
+		if (m_Controller)
+			m_Controller.m_OnScenarioParameterResult.Insert(OnSubmissionResult);
 		EPlayerRole roleFlags = GetGame().GetPlayerManager().GetPlayerRoles(playerController.GetPlayerId());
 		bool isAdmin = SCR_Global.IsAdmin(playerController.GetPlayerId());
 		SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
@@ -147,7 +156,7 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		if (factionKey == m_SelectedFactionKey)
 			return;
 
-		if (m_bDirty)
+		if (m_bDirty || m_bSubmitting)
 		{
 			if (m_FactionList && !m_SelectedFactionKey.IsEmpty())
 				m_FactionList.SetSelectedFaction(m_SelectedFactionKey, false);
@@ -284,6 +293,12 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 
 	protected void OnParametersChanged(int revision)
 	{
+		if (m_bSubmitting)
+		{
+			if (m_iAcceptedRevision >= 0 && revision >= m_iAcceptedRevision)
+				CompleteSubmission();
+			return;
+		}
 		if (revision != m_iBaseRevision && m_bDirty)
 		{
 			m_bStale = true;
@@ -301,13 +316,54 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		}
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Preserve the draft until the server accepts it and its snapshot arrives.
+	//! Either RPC may arrive first; both converge through this same completion.
+	protected void OnSubmissionResult(bool accepted, int revision)
+	{
+		if (!m_bSubmitting || !m_LobbyManager)
+			return;
+
+		if (accepted)
+		{
+			m_iAcceptedRevision = revision;
+			if (m_LobbyManager.GetScenarioParameterRevision() >= revision)
+				CompleteSubmission();
+			return;
+		}
+
+		m_bSubmitting = false;
+		m_bStale = revision != m_iBaseRevision;
+		OnLobbyPhaseChanged(m_LobbyManager.GetLobbyPhase());
+		if (m_wStatus)
+		{
+			if (m_bStale)
+				m_wStatus.SetText("Update rejected: parameters changed. Reopen this view to load the current values.");
+			else
+				m_wStatus.SetText("Update rejected. Your draft is retained; check your permissions and the mission phase.");
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CompleteSubmission()
+	{
+		m_bSubmitting = false;
+		m_bDirty = false;
+		m_bStale = false;
+		m_iAcceptedRevision = -1;
+		m_iBaseRevision = m_LobbyManager.GetScenarioParameterRevision();
+		RefreshRows();
+		if (m_wStatus)
+			m_wStatus.SetText("Parameters updated.");
+	}
+
 	protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
 	{
 		PlayerController playerController = GetGame().GetPlayerController();
 		int playerId = -1;
 		if (playerController)
 			playerId = playerController.GetPlayerId();
-		bool editable = playerController && SCR_Global.IsAdmin(playerId)
+		bool editable = !m_bSubmitting && playerController && SCR_Global.IsAdmin(playerId)
 			&& (phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING);
 		m_iEditableRowCount = 0;
 
@@ -325,7 +381,9 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 				m_iEditableRowCount++;
 		}
 
-		if (m_wStatus && !m_bStale)
+		if (m_wStatus && m_bSubmitting)
+			m_wStatus.SetText("Waiting for the server to apply parameters.");
+		else if (m_wStatus && !m_bStale)
 		{
 			if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
 				m_wStatus.SetText("Parameters are locked after the briefing phase.");
@@ -361,7 +419,7 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 		bool isAdmin = playerController && SCR_Global.IsAdmin(playerController.GetPlayerId());
 		if (GC_UIEventDiagnostics.ENABLED)
 			PrintFormat("GC | Admin Trace | parameters apply dispatched: admin=%1 editable=%2 dirty=%3 stale=%4 editableRows=%5 manager=%6", isAdmin, IsEditableNow(), m_bDirty, m_bStale, m_iEditableRowCount, m_LobbyManager);
-		if (!isAdmin || !IsEditableNow() || !m_bDirty || m_bStale || !m_LobbyManager)
+		if (!isAdmin || !IsEditableNow() || !m_bDirty || m_bStale || m_bSubmitting || !m_LobbyManager)
 			return;
 
 		SCR_EGameModeState phase = m_LobbyManager.GetLobbyPhase();
@@ -424,14 +482,11 @@ class GC_LobbyParametersComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 
-		// Clear the local draft before dispatch. A listen-server RPC can publish
-		// the new revision synchronously; leaving this true until after the call
-		// incorrectly marks our own accepted update as a conflicting stale edit.
-		m_bDirty = false;
-		if (m_ApplyButton)
-			m_ApplyButton.SetEnabled(false);
-		if (m_wStatus)
-			m_wStatus.SetText("Parameter update submitted.");
+		// Establish pending state before dispatch because listen-host callbacks
+		// may run synchronously. Editing resumes after the explicit result.
+		m_bSubmitting = true;
+		m_iAcceptedRevision = -1;
+		OnLobbyPhaseChanged(m_LobbyManager.GetLobbyPhase());
 		controller.RequestApplyScenarioParameters(m_iBaseRevision, values);
 	}
 }

@@ -1,0 +1,74 @@
+FrameWidgetClass {
+ Name "PickerMenu"
+ Slot FrameWidgetSlot { Anchor 0 0 0 0 OffsetBottom -320
+  OffsetLeft 0
+  OffsetTop 0
+  OffsetRight 0
+ }
+ "Z Order" 20000
+ {
+  PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   } Color 0.005 0.009 0.012 1 style full }
+  PanelWidgetClass {
+   Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 12 OffsetTop 10 OffsetRight 12 OffsetBottom -56 }
+   "Ignore Cursor" 1
+   Color 0.03 0.045 0.05 1
+   style full
+  }
+  PanelWidgetClass {
+   Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 12 OffsetTop 10 OffsetRight 12 OffsetBottom -56 }
+   "Ignore Cursor" 1
+   Color 0.3 0.36 0.38 1
+   style outline_2px
+  }
+  ImageWidgetClass {
+   Slot FrameWidgetSlot { Anchor 0 0 0 0 OffsetLeft 22 OffsetTop 21 OffsetRight -46 OffsetBottom -45 }
+   "Ignore Cursor" 1
+   Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+   Image "search"
+   Size 24 24
+  }
+  EditBoxWidgetClass {
+   Name "PickerSearch"
+   Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 58 OffsetTop 14 OffsetRight 22 OffsetBottom -52
+   }
+   "Font Size" 24
+   "Use placeholder text" 1
+   "Placeholder color" 0.55 0.62 0.65 1
+   "Placeholder text" "Search players..."
+   components { SCR_EventHandlerComponent "{7C41F8A018B24B04}" {} }
+  }
+  TextWidgetClass {
+   Name "PickerEmpty"
+   Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 12 OffsetTop 100 OffsetBottom -140
+    OffsetRight 0
+   }
+   Text "No matching players."
+   "Font Size" 20
+  }
+  TextWidgetClass {
+   Name "RosterLabel"
+   Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 12 OffsetTop 58 OffsetBottom -82
+    OffsetRight 0
+   }
+   Text "ROSTER"
+   "Font Size" 18
+   "Ignore Cursor" 1
+  }
+  ScrollLayoutWidgetClass {
+   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetTop 88 OffsetBottom 8 OffsetLeft 12 OffsetRight 12
+   }
+   "Scrollbar Always Visible" 1
+   {
+    VerticalLayoutWidgetClass {
+     Name "PickerRows"
+     Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 }
+    }
+   }
+  }
+ }
+}

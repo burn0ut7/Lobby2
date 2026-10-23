@@ -1,0 +1,39 @@
+ScriptedChatEntity IsolationChat : "{F69BC912AC8236F9}Prefabs/MP/ScriptedChatEntity.et" {
+ coords 130 1 130
+}
+SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
+ coords 125 1 128
+}
+SCR_FactionManager : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
+ coords 132 1 136
+}
+SCR_BaseGameMode IsolationMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
+ components {
+  SCR_RespawnSystemComponent "{56B2B4793051E7C9}" {
+   m_SpawnLogic SCR_SpawnLogic {
+   }
+   m_sLoadingLayout ""
+  }
+ }
+ coords 130 1 130
+}
+RadioManagerEntity : "Prefabs/Systems/Radio/RadioManager.et" {
+ coords 130 1 130
+}
+GenericEntity IsolationProbe {
+ components {
+  GC_IsolationProbeComponent {
+  }
+ }
+ coords 130 1 130
+}
+SCR_AIGroup IsolationGroup : "{43C7A28EEB660FF8}Prefabs/Groups/OPFOR/Group_USSR_Team_GL.et" {
+ coords 120 1 120
+ m_bPlayable 1
+ m_bSpawnImmediately 0
+ m_bDeleteWhenEmpty 0
+ m_bDeleteIfNoPlayer 0
+}
+SCR_ChimeraCharacter IsolationCharacter : "{5B1996C05B1E51A4}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AR.et" {
+ coords 110 1 110
+}

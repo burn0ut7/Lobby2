@@ -5,7 +5,8 @@ enum GC_EContextTargetType
 	SLOT,
 	PLAYER,
 	ENTITY,
-	VOICE_CHANNEL
+	VOICE_CHANNEL,
+	MODERATION_PLAYER
 }
 
 //! Ephemeral, client-local context for one menu invocation. References point
@@ -17,14 +18,25 @@ class GC_ContextMenuContext
 	protected SCR_AIGroup m_Group;
 	protected GC_Slot m_Slot;
 	protected int m_iPlayerId = -1;
+	protected UUID m_PlayerIdentity;
+	protected string m_sModerationName;
+	protected GC_AdminModerationComponent m_ModerationForm;
 	protected IEntity m_Entity;
 	protected GC_VoiceChannelType m_eVoiceChannelType;
 	protected UUID m_VoicePersonalOwnerIdentity;
 	protected int m_iVoicePersonalOwnerPlayerId = -1;
 	protected int m_iRequesterPlayerId = -1;
+	protected int m_iSelectedPlayerId = -1;
+	protected UUID m_SelectedIdentity;
 
 	protected void CaptureRequester()
 	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+		{
+			m_iSelectedPlayerId = manager.GetAdminSelectedPlayer();
+			m_SelectedIdentity = manager.GetPlayerVoiceIdentity(m_iSelectedPlayerId);
+		}
 		PlayerController playerController = GetGame().GetPlayerController();
 		if (playerController)
 			m_iRequesterPlayerId = playerController.GetPlayerId();
@@ -59,6 +71,7 @@ class GC_ContextMenuContext
 		GC_ContextMenuContext context = new GC_ContextMenuContext();
 		context.m_eTargetType = GC_EContextTargetType.SLOT;
 		context.m_Slot = slot;
+		context.m_PlayerIdentity = slot.GetUUID();
 		context.CaptureRequester();
 		return context;
 	}
@@ -71,9 +84,30 @@ class GC_ContextMenuContext
 		GC_ContextMenuContext context = new GC_ContextMenuContext();
 		context.m_eTargetType = GC_EContextTargetType.PLAYER;
 		context.m_iPlayerId = playerId;
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			context.m_PlayerIdentity = manager.GetPlayerVoiceIdentity(playerId);
 		context.m_Entity = entity;
 		context.CaptureRequester();
 		return context;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static GC_ContextMenuContext ForModerationPlayer(UUID identity, string name, GC_AdminModerationComponent form)
+	{
+		GC_ContextMenuContext context = new GC_ContextMenuContext();
+		context.m_eTargetType = GC_EContextTargetType.MODERATION_PLAYER;
+		context.m_PlayerIdentity = identity;
+		context.m_sModerationName = name;
+		context.m_ModerationForm = form;
+		context.CaptureRequester();
+		return context;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_AdminModerationComponent GetModerationForm()
+	{
+		return m_ModerationForm;
 	}
 
 	static GC_ContextMenuContext ForEntity(IEntity entity)
@@ -109,6 +143,18 @@ class GC_ContextMenuContext
 		return context;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	int GetSelectedPlayerId()
+	{
+		return m_iSelectedPlayerId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	UUID GetSelectedIdentity()
+	{
+		return m_SelectedIdentity;
+	}
+
 	GC_EContextTargetType GetTargetType()
 	{
 		return m_eTargetType;
@@ -132,6 +178,12 @@ class GC_ContextMenuContext
 	int GetPlayerId()
 	{
 		return m_iPlayerId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	UUID GetPlayerIdentity()
+	{
+		return m_PlayerIdentity;
 	}
 
 	IEntity GetEntity()
@@ -183,6 +235,8 @@ class GC_ContextMenuContext
 				return "SLOT";
 			case GC_EContextTargetType.PLAYER:
 				return "PLAYER";
+			case GC_EContextTargetType.MODERATION_PLAYER:
+				return "PLAYER";
 			case GC_EContextTargetType.ENTITY:
 				return "ENTITY";
 			case GC_EContextTargetType.VOICE_CHANNEL:
@@ -194,6 +248,8 @@ class GC_ContextMenuContext
 
 	string GetTargetLabel()
 	{
+		if (m_eTargetType == GC_EContextTargetType.MODERATION_PLAYER)
+			return m_sModerationName;
 		switch (m_eTargetType)
 		{
 			case GC_EContextTargetType.FACTION:
@@ -314,7 +370,7 @@ class GC_ContextMenuPrintTestAction : GC_ContextMenuAction
 }
 
 //! Shared action catalogue. Components may register owned action scripts and
-//! must unregister them when detached; the print action is the built-in slice.
+//! must unregister them when detached. Built-in actions check the active mode.
 class GC_ContextMenuActionRegistry
 {
 	protected static ref array<ref GC_ContextMenuAction> s_aActions;
@@ -326,7 +382,19 @@ class GC_ContextMenuActionRegistry
 
 		s_aActions = {};
 		s_aActions.Insert(new GC_JoinGroupVoiceAction());
-		s_aActions.Insert(new GC_ContextMenuPrintTestAction());
+		s_aActions.Insert(new GC_AdminCopyPlayerDetailsAction());
+		s_aActions.Insert(new GC_AdminRemoveBanAction());
+		s_aActions.Insert(new GC_AdminMakePlayableAction());
+		s_aActions.Insert(new GC_AdminOpenToolsAction());
+		s_aActions.Insert(new GC_AdminSendMessageAction());
+		s_aActions.Insert(new GC_AdminMoveSelectedAction());
+		s_aActions.Insert(new GC_AdminVoiceAction(true));
+		s_aActions.Insert(new GC_AdminVoiceAction(false));
+		s_aActions.Insert(new GC_AdminReserveSlotAction());
+		s_aActions.Insert(new GC_AdminSlotToggleAction(false));
+		s_aActions.Insert(new GC_AdminSlotToggleAction(true));
+		s_aActions.Insert(new GC_AdminSlotPlayerAction(GC_EAdminSlotAction.FREE));
+		s_aActions.Insert(new GC_AdminSlotPlayerAction(GC_EAdminSlotAction.HEAL_OR_RESPAWN));
 	}
 
 	static void Register(GC_ContextMenuAction action)
@@ -349,9 +417,20 @@ class GC_ContextMenuActionRegistry
 	{
 		EnsureInitialized();
 		actions.Clear();
+		if (context && context.GetTargetType() == GC_EContextTargetType.MODERATION_PLAYER)
+		{
+			foreach (GC_ContextMenuAction copy : s_aActions)
+			{
+				if ((GC_AdminCopyPlayerDetailsAction.Cast(copy) || GC_AdminRemoveBanAction.Cast(copy))
+					&& copy.IsVisible(context) && copy.CanExecute(context))
+					actions.Insert(copy);
+			}
+			return;
+		}
 		foreach (GC_ContextMenuAction action : s_aActions)
 		{
-			if (action && action.IsVisible(context))
+			// Only actionable entries participate in menu rows, groups and sizing.
+			if (action && action.IsVisible(context) && action.CanExecute(context))
 				actions.Insert(action);
 		}
 	}

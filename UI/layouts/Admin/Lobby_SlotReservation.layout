@@ -1,0 +1,33 @@
+FrameWidgetClass { Name "SlotReservationMenu" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Z Order" 10000
+{
+PanelWidgetClass { Name "ReservationDim" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 0.65 style full }
+FrameWidgetClass { Name "ReservationDialog" Slot FrameWidgetSlot { Anchor 0.28 0.08 0.72 0.92 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } 
+{
+PanelWidgetClass { Name "ReservationSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.018 0.025 0.03 1 style full "Ignore Cursor" 1 }
+TextWidgetClass { Name "ReservationHeading" Slot FrameWidgetSlot { Anchor 0.04 0.025 0.72 0.09 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "RESERVE SLOT" "Font Size" 29 Wrap 1 "Ignore Cursor" 1 }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReservationClose" Slot FrameWidgetSlot { Anchor 0.79 0.025 0.96 0.09 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }
+TextWidgetClass { Name "ReservationTeam" Slot FrameWidgetSlot { Anchor 0.04 0.12 0.96 0.17 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 21 Wrap 1 "Ignore Cursor" 1 }
+TextWidgetClass { Name "ReservationTarget" Slot FrameWidgetSlot { Anchor 0.04 0.18 0.96 0.25 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 29 Wrap 1 "Ignore Cursor" 1 }
+TextWidgetClass { Name "ReservationCurrent" Slot FrameWidgetSlot { Anchor 0.04 0.26 0.96 0.33 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 20 Wrap 1 "Ignore Cursor" 1 }
+FrameWidgetClass { Name "ReservationFields" Slot FrameWidgetSlot { Anchor 0.04 0.35 0.96 0.79 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } 
+{
+TextWidgetClass { Name "ReservationUIDLabel" Slot FrameWidgetSlot { Anchor 0 0 1 0.08 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ARMA UID" "Font Size" 21 Wrap 1 "Ignore Cursor" 1 }
+PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.10 1 0.24 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.03 0.045 0.05 1 style full "Ignore Cursor" 1 }
+PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.10 1 0.24 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.3 0.36 0.38 1 style outline_2px "Ignore Cursor" 1 }
+EditBoxWidgetClass { Name "ReservationUID" Slot FrameWidgetSlot { Anchor 0 0.10 1 0.24 OffsetLeft 10 OffsetTop 6 OffsetRight 10 OffsetBottom 6 } "Font Size" 23  components { SCR_EventHandlerComponent "{7C41F8A018B24D01}" {} } }
+TextWidgetClass { Name "ReservationNameLabel" Slot FrameWidgetSlot { Anchor 0 0.28 1 0.36 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "PLAYER NAME (OPTIONAL)" "Font Size" 21 Wrap 1 "Ignore Cursor" 1 }
+PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.38 1 0.52 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.03 0.045 0.05 1 style full "Ignore Cursor" 1 }
+PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.38 1 0.52 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.3 0.36 0.38 1 style outline_2px "Ignore Cursor" 1 }
+EditBoxWidgetClass { Name "ReservationName" Slot FrameWidgetSlot { Anchor 0 0.38 1 0.52 OffsetLeft 10 OffsetTop 6 OffsetRight 10 OffsetBottom 6 } "Font Size" 23  components { SCR_EventHandlerComponent "{7C41F8A018B24D01}" {} } }
+TextWidgetClass { Name "ReservationPlayerLabel" Slot FrameWidgetSlot { Anchor 0 0.56 1 0.65 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "OR CHOOSE A CONNECTED PLAYER" "Font Size" 21 Wrap 1 "Ignore Cursor" 1 }
+FrameWidgetClass : "{7C41F8A018B24B01}UI/layouts/Admin/Lobby_AdminPlayerPicker.layout" { Name "ReservationPlayer" Slot FrameWidgetSlot { Anchor 0 0.67 1 0.86 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Z Order" 20 }
+TextWidgetClass { Name "ReservationHint" Slot FrameWidgetSlot { Anchor 0 0.89 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Players can change slots under the normal phase rules." "Font Size" 20 Wrap 1 "Ignore Cursor" 1 }
+}
+}
+TextWidgetClass { Name "ReservationStatus" Slot FrameWidgetSlot { Anchor 0.04 0.80 0.96 0.88 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 20 Wrap 1 "Ignore Cursor" 1 }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReservationClear" Slot FrameWidgetSlot { Anchor 0.04 0.90 0.49 0.97 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReservationApply" Slot FrameWidgetSlot { Anchor 0.54 0.90 0.96 0.97 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+}
+}
+}
+}

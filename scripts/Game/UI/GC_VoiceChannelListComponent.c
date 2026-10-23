@@ -80,7 +80,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 			RefreshPlayers();
 	}
 
-	//! Rebuilds shared channels first, followed by discoverable personal channels.
+	//! Keeps the active channel first, followed by the existing channel hierarchy.
 	void Refresh()
 	{
 		if (!m_wChannels || !m_LobbyManager)
@@ -99,8 +99,23 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 		array<string> desiredKeys = {};
 		bool changed;
-		bool admin = SCR_Global.IsAdmin(GetLocalPlayerId());
+		int localPlayerId = GetLocalPlayerId();
+		// Keep the active room first, including a cross-faction admin assignment. This
+		// presents the assigned room, without broadening ordinary join permissions.
+		GC_VoiceChannelAssignment assigned = m_LobbyManager.GetPlayerVoiceAssignment(localPlayerId);
+		if (assigned)
+		{
+			Faction assignedFaction = m_LobbyManager.GetRegisteredFaction(assigned.GetFactionKey());
+			SCR_AIGroup assignedGroup = m_LobbyManager.GetRegisteredGroupByRplId(assigned.GetGroupRplId());
+			UUID ownerIdentity = assigned.GetPersonalOwnerIdentity();
+			int ownerId = m_LobbyManager.GetConnectedPlayerIdByIdentity(ownerIdentity);
+			if (assigned.GetChannelType() != GC_VoiceChannelType.PERSONAL || ownerId > 0)
+				changed = EnsureChannel(desiredKeys, assigned.GetChannelType(), assignedFaction,
+					assignedGroup, ownerIdentity, ownerId) || changed;
+		}
+
 		Faction localFaction = GetLocalPlayerFaction();
+		bool admin = SCR_Global.IsAdmin(GetLocalPlayerId());
 		if (admin || m_LobbyManager.GetLobbyPhase() != SCR_EGameModeState.BRIEFING || !localFaction)
 			changed = EnsureChannel(desiredKeys, GC_VoiceChannelType.GLOBAL) || changed;
 
@@ -124,7 +139,6 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 			}
 		}
 
-		int localPlayerId = GetLocalPlayerId();
 		foreach (int ownerPlayerId : connectedPlayers)
 		{
 			if (ownerPlayerId == excludedPlayerId)
@@ -134,7 +148,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 				changed = EnsureChannel(desiredKeys, GC_VoiceChannelType.PERSONAL, m_LobbyManager.GetPersonalVoiceChannelFaction(ownerIdentity), null, ownerIdentity, ownerPlayerId) || changed;
 		}
 
-		// The local player's unopened channel remains private and is always last.
+		// An inactive local personal channel remains private and follows other rooms.
 		if (localPlayerId > 0)
 		{
 			UUID localIdentity = m_LobbyManager.GetPlayerVoiceIdentity(localPlayerId);
@@ -370,6 +384,8 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 	protected bool EnsureChannel(array<string> desiredKeys, GC_VoiceChannelType channelType, Faction faction = null, SCR_AIGroup group = null, UUID personalOwnerIdentity = "", int personalOwnerPlayerId = -1)
 	{
 		string channelKey = GetChannelKey(channelType, faction, group, personalOwnerIdentity);
+		if (desiredKeys.Contains(channelKey))
+			return false;
 		desiredKeys.Insert(channelKey);
 		int channelOrder = desiredKeys.Count() - 1;
 		if (m_mChannelWidgets.Contains(channelKey))

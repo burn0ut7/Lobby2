@@ -43,7 +43,7 @@ authority used by Lobby2 and other game-mode systems.
 Lobby2 must be safe while another game mode is selected.
 
 - Use `GC_LobbyGameMode` and `GC_LobbyPlayerController` only in Lobby2-owned resources and worlds.
-- The one shared integration exception is `modded SCR_AIGroup` in `scripts/Game/modded/Entities/SCR_AIGroup_M.c`. Playable spawn suppression is guarded directly by the active `GC_LobbyGameMode` so AI-world startup cannot race manager-component discovery; registration and lobby-owned lifecycle work still require `GC_LobbyManager.GetManager()`.
+- Shared `modded` integrations are permitted where base-game interaction requires them. Each must preserve inherited behavior without an active Lobby2 mode. `SCR_AIGroup` playable spawn suppression checks the active `GC_LobbyGameMode` directly so AI-world startup cannot race manager discovery; registration still requires `GC_LobbyManager.GetManager()`. Its Workbench preview overrides check the authored game mode directly because the runtime lookup intentionally rejects edit mode.
 - Do not use an unguarded `modded class` to change `SCR_BaseGameMode`, `SCR_PlayerController`, `SCR_AIGroup`, or another shared runtime class.
 - Harmless enum registration may extend a shared enum with explicit unique values, but must not alter existing values or unrelated behavior.
 - `GC_LobbyManager.GetManager()` returning `null` is a normal condition outside Lobby2. Callers must tolerate it.
@@ -144,7 +144,7 @@ Small related value types may share a file. Large classes should not become fold
   - Extends the base manual camera and owns the active client-local spectator camera mode and target through the Lobby2 spectator camera prefab.
   - Leaves native manual-camera components responsible for free movement, rotation, and zoom. Shoulder mode uses the animated `Camera` bone as its positional anchor, the animated `Head` bone as its unadjusted rotation, and prefab-authored lateral, backward, and vertical offsets. Eye mode uses the animated `leftEye` bone for position and the camera-aligned animated `Head` basis for rotation. Mirror mode remains client-local and observes the presentation replicated on the target proxy without sending input or changing possession: outside ADS it selects the stock `Camera`/`Head` direct bone and obtains its position through the stock first-person `GetLookTransformationLS`, character-pitch, and `0, 0.03, -0.07` offset path. During ADS it obtains position and zeroing from the current base weapon sight camera. In every mirror state, viewing direction comes from the animated `Head` basis so the proxy's presented freelook remains visible, but model-space position and look direction are lightly stabilized and animated roll is removed before composition with the unsmoothed character world transform. This reduces third-person proxy animation bob without making the camera trail behind player movement. When an already-observed player changes ADS state, mirror blends its last rendered position and FOV to the new camera over the base character controller's authored ADS time while continuing to follow head rotation live; selecting a player who is already ADS snaps immediately because there is no prior presentation to blend. Mirror directly applies the unmodified local first-person FOV outside ADS and the stock first-person near plane, uses the active PiP sight's main-camera FOV or clamps ordinary ADS to the sight's authored FOV, applies the local player's ADS-focus setting through `PlayerCamera` only while ADS is active, explicitly applies the result after the inherited manual-camera component stack, and restores the prior manual-camera lens values on exit. Because the base PiP optic activation rejects weapons not owned by the local controlled character, mirror mode directly enables only the observed PiP sight's client-local render target and overlay camera for its ADS lifetime, then disables both on ADS exit, sight or target switch, and spectator teardown. Eye and mirror modes hide the target's identity head and head-cover cloth through the stock camera-handler alpha-test path, then restore them on every exit or target-switch path. Shoulder and eye modes do not interpolate; manual movement or look input returns attached modes to free camera.
   - The separate network first-person prototype samples the target owner's active camera at the player-controller prefab's configurable rate (default 30 Hz). Reliable owner/server RPCs establish one transient spectator subscription, then unreliable camera samples travel target owner to server to that spectator controller's owner only; no broadcast or replicated property publishes them to unrelated players. Every sample uses one canonical transform space for ADS and non-ADS: the owner sends the camera's world-aligned position offset from the controlled-character origin plus its world-aligned basis. The spectator's client-local manual camera is parented beneath the stock translation-only attachment helper, which follows the observed proxy's origin every post-frame without inheriting proxy rotation, and interpolates the streamed offset and basis between samples. Proxy translation therefore remains continuous while independently timed turn-in-place or root-motion rotation cannot be applied a second time; there is no alternate ADS transform or fallback. Each sample also carries the main-camera FOV, owner-local ADS state, selected weapon-sight index, variable-magnification index, live PiP-camera FOV, and the selected sight's actual owner-side FOV. The spectator applies the selected iron sight or optic and its zoom only to the local target proxy presentation, interpolates all three FOV values, and restores the proxy's prior sight/zoom values and the manual camera's prior FOV on exit. Proxy ADS animation and sight geometry are cosmetic only: the PiP render camera copies the interpolated network camera transform and uses the owner's final PiP-camera and sight FOV values for magnification, objective-edge, and reticle scale, rather than consuming divergent local-proxy sight state. Vignette, edge, and parallax centers remain nominally aligned instead of reconstructing the remote ocular geometry. Leaving the mode, changing targets, or destroying the spectator camera removes the subscription and deletes the attachment helper while preserving the camera's world transform.
-  - While a network-camera subscription is active, bounded diagnostics log matching owner and spectator records on ADS/sight transitions and every 30 ADS samples. Sequence-keyed records compare camera, character root, aiming component, selected sight transform, main FOV, PiP FOV, and the transported owner sight FOV in camera-local coordinates without changing any presentation transform.
+  - When GC_SpectatorCameraDiagnostics.ENABLED is explicitly enabled (default false), bounded diagnostics log matching owner and spectator records during active subscriptions on ADS/sight transitions and every 30 ADS samples. Sequence-keyed records compare camera, character root, aiming component, selected sight transform, main FOV, PiP FOV, and the transported owner sight FOV in camera-local coordinates without changing any presentation transform.
   - Registers no replicated property or global camera override. Target eligibility is re-queried from base player and character components, and invalid or streamed-out targets return to free camera.
 - `scripts/Game/modded/Entities/SCR_AIGroup_M.c`
   - Calls `super` for every base group lifecycle event.
@@ -161,7 +161,41 @@ Small related value types may share a file. Large classes should not become fold
   - Registers authored markers with bounded retries.
   - Cancels retries and unregisters during deletion.
 
-### Briefing UI
+### Native text chat
+
+Lobby2 worlds use `Prefabs/MP/GC_LobbyChat.et` with the native chat entity,
+components, transport, input and history. Admin is a public-send support channel:
+every connected player may send; current admins always receive. Each accepted send
+renews that sender's server-only three-minute receive deadline on their Lobby2
+controller. Delivery checks current authorization/deadline; receiving never renews
+access and no earlier messages are backfilled. This session-local permission does
+not grant any admin tool rights. Sends use the central audit logger without content.
+
+Spectator chat checks current Lobby2 spectator state on send and delivery.
+Spectators can participate in ordinary Global/Faction/Group/Vehicle/Local channels;
+Admin's receive rule and native Whisper privacy remain independent. Playing players
+retain faction/group/local routing through their inherited native channels. Vehicle
+chat uses native compartment occupancy directly because the engine Vehicle channel
+rejects non-occupants even when the script callbacks allow spectators. Slot joins,
+leaves and reconnect catch-up publish their native group membership to the base
+player faction/group components; these components remain the state queried by native
+chat. Authored groups receive IDs, frequency claims and registration through the
+native groups manager; unset frequencies use its standard frequency allocator
+before member radio tuning is enabled.
+While Lobby2 is active, that manager's automatic faction-change squad creation is
+suppressed because the explicit slot workflow already chooses the group; the native
+callback remains unchanged outside Lobby2. Announcement popups remain a separate admin
+tool for all or selected players; the old ADMINS announcement audience is rejected.
+
+`GC_LobbyMenuChat` integrates native chat into Preview/Briefing and Slotting.
+Spectator uses its inherited native menu chat lifecycle with a deferred open.
+The gameplay HUD yields ChatToggle to these menus, including while the spectator
+interface is hidden, so an invisible input cannot consume subsequent actions.
+Shared panel styling, input ownership and late-HUD registration overrides are
+active only in the current Lobby2 mode; no chat
+entity or channels are installed in unrelated modes.
+
+### Briefing rendering
 
 - `GC_BriefingViewComponent`
   - Coordinates selection, widget discovery, subscriptions, view sizing, and collaborator lifecycle.
@@ -307,7 +341,7 @@ Guidelines:
 
 ## Slot lifecycle and phase reconciliation
 
-`GC_LobbyManager` is the lifecycle coordinator. `GC_Slot` owns slot transitions and is the only API that changes claimant identity: `SetPlayer`, `MarkDisconnected`, `ReconnectPlayer`, `ReleaseClaim`, `SetEntity`, and `MarkKIA`. The roster lookup helpers are derived discovery indexes; base-game group and player APIs remain authoritative.
+`GC_LobbyManager` is the lifecycle coordinator. `GC_Slot` owns slot transitions and is the only API that changes claimant identity: `SetPlayer`, `ReserveIdentity`, `MarkDisconnected`, `ReconnectPlayer`, `ReleaseClaim`, `SetEntity`, and `MarkKIA`. The roster lookup helpers are derived discovery indexes; base-game group and player APIs remain authoritative.
 
 Slot states have these meanings:
 
@@ -335,6 +369,12 @@ The Lobby2 prefab replaces the inherited reconnect component using its existing 
 
 Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). A connected claim without a persistent UUID is released on disconnect because it cannot form a reconnect reservation. Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
 
+Admin preassignments use the same slot claim with a replicated `IsAwaitingInitialJoin` flag. They have no reconnect deadline until the player first joins. Catch-up consumes that flag through the canonical assignment path, updates native faction/group membership, and preserves KIA state. The assignment is not pinned; normal phase rules govern subsequent changes. A connected target uses the existing admin assignment path. Reserving a UID already held by the same slot does not extend a reconnect deadline.
+
+The existing slotting screen is the sole manual slot selector: its admin context action opens `GC_SlotReservationMenu` for that exact slot. Admin Tools provides only roster import/export. `ExecuteSlotReservation` authenticates the current requester, validates the phase and claimant snapshot, and uses the central admin logger. Mutations are available before `GAME`; export remains available afterward. Replies carry the server's resulting claim so a later action does not depend on reply/slot-replication ordering.
+
+Version 1 JSON transfers include stable authored slot/group keys and team, group, role, player-name and Arma-UID metadata. Keys derive from the world resource, authored group prefab/transform/faction and unit index/prefab; session slot numbers are display metadata only. Moving or editing authored groups can invalidate old exports. Runtime-created slots without authored identity are excluded explicitly. Imports validate the entire document before applying any assignments, preserve matching claims and blank UIDs, and reject missing/ambiguous slots, duplicate UIDs and occupied conflicts. Transfers are bounded to 128 rows and 32 KiB. Reservations are session state; administrators copy exports to save them and import them into the same scenario after a restart. See [slot reservation usage and evidence](../tests/SlotReservations.md).
+
 Slotting requests are server-authoritative and JIP-safe. Claims, changes, and
 toggling out are unrestricted by faction only during `SLOTTING` and remain
 `RESERVED`. From `BRIEFING` through `GAME`, a player's authoritative current
@@ -351,7 +391,7 @@ Tracked controllable destruction is phase-sensitive: before `GAME`, a claimed sl
 
 Every subscription or queued callback creates an ownership obligation.
 
-- `GC_LobbyManager.Shutdown()` is idempotent and is called for game-mode and world termination.
+- `GC_LobbyManager.Shutdown()` is idempotent and is called for world termination through `OnGameEnd`. `OnGameModeEnd` is the base engine's POSTGAME phase callback, not teardown: roster, voice, briefing, and parameter data remain available to post-match views.
 - Manager shutdown removes call-queue entries, unsubscribes group and slot events, and clears Lobby2-owned domain state.
 - Entity components clean up in `OnDelete`.
 - Widget components clean up in `HandlerDeattached`.
@@ -360,6 +400,20 @@ Every subscription or queued callback creates an ownership obligation.
 - Static base-game invokers require particular care: subscribe only while at least one owned Lobby2 consumer exists, and always remove the subscription when the last consumer leaves.
 
 Cleanup code should be safe when called twice and safe when initialization completed only partially.
+
+World shutdown explicitly releases the local controller's voice capture, owned
+native-VON disable state, input listeners, editor/pause subscriptions and spectator
+presentation before destruction. Manager lookup rejects a shut-down instance;
+queued group, role and affiliation callbacks recheck current ownership. Delayed
+voice grants and camera messages also recheck the active Lobby2 mode.
+
+The shared VON receive override always calls `super`; Lobby2 adds optional
+diagnostics only. It does not write the global `GC_SPEC` audio variable. The
+legacy `Character_Base.et` override has been removed: stock characters retain
+their base audio and inventory defaults, while the Lobby2 spectator prefab owns
+its radio and audio configuration. Spectator teleport uses `GC_SpectatorTeleport`
+instead of redefining the stock `ManualCameraTeleport` action. Map-marker dialog
+ordering requires both the active Lobby2 mode and the Lobby2 widget hierarchy.
 
 ## Logging convention
 
@@ -421,6 +475,18 @@ The old briefing view mixed parsing, widget construction, browser actions, butto
 Script validation does not prove that prefab metadata, world-layer types, hover behavior, JIP timing, or dedicated-server authority are correct. Resource inspection, reload logs, and multiplayer role testing remain separate gates.
 
 ## Change checklist
+
+### Optional project tests
+
+`tests/McpTestAddon/addon.gproj` is a separate development addon depending on
+Lobby2. It adds opt-in `GC_Test*` runtime calls and focused checks; production
+Lobby2 does not depend on it. See `tests/README.md` for loading, MCP navigation,
+parameter interaction, evidence, and unloading. Keep project-specific controls
+out of the generic MCP server and do not copy test scripts into production.
+
+The default postgame end-data factory result must be retained in a strong local
+reference until `EndGameMode` takes ownership. Assigning that result to the weak
+method parameter releases it before the stock data collector receives it.
 
 Before implementing a slice:
 

@@ -9,11 +9,10 @@ modded class SCR_VONController
 		if (GC_LobbyGameMode.GetGameMode() && lobbyEntry && lobbyEntry.GetTransceiver())
 		{
 			BaseRadioComponent lobbyRadio = lobbyEntry.GetTransceiver().GetRadio();
-			if (lobbyRadio && lobbyRadio.GetOwner() && lobbyRadio.GetOwner().GetPrefabData() && lobbyRadio.GetOwner().GetPrefabData().GetPrefabName() == GC_LobbyRadio.PREFAB)
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetOwner());
+			if (controller && lobbyRadio && lobbyRadio.GetOwner() && lobbyRadio.GetOwner().GetPrefabData() && lobbyRadio.GetOwner().GetPrefabData().GetPrefabName() == GC_LobbyRadio.PREFAB)
 			{
-				GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetOwner());
-				if (controller)
-					controller.ApplyLobbyRadio();
+				controller.ApplyLobbyRadio();
 				return;
 			}
 		}
