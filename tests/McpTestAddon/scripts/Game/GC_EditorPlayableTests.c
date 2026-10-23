@@ -15,6 +15,24 @@ modded class SCR_AttributesEditorUIComponent
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestCloseGameMaster()
+	{
+		return string.Format("native editor close=%1", SCR_EditorManagerEntity.CloseInstance());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestPlayableSlotOrder(string groupName)
+	{
+		SCR_AIGroup group = SCR_AIGroup.Cast(GetGame().GetWorld().FindEntityByName(groupName));
+		if (!group)
+			return "UNAVAILABLE named group";
+		string result;
+		foreach (GC_Slot slot : GetSlotsForGroup(group))
+			result += string.Format("slot=%1 index=%2 prefab=%3 player=%4\n", slot.GetID(), slot.GetGroupSlotIndex(), slot.GetAuthoredPrefab(), slot.GetPlayerId());
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestShowPlayableCategory()
 	{
 		array<Widget> widgets = {GetGame().GetWorkspace()};
@@ -41,7 +59,7 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestPlacePlayableGroup()
+	string GC_TestPlacePlayableGroup(string prefab = "{43C7A28EEB660FF8}Prefabs/Groups/OPFOR/Group_USSR_Team_GL.et")
 	{
 		SCR_PlacingEditorComponent placing = SCR_PlacingEditorComponent.Cast(SCR_BaseEditorComponent.GetInstance(SCR_PlacingEditorComponent));
 		if (!Replication.IsServer() || !placing || GetGame().GetWorld().FindEntityByName("GC_GMPlacedGroup"))
@@ -50,7 +68,7 @@ modded class GC_LobbyManager
 		Math3D.MatrixIdentity4(transform);
 		transform[3] = "145 1 140";
 		placing.GetOnPlaceEntityServer().Insert(GC_TestPlacedPlayableGroup);
-		bool dispatched = placing.CreateEntity("{43C7A28EEB660FF8}Prefabs/Groups/OPFOR/Group_USSR_Team_GL.et", SCR_EditorPreviewParams.CreateParams(transform));
+		bool dispatched = placing.CreateEntity(prefab, SCR_EditorPreviewParams.CreateParams(transform));
 		if (!dispatched)
 			placing.GetOnPlaceEntityServer().Remove(GC_TestPlacedPlayableGroup);
 		return string.Format("native placement dispatched=%1; verify placement audit and GC_GMPlacedGroup", dispatched);
@@ -67,7 +85,7 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestOpenPlayableProperties(string groupName)
+	string GC_TestOpenPlayableProperties(string groupName, bool memberFirst = false)
 	{
 		IEntity entity = GetGame().GetWorld().FindEntityByName(groupName);
 		SCR_AttributesManagerEditorComponent attributes = SCR_AttributesManagerEditorComponent.Cast(SCR_BaseEditorComponent.GetInstance(SCR_AttributesManagerEditorComponent));
@@ -77,7 +95,19 @@ modded class GC_LobbyManager
 		if (!editable)
 			return "UNAVAILABLE editable entity";
 		attributes.SetCurrentCategory("{6A24B4A21C000003}Configs/Editor/AttributeCategories/GC_Lobby.conf");
-		attributes.StartEditing(editable);
+		array<Managed> selection = {};
+		if (memberFirst)
+		{
+			SCR_AIGroup group = SCR_AIGroup.Cast(entity);
+			array<AIAgent> agents = {};
+			if (group)
+				group.GetAgents(agents);
+			if (agents.Count() < 2)
+				return "UNAVAILABLE two-member group required";
+			selection.Insert(SCR_EditableEntityComponent.GetEditableEntity(agents[1].GetControlledEntity()));
+		}
+		selection.Insert(editable);
+		attributes.StartEditing(selection);
 		return "DISPATCHED native properties; inspect dialog before applying";
 	}
 
@@ -99,7 +129,7 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	//! Use a named, newly placed Game Master group. No permissions are granted here.
 	//! Exercises the real property writer and verifies entity identity and idempotence.
-	string GC_TestEditorPlayable(string groupName)
+	string GC_TestEditorPlayable(string groupName, bool memberFirst = false)
 	{
 		SCR_AIGroup group = SCR_AIGroup.Cast(GetGame().GetWorld().FindEntityByName(groupName));
 		SCR_AttributesManagerEditorComponent attributes = SCR_AttributesManagerEditorComponent.Cast(SCR_BaseEditorComponent.GetInstance(SCR_AttributesManagerEditorComponent));
@@ -114,6 +144,18 @@ modded class GC_LobbyManager
 		if (!editable || !GetEditorPlayableCharacters(group, characters))
 			return "UNAVAILABLE editable populated group required";
 		int before = GetSlots().Count();
+		IEntity leader = group.GetLeaderEntity();
+		array<AIAgent> originalAgents = {};
+		group.GetAgents(originalAgents);
+		array<IEntity> expectedOrder = {};
+		if (leader)
+			expectedOrder.Insert(leader);
+		foreach (AIAgent originalAgent : originalAgents)
+		{
+			IEntity member = originalAgent.GetControlledEntity();
+			if (member && member != leader)
+				expectedOrder.Insert(member);
+		}
 		array<vector> positions = {};
 		array<bool> activeAI = {};
 		foreach (IEntity character : characters)
@@ -136,9 +178,32 @@ modded class GC_LobbyManager
 		}
 
 		GC_PlayableEditorAttribute attribute = new GC_PlayableEditorAttribute();
+		GC_Slot earlierSlot;
+		int earlierSlotId;
+		if (memberFirst)
+		{
+			if (expectedOrder.Count() < 2)
+				return "UNAVAILABLE nonleader fixture required";
+			SCR_EditableEntityComponent memberEditable = SCR_EditableEntityComponent.GetEditableEntity(expectedOrder[1]);
+			attribute.WriteVariable(memberEditable, SCR_BaseEditorAttributeVar.CreateBool(true), attributes, -1);
+			earlierSlot = GetSlotByEntity(expectedOrder[1]);
+			if (!earlierSlot)
+				return "FAIL individual soldier registration";
+			earlierSlotId = earlierSlot.GetID();
+		}
 		attribute.WriteVariable(editable, SCR_BaseEditorAttributeVar.CreateBool(true), attributes, -1);
 		if (!m_Roster.ContainsGroup(group) || GetSlots().Count() != before + characters.Count())
 			return "FAIL group or slot count";
+		array<ref GC_Slot> registeredSlots = GetSlotsForGroup(group);
+		if (registeredSlots.Count() != expectedOrder.Count())
+			return "FAIL registered member count";
+		foreach (int orderIndex, IEntity expectedMember : expectedOrder)
+		{
+			if (registeredSlots[orderIndex].GetEntity() != expectedMember || registeredSlots[orderIndex].GetGroupSlotIndex() != orderIndex)
+				return "FAIL native leader first or remaining member order";
+		}
+		if (earlierSlot && (GetSlot(earlierSlotId) != earlierSlot || earlierSlot.GetEntity() != expectedOrder[1]))
+			return "FAIL individual slot identity changed";
 		foreach (int index, IEntity character : characters)
 		{
 			GC_Slot slot = GetSlotByEntity(character);
@@ -152,7 +217,7 @@ modded class GC_LobbyManager
 		SCR_BaseEditorAttributeVar current = attribute.ReadVariable(editable, attributes);
 		if (!current || !current.GetBool() || GetSlots().Count() != before + characters.Count())
 			return "FAIL repeated enable or property readback";
-		return "PASS authority rejection, editor-owner identity, live entity adoption and repeated enable; inspect connected lobby UI and audit separately";
+		return "PASS native leader first, remaining member order, authority rejection, editor-owner identity, live entity adoption and repeated enable; inspect connected lobby UI and audit separately";
 	}
 
 	//------------------------------------------------------------------------------------------------

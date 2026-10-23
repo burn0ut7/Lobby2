@@ -70,3 +70,36 @@ separate from the tested embedded host plus standalone client.
 
 Peer processes were stopped, original peer parameters restored, and temporary
 localhost Play mode cleared by closing World Editor.
+
+## Leader ordering regression (2026-10-23)
+
+The reported session's audit showed a mixed selection applying Playable to the
+automatic rifleman before its group. Creation order therefore put that soldier
+above the native leader. The native properties dialog reproduced this with
+`GC_TestOpenPlayableProperties("GC_GMPlacedGroup", true)` and confirmation.
+
+Adopting a non-authored group's native leader now inserts its slot at index zero,
+shifting existing slot indices without replacing their identities or claims.
+The roster presents the transmitted indices in order, independently of creation
+or network arrival. Authored playable-group indices remain unchanged.
+
+`GC_TestEditorPlayable("GC_GMPlayableFixture", true)` exercises the individual
+soldier then group property writers. It failed against the previous production
+code and passed with the fix, checking member order, existing slot identity,
+entity/position preservation, AI deactivation, authorization and repeated enable.
+Pass `false` for the original group-only case. `GC_TestPlacePlayableGroup` now
+accepts the prefab argument; the six-member reproduction uses
+`{E552DABF3636C2AD}Prefabs/Groups/OPFOR/Group_USSR_RifleSquad.et`.
+
+Workbench compilation passed. An embedded localhost host and standalone non-admin
+client verified late-join ordering, live registration/count updates, and a normal
+client claim of the leader slot. The mixed rifle-squad selection retained the
+earlier automatic-rifleman slot 47 at index 1 and placed leader slot 48 at index 0.
+`leader-host-fixed.png` shows all six rows after claim/disconnection;
+`leader-peer-jip.png` shows the four-member late-join case. The live peer claim
+screenshot verifies counters/ownership but its squad rows are below the viewport.
+Evidence remains in the directory above. Dedicated-server testing was not repeated.
+An additional peer relaunch exited with code 0 before its six-member screenshot;
+that attempted capture is not counted as passing evidence.
+Peer settings were restored and test clients stopped. Production-only compilation
+passed (`345c1fb1203449c4aee7c25739434388`); Arland was reopened without the test addon.

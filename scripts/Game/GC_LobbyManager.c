@@ -2680,6 +2680,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (m_Roster.GetSlots().Count() >= 512)
 			return "rejected-slot-limit";
 
+		bool insertLeaderFirst = !group.IsPlayable() && group.GetLeaderEntity() == entity;
 		AIControlComponent aiControl = AIControlComponent.Cast(entity.FindComponent(AIControlComponent));
 		aiControl.DeactivateAI();
 		if (aiControl.IsAIActivated())
@@ -2690,7 +2691,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		int nextIndex;
 		foreach (GC_Slot existing : m_Roster.GetSlotsForGroup(group))
 		{
-			if (existing.GetGroupSlotIndex() >= nextIndex)
+			// Native multi-selection can write a soldier's property before the
+			// group's. Insert the leader ahead of those already adopted slots.
+			// Keep authored playable-group indices (and their stable keys) intact.
+			if (insertLeaderFirst)
+				existing.SetGroupSlotIndex(existing.GetGroupSlotIndex() + 1);
+			else if (existing.GetGroupSlotIndex() >= nextIndex)
 				nextIndex = existing.GetGroupSlotIndex() + 1;
 		}
 		ResourceName prefab = entity.GetPrefabData().GetPrefabName();

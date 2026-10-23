@@ -212,7 +212,19 @@ class GC_LobbyRoster
 		foreach (GC_Slot slot : m_aSlots)
 		{
 			if (slot && slot.GetGroup() == group)
-				slots.Insert(slot);
+			{
+				// Registration and network arrival order need not match row order.
+				int insertionIndex = slots.Count();
+				foreach (int index, GC_Slot existing : slots)
+				{
+					if (existing.GetGroupSlotIndex() > slot.GetGroupSlotIndex())
+					{
+						insertionIndex = index;
+						break;
+					}
+				}
+				slots.InsertAt(slot, insertionIndex);
+			}
 		}
 
 		return slots;
