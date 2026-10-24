@@ -137,32 +137,6 @@ ButtonWidgetClass {
           OutlineColor 0 0 0 0.65
          }
         }
-        ImageWidgetClass "{6A33000000000031}" {
-         Name "PrioritySpeakerIcon"
-         Slot LayoutSlot "{6A33000000000032}" {
-          VerticalAlign 1
-          Padding 0 0 4 0
-         }
-         "Is Visible" 0
-         "Ignore Cursor" 1
-         Color 1 1 1 1
-         Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
-         Image "microphone"
-         Size 26 26
-        }
-        ImageWidgetClass "{6A33000000000033}" {
-         Name "AdminMutedIcon"
-         Slot LayoutSlot "{6A33000000000034}" {
-          VerticalAlign 1
-          Padding 0 0 4 0
-         }
-         "Is Visible" 0
-         "Ignore Cursor" 1
-         Color 1 1 1 1
-         Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
-         Image "lockedCircle"
-         Size 26 26
-        }
         SizeLayoutWidgetClass "{6A3300000000001D}" {
          Name "VoiceIconSize"
          Slot LayoutSlot "{6A3300000000001E}" {

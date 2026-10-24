@@ -154,17 +154,28 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 		GC_VoiceChannelAssignment assignment;
 		if (lobbyManager)
 			assignment = lobbyManager.GetPlayerVoiceAssignment(m_iPlayerId);
-		Widget priorityIcon = m_wRoot.FindAnyWidget("PrioritySpeakerIcon");
-		Widget adminMutedIcon = m_wRoot.FindAnyWidget("AdminMutedIcon");
-		if (priorityIcon)
-			priorityIcon.SetVisible(assignment && assignment.IsPrioritySpeaker());
-		if (adminMutedIcon)
-			adminMutedIcon.SetVisible(assignment && assignment.IsAdminMuted());
-
 		ImageWidget voiceIcon = ImageWidget.Cast(m_wRoot.FindAnyWidget("VoiceIcon"));
 		Widget deafenedIcon = m_wRoot.FindAnyWidget("VoiceDeafenedIcon");
 		if (!voiceIcon || !deafenedIcon)
 			return;
+
+		voiceIcon.SetColor(Color.White);
+		voiceIcon.SetOpacity(1);
+		voiceIcon.SetVisible(true);
+		deafenedIcon.SetVisible(false);
+		// Moderation takes precedence over priority and local activity.
+		if (assignment && assignment.IsAdminMuted())
+		{
+			voiceIcon.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "lockedCircle");
+			return;
+		}
+		if (assignment && assignment.IsPrioritySpeaker())
+		{
+			voiceIcon.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "microphone");
+			if (!m_bSpeaking)
+				voiceIcon.SetColor(Color.FromRGBA(170, 170, 170, 255));
+			return;
+		}
 
 		bool deafened;
 		if (lobbyManager)
@@ -175,7 +186,10 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 		if (m_bSpeaking)
 			voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNDirect");
 		else
+		{
 			voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNIdle");
+			voiceIcon.SetOpacity(0.38);
+		}
 	}
 
 
