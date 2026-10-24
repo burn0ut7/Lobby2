@@ -53,7 +53,7 @@ changes or leaving BRIEFING. Client presentation uses native connected-player
 state without requiring another player's controller to exist locally.
 
 The bottom-center briefing tiles show faction, state and commander to everyone.
-Only the local commander sees the action. Readiness is advisory: the existing
+Only the local commander can activate the readiness icon. Readiness is advisory: the existing
 admin phase transition remains unchanged. Group ordering overrides, commander
 selection overrides and automatic start are outside this slice.
 

@@ -6,7 +6,7 @@ SizeLayoutWidgetClass {
  AllowWidthOverride 1
  WidthOverride 220
  AllowHeightOverride 1
- HeightOverride 196
+ HeightOverride 132
  components {
   GC_FactionReadyTileComponent "{6A71000000000003}" {
   }
@@ -58,40 +58,14 @@ SizeLayoutWidgetClass {
      "Horizontal Alignment" Center
      "Vertical Alignment" Center
     }
-    ImageWidgetClass "{6A71000000000008}" {
-     Name "ReadinessIcon"
-     Slot FrameWidgetSlot {
-      Anchor 0.5 0 0.5 0
-      OffsetLeft -18
-      OffsetTop 36
-      OffsetRight -18
-      OffsetBottom -72
-     }
-     "Ignore Cursor" 1
-    }
-    TextWidgetClass "{6A71000000000009}" {
-     Name "ReadinessState"
-     Slot FrameWidgetSlot {
-      Anchor 0 0 1 0
-      OffsetLeft 8
-      OffsetTop 74
-      OffsetRight 8
-      OffsetBottom -98
-     }
-     "Ignore Cursor" 1
-     Text "Not ready"
-     "Font Size" 20
-     "Horizontal Alignment" Center
-     "Vertical Alignment" Center
-    }
     TextWidgetClass "{6A7100000000000A}" {
      Name "ReadinessCommander"
      Slot FrameWidgetSlot {
       Anchor 0 0 1 0
       OffsetLeft 8
-      OffsetTop 100
+      OffsetTop 84
       OffsetRight 8
-      OffsetBottom -144
+      OffsetBottom -128
      }
      "Ignore Cursor" 1
      Color 0.8 0.82 0.82 1
@@ -104,16 +78,16 @@ SizeLayoutWidgetClass {
     ButtonWidgetClass "{6A7100000000000B}" {
      Name "ReadinessAction"
      Slot FrameWidgetSlot {
-      Anchor 0 0 1 0
-      OffsetLeft 8
-      OffsetTop 150
-      OffsetRight 8
-      OffsetBottom -188
+      Anchor 0.5 0 0.5 0
+      OffsetLeft -24
+      OffsetTop 36
+      OffsetRight -24
+      OffsetBottom -84
      }
      Color 1 1 1 0
      components {
-      SCR_ButtonTextComponent "{6A7100000000000C}" {
-       m_BackgroundDefault 0.12 0.13 0.13 1
+      SCR_ButtonBaseComponent "{6A7100000000000C}" {
+       m_BackgroundDefault 0 0 0 0
        m_BackgroundHovered 0.55 0.38 0.13 1
        m_BackgroundClicked 0.72 0.48 0.15 1
        m_bShowBorderOnFocus 1
@@ -133,20 +107,17 @@ SizeLayoutWidgetClass {
           VerticalAlign 3
          }
          "Ignore Cursor" 1
-         Color 0.12 0.13 0.13 1
+         Color 0 0 0 0
          style full
         }
-        TextWidgetClass "{6A7100000000000F}" {
-         Name "Text"
+        ImageWidgetClass "{6A71000000000008}" {
+         Name "ReadinessIcon"
          Slot OverlayWidgetSlot {
+          Padding 6 6 6 6
           HorizontalAlign 3
           VerticalAlign 3
          }
          "Ignore Cursor" 1
-         Text "Mark ready"
-         "Font Size" 20
-         "Horizontal Alignment" Center
-         "Vertical Alignment" Center
         }
         PanelWidgetClass "{6A71000000000010}" {
          Name "Border"

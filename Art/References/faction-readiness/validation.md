@@ -46,3 +46,16 @@ addon-directory arguments, Server localhost Off, and only core/ArmaReforger/Lobb
 loaded after reopening the production project (`1792799039428648100`,
 `1792799013583487800`). Independent review approved the result with the stated
 limits. Saved source readability and scoped `git diff --check` passed.
+
+## Icon-only revision — 2026-10-24
+
+Removed the separate action label and Ready/Not ready words. The icon itself is
+now the native button, always visible and enabled only for the CO when no request
+is pending. Final scripts reloaded successfully in Workbench 1.8.0.13. In Arland
+BRIEFING, invoking its production button handler changed USSR to ready at revision
+1 and back to unready at revision 2. The US icon remained visible but rejected
+activation as disabled, with no revision change. See `icon-toggle-evidence.json`
+and `runtime-icon-toggle.png`. Existing server validation/replication is unchanged.
+This revision was tested in embedded Play; physical pointer and gamepad traversal
+remain unverified. Original multiplayer evidence above applies to the unchanged
+backend, not a fresh remote test of this revision.

@@ -1,3 +1,14 @@
+## Icon-only revision — 2026-10-24
+
+The user requested faction name, readiness icon and CO only. Reuse concept-v1
+for placement/theme; this narrow revision removes the state words and separate
+Mark ready button, moves activation onto the icon, and reduces tile height.
+The icon stays visible for everyone; only the local CO can activate it. Pending
+requests disable activation until the server responds. Error feedback remains
+conditional. Native hover/focus styling applies to the icon's 48×48 hit area.
+`runtime-icon-toggle.png` is the current rendered reference. Earlier captures and
+the element table below document the superseded initial design.
+
 # Faction readiness reference
 
 Active concept: concept-v1.png, built-in image generation, 2026-10-23. Edited from baseline-preview.png (MCP capture of Arland Preview, not a Briefing baseline). Generated image is a concept, not game evidence.

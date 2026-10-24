@@ -131,21 +131,21 @@ class GC_FactionReadinessComponent : SCR_ScriptedWidgetComponent
 	}
 }
 
-//! One faction's state and its single, explicitly labelled command action.
+//! One faction's state and its clickable readiness icon.
 class GC_FactionReadyTileComponent : SCR_ScriptedWidgetComponent
 {
 	protected string m_sFactionKey;
 	protected int m_iSlotId;
 	protected int m_iRevision;
 	protected bool m_bReady;
-	protected SCR_ButtonTextComponent m_Button;
+	protected SCR_ButtonBaseComponent m_Button;
 
 	//------------------------------------------------------------------------------------------------
 	override void HandlerAttached(Widget w)
 	{
 		super.HandlerAttached(w);
 		Widget button = w.FindAnyWidget("ReadinessAction");
-		m_Button = SCR_ButtonTextComponent.Cast(button.FindHandler(SCR_ButtonTextComponent));
+		m_Button = SCR_ButtonBaseComponent.Cast(button.FindHandler(SCR_ButtonBaseComponent));
 		m_Button.m_OnClicked.Insert(OnClicked);
 	}
 
@@ -179,16 +179,10 @@ class GC_FactionReadyTileComponent : SCR_ScriptedWidgetComponent
 		name.SetText(WidgetManager.Translate(faction.GetFactionName()));
 		ImageWidget accent = ImageWidget.Cast(m_wRoot.FindAnyWidget("ReadinessAccent"));
 		accent.SetColor(faction.GetFactionColor());
-		TextWidget state = TextWidget.Cast(m_wRoot.FindAnyWidget("ReadinessState"));
 		ImageWidget icon = ImageWidget.Cast(m_wRoot.FindAnyWidget("ReadinessIcon"));
 		string imageName = "disable";
-		string status = "Not ready";
 		if (m_bReady)
-		{
 			imageName = "check";
-			status = "Ready";
-		}
-		state.SetText(status);
 		icon.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", imageName);
 		icon.SetColor(Color.White);
 		if (m_bReady)
@@ -201,15 +195,7 @@ class GC_FactionReadyTileComponent : SCR_ScriptedWidgetComponent
 		commander.SetText("CO: " + commanderName);
 		GC_PlayerNamePresentation.Apply(commander, commanderId);
 		bool canChange = commanderId == controller.GetPlayerId() && manager.GetLobbyPhase() == SCR_EGameModeState.BRIEFING;
-		Widget action = m_wRoot.FindAnyWidget("ReadinessAction_" + m_sFactionKey);
-		action.SetVisible(canChange);
 		m_Button.SetEnabled(canChange && !controller.IsFactionReadinessPending());
-		string label = "Mark ready";
-		if (m_bReady)
-			label = "Mark not ready";
-		if (controller.IsFactionReadinessPending())
-			label = "Waiting for server...";
-		m_Button.SetText(label);
 	}
 
 	//------------------------------------------------------------------------------------------------

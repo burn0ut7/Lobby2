@@ -1,0 +1,303 @@
+[
+  {
+    "ledger": "live-1792824790267026900.json",
+    "tool": "workbench_operation",
+    "result": {
+      "state": "reloaded",
+      "processId": 8668,
+      "runReload": true,
+      "plugin": null,
+      "pluginAction": null,
+      "uiAction": null,
+      "requestedWorld": null,
+      "loadedWorld": null,
+      "expectedThread": 20988,
+      "actualThread": 20988,
+      "completed": 2,
+      "nativeResult": 1,
+      "queued": 1,
+      "elapsedMs": 2133,
+      "foregroundBefore": 3935328,
+      "foregroundAfter": 3935328,
+      "foregrounds": {
+        "3935328": 36516
+      },
+      "allocationsReleased": true
+    }
+  },
+  {
+    "ledger": "live-1792824790267026900.json",
+    "tool": "workbench_operation",
+    "result": {
+      "state": "opened",
+      "processId": 8668,
+      "runReload": false,
+      "requestedWorld": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+      "loadedWorld": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+      "expectedThread": 20988,
+      "actualThread": 20988,
+      "completed": 2,
+      "nativeResult": 1,
+      "queued": 1,
+      "elapsedMs": 3311,
+      "foregroundBefore": 3935328,
+      "foregroundAfter": 3935328,
+      "foregrounds": {
+        "3935328": 36516
+      },
+      "allocationsReleased": true
+    }
+  },
+  {
+    "ledger": "live-1792824790267026900.json",
+    "tool": "workbench_operation",
+    "result": {
+      "state": "started",
+      "processId": 8668,
+      "action": "start",
+      "wasPlaying": false,
+      "isPlaying": true,
+      "expectedThread": 20988,
+      "actualThread": 20988,
+      "completed": 2,
+      "queued": 1,
+      "elapsedMs": 2613,
+      "foregroundBefore": 3935328,
+      "foregroundAfter": 3935328,
+      "foregrounds": {
+        "3935328": 36516
+      },
+      "allocationsReleased": true
+    }
+  },
+  {
+    "ledger": "live-1792824811673221600.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "red378e43275142099db0b9f66965064e",
+      "returned": "dispatched: Lobby Button"
+    }
+  },
+  {
+    "ledger": "live-1792824811673221600.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r4467d33392584f8fa272131f1b52090d",
+      "returned": "dispatched: SlotButton"
+    }
+  },
+  {
+    "ledger": "live-1792824811673221600.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rb8a31d5e89474801b6dd075c763eb2b8",
+      "returned": "dispatched: Briefing Button"
+    }
+  },
+  {
+    "ledger": "live-1792824811673221600.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "ra3a8bbf988594f3d8b131b507b76d991",
+      "returned": "dispatched: ReadinessAction_USSR"
+    }
+  },
+  {
+    "ledger": "live-1792824811673221600.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "rd0b4ff74543a41fd8038744cc9d731d7",
+      "returned": "phase=BRIEFING revision=1\nfaction=USSR commandSlot=1 commander=1 ready=1\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error="
+    }
+  },
+  {
+    "ledger": "live-1792824830850425800.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "r182f0845583e4662b528bc394f32de7b",
+      "returned": "dispatched: ReadinessAction_USSR"
+    }
+  },
+  {
+    "ledger": "live-1792824830850425800.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "refb58153db8849d080efdc8b21994fae",
+      "returned": "phase=BRIEFING revision=2\nfaction=USSR commandSlot=1 commander=1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error="
+    }
+  },
+  {
+    "ledger": "live-1792824830850425800.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "ra6f4fb55d048472380a7e40abc1911ea",
+      "returned": "rejected: widget or ancestor disabled"
+    }
+  },
+  {
+    "ledger": "live-1792824830850425800.json",
+    "tool": "workbench_runtime_invoke",
+    "result": {
+      "state": "invoked",
+      "receipt": "re3ff56fa0e394b5eb4952c6df4acc6a7",
+      "returned": "phase=BRIEFING revision=2\nfaction=USSR commandSlot=1 commander=1 ready=0\nfaction=US commandSlot=9 commander=-1 ready=0\nlocalPlayer=1 pending=0 error="
+    }
+  },
+  {
+    "ledger": "live-1792824832263503000.json",
+    "tool": "log_read",
+    "result": {
+      "source": "workbench",
+      "session": "logs_2026-10-24_02-52-58",
+      "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-24_02-52-58\\console.log",
+      "revision": "69649:04ABD04F829C47FEFE5C05C9A2032329E7ADE00167A0AA6188B17FCB6D7CD1E6",
+      "header": "Log C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-24_02-52-58\\console.log started at 2026-10-24 02:52:58 (2026-10-24 06:52:58 UTC)",
+      "scope": "tail",
+      "fromLine": 570,
+      "toLine": 604,
+      "totalLines": 604,
+      "severityCounts": {
+        "error": 0,
+        "warning": 0,
+        "info": 35
+      },
+      "categoryCounts": {
+        "SCRIPT": 32,
+        "WORLD": 2,
+        "GUI": 1
+      },
+      "matchedLines": 15,
+      "entries": [
+        {
+          "line": 571,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:32.840 SCRIPT       : RST_MCP_END rb8a31d5e89474801b6dd075c763eb2b8 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 591,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:33.190 SCRIPT       : RST_MCP_BEGIN ra3a8bbf988594f3d8b131b507b76d991",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 592,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:33.190 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=1 revision=1 accepted=1 reason=",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 593,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:33.190 SCRIPT       : RST_MCP_END ra3a8bbf988594f3d8b131b507b76d991 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 594,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:33.439 SCRIPT       : RST_MCP_BEGIN rd0b4ff74543a41fd8038744cc9d731d7",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 595,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:33.439 SCRIPT       : RST_MCP_END rd0b4ff74543a41fd8038744cc9d731d7 invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 596,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:51.471 SCRIPT       : RST_MCP_BEGIN r182f0845583e4662b528bc394f32de7b",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 597,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:51.472 SCRIPT       : GC | Readiness | player=1 faction=USSR ready=0 revision=2 accepted=1 reason=",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 598,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:51.472 SCRIPT       : RST_MCP_END r182f0845583e4662b528bc394f32de7b invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 599,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:51.705 SCRIPT       : RST_MCP_BEGIN refb58153db8849d080efdc8b21994fae",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 600,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:51.705 SCRIPT       : RST_MCP_END refb58153db8849d080efdc8b21994fae invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 601,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:51.928 SCRIPT       : RST_MCP_BEGIN ra6f4fb55d048472380a7e40abc1911ea",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 602,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:51.929 SCRIPT       : RST_MCP_END ra6f4fb55d048472380a7e40abc1911ea invoked",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 603,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:52.163 SCRIPT       : RST_MCP_BEGIN re3ff56fa0e394b5eb4952c6df4acc6a7",
+          "textTruncated": false,
+          "continuation": false
+        },
+        {
+          "line": 604,
+          "category": "SCRIPT",
+          "severity": "info",
+          "text": "02:53:52.163 SCRIPT       : RST_MCP_END re3ff56fa0e394b5eb4952c6df4acc6a7 invoked",
+          "textTruncated": false,
+          "continuation": false
+        }
+      ],
+      "truncated": false
+    }
+  }
+]
