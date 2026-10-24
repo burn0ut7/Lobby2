@@ -6,6 +6,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	protected GC_LobbyPlayerController m_Controller;
 	protected GC_AdminPlayerPicker m_Targets;
 	protected GC_AdminReservationsComponent m_Reservations;
+	protected GC_AdminMapPlansComponent m_MapPlans;
 	protected GC_AdminPlayerPicker m_From;
 	protected GC_AdminPlayerPicker m_To;
 	protected GC_AdminModerationComponent m_Moderation;
@@ -129,6 +130,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("ToolTeleport", "Teleport");
 		Bind("ToolMessage", "Send message");
 		Bind("ToolReservations", "Slot reservations");
+		Bind("ToolMapPlans", "Map plans");
+		m_MapPlans = GC_AdminMapPlansComponent.Cast(w.FindAnyWidget("MapPlanPanel").FindHandler(GC_AdminMapPlansComponent));
 		m_Reservations = GC_AdminReservationsComponent.Cast(w.FindAnyWidget("ReservationPanel").FindHandler(GC_AdminReservationsComponent));
 		Bind("ToolModeration", "Kick / Ban");
 		Bind("MessageSelected", "Selected players");
@@ -200,6 +203,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_iTool = 3;
 		else if (name == "ToolReservations")
 			m_iTool = 4;
+		else if (name == "ToolMapPlans")
+			m_iTool = 6;
 		else if (name == "ToolModeration")
 		{
 			m_iTool = 5;
@@ -291,14 +296,18 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool teleport = m_iTool == 1;
 		bool message = m_iTool == 3;
 		bool reservations = m_iTool == 4;
+		bool mapPlans = m_iTool == 6;
+		m_MapPlans.SetActive(mapPlans);
+		m_wRoot.FindAnyWidget("MapPlansSelectedBar").SetVisible(mapPlans);
+		SCR_ButtonTextComponent.GetButtonText("ToolMapPlans", m_wRoot).SetToggled(mapPlans, false, false);
 		m_Reservations.SetActive(reservations);
 		m_wRoot.FindAnyWidget("ReservationsSelectedBar").SetVisible(reservations);
 		SCR_ButtonTextComponent.GetButtonText("ToolReservations", m_wRoot).SetToggled(reservations, false, false);
 		bool moderation = m_iTool == 5;
 		m_wRoot.FindAnyWidget("ModerationFields").SetVisible(moderation);
-		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations);
-		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations);
-		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations);
+		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans);
+		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans);
+		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans);
 		bool factionTarget = (heal && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
 		m_Manager.GC_GetFactionPlayers(m_sTargetFaction, m_aFactionPlayers, m_aFactionIdentities);
 		bool selectedMessage = message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS;
@@ -430,6 +439,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		{
 			title = "Slot reservations";
 			description = "Transfer slot assignments with team, group, role, and player details.";
+		}
+		if (mapPlans)
+		{
+			title = string.Empty;
+			description = string.Empty;
 		}
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolTitle")).SetText(title);
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolDescription")).SetText(description);

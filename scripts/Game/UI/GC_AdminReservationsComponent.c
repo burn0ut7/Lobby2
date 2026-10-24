@@ -166,7 +166,14 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 		}
 		array<string> buttons = {"ReservationExport", "ReservationCopy", "ReservationPaste", "ReservationImport", "ReservationClearAll", "ReservationCancelClear"};
 		foreach (string name : buttons)
-			SCR_ButtonTextComponent.GetButtonText(name, m_wRoot).m_OnClicked.Remove(OnAction);
+		{
+			Widget buttonRoot = m_wRoot.FindAnyWidget(name);
+			if (!buttonRoot)
+				continue;
+			SCR_ButtonTextComponent button = SCR_ButtonTextComponent.Cast(buttonRoot.FindHandler(SCR_ButtonTextComponent));
+			if (button)
+				button.m_OnClicked.Remove(OnAction);
+		}
 		super.HandlerDeattached(w);
 	}
 }

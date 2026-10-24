@@ -7,6 +7,13 @@ class GC_LobbyGameModeClass : SCR_BaseGameModeClass
 class GC_LobbyGameMode : SCR_BaseGameMode
 {
 	protected bool m_bStartupLogged;
+	protected ref GC_MapPlans m_MapPlans;
+
+	//------------------------------------------------------------------------------------------------
+	GC_MapPlans GetMapPlans()
+	{
+		return m_MapPlans;
+	}
 
 	//! Returns the active Lobby2 game mode, or null while another mode or the
 	//! editor is active.
@@ -23,6 +30,12 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		super.EOnInit(owner);
 		if (SCR_Global.IsEditMode())
 			return;
+
+		if (Replication.IsServer())
+		{
+			m_MapPlans = new GC_MapPlans();
+			m_MapPlans.Start(this);
+		}
 
 		PrintFormat("GC | Phase UI Trace | game mode initialized: this=%1 state=%2 server=%3 rplMode=%4 playerController=%5 menuManager=%6", this, GC_LobbyManager.GetPhaseName(GetState()), Replication.IsServer(), RplSession.Mode(), GetGame().GetPlayerController(), GetGame().GetMenuManager());
 	}
@@ -142,6 +155,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyGameMode()
 	{
+		if (m_MapPlans && GetGame())
+			m_MapPlans.Stop();
 		if (GetGame())
 			GetGame().GetCallqueue().Remove(DispatchPlayerRoleChange);
 	}

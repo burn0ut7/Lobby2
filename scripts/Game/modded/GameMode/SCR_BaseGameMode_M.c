@@ -1,8 +1,19 @@
-//! Adds a narrowly guarded transition entry point for Lobby2's two modded
-//! pre-match states. It cannot mutate unrelated game modes or native GAME and
-//! POSTGAME transitions.
+//! Tracks last-mission recovery eligibility and exposes Lobby2-only pre-match transitions.
+//! The shared initialization hook only writes Lobby2's eligibility file; unrelated
+//! gameplay and native GAME/POSTGAME transitions retain their inherited behavior.
 modded class SCR_BaseGameMode
 {
+	//------------------------------------------------------------------------------------------------
+	override void EOnInit(IEntity owner)
+	{
+		super.EOnInit(owner);
+		if (SCR_Global.IsEditMode() || !Replication.IsServer())
+			return;
+
+		GC_MapPlans.NoteMission();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool GC_SetLobbyState(SCR_EGameModeState state)
 	{
 		if (GC_LobbyGameMode.GetGameMode() != this || !IsMaster())
