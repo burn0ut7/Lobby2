@@ -297,6 +297,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		accent.SetColor(faction.GetFactionColor());
 	}
 
+	//------------------------------------------------------------------------------------------------
 	protected void UpdateRoleVisuals()
 	{
 		TextWidget roleName = TextWidget.Cast(m_wRoot.FindAnyWidget("RoleName"));
@@ -305,34 +306,30 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			return;
 
 		SCR_UIInfo roleInfo = GetRoleInfo();
-		if (!roleInfo)
-		{
-			if (roleName)
-				roleName.SetText(string.Empty);
-
-			if (roleIcon)
-				roleIcon.SetOpacity(0);
-
-			return;
-		}
-
 		if (roleName)
 		{
-			string label = WidgetManager.Translate(roleInfo.GetName());
-			GC_LobbyManager manager = GC_LobbyManager.GetManager();
-			SCR_AIGroup group = m_Slot.GetGroup();
-			if (manager && group && group.GetFaction() && manager.GetFactionCommanderSlot(group.GetFaction().GetFactionKey()) == m_Slot)
-				label = "CO - " + label;
+			string label;
+			if (roleInfo)
+				label = WidgetManager.Translate(roleInfo.GetName());
 			roleName.SetText(label);
 		}
 
-		if (roleIcon)
+		if (!roleIcon)
+			return;
+
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		SCR_AIGroup group;
+		if (m_Slot)
+			group = m_Slot.GetGroup();
+		if (manager && group && group.GetFaction() && manager.GetFactionCommanderSlot(group.GetFaction().GetFactionKey()) == m_Slot)
 		{
-			if (roleInfo.SetIconTo(roleIcon))
-				roleIcon.SetOpacity(1);
-			else
-				roleIcon.SetOpacity(0);
+			roleIcon.LoadImageFromSet(0, "{70E828A2F6EBE7D0}UI/Textures/Nametags/nametagicons.imageset", "AR_SquadLeader");
+			roleIcon.SetOpacity(1);
 		}
+		else if (roleInfo && roleInfo.SetIconTo(roleIcon))
+			roleIcon.SetOpacity(1);
+		else
+			roleIcon.SetOpacity(0);
 	}
 
 	protected SCR_UIInfo GetRoleInfo()
