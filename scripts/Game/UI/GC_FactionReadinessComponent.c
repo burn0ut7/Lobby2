@@ -192,8 +192,11 @@ class GC_FactionReadyTileComponent : SCR_ScriptedWidgetComponent
 		string commanderName = "Vacant";
 		if (commanderId > 0)
 			commanderName = GetGame().GetPlayerManager().GetPlayerName(commanderId);
-		commander.SetText("CO: " + commanderName);
-		GC_PlayerNamePresentation.Apply(commander, commanderId);
+		commander.SetText(commanderName);
+		if (commanderId > 0)
+			GC_PlayerNamePresentation.Apply(commander, commanderId);
+		else
+			commander.SetColor(Color.FromRGBA(150, 150, 150, 255));
 		bool canChange = commanderId == controller.GetPlayerId() && manager.GetLobbyPhase() == SCR_EGameModeState.BRIEFING;
 		m_Button.SetEnabled(canChange && !controller.IsFactionReadinessPending());
 	}

@@ -47,7 +47,7 @@ modded class GC_LobbyManager
 		TextWidget label = TextWidget.Cast(menu.GetRootWidget().FindAnyWidget("ReadinessCommander"));
 		if (!label)
 			return "UNAVAILABLE commander label";
-		label.SetText("CO: Lieutenant Colonel VeryLongCommanderName");
+		label.SetText("Lieutenant Colonel VeryLongCommanderName");
 		return "FIXTURE commander label only; normal refresh restores it";
 	}
 

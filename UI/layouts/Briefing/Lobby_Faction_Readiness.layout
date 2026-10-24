@@ -68,8 +68,8 @@ SizeLayoutWidgetClass {
       OffsetBottom -80
      }
      "Ignore Cursor" 1
-     Color 0.8 0.82 0.82 1
-     Text "CO: Vacant"
+     Color 0.588 0.588 0.588 1
+     Text "Vacant"
      Wrap 0
      "Font Size" 18
      "Horizontal Alignment" Center
