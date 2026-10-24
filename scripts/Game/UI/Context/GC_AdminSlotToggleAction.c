@@ -20,7 +20,7 @@ class GC_AdminSlotToggleAction : GC_ContextMenuAction
 		GC_Slot slot = context.GetSlot();
 		if (GC_LobbyManager.GetManager().GetSlot(slot.GetID()) != slot || slot.GetUUID() != context.GetPlayerIdentity())
 			return false;
-		return true;
+		return slot.CanAdminLock();
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -1,0 +1,224 @@
+{
+  "runs": [
+    {
+      "method": "GC_TestSlotAccessRemember",
+      "args": [],
+      "state": "invoked",
+      "receipt": "rbe851ce3000142fc99f702567387707b",
+      "returned": "REMEMBERED slots=42 newSlotsLocked=0"
+    },
+    {
+      "method": "GC_TestClick",
+      "args": [
+        {
+          "type": "string",
+          "value": "AllSlotLocksButton"
+        }
+      ],
+      "state": "invoked",
+      "receipt": "rbddb6c8b641d4aac9291b5cc7d6d699f",
+      "returned": "dispatched: AllSlotLocksButton"
+    },
+    {
+      "method": "GC_TestSlotAccessCheck",
+      "args": [
+        {
+          "type": "string",
+          "value": "locks"
+        },
+        {
+          "type": "bool",
+          "value": true
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r5167d890362240f19edcc9764d17c084",
+      "returned": "PASS locks slots=42 cleared=0"
+    },
+    {
+      "method": "GC_TestSlotStatusSnapshot",
+      "args": [],
+      "state": "invoked",
+      "receipt": "re13bc05046d7403e91a5b03d132e95ef",
+      "returned": "slot=1 state=4 adminLock=1 icon=1 nameVisible=1 text='Burn0ut7'\nslot=2 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=3 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=4 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=5 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=6 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=7 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=8 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text=''\n"
+    },
+    {
+      "method": "GC_TestClick",
+      "args": [
+        {
+          "type": "string",
+          "value": "Lobby Button"
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r99d95ac142d242d08e92b964f09b93d0",
+      "returned": "dispatched: Lobby Button"
+    },
+    {
+      "method": "GC_TestOrdinarySlot",
+      "args": [
+        {
+          "type": "int",
+          "value": 1
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r7d959520017a453187fddac90452ed63",
+      "returned": "current=none"
+    },
+    {
+      "method": "GC_TestEmptySlotLocks",
+      "args": [],
+      "state": "invoked",
+      "receipt": "r7803426a631b4d3abca22627914c8e2a",
+      "returned": "PASS empty-only bulk lock/unlock; nonempty single locks rejected; transitions clear locks; nonadmin unchanged; originals restored"
+    },
+    {
+      "method": "GC_TestSlotStatusGallery",
+      "args": [
+        {
+          "type": "bool",
+          "value": false
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r22ada03c6c3a4db996c10c69430407e7",
+      "returned": "presentationOnly=1 restored=0 rows=8"
+    },
+    {
+      "method": "GC_TestSlotStatusSnapshot",
+      "args": [],
+      "state": "invoked",
+      "receipt": "r4fa040f5da164764b8dae6c8a895a023",
+      "returned": "slot=1 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=2 state=2 adminLock=0 icon=1 nameVisible=0 text=''\nslot=3 state=4 adminLock=0 icon=1 nameVisible=1 text='Reserved Player'\nslot=4 state=4 adminLock=0 icon=1 nameVisible=1 text='Reserved Player'\nslot=5 state=2 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7'\nslot=6 state=3 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7'\nslot=7 state=0 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7'\nslot=8 state=0 adminLock=0 icon=0 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text=''\n"
+    },
+    {
+      "method": "GC_TestSlotStatusGallery",
+      "args": [
+        {
+          "type": "bool",
+          "value": true
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r07f0c60da6554d06ad7957c50fd05933",
+      "returned": "presentationOnly=1 restored=1 rows=0"
+    },
+    {
+      "method": "GC_TestClick",
+      "args": [
+        {
+          "type": "string",
+          "value": "AllSlotLocksButton"
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r4f91529eb01f4d28ae97308fb1d83cc6",
+      "returned": "dispatched: AllSlotLocksButton"
+    },
+    {
+      "method": "GC_TestOrdinarySlot",
+      "args": [
+        {
+          "type": "int",
+          "value": 1
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r84286337e7ce4fb6b7184c66e53ca041",
+      "returned": "current=1"
+    },
+    {
+      "method": "GC_TestEmptySlotLocks",
+      "args": [],
+      "state": "invoked",
+      "receipt": "rb6bd1276937c443ea5b04ce60fe75157",
+      "returned": "PASS empty-only bulk lock/unlock; nonempty single locks rejected; transitions clear locks; nonadmin unchanged; originals restored"
+    },
+    {
+      "method": "GC_TestSlotAccessRemember",
+      "args": [],
+      "state": "invoked",
+      "receipt": "rbbcec1723f6040d093a2ee5005a2f265",
+      "returned": "REMEMBERED slots=42 newSlotsLocked=0"
+    },
+    {
+      "method": "GC_TestClick",
+      "args": [
+        {
+          "type": "string",
+          "value": "AllSlotLocksButton"
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r4a6fbe38b3ee49f1bdde459c365b2374",
+      "returned": "dispatched: AllSlotLocksButton"
+    },
+    {
+      "method": "GC_TestSlotAccessCheck",
+      "args": [
+        {
+          "type": "string",
+          "value": "locks"
+        },
+        {
+          "type": "bool",
+          "value": true
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r3bf637b5702d44fdaef45d84a0de51a4",
+      "returned": "PASS locks slots=42 cleared=0"
+    },
+    {
+      "method": "GC_TestSlotStatusSnapshot",
+      "args": [],
+      "state": "invoked",
+      "receipt": "ra14a1198b0fa40b7b51d12bdb328fa1e",
+      "returned": "slot=1 state=4 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7'\nslot=2 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=3 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=4 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=5 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=6 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=7 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=8 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text=''\n"
+    },
+    {
+      "method": "GC_TestSlotAccessRemember",
+      "args": [],
+      "state": "invoked",
+      "receipt": "r122d865d77594c70a6362c95906e5d9f",
+      "returned": "REMEMBERED slots=42 newSlotsLocked=1"
+    },
+    {
+      "method": "GC_TestClick",
+      "args": [
+        {
+          "type": "string",
+          "value": "AllSlotLocksButton"
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r769b772ade7e43a785bfe91d92a9e1b4",
+      "returned": "dispatched: AllSlotLocksButton"
+    },
+    {
+      "method": "GC_TestSlotAccessCheck",
+      "args": [
+        {
+          "type": "string",
+          "value": "locks"
+        },
+        {
+          "type": "bool",
+          "value": false
+        }
+      ],
+      "state": "invoked",
+      "receipt": "r546cb5852c9c4ff289275c193e4f59be",
+      "returned": "PASS locks slots=42 cleared=0"
+    }
+  ],
+  "log": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"source\":\"workbench\",\"session\":\"logs_2026-10-24_05-22-12\",\"path\":\"C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-24_05-22-12\\\\console.log\",\"revision\":\"332408:D6A63C623422F5CCEE7F7986D8DF69635B2437543BE44523D560AB73C06EFA87\",\"header\":\"Log C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-24_05-22-12\\\\console.log started at 2026-10-24 05:22:12 (2026-10-24 09:22:12 UTC)\",\"scope\":\"tail\",\"fromLine\":2984,\"toLine\":3083,\"totalLines\":3083,\"severityCounts\":{\"error\":2,\"warning\":4,\"info\":94},\"categoryCounts\":{\"SCRIPT\":83,\"WORLD\":5,\"GUI\":7,\"RESOURCES\":1,\"RENDER\":2,\"PROFILING\":2},\"matchedLines\":100,\"entries\":[{\"line\":2984,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.397 SCRIPT       : GC | Voice personal channel registered: player=1 identity=00000000-0000-0000-0000-000000000000\",\"textTruncated\":false,\"continuation\":false},{\"line\":2985,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.398 SCRIPT       : GC | Lifecycle | catch-up begin: player=1 uuid=00000000-0000-0000-0000-000000000000 phase=PREGAME\",\"textTruncated\":false,\"continuation\":false},{\"line\":2986,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.398 SCRIPT       : GC | Lifecycle | catch-up unassigned spectator: player=1\",\"textTruncated\":false,\"continuation\":false},{\"line\":2987,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.398 SCRIPT       : GC | Lifecycle | spectator requested: player=1\",\"textTruncated\":false,\"continuation\":false},{\"line\":2988,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.398 SCRIPT       : GC | Lifecycle | spectator prefab loaded: valid=1\",\"textTruncated\":false,\"continuation\":false},{\"line\":2989,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.401 SCRIPT       : GC | Lifecycle | spectator spawned: valid=1\",\"textTruncated\":false,\"continuation\":false},{\"line\":2990,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.401 SCRIPT       : GC | Voice | tuned: player=1 admin=0 chat=999999999 faction=999999999 spectator=1 deafened=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":2991,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.401 SCRIPT       : GC | Voice | tuned: player=1 admin=0 chat=999999999 faction=999999999 spectator=1 deafened=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":2992,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.401 SCRIPT       : GC | Voice | tuned: player=1 admin=0 chat=999999999 faction=999999999 spectator=1 deafened=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":2993,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.401 SCRIPT       : GC | Voice | tuned: player=1 admin=0 chat=1 faction=999999999 spectator=1 deafened=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":2994,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.403 SCRIPT       : GC | Voice | tuned: player=1 admin=0 chat=1 faction=999999999 spectator=1 deafened=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":2995,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.403 SCRIPT       : GC | Killed From | event=tracker-request result=ignored reason=spectator-body player=1 entity=SCR_ChimeraCharacter\\u003C0x000001E3293F5970\\u003E @\\u0022ENTITY:9223372036854776023\\u0022 (\\u0027SCR_ChimeraCharacter\\u0027,\\u0027Assets/Characters/Basebody/Basebody_Male_01.xob\\u0027) at \\u003C135.296997 1.000000 123.139000\\u003E @\\u0022{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et\\u0022 retainedSnapshot=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":2996,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.403 SCRIPT       : SCR_EntityCatalogManagerComponent: GetIdentityItemForCharacter Multiple Identity Items found for factionless list! Only the first found will be used\",\"textTruncated\":false,\"continuation\":false},{\"line\":2997,\"category\":\"WORLD\",\"severity\":\"info\",\"text\":\"05:44:00.404 WORLD        : Frame start\",\"textTruncated\":false,\"continuation\":false},{\"line\":2998,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.404  SCRIPT       : ScenarioFramework: Available tasks are empty, no new tasks will be generated.\",\"textTruncated\":false,\"continuation\":false},{\"line\":2999,\"category\":\"WORLD\",\"severity\":\"info\",\"text\":\"05:44:00.433 WORLD        : UpdateEntities\",\"textTruncated\":false,\"continuation\":false},{\"line\":3000,\"category\":\"WORLD\",\"severity\":\"info\",\"text\":\"05:44:00.433  WORLD        : PostFrame\",\"textTruncated\":false,\"continuation\":false},{\"line\":3001,\"category\":\"GUI\",\"severity\":\"info\",\"text\":\"05:44:00.433   GUI          : WidgetManager: CrateWidgets @\\u0022{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout\\u0022\",\"textTruncated\":false,\"continuation\":false},{\"line\":3002,\"category\":\"SCRIPT\",\"severity\":\"warning\",\"text\":\"05:44:00.433    SCRIPT    (W): EditBoxFilterComponent used on invalid widget type.\",\"textTruncated\":false,\"continuation\":false},{\"line\":3003,\"category\":\"RESOURCES\",\"severity\":\"info\",\"text\":\"05:44:00.458   RESOURCES    : GetResourceObject @\\u0022{20A6917D2114E29A}UI/layouts/HUD/Hint/HintInfoDisplay.layout\\u0022\",\"textTruncated\":false,\"continuation\":false},{\"line\":3004,\"category\":\"GUI\",\"severity\":\"info\",\"text\":\"05:44:00.458    GUI          : Layout load @\\u0022{20A6917D2114E29A}UI/layouts/HUD/Hint/HintInfoDisplay.layout\\u0022\",\"textTruncated\":false,\"continuation\":false},{\"line\":3005,\"category\":\"GUI\",\"severity\":\"info\",\"text\":\"05:44:00.458     GUI          : Widget prefab @\\u0022{EA1CC57D868E94F9}UI/layouts/HUD/Hint/Hint.layout\\u0022\",\"textTruncated\":false,\"continuation\":false},{\"line\":3006,\"category\":\"GUI\",\"severity\":\"warning\",\"text\":\"05:44:00.458      GUI       (W): Overridden prefab member (GUID: \\u0027{661AB14E0F471C66}\\u0027 type: ButtonWidgetClass) no longer exists in prefab\",\"textTruncated\":false,\"continuation\":false},{\"line\":3007,\"category\":\"RENDER\",\"severity\":\"info\",\"text\":\"05:44:00.480  RENDER       : RENDER       : ObjectsHeightMap::Build\",\"textTruncated\":false,\"continuation\":false},{\"line\":3008,\"category\":\"RENDER\",\"severity\":\"info\",\"text\":\"05:44:00.480   RENDER       : RENDER       : MeshOccupancyGridManager::GenerateAllForWorld\",\"textTruncated\":false,\"continuation\":false},{\"line\":3009,\"category\":\"PROFILING\",\"severity\":\"info\",\"text\":\"05:44:00.480  PROFILING    : MeshOccupancyGridManager::GenerateAllForWorld took: 0.004900 ms\",\"textTruncated\":false,\"continuation\":false},{\"line\":3010,\"category\":\"PROFILING\",\"severity\":\"info\",\"text\":\"05:44:00.484 PROFILING    : ObjectsHeightMap::Build took: 2.747500 ms\",\"textTruncated\":false,\"continuation\":false},{\"line\":3011,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:00.491 SCRIPT       : GC | OpenMap\",\"textTruncated\":false,\"continuation\":false},{\"line\":3012,\"category\":\"SCRIPT\",\"severity\":\"error\",\"text\":\"05:44:00.491 SCRIPT    (E): GC | OpenMap aborted: no SCR_MapEntity exists in the active world\",\"textTruncated\":false,\"continuation\":false},{\"line\":3013,\"category\":\"WORLD\",\"severity\":\"info\",\"text\":\"05:44:00.556 WORLD        : UpdateEntities\",\"textTruncated\":false,\"continuation\":false},{\"line\":3014,\"category\":\"WORLD\",\"severity\":\"info\",\"text\":\"05:44:00.556  WORLD        : PostFrame\",\"textTruncated\":false,\"continuation\":false},{\"line\":3015,\"category\":\"GUI\",\"severity\":\"error\",\"text\":\"05:44:00.556   GUI       (E): ImageWidget \\u0027m_Outline\\u0027: Can\\u0027t load mask from ImageSet \\u0027UI/Textures/Icons/icons_mouse/icons_mouse.imageset\\u0027\",\"textTruncated\":false,\"continuation\":false},{\"line\":3016,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.617 SCRIPT       : RST_MCP_BEGIN r99d95ac142d242d08e92b964f09b93d0\",\"textTruncated\":false,\"continuation\":false},{\"line\":3017,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.617 SCRIPT       : GC | Phase UI | admin advance selected: player=1 current=PREGAME target=SLOTTING\",\"textTruncated\":false,\"continuation\":false},{\"line\":3018,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.617 SCRIPT       : GC | Phase RPC | request queued: player=1 target=SLOTTING value=1787356801\",\"textTruncated\":false,\"continuation\":false},{\"line\":3019,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.617 SCRIPT       : SCR_BaseGameMode::OnGameStateChanged = SLOTTING\",\"textTruncated\":false,\"continuation\":false},{\"line\":3020,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.617 SCRIPT       : GC | Phase | base state event: state=SLOTTING role=authority\",\"textTruncated\":false,\"continuation\":false},{\"line\":3021,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.618 SCRIPT       : GC | Phase UI | replicated phase update: phase=SLOTTING activeView=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":3022,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.618 SCRIPT       : GC | Briefing Marker | event=refresh result=deferred reason=map-closed map=NULL\",\"textTruncated\":false,\"continuation\":false},{\"line\":3023,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.618 SCRIPT       : GC | Phase UI Trace | game state callback: state=SLOTTING server=1 playerController=GC_LobbyPlayerController\\u003C0x000001E3810B3740\\u003E @\\u0022ENTITY:9223372036854776018\\u0022 (\\u0027GC_LobbyPlayerController\\u0027) at \\u003C0.000000 0.000000 0.000000\\u003E @\\u0022{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et\\u0022 menuManager=MenuManager\\u003C0x000001E33B1B75A8\\u003E\",\"textTruncated\":false,\"continuation\":false},{\"line\":3024,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.619 SCRIPT       : GC | Phase UI Trace | presentation requested: source=game-state-changed state=SLOTTING suppliedController=NULL publishedController=GC_LobbyPlayerController\\u003C0x000001E3810B3740\\u003E @\\u0022ENTITY:9223372036854776018\\u0022 (\\u0027GC_LobbyPlayerController\\u0027) at \\u003C0.000000 0.000000 0.000000\\u003E @\\u0022{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et\\u0022 menuManager=MenuManager\\u003C0x000001E33B1B75A8\\u003E top=GC_Lobby_PreviewMenu\\u003C0x000001E2998E65B0\\u003E\",\"textTruncated\":false,\"continuation\":false},{\"line\":3025,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.619 SCRIPT       : GC | Phase UI Trace | applying authoritative presentation: source=game-state-changed phase=SLOTTING controller=GC_LobbyPlayerController\\u003C0x000001E3810B3740\\u003E @\\u0022ENTITY:9223372036854776018\\u0022 (\\u0027GC_LobbyPlayerController\\u0027) at \\u003C0.000000 0.000000 0.000000\\u003E @\\u0022{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et\\u0022 topBefore=GC_Lobby_PreviewMenu\\u003C0x000001E2998E65B0\\u003E\",\"textTruncated\":false,\"continuation\":false},{\"line\":3026,\"category\":\"GUI\",\"severity\":\"info\",\"text\":\"05:44:04.638 GUI          : Creating menu \\u0027GC_Lobby_SlottingMenu\\u0027\",\"textTruncated\":false,\"continuation\":false},{\"line\":3027,\"category\":\"GUI\",\"severity\":\"info\",\"text\":\"05:44:04.638  GUI          : WidgetManager: CrateWidgets @\\u0022{21CD080B667E2DAE}UI/layouts/Lobby_Slotting.layout\\u0022\",\"textTruncated\":false,\"continuation\":false},{\"line\":3028,\"category\":\"SCRIPT\",\"severity\":\"warning\",\"text\":\"05:44:04.638   SCRIPT    (W): EditBoxFilterComponent used on invalid widget type.\",\"textTruncated\":false,\"continuation\":false},{\"line\":3029,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.639 SCRIPT       : GC | Phase UI | slotting menu opened: menu=GC_Lobby_SlottingMenu\\u003C0x000001E3773F2CD0\\u003E state=SLOTTING\",\"textTruncated\":false,\"continuation\":false},{\"line\":3030,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.642 SCRIPT       : GC | Phase UI Trace | menu open result: source=game-state-changed phase=SLOTTING menu=GC_Lobby_SlottingMenu\\u003C0x000001E3773F2CD0\\u003E top=GC_Lobby_SlottingMenu\\u003C0x000001E3773F2CD0\\u003E\",\"textTruncated\":false,\"continuation\":false},{\"line\":3031,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.642 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=advance-phase target=SLOTTING outcome=succeeded\",\"textTruncated\":false,\"continuation\":false},{\"line\":3032,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.642 SCRIPT       : RST_MCP_END r99d95ac142d242d08e92b964f09b93d0 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3033,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:04.643 SCRIPT       : GC | Phase UI | preview/briefing menu closed: menu=GC_Lobby_PreviewMenu\\u003C0x000001E2998E65B0\\u003E state=SLOTTING\",\"textTruncated\":false,\"continuation\":false},{\"line\":3034,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.219 SCRIPT       : RST_MCP_BEGIN r7d959520017a453187fddac90452ed63\",\"textTruncated\":false,\"continuation\":false},{\"line\":3035,\"category\":\"SCRIPT\",\"severity\":\"warning\",\"text\":\"05:44:07.219 SCRIPT    (W): GC | Slot request rejected: player=1 slot=1 phase=SLOTTING faction=NULL\",\"textTruncated\":false,\"continuation\":false},{\"line\":3036,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.220 SCRIPT       : RST_MCP_END r7d959520017a453187fddac90452ed63 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3037,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.381 SCRIPT       : RST_MCP_BEGIN r7803426a631b4d3abca22627914c8e2a\",\"textTruncated\":false,\"continuation\":false},{\"line\":3038,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.381 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-lock target=slot=1 claim=00000000-0000-0000-0000-000000000001 outcome=rejected-slot-not-empty\",\"textTruncated\":false,\"continuation\":false},{\"line\":3039,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.381 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-lock target=slot=2 claim= outcome=rejected-slot-not-empty\",\"textTruncated\":false,\"continuation\":false},{\"line\":3040,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.381 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-lock target=slot=3 claim= outcome=rejected-slot-not-empty\",\"textTruncated\":false,\"continuation\":false},{\"line\":3041,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.381 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-group-lock target=group=-1 locked=1 outcome=applied slots=39\",\"textTruncated\":false,\"continuation\":false},{\"line\":3042,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.383 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-group-lock target=group=-1 locked=0 outcome=applied slots=39\",\"textTruncated\":false,\"continuation\":false},{\"line\":3043,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.384 SCRIPT       : GC | Admin Action | player=-999 identity= action=slot-group-lock target=group=-1 locked=0 outcome=rejected-not-logged-in\",\"textTruncated\":false,\"continuation\":false},{\"line\":3044,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.384 SCRIPT       : GC | Admin Action | player=-999 identity= action=slot-reservation target=slot=-1 operation=clear-all outcome=rejected-not-logged-in\",\"textTruncated\":false,\"continuation\":false},{\"line\":3045,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.385 SCRIPT       : RST_MCP_END r7803426a631b4d3abca22627914c8e2a invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3046,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.535 SCRIPT       : RST_MCP_BEGIN r22ada03c6c3a4db996c10c69430407e7\",\"textTruncated\":false,\"continuation\":false},{\"line\":3047,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.535 SCRIPT       : RST_MCP_END r22ada03c6c3a4db996c10c69430407e7 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3048,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.688 SCRIPT       : RST_MCP_BEGIN r4fa040f5da164764b8dae6c8a895a023\",\"textTruncated\":false,\"continuation\":false},{\"line\":3049,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:07.688 SCRIPT       : RST_MCP_END r4fa040f5da164764b8dae6c8a895a023 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3050,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:11.599 SCRIPT       : RST_MCP_BEGIN r07f0c60da6554d06ad7957c50fd05933\",\"textTruncated\":false,\"continuation\":false},{\"line\":3051,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:11.601 SCRIPT       : RST_MCP_END r07f0c60da6554d06ad7957c50fd05933 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3052,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:11.749 SCRIPT       : RST_MCP_BEGIN r4f91529eb01f4d28ae97308fb1d83cc6\",\"textTruncated\":false,\"continuation\":false},{\"line\":3053,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:11.750 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-group-lock target=group=-1 locked=0 outcome=applied slots=42\",\"textTruncated\":false,\"continuation\":false},{\"line\":3054,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:11.750 SCRIPT       : RST_MCP_END r4f91529eb01f4d28ae97308fb1d83cc6 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3055,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.674 SCRIPT       : RST_MCP_BEGIN r84286337e7ce4fb6b7184c66e53ca041\",\"textTruncated\":false,\"continuation\":false},{\"line\":3056,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.674 SCRIPT       : GC | Voice assignment changed: player=1 type=2 faction=USSR group=-2147473079 personalOwner=\",\"textTruncated\":false,\"continuation\":false},{\"line\":3057,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.674 SCRIPT       : GC | Voice | tuned: player=1 admin=0 chat=3 faction=2 spectator=1 deafened=0\",\"textTruncated\":false,\"continuation\":false},{\"line\":3058,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.675 SCRIPT       : GC | Slot request accepted: player=1 slot=1\",\"textTruncated\":false,\"continuation\":false},{\"line\":3059,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.675 SCRIPT       : RST_MCP_END r84286337e7ce4fb6b7184c66e53ca041 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3060,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.869 SCRIPT       : RST_MCP_BEGIN rb6bd1276937c443ea5b04ce60fe75157\",\"textTruncated\":false,\"continuation\":false},{\"line\":3061,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.869 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-lock target=slot=1 claim=00000000-0000-0000-0000-000000000000 outcome=rejected-slot-not-empty\",\"textTruncated\":false,\"continuation\":false},{\"line\":3062,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.869 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-lock target=slot=2 claim=00000000-0000-0000-0000-000000000001 outcome=rejected-slot-not-empty\",\"textTruncated\":false,\"continuation\":false},{\"line\":3063,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.870 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-lock target=slot=3 claim= outcome=rejected-slot-not-empty\",\"textTruncated\":false,\"continuation\":false},{\"line\":3064,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.870 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-lock target=slot=4 claim= outcome=rejected-slot-not-empty\",\"textTruncated\":false,\"continuation\":false},{\"line\":3065,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.870 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-group-lock target=group=-1 locked=1 outcome=applied slots=38\",\"textTruncated\":false,\"continuation\":false},{\"line\":3066,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.871 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-group-lock target=group=-1 locked=0 outcome=applied slots=38\",\"textTruncated\":false,\"continuation\":false},{\"line\":3067,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.872 SCRIPT       : GC | Admin Action | player=-999 identity= action=slot-group-lock target=group=-1 locked=0 outcome=rejected-not-logged-in\",\"textTruncated\":false,\"continuation\":false},{\"line\":3068,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.872 SCRIPT       : GC | Admin Action | player=-999 identity= action=slot-reservation target=slot=-1 operation=clear-all outcome=rejected-not-logged-in\",\"textTruncated\":false,\"continuation\":false},{\"line\":3069,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:15.873 SCRIPT       : RST_MCP_END rb6bd1276937c443ea5b04ce60fe75157 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3070,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:16.049 SCRIPT       : RST_MCP_BEGIN rbbcec1723f6040d093a2ee5005a2f265\",\"textTruncated\":false,\"continuation\":false},{\"line\":3071,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:16.049 SCRIPT       : RST_MCP_END rbbcec1723f6040d093a2ee5005a2f265 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3072,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:16.231 SCRIPT       : RST_MCP_BEGIN r4a6fbe38b3ee49f1bdde459c365b2374\",\"textTruncated\":false,\"continuation\":false},{\"line\":3073,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:16.232 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-group-lock target=group=-1 locked=1 outcome=applied slots=41\",\"textTruncated\":false,\"continuation\":false},{\"line\":3074,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:16.232 SCRIPT       : RST_MCP_END r4a6fbe38b3ee49f1bdde459c365b2374 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3075,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:19.742 SCRIPT       : RST_MCP_BEGIN r3bf637b5702d44fdaef45d84a0de51a4\",\"textTruncated\":false,\"continuation\":false},{\"line\":3076,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:19.742 SCRIPT       : RST_MCP_END r3bf637b5702d44fdaef45d84a0de51a4 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3077,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:19.909 SCRIPT       : RST_MCP_BEGIN ra14a1198b0fa40b7b51d12bdb328fa1e\",\"textTruncated\":false,\"continuation\":false},{\"line\":3078,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:19.909 SCRIPT       : RST_MCP_END ra14a1198b0fa40b7b51d12bdb328fa1e invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3079,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:42.352 SCRIPT       : RST_MCP_BEGIN r122d865d77594c70a6362c95906e5d9f\",\"textTruncated\":false,\"continuation\":false},{\"line\":3080,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:42.352 SCRIPT       : RST_MCP_END r122d865d77594c70a6362c95906e5d9f invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":3081,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:42.514 SCRIPT       : RST_MCP_BEGIN r769b772ade7e43a785bfe91d92a9e1b4\",\"textTruncated\":false,\"continuation\":false},{\"line\":3082,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:42.515 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=slot-group-lock target=group=-1 locked=0 outcome=applied slots=41\",\"textTruncated\":false,\"continuation\":false},{\"line\":3083,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"05:44:42.515 SCRIPT       : RST_MCP_END r769b772ade7e43a785bfe91d92a9e1b4 invoked\",\"textTruncated\":false,\"continuation\":false}],\"truncated\":false}"
+      }
+    ]
+  }
+}

@@ -4,6 +4,8 @@ class GC_AdminActionResultText
 	//------------------------------------------------------------------------------------------------
 	static string Get(string outcome)
 	{
+		if (outcome == "rejected-slot-not-empty")
+			return "Only empty slots can be locked.";
 		if (outcome == "rejected-playable-occupied")
 			return "Release occupied or reserved slots first. Every slot in the selected group must have a character before Playable can be disabled.";
 		if (outcome.StartsWith("failed-ai-") || outcome.Contains("changed="))

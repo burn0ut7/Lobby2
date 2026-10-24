@@ -43,7 +43,7 @@ modded class GC_LobbyManager
 				|| slot.GetResolvedPrefab() != before.GetResolvedPrefab())
 				return "FAIL slot identity changed";
 			bool expectedLock = before.IsAdminLocked();
-			if (kind == "locks")
+			if (kind == "locks" && before.CanAdminLock())
 				expectedLock = locked;
 			if (slot.IsAdminLocked() != expectedLock)
 				return "FAIL lock slot=" + slot.GetID().ToString();
@@ -130,6 +130,60 @@ modded class GC_LobbyManager
 			widget = widget.GetSibling();
 		}
 		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Temporary registered lifecycle fixtures; production admin handlers retain authorization.
+	//! Restores all slot records and the new-slot policy before returning.
+	string GC_TestEmptySlotLocks()
+	{
+		int requester = GetGame().GetPlayerController().GetPlayerId();
+		if (!Replication.IsServer() || !SCR_Global.IsAdmin(requester))
+			return "UNAVAILABLE authenticated host required";
+		array<GC_Slot> fixtures = {};
+		foreach (GC_Slot candidate : GetSlots())
+		{
+			if (candidate.CanAdminLock() && fixtures.Count() < 3)
+				fixtures.Insert(candidate);
+		}
+		if (fixtures.Count() != 3)
+			return "UNAVAILABLE three empty slots required";
+		ref array<ref GC_Slot> original = {};
+		foreach (GC_Slot slot : GetSlots())
+		{
+			GC_Slot saved = new GC_Slot();
+			saved.CopyFrom(slot);
+			original.Insert(saved);
+		}
+		int policy = m_iNewSlotLockOverride;
+		fixtures[0].ReserveIdentity("00000000-0000-0000-0000-000000000001", "Reserved test");
+		fixtures[1].MarkDisconnected();
+		fixtures[2].MarkKIA();
+		string failures;
+		foreach (GC_Slot target : GetSlots())
+		{
+			if (target.CanAdminLock())
+				continue;
+			if (target.IsAdminLocked())
+				failures += "transition retained lock; ";
+			string outcome = ExecuteAdminSlotAction(requester, target.GetID(), target.GetUUID(), GC_EAdminSlotAction.LOCK);
+			if (outcome != "rejected-slot-not-empty" || target.IsAdminLocked())
+				failures += "nonempty lock accepted; ";
+		}
+		GC_TestSlotAccessRemember();
+		string lockResult = ExecuteAdminGroupLock(requester, RplId.Invalid(), true);
+		string lockCheck = GC_TestSlotAccessCheck("locks", true);
+		GC_TestSlotAccessRemember();
+		string unlockResult = ExecuteAdminGroupLock(requester, RplId.Invalid(), false);
+		string unlockCheck = GC_TestSlotAccessCheck("locks", false);
+		string rejectCheck = GC_TestSlotAccessReject(-999);
+		foreach (GC_Slot before : original)
+			GetSlot(before.GetID()).CopyFrom(before);
+		m_iNewSlotLockOverride = policy;
+		if (!failures.IsEmpty() || lockResult != "applied" || unlockResult != "applied"
+			|| !lockCheck.StartsWith("PASS") || !unlockCheck.StartsWith("PASS") || !rejectCheck.StartsWith("PASS"))
+			return string.Format("FAIL %1 lock=%2/%3 unlock=%4/%5 reject=%6", failures, lockResult, lockCheck, unlockResult, unlockCheck, rejectCheck);
+		return "PASS empty-only bulk lock/unlock; nonempty single locks rejected; transitions clear locks; nonadmin unchanged; originals restored";
 	}
 
 }

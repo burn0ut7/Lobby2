@@ -1,3 +1,34 @@
+# Empty-slot-only locks — 2026-10-24
+
+This supersedes the earlier lock precedence rules below. Only empty FREE slots
+can be admin-locked; claims and lifecycle states take their own status.
+
+- Native Workbench reload succeeded (operation dbb0217adf7c4ab88304ccc5bbe3c16b),
+  followed by embedded Play in Lobby2McpTests/worlds/AdminMultiplayer.ent.
+- GC_TestEmptySlotLocks passed both without and with an actual connected occupant.
+  It temporarily gave three registered empty slots reserved, disconnected and KIA
+  states, invoked real authenticated production handlers, checked all claims and
+  lifecycle fields against snapshots, then restored originals and creation policy.
+  Single-slot lock attempts were rejected; bulk lock/unlock skipped these slots.
+  Unresolved requester -999 was rejected without mutation through central logging.
+- The actual header handler unlocked 42 slots, ordinary selection claimed slot 1,
+  and the header then locked only the remaining 41. Snapshot check passed for all
+  42 slots; occupied slot 1 had adminLock=0 and its single person icon. A subsequent
+  header unlock also passed the unchanged-claim check.
+- runtime-empty-only-occupied.png shows that real occupied-slot result.
+  runtime-empty-only-gallery.png shows the production widget with detached samples:
+  empty padlock, KIA skull, reservation clock, disconnected symbol, connected person,
+  and no status icon on an available empty slot. Samples restored after capture.
+- Runtime receipts, assertions and correlated audit records: empty-only-results.json.
+- git diff --check passed. Changes reviewed for scripting readability.
+
+Scope: embedded host only. Remote clients, JIP, real disconnect/death events and a
+connected logged-out requester were not exercised in this slice. Lifecycle samples
+are explicit test fixtures, not evidence of actual deaths/disconnections. Existing
+world resource warnings and BlockListApi reload leak remain outside this change.
+
+---
+
 # Slot icon validation — 2026-10-24
 
 ## Current: occupied status takes priority

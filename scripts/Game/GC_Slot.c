@@ -33,7 +33,7 @@ class GC_Slot
 
 	//! Current slot state represented by this slot.
 	protected GC_SlotState m_eState = GC_SlotState.FREE;
-	//! Availability is independent of character/claim lifecycle.
+	//! Admin locking applies only while the slot is empty.
 	protected bool m_bAdminLocked;
 	//! Initial admin reservation has no reconnect deadline until its first join.
 	protected bool m_bAwaitingInitialJoin;
@@ -103,6 +103,13 @@ class GC_Slot
 
 
 	//------------------------------------------------------------------------------------------------
+	bool CanAdminLock()
+	{
+		return m_eState == GC_SlotState.FREE && m_iPlayerId < 0
+			&& m_PlayerUUID.IsEmpty() && !m_bAwaitingInitialJoin;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool IsAdminLocked()
 	{
 		return m_bAdminLocked;
@@ -111,6 +118,8 @@ class GC_Slot
 	//------------------------------------------------------------------------------------------------
 	void SetAdminLocked(bool value, bool notify = true)
 	{
+		if (value && !CanAdminLock())
+			return;
 		if (m_bAdminLocked == value)
 			return;
 		m_bAdminLocked = value;
@@ -441,6 +450,9 @@ class GC_Slot
 
 	protected void NotifyChanged()
 	{
+		// A claim or lifecycle transition consumes the empty slot lock before publication.
+		if (!CanAdminLock())
+			m_bAdminLocked = false;
 		m_OnChanged.Invoke(this);
 	}
 

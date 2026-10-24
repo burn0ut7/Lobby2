@@ -74,15 +74,20 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 
+		bool hasEmptySlot;
 		m_bLockRequested = true;
 		foreach (GC_Slot slot : m_Manager.GetSlots())
 		{
+			if (!slot.CanAdminLock())
+				continue;
+			hasEmptySlot = true;
 			if (slot.IsAdminLocked())
 			{
 				m_bLockRequested = false;
 				break;
 			}
 		}
+		m_Button.SetEnabled(hasEmptySlot);
 		if (m_bLockRequested)
 			m_Icon.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "server-unlocked");
 		else

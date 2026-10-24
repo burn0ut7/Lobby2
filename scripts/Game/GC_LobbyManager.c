@@ -2918,7 +2918,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Occupied slots stay occupied when locked. Free/remove explicitly release
+	//! Only empty slots can be locked. Free/remove explicitly release
 	//! possession first; removal never deletes the represented character.
 	string ExecuteAdminSlotAction(int requesterId, int slotId, UUID expectedClaim, GC_EAdminSlotAction action)
 	{
@@ -2987,6 +2987,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		switch (action)
 		{
 			case GC_EAdminSlotAction.LOCK:
+				if (!slot.CanAdminLock())
+					return "rejected-slot-not-empty";
 				slot.SetAdminLocked(true);
 				return "applied";
 			case GC_EAdminSlotAction.UNLOCK:
@@ -3118,6 +3120,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		{
 			if (groupId != RplId.Invalid() && slot.GetGroupRplId() != groupId)
 				continue;
+			if (!slot.CanAdminLock())
+				continue;
 			slotIds.Insert(slot.GetID());
 		}
 		string outcome = "applied";
@@ -3154,7 +3158,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		foreach (int slotId : slotIds)
 		{
 			GC_Slot slot = GetSlot(slotId);
-			if (!slot || slot.IsAdminLocked() == locked)
+			if (!slot || !slot.CanAdminLock() || slot.IsAdminLocked() == locked)
 				continue;
 			slot.SetAdminLocked(locked, false);
 			changed.Insert(slot);

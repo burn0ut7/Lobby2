@@ -217,15 +217,13 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 				statusImage = "death";
 			else if (m_Slot.GetPlayerId() >= 0)
 				statusImage = "player";
-			else if (m_Slot.IsAdminLocked())
-				statusImage = "server-locked";
 			else if (m_Slot.IsAwaitingInitialJoin())
 				statusImage = "time";
 			else if (m_Slot.GetState() == GC_SlotState.DISCONNECTED)
 				statusImage = "disconnection";
 			else if (m_Slot.GetState() == GC_SlotState.RESERVED)
 				statusImage = "time";
-			else if (m_Slot.GetState() == GC_SlotState.LOCKED)
+			else if (m_Slot.CanAdminLock() && m_Slot.IsAdminLocked())
 				statusImage = "server-locked";
 
 			if (!statusImage.IsEmpty())
