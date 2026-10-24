@@ -17,14 +17,26 @@ Treat the lobby, briefing, match, and after-action report as distinct phases. Ke
 
 Use the `$reforger` skill for every Lobby2 or Arma Reforger question or task. Use the Reforger MCP server for game and Workbench interactions, and pass the applicable instructions and skill to subagents handling related work.
 
+## MCP-driven modding and testing
+
+- Use the Reforger MCP server for all Arma Reforger and Workbench interactions: opening projects/worlds, Play, runtime inspection, lobby navigation, button actions, screenshots, and validation. Do not use Computer Use, desktop input injection, or alternate automation backends. Ordinary source editing and local build/file operations may use development tools.
+- Make required testing interactions scriptable through MCP. Extend or repair the owning MCP capability when needed; report unsupported states rather than substituting a different control path.
+- Keep Lobby2-specific navigation helpers, scenarios, fixtures, and assertions in the optional project-owned test addon described in [tests/README.md](tests/README.md). Load it only for testing. Production Lobby2 must not depend on it or run its controls automatically.
+- Use the server's generic runtime interface to invoke project test helpers. Keep the MCP server addon-agnostic, and exercise production handlers and authority checks without duplicating gameplay logic or granting test permissions.
+- Verify resulting state, receipt-correlated logs, and MCP screenshots where relevant. A dispatched action alone does not establish success; never blindly replay an uncertain mutation. Record limitations such as embedded-only coverage instead of claiming multiplayer validation.
+
 ## Game-mode isolation
 
 This game mode must remain separate from all other game modes. The add-on may stay loaded while another game mode is selected, so its code and authored data must coexist safely with unrelated modes.
 
-- Do not override, replace, or globally modify shared game-mode behavior unless the change is explicitly required and proven safe for every mode.
+- Shared `modded` classes are valid and necessary integration points. Preserve vanilla functionality when Lobby2 is absent from the active world; do not require replacing stock groups or avoiding inherited integrations. Any globally effective behavior change requires explicit justification and compatibility evidence.
 - Prefer add-on-owned names, resources, prefabs, components, and state over edits to shared assets.
 - Scope initialization, event handling, UI, rules, and cleanup to this game mode and its active lifecycle.
 - Do not leave persistent state, subscriptions, entities, or callbacks active after this game mode is unloaded or another mode becomes active.
+- Treat every shared `modded class` override, especially VON/voice, player, controller, and UI components, as affecting all game modes while the addon is loaded. Addon presence alone never authorizes Lobby2 behavior: verify that the current game mode owns an active Lobby2 instance before any Lobby2-specific side effect.
+- When Lobby2 is inactive, preserve the inherited behavior and return values through the normal `super` chain where applicable. Do not suppress stock callbacks, change voice routing/audio variables, register Lobby2 listeners, or alter shared settings in unrelated modes. Guard asynchronous callbacks and RPC entry points too; a cached instance or an earlier check is not proof of current ownership.
+- Track and release Lobby2-owned changes to shared state when leaving the mode. Cleanup must neither leak into the next mode nor overwrite changes owned by other systems.
+- Validate shared overrides through MCP with the addon loaded in an unrelated game mode, comparing affected behavior against a baseline without the addon, and after leaving Lobby2. For VON, include normal voice transmission/reception and routing. Source guards or successful compilation alone do not establish coexistence; record missing runtime coverage explicitly.
 
 ## Source of truth and base-game integration
 

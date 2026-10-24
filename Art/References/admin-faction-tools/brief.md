@@ -1,0 +1,9 @@
+# Faction targeting
+
+Active reference: concept-v1.png, generated with the built-in image tool before production edits. Prompt: companion Heal and Teleport states of the existing dark/amber full-screen two-column Admin Tools; add Faction scope with available slotted factions and connected-player count; Teleport retains searched destination player and adds review/confirmation; no squad or new destination types.
+
+Journey: choose tool -> Faction -> choose faction -> review count -> Heal, or choose destination -> review/confirm Teleport -> observe result. Context-selected players continue through existing Player targeting. Vehicles remain Nearby-only. Faction membership means connected slot occupants, including dead claims; unassigned spectators are outside faction targets.
+
+Elements: retain tool navigation for action choice, existing scope buttons for audience choice, one shared faction list for current slot factions, existing searchable destination picker, count/direction summary, existing Apply/status footer. No extra roster or dashboard. Reuse message faction list instead of adding another picker implementation. The original internal widget names are preserved.
+
+Concept critique: clear two-column structure and destination distinction. Native buttons keep existing sizing/color treatment; screenshot should verify four Heal scopes fit, faction list does not overlap destination, and review does not execute. Teleport excludes destination from movement and skips dead/seated/no-safe-landing targets. Plan disjoint terrain positions before owner dispatch, then aggregate native position observations; uncertainty is not success. Server compares preview identities and faction membership before mutation. Runtime, UI, authorization/audit and independent review required; physical input/audio not established by semantic handlers.
