@@ -39,11 +39,12 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 			return;
 
 		s_wPopup.Update();
-		// A passive notification has no scrolling interaction; flatten explicit line breaks
-		// in the display copy so blank lines cannot push the banner into the view centre.
+		// Keep authored system-message sections; flatten free-form admin messages so
+		// blank lines cannot push the passive banner into the view centre.
 		string display = s_CurrentMessage.m_sText;
 		display.Replace("\r", " ");
-		display.Replace("\n", " ");
+		if (!s_CurrentMessage.m_bPreserveLineBreaks)
+			display.Replace("\n", " ");
 		display.Replace("\t", " ");
 		GC_AdminTextWrapping.Apply(body, viewport, display);
 		s_wPopup.Update();

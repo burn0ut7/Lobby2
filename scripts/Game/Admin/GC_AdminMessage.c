@@ -5,5 +5,6 @@ class GC_AdminMessage
 	int m_iSenderId;
 	string m_sSenderName;
 	string m_sText;
+	bool m_bPreserveLineBreaks;
 	GC_EAdminMessageAudience m_eAudience;
 }
