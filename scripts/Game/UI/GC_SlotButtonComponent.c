@@ -218,11 +218,11 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			else if (m_Slot.GetPlayerId() >= 0)
 				statusImage = "player";
 			else if (m_Slot.IsAwaitingInitialJoin())
-				statusImage = "linked";
+				statusImage = "admin";
 			else if (m_Slot.GetState() == GC_SlotState.DISCONNECTED)
 				statusImage = "disconnection";
 			else if (m_Slot.GetState() == GC_SlotState.RESERVED)
-				statusImage = "linked";
+				statusImage = "admin";
 			else if (m_Slot.CanAdminLock() && m_Slot.IsAdminLocked())
 				statusImage = "server-locked";
 

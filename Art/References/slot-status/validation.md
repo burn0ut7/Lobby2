@@ -103,3 +103,5 @@ Stock atlas provenance: game/data/data010.pak, revision
 This is presentation-gallery coverage, not a new test of death/disconnect or
 reservation authority. Constrained viewport, physical input and a remote peer were
 not rerun for this local rendering change.
+
+User-selected icon revision: reserved/initial-join slots now use the stock "admin" icon instead of "linked". Disconnection and gray name styling are unchanged. The icon key was verified in the installed wrapper imageset (line 56, same revision above). This two-string substitution was source-checked; the saved presence captures show the previous linked icon and are not visual evidence of this revision.
