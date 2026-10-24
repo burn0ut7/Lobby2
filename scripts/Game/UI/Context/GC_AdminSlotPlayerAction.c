@@ -19,12 +19,11 @@ class GC_AdminSlotPlayerAction : GC_ContextMenuAction
 	override bool IsVisible(GC_ContextMenuContext context)
 	{
 		if (!context || !GC_LobbyManager.GetManager()
-			|| context.GetTargetType() != GC_EContextTargetType.SLOT
 			|| !SCR_Global.IsAdmin(context.GetRequesterPlayerId()))
 			return false;
 		if (m_eAction == GC_EAdminSlotAction.HEAL_OR_RESPAWN)
-			return context.GetSlot() && context.GetSlot().IsKIA();
-		return true;
+			return context.GetSlot() != null;
+		return context.GetTargetType() == GC_EContextTargetType.SLOT;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -40,7 +39,7 @@ class GC_AdminSlotPlayerAction : GC_ContextMenuAction
 			return slot.HasClaim();
 		return m_eAction == GC_EAdminSlotAction.HEAL_OR_RESPAWN
 			&& manager.GetLobbyPhase() != SCR_EGameModeState.POSTGAME
-			&& slot.IsKIA();
+			&& (slot.IsKIA() || slot.GetEntity() != null);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -48,7 +47,9 @@ class GC_AdminSlotPlayerAction : GC_ContextMenuAction
 	{
 		if (m_eAction == GC_EAdminSlotAction.FREE)
 			return "Remove player";
-		return "Respawn slot";
+		if (context.GetSlot() && context.GetSlot().IsKIA())
+			return "Respawn slot";
+		return "Heal";
 	}
 
 	//------------------------------------------------------------------------------------------------

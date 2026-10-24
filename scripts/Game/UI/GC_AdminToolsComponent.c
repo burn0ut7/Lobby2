@@ -49,7 +49,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	static void Open(int targetId = -1)
+	static void Open(int targetId = -1, bool useSelectedPlayer = true)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		PlayerController controller = GetGame().GetPlayerController();
@@ -61,12 +61,17 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (!s_wPanel)
 			return;
 		GC_AdminToolsComponent panel = GC_AdminToolsComponent.Cast(s_wPanel.FindHandler(GC_AdminToolsComponent));
-		if (targetId <= 0)
+		if (targetId <= 0 && useSelectedPlayer)
 			targetId = manager.GetAdminSelectedPlayer();
-		if (panel && panel.m_iPending < 0 && targetId > 0)
+		if (panel && panel.m_iPending < 0 && panel.m_iMessagePending < 0 && targetId > 0)
 		{
+			panel.m_iTool = 0;
+			panel.m_eScope = GC_EAdminHealScope.SELECTED;
+			panel.m_Targets.SetMultiple(false);
 			panel.m_Targets.SelectPlayer(targetId);
+			panel.m_Targets.SetMultiple(true);
 			panel.m_From.SelectPlayer(targetId);
+			panel.Refresh();
 		}
 	}
 

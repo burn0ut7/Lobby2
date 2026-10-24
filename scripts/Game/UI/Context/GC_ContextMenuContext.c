@@ -85,6 +85,7 @@ class GC_ContextMenuContext
 		return context;
 	}
 
+	//------------------------------------------------------------------------------------------------
 	static GC_ContextMenuContext ForPlayer(int playerId, IEntity entity = null)
 	{
 		if (playerId < 0)
@@ -95,7 +96,10 @@ class GC_ContextMenuContext
 		context.m_iPlayerId = playerId;
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (manager)
+		{
 			context.m_PlayerIdentity = manager.GetPlayerVoiceIdentity(playerId);
+			context.m_Slot = manager.GetSlotByPlayerId(playerId);
+		}
 		context.m_Entity = entity;
 		context.CaptureRequester();
 		return context;
@@ -119,6 +123,7 @@ class GC_ContextMenuContext
 		return m_ModerationForm;
 	}
 
+	//------------------------------------------------------------------------------------------------
 	static GC_ContextMenuContext ForEntity(IEntity entity)
 	{
 		if (!entity)
@@ -135,6 +140,14 @@ class GC_ContextMenuContext
 		GC_ContextMenuContext context = new GC_ContextMenuContext();
 		context.m_eTargetType = GC_EContextTargetType.ENTITY;
 		context.m_Entity = entity;
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			context.m_Slot = manager.GetSlotByEntity(entity);
+		if (context.m_Slot)
+		{
+			context.m_iPlayerId = context.m_Slot.GetPlayerId();
+			context.m_PlayerIdentity = context.m_Slot.GetUUID();
+		}
 		context.CaptureRequester();
 		return context;
 	}

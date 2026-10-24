@@ -25,7 +25,7 @@ class GC_AdminOpenToolsAction : GC_ContextMenuAction
 			return false;
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		int playerId = context.GetPlayerId();
-		if (context.GetTargetType() == GC_EContextTargetType.SLOT)
+		if (context.GetSlot())
 		{
 			GC_Slot slot = context.GetSlot();
 			if (!slot || manager.GetSlot(slot.GetID()) != slot || slot.GetUUID() != context.GetPlayerIdentity())
@@ -50,6 +50,6 @@ class GC_AdminOpenToolsAction : GC_ContextMenuAction
 		int targetId = context.GetPlayerId();
 		if (context.GetSlot())
 			targetId = context.GetSlot().GetPlayerId();
-		GC_AdminToolsComponent.Open(targetId);
+		GC_AdminToolsComponent.Open(targetId, false);
 	}
 }

@@ -57,6 +57,31 @@ See `Art/References/faction-readiness/validation.md` for observed results.
 
 ## Connected admin test fixture
 
+`GC_TestAdminEntityContext(int slotId, string operation)` exercises the production
+spectator entity context. Use `inspect` to list eligible actions, `open` to execute
+Open Admin Tools and read its actual heal-picker selection, `heal` to dispatch the
+existing heal/respawn action, and `stale` to invalidate only the captured claim and
+check action rejection. It grants no permissions. Check living and KIA slots,
+connected claimants whose bodies are no longer controlled, unclaimed AI, changing
+claims, logged-out admins, and POSTGAME. For a connected claimant, `open` should
+report exactly that player selected. Verify heal/respawn effects with fresh health,
+slot and possession state plus central audit logs; the immediate report is not a
+success receipt. Capture the real menu and test physical right-click navigation.
+
+The 2026-10-24 changes compiled in a fresh Workbench session. Embedded host tests
+in `AdminMultiplayer.ent` verified entity-to-slot resolution, exactly one selected
+connected player in Admin Tools (BRIEFING and GAME), healing from 0.6 to 1.0,
+and KIA recovery into a new healthy character through the production context action.
+Central audit logs recorded both heal/respawn requests as applied. Stale captured
+claims disabled both actions; server calls with an unresolved requester or stale
+claim rejected without mutation. An unclaimed AI entity exposed Heal; the Admin
+Tools picker remains limited to connected players. An MCP screenshot confirms the
+selected player and enabled Apply button. Raw receipts, logs and screenshots are
+in the MCP workspace `.temp/local/evidence/admin-context-shared-20261024`.
+This run does not establish physical right-click navigation, remote-peer behavior,
+connected-admin logout or POSTGAME coverage. A popup attempt without a menu root
+returned `opened=0`; it is not a passing popup-rendering test.
+
 Nearby heal accepts 1–1,000 metres (default 15), measured from the authenticated
 requester's living character. `GC_TestAdminHeal(scope, selectedPlayerId,
 expectedIdentity, radiusMeters)` sends the production request. `heal-nearby` is a

@@ -4,6 +4,51 @@ modded class GC_LobbyManager
 	protected IEntity m_GC_TestRememberedSlotEntity;
 
 	//------------------------------------------------------------------------------------------------
+	//! Exercise the entity context used by spectator markers, without granting admin rights.
+	string GC_TestAdminEntityContext(int slotId, string operation)
+	{
+		GC_Slot slot = GetSlot(slotId);
+		if (GetManager() != this || !slot || !slot.GetEntity())
+			return "UNAVAILABLE slot entity";
+
+		GC_ContextMenuContext context = GC_ContextMenuContext.ForEntity(slot.GetEntity());
+		GC_AdminSlotPlayerAction heal = new GC_AdminSlotPlayerAction(GC_EAdminSlotAction.HEAL_OR_RESPAWN);
+		GC_AdminOpenToolsAction open = new GC_AdminOpenToolsAction();
+		if (operation == "open")
+			open.Execute(context);
+		else if (operation == "heal")
+			heal.Execute(context);
+		else if (operation == "stale")
+			context.GC_TestInvalidateCapturedPlayer();
+		else if (operation != "inspect")
+			return "REJECTED operation";
+
+		array<ref GC_ContextMenuAction> actions = {};
+		GC_ContextMenuActionRegistry.CollectVisible(context, actions);
+		string labels;
+		foreach (GC_ContextMenuAction action : actions)
+			labels += action.GetLabel(context) + "; ";
+
+		string selection = "no admin menu";
+		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
+		if (GC_AdminToolsMenu.Cast(menu))
+		{
+			Widget field = menu.GetRootWidget().FindAnyWidget("HealPlayers");
+			GC_AdminPlayerPicker picker = GC_AdminPlayerPicker.Cast(field.FindHandler(GC_AdminPlayerPicker));
+			array<int> players;
+			array<string> identities;
+			bool valid = picker.GetSelection(players, identities);
+			int selectedId = -1;
+			if (players.Count() == 1)
+				selectedId = players[0];
+			selection = string.Format("valid=%1 count=%2 player=%3", valid, players.Count(), selectedId);
+		}
+
+		return string.Format("slotMatches=%1 player=%2 healEnabled=%3 openEnabled=%4 actions=%5 selection=%6; mutations require fresh state and audit evidence",
+			context.GetSlot() == slot, context.GetPlayerId(), heal.CanExecute(context), open.CanExecute(context), labels, selection);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Zero selects all groups; a positive slot selects its actual group.
 	string GC_TestAdminGroupLock(int slotId, bool locked)
 	{
