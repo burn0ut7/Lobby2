@@ -146,26 +146,38 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             background.SetColor(Color.FromRGBA(1, 1, 1, 158));
     }
 
-    //! Speech uses native local capture/receive activity; deafen remains replicated.
-    protected void UpdateVoiceVisuals()
-    {
-        ImageWidget voiceIcon = ImageWidget.Cast(m_wRoot.FindAnyWidget("VoiceIcon"));
-        Widget deafenedIcon = m_wRoot.FindAnyWidget("VoiceDeafenedIcon");
-        if (!voiceIcon || !deafenedIcon)
-            return;
+	//------------------------------------------------------------------------------------------------
+	//! Speech uses native local capture/receive activity; deafen remains replicated.
+	protected void UpdateVoiceVisuals()
+	{
+		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		GC_VoiceChannelAssignment assignment;
+		if (lobbyManager)
+			assignment = lobbyManager.GetPlayerVoiceAssignment(m_iPlayerId);
+		Widget priorityIcon = m_wRoot.FindAnyWidget("PrioritySpeakerIcon");
+		Widget adminMutedIcon = m_wRoot.FindAnyWidget("AdminMutedIcon");
+		if (priorityIcon)
+			priorityIcon.SetVisible(assignment && assignment.IsPrioritySpeaker());
+		if (adminMutedIcon)
+			adminMutedIcon.SetVisible(assignment && assignment.IsAdminMuted());
 
-        bool deafened;
-        GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
-        if (lobbyManager)
-            deafened = lobbyManager.IsPlayerVoiceDeafened(m_iPlayerId);
+		ImageWidget voiceIcon = ImageWidget.Cast(m_wRoot.FindAnyWidget("VoiceIcon"));
+		Widget deafenedIcon = m_wRoot.FindAnyWidget("VoiceDeafenedIcon");
+		if (!voiceIcon || !deafenedIcon)
+			return;
 
-        voiceIcon.SetVisible(m_bSpeaking || !deafened);
-        deafenedIcon.SetVisible(deafened && !m_bSpeaking);
-        if (m_bSpeaking)
-            voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNDirect");
-        else
-            voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNIdle");
-    }
+		bool deafened;
+		if (lobbyManager)
+			deafened = lobbyManager.IsPlayerVoiceDeafened(m_iPlayerId);
+
+		voiceIcon.SetVisible(m_bSpeaking || !deafened);
+		deafenedIcon.SetVisible(deafened && !m_bSpeaking);
+		if (m_bSpeaking)
+			voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNDirect");
+		else
+			voiceIcon.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", "VoNIdle");
+	}
+
 
     protected void UpdateFactionAccent()
     {

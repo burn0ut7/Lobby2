@@ -13,7 +13,7 @@ No new screen, panel, control or generated asset.
 | Empty available row | See an open role | Slot | No status icon |
 
 Stock icons in {2EFEA2AF1F38E7F0}icons_wrapperUI-64.imageset: server-locked,
-death (skull), admin (reservation/held, user-selected), disconnection, player. Lottery uses time.
+death (skull), admin (reservation/held, user-selected), disconnection, player. Lottery uses gameMechanics.
 White silhouettes; absent player names use RGB 170 gray, with the distinct icons
 preserving the state meaning. Present player names retain normal/admin colors. Existing role hover,
 context menu and click rules retain their existing handlers. Each row has at most

@@ -11,7 +11,7 @@ Typing `/join` in any native chat channel enters the newest still-open draw at
 server execution time. Right-clicking any participating slot offers **Enter
 lottery** or **Leave lottery** for that draw. Choosing a row never chooses the
 winning role. Repeated entry does not add chances. The existing slot status area
-shows a clock and **Lottery open**; no new menu, input mode or layout is added.
+shows the gameMechanics icon and **Lottery open**; no new menu, input mode or layout is added.
 
 After 30 server seconds, players and available roles are sampled without
 replacement. Connected identity, current slot state, KIA, faction locks and
@@ -33,13 +33,13 @@ This is a narrow addition to existing context rows, status text and admin
 notifications. Reuse the active references in
 `Art/References/admin-notification/brief.md` and
 `Art/References/slot-access/brief-v2.md`; no layout redesign was made. Retain the
-existing charcoal surfaces, white labels, native clock icon and amber focus.
+existing charcoal surfaces, white labels, native gameMechanics icon and amber focus.
 
 | Element | User need | Owner |
 | --- | --- | --- |
 | Start lottery context row | Select admin scope and duration | Server authorization |
 | Enter/Leave context row | Change participation in this exact draw | Owner request, server pool |
-| Clock + Lottery open | Find participating slots | Replicated draw state |
+| gameMechanics + Lottery open | Find participating slots | Replicated draw state |
 | Existing admin popup | Announce scope, deadline and `/join` | Server-originated notification |
 | Existing hint | Confirm entry/leave or explain rejection | Owner-only result |
 

@@ -233,7 +233,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		GC_LobbyManager lotteryManager = GC_LobbyManager.GetManager();
 		if (m_Slot && !m_Slot.HasClaim() && lotteryManager && lotteryManager.GetLotteryForSlot(m_Slot.GetID()))
 		{
-			statusImage = "time";
+			statusImage = "gameMechanics";
 			playerName = "Lottery open";
 		}
 

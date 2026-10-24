@@ -1,0 +1,140 @@
+[
+  {
+    "response": 34,
+    "state": "reloaded",
+    "elapsedMs": 2399
+  },
+  {
+    "response": 43,
+    "state": "invoked",
+    "receipt": "r1d2230f53b584acb9558bfae67032a79",
+    "returned": "DISPATCHED production phase request",
+    "elapsedMs": 26
+  },
+  {
+    "response": 45,
+    "state": "invoked",
+    "receipt": "r4706c492018e4b6e9cf4efb24f9e4b3a",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=0 adminMuted=0 voice=1 deafened=0\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 47,
+    "state": "invoked",
+    "receipt": "r1acf4365db7c4ed3bdad04c06212931d",
+    "returned": "DISPATCHED inspect GC_TestVoiceSnapshot and correlated admin log",
+    "elapsedMs": 2
+  },
+  {
+    "response": 49,
+    "state": "invoked",
+    "receipt": "ra32aebede00648dda469f6538bfd6c75",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=1 adminMuted=0 voice=1 deafened=0\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 51,
+    "state": "invoked",
+    "receipt": "r2b666a7a50754e048bb460023a1150a3",
+    "returned": "DISPATCHED inspect GC_TestVoiceSnapshot and correlated admin log",
+    "elapsedMs": 2
+  },
+  {
+    "response": 53,
+    "state": "invoked",
+    "receipt": "r9f8f324db95c4f95a3bb193f130928b0",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=1 adminMuted=1 voice=1 deafened=0\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 55,
+    "state": "invoked",
+    "receipt": "r5da94d1d7f1e40a3892c1dcc09226998",
+    "returned": "dispatched: DeafenButton",
+    "elapsedMs": 3
+  },
+  {
+    "response": 57,
+    "state": "invoked",
+    "receipt": "r30b21d1a0cad4313aae381458cdeae15",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=1 adminMuted=1 voice=0 deafened=1\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 61,
+    "state": "invoked",
+    "receipt": "ra7e0d86857ae4f41b5be75bedd03aa0b",
+    "returned": "dispatched: PlayerListButton",
+    "elapsedMs": 2
+  },
+  {
+    "response": 63,
+    "state": "invoked",
+    "receipt": "r19be3e457b56458484eaa14bff364c05",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=1 adminMuted=1 voice=0 deafened=1\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 66,
+    "state": "invoked",
+    "receipt": "r63301429556b45e69f1b74780909d9d3",
+    "returned": "DISPATCHED inspect GC_TestVoiceSnapshot and correlated admin log",
+    "elapsedMs": 2
+  },
+  {
+    "response": 68,
+    "state": "invoked",
+    "receipt": "ra51a4b5ac10d43fe9339e0d656d40d1a",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=0 adminMuted=1 voice=0 deafened=1\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 70,
+    "state": "invoked",
+    "receipt": "r788388a876f543d09d21e5e648a08310",
+    "returned": "DISPATCHED inspect GC_TestVoiceSnapshot and correlated admin log",
+    "elapsedMs": 2
+  },
+  {
+    "response": 72,
+    "state": "invoked",
+    "receipt": "rb21c4092b002406f970de1ec156d0fbb",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=0 adminMuted=0 voice=0 deafened=1\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 74,
+    "state": "invoked",
+    "receipt": "rbde350fea8a540079255f031341d75d4",
+    "returned": "dispatched: DeafenButton",
+    "elapsedMs": 3
+  },
+  {
+    "response": 76,
+    "state": "invoked",
+    "receipt": "r3c329ee5340744ccbfea155b30a5f2e5",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=0 adminMuted=0 voice=1 deafened=0\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 78,
+    "state": "invoked",
+    "receipt": "r4e92030571c84c70a18ecd4d7c87805d",
+    "returned": "dispatched: VoiceChannelsButton",
+    "elapsedMs": 2
+  },
+  {
+    "response": 80,
+    "state": "invoked",
+    "receipt": "rf02bab86b9f64ee1a6a53560d85b7b82",
+    "returned": "name=Burn0ut7 rowVisible=1 priority=0 adminMuted=0 voice=1 deafened=0\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 82,
+    "state": "invoked",
+    "receipt": "r23f72810deb4498b885626783c971722",
+    "returned": "available=1 dispatched=1",
+    "elapsedMs": 4
+  }
+]
