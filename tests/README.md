@@ -57,6 +57,64 @@ See `Art/References/faction-readiness/validation.md` for observed results.
 
 ## Connected admin test fixture
 
+### Game Master recovery — 2026-10-24
+
+`GC_HealSlotContextAction` adds **Heal / Respawn slot** to the native Game Master
+selection menu. It uses the existing authenticated slot request; it does not
+replace vanilla Heal or register arbitrary GM soldiers as slots. The action is
+hidden without an active Lobby2 slot or authenticated admin and cannot execute
+in POSTGAME. Its config is additive to the native `TempEdit.conf` action list.
+Reference: the official community wiki's *Game Master: Context Action Creation*,
+captured revision 370954, and installed `SCR_SelectedEntitiesContextAction`,
+`SCR_HealEntitiesContextAction`, `SCR_BaseContextMenuEditorUIComponent` sources
+(PAK catalogue `5c4befda38ee44a29a2211ac42bdbfc7`).
+
+`GC_TestGameMasterRecovery(slotId, operation)` opens the actual native popup via
+its owning handler using native hover/selection filters. `click` invokes its
+rendered recovery button's normal handler. Embedded Workbench tests verified one
+recovery button, healing from 0.6 to 1.0 for claimed and unclaimed slots, and KIA
+recovery to a new healthy character with central audit evidence. The respawn
+occurred before the scripted click check, which correctly returned unavailable;
+it is observed UI/state/audit evidence, not a correlated scripted-click pass.
+The subsequent controlled `open-click` run rendered and activated the native
+button in one invocation (`rda359c55a3d9436397aaf803f74507a2`). Fresh state changed
+slot 1 from KIA entity -2147481115 to healthy entity -2147480864, preserving its
+unclaimed status, with one applied central audit at 09:18:09.108. This separately
+establishes scripted respawn activation; it does not reclassify the earlier run.
+`GC_TestGameMasterRecoveryLoggedOut` revokes the connected host's roles and checks
+hidden UI plus server rejection without mutation; it never restores/grants roles.
+End the disposable Play session afterward. This returned connected=1, admin=0,
+visible=0, rejected-not-logged-in, unchanged=1, with the central rejection log.
+
+`GC_TestGameMasterEntityComparison(slotId, groupName)` inventories live components,
+native editability, damage, AI and action predicates. A native GM-placed USSR
+senior rifleman and a lobby-spawned rifleman used the same prefab and identical
+55-component multisets, including editable-character and damage components.
+Both had editable flags 71. The lobby character had slot 1 and inactive AI;
+the GM character had no slot and active AI. After the existing Playable property
+adopted the GM group, that same character gained slot 43, retained its components
+and editable flags, and became eligible for recovery. Both healthy characters
+failed vanilla `CanBeHealed`, which hides stock Heal in the native menu.
+
+Evidence is in MCP workspace `.temp/local/evidence/game-master-recovery-20261024`;
+the visible-popup capture is `1792847233238266000.png`. Initial test-helper compile
+errors were repaired and native reload passed. Retained resource/engine warnings
+are not a clean-log claim. Coverage is embedded host, one native GM group and
+slot fixtures; remote peers, gamepad and multi-selection execution remain unverified.
+
+The addon-independent `GC_IsolationProbeComponent.ContextMenu` fixture compared
+the native popup on `IsolationCharacter` in `Isolation.ent`: first with Lobby2
+loaded after leaving its active world (PID 40968), then without Lobby2 loaded
+(PID 33436, project context verified). Both rendered the same action multiset:
+`SCR_TeleportCameraContextAction`, `SCR_PlaceEntityContextAction` and
+`SCR_LightningContextAction`, with no recovery entry. Receipts
+`r3bb1f0e23320445895fe6c7517d54b6d` and `r458b2540cdad4104a2937128975989c7`
+record this narrow action-list isolation comparison. Stock Heal was unavailable
+for this preplaced target in both runs despite health 0.6; both reported that
+explicitly and left health unchanged. This checks matching popup availability,
+not stock-Heal execution in unrelated modes. The Lobby2 popup capture separately
+shows stock Heal and the new recovery action coexisting.
+
 `GC_TestAdminEntityContext(int slotId, string operation)` exercises the production
 spectator entity context. Use `inspect` to list eligible actions, `open` to execute
 Open Admin Tools and read its actual heal-picker selection, `heal` to dispatch the
