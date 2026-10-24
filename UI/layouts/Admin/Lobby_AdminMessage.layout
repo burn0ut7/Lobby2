@@ -26,7 +26,7 @@ FrameWidgetClass {
     OffsetRight 0
     OffsetBottom 0
    }
-   Color 0.018 0.018 0.018 0.88
+   Color 0.018 0.018 0.018 0.70
    style full
   }
   TextWidgetClass {
