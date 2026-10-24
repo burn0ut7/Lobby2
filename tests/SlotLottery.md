@@ -7,9 +7,9 @@ empty slots. Occupants, first-join reservations, reconnect claims and KIA roles
 are excluded. Overlapping active draws are rejected.
 
 The existing admin announcement identifies the scope and explains **/join**.
-Its heading identifies a **Single slot**, **Group**, or **Faction** lottery and
-the 30-second entry window. A separate detail line shows the faction display
-name, then group and role when applicable, separated by dashes. A blank line
+Its first line shows the faction display name, then group and role when
+applicable, separated by dashes. It omits scope, timer and random-assignment
+explanations. A blank line
 separates these details from entry instructions. Authored lottery notifications
 preserve these line breaks; free-form admin popups retain their compact wrapping.
 Typing `/join` in any native chat channel enters the newest still-open draw at

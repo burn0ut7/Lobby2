@@ -1,5 +1,10 @@
 # Lottery announcement verification
 
+Subsequent wording revision: the first line now contains only faction/group/role;
+the scope/timer heading and random-assignment sentence were removed at the user's
+request. Entry instructions remain below a blank line. Native script reload passed;
+the captures below document the prior wording, not this final shorter text.
+
 2026-10-24, optional Lobby2McpTests AdminMultiplayer world, embedded host admin,
 3840x2160 Workbench window (MCP captures scaled to 1920x1080).
 

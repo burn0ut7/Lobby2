@@ -2269,7 +2269,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			GC_Slot firstSlot = GetSlot(slots[0]);
 			SCR_AIGroup group = ResolveSlotGroup(firstSlot);
 			string label = WidgetManager.Translate(group.GetFaction().GetFactionName());
-			string scope = "Faction";
 			if (slotId >= 0)
 			{
 				string roleName = string.Format("Slot %1", slotId);
@@ -2277,12 +2276,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				if (role && !role.GetName().IsEmpty())
 					roleName = WidgetManager.Translate(role.GetName());
 				label = string.Format("%1 - %2 - %3", label, GC_GroupCallsignHelper.GetDisplayName(group), roleName);
-				scope = "Single slot";
 			}
 			else if (groupId != RplId.Invalid())
 			{
 				label = string.Format("%1 - %2", label, GC_GroupCallsignHelper.GetDisplayName(group));
-				scope = "Group";
 			}
 			ref GC_SlotLottery lottery = new GC_SlotLottery();
 			m_iLotterySequence++;
@@ -2296,7 +2293,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_aSlotLotteries.Insert(lottery);
 			PublishSlotLottery(lottery);
 			GetGame().GetCallqueue().CallLater(FinishSlotLottery, 30000, false, lottery.m_iId);
-			outcome = string.Format("%1 lottery - 30 seconds to enter\n%2\n\nType /join to enter the newest open lottery.\nOr right-click a slot in this draw and choose Enter lottery.\nSlots are assigned randomly.", scope, label);
+			outcome = string.Format("%1\n\nType /join to enter the latest lottery.\nOr right-click a lottery slot and choose Enter lottery.", label);
 			AnnounceSlotLottery(lottery, outcome);
 			outcome = "started";
 		}
