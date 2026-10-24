@@ -421,6 +421,14 @@ establishes the lock. KIA claims cannot switch slots. Entering `BRIEFING` stages
 every claimed slot in bounded batches; each pending spawn must re-check the
 claim so a released slot cannot be materialized by a stale queue entry.
 
+Faction browsing and loadout previews remain available to everyone, including
+opposing factions. Browsing never changes membership or grants slot permission.
+Authenticated admins bypass faction locks, faction balance and empty-slot admin
+locks through the shared slot policy. Occupied/reserved roles, KIA restrictions,
+active lotteries and phase boundaries still apply. The server queries the current
+admin role on each request; logging out restores regular-player restrictions.
+Self-service slot requests emit outcomes through the central action logger.
+
 Admins can right-click a faction-locked player's row and select **Remove faction
 lock**. This context action grants a mission-local permission exception for that
 identity, preserving the current slot, group and faction. The exception survives

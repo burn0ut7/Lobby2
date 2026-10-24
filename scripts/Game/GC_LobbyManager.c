@@ -2507,6 +2507,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		if (playerId <= 0 || !IsFactionSwitchLocked() || !GetPlayerFaction(playerId))
 			return false;
+		if (SCR_Global.IsAdmin(playerId))
+			return false;
 		return !m_aFactionUnlockedIdentities.Contains(GetPlayerVoiceIdentity(playerId));
 	}
 
@@ -2572,13 +2574,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Ordinary choices obey proportional quotas. Explicit administrator assignment
-	//! uses its separately authorized route and can override these lobby rules.
+	//! Regular players obey proportional quotas; authenticated admins are exempt.
 	bool CanPlayerJoinBalancedFaction(int playerId, Faction targetFaction)
 	{
 		if (!targetFaction)
 			return false;
-		if (!m_bEnforceFactionBalance || GetPlayerFaction(playerId) == targetFaction)
+		if (!m_bEnforceFactionBalance || GetPlayerFaction(playerId) == targetFaction
+			|| (playerId > 0 && SCR_Global.IsAdmin(playerId)))
 			return true;
 		int quota = GetFactionBalanceQuota(targetFaction.GetFactionKey());
 		if (quota < 0)
@@ -4456,11 +4458,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         GC_Slot targetSlot = GetSlot(slotId);
         if (!CanPlayerRequestSlot(playerId, targetSlot))
         {
+			GC_AdminActionLogger.Log(playerId, "slot-self-select", string.Format("slot=%1", slotId), "rejected-policy");
 			PrintFormat("GC | Slot request rejected: player=%1 slot=%2 phase=%3 faction=%4", playerId, slotId, GetPhaseName(phase), GetPlayerFaction(playerId), level: LogLevel.WARNING);
             return false;
 		}
 
-		return ApplyPlayerSlotAssignment(playerId, targetSlot, true, false);
+		bool applied = ApplyPlayerSlotAssignment(playerId, targetSlot, true, false);
+		string outcome = "rejected-assignment";
+		if (applied)
+			outcome = "applied";
+		GC_AdminActionLogger.Log(playerId, "slot-self-select", string.Format("slot=%1", slotId), outcome);
+		return applied;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -4585,7 +4593,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
 		if (currentSlot && currentSlot.IsKIA())
 			return false;
-		if (!lottery && (targetSlot.IsAdminLocked() || GetLotteryForSlot(targetSlot.GetID()) != null)
+		if (!lottery && ((targetSlot.IsAdminLocked() && !SCR_Global.IsAdmin(playerId))
+			|| GetLotteryForSlot(targetSlot.GetID()) != null)
 			&& targetSlot.GetPlayerId() != playerId)
 			return false;
 

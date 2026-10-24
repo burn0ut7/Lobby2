@@ -6,7 +6,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
     protected GC_LobbyManager m_LobbyManager;
     protected ref map<FactionKey, Widget> m_mFactionCards = new map<FactionKey, Widget>();
     protected FactionKey m_SelectedFactionKey;
-	protected FactionKey m_LockedFactionKey;
 
     ref ScriptInvoker<FactionKey> m_OnFactionSelected = new ScriptInvoker<FactionKey>();
 
@@ -85,8 +84,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
     {
         if (!FindFaction(factionKey))
             return;
-		if (!m_LockedFactionKey.IsEmpty() && factionKey != m_LockedFactionKey)
-			return;
 
         if (m_SelectedFactionKey == factionKey)
             return;
@@ -97,17 +94,6 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
         if (invokeAction)
             m_OnFactionSelected.Invoke(factionKey);
     }
-
-	//! Locks browsing to the authoritative faction selected from BRIEFING onward.
-	//! An empty key removes the presentation lock while SLOTTING is still active.
-	void SetLockedFaction(FactionKey factionKey)
-	{
-		m_LockedFactionKey = factionKey;
-		if (!m_LockedFactionKey.IsEmpty() && m_SelectedFactionKey != m_LockedFactionKey)
-			SetSelectedFaction(m_LockedFactionKey);
-
-		UpdateSelectionVisuals();
-	}
 
     protected void OnFactionUpdated(Faction faction)
     {
@@ -181,7 +167,7 @@ class GC_FactionListComponent : SCR_ScriptedWidgetComponent
             if (button)
 			{
                 button.SetFactionSelected(button.GetFactionKey() == m_SelectedFactionKey);
-				button.SetFactionInteractable(m_LockedFactionKey.IsEmpty() || button.GetFactionKey() == m_LockedFactionKey);
+				button.SetFactionInteractable(true);
 			}
         }
     }

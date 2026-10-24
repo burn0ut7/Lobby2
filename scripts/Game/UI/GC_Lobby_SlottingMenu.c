@@ -200,6 +200,9 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected void OnPlayerRoleChanged(int playerId)
 	{
 		RefreshAdminNamePresentation(playerId);
+		PlayerController controller = GetGame().GetPlayerController();
+		if (controller && controller.GetPlayerId() == playerId)
+			RefreshBalanceInteraction();
 	}
 
 	protected void OnPauseMenuRequested()
@@ -326,7 +329,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		m_LobbyManager.m_OnPlayerConnected.Insert(OnBalancePopulationChanged);
 		m_LobbyManager.m_OnPlayerDisconnected.Insert(OnBalancePopulationChanged);
 		m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
-		ApplyFactionLock();
+		RefreshBalanceInteraction();
 		RefreshGroupWidget();
 	}
 
@@ -334,7 +337,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	//! resolved all replicated group references.
 	protected void OnRegistryReset(int revision)
 	{
-		ApplyFactionLock();
+		RefreshBalanceInteraction();
 
 		if (m_SelectedFactionKey.IsEmpty() || !m_LobbyManager.GetRegisteredFaction(m_SelectedFactionKey))
 			SelectLocalPlayerFaction();
@@ -350,14 +353,14 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		if (!playerController || playerController.GetPlayerId() != playerId)
 			return;
 
-		ApplyFactionLock();
+		RefreshBalanceInteraction();
 		if (m_Header)
 			m_Header.SetActiveState(1);
 	}
 
 	protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
 	{
-		ApplyFactionLock();
+		RefreshBalanceInteraction();
 	}
 
 	protected void OnBalancePopulationChanged(int playerId)
@@ -384,25 +387,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OnFactionRulesChanged(int revision)
 	{
-		ApplyFactionLock();
 		RefreshBalanceInteraction();
-	}
-
-	protected void ApplyFactionLock()
-	{
-		if (!m_FactionList || !m_LobbyManager)
-			return;
-
-		FactionKey lockedFactionKey;
-		PlayerController playerController = GetGame().GetPlayerController();
-		if (playerController && m_LobbyManager.IsPlayerFactionLocked(playerController.GetPlayerId()))
-		{
-			Faction playerFaction = m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
-			if (playerFaction)
-				lockedFactionKey = playerFaction.GetFactionKey();
-		}
-
-		m_FactionList.SetLockedFaction(lockedFactionKey);
 	}
 
 	protected void OnLobbyFactionUpdated(Faction faction)
