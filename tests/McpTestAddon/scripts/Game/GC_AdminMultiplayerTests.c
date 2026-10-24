@@ -74,6 +74,11 @@ modded class GC_LobbyPlayerController
 
 		if (action.StartsWith("readiness-"))
 		{
+			if (action == "readiness-tile-click")
+			{
+				Rpc(GC_TestRpcPeerReport, token, manager.GC_TestReadinessSurface(message, "ReadinessCommander", true));
+				return;
+			}
 			if (action == "readiness-open")
 				OpenBriefingFromPause();
 			else if (action == "readiness-long-name")
@@ -354,6 +359,7 @@ modded class GC_LobbyManager
 		array<string> allowedActions = {
 			"phase-clock",
 			"readiness-open",
+			"readiness-tile-click",
 			"readiness-long-name",
 			"readiness-focus",
 			"readiness-join",

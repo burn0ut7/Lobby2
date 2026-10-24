@@ -1,0 +1,815 @@
+[
+  {
+    "source": "live-1792827081259959100.json",
+    "records": [
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestClick",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "Lobby Button"
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"rd2345683cd984f06a8fe8d875fe0bca8\",\"receipt\":\"rd2345683cd984f06a8fe8d875fe0bca8\",\"returnType\":\"string\",\"elapsedMs\":16,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"rd2345683cd984f06a8fe8d875fe0bca8\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestClick\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 2,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "rd2345683cd984f06a8fe8d875fe0bca8"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"rd2345683cd984f06a8fe8d875fe0bca8\",\"returnType\":\"string\",\"returned\":\"dispatched: Lobby Button\",\"elapsedMs\":27,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"rd2345683cd984f06a8fe8d875fe0bca8\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestClick\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022dispatched: Lobby Button\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 3,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestSelectSlot",
+          "arguments": [
+            {
+              "type": "int",
+              "value": 1
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r4fd776fe1ac84a32acec0cf6ac61ee90\",\"receipt\":\"r4fd776fe1ac84a32acec0cf6ac61ee90\",\"returnType\":\"string\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r4fd776fe1ac84a32acec0cf6ac61ee90\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestSelectSlot\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 4,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r4fd776fe1ac84a32acec0cf6ac61ee90"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r4fd776fe1ac84a32acec0cf6ac61ee90\",\"returnType\":\"string\",\"returned\":\"dispatched: SlotButton\",\"elapsedMs\":5,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r4fd776fe1ac84a32acec0cf6ac61ee90\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestSelectSlot\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022dispatched: SlotButton\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 5,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestClick",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "Briefing Button"
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"rc3dcacb2d3e54763b1d96044ce46cc6c\",\"receipt\":\"rc3dcacb2d3e54763b1d96044ce46cc6c\",\"returnType\":\"string\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"rc3dcacb2d3e54763b1d96044ce46cc6c\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestClick\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 6,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "rc3dcacb2d3e54763b1d96044ce46cc6c"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"rc3dcacb2d3e54763b1d96044ce46cc6c\",\"returnType\":\"string\",\"returned\":\"dispatched: Briefing Button\",\"elapsedMs\":16,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"rc3dcacb2d3e54763b1d96044ce46cc6c\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestClick\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022dispatched: Briefing Button\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 7,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSurface",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "USSR"
+            },
+            {
+              "type": "string",
+              "value": "ReadinessFactionName"
+            },
+            {
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"ra6e302690dee47518b6c73427b6019b2\",\"receipt\":\"ra6e302690dee47518b6c73427b6019b2\",\"returnType\":\"string\",\"elapsedMs\":5,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"ra6e302690dee47518b6c73427b6019b2\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 8,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "ra6e302690dee47518b6c73427b6019b2"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"ra6e302690dee47518b6c73427b6019b2\",\"returnType\":\"string\",\"returned\":\"surface=ReadinessFactionName hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=1\\nfaction=USSR commandSlot=1 commander=1 ready=1\\nfaction=US commandSlot=9 commander=-1 ready=0\\nlocalPlayer=1 pending=0 error=\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"ra6e302690dee47518b6c73427b6019b2\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022surface=ReadinessFactionName hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=1\\\\nfaction=USSR commandSlot=1 commander=1 ready=1\\\\nfaction=US commandSlot=9 commander=-1 ready=0\\\\nlocalPlayer=1 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 9,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSurface",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "USSR"
+            },
+            {
+              "type": "string",
+              "value": "ReadinessCommander"
+            },
+            {
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"rd54c653900414c2cb83baf2f2bd74b0a\",\"receipt\":\"rd54c653900414c2cb83baf2f2bd74b0a\",\"returnType\":\"string\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"rd54c653900414c2cb83baf2f2bd74b0a\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 10,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "rd54c653900414c2cb83baf2f2bd74b0a"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"rd54c653900414c2cb83baf2f2bd74b0a\",\"returnType\":\"string\",\"returned\":\"surface=ReadinessCommander hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=2\\nfaction=USSR commandSlot=1 commander=1 ready=0\\nfaction=US commandSlot=9 commander=-1 ready=0\\nlocalPlayer=1 pending=0 error=\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"rd54c653900414c2cb83baf2f2bd74b0a\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022surface=ReadinessCommander hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=2\\\\nfaction=USSR commandSlot=1 commander=1 ready=0\\\\nfaction=US commandSlot=9 commander=-1 ready=0\\\\nlocalPlayer=1 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 11,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSurface",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "USSR"
+            },
+            {
+              "type": "string",
+              "value": "ReadinessIcon"
+            },
+            {
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"rb9af6525ef3648bcbf5d3adf05858e50\",\"receipt\":\"rb9af6525ef3648bcbf5d3adf05858e50\",\"returnType\":\"string\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"rb9af6525ef3648bcbf5d3adf05858e50\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 12,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "rb9af6525ef3648bcbf5d3adf05858e50"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"rb9af6525ef3648bcbf5d3adf05858e50\",\"returnType\":\"string\",\"returned\":\"surface=ReadinessIcon hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=3\\nfaction=USSR commandSlot=1 commander=1 ready=1\\nfaction=US commandSlot=9 commander=-1 ready=0\\nlocalPlayer=1 pending=0 error=\",\"elapsedMs\":6,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"rb9af6525ef3648bcbf5d3adf05858e50\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022surface=ReadinessIcon hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=3\\\\nfaction=USSR commandSlot=1 commander=1 ready=1\\\\nfaction=US commandSlot=9 commander=-1 ready=0\\\\nlocalPlayer=1 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 13,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSurface",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "USSR"
+            },
+            {
+              "type": "string",
+              "value": "ReadinessAccent"
+            },
+            {
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"rf70590ca07004dea8db331c5892fd4b3\",\"receipt\":\"rf70590ca07004dea8db331c5892fd4b3\",\"returnType\":\"string\",\"elapsedMs\":5,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"rf70590ca07004dea8db331c5892fd4b3\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 14,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "rf70590ca07004dea8db331c5892fd4b3"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"rf70590ca07004dea8db331c5892fd4b3\",\"returnType\":\"string\",\"returned\":\"surface=ReadinessAccent hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=4\\nfaction=USSR commandSlot=1 commander=1 ready=0\\nfaction=US commandSlot=9 commander=-1 ready=0\\nlocalPlayer=1 pending=0 error=\",\"elapsedMs\":5,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"rf70590ca07004dea8db331c5892fd4b3\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022surface=ReadinessAccent hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=4\\\\nfaction=USSR commandSlot=1 commander=1 ready=0\\\\nfaction=US commandSlot=9 commander=-1 ready=0\\\\nlocalPlayer=1 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 15,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSurface",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "USSR"
+            },
+            {
+              "type": "string",
+              "value": "ReadinessBackground"
+            },
+            {
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r83a3e1c6b8c14886a8dfeb408ce0b31d\",\"receipt\":\"r83a3e1c6b8c14886a8dfeb408ce0b31d\",\"returnType\":\"string\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r83a3e1c6b8c14886a8dfeb408ce0b31d\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 16,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r83a3e1c6b8c14886a8dfeb408ce0b31d"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r83a3e1c6b8c14886a8dfeb408ce0b31d\",\"returnType\":\"string\",\"returned\":\"surface=ReadinessBackground hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=5\\nfaction=USSR commandSlot=1 commander=1 ready=1\\nfaction=US commandSlot=9 commander=-1 ready=0\\nlocalPlayer=1 pending=0 error=\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r83a3e1c6b8c14886a8dfeb408ce0b31d\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022surface=ReadinessBackground hit=ReadinessAction_USSR enabled=1 dispatched native click; phase=BRIEFING revision=5\\\\nfaction=USSR commandSlot=1 commander=1 ready=1\\\\nfaction=US commandSlot=9 commander=-1 ready=0\\\\nlocalPlayer=1 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 17,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSurface",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "US"
+            },
+            {
+              "type": "string",
+              "value": "ReadinessCommander"
+            },
+            {
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r3471d09e77e14d9eb1fe967585424078\",\"receipt\":\"r3471d09e77e14d9eb1fe967585424078\",\"returnType\":\"string\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r3471d09e77e14d9eb1fe967585424078\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 18,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r3471d09e77e14d9eb1fe967585424078"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r3471d09e77e14d9eb1fe967585424078\",\"returnType\":\"string\",\"returned\":\"surface=ReadinessCommander hit=MapFrame enabled=0 no activation\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r3471d09e77e14d9eb1fe967585424078\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSurface\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022surface=ReadinessCommander hit=MapFrame enabled=0 no activation\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 19,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSnapshot",
+          "arguments": [],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r0e0abdb38e5d49d98e2882a8ffd1f08e\",\"receipt\":\"r0e0abdb38e5d49d98e2882a8ffd1f08e\",\"returnType\":\"string\",\"elapsedMs\":4,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r0e0abdb38e5d49d98e2882a8ffd1f08e\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSnapshot\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 20,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r0e0abdb38e5d49d98e2882a8ffd1f08e"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r0e0abdb38e5d49d98e2882a8ffd1f08e\",\"returnType\":\"string\",\"returned\":\"phase=BRIEFING revision=5\\nfaction=USSR commandSlot=1 commander=1 ready=1\\nfaction=US commandSlot=9 commander=-1 ready=0\\nlocalPlayer=1 pending=0 error=\",\"elapsedMs\":5,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r0e0abdb38e5d49d98e2882a8ffd1f08e\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSnapshot\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022phase=BRIEFING revision=5\\\\nfaction=USSR commandSlot=1 commander=1 ready=1\\\\nfaction=US commandSlot=9 commander=-1 ready=0\\\\nlocalPlayer=1 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 21,
+          "jsonrpc": "2.0"
+        }
+      }
+    ]
+  },
+  {
+    "source": "live-1792827452539916700.json",
+    "records": [
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestPeerReport",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "compact-click"
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r5433d55679344a79a8aea8deda53a5e9\",\"receipt\":\"r5433d55679344a79a8aea8deda53a5e9\",\"returnType\":\"string\",\"elapsedMs\":14,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r5433d55679344a79a8aea8deda53a5e9\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerReport\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 2,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r5433d55679344a79a8aea8deda53a5e9"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r5433d55679344a79a8aea8deda53a5e9\",\"returnType\":\"string\",\"returned\":\"CLIENT-REPORTED surface=ReadinessCommander hit=ReadinessAction_US enabled=1 dispatched native click; phase=BRIEFING revision=17\\nfaction=USSR commandSlot=1 commander=1 ready=1\\nfaction=US commandSlot=9 commander=2 ready=0\\nlocalPlayer=2 pending=1 error=\",\"elapsedMs\":8,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r5433d55679344a79a8aea8deda53a5e9\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerReport\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022CLIENT-REPORTED surface=ReadinessCommander hit=ReadinessAction_US enabled=1 dispatched native click; phase=BRIEFING revision=17\\\\nfaction=USSR commandSlot=1 commander=1 ready=1\\\\nfaction=US commandSlot=9 commander=2 ready=0\\\\nlocalPlayer=2 pending=1 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 3,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestReadinessSnapshot",
+          "arguments": [],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r55aeb1a5e578465186a6d7ce0a8ddaf2\",\"receipt\":\"r55aeb1a5e578465186a6d7ce0a8ddaf2\",\"returnType\":\"string\",\"elapsedMs\":7,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r55aeb1a5e578465186a6d7ce0a8ddaf2\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSnapshot\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 4,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r55aeb1a5e578465186a6d7ce0a8ddaf2"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r55aeb1a5e578465186a6d7ce0a8ddaf2\",\"returnType\":\"string\",\"returned\":\"phase=BRIEFING revision=18\\nfaction=USSR commandSlot=1 commander=1 ready=1\\nfaction=US commandSlot=9 commander=2 ready=1\\nlocalPlayer=1 pending=0 error=\",\"elapsedMs\":7,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r55aeb1a5e578465186a6d7ce0a8ddaf2\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestReadinessSnapshot\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022phase=BRIEFING revision=18\\\\nfaction=USSR commandSlot=1 commander=1 ready=1\\\\nfaction=US commandSlot=9 commander=2 ready=1\\\\nlocalPlayer=1 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 5,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestPeerCommand",
+          "arguments": [
+            {
+              "type": "int",
+              "value": 2
+            },
+            {
+              "type": "string",
+              "value": "compact-final"
+            },
+            {
+              "type": "string",
+              "value": "readiness-snapshot"
+            },
+            {
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r01c36b33ebfc4a098ba57fbed8342bfc\",\"receipt\":\"r01c36b33ebfc4a098ba57fbed8342bfc\",\"returnType\":\"string\",\"elapsedMs\":7,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r01c36b33ebfc4a098ba57fbed8342bfc\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerCommand\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 6,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r01c36b33ebfc4a098ba57fbed8342bfc"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r01c36b33ebfc4a098ba57fbed8342bfc\",\"returnType\":\"string\",\"returned\":\"DISPATCHED; read GC_TestPeerReport with the same token\",\"elapsedMs\":6,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r01c36b33ebfc4a098ba57fbed8342bfc\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerCommand\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022DISPATCHED; read GC_TestPeerReport with the same token\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 7,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestPeerCommand",
+          "arguments": [
+            {
+              "type": "int",
+              "value": 2
+            },
+            {
+              "type": "string",
+              "value": "compact-clock"
+            },
+            {
+              "type": "string",
+              "value": "phase-clock"
+            },
+            {
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"r03965b0fd87741c0beb45507a3f8aac1\",\"receipt\":\"r03965b0fd87741c0beb45507a3f8aac1\",\"returnType\":\"string\",\"elapsedMs\":9,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"r03965b0fd87741c0beb45507a3f8aac1\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerCommand\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 8,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "r03965b0fd87741c0beb45507a3f8aac1"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"r03965b0fd87741c0beb45507a3f8aac1\",\"returnType\":\"string\",\"returned\":\"DISPATCHED; read GC_TestPeerReport with the same token\",\"elapsedMs\":6,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r03965b0fd87741c0beb45507a3f8aac1\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerCommand\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022DISPATCHED; read GC_TestPeerReport with the same token\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 9,
+          "jsonrpc": "2.0"
+        }
+      }
+    ]
+  },
+  {
+    "source": "live-1792827469324202200.json",
+    "records": [
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestPeerReport",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "compact-final"
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"rf38592c1c1a042e3b30645f4a9405c3a\",\"receipt\":\"rf38592c1c1a042e3b30645f4a9405c3a\",\"returnType\":\"string\",\"elapsedMs\":23,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"rf38592c1c1a042e3b30645f4a9405c3a\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerReport\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 2,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "rf38592c1c1a042e3b30645f4a9405c3a"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"rf38592c1c1a042e3b30645f4a9405c3a\",\"returnType\":\"string\",\"returned\":\"CLIENT-REPORTED phase=BRIEFING revision=18\\nfaction=USSR commandSlot=1 commander=1 ready=1\\nfaction=US commandSlot=9 commander=2 ready=1\\nlocalPlayer=2 pending=0 error=\",\"elapsedMs\":5,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"rf38592c1c1a042e3b30645f4a9405c3a\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerReport\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022CLIENT-REPORTED phase=BRIEFING revision=18\\\\nfaction=USSR commandSlot=1 commander=1 ready=1\\\\nfaction=US commandSlot=9 commander=2 ready=1\\\\nlocalPlayer=2 pending=0 error=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 3,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_prepare",
+        "args": {
+          "processId": 50092,
+          "entityName": "GameMode_Lobby2",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestPeerReport",
+          "arguments": [
+            {
+              "type": "string",
+              "value": "compact-clock"
+            }
+          ],
+          "returnType": "string"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"prepared\",\"processId\":50092,\"targetToken\":\"rc07f528352dc49e3b56fa80d827ecc1e\",\"receipt\":\"rc07f528352dc49e3b56fa80d827ecc1e\",\"returnType\":\"string\",\"elapsedMs\":6,\"adapter\":{\"protocol\":2,\"state\":\"prepared\",\"token\":\"rc07f528352dc49e3b56fa80d827ecc1e\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerReport\",\"error\":\"\",\"errorLine\":-1,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 4,
+          "jsonrpc": "2.0"
+        }
+      },
+      {
+        "name": "workbench_runtime_invoke",
+        "args": {
+          "targetToken": "rc07f528352dc49e3b56fa80d827ecc1e"
+        },
+        "response": {
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"state\":\"invoked\",\"processId\":50092,\"receipt\":\"rc07f528352dc49e3b56fa80d827ecc1e\",\"returnType\":\"string\",\"returned\":\"CLIENT-REPORTED phase=BRIEFING elapsed=209 visible=1 text=03:29\",\"elapsedMs\":6,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"rc07f528352dc49e3b56fa80d827ecc1e\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"EEC913750B16921C735F16C86CDA3FC2BE77E8B5AE2F0B1E72EA209A7DF4B53A\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestPeerReport\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022CLIENT-REPORTED phase=BRIEFING elapsed=209 visible=1 text=03:29\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+              }
+            ]
+          },
+          "id": 5,
+          "jsonrpc": "2.0"
+        }
+      }
+    ]
+  }
+]

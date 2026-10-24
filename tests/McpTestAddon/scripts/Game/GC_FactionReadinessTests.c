@@ -2,6 +2,42 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	//! Native UI hit test followed by the resolved button's normal click handler.
+	string GC_TestReadinessSurface(string factionKey, string surface, bool activate)
+	{
+		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
+		if (!menu || !menu.GetRootWidget())
+			return "UNAVAILABLE menu";
+		Widget root = menu.GetRootWidget();
+		Widget button = root.FindAnyWidget("ReadinessAction_" + factionKey);
+		if (!button)
+			return "UNAVAILABLE faction tile";
+		Widget target = button;
+		if (!surface.IsEmpty())
+			target = button.GetParent().FindAnyWidget(surface);
+		if (!target)
+			return "UNAVAILABLE tile surface";
+		float x, y, width, height;
+		target.GetScreenPos(x, y);
+		target.GetScreenSize(width, height);
+		int mouseX = x + width * 0.5;
+		int mouseY = y + height * 0.5;
+		WidgetManager.ReportMouse(mouseX, mouseY, root);
+		Widget hit = WidgetManager.GetWidgetUnderCursor();
+		string hitName = "none";
+		if (hit)
+			hitName = hit.GetName();
+		string result = string.Format("surface=%1 hit=%2 enabled=%3", surface, hitName, button.IsEnabled());
+		if (!activate || hit != button || !button.IsEnabled())
+			return result + " no activation";
+		SCR_ButtonBaseComponent component = SCR_ButtonBaseComponent.Cast(button.FindHandler(SCR_ButtonBaseComponent));
+		if (!component)
+			return result + " UNAVAILABLE native handler";
+		component.OnClick(hit, mouseX, mouseY, 0);
+		return result + " dispatched native click; " + GC_TestReadinessSnapshot();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Presentation-only fixture; does not rename a player or change readiness.
 	string GC_TestReadinessLongName()
 	{

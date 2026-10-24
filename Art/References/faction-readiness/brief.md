@@ -1,4 +1,16 @@
-## Briefing timer addition — 2026-10-24
+## Whole-tile activation - 2026-10-24
+
+The user's supplied screenshot supersedes the unboxed experiment: retain the
+original translucent background, faction-colored left bar, faction name,
+readiness icon and CO name. No Ready/Not ready words or separate action button.
+Make the entire tile one native button, enabled only for its own CO. Keep the
+existing server-authoritative readiness/revision/JIP implementation. This is a
+hit-area expansion of runtime-icon-toggle.png, with a whole-tile focus border.
+Keep labels and status fully legible for observers; disabled means no activation.
+The user then requested less empty space: reduce height from 132 to 108, tighten
+vertical gaps, and use a 32-unit state icon while preserving text sizes and width.
+
+## Briefing timer addition â€” 2026-10-24
 
 Reuse runtime-icon-toggle.png for the existing screen composition. Add only one
 plain `Briefing 00:00` text readout in the top-right header, immediately left of
@@ -9,14 +21,14 @@ and all clients subtract that timestamp from the engine's synchronized clock.
 Acceptance: starts at phase entry, advances, survives menu reopen, matches remote
 and late-joining clients within sampling tolerance, and disappears on phase exit.
 
-## Icon-only revision — 2026-10-24
+## Icon-only revision â€” 2026-10-24
 
 The user requested faction name, readiness icon and CO only. Reuse concept-v1
 for placement/theme; this narrow revision removes the state words and separate
 Mark ready button, moves activation onto the icon, and reduces tile height.
 The icon stays visible for everyone; only the local CO can activate it. Pending
 requests disable activation until the server responds. Error feedback remains
-conditional. Native hover/focus styling applies to the icon's 48×48 hit area.
+conditional. Native hover/focus styling applies to the icon's 48Ã—48 hit area.
 `runtime-icon-toggle.png` is the current rendered reference. Earlier captures and
 the element table below document the superseded initial design.
 
@@ -43,3 +55,9 @@ Concept critique: compact clear status and explicit outcome action. Implementati
 Prompt: Edit actual Lobby2 MCP screenshot, preserve existing geometry and theme, select Briefing, add compact bottom-center US not-ready and USSR ready tiles with faction accents, check/status symbols, gold-focused Mark ready action and commander caption; no dashboards or extra features. Full prompt is in this chat's image-generation tool call.
 
 Acceptance: a single designated top slot per faction; empty top slot never promotes a lower occupant; only currently connected occupying CO in BRIEFING can mutate own faction; server rejects stale/non-CO/wrong-phase requests; departure clears prior acknowledgement; states replicate including JIP; repeated open/close has no duplicate listeners; native click reaches production RPC; screenshots match compact bottom-center concept with readable captions and unobscured side panels. Missing multiplayer/input coverage remains a limitation.
+
+## Compact whole-tile validation (2026-10-24)
+
+Final height 108 (was 132), width 220, icon 32, text sizes unchanged. Dark background and faction accent retained. Native hit testing covered faction name, CO name, icon, accent and background; opposing-faction activation remained disabled. Remote CO-name activation changed server readiness from revision 17 to 18, then the remote snapshot confirmed ready=1 with no pending request. A late join retained existing faction readiness.
+
+[Receipts](compact-runtime-evidence.json), [1280x720 peer](compact-peer-1280.png), [two-line CO fixture](compact-long-name.png). Independent review approved source, geometry and evidence. Physical mouse input and keyboard/gamepad traversal were not exercised; tests use native widget hit testing and the production button handler.
