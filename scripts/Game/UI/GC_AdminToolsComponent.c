@@ -130,7 +130,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("ToolTeleport", "Teleport");
 		Bind("ToolMessage", "Send message");
 		Bind("ToolReservations", "Slot reservations");
-		Bind("ToolMapPlans", "Map plans");
+		Bind("ToolMapPlans", "Markers");
 		m_MapPlans = GC_AdminMapPlansComponent.Cast(w.FindAnyWidget("MapPlanPanel").FindHandler(GC_AdminMapPlansComponent));
 		m_Reservations = GC_AdminReservationsComponent.Cast(w.FindAnyWidget("ReservationPanel").FindHandler(GC_AdminReservationsComponent));
 		Bind("ToolModeration", "Kick / Ban");

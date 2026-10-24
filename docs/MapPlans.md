@@ -1,6 +1,6 @@
-# Map plans
+# Markers
 
-Admins open **Admin tools > Map plans** and enter a plan name.
+Admins open **Admin tools > Markers** and enter a plan name.
 
 - **Save** exports the whole mission's shared player markers and supported drawings to the admin computer. Confirm before overwriting a file. Saving remains available during gameplay.
 - **Load** replaces the shared map with that named plan, after confirmation.
