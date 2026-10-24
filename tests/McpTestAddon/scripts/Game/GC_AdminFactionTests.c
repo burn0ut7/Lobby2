@@ -5,6 +5,12 @@ modded class GC_LobbyManager
 	string GC_TestFactionQuotas()
 	{
 		array<int> quotas;
+		GC_FactionBalancePolicy.Calculate({10, 30}, 20, quotas);
+		if (quotas[0] != 5 || quotas[1] != 15)
+			return "FAIL 1:3 ratio with twenty players";
+		GC_FactionBalancePolicy.Calculate({10, 30}, 0, quotas);
+		if (quotas[0] != 0 || quotas[1] != 0)
+			return "FAIL zero-player quota";
 		GC_FactionBalancePolicy.Calculate({10, 32}, 1, quotas);
 		if (quotas[0] != 0 || quotas[1] != 1)
 			return "FAIL 10:32 one-player quota";
@@ -18,6 +24,40 @@ modded class GC_LobbyManager
 		if (quotas[0] != 0 || quotas[1] != 0)
 			return "FAIL empty capacity";
 		return "PASS proportional quotas, deterministic ties and empty capacities";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Real requester authorization; does not grant a role or bypass the production handler.
+	string GC_TestRatioReject(int requesterId)
+	{
+		if (!Replication.IsServer() || SCR_Global.IsAdmin(requesterId))
+			return "UNAVAILABLE authority and logged-out requester required";
+		int revision = GetFactionRulesRevision();
+		int lockMode = GetFactionLockOverride();
+		bool balance = IsFactionBalanceEnforced();
+		GC_TestSlotAccessRemember();
+		string outcome = ExecuteAdminFactionRules(requesterId, revision, lockMode, !balance);
+		if (outcome != "rejected-not-logged-in" || revision != GetFactionRulesRevision()
+			|| lockMode != GetFactionLockOverride() || balance != IsFactionBalanceEnforced())
+			return "FAIL ratio rejection mutated rules";
+		return GC_TestSlotAccessCheck("unchanged", false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Inspect actual widgets; use GC_TestClick for the production button handler.
+	string GC_TestRatioUI()
+	{
+		Widget root = GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE lobby menu";
+		Widget ratio = root.FindAnyWidget("FactionRatioButton");
+		Widget locks = root.FindAnyWidget("AllSlotLocksButton");
+		TextWidget status = TextWidget.Cast(root.FindAnyWidget("AllSlotLocksStatus"));
+		if (!ratio || !locks || !status)
+			return "UNAVAILABLE lobby controls";
+		return string.Format("ratioVisible=%1 ratioEnabled=%2 lockVisible=%3 lockEnabled=%4 ratioOn=%5 revision=%6 status=%7",
+			GC_TestVisible(ratio), ratio.IsEnabled(), GC_TestVisible(locks), locks.IsEnabled(),
+			IsFactionBalanceEnforced(), GetFactionRulesRevision(), status.GetText());
 	}
 
 	//------------------------------------------------------------------------------------------------

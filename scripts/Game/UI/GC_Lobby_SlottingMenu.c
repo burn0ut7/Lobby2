@@ -142,6 +142,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 		CancelPendingLoadoutRestore();
 		CancelPendingGroupScrollReset();
+		GetGame().GetCallqueue().Remove(RefreshBalanceInteraction);
 
         if (m_PlayerRenderAttributes)
             m_PlayerRenderAttributes.ResetDeltaRotation();
@@ -363,6 +364,16 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	{
 		if (!m_LobbyManager || !m_LobbyManager.IsFactionBalanceEnforced())
 			return;
+		// Disconnect events can precede native membership cleanup. Re-query next tick.
+		GetGame().GetCallqueue().Remove(RefreshBalanceInteraction);
+		GetGame().GetCallqueue().CallLater(RefreshBalanceInteraction, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshBalanceInteraction()
+	{
+		if (!m_LobbyManager || m_LobbyManager != GC_LobbyManager.GetManager())
+			return;
 		foreach (Widget card : m_aGroupCards)
 		{
 			GC_GroupWidgetComponent group = GC_GroupWidgetComponent.Cast(card.FindHandler(GC_GroupWidgetComponent));
@@ -374,7 +385,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 	protected void OnFactionRulesChanged(int revision)
 	{
 		ApplyFactionLock();
-		RefreshGroupWidget();
+		RefreshBalanceInteraction();
 	}
 
 	protected void ApplyFactionLock()
@@ -396,6 +407,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 	protected void OnLobbyFactionUpdated(Faction faction)
 	{
+		// Slot capacity on another side also changes this side's proportional quota.
+		OnBalancePopulationChanged(-1);
 		if (m_SelectedFactionKey.IsEmpty())
 			SelectLocalPlayerFaction();
 

@@ -18,6 +18,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	ref ScriptInvoker<int, string, string, string> m_OnSlotReservationResult = new ScriptInvoker<int, string, string, string>();
 	ref ScriptInvoker<int, string> m_OnAdminGroupLockResult = new ScriptInvoker<int, string>();
+	ref ScriptInvoker<int, string> m_OnAdminFactionRulesResult = new ScriptInvoker<int, string>();
 
 	//! The eight-argument RPC ceiling leaves one integer for both sight indexes.
 	//! Each index is offset by one so zero represents the no-sight/no-zoom state.
@@ -640,12 +641,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void RequestAdminFactionRules(int expectedRevision, int lockOverride, bool enforceBalance)
+	void RequestAdminFactionRules(int expectedRevision, int lockOverride, bool enforceBalance, int requestId = -1)
 	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
 		{
-			m_iAdminActionRequestId++;
-			Rpc(RpcAsk_AdminFactionRules, expectedRevision, lockOverride, enforceBalance, m_iAdminActionRequestId);
+			if (requestId < 0)
+				requestId = ReserveAdminPlayerToolRequest();
+			Rpc(RpcAsk_AdminFactionRules, expectedRevision, lockOverride, enforceBalance, requestId);
 		}
 	}
 
@@ -703,10 +705,23 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected void RpcAsk_AdminFactionRules(int expectedRevision, int lockOverride, bool enforceBalance, int requestId)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string outcome = "rejected-inactive-mode";
 		if (manager)
-			SendAdminActionResult(manager.ExecuteAdminFactionRules(GetPlayerId(), expectedRevision, lockOverride, enforceBalance), requestId);
+			outcome = manager.ExecuteAdminFactionRules(GetPlayerId(), expectedRevision, lockOverride, enforceBalance);
 		else
 			GC_AdminActionLogger.Log(GetPlayerId(), "faction-rules", "", "rejected-inactive-mode");
+		// A permission rejection must also resolve the requesting UI's pending state.
+		Rpc(RpcDo_AdminFactionRulesResult, requestId, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminFactionRulesResult(int requestId, string outcome)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return;
+		m_OnAdminFactionRulesResult.Invoke(requestId, outcome);
+		m_OnAdminActionResult.Invoke(outcome);
 	}
 
 	//------------------------------------------------------------------------------------------------

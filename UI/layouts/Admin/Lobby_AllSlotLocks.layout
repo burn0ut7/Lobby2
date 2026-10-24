@@ -19,12 +19,49 @@ SizeLayoutWidgetClass {
     }
     TextWidgetClass {
      Name "AllSlotLocksStatus"
-     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 95 OffsetTop 0 OffsetRight 56 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 95 OffsetTop 0 OffsetRight 110 OffsetBottom 0 }
      Text ""
      "Font Size" 18
      Wrap 1
      "Vertical Alignment" Center
      "Ignore Cursor" 1
+    }
+    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+     Name "FactionRatioButton"
+     Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -102 OffsetTop 0 OffsetRight 54 OffsetBottom -48 }
+     "Is Visible" 0
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_sText ""
+       m_bCanBeToggled 0
+       m_bShowBorderOnFocus 1
+      }
+     }
+     {
+      SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+       Prefab "{7C41F8A018B24C01}"
+       HeightOverride 48
+       {
+        OverlayWidgetClass "{7C41F8A018B24C02}" {
+         Prefab "{7C41F8A018B24C02}"
+         {
+          TextWidgetClass "{7C41F8A018B24C05}" {
+           Prefab "{7C41F8A018B24C05}"
+           "Is Visible" 0
+          }
+          ImageWidgetClass {
+           Name "FactionRatioImage"
+           Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
+           "Ignore Cursor" 1
+           Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+           Image "lawsOfWar"
+           Size 40 40
+          }
+         }
+        }
+       }
+      }
+     }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "AllSlotLocksButton"
