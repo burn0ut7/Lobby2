@@ -323,7 +323,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			group = m_Slot.GetGroup();
 		if (manager && group && group.GetFaction() && manager.GetFactionCommanderSlot(group.GetFaction().GetFactionKey()) == m_Slot)
 		{
-			roleIcon.LoadImageFromSet(0, "{70E828A2F6EBE7D0}UI/Textures/Nametags/nametagicons.imageset", "AR_SquadLeader");
+			roleIcon.LoadImageFromSet(0, "{EE0B4CDEA86FC24A}UI/Textures/DeployMenu/LoadoutIcons/LoadoutIcons.imageset", "EditableEntity_Character_SquadLeaderALT");
 			roleIcon.SetOpacity(1);
 		}
 		else if (roleInfo && roleInfo.SetIconTo(roleIcon))
