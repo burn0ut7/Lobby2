@@ -13,11 +13,12 @@ No new screen, panel, control or generated asset.
 | Empty available row | See an open role | Slot | No status icon |
 
 Stock icons in {2EFEA2AF1F38E7F0}icons_wrapperUI-64.imageset: server-locked,
-death (skull), time (reservation/held), disconnection, player. White silhouettes,
-existing player-name colors, no new color-only distinction. Existing role hover,
+death (skull), linked (reservation/held), disconnection, player. Lottery uses time.
+White silhouettes; absent player names use RGB 170 gray, with the distinct icons
+preserving the state meaning. Present player names retain normal/admin colors. Existing role hover,
 context menu and click rules retain their existing handlers. Each row has at most
-one status icon. Priority: KIA skull, connected player, initial reservation clock,
-disconnected symbol, unoccupied reserved clock, empty-slot admin padlock.
+one status icon. Priority: KIA skull, connected player, initial reservation links,
+disconnected symbol, unoccupied reserved links, empty-slot admin padlock.
 Only FREE slots without a player, identity claim or pending reservation are
 lockable. Both single-slot and bulk actions enforce this on the server. Claim and
 lifecycle transitions discard the empty slot lock before publishing changes.

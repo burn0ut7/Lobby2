@@ -75,3 +75,31 @@ Full call receipts: ../faction-ratio/runtime/runtime-results.json. Source review
 and git diff --check are separate from runtime checks. Gallery does not verify
 real death/disconnect/reservation transitions or multiplayer replication. Physical
 keyboard/controller, alternate UI scales and long-name coverage remain untested.
+
+
+## Presence treatment — 2026-10-24
+
+Reservation icons now use the stock `linked` image (held for an identity).
+Lottery retains `time`; disconnected retains its broken link and KIA its skull.
+Names for absent claims use RGB 170 gray; role labels and icons stay legible.
+Presence overrides admin highlighting in both initial binding and name refresh.
+No layout, input, assignment or replication rules changed.
+
+MCP native reload succeeded (response 29). In the optional test addon's detached
+status gallery, reserved, KIA and disconnected names all returned packed color
+-5592406; a present admin returned -15296. Responses 41 and 43 match before/after
+explicit admin-name refresh. Restoring canonical bindings and starting a real
+lottery returned white `Lottery open` (-1, response 51), confirming reset.
+`runtime-presence.png` and `runtime-presence-lottery.png` are original MCP captures
+of the 3840x2160 Workbench window resized by capture to 1920x1080. Existing
+`runtime-empty-only-gallery.png` is the prior appearance reference. Gray names
+remain readable and icons distinguish the absent states without relying on color.
+
+`presence-results.json` records selected returns. Full receipts/logs are local in
+reforger-script-tools/.temp/local/evidence/slot-presence. Log response 53 correlates
+the successful calls; the fixture's pre-existing missing-map diagnostic remains.
+Stock atlas provenance: game/data/data010.pak, revision
+9b2fea665c0943b9bcf87ec2891bc011. Source formatting/diff checks passed.
+This is presentation-gallery coverage, not a new test of death/disconnect or
+reservation authority. Constrained viewport, physical input and a remote peer were
+not rerun for this local rendering change.

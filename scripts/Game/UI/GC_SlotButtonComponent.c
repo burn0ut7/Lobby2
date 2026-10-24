@@ -218,11 +218,11 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			else if (m_Slot.GetPlayerId() >= 0)
 				statusImage = "player";
 			else if (m_Slot.IsAwaitingInitialJoin())
-				statusImage = "time";
+				statusImage = "linked";
 			else if (m_Slot.GetState() == GC_SlotState.DISCONNECTED)
 				statusImage = "disconnection";
 			else if (m_Slot.GetState() == GC_SlotState.RESERVED)
-				statusImage = "time";
+				statusImage = "linked";
 			else if (m_Slot.CanAdminLock() && m_Slot.IsAdminLocked())
 				statusImage = "server-locked";
 
@@ -254,21 +254,31 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		{
 			statusText.SetText(playerName);
 			statusText.SetVisible(!playerName.IsEmpty());
-			int playerId = -1;
-			if (m_Slot && !m_Slot.IsAwaitingInitialJoin())
-				playerId = m_Slot.GetPlayerId();
-			GC_PlayerNamePresentation.Apply(statusText, playerId);
+			RefreshAdminNamePresentation();
 		}
 	}
 
+	//------------------------------------------------------------------------------------------------
 	void RefreshAdminNamePresentation()
 	{
-		if (!m_wRoot || !m_Slot)
+		if (!m_wRoot)
 			return;
 
 		TextWidget statusText = TextWidget.Cast(m_wRoot.FindAnyWidget("StatusText"));
-		if (statusText)
-			GC_PlayerNamePresentation.Apply(statusText, m_Slot.GetPlayerId());
+		if (!statusText)
+			return;
+
+		int playerId = -1;
+		if (m_Slot)
+			playerId = m_Slot.GetPlayerId();
+		bool absent = m_Slot && (m_Slot.IsKIA() || m_Slot.IsAwaitingInitialJoin()
+			|| m_Slot.GetState() == GC_SlotState.DISCONNECTED
+			|| (m_Slot.GetState() == GC_SlotState.RESERVED && playerId <= 0));
+		// Presence takes priority over admin highlighting, including role refreshes.
+		if (absent)
+			statusText.SetColor(Color.FromRGBA(170, 170, 170, 255));
+		else
+			GC_PlayerNamePresentation.Apply(statusText, playerId);
 	}
 
 	protected void UpdateFactionAccent(ImageWidget accent)

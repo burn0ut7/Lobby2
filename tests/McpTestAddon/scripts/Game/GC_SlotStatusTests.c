@@ -66,7 +66,7 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestSlotStatusSnapshot()
+	string GC_TestSlotStatusSnapshot(bool refreshNames = false)
 	{
 		array<Widget> widgets = {};
 		GC_TestCollect(GC_TestMenuRoot(), widgets);
@@ -77,10 +77,12 @@ modded class GC_LobbyManager
 			if (!button || !button.GetSlot())
 				continue;
 			GC_Slot slot = button.GetSlot();
+			if (refreshNames)
+				button.RefreshAdminNamePresentation();
 			TextWidget label = TextWidget.Cast(widget.FindAnyWidget("StatusText"));
-			result += string.Format("slot=%1 state=%2 adminLock=%3 icon=%4 nameVisible=%5 text='%6'\n",
+			result += string.Format("slot=%1 state=%2 adminLock=%3 icon=%4 nameVisible=%5 text='%6' color=%7\n",
 				slot.GetID(), slot.GetState(), slot.IsAdminLocked(), GC_TestVisible(widget.FindAnyWidget("StatusIcon")),
-				GC_TestVisible(label), label.GetText());
+				GC_TestVisible(label), label.GetText(), label.GetColor().PackToInt());
 		}
 		return result;
 	}

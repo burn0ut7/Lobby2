@@ -1,0 +1,56 @@
+[
+  {
+    "response": 29,
+    "state": "reloaded",
+    "elapsedMs": 2270
+  },
+  {
+    "response": 37,
+    "state": "invoked",
+    "receipt": "rd1ca0b4fa39b42be9cb200267d9f764f",
+    "returned": "DISPATCHED production phase request",
+    "elapsedMs": 26
+  },
+  {
+    "response": 39,
+    "state": "invoked",
+    "receipt": "rfe535a18643845a08fd2d97fb12aa207",
+    "returned": "presentationOnly=1 restored=0 rows=8",
+    "elapsedMs": 3
+  },
+  {
+    "response": 41,
+    "state": "invoked",
+    "receipt": "r74967f34c5a049faa3889133118d0694",
+    "returned": "slot=1 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=2 state=2 adminLock=0 icon=1 nameVisible=0 text='' color=-5592406\nslot=3 state=4 adminLock=0 icon=1 nameVisible=1 text='Reserved Player' color=-5592406\nslot=4 state=4 adminLock=0 icon=1 nameVisible=1 text='Reserved Player' color=-5592406\nslot=5 state=2 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7' color=-5592406\nslot=6 state=3 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7' color=-5592406\nslot=7 state=0 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7' color=-15296\nslot=8 state=0 adminLock=0 icon=0 nameVisible=0 text='' color=-1\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 43,
+    "state": "invoked",
+    "receipt": "r9f3900d4311843aab8d44c1f5b512b88",
+    "returned": "slot=1 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=2 state=2 adminLock=0 icon=1 nameVisible=0 text='' color=-5592406\nslot=3 state=4 adminLock=0 icon=1 nameVisible=1 text='Reserved Player' color=-5592406\nslot=4 state=4 adminLock=0 icon=1 nameVisible=1 text='Reserved Player' color=-5592406\nslot=5 state=2 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7' color=-5592406\nslot=6 state=3 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7' color=-5592406\nslot=7 state=0 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7' color=-15296\nslot=8 state=0 adminLock=0 icon=0 nameVisible=0 text='' color=-1\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\n",
+    "elapsedMs": 2
+  },
+  {
+    "response": 47,
+    "state": "invoked",
+    "receipt": "rb8a9bf7cf42e472abf04a10836a27d8a",
+    "returned": "presentationOnly=1 restored=1 rows=0",
+    "elapsedMs": 2
+  },
+  {
+    "response": 49,
+    "state": "invoked",
+    "receipt": "r4720ecf89df24b69bbb6b58cd3a35bda",
+    "returned": "available=1 dispatched=1",
+    "elapsedMs": 4
+  },
+  {
+    "response": 51,
+    "state": "invoked",
+    "receipt": "rf38ccafbf8324126846fa29e1f65b1f2",
+    "returned": "slot=1 state=0 adminLock=1 icon=1 nameVisible=1 text='Lottery open' color=-1\nslot=2 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=3 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=4 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=5 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=6 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=7 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=8 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text='' color=-1\n",
+    "elapsedMs": 2
+  }
+]
