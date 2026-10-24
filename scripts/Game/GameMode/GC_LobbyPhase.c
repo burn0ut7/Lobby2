@@ -10,6 +10,14 @@ modded enum SCR_EGameModeState
 //! Encodes Lobby2's legal ordering without storing a second phase value.
 class GC_LobbyPhase
 {
+	//------------------------------------------------------------------------------------------------
+	//! Re-query the active mode so shared marker hooks also work across mode changes.
+	static bool ArePlayerMapMarkersLocked()
+	{
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		return gameMode && IsAtOrAfter(gameMode.GetState(), SCR_EGameModeState.GAME);
+	}
+
 	static SCR_EGameModeState GetNext(SCR_EGameModeState phase)
 	{
 		switch (phase)
