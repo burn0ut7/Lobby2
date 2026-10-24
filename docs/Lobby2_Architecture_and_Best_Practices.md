@@ -390,7 +390,7 @@ The Lobby2 prefab replaces the inherited reconnect component using its existing 
 
 Disconnects preserve UUID, cached name, slot, and entity until `m_iSlotReservationTimeoutSeconds` (default `120`; `0` releases immediately). A connected claim without a persistent UUID is released on disconnect because it cannot form a reconnect reservation. Before `GAME`, expiry clears claimant identity and deletes any staged slot entity; during `GAME` or `POSTGAME`, expiry clears the claim but preserves the slot entity as a match record. Non-slot lobby spectators are deleted on expiry, KIA slots remain unavailable, and shutdown is owned by world teardown without creating reconnect reservations.
 
-Admin preassignments use the same slot claim with a replicated `IsAwaitingInitialJoin` flag. They have no reconnect deadline until the player first joins. Catch-up consumes that flag through the canonical assignment path, updates native faction/group membership, and preserves KIA state. The assignment is not pinned; normal phase rules govern subsequent changes. A connected target uses the existing admin assignment path. Reserving a UID already held by the same slot does not extend a reconnect deadline.
+Admin preassignments use the same slot claim with a replicated `IsAwaitingInitialJoin` flag. They have no reconnect deadline until the player first joins. Catch-up consumes that flag through the canonical assignment path, updates native faction/group membership, and preserves KIA state. Normal phase rules govern subsequent changes. A connected target uses the existing admin assignment path. Reserving a UID already held by the same slot does not extend a reconnect deadline.
 
 The existing slotting screen is the sole manual slot selector: its admin context action opens `GC_SlotReservationMenu` for that exact slot. Admin Tools provides only roster import/export. `ExecuteSlotReservation` authenticates the current requester, validates the phase and claimant snapshot, and uses the central admin logger. Mutations are available before `GAME`; export remains available afterward. Replies carry the server's resulting claim so a later action does not depend on reply/slot-replication ordering.
 
@@ -403,7 +403,7 @@ base-game faction is the faction lock: later slot requests may target only that
 faction. Clicking one's occupied slot releases the claim even while factions are
 locked; native group membership is retained so the next selection remains on
 the same side. During `GAME`, the player must enter spectator state before the
-claim is released. Admin-pinned and KIA claims cannot be released or switched
+claim is released. KIA claims cannot be released or switched
 through self-service. A player
 who reaches `BRIEFING` without a slot may make one initial selection, which
 establishes the lock. KIA claims cannot switch slots. Entering `BRIEFING` stages
@@ -415,7 +415,7 @@ lock**. This context action grants a mission-local permission exception for that
 identity, preserving the current slot, group and faction. The exception survives
 reconnection and is included in faction-rule broadcasts and JIP snapshots; it ends
 with world teardown. The action disappears for unlocked players. Normal slot,
-KIA, assignment-pin and faction-balance checks still apply. The owning controller
+KIA and faction-balance checks still apply. The owning controller
 routes the request to server authorization, stale-identity checks and central
 admin logging. No separate Admin Tools page is added.
 

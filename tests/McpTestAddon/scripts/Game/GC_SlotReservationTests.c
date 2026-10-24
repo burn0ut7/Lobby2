@@ -54,9 +54,9 @@ modded class GC_LobbyManager
 				faction = slot.GetGroup().GetFaction().GetFactionKey();
 			if (slot.GetPlayerId() > 0 && GetPlayerGroup(slot.GetPlayerId()))
 				nativeGroup = GetPlayerGroup(slot.GetPlayerId()).GetGroupID();
-			result += string.Format("slot=%1 uid=%2 player=%3 initial=%4 state=%5 pinned=%6 name=%7 faction=%8 nativeGroup=%9\n",
+			result += string.Format("slot=%1 uid=%2 player=%3 initial=%4 state=%5 name=%6 faction=%7 nativeGroup=%8\n",
 				slot.GetID(), slot.GetUUID(), slot.GetPlayerId(), slot.IsAwaitingInitialJoin(), slot.GetState(),
-				slot.IsAssignmentPinned(), slot.GetCachedPlayerName(), faction, nativeGroup);
+				slot.GetCachedPlayerName(), faction, nativeGroup);
 		}
 		Widget menu = GC_TestMenuRoot();
 		if (menu)

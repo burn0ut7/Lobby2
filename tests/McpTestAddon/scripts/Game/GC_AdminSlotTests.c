@@ -234,7 +234,7 @@ modded class GC_LobbyManager
 		int playerId = -1;
 		if (controller)
 			playerId = controller.GetPlayerId();
-		return string.Format("slot=%1 player=%2 state=%3 locked=%4 pinned=%5 selectable=%6 entity=%7", slotId, slot.GetPlayerId(), slot.GetState(), slot.IsAdminLocked(), slot.IsAssignmentPinned(), CanPlayerRequestSlot(playerId, slot), slot.GetEntityRplId());
+		return string.Format("slot=%1 player=%2 state=%3 locked=%4 selectable=%5 entity=%6", slotId, slot.GetPlayerId(), slot.GetState(), slot.IsAdminLocked(), CanPlayerRequestSlot(playerId, slot), slot.GetEntityRplId());
 	}
 
 	//------------------------------------------------------------------------------------------------

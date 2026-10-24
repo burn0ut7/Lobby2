@@ -300,9 +300,9 @@ modded class GC_LobbyPlayerController
 				return;
 			}
 			SCR_AIGroup group = manager.GetPlayerGroup(GetPlayerId());
-			Rpc(GC_TestRpcPeerReport, token, string.Format("slot=%1 uid=%2 player=%3 initial=%4 name=%5 pinned=%6 nativeGroupMatches=%7",
+			Rpc(GC_TestRpcPeerReport, token, string.Format("slot=%1 uid=%2 player=%3 initial=%4 name=%5 nativeGroupMatches=%6",
 				slot.GetID(), slot.GetUUID(), slot.GetPlayerId(), slot.IsAwaitingInitialJoin(),
-				slot.GetCachedPlayerName(), slot.IsAssignmentPinned(), group && group == slot.GetGroup()));
+				slot.GetCachedPlayerName(), group && group == slot.GetGroup()));
 			return;
 		}
 		if (action != "reservation-attempt" || !slot || m_iGCReservationPeerRequest >= 0)
@@ -333,14 +333,14 @@ modded class GC_LobbyManager
 	protected ref map<string, string> m_GC_PeerReports = new map<string, string>();
 
 	//------------------------------------------------------------------------------------------------
-	//! Compact observation fits the bounded peer report: id, group, lock, pin, player.
+	//! Compact observation fits the bounded peer report: id, group, lock, player.
 	string GC_TestRosterLocks()
 	{
-		string result = string.Format("slots=%1 rows=id,group,locked,pinned,player", GetSlots().Count());
+		string result = string.Format("slots=%1 rows=id,group,locked,player", GetSlots().Count());
 		foreach (GC_Slot slot : GetSlots())
 		{
-			result += string.Format(" | %1,%2,%3,%4,%5", slot.GetID(), slot.GetGroupRplId(),
-				slot.IsAdminLocked(), slot.IsAssignmentPinned(), slot.GetPlayerId());
+			result += string.Format(" | %1,%2,%3,%4", slot.GetID(), slot.GetGroupRplId(),
+				slot.IsAdminLocked(), slot.GetPlayerId());
 		}
 		return result;
 	}

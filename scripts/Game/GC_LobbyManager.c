@@ -2906,10 +2906,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return "slot-lock";
 			case GC_EAdminSlotAction.UNLOCK:
 				return "slot-unlock";
-			case GC_EAdminSlotAction.PIN:
-				return "slot-pin";
-			case GC_EAdminSlotAction.UNPIN:
-				return "slot-unpin";
 			case GC_EAdminSlotAction.FREE:
 				return "slot-free";
 			case GC_EAdminSlotAction.REMOVE:
@@ -2958,14 +2954,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return "applied";
 			case GC_EAdminSlotAction.UNLOCK:
 				slot.SetAdminLocked(false);
-				return "applied";
-			case GC_EAdminSlotAction.PIN:
-				if (!slot.HasClaim())
-					return "rejected-empty-slot";
-				slot.SetAssignmentPinned(true);
-				return "applied";
-			case GC_EAdminSlotAction.UNPIN:
-				slot.SetAssignmentPinned(false);
 				return "applied";
 			case GC_EAdminSlotAction.FREE:
 				if (!ReleaseAdminSlotPlayer(slot))
@@ -4210,7 +4198,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 
 		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
-		if (currentSlot && (currentSlot.IsAssignmentPinned() || currentSlot.IsKIA()))
+		if (currentSlot && currentSlot.IsKIA())
 			return false;
 		if (targetSlot.IsAdminLocked() && targetSlot.GetPlayerId() != playerId)
 			return false;

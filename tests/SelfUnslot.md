@@ -3,7 +3,7 @@
 Clicking your occupied slot releases it during Slotting, Briefing or Game.
 Faction locking restricts the next faction choice, not whether you can release
 your role. Native group membership retains your side while factions are locked.
-Pinned assignments and KIA claims remain unavailable for self-service changes.
+KIA claims remain unavailable for self-service changes.
 
 ## MCP regression procedure
 
@@ -22,7 +22,7 @@ ends on the original slot after success; a failure stops without cleanup/replay.
 
 Also test the actual slot button on a connected client: click its occupied slot,
 observe the empty role and retained faction, select another available role on the
-same side, and verify the server and other client agree. Check pinned and KIA
+same side, and verify the server and other client agree. Check KIA
 claims remain unchanged, occupied/locked targets reject selection, and unlocked
 Slotting still permits changing sides. During Game, verify unslotting transfers
 control to the spectator before freeing the role, preserves the match entity,

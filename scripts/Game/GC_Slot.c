@@ -33,9 +33,8 @@ class GC_Slot
 
 	//! Current slot state represented by this slot.
 	protected GC_SlotState m_eState = GC_SlotState.FREE;
-	//! Availability and pinning are independent of character/claim lifecycle.
+	//! Availability is independent of character/claim lifecycle.
 	protected bool m_bAdminLocked;
-	protected bool m_bAssignmentPinned;
 	//! Initial admin reservation has no reconnect deadline until its first join.
 	protected bool m_bAwaitingInitialJoin;
 
@@ -119,21 +118,6 @@ class GC_Slot
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool IsAssignmentPinned()
-	{
-		return m_bAssignmentPinned;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	void SetAssignmentPinned(bool value)
-	{
-		if (m_bAssignmentPinned == value)
-			return;
-		m_bAssignmentPinned = value;
-		NotifyChanged();
-	}
-
-	//------------------------------------------------------------------------------------------------
 	bool IsAwaitingInitialJoin()
 	{
 		return m_bAwaitingInitialJoin;
@@ -147,7 +131,6 @@ class GC_Slot
 		m_PlayerUUID = identity;
 		m_sCachedPlayerName = playerName;
 		m_bAwaitingInitialJoin = true;
-		m_bAssignmentPinned = false;
 		m_eState = GC_SlotState.RESERVED;
 		NotifyChanged();
 	}
@@ -443,7 +426,6 @@ class GC_Slot
 		m_PlayerUUID = "";
 		m_bAwaitingInitialJoin = false;
 		m_sCachedPlayerName = "";
-		m_bAssignmentPinned = false;
 		if (m_eState != GC_SlotState.KIA)
 			m_eState = GC_SlotState.FREE;
 		NotifyChanged();
@@ -474,7 +456,6 @@ class GC_Slot
 		m_sCachedPlayerName = source.m_sCachedPlayerName;
 		m_eState = source.m_eState;
 		m_bAdminLocked = source.m_bAdminLocked;
-		m_bAssignmentPinned = source.m_bAssignmentPinned;
 		m_bAwaitingInitialJoin = source.m_bAwaitingInitialJoin;
 
 		m_Prefab = source.m_Prefab;
@@ -512,7 +493,6 @@ class GC_Slot
 		writer.WriteRplId(GetGroupRplId());
 		writer.WriteRplId(GetEntityRplId());
 		writer.WriteBool(m_bAdminLocked);
-		writer.WriteBool(m_bAssignmentPinned);
 		writer.WriteBool(m_bAwaitingInitialJoin);
 
 		return true;
@@ -597,8 +577,6 @@ class GC_Slot
 		ResolveReplicatedEntity();
 		if (!reader.ReadBool(m_bAdminLocked))
 			return false;
-		if (!reader.ReadBool(m_bAssignmentPinned))
-			return false;
 		if (!reader.ReadBool(m_bAwaitingInitialJoin))
 			return false;
 
@@ -630,7 +608,6 @@ class GC_Slot
 		snapshot.SerializeBytes(groupRplId, 4);
 		snapshot.SerializeBytes(entityRplId, 4);
 		snapshot.SerializeBool(instance.m_bAdminLocked);
-		snapshot.SerializeBool(instance.m_bAssignmentPinned);
 		snapshot.SerializeBool(instance.m_bAwaitingInitialJoin);
 
 		return true;
@@ -676,7 +653,6 @@ class GC_Slot
 		instance.m_Entity = null;
 		instance.ResolveReplicatedEntity();
 		snapshot.SerializeBool(instance.m_bAdminLocked);
-		snapshot.SerializeBool(instance.m_bAssignmentPinned);
 		snapshot.SerializeBool(instance.m_bAwaitingInitialJoin);
 
 
@@ -706,7 +682,6 @@ class GC_Slot
 		packet.Serialize(entityRplId, 32);
 		snapshot.EncodeBool(packet);
 		snapshot.EncodeBool(packet);
-		snapshot.EncodeBool(packet);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -732,7 +707,6 @@ class GC_Slot
 		snapshot.SerializeBytes(entityRplId, 4);
 		snapshot.DecodeBool(packet);
 		snapshot.DecodeBool(packet);
-		snapshot.DecodeBool(packet);
 		return true;
 	}
 
@@ -747,7 +721,6 @@ class GC_Slot
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareStringSnapshots(rhs)
 			&& lhs.CompareStringSnapshots(rhs)
-			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4)
 			&& lhs.CompareSnapshots(rhs, 4)
@@ -779,7 +752,6 @@ class GC_Slot
 			&& snapshot.Compare(groupRplId, 4)
 			&& snapshot.Compare(entityRplId, 4)
 			&& snapshot.CompareBool(instance.m_bAdminLocked)
-			&& snapshot.CompareBool(instance.m_bAssignmentPinned)
 			&& snapshot.CompareBool(instance.m_bAwaitingInitialJoin);
 	}
 

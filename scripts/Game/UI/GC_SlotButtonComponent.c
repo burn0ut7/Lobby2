@@ -211,7 +211,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		Widget statusSection = m_wRoot.FindAnyWidget("StatusSection");
 		if (statusSection)
 		{
-			bool showStatus = m_Slot && (m_Slot.GetPlayerId() >= 0 || m_Slot.GetState() != GC_SlotState.FREE || m_Slot.IsAdminLocked() || m_Slot.IsAssignmentPinned());
+			bool showStatus = m_Slot && (m_Slot.GetPlayerId() >= 0 || m_Slot.GetState() != GC_SlotState.FREE || m_Slot.IsAdminLocked());
 			statusSection.SetVisible(showStatus);
 		}
 
@@ -260,8 +260,6 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (statusText && m_Slot)
 		{
 			string label = statusText.GetText();
-			if (m_Slot.IsAssignmentPinned())
-				label += " [Pinned]";
 			if (m_Slot.IsAdminLocked())
 				label += " [Locked]";
 			statusText.SetText(label);

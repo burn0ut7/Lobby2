@@ -1,13 +1,5 @@
 class GC_AdminSlotToggleAction : GC_ContextMenuAction
 {
-	protected bool m_bPin;
-
-	//------------------------------------------------------------------------------------------------
-	void GC_AdminSlotToggleAction(bool pin)
-	{
-		m_bPin = pin;
-	}
-
 	//------------------------------------------------------------------------------------------------
 	override string GetGroupLabel(GC_ContextMenuContext context)
 	{
@@ -28,7 +20,7 @@ class GC_AdminSlotToggleAction : GC_ContextMenuAction
 		GC_Slot slot = context.GetSlot();
 		if (GC_LobbyManager.GetManager().GetSlot(slot.GetID()) != slot || slot.GetUUID() != context.GetPlayerIdentity())
 			return false;
-		return !m_bPin || slot.HasClaim();
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -37,12 +29,6 @@ class GC_AdminSlotToggleAction : GC_ContextMenuAction
 		if (!context || !context.GetSlot())
 			return string.Empty;
 		GC_Slot slot = context.GetSlot();
-		if (m_bPin)
-		{
-			if (slot.IsAssignmentPinned())
-				return "Unpin assignment";
-			return "Pin assignment";
-		}
 		if (slot.IsAdminLocked())
 			return "Unlock slot";
 		return "Lock slot";
@@ -60,12 +46,6 @@ class GC_AdminSlotToggleAction : GC_ContextMenuAction
 		GC_EAdminSlotAction action = GC_EAdminSlotAction.LOCK;
 		if (slot.IsAdminLocked())
 			action = GC_EAdminSlotAction.UNLOCK;
-		if (m_bPin)
-		{
-			action = GC_EAdminSlotAction.PIN;
-			if (slot.IsAssignmentPinned())
-				action = GC_EAdminSlotAction.UNPIN;
-		}
 		controller.RequestAdminSlot(slot.GetID(), context.GetPlayerIdentity(), action);
 	}
 }
