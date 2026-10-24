@@ -17,6 +17,7 @@ class GC_ContextMenuContext
 	protected FactionKey m_FactionKey;
 	protected SCR_AIGroup m_Group;
 	protected GC_Slot m_Slot;
+	protected int m_iLotteryId;
 	protected int m_iPlayerId = -1;
 	protected UUID m_PlayerIdentity;
 	protected string m_sModerationName;
@@ -71,6 +72,13 @@ class GC_ContextMenuContext
 		GC_ContextMenuContext context = new GC_ContextMenuContext();
 		context.m_eTargetType = GC_EContextTargetType.SLOT;
 		context.m_Slot = slot;
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+		{
+			GC_SlotLottery lottery = manager.GetLotteryForSlot(slot.GetID());
+			if (lottery)
+				context.m_iLotteryId = lottery.m_iId;
+		}
 		context.m_iPlayerId = slot.GetPlayerId();
 		context.m_PlayerIdentity = slot.GetUUID();
 		context.CaptureRequester();
@@ -171,6 +179,13 @@ class GC_ContextMenuContext
 		return m_Group;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	int GetLotteryId()
+	{
+		return m_iLotteryId;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	GC_Slot GetSlot()
 	{
 		return m_Slot;
@@ -382,6 +397,8 @@ class GC_ContextMenuActionRegistry
 			return;
 
 		s_aActions = {};
+		s_aActions.Insert(new GC_SlotLotteryAction(false));
+		s_aActions.Insert(new GC_SlotLotteryAction(true));
 		s_aActions.Insert(new GC_JoinGroupVoiceAction());
 		s_aActions.Insert(new GC_AdminCopyPlayerDetailsAction());
 		s_aActions.Insert(new GC_AdminRemoveBanAction());

@@ -60,6 +60,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref map<int, float> m_mPriorityVoiceExpiry = new map<int, float>();
 	protected ref map<int, float> m_mAdminMessageTimes = new map<int, float>();
 	protected int m_iAdminMessageSequence;
+	protected ref array<ref GC_SlotLottery> m_aSlotLotteries = {};
+	protected int m_iLotterySequence;
+	ref ScriptInvoker m_OnSlotLotteriesChanged = new ScriptInvoker();
 	protected ref GC_AdminBanService m_AdminBanService;
 	//! 0 follows the phase, 1 locks faction switching, 2 permits switching.
 	protected int m_iFactionLockOverride;
@@ -216,6 +219,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (Replication.IsServer())
 			StartPhaseClock(state);
+
+		if (Replication.IsServer())
+		{
+			GetGame().GetCallqueue().Remove(FinishSlotLottery);
+			while (!m_aSlotLotteries.IsEmpty())
+			{
+				ref GC_SlotLottery lottery = m_aSlotLotteries[0];
+				GC_AdminActionLogger.Log(lottery.m_iRequesterId, "lottery-cancel", lottery.m_sLabel, "phase-changed");
+				ClearSlotLottery(lottery);
+				AnnounceSlotLottery(lottery, string.Format("%1 lottery cancelled because the mission phase changed.", lottery.m_sLabel));
+			}
+		}
 
 		if (Replication.IsServer() && state == SCR_EGameModeState.BRIEFING)
 		{
@@ -1479,6 +1494,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			writer.WriteString(acknowledgement.m_sIdentity);
 		}
 
+		writer.WriteInt(m_aSlotLotteries.Count());
+		foreach (GC_SlotLottery lottery : m_aSlotLotteries)
+		{
+			if (!lottery.Save(writer))
+				return false;
+		}
 		writer.WriteInt(m_ClockPhase);
 		writer.Write(m_PhaseStartedAt, 64);
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
@@ -1583,6 +1604,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_mFactionReadiness.Set(factionKey, new GC_FactionReadiness(slotId, playerId, identity));
 		}
 		m_OnFactionReadinessChanged.Invoke(m_iFactionReadinessRevision);
+		int lotteryCount;
+		if (!reader.ReadInt(lotteryCount) || lotteryCount < 0 || lotteryCount > 64)
+			return false;
+		m_aSlotLotteries.Clear();
+		for (int lotteryIndex; lotteryIndex < lotteryCount; lotteryIndex++)
+		{
+			ref GC_SlotLottery lottery = new GC_SlotLottery();
+			if (!lottery.Load(reader))
+				return false;
+			m_aSlotLotteries.Insert(lottery);
+		}
 		if (!reader.ReadInt(m_ClockPhase) || !reader.Read(m_PhaseStartedAt, 64))
 			return false;
 
@@ -2158,6 +2190,256 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				QueuePlayerCatchUp(playerId);
 		}
 		return string.Format("Reserved %1 slots. Connected players will join their slots. Matching claims and blank UIDs made no changes.", pending.Count());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Zero selects the most recently started open draw for /join.
+	GC_SlotLottery GetSlotLottery(int lotteryId = 0)
+	{
+		for (int i = m_aSlotLotteries.Count() - 1; i >= 0; i--)
+		{
+			ref GC_SlotLottery lottery = m_aSlotLotteries[i];
+			if (lotteryId == lottery.m_iId || (lotteryId == 0 && lottery.GetSecondsRemaining() > 0))
+				return lottery;
+		}
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_SlotLottery GetLotteryForSlot(int slotId)
+	{
+		foreach (GC_SlotLottery lottery : m_aSlotLotteries)
+		{
+			if (lottery.m_aSlotIds.Contains(slotId))
+				return lottery;
+		}
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Scope is resolved from native group/faction references, never client-provided slot lists.
+	void CollectLotterySlots(string factionKey, RplId groupId, int slotId, out array<int> slots)
+	{
+		slots.Clear();
+		foreach (GC_Slot slot : GetSlots())
+		{
+			if (!slot || slot.HasClaim() || slot.GetState() != GC_SlotState.FREE)
+				continue;
+			SCR_AIGroup group = ResolveSlotGroup(slot);
+			if (!group || !group.GetFaction())
+				continue;
+			if (slotId >= 0 && slot.GetID() == slotId)
+				slots.Insert(slot.GetID());
+			else if (slotId < 0 && groupId != RplId.Invalid() && slot.GetGroupRplId() == groupId)
+				slots.Insert(slot.GetID());
+			else if (slotId < 0 && groupId == RplId.Invalid() && !factionKey.IsEmpty()
+				&& group.GetFaction().GetFactionKey() == factionKey)
+				slots.Insert(slot.GetID());
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string StartSlotLottery(int requesterId, string factionKey, RplId groupId, int slotId)
+	{
+		string target = string.Format("faction=%1 group=%2 slot=%3", factionKey, groupId, slotId);
+		if (!AuthorizeAdminAction(requesterId, "lottery-start", target))
+			return "You must be logged in as an admin.";
+		string outcome;
+		SCR_EGameModeState phase = GetLobbyPhase();
+		array<int> slots = {};
+		CollectLotterySlots(factionKey, groupId, slotId, slots);
+		bool overlap;
+		foreach (int selectedSlotId : slots)
+		{
+			if (GetLotteryForSlot(selectedSlotId))
+				overlap = true;
+		}
+		if (overlap)
+			outcome = "This selection overlaps a running lottery.";
+		else if (m_aSlotLotteries.Count() >= 64)
+			outcome = "The maximum number of simultaneous lotteries is running.";
+		else if (phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
+			outcome = "Lotteries are available during slotting and briefing.";
+		else if (slots.IsEmpty())
+			outcome = "There are no empty slots in this selection.";
+		else if (slots.Count() > 512)
+			outcome = "A lottery supports up to 512 slots. Select a smaller group.";
+		else
+		{
+			GC_Slot firstSlot = GetSlot(slots[0]);
+			string label = factionKey;
+			if (slotId >= 0)
+				label = string.Format("%1 - slot %2", GC_GroupCallsignHelper.GetDisplayName(firstSlot.GetGroup()), slotId);
+			else if (groupId != RplId.Invalid())
+				label = GC_GroupCallsignHelper.GetDisplayName(firstSlot.GetGroup());
+			ref GC_SlotLottery lottery = new GC_SlotLottery();
+			m_iLotterySequence++;
+			lottery.m_iId = m_iLotterySequence;
+			lottery.m_sLabel = label;
+			lottery.m_aSlotIds.Copy(slots);
+			lottery.m_aEntrants.Clear();
+			ChimeraWorld world = GetGame().GetWorld();
+			lottery.m_StartedAt = world.GetServerTimestamp();
+			lottery.m_iRequesterId = requesterId;
+			m_aSlotLotteries.Insert(lottery);
+			PublishSlotLottery(lottery);
+			GetGame().GetCallqueue().CallLater(FinishSlotLottery, 30000, false, lottery.m_iId);
+			outcome = string.Format("%1 lottery open for 30 seconds. Type /join to enter the newest open lottery, or right-click a slot in this draw and choose Enter lottery. Roles are random.", label);
+			AnnounceSlotLottery(lottery, outcome);
+			outcome = "started";
+		}
+		GC_AdminActionLogger.Log(requesterId, "lottery-start", target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool CanEnterSlotLottery(int playerId, int lotteryId)
+	{
+		ref GC_SlotLottery lottery = GetSlotLottery(lotteryId);
+		if (GetManager() != this || !lottery || lottery.m_aSlotIds.IsEmpty() || lottery.GetSecondsRemaining() <= 0)
+			return false;
+		foreach (int slotId : lottery.m_aSlotIds)
+		{
+			GC_Slot slot = GetSlot(slotId);
+			if (slot && !slot.HasClaim() && CanPlayerUseSlot(playerId, slot, true))
+				return true;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string EnterSlotLottery(int playerId, int expectedId, bool enter)
+	{
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown
+			|| !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
+			return "Lottery entry is unavailable.";
+		ref GC_SlotLottery lottery = GetSlotLottery(expectedId);
+		if (!lottery || lottery.m_aSlotIds.IsEmpty()
+			|| lottery.GetSecondsRemaining() <= 0)
+			return "This lottery has closed.";
+		string identity = GetPlayerVoiceIdentity(playerId);
+		if (identity.IsEmpty())
+			return "Your player identity is not available yet.";
+		if (!enter)
+		{
+			lottery.m_aEntrants.RemoveItem(identity);
+			PublishSlotLottery(lottery);
+			return "You have left the lottery.";
+		}
+		if (lottery.m_aEntrants.Contains(identity))
+			return "You are already entered in this lottery.";
+		if (!CanEnterSlotLottery(playerId, lottery.m_iId))
+			return "You are not eligible for the slots in this lottery.";
+		if (lottery.m_aEntrants.Count() >= 256)
+			return "This lottery has reached its entry limit.";
+		lottery.m_aEntrants.Insert(identity);
+		PublishSlotLottery(lottery);
+		return string.Format("Entered %1 lottery. Your role will be chosen randomly.", lottery.m_sLabel);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void FinishSlotLottery(int lotteryId)
+	{
+		ref GC_SlotLottery lottery = GetSlotLottery(lotteryId);
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown || !lottery || lottery.m_aSlotIds.IsEmpty())
+			return;
+		if (lottery.GetSecondsRemaining() > 0)
+		{
+			GetGame().GetCallqueue().CallLater(FinishSlotLottery, 1000, false, lotteryId);
+			return;
+		}
+		array<int> slots = {};
+		slots.Copy(lottery.m_aSlotIds);
+		array<string> entrants = {};
+		entrants.Copy(lottery.m_aEntrants);
+		int assigned;
+		// Random removal samples both lists without replacement. No entry carries a chosen role.
+		while (!entrants.IsEmpty() && !slots.IsEmpty())
+		{
+			int entrantIndex = Math.RandomInt(0, entrants.Count());
+			string identity = entrants[entrantIndex];
+			entrants.Remove(entrantIndex);
+			int playerId = GetConnectedPlayerIdByIdentity(identity);
+			if (playerId <= 0)
+				continue;
+			array<int> eligible = {};
+			foreach (int slotId : slots)
+			{
+				GC_Slot slot = GetSlot(slotId);
+				if (slot && !slot.HasClaim() && CanPlayerUseSlot(playerId, slot, true))
+					eligible.Insert(slotId);
+			}
+			if (eligible.IsEmpty())
+				continue;
+			int selectedSlotId = eligible[Math.RandomInt(0, eligible.Count())];
+			slots.RemoveItem(selectedSlotId);
+			bool applied = ApplyPlayerSlotAssignment(playerId, GetSlot(selectedSlotId), false, false);
+			GC_AdminActionLogger.Log(lottery.m_iRequesterId, "lottery-draw",
+				string.Format("lottery=%1 player=%2 slot=%3", lottery.m_iId, playerId, selectedSlotId), applied.ToString());
+			if (applied)
+				assigned++;
+		}
+		string result = string.Format("%1 lottery finished: %2 player(s) assigned.", lottery.m_sLabel, assigned);
+		ClearSlotLottery(lottery);
+		AnnounceSlotLottery(lottery, result);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ClearSlotLottery(GC_SlotLottery lottery)
+	{
+		m_aSlotLotteries.RemoveItem(lottery);
+		lottery.m_aSlotIds.Clear();
+		lottery.m_aEntrants.Clear();
+		PublishSlotLottery(lottery);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void AnnounceSlotLottery(GC_SlotLottery lottery, string message)
+	{
+		m_iAdminMessageSequence++;
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		foreach (int playerId : players)
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (controller)
+				controller.DeliverAdminMessage(m_iAdminMessageSequence, lottery.m_iRequesterId, "Slot lottery", GC_EAdminMessageAudience.ALL_PLAYERS, message);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PublishSlotLottery(GC_SlotLottery lottery)
+	{
+		Rpc(RpcDo_SlotLottery, lottery.m_iId, lottery.m_StartedAt,
+			lottery.m_sLabel, lottery.m_aSlotIds, lottery.m_aEntrants);
+		m_OnSlotLotteriesChanged.Invoke();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_SlotLottery(int id, WorldTimestamp startedAt, string label, array<int> slots, array<string> entrants)
+	{
+		if (Replication.IsServer() || GetManager() != this || m_bShutdown)
+			return;
+		ref GC_SlotLottery lottery = GetSlotLottery(id);
+		if (slots.IsEmpty())
+		{
+			if (lottery)
+				m_aSlotLotteries.RemoveItem(lottery);
+		}
+		else if (!lottery)
+		{
+			lottery = new GC_SlotLottery();
+			m_aSlotLotteries.Insert(lottery);
+		}
+		if (!lottery)
+			return;
+		lottery.m_iId = id;
+		lottery.m_StartedAt = startedAt;
+		lottery.m_sLabel = label;
+		lottery.m_aSlotIds.Copy(slots);
+		lottery.m_aEntrants.Copy(entrants);
+		m_OnSlotLotteriesChanged.Invoke();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -4282,13 +4564,20 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! parallel faction ownership value.
 	bool CanPlayerRequestSlot(int playerId, GC_Slot targetSlot)
 	{
+		return CanPlayerUseSlot(playerId, targetSlot, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool CanPlayerUseSlot(int playerId, GC_Slot targetSlot, bool lottery)
+	{
 		if (playerId <= 0 || !targetSlot)
 			return false;
 
 		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
 		if (currentSlot && currentSlot.IsKIA())
 			return false;
-		if (targetSlot.IsAdminLocked() && targetSlot.GetPlayerId() != playerId)
+		if (!lottery && (targetSlot.IsAdminLocked() || GetLotteryForSlot(targetSlot.GetID()) != null)
+			&& targetSlot.GetPlayerId() != playerId)
 			return false;
 
 		SCR_EGameModeState phase = GetLobbyPhase();
@@ -4372,6 +4661,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
+		GetGame().GetCallqueue().Remove(FinishSlotLottery);
+		m_aSlotLotteries.Clear();
 		m_mFactionReadiness.Clear();
 		m_aFactionUnlockedIdentities.Clear();
 		if (m_AdminBanService)

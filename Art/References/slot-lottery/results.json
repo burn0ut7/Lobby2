@@ -1,0 +1,344 @@
+[
+  {
+    "sourceResponse": 29,
+    "state": "invoked",
+    "receipt": "r11b80f21bcc84ab881a8e2e2ad5d9b9f",
+    "returned": "PASS unauthorized start rejected without mutation",
+    "elapsedMs": 2,
+    "method": "GC_TestLotteryGuards"
+  },
+  {
+    "sourceResponse": 33,
+    "state": "invoked",
+    "receipt": "rafe0501880014ac1881d51ea27e1da7a",
+    "returned": "player=1 admin=1 channels=7 panel=1 spectator=1 nativeGroup=-1 nativeFaction=none menu=1797811952 visible=1 open=0 active=Global [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=1] [4:Local available=1] [5:Admin available=1] [6:Spectator available=1] messages=0",
+    "elapsedMs": 3,
+    "method": "GC_TestNativeChat"
+  },
+  {
+    "sourceResponse": 35,
+    "state": "invoked",
+    "receipt": "r99630ebd1bd441edb6ba34209d009455",
+    "returned": "phase=1787356801 local=1 admin=1 active=5\nlottery=1 label=Aktiv-34 - slot 1 remaining=25 slots=1 entrants=0 slot=1\nlottery=2 label=Aktiv-34 - slot 2 remaining=25 slots=1 entrants=0 slot=2\nlottery=3 label=Kompas-34 - slot 3 remaining=25 slots=1 entrants=0 slot=3\nlottery=4 label=Kompas-34 - slot 4 remaining=25 slots=1 entrants=0 slot=4\nlottery=5 label=Kompas-34 - slot 5 remaining=25 slots=1 entrants=1 slot=5\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 37,
+    "state": "invoked",
+    "receipt": "r26d1e149e0ca461c826cdc6c6a49d49a",
+    "returned": "PASS overlap/direct-claim/duplicate/stale guards",
+    "elapsedMs": 3,
+    "method": "GC_TestLotteryPoolGuards"
+  },
+  {
+    "sourceResponse": 39,
+    "state": "invoked",
+    "receipt": "r5a57aa3d705f4293a60bbf3e6b88c9f6",
+    "returned": "available=1 dispatched=0",
+    "elapsedMs": 3,
+    "method": "GC_TestLotteryContext"
+  },
+  {
+    "sourceResponse": 43,
+    "state": "invoked",
+    "receipt": "r81fda16c01c94156847d54b1f69b4944",
+    "returned": "phase=1787356801 local=1 admin=1 active=5\nlottery=1 label=Aktiv-34 - slot 1 remaining=6 slots=1 entrants=1 slot=1\nlottery=2 label=Aktiv-34 - slot 2 remaining=6 slots=1 entrants=0 slot=2\nlottery=3 label=Kompas-34 - slot 3 remaining=6 slots=1 entrants=0 slot=3\nlottery=4 label=Kompas-34 - slot 4 remaining=6 slots=1 entrants=0 slot=4\nlottery=5 label=Kompas-34 - slot 5 remaining=6 slots=1 entrants=1 slot=5\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 46,
+    "state": "invoked",
+    "receipt": "r74a17d232cec494881b6a2b1d347c2fd",
+    "returned": "phase=1787356801 local=1 admin=1 active=0\nslot=1 player=-1 state=0 adminLocked=0\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=1 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 50,
+    "state": "invoked",
+    "receipt": "r70788dac61974c688f86af0033ad768d",
+    "returned": "available=1 dispatched=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotteryContext"
+  },
+  {
+    "sourceResponse": 52,
+    "state": "invoked",
+    "receipt": "rc7831d53fbb14fc2841a93c345413eb2",
+    "returned": "player=1 admin=1 channels=7 panel=1 spectator=1 nativeGroup=1001 groupFrequency=38200 nativeFaction=USSR menu=1797811952 visible=1 open=0 active=Global [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=1] [4:Local available=1] [5:Admin available=1] [6:Spectator available=1] messages=0",
+    "elapsedMs": 3,
+    "method": "GC_TestNativeChat"
+  },
+  {
+    "sourceResponse": 57,
+    "state": "invoked",
+    "receipt": "rb84121b4eeea4fa5b9be97fdded408c1",
+    "returned": "phase=1787356801 local=1 admin=1 active=0\nslot=1 player=1 state=4 adminLocked=0\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 68,
+    "state": "reloaded",
+    "elapsedMs": 2293,
+    "method": null
+  },
+  {
+    "sourceResponse": 94,
+    "state": "invoked",
+    "receipt": "rc37e836b7e804ed89670d580fb85c1c1",
+    "returned": "phase=1787356801 local=1 admin=1 active=1\nlottery=1 label=USSR remaining=19 slots=10 entrants=0 slot=1 slot=2 slot=3 slot=4 slot=5 slot=6 slot=7 slot=8 slot=9 slot=10\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 96,
+    "state": "invoked",
+    "receipt": "rd34962113387448583588496c59aac41",
+    "returned": "player=1 admin=1 channels=7 panel=1 spectator=1 nativeGroup=-1 nativeFaction=none menu=1145710464 visible=1 open=0 active=Global [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=1] [4:Local available=1] [5:Admin available=1] [6:Spectator available=1] messages=0",
+    "elapsedMs": 3,
+    "method": "GC_TestNativeChat"
+  },
+  {
+    "sourceResponse": 101,
+    "state": "invoked",
+    "receipt": "r95f6238373b842d4b0219db093e5bdca",
+    "returned": "phase=1787356801 local=1 admin=1 active=0\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=1 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 139,
+    "state": "invoked",
+    "receipt": "rdccd0e4ee0f542148ae0760e5463f128",
+    "returned": "phase=1787356801 local=1 admin=1 active=1\nlottery=2 label=Aktiv-43 remaining=22 slots=4 entrants=0 slot=3 slot=4 slot=5 slot=6\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 143,
+    "state": "invoked",
+    "receipt": "rc8e337792c9c42e188a4cbbcac0b4995",
+    "returned": "phase=1787356802 local=1 admin=1 active=0\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 145,
+    "state": "invoked",
+    "receipt": "r327cd8436ef74ab6bcdc5a7f2b7221d4",
+    "returned": "admin=0 connected=1 kick=rejected-not-logged-in ban=rejected-not-logged-in copy=rejected-not-logged-in clipboardUnchanged=1 unban=rejected-not-logged-in; stop disposable Play to restore host role",
+    "elapsedMs": 4,
+    "method": "GC_TestModeration"
+  },
+  {
+    "sourceResponse": 147,
+    "state": "invoked",
+    "receipt": "r423d5d372ab541c3afa323295905ae93",
+    "returned": "PASS unauthorized start rejected without mutation",
+    "elapsedMs": 2,
+    "method": "GC_TestLotteryGuards"
+  },
+  {
+    "sourceResponse": 189,
+    "state": "invoked",
+    "receipt": "rd0be8e76e963426ab29216fd9bd7675d",
+    "returned": "inheritedJoinCallbacks=1",
+    "elapsedMs": 2,
+    "method": "ChatJoinCommand"
+  },
+  {
+    "sourceResponse": 210,
+    "state": "invoked",
+    "receipt": "rfa7596287fc14512badea9a27345def2",
+    "returned": "inheritedJoinCallbacks=1",
+    "elapsedMs": 1,
+    "method": "ChatJoinCommand"
+  },
+  {
+    "sourceResponse": 245,
+    "state": "invoked",
+    "receipt": "r6fcd14790dba4159bf61f7be5fc4d734",
+    "returned": "DISPATCHED production phase request",
+    "elapsedMs": 29,
+    "method": "GC_TestFreezeAdvance"
+  },
+  {
+    "sourceResponse": 251,
+    "state": "invoked",
+    "receipt": "r0301189a0ebb43bbaf04c468c167eb3d",
+    "returned": "DISPATCHED starts=5",
+    "elapsedMs": 5,
+    "method": "GC_TestLotteryFive"
+  },
+  {
+    "sourceResponse": 255,
+    "state": "invoked",
+    "receipt": "rffdbcd0922684f4db89de4700f0b1125",
+    "returned": "phase=1787356801 local=1 admin=1 active=5\nlottery=1 label=Kompas-34 - slot 1 remaining=21 slots=1 entrants=0 slot=1\nlottery=2 label=Kompas-34 - slot 2 remaining=21 slots=1 entrants=0 slot=2\nlottery=3 label=Aktiv-43 - slot 3 remaining=21 slots=1 entrants=0 slot=3\nlottery=4 label=Aktiv-43 - slot 4 remaining=21 slots=1 entrants=0 slot=4\nlottery=5 label=Aktiv-43 - slot 5 remaining=21 slots=1 entrants=0 slot=5\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 257,
+    "state": "invoked",
+    "receipt": "r9e12da7294164fad8d7870639cfb154e",
+    "returned": "dispatched; inspect report",
+    "elapsedMs": 2,
+    "method": "GC_TestNativeChatPeer"
+  },
+  {
+    "sourceResponse": 259,
+    "state": "invoked",
+    "receipt": "rc2985efdf9bb49f5bdcf1cdf4154e1de",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+    "elapsedMs": 3,
+    "method": "GC_TestPeerCommand"
+  },
+  {
+    "sourceResponse": 261,
+    "state": "invoked",
+    "receipt": "r3882c7c0bec64880a5d6e5acdec427b3",
+    "returned": "CLIENT-REPORTED phase=1787356801 local=2 admin=0 active=5\nlottery=1 label=Kompas-34 - slot 1 remaining=12 slots=1 entrants=0 slot=1\nlottery=2 label=Kompas-34 - slot 2 remaining=12 slots=1 entrants=0 slot=2\nlottery=3 label=Aktiv-43 - slot 3 remaining=12 slots=1 entrants=0 slot=3\nlottery=4 label=Aktiv-43 - slot 4 remaining=12 slots=1 entrants=0 slot=4\nlottery=5 label=Aktiv-43 - slot 5 remaining=12 slots=1 entrants=1 slot=5\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestPeerReport"
+  },
+  {
+    "sourceResponse": 263,
+    "state": "invoked",
+    "receipt": "rc35b1f591c934ceeb1727b9de49e8dbc",
+    "returned": "phase=1787356801 local=1 admin=1 active=5\nlottery=1 label=Kompas-34 - slot 1 remaining=7 slots=1 entrants=0 slot=1\nlottery=2 label=Kompas-34 - slot 2 remaining=7 slots=1 entrants=0 slot=2\nlottery=3 label=Aktiv-43 - slot 3 remaining=7 slots=1 entrants=0 slot=3\nlottery=4 label=Aktiv-43 - slot 4 remaining=7 slots=1 entrants=0 slot=4\nlottery=5 label=Aktiv-43 - slot 5 remaining=7 slots=1 entrants=1 slot=5\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=1\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 265,
+    "state": "invoked",
+    "receipt": "rcf743937a1814f15809c04b39db611ef",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+    "elapsedMs": 2,
+    "method": "GC_TestPeerCommand"
+  },
+  {
+    "sourceResponse": 267,
+    "state": "invoked",
+    "receipt": "r7433c705829143eabf1e1a34b6fc0307",
+    "returned": "CLIENT-REPORTED phase=1787356801 local=2 admin=0 active=0\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=2 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestPeerReport"
+  },
+  {
+    "sourceResponse": 269,
+    "state": "invoked",
+    "receipt": "r0a7556888fbf46cba7317cd284f95f2f",
+    "returned": "phase=1787356801 local=1 admin=1 active=0\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=2 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 2,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 271,
+    "state": "invoked",
+    "receipt": "r2b2f5cd08bbf40fdb0c392a64252f5c3",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+    "elapsedMs": 2,
+    "method": "GC_TestPeerCommand"
+  },
+  {
+    "sourceResponse": 273,
+    "state": "invoked",
+    "receipt": "rdcea9cd7ae294e1b81417c968ff3b4e1",
+    "returned": "CLIENT-REPORTED phase=1787356801 local=2 admin=0 active=0\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=2 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 4,
+    "method": "GC_TestPeerReport"
+  },
+  {
+    "sourceResponse": 282,
+    "state": "invoked",
+    "receipt": "r8b52feebebb649a49c9cec2670ca5851",
+    "returned": "available=1 dispatched=1",
+    "elapsedMs": 4,
+    "method": "GC_TestLotteryContext"
+  },
+  {
+    "sourceResponse": 292,
+    "state": "invoked",
+    "receipt": "r6222b510d04d45338193aa1dc7f0902d",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+    "elapsedMs": 3,
+    "method": "GC_TestPeerCommand"
+  },
+  {
+    "sourceResponse": 294,
+    "state": "invoked",
+    "receipt": "rea9285b352a442b68fb46cf3c4facb9a",
+    "returned": "CLIENT-REPORTED phase=1787356801 local=2 admin=0 active=1\nlottery=6 label=USSR remaining=12 slots=9 entrants=0 slot=1 slot=2 slot=3 slot=4 slot=6 slot=7 slot=8 slot=9 slot=10\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=2 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestPeerReport"
+  },
+  {
+    "sourceResponse": 296,
+    "state": "invoked",
+    "receipt": "rc76bbefc6c0b47dbbd9e963c8dad9a00",
+    "returned": "phase=1787356801 local=1 admin=1 active=1\nlottery=6 label=USSR remaining=6 slots=9 entrants=0 slot=1 slot=2 slot=3 slot=4 slot=6 slot=7 slot=8 slot=9 slot=10\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=2 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 298,
+    "state": "invoked",
+    "receipt": "r445a7a14b3744a94b90f60a3e44c0ce7",
+    "returned": "available=1 dispatched=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotteryContext"
+  },
+  {
+    "sourceResponse": 300,
+    "state": "invoked",
+    "receipt": "r0d291fac1b924b7fadd9467e4cc1a592",
+    "returned": "player=1 admin=1 channels=7 panel=1 spectator=1 nativeGroup=-1 nativeFaction=none menu=-1143695760 visible=1 open=0 active=Global [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=1] [4:Local available=1] [5:Admin available=1] [6:Spectator available=1] messages=0",
+    "elapsedMs": 3,
+    "method": "GC_TestNativeChat"
+  },
+  {
+    "sourceResponse": 302,
+    "state": "invoked",
+    "receipt": "r4818c324d22240f3aa540322a29deb19",
+    "returned": "dispatched; inspect report",
+    "elapsedMs": 3,
+    "method": "GC_TestNativeChatPeer"
+  },
+  {
+    "sourceResponse": 304,
+    "state": "invoked",
+    "receipt": "r25a24e1e38564984a16e3b74f85354ca",
+    "returned": "phase=1787356801 local=1 admin=1 active=1\nlottery=7 label=Kompas-34 remaining=22 slots=2 entrants=2 slot=1 slot=2\nslot=1 player=-1 state=0 adminLocked=1\nslot=2 player=-1 state=0 adminLocked=1\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=2 state=4 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 308,
+    "state": "invoked",
+    "receipt": "rb91601ad23b64b0e874c255abb887314",
+    "returned": "phase=1787356801 local=1 admin=1 active=0\nslot=1 player=1 state=4 adminLocked=0\nslot=2 player=2 state=4 adminLocked=0\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestLotterySnapshot"
+  },
+  {
+    "sourceResponse": 310,
+    "state": "invoked",
+    "receipt": "rc1b2fc2f19994ecb8453bac4f95c61d8",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token",
+    "elapsedMs": 3,
+    "method": "GC_TestPeerCommand"
+  },
+  {
+    "sourceResponse": 312,
+    "state": "invoked",
+    "receipt": "ref8f49dac998466d91e76f38866c2ec1",
+    "returned": "CLIENT-REPORTED phase=1787356801 local=2 admin=0 active=0\nslot=1 player=1 state=4 adminLocked=0\nslot=2 player=2 state=4 adminLocked=0\nslot=3 player=-1 state=0 adminLocked=1\nslot=4 player=-1 state=0 adminLocked=1\nslot=5 player=-1 state=0 adminLocked=0\nslot=6 player=-1 state=0 adminLocked=1\nslot=7 player=-1 state=0 adminLocked=1\nslot=8 player=-1 state=0 adminLocked=1\nslot=9 player=-1 state=0 adminLocked=1\nslot=10 player=-1 state=0 adminLocked=1\nslot=11 player=-1 state=0 adminLocked=1",
+    "elapsedMs": 3,
+    "method": "GC_TestPeerReport"
+  }
+]

@@ -494,6 +494,48 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void RequestStartSlotLottery(string factionKey, RplId groupId, int slotId)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_StartSlotLottery, factionKey, groupId, slotId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_StartSlotLottery(string factionKey, RplId groupId, int slotId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_SlotLotteryResult, manager.StartSlotLottery(GetPlayerId(), factionKey, groupId, slotId));
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "lottery-start", "", "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestEnterSlotLottery(int lotteryId = 0, bool enter = true)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(RpcAsk_EnterSlotLottery, lotteryId, enter);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_EnterSlotLottery(int lotteryId, bool enter)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_SlotLotteryResult, manager.EnterSlotLottery(GetPlayerId(), lotteryId, enter));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_SlotLotteryResult(string result)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this && result != "started")
+			SCR_HintManagerComponent.ShowCustomHint(result, "Slot lottery", 8);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void RequestAdminMessage(GC_EAdminMessageAudience audience, string message, array<string> selectedIdentities, int requestId = 0, string factionKey = "")
 	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)

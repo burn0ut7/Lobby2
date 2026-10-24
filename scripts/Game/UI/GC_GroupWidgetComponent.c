@@ -65,6 +65,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_LobbyManager.m_OnFactionTopologyChanged.Insert(OnFactionUpdated);
 		m_LobbyManager.m_OnFactionPresentationChanged.Insert(OnFactionUpdated);
 		m_LobbyManager.m_OnSlotPresentationChanged.Insert(OnSlotUpdated);
+		m_LobbyManager.m_OnSlotLotteriesChanged.Insert(RefreshSlotInteraction);
 		ClearSlotWidgets();
 	}
 
@@ -76,6 +77,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 			m_LobbyManager.m_OnFactionTopologyChanged.Remove(OnFactionUpdated);
 			m_LobbyManager.m_OnFactionPresentationChanged.Remove(OnFactionUpdated);
 			m_LobbyManager.m_OnSlotPresentationChanged.Remove(OnSlotUpdated);
+			m_LobbyManager.m_OnSlotLotteriesChanged.Remove(RefreshSlotInteraction);
 		}
 
 		ClearSlotWidgets();

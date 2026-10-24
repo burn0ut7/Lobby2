@@ -31,6 +31,12 @@ Most helpers require `WORKBENCH` and run only in embedded Play.
 `GC_AdminMultiplayerTests.c` also compiles in test-addon peers. It grants no roles
 or permissions and runs nothing automatically. Never include it in production.
 
+## Slot lotteries
+
+See [SlotLottery.md](SlotLottery.md) for concurrent draws, native `/join`,
+context actions and the test entry points. Runtime evidence and limitations are
+recorded in [validation](../Art/References/slot-lottery/validation.md).
+
 ## Faction readiness
 
 `GC_TestReadinessSnapshot()` reports phase, revision, command slots, commanders,

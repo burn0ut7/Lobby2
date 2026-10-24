@@ -57,6 +57,17 @@ Only the local commander can activate the readiness icon. Readiness is advisory:
 admin phase transition remains unchanged. Group ordering overrides, commander
 selection overrides and automatic start are outside this slice.
 
+## Slot lotteries
+
+`GC_LobbyManager` owns independent 30-second draws over empty slots resolved from
+native group/faction references. Each draw has one entrant pool; the authority
+randomizes entrants and eligible roles, then uses the canonical slot assignment
+handler. Owner-controller requests derive player identity server-side. Reliable
+broadcasts and JIP snapshots carry the same draw state. Phase transitions cancel
+draws, and shutdown removes their callbacks. `/join` selects the newest open draw;
+the native chat override delegates unchanged outside the active Lobby2 mode.
+See [slot lottery behavior and tests](../tests/SlotLottery.md).
+
 ## Architectural principles
 
 ### 1. Opt in instead of modifying globally

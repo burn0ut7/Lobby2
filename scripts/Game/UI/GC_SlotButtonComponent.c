@@ -230,6 +230,13 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 				playerName = m_Slot.GetCachedPlayerName();
 		}
 
+		GC_LobbyManager lotteryManager = GC_LobbyManager.GetManager();
+		if (m_Slot && !m_Slot.HasClaim() && lotteryManager && lotteryManager.GetLotteryForSlot(m_Slot.GetID()))
+		{
+			statusImage = "time";
+			playerName = "Lottery open";
+		}
+
 		Widget statusSection = m_wRoot.FindAnyWidget("StatusSection");
 		if (statusSection)
 			statusSection.SetVisible(!statusImage.IsEmpty());

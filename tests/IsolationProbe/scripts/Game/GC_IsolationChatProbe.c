@@ -48,6 +48,24 @@ modded class GC_IsolationProbeComponent
 {
 	protected Widget m_wGC_ChatFrame;
 	protected SCR_ChatPanel m_GC_ChatPanel;
+	protected int m_iGC_JoinCommands;
+
+	//------------------------------------------------------------------------------------------------
+	string ChatJoinCommand()
+	{
+		m_iGC_JoinCommands = 0;
+		SCR_ChatPanelManager manager = SCR_ChatPanelManager.GetInstance();
+		manager.GetCommandInvoker("join").Insert(GC_OnJoinCommand);
+		manager.Internal_OnChatCommand(null, "join", "");
+		manager.GetCommandInvoker("join").Remove(GC_OnJoinCommand);
+		return string.Format("inheritedJoinCallbacks=%1", m_iGC_JoinCommands);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_OnJoinCommand(SCR_ChatPanel panel, string data)
+	{
+		m_iGC_JoinCommands++;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	string ChatFaction(string factionKey)
