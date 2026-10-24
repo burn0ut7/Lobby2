@@ -76,5 +76,61 @@ modded class GC_LobbyManager
 			return "FAIL authorization result/policy";
 		return GC_TestSlotAccessCheck("unchanged", false);
 	}
+	//------------------------------------------------------------------------------------------------
+	//! Real requester authorization; does not grant a role or bypass the production handler.
+	string GC_TestRatioReject(int requesterId)
+	{
+		if (!Replication.IsServer() || SCR_Global.IsAdmin(requesterId))
+			return "UNAVAILABLE authority and logged-out requester required";
+		int revision = GetFactionRulesRevision();
+		int lockMode = GetFactionLockOverride();
+		bool balance = IsFactionBalanceEnforced();
+		GC_TestSlotAccessRemember();
+		string outcome = ExecuteAdminFactionRules(requesterId, revision, lockMode, !balance);
+		if (outcome != "rejected-not-logged-in" || revision != GetFactionRulesRevision()
+			|| lockMode != GetFactionLockOverride() || balance != IsFactionBalanceEnforced())
+			return "FAIL ratio rejection mutated rules";
+		return GC_TestSlotAccessCheck("unchanged", false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Inspect actual widgets; use GC_TestClick for the production button handler.
+	string GC_TestRatioUI()
+	{
+		Widget root = GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE lobby menu";
+		Widget ratio = root.FindAnyWidget("FactionRatioButton");
+		Widget locks = root.FindAnyWidget("AllSlotLocksButton");
+		TextWidget status = TextWidget.Cast(root.FindAnyWidget("AllSlotLocksStatus"));
+		if (!ratio || !locks || !status)
+			return "UNAVAILABLE lobby controls";
+		return string.Format("ratioVisible=%1 ratioEnabled=%2 lockVisible=%3 lockEnabled=%4 ratioOn=%5 revision=%6 status=%7",
+			GC_TestVisible(ratio), ratio.IsEnabled(), GC_TestVisible(locks), locks.IsEnabled(),
+			IsFactionBalanceEnforced(), GetFactionRulesRevision(), status.GetText());
+	}
+
+
+	//------------------------------------------------------------------------------------------------
+	//! Read the rendered icon and its sibling layers without changing UI state.
+	string GC_TestSlotIconLayers(string widgetName)
+	{
+		Widget root = GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE menu";
+		Widget icon = root.FindAnyWidget(widgetName);
+		if (!icon)
+			return "UNAVAILABLE icon";
+		string result;
+		Widget widget = icon.GetParent().GetChildren();
+		while (widget)
+		{
+			result += string.Format("name=%1 type=%2 z=%3 opacity=%4 color=%5 visible=%6\n",
+				widget.GetName(), widget.Type(), widget.GetZOrder(), widget.GetOpacity(), widget.GetColor().PackToInt(), widget.IsVisible());
+			widget = widget.GetSibling();
+		}
+		return result;
+	}
+
 }
 #endif

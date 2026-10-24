@@ -1,0 +1,700 @@
+[
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "Lobby Button"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rc48d4ec0882b47488d290c0007f6b292",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestRatioUI",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r6c8690dc2a8b4b2ba1487f24ac5ffb3a",
+    "returned": "ratioVisible=1 ratioEnabled=1 lockVisible=1 lockEnabled=1 ratioOn=0 revision=0 status="
+  },
+  {
+    "method": "GC_TestFactionQuotas",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "rad2e8e0ae67a4e4bbc610444eb18af68",
+    "returned": "PASS proportional quotas, deterministic ties and empty capacities"
+  },
+  {
+    "method": "GC_TestSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r37028e8a9b0b4eb19216b38b395491e6",
+    "returned": "phase=SLOTTING groups=7 slots=42 briefings=21 revision=0 player=1 admin=1\ncanonical=0 value=true\ncanonical=1 value=300\ncanonical=2 value=4\ncanonical=3 value=2\ncanonical=4 value=0.500\ncanonical=5 value=1000.000\ncanonical=6 value=SILENT THUNDER\ncanonical=7 value=standard\nmenu=rootFrame\nactiveView=1\nbutton=Mission Preview Button\nText=PREVIEW\nbutton=Lobby Button\nText=LOBBY\nbutton=Briefing Button\nText=BRIEFING\nbutton=Game Button\nText=GAME\nbutton=Debrief Button\nText=DEBRIEF\nTitleText=BANGALORIOUS\nDescription=COOPERATIVE ATTACK\nPhaseElapsed=00:04\nPlayerCountText=1\nText0=Factions\nbutton=Button\nText=Soviet Army\nCounter=0 / 10\nbutton=Button\nText=US Army\nCounter=0 / 32\nSlotsTitle=Slots\nbutton=FactionRatioButton\nbutton=AllSlotLocksButton\nSquadName=Kompas-22\nSquadDescription=Rifle Squad\nPlayerCount=0 / 2\nPlayerCountLabel=PLAYERS\nslot=1 player=-1\nbutton=SlotButton\nRoleName=CO - Senior Rifleman\nStatusText= [Locked]\nslot=2 player=-1\nbutton=SlotButton\nRoleName=Light AT Rifleman\nStatusText= [Locked]\nSquadName=Buran-31\nSquadDescription=Rifle Squad\nPlayerCount=0 / 4\nPlayerCountLabel=PLAYERS\nslot=3 player=-1\nbutton=SlotButton\nRoleName=Senior Rifleman\nStatusText= [Locked]\nslot=4 player=-1\nbutton=SlotButton\nRoleName=Automatic Rifleman\nStatusText= [Locked]\nslot=5 player=-1\nbutton=SlotButton\nRoleName=Grenadier\nStatusText= [Locked]\nslot=6 player=-1\nbutton=SlotButton\nRoleName=Grenadier\nStatusText= [Locked]\nSquadName=Kompas-34\nSquadDescription=Rifle Squad\nPlayerCount=0 / 4\nPlayerCountLabel=PLAYERS\nslot=7 player=-1\nbutton=SlotButton\nRoleName=Senior Rifleman\nStatusText= [Locked]\nslot=8 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist\nStatusText= [Locked]\nslot=9 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist\nStatusText= [Locked]\nslot=10 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist Assistant\nStatusText= [Locked]\nLoadoutTitle=Loadout\nbutton=VoiceChannelsButton\nVoiceChannelsButtonLabel=VOICE\nbutton=PlayerListButton\nPlayerListButtonLabel=PLAYERS\nbutton=DeafenButton\nbutton=ChannelHeader\nChannelName=GLOBAL\nPlayerName=Burn0ut7\nbutton=ChannelHeader\nChannelName=Soviet Army HQ\nbutton=ChannelHeader\nChannelName=Kompas-22\nbutton=ChannelHeader\nChannelName=Buran-31\nbutton=ChannelHeader\nChannelName=Kompas-34\nbutton=ChannelHeader\nChannelName=US Army HQ\nbutton=ChannelHeader\nChannelName=Atlas Red 1\nbutton=ChannelHeader\nChannelName=Atlas Red 2\nbutton=ChannelHeader\nChannelName=Atlas Red 3\nbutton=ChannelHeader\nChannelName=Atlas Red 4\nbutton=ChannelHeader\nChannelName=Burn0ut7'S CHANNEL\nm_ChannelTagOverlay=[Global]\nm_WarningText=Warning Text\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatSwitchChannel\"/></shadow>\nText=Change channels\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatHistoryBrowse\"/></shadow>\nTRUNCATED: first 100 visible text/button entries"
+  },
+  {
+    "method": "GC_TestWidgetGeometry",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "FactionRatioImage"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r38c0549570ca43efa75a094c558c6dfa",
+    "returned": "FactionRatioImage x=1091.2 y=96.4741 width=52.1482 height=52.1482 visible=1 enabled=1\n x=1085.99 y=91.2593 width=62.5779 height=62.5778 visible=1 enabled=1\n x=1085.99 y=91.2593 width=62.5779 height=62.5778 visible=1 enabled=1\nFactionRatioButton x=1085.99 y=91.2593 width=62.5779 height=62.5778 visible=1 enabled=1\n x=371.556 y=91.2593 width=847.407 height=62.5778 visible=1 enabled=1\nSlotsHeader x=371.556 y=91.2593 width=847.407 height=62.5778 visible=1 enabled=1\nVerticalLayout0 x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nSlots x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nSlotsSize x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nBody x=6.51852 y=91.2593 width=2599.96 height=1131.61 visible=1 enabled=1\nBodyLayer x=6.51852 y=91.2593 width=2599.96 height=1131.61 visible=1 enabled=1\nVerticalLayout x=0 y=0 width=2613 height=1408 visible=1 enabled=1\nrootFrame x=0 y=0 width=2613 height=1408 visible=1 enabled=1\nGame workspace x=0 y=0 width=2613 height=1408 visible=1 enabled=1\n"
+  },
+  {
+    "method": "GC_TestWidgetGeometry",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksImage"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r3b802d67f1aa44d69c55e6270586797a",
+    "returned": "AllSlotLocksImage x=1161.6 y=96.4741 width=52.1482 height=52.1482 visible=1 enabled=1\n x=1156.39 y=91.2593 width=62.5778 height=62.5778 visible=1 enabled=1\n x=1156.39 y=91.2593 width=62.5778 height=62.5778 visible=1 enabled=1\nAllSlotLocksButton x=1156.39 y=91.2593 width=62.5778 height=62.5778 visible=1 enabled=1\n x=371.556 y=91.2593 width=847.407 height=62.5778 visible=1 enabled=1\nSlotsHeader x=371.556 y=91.2593 width=847.407 height=62.5778 visible=1 enabled=1\nVerticalLayout0 x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nSlots x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nSlotsSize x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nBody x=6.51852 y=91.2593 width=2599.96 height=1131.61 visible=1 enabled=1\nBodyLayer x=6.51852 y=91.2593 width=2599.96 height=1131.61 visible=1 enabled=1\nVerticalLayout x=0 y=0 width=2613 height=1408 visible=1 enabled=1\nrootFrame x=0 y=0 width=2613 height=1408 visible=1 enabled=1\nGame workspace x=0 y=0 width=2613 height=1408 visible=1 enabled=1\n"
+  },
+  {
+    "method": "GC_TestWidgetGeometry",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r503aa5efd87c4623a37c5295b829d632",
+    "returned": "AllSlotLocksButton x=1156.39 y=91.2593 width=62.5778 height=62.5778 visible=1 enabled=1\n x=371.556 y=91.2593 width=847.407 height=62.5778 visible=1 enabled=1\nSlotsHeader x=371.556 y=91.2593 width=847.407 height=62.5778 visible=1 enabled=1\nVerticalLayout0 x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nSlots x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nSlotsSize x=371.556 y=91.2593 width=847.407 height=1131.61 visible=1 enabled=1\nBody x=6.51852 y=91.2593 width=2599.96 height=1131.61 visible=1 enabled=1\nBodyLayer x=6.51852 y=91.2593 width=2599.96 height=1131.61 visible=1 enabled=1\nVerticalLayout x=0 y=0 width=2613 height=1408 visible=1 enabled=1\nrootFrame x=0 y=0 width=2613 height=1408 visible=1 enabled=1\nGame workspace x=0 y=0 width=2613 height=1408 visible=1 enabled=1\n"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r2e47e5b755af46498dde822d3dce99fb",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=1"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r5421f2dcecc840b79158cd9910133dc2",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "locks"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rfbd8662dda1d440ab4d5540d8ce99aae",
+    "returned": "PASS locks slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "FactionRatioButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "ra96dabcfd9a34ad4ad0f5d9c5005dd55",
+    "returned": "dispatched: FactionRatioButton"
+  },
+  {
+    "method": "GC_TestRatioUI",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r474d25da4bf94df19b48a13c081dff4d",
+    "returned": "ratioVisible=1 ratioEnabled=1 lockVisible=1 lockEnabled=1 ratioOn=1 revision=1 status="
+  },
+  {
+    "method": "GC_TestSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "rbef700ed5b1441279528edbf3888c233",
+    "returned": "phase=SLOTTING groups=7 slots=42 briefings=21 revision=0 player=1 admin=1\ncanonical=0 value=true\ncanonical=1 value=300\ncanonical=2 value=4\ncanonical=3 value=2\ncanonical=4 value=0.500\ncanonical=5 value=1000.000\ncanonical=6 value=SILENT THUNDER\ncanonical=7 value=standard\nmenu=rootFrame\nactiveView=1\nbutton=Mission Preview Button\nText=PREVIEW\nbutton=Lobby Button\nText=LOBBY\nbutton=Briefing Button\nText=BRIEFING\nbutton=Game Button\nText=GAME\nbutton=Debrief Button\nText=DEBRIEF\nTitleText=BANGALORIOUS\nDescription=COOPERATIVE ATTACK\nPhaseElapsed=00:31\nPlayerCountText=1\nText0=Factions\nbutton=Button\nText=Soviet Army\nCounter=0 / 0\nbutton=Button\nText=US Army\nCounter=0 / 1\nSlotsTitle=Slots\nbutton=FactionRatioButton\nbutton=AllSlotLocksButton\nSquadName=Kompas-22\nSquadDescription=Rifle Squad\nPlayerCount=0 / 2\nPlayerCountLabel=PLAYERS\nslot=1 player=-1\nbutton=SlotButton\nRoleName=CO - Senior Rifleman\nslot=2 player=-1\nbutton=SlotButton\nRoleName=Light AT Rifleman\nSquadName=Buran-31\nSquadDescription=Rifle Squad\nPlayerCount=0 / 4\nPlayerCountLabel=PLAYERS\nslot=3 player=-1\nbutton=SlotButton\nRoleName=Senior Rifleman\nslot=4 player=-1\nbutton=SlotButton\nRoleName=Automatic Rifleman\nslot=5 player=-1\nbutton=SlotButton\nRoleName=Grenadier\nslot=6 player=-1\nbutton=SlotButton\nRoleName=Grenadier\nSquadName=Kompas-34\nSquadDescription=Rifle Squad\nPlayerCount=0 / 4\nPlayerCountLabel=PLAYERS\nslot=7 player=-1\nbutton=SlotButton\nRoleName=Senior Rifleman\nslot=8 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist\nslot=9 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist\nslot=10 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist Assistant\nLoadoutTitle=Loadout\nbutton=VoiceChannelsButton\nVoiceChannelsButtonLabel=VOICE\nbutton=PlayerListButton\nPlayerListButtonLabel=PLAYERS\nbutton=DeafenButton\nbutton=ChannelHeader\nChannelName=GLOBAL\nPlayerName=Burn0ut7\nbutton=ChannelHeader\nChannelName=Soviet Army HQ\nbutton=ChannelHeader\nChannelName=Kompas-22\nbutton=ChannelHeader\nChannelName=Buran-31\nbutton=ChannelHeader\nChannelName=Kompas-34\nbutton=ChannelHeader\nChannelName=US Army HQ\nbutton=ChannelHeader\nChannelName=Atlas Red 1\nbutton=ChannelHeader\nChannelName=Atlas Red 2\nbutton=ChannelHeader\nChannelName=Atlas Red 3\nbutton=ChannelHeader\nChannelName=Atlas Red 4\nbutton=ChannelHeader\nChannelName=Burn0ut7'S CHANNEL\nm_ChannelTagOverlay=[Global]\nm_WarningText=Warning Text\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatSwitchChannel\"/></shadow>\nText=Change channels\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatHistoryBrowse\"/></shadow>\nText=Cycle history\n"
+  },
+  {
+    "method": "GC_TestFactionSlotChoices",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r1b89d24521a741f0810a8bc97020849e",
+    "returned": "phase=SLOTTING revision=1 mode=0 locked=0 balance=1 | USSR slot=1 allowed=0 | US slot=11 allowed=1"
+  },
+  {
+    "method": "GC_TestRatioReject",
+    "arguments": [
+      {
+        "type": "int",
+        "value": -1
+      }
+    ],
+    "state": "invoked",
+    "receipt": "re57fecd0950643e385e20538ca0ee0f6",
+    "returned": "PASS unchanged slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestFactionRuleReject",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "rd4fcad25edd9451e859ddf4c7832e0e9",
+    "returned": "PASS invalid actor, stale revision, invalid mode preserve rules"
+  },
+  {
+    "method": "GC_TestOpenView",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "briefing"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r8716192cd01b43a4a1da5b78a9174923",
+    "returned": "dispatched: production pause-menu action"
+  },
+  {
+    "method": "GC_TestOpenView",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "lobby"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rdd355527ae904a188bfdef76394cee6f",
+    "returned": "dispatched: production pause-menu action"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r7dbe128b659e47a1bd6c27f1c012f2ad",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r8be50ea8ca504ef0b55773db0907dcc5",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "locks"
+      },
+      {
+        "type": "bool",
+        "value": true
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rfc5160e5b0234e1c9e5e66aaf198e1cd",
+    "returned": "PASS locks slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "FactionRatioButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r872fb2523dba48018c22573ae0ec0861",
+    "returned": "dispatched: FactionRatioButton"
+  },
+  {
+    "method": "GC_TestRatioUI",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r9b14ca1212784e62ad81fd8946d42f74",
+    "returned": "ratioVisible=1 ratioEnabled=1 lockVisible=1 lockEnabled=1 ratioOn=0 revision=2 status="
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "Lobby Button"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r34d42879d5db4b509d2d2109e0ba05b7",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "Lobby Button"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r52dc1ced8e054421927cbbdb2679c3ae",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestSlotIconLayers",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "FactionRatioImage"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r6d4a8d7bf3be402d8572aef471d74afb",
+    "returned": "name=Background type=-1821463648 z=0 opacity=1 color=-16711165 visible=1\nname= type=-1821463648 z=0 opacity=1 color=-869254339 visible=1\nname=Text type=-1799526192 z=0 opacity=1 color=-986901 visible=0\nname=FactionRatioImage type=-1799525952 z=1 opacity=1 color=-65536 visible=1\n"
+  },
+  {
+    "method": "GC_TestSlotIconLayers",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksImage"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r49ebe056b4664a6fa9aedc680c3ecbfe",
+    "returned": "name=Background type=-1821463648 z=0 opacity=1 color=-14078418 visible=1\nname= type=-1821463648 z=0 opacity=1 color=-869254339 visible=1\nname=Text type=-1799526192 z=0 opacity=1 color=-986901 visible=0\nname=AllSlotLocksImage type=-1799525952 z=1 opacity=1 color=-1 visible=1\n"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r24cb7b25926f43adb29c23cb4770b157",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rfe76f29cae5d4abca3886df4996f10b8",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "locks"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "re4c7a0407aa740dbb407576d1168aa90",
+    "returned": "FAIL lock slot=1"
+  },
+  {
+    "method": "GC_TestRatioUI",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r1c638f922e2c4681a90760f18b493655",
+    "returned": "ratioVisible=1 ratioEnabled=1 lockVisible=1 lockEnabled=1 ratioOn=0 revision=22 status="
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r3b47b55c3c27483a99a94dd35e787177",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=1"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rb19f1c7cce2b4324bad7fe30f9215856",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "Lobby Button"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r74e9aa6fc8134757a4f889e01587a027",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "recb3047658474866848cf361c284e6ab",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=1"
+  },
+  {
+    "method": "GC_TestSlotStatusGallery",
+    "arguments": [
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r2c77e5793d704027a6794efa023d5dd4",
+    "returned": "presentationOnly=1 restored=0 rows=8"
+  },
+  {
+    "method": "GC_TestSlotStatusSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r2e6f800378db486689117f3514d88ce0",
+    "returned": "slot=1 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=2 state=2 adminLock=0 icon=1 extraLock=0 nameVisible=0 text=''\nslot=3 state=4 adminLock=0 icon=1 extraLock=0 nameVisible=1 text='Reserved Player'\nslot=4 state=4 adminLock=1 icon=1 extraLock=1 nameVisible=1 text='Reserved Player'\nslot=5 state=2 adminLock=1 icon=1 extraLock=1 nameVisible=1 text='Burn0ut7'\nslot=6 state=3 adminLock=0 icon=1 extraLock=0 nameVisible=1 text='Burn0ut7'\nslot=7 state=0 adminLock=0 icon=1 extraLock=0 nameVisible=1 text='Burn0ut7'\nslot=8 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\n"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "unchanged"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r910c3a9a21b348aaa5686a01e30e617a",
+    "returned": "PASS unchanged slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestSlotStatusGallery",
+    "arguments": [
+      {
+        "type": "bool",
+        "value": true
+      }
+    ],
+    "state": "invoked",
+    "receipt": "ra0c6573da43446a388bda8a3ffe86967",
+    "returned": "presentationOnly=1 restored=1 rows=0"
+  },
+  {
+    "method": "GC_TestSlotStatusSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r886be4af0552473a9fbda38f264cc149",
+    "returned": "slot=1 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=2 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=3 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=4 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=5 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=6 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=7 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=8 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 extraLock=0 nameVisible=0 text=''\n"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "unchanged"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r29a6008b32c34a2ca4764ae5dab0cad2",
+    "returned": "PASS unchanged slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r059a6c66d46e41fbaec2693e17e18ae3",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=1"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "ra0f7ff0b6973462391938a325a7c0fe5",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "locks"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r40bd94acc761482abdd16a9ff1b50d75",
+    "returned": "PASS locks slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestSlotStatusSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "rfab4daddde3f424cafec97dafe46d5fe",
+    "returned": "slot=1 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=2 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=3 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=4 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=5 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=6 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=7 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=8 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=9 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=10 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\n"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "FactionRatioButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rf8ed9438f0384395abfd32bf645a709e",
+    "returned": "dispatched: FactionRatioButton"
+  },
+  {
+    "method": "GC_TestRatioUI",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r650fb151ac5648efbb92b38d5dc9da13",
+    "returned": "ratioVisible=1 ratioEnabled=1 lockVisible=1 lockEnabled=1 ratioOn=1 revision=1 status="
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "arguments": [
+      {
+        "type": "int",
+        "value": 1
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rce79b5be15434be6b093b52e19af05f9",
+    "returned": "current=none"
+  },
+  {
+    "method": "GC_TestFactionSlotChoices",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r1da8a2742a414bb783f1cdc4e3f522d4",
+    "returned": "phase=SLOTTING revision=1 mode=0 locked=0 balance=1 | USSR slot=1 allowed=0 | US slot=11 allowed=1"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "FactionRatioButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rd247f37b8ad64017862787ce96065377",
+    "returned": "dispatched: FactionRatioButton"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "arguments": [
+      {
+        "type": "int",
+        "value": 1
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r1a728fad66aa45ffa2c026cf1f46bba9",
+    "returned": "current=1"
+  },
+  {
+    "method": "GC_TestFactionSlotChoices",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "rd937b70e2037450d9394a0db6283a476",
+    "returned": "phase=SLOTTING revision=2 mode=0 locked=0 balance=0 | USSR slot=1 allowed=1 | US slot=11 allowed=1 | current=1 canLeave=1"
+  },
+  {
+    "method": "GC_TestSlotStatusSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r5b87be8994634d0fae2e0cd9dc85265a",
+    "returned": "slot=1 state=4 adminLock=0 icon=1 extraLock=0 nameVisible=1 text='Burn0ut7'\nslot=2 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=3 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=4 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=5 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=6 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=7 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=8 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=9 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\nslot=10 state=0 adminLock=0 icon=0 extraLock=0 nameVisible=0 text=''\n"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "Lobby Button"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "re198ff1ce56b4d57974ae3f5c4a8777b",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r2041c0008b434985b3522734a00221a2",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=1"
+  },
+  {
+    "method": "GC_TestSlotStatusGallery",
+    "arguments": [
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r39a6e5b618044ff89c914c6aaa87e400",
+    "returned": "presentationOnly=1 restored=0 rows=8"
+  },
+  {
+    "method": "GC_TestSlotStatusSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r0b5a12f575994a008b6b20024e6e1ece",
+    "returned": "slot=1 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=2 state=2 adminLock=0 icon=1 nameVisible=0 text=''\nslot=3 state=4 adminLock=0 icon=1 nameVisible=1 text='Reserved Player'\nslot=4 state=4 adminLock=1 icon=1 nameVisible=1 text='Reserved Player'\nslot=5 state=2 adminLock=1 icon=1 nameVisible=1 text='Burn0ut7'\nslot=6 state=3 adminLock=0 icon=1 nameVisible=1 text='Burn0ut7'\nslot=7 state=0 adminLock=1 icon=1 nameVisible=1 text='Burn0ut7'\nslot=8 state=0 adminLock=0 icon=0 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text=''\n"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "unchanged"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r5ec81b5415d543de993bd32909b1f45a",
+    "returned": "PASS unchanged slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestSlotStatusGallery",
+    "arguments": [
+      {
+        "type": "bool",
+        "value": true
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r254b4c16897e480d94ac33649c6f6a5f",
+    "returned": "presentationOnly=1 restored=1 rows=0"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "unchanged"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r04af8f345cb742edb36bb9aef8eed358",
+    "returned": "PASS unchanged slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r85a71f5c8c894402bf18fda2a83683a2",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "arguments": [
+      {
+        "type": "int",
+        "value": 1
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r3da9a94d0b4c453faf7ab86f3a45d349",
+    "returned": "current=1"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r37f50f32d57345309100e52e848d3d96",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r78bad0bd8aa945afb9ade91086b21b2f",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "locks"
+      },
+      {
+        "type": "bool",
+        "value": true
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r38bda798db4c4d9c971cdea4b3326b04",
+    "returned": "PASS locks slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestSlotStatusSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "r490fb03716e346de9a4939e66bd7d071",
+    "returned": "slot=1 state=4 adminLock=1 icon=1 nameVisible=1 text='Burn0ut7'\nslot=2 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=3 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=4 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=5 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=6 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=7 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=8 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text=''\n"
+  }
+]

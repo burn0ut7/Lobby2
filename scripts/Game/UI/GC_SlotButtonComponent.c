@@ -177,6 +177,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		UpdateSlotVisuals();
 	}
 
+	//------------------------------------------------------------------------------------------------
 	protected void UpdateSlotVisuals()
 	{
 		if (!m_wRoot)
@@ -208,63 +209,51 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 				accent.SetOpacity(0.85);
 		}
 
+		string statusImage;
+		string playerName;
+		if (m_Slot)
+		{
+			if (m_Slot.IsKIA())
+				statusImage = "death";
+			else if (m_Slot.IsAdminLocked())
+				statusImage = "server-locked";
+			else if (m_Slot.IsAwaitingInitialJoin())
+				statusImage = "time";
+			else if (m_Slot.GetState() == GC_SlotState.DISCONNECTED)
+				statusImage = "disconnection";
+			else if (m_Slot.GetPlayerId() >= 0)
+				statusImage = "player";
+			else if (m_Slot.GetState() == GC_SlotState.RESERVED)
+				statusImage = "time";
+			else if (m_Slot.GetState() == GC_SlotState.LOCKED)
+				statusImage = "server-locked";
+
+			if (!statusImage.IsEmpty())
+				playerName = m_Slot.GetCachedPlayerName();
+		}
+
 		Widget statusSection = m_wRoot.FindAnyWidget("StatusSection");
 		if (statusSection)
+			statusSection.SetVisible(!statusImage.IsEmpty());
+
+		ImageWidget statusIcon = ImageWidget.Cast(m_wRoot.FindAnyWidget("StatusIcon"));
+		if (statusIcon)
 		{
-			bool showStatus = m_Slot && (m_Slot.GetPlayerId() >= 0 || m_Slot.GetState() != GC_SlotState.FREE || m_Slot.IsAdminLocked());
-			statusSection.SetVisible(showStatus);
+			statusIcon.SetVisible(!statusImage.IsEmpty());
+			if (!statusImage.IsEmpty())
+				statusIcon.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", statusImage);
 		}
 
 		TextWidget statusText = TextWidget.Cast(m_wRoot.FindAnyWidget("StatusText"));
-		if (statusText && m_Slot)
+		if (statusText)
 		{
-			if (m_Slot.IsAwaitingInitialJoin() && !m_Slot.IsKIA())
-			{
-				string reservedName = "Reserved";
-				if (!m_Slot.GetCachedPlayerName().IsEmpty())
-					reservedName += ": " + m_Slot.GetCachedPlayerName();
-				statusText.SetText(reservedName);
-				GC_PlayerNamePresentation.Apply(statusText, -1);
-			}
-			else if (m_Slot.GetPlayerId() >= 0 && !m_Slot.GetCachedPlayerName().IsEmpty())
-			{
-				statusText.SetText(m_Slot.GetCachedPlayerName());
-				GC_PlayerNamePresentation.Apply(statusText, m_Slot.GetPlayerId());
-			}
-			else
-			{
-				GC_PlayerNamePresentation.Apply(statusText, -1);
-				switch (m_Slot.GetState())
-				{
-					case GC_SlotState.FREE:
-						statusText.SetText("");
-						break;
-					case GC_SlotState.LOCKED:
-						statusText.SetText("Locked");
-						break;
-					case GC_SlotState.KIA:
-						statusText.SetText("KIA");
-						break;
-					case GC_SlotState.DISCONNECTED:
-						statusText.SetText("Disconnected");
-						break;
-					case GC_SlotState.RESERVED:
-						statusText.SetText("Reserved");
-						break;
-					default:
-						statusText.SetText("");
-						break;
-				}
-			}
+			statusText.SetText(playerName);
+			statusText.SetVisible(!playerName.IsEmpty());
+			int playerId = -1;
+			if (m_Slot && !m_Slot.IsAwaitingInitialJoin())
+				playerId = m_Slot.GetPlayerId();
+			GC_PlayerNamePresentation.Apply(statusText, playerId);
 		}
-		if (statusText && m_Slot)
-		{
-			string label = statusText.GetText();
-			if (m_Slot.IsAdminLocked())
-				label += " [Locked]";
-			statusText.SetText(label);
-		}
-
 	}
 
 	void RefreshAdminNamePresentation()

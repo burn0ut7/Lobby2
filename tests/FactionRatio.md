@@ -2,7 +2,7 @@
 
 ## Behavior
 
-The scales icon beside the padlock is admin-only. White/selected means ratio enforcement on; red/unselected means off, matching Reforger Lobby Community. Both controls are hidden and disabled without an authenticated admin login. No separate Admin Tools page or Briefing control was added. Ratio starts off, preserving the existing default; admins enable it per mission.
+The scales icon beside the padlock is admin-only. White means ratio enforcement on; red means off, matching Reforger Lobby Community. Both controls are hidden and disabled without an authenticated admin login. No separate Admin Tools page or Briefing control was added. Ratio starts off, preserving the existing default; admins enable it per mission.
 
 The existing `GC_FactionBalancePolicy` and manager join gate remain the sole policy implementation. Each faction's total slot capacity determines its share of connected players. Largest-remainder rounding gives exact integer totals and deterministic ties. Example: 10 versus 30 slots with 20 connected players yields quotas of 5 and 15. Locked/reserved slots still contribute to total authored capacity, as in Community. One-side scenarios are unrestricted by ratio. Ordinary joins to a side at its quota are rejected on authority. Moving within one's current side remains allowed. Enabling never moves existing players; existing explicit admin assignments retain their authorized override. Slot locks, claims and faction-switch rules are preserved.
 
@@ -10,7 +10,7 @@ Toggle uses the existing revision-checked faction-rules handler and reliable bro
 
 ## Required MCP execution
 
-No runtime pass claimed: the Reforger MCP namespace is currently unavailable. New source/test helpers have not been compiled. Use tests/README.md to load the optional test addon when the connection returns.
+Embedded-host compilation, rendering, bulk lock, quota and rejection checks ran on 2026-10-24. See Art/References/faction-ratio/validation.md and runtime evidence for passes, failures and remaining multiplayer/input gaps. The full acceptance procedure below remains broader than the executed checks.
 
 1. Reload scripts and retain fresh compile output. Run `GC_TestFactionQuotas()` for exact ratio, zero population, asymmetric rounding, tied remainder and zero capacity cases.
 2. In Lobby, run `GC_TestRatioUI()` as a non-admin: both visible and enabled flags false. Authenticate normally: controls appear. Capture admin/non-admin at 1920x1080 and 1280x720. Verify native mouse/keyboard/controller focus, enabled/disabled scales states and a single padlock. Briefing contains neither control.
@@ -37,4 +37,4 @@ and verify denominators 5:15; disable it and verify 10:30. Re-enable, join/leave
 player, and change the other faction's capacity; verify both counters update.
 Check zero population, one playable faction, JIP and menu reopen. Existing
 occupants above a reduced quota remain visible without inflating the denominator.
-These checks have not run: the Reforger MCP connection is unavailable.
+The one-player live counter toggle and quota calculation cases passed. Population-change, capacity-change, single-faction and JIP execution remain pending.

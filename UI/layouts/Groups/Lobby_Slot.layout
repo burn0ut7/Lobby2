@@ -126,11 +126,12 @@ ButtonWidgetClass {
          {
           ImageWidgetClass "{6A24000100000013}" {
            Name "StatusIcon"
+           "Ignore Cursor" 1
            Slot LayoutSlot "{6A24000100000014}" {
             VerticalAlign 1
             Padding 0 0 5 0
            }
-           Texture "{D17288006833490F}UI/Textures/Icons/icons_wrapperUI-32.imageset"
+           Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
            Image "player"
            Size 32 32
           }
