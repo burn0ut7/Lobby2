@@ -71,6 +71,7 @@ class GC_ContextMenuContext
 		GC_ContextMenuContext context = new GC_ContextMenuContext();
 		context.m_eTargetType = GC_EContextTargetType.SLOT;
 		context.m_Slot = slot;
+		context.m_iPlayerId = slot.GetPlayerId();
 		context.m_PlayerIdentity = slot.GetUUID();
 		context.CaptureRequester();
 		return context;
@@ -388,6 +389,7 @@ class GC_ContextMenuActionRegistry
 		s_aActions.Insert(new GC_AdminOpenToolsAction());
 		s_aActions.Insert(new GC_AdminSendMessageAction());
 		s_aActions.Insert(new GC_AdminMoveSelectedAction());
+		s_aActions.Insert(new GC_AdminRemoveFactionLockAction());
 		s_aActions.Insert(new GC_AdminVoiceAction(true));
 		s_aActions.Insert(new GC_AdminVoiceAction(false));
 		s_aActions.Insert(new GC_AdminReserveSlotAction());

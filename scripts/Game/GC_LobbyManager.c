@@ -58,6 +58,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected int m_iFactionLockOverride;
 	protected bool m_bEnforceFactionBalance;
 	protected int m_iFactionRulesRevision;
+	//! Mission-local permission exceptions, never faction ownership.
+	protected ref array<string> m_aFactionUnlockedIdentities = {};
 	ref ScriptInvoker<int> m_OnFactionRulesChanged = new ScriptInvoker<int>();
 	protected ref array<string> m_aAdminSessionHistory = {};
 	protected ref array<ref GC_AdminSessionPlayer> m_aModerationHistory = {};
@@ -1456,6 +1458,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		writer.WriteInt(m_iFactionLockOverride);
 		writer.WriteBool(m_bEnforceFactionBalance);
 		writer.WriteInt(m_iFactionRulesRevision);
+		writer.WriteInt(m_aFactionUnlockedIdentities.Count());
+		foreach (string unlockedIdentity : m_aFactionUnlockedIdentities)
+			writer.WriteString(unlockedIdentity);
 		writer.WriteInt(m_iFactionReadinessRevision);
 		writer.WriteInt(m_mFactionReadiness.Count());
 		foreach (string factionKey, GC_FactionReadiness acknowledgement : m_mFactionReadiness)
@@ -1545,6 +1550,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!reader.ReadInt(m_iFactionLockOverride) || !reader.ReadBool(m_bEnforceFactionBalance)
 			|| !reader.ReadInt(m_iFactionRulesRevision) || m_iFactionLockOverride < 0 || m_iFactionLockOverride > 2)
 			return false;
+		int unlockedCount;
+		if (!reader.ReadInt(unlockedCount) || unlockedCount < 0)
+			return false;
+		m_aFactionUnlockedIdentities.Clear();
+		for (int unlockedIndex; unlockedIndex < unlockedCount; unlockedIndex++)
+		{
+			string unlockedIdentity;
+			if (!reader.ReadString(unlockedIdentity) || unlockedIdentity.IsEmpty())
+				return false;
+			m_aFactionUnlockedIdentities.Insert(unlockedIdentity);
+		}
 		m_OnFactionRulesChanged.Invoke(m_iFactionRulesRevision);
 		int readinessCount;
 		if (!reader.ReadInt(m_iFactionReadinessRevision) || !reader.ReadInt(readinessCount) || readinessCount < 0 || readinessCount > 256)
@@ -2175,6 +2191,39 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	bool IsPlayerFactionLocked(int playerId)
+	{
+		if (playerId <= 0 || !IsFactionSwitchLocked() || !GetPlayerFaction(playerId))
+			return false;
+		return !m_aFactionUnlockedIdentities.Contains(GetPlayerVoiceIdentity(playerId));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string ExecuteAdminRemoveFactionLock(int requesterId, int playerId, UUID expectedIdentity)
+	{
+		string target = string.Format("player=%1 identity=%2", playerId, expectedIdentity);
+		if (!AuthorizeAdminAction(requesterId, "faction-unlock", target))
+			return "rejected-not-logged-in";
+
+		string outcome = "applied";
+		if (expectedIdentity.IsEmpty() || GetPlayerVoiceIdentity(playerId) != expectedIdentity
+			|| !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
+			outcome = "rejected-stale-target";
+		else if (GetLobbyPhase() == SCR_EGameModeState.POSTGAME || !IsPlayerFactionLocked(playerId))
+			outcome = "rejected-not-faction-locked";
+		else
+		{
+			m_aFactionUnlockedIdentities.Insert(expectedIdentity);
+			m_iFactionRulesRevision++;
+			Rpc(RpcDo_AdminFactionRules, m_iFactionRulesRevision, m_iFactionLockOverride,
+				m_bEnforceFactionBalance, m_aFactionUnlockedIdentities);
+			m_OnFactionRulesChanged.Invoke(m_iFactionRulesRevision);
+		}
+		GC_AdminActionLogger.Log(requesterId, "faction-unlock", target, outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string ExecuteAdminFactionRules(int requesterId, int expectedRevision, int lockOverride, bool enforceBalance)
 	{
 		string target = string.Format("revision=%1 lockMode=%2 balance=%3", expectedRevision, lockOverride, enforceBalance);
@@ -2190,7 +2239,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_iFactionLockOverride = lockOverride;
 			m_bEnforceFactionBalance = enforceBalance;
 			m_iFactionRulesRevision++;
-			Rpc(RpcDo_AdminFactionRules, m_iFactionRulesRevision, lockOverride, enforceBalance);
+			Rpc(RpcDo_AdminFactionRules, m_iFactionRulesRevision, lockOverride, enforceBalance, m_aFactionUnlockedIdentities);
 			m_OnFactionRulesChanged.Invoke(m_iFactionRulesRevision);
 		}
 		GC_AdminActionLogger.Log(requesterId, "faction-rules", target, outcome);
@@ -2199,13 +2248,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_AdminFactionRules(int revision, int lockOverride, bool enforceBalance)
+	protected void RpcDo_AdminFactionRules(int revision, int lockOverride, bool enforceBalance, array<string> unlockedIdentities)
 	{
 		if (Replication.IsServer() || GC_LobbyManager.GetManager() != this || m_bShutdown || revision <= m_iFactionRulesRevision)
 			return;
 		m_iFactionRulesRevision = revision;
 		m_iFactionLockOverride = lockOverride;
 		m_bEnforceFactionBalance = enforceBalance;
+		m_aFactionUnlockedIdentities.Copy(unlockedIdentities);
 		m_OnFactionRulesChanged.Invoke(revision);
 	}
 
@@ -4168,7 +4218,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
 			return false;
 		if (occupyingPlayerId == playerId)
-			return phase == SCR_EGameModeState.SLOTTING && !IsFactionSwitchLocked();
+			return phase == SCR_EGameModeState.SLOTTING && !IsPlayerFactionLocked(playerId);
 
 		SCR_AIGroup targetGroup = ResolveSlotGroup(targetSlot);
 		if (!targetGroup || !targetGroup.GetFaction())
@@ -4176,7 +4226,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (!CanPlayerJoinBalancedFaction(playerId, targetGroup.GetFaction()))
 			return false;
-		if (phase == SCR_EGameModeState.SLOTTING && !IsFactionSwitchLocked())
+		if (phase == SCR_EGameModeState.SLOTTING && !IsPlayerFactionLocked(playerId))
 			return true;
 
 		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
@@ -4184,7 +4234,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 
 		Faction lockedFaction = GetPlayerFaction(playerId);
-		return !IsFactionSwitchLocked() || !lockedFaction || lockedFaction == targetGroup.GetFaction();
+		return !IsPlayerFactionLocked(playerId) || !lockedFaction || lockedFaction == targetGroup.GetFaction();
 	}
 
     //! Broadcasts a complete server-authoritative slot state.
@@ -4242,6 +4292,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		m_bShutdown = true;
 		m_mFactionReadiness.Clear();
+		m_aFactionUnlockedIdentities.Clear();
 		if (m_AdminBanService)
 			m_AdminBanService.Shutdown();
 		GetGame().GetCallqueue().Remove(ExpirePriorityVoice);

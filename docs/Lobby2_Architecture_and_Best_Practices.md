@@ -406,6 +406,15 @@ establishes the lock. KIA claims cannot switch slots. Entering `BRIEFING` stages
 every claimed slot in bounded batches; each pending spawn must re-check the
 claim so a released slot cannot be materialized by a stale queue entry.
 
+Admins can right-click a faction-locked player's row and select **Remove faction
+lock**. This context action grants a mission-local permission exception for that
+identity, preserving the current slot, group and faction. The exception survives
+reconnection and is included in faction-rule broadcasts and JIP snapshots; it ends
+with world teardown. The action disappears for unlocked players. Normal slot,
+KIA, assignment-pin and faction-balance checks still apply. The owning controller
+routes the request to server authorization, stale-identity checks and central
+admin logging. No separate Admin Tools page is added.
+
 Tracked controllable destruction is phase-sensitive: before `GAME`, a claimed slot is restaged; during `GAME`, it becomes `KIA` and any connected claimant moves to spectator. Repeated callbacks must be harmless. All authoritative transitions use the existing reliable slot update path, and queued JIP/spawn callbacks are removed during shutdown.
 
 ## Lifecycle and cleanup

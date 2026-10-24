@@ -383,12 +383,10 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			return;
 
 		FactionKey lockedFactionKey;
-		if (m_LobbyManager.IsFactionSwitchLocked())
+		PlayerController playerController = GetGame().GetPlayerController();
+		if (playerController && m_LobbyManager.IsPlayerFactionLocked(playerController.GetPlayerId()))
 		{
-			PlayerController playerController = GetGame().GetPlayerController();
-			Faction playerFaction;
-			if (playerController)
-				playerFaction = m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
+			Faction playerFaction = m_LobbyManager.GetPlayerFaction(playerController.GetPlayerId());
 			if (playerFaction)
 				lockedFactionKey = playerFaction.GetFactionKey();
 		}

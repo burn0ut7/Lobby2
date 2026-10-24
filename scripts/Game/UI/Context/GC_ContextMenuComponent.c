@@ -75,7 +75,10 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 		m_wHeader = TextWidget.Cast(w.FindAnyWidget("ContextHeaderText"));
 		m_LobbyManager = GC_LobbyManager.GetManager();
 		if (m_LobbyManager)
+		{
 			m_LobbyManager.m_OnPlayerRoleChanged.Insert(OnPlayerRoleChanged);
+			m_LobbyManager.m_OnFactionRulesChanged.Insert(OnFactionRulesChanged);
+		}
 
 		InputManager inputManager = GetGame().GetInputManager();
 		if (inputManager)
@@ -109,7 +112,10 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 		if (s_wActiveMenu == m_wRoot)
 			s_wActiveMenu = null;
 		if (m_LobbyManager)
+		{
 			m_LobbyManager.m_OnPlayerRoleChanged.Remove(OnPlayerRoleChanged);
+			m_LobbyManager.m_OnFactionRulesChanged.Remove(OnFactionRulesChanged);
+		}
 
 		m_Context = null;
 		m_LobbyManager = null;
@@ -263,6 +269,12 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 
 		if (m_Context.GetLabelPlayerId() == playerId)
 			GC_PlayerNamePresentation.Apply(m_wHeader, playerId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnFactionRulesChanged(int revision)
+	{
+		RequestClose();
 	}
 
 	protected void RequestClose()

@@ -618,6 +618,27 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void RequestAdminRemoveFactionLock(int playerId, UUID expectedIdentity)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+		{
+			m_iAdminActionRequestId++;
+			Rpc(RpcAsk_AdminRemoveFactionLock, playerId, expectedIdentity, m_iAdminActionRequestId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_AdminRemoveFactionLock(int playerId, string expectedIdentity, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			Rpc(RpcDo_AdminActionResult, manager.ExecuteAdminRemoveFactionLock(GetPlayerId(), playerId, expectedIdentity), requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "faction-unlock", playerId.ToString(), "rejected-inactive-mode");
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void RequestAdminFactionRules(int expectedRevision, int lockOverride, bool enforceBalance)
 	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
