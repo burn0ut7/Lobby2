@@ -3,7 +3,7 @@ modded class SCR_MapMarkersUI
 	protected static const int GC_LOBBY_MARKER_DIALOG_Z_ORDER = 10;
 
 	//------------------------------------------------------------------------------------------------
-	protected bool GC_IsMarkerPlacementBlocked()
+	bool GC_IsMarkerPlacementBlocked()
 	{
 		if (GC_LobbyPhase.ArePlayerMapMarkersLocked())
 			return true;
