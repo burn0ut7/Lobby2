@@ -22,3 +22,19 @@ No runtime pass claimed: the Reforger MCP namespace is currently unavailable. Ne
 ## Optional map drawing
 
 Inspected local `tilw-mission-framework/addon.gproj` and scripts: no TILW-specific compile-time macro declaration found. `TILW_MapShapeComponent` supplies that addon's shape rendering. Lobby2 has no TILW script reference or addon dependency, so this integration remains omitted as requested. Native map-marker changes from other work remain separate. A future explicit optional adapter needs a supported build boundary; do not invent a macro or require TILW for Lobby2 to compile.
+
+## Faction counter
+
+The denominator is the current ratio quota, capped at the faction's physical slot
+count. With enforcement disabled (or fewer than two playable factions), it is the
+physical slot count. The numerator remains the number of claimed player slots.
+Admission and display use `GC_LobbyManager.GetFactionBalanceQuota` so rounding
+cannot diverge. Counters refresh after rules, connection, registry and either
+faction's topology changes.
+
+Runtime acceptance: with capacities 10:30 and 20 connected players, enable ratio
+and verify denominators 5:15; disable it and verify 10:30. Re-enable, join/leave a
+player, and change the other faction's capacity; verify both counters update.
+Check zero population, one playable faction, JIP and menu reopen. Existing
+occupants above a reduced quota remain visible without inflating the denominator.
+These checks have not run: the Reforger MCP connection is unavailable.

@@ -2289,6 +2289,26 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		if (!m_bEnforceFactionBalance || GetPlayerFaction(playerId) == targetFaction)
 			return true;
+		int quota = GetFactionBalanceQuota(targetFaction.GetFactionKey());
+		if (quota < 0)
+			return true;
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		int occupants;
+		foreach (int connectedPlayerId : players)
+		{
+			if (GetPlayerFaction(connectedPlayerId) == targetFaction)
+				occupants++;
+		}
+		return occupants < quota;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Shared admission/display quota; -1 means this mission has no ratio limit.
+	int GetFactionBalanceQuota(FactionKey factionKey)
+	{
+		if (!m_bEnforceFactionBalance)
+			return -1;
 		array<string> keys = {};
 		foreach (Faction faction : GetRegisteredFactions())
 		{
@@ -2296,7 +2316,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				keys.Insert(faction.GetFactionKey());
 		}
 		if (keys.Count() < 2)
-			return true;
+			return -1;
 		keys.Sort();
 		array<int> capacities = {};
 		foreach (string key : keys)
@@ -2305,16 +2325,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GetGame().GetPlayerManager().GetPlayers(players);
 		array<int> quotas;
 		GC_FactionBalancePolicy.Calculate(capacities, players.Count(), quotas);
-		int index = keys.Find(targetFaction.GetFactionKey());
+		int index = keys.Find(factionKey);
 		if (index < 0)
-			return false;
-		int occupants;
-		foreach (int connectedPlayerId : players)
-		{
-			if (GetPlayerFaction(connectedPlayerId) == targetFaction)
-				occupants++;
-		}
-		return occupants < quotas[index];
+			return 0;
+		return quotas[index];
 	}
 
 	//------------------------------------------------------------------------------------------------
