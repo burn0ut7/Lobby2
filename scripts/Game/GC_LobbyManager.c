@@ -44,6 +44,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected ref map<string, ref GC_FactionReadiness> m_mFactionReadiness = new map<string, ref GC_FactionReadiness>();
 	protected int m_iFactionReadinessRevision;
+	protected bool m_bBriefingClockStarted;
+	protected WorldTimestamp m_BriefingStartedAt;
 	ref ScriptInvoker<int> m_OnFactionReadinessChanged = new ScriptInvoker<int>();
 
 	protected ref GC_LobbyRoster m_Roster = new GC_LobbyRoster();
@@ -195,6 +197,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (Replication.IsServer() && state == SCR_EGameModeState.BRIEFING)
 		{
+			if (!m_bBriefingClockStarted)
+			{
+				ChimeraWorld world = GetGame().GetWorld();
+				m_BriefingStartedAt = world.GetServerTimestamp();
+				m_bBriefingClockStarted = true;
+				Rpc(RpcDo_BriefingClockStarted, m_BriefingStartedAt);
+			}
 			ReconcileBriefingVoiceAssignments();
 			QueueCatchUpConnectedPlayers();
 		}
@@ -1451,6 +1460,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			writer.WriteString(acknowledgement.m_sIdentity);
 		}
 
+		writer.WriteBool(m_bBriefingClockStarted);
+		writer.Write(m_BriefingStartedAt, 64);
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
         return true;
     }
@@ -1542,6 +1553,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_mFactionReadiness.Set(factionKey, new GC_FactionReadiness(slotId, playerId, identity));
 		}
 		m_OnFactionReadinessChanged.Invoke(m_iFactionReadinessRevision);
+		if (!reader.ReadBool(m_bBriefingClockStarted) || !reader.Read(m_BriefingStartedAt, 64))
+			return false;
 
 
 		m_OnBriefingsChanged.Invoke(m_BriefingCatalog.GetBriefingRevision());
@@ -4267,6 +4280,26 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_ParameterCatalog.Clear();
 		Print("GC | Lifecycle | Lobby2 manager shutdown complete");
     }
+
+	//------------------------------------------------------------------------------------------------
+	//! Seconds on the engine's synchronized server clock; unavailable outside briefing.
+	int GetBriefingElapsedSeconds()
+	{
+		if (GetManager() != this || m_bShutdown || !m_bBriefingClockStarted || GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+			return -1;
+		ChimeraWorld world = GetGame().GetWorld();
+		return Math.Max(0, Math.Floor(world.GetServerTimestamp().DiffSeconds(m_BriefingStartedAt)));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_BriefingClockStarted(WorldTimestamp startedAt)
+	{
+		if (Replication.IsServer() || GetManager() != this || m_bShutdown)
+			return;
+		m_BriefingStartedAt = startedAt;
+		m_bBriefingClockStarted = true;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	//! Command follows the same ordered groups/slots presented by the lobby.

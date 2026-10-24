@@ -1,3 +1,14 @@
+## Briefing timer addition — 2026-10-24
+
+Reuse runtime-icon-toggle.png for the existing screen composition. Add only one
+plain `Briefing 00:00` text readout in the top-right header, immediately left of
+the player count. No clock icon, panel, border or control. Minutes continue beyond
+59. Visible during the authoritative BRIEFING phase, including when browsing
+other lobby tabs; hidden before and after. The server records phase entry once,
+and all clients subtract that timestamp from the engine's synchronized clock.
+Acceptance: starts at phase entry, advances, survives menu reopen, matches remote
+and late-joining clients within sampling tolerance, and disappears on phase exit.
+
 ## Icon-only revision — 2026-10-24
 
 The user requested faction name, readiness icon and CO only. Reuse concept-v1
