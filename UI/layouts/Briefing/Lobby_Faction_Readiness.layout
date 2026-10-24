@@ -6,7 +6,7 @@ SizeLayoutWidgetClass {
  AllowWidthOverride 1
  WidthOverride 220
  AllowHeightOverride 1
- HeightOverride 108
+ HeightOverride 96
  components {
   GC_FactionReadyTileComponent "{6A71000000000003}" {
   }
@@ -48,9 +48,9 @@ SizeLayoutWidgetClass {
      Slot FrameWidgetSlot {
       Anchor 0 0 1 0
       OffsetLeft 10
-      OffsetTop 4
+      OffsetTop 2
       OffsetRight 10
-      OffsetBottom -30
+      OffsetBottom -26
      }
      "Ignore Cursor" 1
      Text "Faction"
@@ -63,9 +63,9 @@ SizeLayoutWidgetClass {
      Slot FrameWidgetSlot {
       Anchor 0 0 1 0
       OffsetLeft 8
-      OffsetTop 68
+      OffsetTop 58
       OffsetRight 8
-      OffsetBottom -104
+      OffsetBottom -94
      }
      "Ignore Cursor" 1
      Color 0.8 0.82 0.82 1
@@ -73,16 +73,16 @@ SizeLayoutWidgetClass {
      Wrap 1
      "Font Size" 18
      "Horizontal Alignment" Center
-     "Vertical Alignment" Center
+     "Vertical Alignment" Top
     }
     ImageWidgetClass "{6A71000000000008}" {
      Name "ReadinessIcon"
      Slot FrameWidgetSlot {
       Anchor 0.5 0 0.5 0
       OffsetLeft -16
-      OffsetTop 34
+      OffsetTop 26
       OffsetRight -16
-      OffsetBottom -66
+      OffsetBottom -58
      }
      "Ignore Cursor" 1
     }

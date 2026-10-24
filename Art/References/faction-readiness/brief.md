@@ -10,6 +10,13 @@ Keep labels and status fully legible for observers; disabled means no activation
 The user then requested less empty space: reduce height from 132 to 108, tighten
 vertical gaps, and use a 32-unit state icon while preserving text sizes and width.
 
+
+Follow-up spacing revision: reduce height from 108 to 96; close the gaps above
+and below the existing 32-unit icon, and top-align the CO text within its
+unchanged 36-unit wrapping area. Faction and CO font sizes remain unchanged.
+Source checks passed; runtime appearance remains unverified because Reforger
+MCP was unavailable in this session. compact-peer-1280.png is the prior baseline.
+
 ## Briefing timer addition — 2026-10-24
 
 Reuse runtime-icon-toggle.png for the existing screen composition. Add only one
