@@ -323,7 +323,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 			}
 		}
 		m_wLabelText.SetText(displayName);
-		GC_PlayerNamePresentation.Apply(m_wLabelText, presentedPlayerId, 0xFF000000);
+		GC_PlayerNamePresentation.Apply(m_wLabelText, presentedPlayerId);
 		m_bLabelLayoutDirty = true;
 		return !displayName.IsEmpty();
 	}

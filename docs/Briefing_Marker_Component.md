@@ -18,7 +18,10 @@ controls the in-game marker.
 - **World Scale** off treats **Size** as screen pixels. On treats **Size** as
   world metres, so the marker grows and shrinks with map zoom.
 - **Color** tints both the map marker image and the Workbench direction arrow.
-- **Description** is displayed beneath the image.
+- **Description** is displayed in black beneath the image and scales with it.
+  World-scale descriptions grow and shrink with map zoom; screen-scale descriptions
+  keep their screen size. A 48-pixel icon uses 18-pixel text, with the label area
+  scaled proportionally. The font rounds to whole pixels with a one-pixel minimum.
 - **Faction Keys** is an array of authoritative base-game faction keys. An
   empty array shows the marker to everyone.
 - **Show At Game Mode State** selects the state in which the marker is shown.
