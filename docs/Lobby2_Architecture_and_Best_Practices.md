@@ -400,7 +400,11 @@ Slotting requests are server-authoritative and JIP-safe. Claims, changes, and
 toggling out are unrestricted by faction only during `SLOTTING` and remain
 `RESERVED`. From `BRIEFING` through `GAME`, a player's authoritative current
 base-game faction is the faction lock: later slot requests may target only that
-faction, and toggling out is rejected so the lock cannot be cleared. A player
+faction. Clicking one's occupied slot releases the claim even while factions are
+locked; native group membership is retained so the next selection remains on
+the same side. During `GAME`, the player must enter spectator state before the
+claim is released. Admin-pinned and KIA claims cannot be released or switched
+through self-service. A player
 who reaches `BRIEFING` without a slot may make one initial selection, which
 establishes the lock. KIA claims cannot switch slots. Entering `BRIEFING` stages
 every claimed slot in bounded batches; each pending spawn must re-check the

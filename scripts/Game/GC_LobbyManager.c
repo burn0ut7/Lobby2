@@ -4131,13 +4131,21 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         GC_Slot currentSlot = GetSlotByPlayerId(playerId);
         SCR_AIGroup currentGroup = GetPlayerGroup(playerId);
 
-		// Toggling out remains SLOTTING-only. From BRIEFING onward the current
-		// authoritative group is also the player's faction lock.
+		// Releasing a role must not erase the native faction membership used
+		// to validate the next selection while factions are locked.
 		if (occupyingPlayerId == playerId)
 		{
 			if (!toggleCurrent)
 				return true;
-			if (currentGroup)
+			if (phase == SCR_EGameModeState.GAME)
+			{
+				SetSpectator(playerId, true);
+				GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+				if (!controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR
+					|| controller.GetControlledEntity() == targetSlot.GetEntity())
+					return false;
+			}
+			if (currentGroup && !IsFactionSwitchLocked())
 				currentGroup.RemovePlayer(playerId);
 			SynchronizePlayerNativeMembership(playerId);
 
@@ -4192,6 +4200,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return true;
     }
 
+	//------------------------------------------------------------------------------------------------
 	//! Shared presentation and authority policy for player-owned slot requests.
 	//! Base-game group membership supplies the faction lock; Lobby2 stores no
 	//! parallel faction ownership value.
@@ -4200,8 +4209,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (playerId <= 0 || !targetSlot)
 			return false;
 
-		GC_Slot pinnedSlot = GetSlotByPlayerId(playerId);
-		if (pinnedSlot && pinnedSlot.IsAssignmentPinned())
+		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
+		if (currentSlot && (currentSlot.IsAssignmentPinned() || currentSlot.IsKIA()))
 			return false;
 		if (targetSlot.IsAdminLocked() && targetSlot.GetPlayerId() != playerId)
 			return false;
@@ -4218,7 +4227,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (occupyingPlayerId >= 0 && occupyingPlayerId != playerId)
 			return false;
 		if (occupyingPlayerId == playerId)
-			return phase == SCR_EGameModeState.SLOTTING && !IsPlayerFactionLocked(playerId);
+			return true;
 
 		SCR_AIGroup targetGroup = ResolveSlotGroup(targetSlot);
 		if (!targetGroup || !targetGroup.GetFaction())
@@ -4228,10 +4237,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		if (phase == SCR_EGameModeState.SLOTTING && !IsPlayerFactionLocked(playerId))
 			return true;
-
-		GC_Slot currentSlot = GetSlotByPlayerId(playerId);
-		if (currentSlot && currentSlot.IsKIA())
-			return false;
 
 		Faction lockedFaction = GetPlayerFaction(playerId);
 		return !IsPlayerFactionLocked(playerId) || !lockedFaction || lockedFaction == targetGroup.GetFaction();
