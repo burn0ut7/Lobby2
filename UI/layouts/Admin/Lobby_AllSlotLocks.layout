@@ -12,7 +12,7 @@ SizeLayoutWidgetClass {
    {
     TextWidgetClass {
      Name "SlotsTitle"
-     Slot FrameWidgetSlot { Anchor 0 0 0 1 OffsetLeft 0 OffsetTop 0 OffsetRight -90 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 0 0 1 PositionX 0 OffsetLeft 0 PositionY 0 OffsetTop 0 SizeX 90 OffsetRight -90 SizeY 0 OffsetBottom 0 }
      Text "Slots"
      "Vertical Alignment" Center
      "Ignore Cursor" 1
@@ -28,7 +28,7 @@ SizeLayoutWidgetClass {
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "FactionRatioButton"
-     Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -102 OffsetTop 0 OffsetRight 54 OffsetBottom -48 }
+     Slot FrameWidgetSlot { Anchor 1 0 1 0 PositionX -102 OffsetLeft -102 PositionY 0 OffsetTop 0 SizeX 48 OffsetRight 54 SizeY 48 OffsetBottom -48 }
      "Is Visible" 0
      components {
       SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
@@ -65,7 +65,7 @@ SizeLayoutWidgetClass {
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "AllSlotLocksButton"
-     Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -48 OffsetTop 0 OffsetRight 0 OffsetBottom -48 }
+     Slot FrameWidgetSlot { Anchor 1 0 1 0 PositionX -48 OffsetLeft -48 PositionY 0 OffsetTop 0 SizeX 48 OffsetRight 0 SizeY 48 OffsetBottom -48 }
      "Is Visible" 0
      components {
       SCR_ButtonTextComponent "{7C41F8A018B24C00}" {

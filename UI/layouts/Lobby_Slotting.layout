@@ -269,6 +269,7 @@ FrameWidgetClass {
               SizeLayoutWidgetClass : "{6A73000000000001}UI/layouts/Admin/Lobby_AllSlotLocks.layout" {
                Name "SlotsHeader"
                Slot LayoutSlot {
+                HorizontalAlign 3
                }
               }
               ScrollLayoutWidgetClass "{6A1B462DF999F787}" {
