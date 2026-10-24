@@ -66,9 +66,9 @@ modded class GC_LobbyPlayerController
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
 
-		if (action == "briefing-clock")
+		if (action == "phase-clock")
 		{
-			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestBriefingClockSnapshot());
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestPhaseClockSnapshot());
 			return;
 		}
 
@@ -352,7 +352,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
-			"briefing-clock",
+			"phase-clock",
 			"readiness-open",
 			"readiness-long-name",
 			"readiness-focus",

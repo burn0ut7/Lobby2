@@ -44,8 +44,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected ref map<string, ref GC_FactionReadiness> m_mFactionReadiness = new map<string, ref GC_FactionReadiness>();
 	protected int m_iFactionReadinessRevision;
-	protected bool m_bBriefingClockStarted;
-	protected WorldTimestamp m_BriefingStartedAt;
+	protected SCR_EGameModeState m_ClockPhase = -1;
+	protected WorldTimestamp m_PhaseStartedAt;
 	ref ScriptInvoker<int> m_OnFactionReadinessChanged = new ScriptInvoker<int>();
 
 	protected ref GC_LobbyRoster m_Roster = new GC_LobbyRoster();
@@ -107,6 +107,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (Replication.IsServer() && !SCR_Global.IsEditMode())
 			EnsureFormationCatalog();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Initial PREGAME has no state-change event. The game mode dispatches this
+	//! callback once its world is loaded, on both listen and dedicated servers.
+	override void OnWorldPostProcess(World world)
+	{
+		super.OnWorldPostProcess(world);
+		if (Replication.IsServer() && !SCR_Global.IsEditMode())
+			StartPhaseClock(GetLobbyPhase());
 	}
 
 	protected bool EnsureParameterCatalog()
@@ -195,15 +205,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		PrintFormat("GC | Phase | base state event: state=%1 role=%2", GetPhaseName(state), role);
 
+		if (Replication.IsServer())
+			StartPhaseClock(state);
+
 		if (Replication.IsServer() && state == SCR_EGameModeState.BRIEFING)
 		{
-			if (!m_bBriefingClockStarted)
-			{
-				ChimeraWorld world = GetGame().GetWorld();
-				m_BriefingStartedAt = world.GetServerTimestamp();
-				m_bBriefingClockStarted = true;
-				Rpc(RpcDo_BriefingClockStarted, m_BriefingStartedAt);
-			}
 			ReconcileBriefingVoiceAssignments();
 			QueueCatchUpConnectedPlayers();
 		}
@@ -1460,8 +1466,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			writer.WriteString(acknowledgement.m_sIdentity);
 		}
 
-		writer.WriteBool(m_bBriefingClockStarted);
-		writer.Write(m_BriefingStartedAt, 64);
+		writer.WriteInt(m_ClockPhase);
+		writer.Write(m_PhaseStartedAt, 64);
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
         return true;
     }
@@ -1553,7 +1559,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_mFactionReadiness.Set(factionKey, new GC_FactionReadiness(slotId, playerId, identity));
 		}
 		m_OnFactionReadinessChanged.Invoke(m_iFactionReadinessRevision);
-		if (!reader.ReadBool(m_bBriefingClockStarted) || !reader.Read(m_BriefingStartedAt, 64))
+		if (!reader.ReadInt(m_ClockPhase) || !reader.Read(m_PhaseStartedAt, 64))
 			return false;
 
 
@@ -4282,23 +4288,37 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     }
 
 	//------------------------------------------------------------------------------------------------
-	//! Seconds on the engine's synchronized server clock; unavailable outside briefing.
-	int GetBriefingElapsedSeconds()
+	//! Each authoritative phase begins once; menu navigation never resets it.
+	protected void StartPhaseClock(SCR_EGameModeState phase)
 	{
-		if (GetManager() != this || m_bShutdown || !m_bBriefingClockStarted || GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+		if (!GC_LobbyPhase.IsValid(phase) || GC_LobbyPhase.IsAtOrAfter(m_ClockPhase, phase))
+			return;
+		ChimeraWorld world = GetGame().GetWorld();
+		m_ClockPhase = phase;
+		m_PhaseStartedAt = world.GetServerTimestamp();
+		Rpc(RpcDo_PhaseClockStarted, phase, m_PhaseStartedAt);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Hide stale timing while the phase and timestamp streams converge.
+	int GetPhaseElapsedSeconds()
+	{
+		if (GetManager() != this || m_bShutdown || !GC_LobbyPhase.IsValid(m_ClockPhase) || GetLobbyPhase() != m_ClockPhase)
 			return -1;
 		ChimeraWorld world = GetGame().GetWorld();
-		return Math.Max(0, Math.Floor(world.GetServerTimestamp().DiffSeconds(m_BriefingStartedAt)));
+		return Math.Max(0, Math.Floor(world.GetServerTimestamp().DiffSeconds(m_PhaseStartedAt)));
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_BriefingClockStarted(WorldTimestamp startedAt)
+	protected void RpcDo_PhaseClockStarted(SCR_EGameModeState phase, WorldTimestamp startedAt)
 	{
-		if (Replication.IsServer() || GetManager() != this || m_bShutdown)
+		if (Replication.IsServer() || GetManager() != this || m_bShutdown || !GC_LobbyPhase.IsValid(phase))
 			return;
-		m_BriefingStartedAt = startedAt;
-		m_bBriefingClockStarted = true;
+		if (GC_LobbyPhase.IsAtOrAfter(m_ClockPhase, phase))
+			return;
+		m_ClockPhase = phase;
+		m_PhaseStartedAt = startedAt;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -29,7 +29,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         GetGame().GetCallqueue().Remove(InitializeHeader);
         GetGame().GetCallqueue().Remove(AttachLobbyManager);
 		GetGame().GetCallqueue().Remove(RefreshPlayerCount);
-		GetGame().GetCallqueue().Remove(RefreshBriefingClock);
+		GetGame().GetCallqueue().Remove(RefreshPhaseClock);
 
         if (m_LobbyManager)
         {
@@ -89,7 +89,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 		m_LobbyManager.m_OnPlayerConnected.Insert(OnPlayerCountChanged);
 		m_LobbyManager.m_OnPlayerDisconnected.Insert(OnPlayerCountChanged);
 		RefreshPlayerCount();
-		UpdateBriefingClockSchedule();
+		UpdatePhaseClockSchedule();
 
         if (m_iActiveState < 0)
             m_iActiveState = GetPhaseView(m_LobbyManager.GetLobbyPhase());
@@ -98,30 +98,30 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
     }
 
 	//------------------------------------------------------------------------------------------------
-	protected void UpdateBriefingClockSchedule()
+	protected void UpdatePhaseClockSchedule()
 	{
-		GetGame().GetCallqueue().Remove(RefreshBriefingClock);
-		RefreshBriefingClock();
-		if (m_LobbyManager && m_LobbyManager.GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
-			GetGame().GetCallqueue().CallLater(RefreshBriefingClock, 1000, true);
+		GetGame().GetCallqueue().Remove(RefreshPhaseClock);
+		RefreshPhaseClock();
+		if (m_LobbyManager)
+			GetGame().GetCallqueue().CallLater(RefreshPhaseClock, 1000, true);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void RefreshBriefingClock()
+	protected void RefreshPhaseClock()
 	{
-		TextWidget clock = TextWidget.Cast(m_wRoot.FindAnyWidget("BriefingElapsed"));
+		TextWidget clock = TextWidget.Cast(m_wRoot.FindAnyWidget("PhaseElapsed"));
 		if (!clock)
 			return;
 		int elapsed = -1;
 		if (m_LobbyManager)
-			elapsed = m_LobbyManager.GetBriefingElapsedSeconds();
+			elapsed = m_LobbyManager.GetPhaseElapsedSeconds();
 		clock.SetVisible(elapsed >= 0);
 		if (elapsed < 0)
 			return;
 
 		int minutes = elapsed / 60;
 		int seconds = elapsed % 60;
-		clock.SetTextFormat("Briefing %1:%2", minutes.ToString(2), seconds.ToString(2));
+		clock.SetTextFormat("%1:%2", minutes.ToString(2), seconds.ToString(2));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
     protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)
     {
-		UpdateBriefingClockSchedule();
+		UpdatePhaseClockSchedule();
 		PrintFormat("GC | Phase UI | replicated phase update: phase=%1 activeView=%2", GC_LobbyManager.GetPhaseName(phase), m_iActiveState);
 		// GC_LobbyGameMode owns authoritative phase presentation so transitions
 		// still apply when no header exists yet, including JIP. The header only

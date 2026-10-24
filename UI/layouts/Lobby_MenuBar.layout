@@ -370,7 +370,7 @@ FrameWidgetClass {
    }
   }
   TextWidgetClass "{6A72000000000001}" {
-   Name "BriefingElapsed"
+   Name "PhaseElapsed"
    Slot FrameWidgetSlot {
     Anchor 1 0 1 0
     OffsetLeft -340
@@ -380,7 +380,7 @@ FrameWidgetClass {
    }
    "Is Visible" 0
    "Ignore Cursor" 1
-   Text "Briefing 00:00"
+   Text "00:00"
    "Font Size" 22
    "Horizontal Alignment" Right
    "Vertical Alignment" Center
