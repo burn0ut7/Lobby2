@@ -266,11 +266,10 @@ FrameWidgetClass {
               VerticalAlign 3
              }
              {
-              TextWidgetClass "{6A1A4D1994014C5B}" {
-               Name "Text0"
-               Slot LayoutSlot "{6A1A4D195EEFB961}" {
+              SizeLayoutWidgetClass : "{6A73000000000001}UI/layouts/Admin/Lobby_AllSlotLocks.layout" {
+               Name "SlotsHeader"
+               Slot LayoutSlot {
                }
-               Text "Slots"
               }
               ScrollLayoutWidgetClass "{6A1B462DF999F787}" {
                Name "ScrollLayout0"

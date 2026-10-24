@@ -1,0 +1,69 @@
+SizeLayoutWidgetClass {
+ Name "SlotsHeader"
+ Slot LayoutSlot { HorizontalAlign 3 }
+ AllowHeightOverride 1
+ HeightOverride 48
+ components {
+  GC_AllSlotLocksComponent "{6A73000000000002}" {}
+ }
+ {
+  FrameWidgetClass {
+   Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+   {
+    TextWidgetClass {
+     Name "SlotsTitle"
+     Slot FrameWidgetSlot { Anchor 0 0 0 1 OffsetLeft 0 OffsetTop 0 OffsetRight -90 OffsetBottom 0 }
+     Text "Slots"
+     "Vertical Alignment" Center
+     "Ignore Cursor" 1
+    }
+    TextWidgetClass {
+     Name "AllSlotLocksStatus"
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 95 OffsetTop 0 OffsetRight 56 OffsetBottom 0 }
+     Text ""
+     "Font Size" 18
+     Wrap 1
+     "Vertical Alignment" Center
+     "Ignore Cursor" 1
+    }
+    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+     Name "AllSlotLocksButton"
+     Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -48 OffsetTop 0 OffsetRight 0 OffsetBottom -48 }
+     "Is Visible" 0
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_sText ""
+       m_bCanBeToggled 0
+       m_bShowBorderOnFocus 1
+      }
+     }
+     {
+      SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+       Prefab "{7C41F8A018B24C01}"
+       HeightOverride 48
+       {
+        OverlayWidgetClass "{7C41F8A018B24C02}" {
+         Prefab "{7C41F8A018B24C02}"
+         {
+          TextWidgetClass "{7C41F8A018B24C05}" {
+           Prefab "{7C41F8A018B24C05}"
+           "Is Visible" 0
+          }
+          ImageWidgetClass {
+           Name "AllSlotLocksImage"
+           Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
+           "Ignore Cursor" 1
+           Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+           Image "server-locked"
+           Size 40 40
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

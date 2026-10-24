@@ -128,7 +128,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("ToolHeal", "Heal");
 		Bind("ToolTeleport", "Teleport");
 		Bind("ToolMessage", "Send message");
-		Bind("ToolReservations", "Slot import / export");
+		Bind("ToolReservations", "Slot reservations");
 		m_Reservations = GC_AdminReservationsComponent.Cast(w.FindAnyWidget("ReservationPanel").FindHandler(GC_AdminReservationsComponent));
 		Bind("ToolModeration", "Kick / Ban");
 		Bind("MessageSelected", "Selected players");
@@ -428,7 +428,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		if (reservations)
 		{
-			title = "Slot import / export";
+			title = "Slot reservations";
 			description = "Transfer slot assignments with team, group, role, and player details.";
 		}
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolTitle")).SetText(title);

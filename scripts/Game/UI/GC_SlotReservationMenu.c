@@ -108,7 +108,7 @@ class GC_SlotReservationMenu : ChimeraMenuBase
 				state = "Reserved for " + m_Slot.GetUUID();
 			else if (m_Slot.HasClaim())
 				state = "Claimed by " + m_Slot.GetCachedPlayerName();
-			else if (m_Slot.IsKIA() || m_Slot.IsAdminLocked())
+			else if (m_Slot.IsKIA())
 				state = "Slot unavailable";
 			if (m_Slot.GetUUID() != m_ExpectedClaim && m_iPending < 0)
 				state = "Claim changed. Close and reopen to review this slot.";
@@ -118,7 +118,7 @@ class GC_SlotReservationMenu : ChimeraMenuBase
 		TextWidget.Cast(root.FindAnyWidget("ReservationCurrent")).SetText(state);
 		bool idle = m_iPending < 0;
 		root.FindAnyWidget("ReservationFields").SetEnabled(idle);
-		bool editable = idle && current && m_Slot.GetUUID() == m_ExpectedClaim && !m_Slot.IsKIA() && !m_Slot.IsAdminLocked();
+		bool editable = idle && current && m_Slot.GetUUID() == m_ExpectedClaim && !m_Slot.IsKIA();
 		string identity = m_Identity.GetText();
 		identity.TrimInPlace();
 		SCR_ButtonTextComponent.GetButtonText("ReservationApply", root).SetEnabled(editable && UUID.IsUUID(identity));

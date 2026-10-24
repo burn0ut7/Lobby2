@@ -30,6 +30,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("120", UIWidgets.EditBox, "Reconnect grace period in seconds (0 releases immediately)")]
 	protected int m_iSlotReservationTimeoutSeconds;
 
+	[Attribute("1", UIWidgets.CheckBox, "Start lobby slots locked. Admins can unlock all slots with the padlock in Lobby.")]
+	protected bool m_bSlotsStartLocked;
+
 	[Attribute("{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et", UIWidgets.ResourcePickerThumbnail, "AI world resource used only as a formation-data source", params: "et")]
 	protected ResourceName m_sFormationSource;
 
@@ -41,6 +44,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
+
+	//! Authority-only policy for slots added after an all-slot action; -1 uses authoring.
+	protected int m_iNewSlotLockOverride = -1;
+	protected bool m_bPublishingSlotLocks;
 
 	protected ref map<string, ref GC_FactionReadiness> m_mFactionReadiness = new map<string, ref GC_FactionReadiness>();
 	protected int m_iFactionReadinessRevision;
@@ -1368,7 +1375,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!slot || !m_Roster.GetSlots().Contains(slot))
             return;
 
-        if (Replication.IsServer())
+        if (Replication.IsServer() && !m_bPublishingSlotLocks)
             UpdateSlot(slot);
 
 		ReconcileFactionReadiness();
@@ -1404,6 +1411,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
             GC_Slot slot = new GC_Slot();
             slot.SetID(m_Roster.AllocateSlotId());
+            slot.SetAdminLocked(ShouldNewSlotsStartLocked());
             slot.SetGroupSlotIndex(unitIndex);
             slot.SetAuthoredPrefab(prefab);
             slot.SetResolvedPrefab(resolvedPrefab);
@@ -1918,6 +1926,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			outcome = "Reservations can be changed during slotting or briefing.";
 		else if (action == "import")
 			outcome = ImportSlotReservations(input);
+		else if (action == "clear-all")
+		{
+			int cleared;
+			foreach (GC_Slot reservedSlot : GetSlots())
+			{
+				if (!reservedSlot.IsAwaitingInitialJoin() || reservedSlot.GetPlayerId() > 0 || reservedSlot.IsKIA())
+					continue;
+				ReleaseSlotClaim(reservedSlot);
+				cleared++;
+			}
+			outcome = string.Format("Cleared %1 reservations awaiting first join.", cleared);
+		}
 		else
 		{
 			GC_Slot slot = GetSlot(slotId);
@@ -1970,8 +1990,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		if (!UUID.IsUUID(identity) || identity.IsNull())
 			return "Enter a valid Arma UID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).";
-		if (!slot || slot.IsKIA() || slot.IsAdminLocked())
-			return "This slot is unavailable or locked.";
+		// Admin reservations can be prepared before player slot selection is opened.
+		if (!slot || slot.IsKIA())
+			return "This slot is unavailable.";
 		SCR_AIGroup group = ResolveSlotGroup(slot);
 		if (!group || !group.GetFaction())
 			return "The slot's group is unavailable.";
@@ -2802,6 +2823,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		ResourceName prefab = entity.GetPrefabData().GetPrefabName();
 		GC_Slot slot = new GC_Slot();
 		slot.SetID(m_Roster.AllocateSlotId());
+		slot.SetAdminLocked(ShouldNewSlotsStartLocked());
 		slot.SetGroup(group);
 		slot.SetGroupSlotIndex(nextIndex);
 		slot.SetAuthoredPrefab(prefab);
@@ -2863,6 +2885,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 		GC_Slot slot = new GC_Slot();
 		slot.SetID(m_Roster.AllocateSlotId());
+		slot.SetAdminLocked(ShouldNewSlotsStartLocked());
 		slot.SetGroup(group);
 		slot.SetGroupSlotIndex(nextIndex);
 		slot.SetAuthoredPrefab(source.GetAuthoredPrefab());
@@ -3076,19 +3099,66 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		string target = string.Format("group=%1 locked=%2", groupId, locked);
 		if (!AuthorizeAdminAction(requesterId, "slot-group-lock", target))
 			return "rejected-not-logged-in";
-		int changed;
+		array<int> slotIds = {};
 		foreach (GC_Slot slot : m_Roster.GetSlots())
 		{
 			if (groupId != RplId.Invalid() && slot.GetGroupRplId() != groupId)
 				continue;
-			slot.SetAdminLocked(locked);
-			changed++;
+			slotIds.Insert(slot.GetID());
 		}
 		string outcome = "applied";
-		if (changed == 0)
+		if (slotIds.IsEmpty())
 			outcome = "rejected-no-slots";
-		GC_AdminActionLogger.Log(requesterId, "slot-group-lock", target, string.Format("%1 slots=%2", outcome, changed));
+		else
+		{
+			if (groupId == RplId.Invalid())
+			{
+				m_iNewSlotLockOverride = 0;
+				if (locked)
+					m_iNewSlotLockOverride = 1;
+			}
+			ApplySlotLocks(slotIds, locked);
+			Rpc(RpcDo_ApplySlotLocks, slotIds, locked);
+		}
+		GC_AdminActionLogger.Log(requesterId, "slot-group-lock", target, string.Format("%1 slots=%2", outcome, slotIds.Count()));
 		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ShouldNewSlotsStartLocked()
+	{
+		if (m_iNewSlotLockOverride >= 0)
+			return m_iNewSlotLockOverride == 1;
+		return m_bSlotsStartLocked;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Apply the complete set before notifying UI. Claims and JIP slot data stay unchanged.
+	protected void ApplySlotLocks(array<int> slotIds, bool locked)
+	{
+		array<GC_Slot> changed = {};
+		foreach (int slotId : slotIds)
+		{
+			GC_Slot slot = GetSlot(slotId);
+			if (!slot || slot.IsAdminLocked() == locked)
+				continue;
+			slot.SetAdminLocked(locked, false);
+			changed.Insert(slot);
+		}
+		// Preserve both direct slot subscribers and manager presentation events,
+		// without sending one complete-slot RPC for every lock in this batch.
+		m_bPublishingSlotLocks = true;
+		foreach (GC_Slot changedSlot : changed)
+			changedSlot.m_OnChanged.Invoke(changedSlot);
+		m_bPublishingSlotLocks = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void RpcDo_ApplySlotLocks(array<int> slotIds, bool locked)
+	{
+		if (!Replication.IsServer() && GetManager() == this)
+			ApplySlotLocks(slotIds, locked);
 	}
 
 	//------------------------------------------------------------------------------------------------

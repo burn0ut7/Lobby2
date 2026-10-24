@@ -17,6 +17,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	ref ScriptInvoker<string> m_OnFactionReadinessResult = new ScriptInvoker<string>();
 
 	ref ScriptInvoker<int, string, string, string> m_OnSlotReservationResult = new ScriptInvoker<int, string, string, string>();
+	ref ScriptInvoker<int, string> m_OnAdminGroupLockResult = new ScriptInvoker<int, string>();
 
 	//! The eight-argument RPC ceiling leaves one integer for both sight indexes.
 	//! Each index is offset by one so zero represents the no-sight/no-zoom state.
@@ -1045,12 +1046,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void RequestAdminGroupLock(RplId groupId, bool locked)
+	void RequestAdminGroupLock(RplId groupId, bool locked, int requestId = -1)
 	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
 		{
-			m_iAdminActionRequestId++;
-			Rpc(RpcAsk_AdminGroupLock, groupId, locked, m_iAdminActionRequestId);
+			if (requestId < 0)
+				requestId = ReserveAdminPlayerToolRequest();
+			Rpc(RpcAsk_AdminGroupLock, groupId, locked, requestId);
 		}
 	}
 
@@ -1059,10 +1061,22 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected void RpcAsk_AdminGroupLock(RplId groupId, bool locked, int requestId)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string outcome = "rejected-inactive-mode";
 		if (manager)
-			Rpc(RpcDo_AdminActionResult, manager.ExecuteAdminGroupLock(GetPlayerId(), groupId, locked), requestId);
+			outcome = manager.ExecuteAdminGroupLock(GetPlayerId(), groupId, locked);
 		else
 			GC_AdminActionLogger.Log(GetPlayerId(), "slot-group-lock", groupId.ToString(), "rejected-inactive-mode");
+		Rpc(RpcDo_AdminGroupLockResult, requestId, outcome);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
+	protected void RpcDo_AdminGroupLockResult(int requestId, string outcome)
+	{
+		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return;
+		m_OnAdminGroupLockResult.Invoke(requestId, outcome);
+		m_OnAdminActionResult.Invoke(outcome);
 	}
 
 	//------------------------------------------------------------------------------------------------

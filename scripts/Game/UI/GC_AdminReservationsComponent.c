@@ -1,4 +1,4 @@
-//! Roster transfer only. Select individual slots in the existing slotting screen.
+//! Roster transfer and pending-reservation cleanup. Individual selection stays in Lobby.
 class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 {
 	protected GC_LobbyManager m_Manager;
@@ -6,6 +6,7 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 	protected MultilineEditBoxWidget m_Transfer;
 	protected TextWidget m_Status;
 	protected int m_iPending = -1;
+	protected bool m_bConfirmClear;
 
 	//------------------------------------------------------------------------------------------------
 	override void HandlerAttached(Widget w)
@@ -19,10 +20,15 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 		Bind("ReservationCopy", "Copy");
 		Bind("ReservationPaste", "Paste");
 		Bind("ReservationImport", "Import reservations");
+		Bind("ReservationClearAll", "Clear all reservations");
+		Bind("ReservationCancelClear", "Cancel");
 		if (m_Controller)
 			m_Controller.m_OnSlotReservationResult.Insert(OnResult);
 		if (m_Manager)
+		{
 			m_Manager.m_OnLobbyPhaseChanged.Insert(OnPhaseChanged);
+			m_Manager.m_OnPlayerRoleChanged.Insert(OnRoleChanged);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -36,6 +42,8 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	void SetActive(bool active)
 	{
+		if (!active)
+			m_bConfirmClear = false;
 		m_wRoot.SetVisible(active);
 		Refresh();
 	}
@@ -51,12 +59,21 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 	protected void Refresh()
 	{
 		bool idle = HasAccess() && m_iPending < 0;
+		bool canChange = idle && !GC_LobbyPhase.IsAtOrAfter(m_Manager.GetLobbyPhase(), SCR_EGameModeState.GAME);
+		if (!canChange)
+			m_bConfirmClear = false;
 		m_Transfer.SetEnabled(idle);
 		SCR_ButtonTextComponent.GetButtonText("ReservationExport", m_wRoot).SetEnabled(idle);
 		SCR_ButtonTextComponent.GetButtonText("ReservationCopy", m_wRoot).SetEnabled(idle);
 		SCR_ButtonTextComponent.GetButtonText("ReservationPaste", m_wRoot).SetEnabled(idle);
-		SCR_ButtonTextComponent.GetButtonText("ReservationImport", m_wRoot).SetEnabled(idle
-			&& !GC_LobbyPhase.IsAtOrAfter(m_Manager.GetLobbyPhase(), SCR_EGameModeState.GAME));
+		SCR_ButtonTextComponent.GetButtonText("ReservationImport", m_wRoot).SetEnabled(canChange);
+		SCR_ButtonTextComponent clear = SCR_ButtonTextComponent.GetButtonText("ReservationClearAll", m_wRoot);
+		clear.SetEnabled(canChange);
+		if (m_bConfirmClear)
+			clear.SetText("Confirm clear all");
+		else
+			clear.SetText("Clear all reservations");
+		m_wRoot.FindAnyWidget("ReservationCancelClear").SetVisible(m_bConfirmClear);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -65,6 +82,21 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 		if (!HasAccess() || m_iPending >= 0 || !button.GetRootWidget().IsEnabled())
 			return;
 		string name = button.GetRootWidget().GetName();
+		if (name == "ReservationCancelClear")
+		{
+			m_bConfirmClear = false;
+			Refresh();
+			return;
+		}
+		if (name == "ReservationClearAll" && !m_bConfirmClear)
+		{
+			m_bConfirmClear = true;
+			Refresh();
+			return;
+		}
+		bool confirmedClear = name == "ReservationClearAll" && m_bConfirmClear;
+		m_bConfirmClear = false;
+		Refresh();
 		if (name == "ReservationCopy")
 		{
 			System.ExportToClipboard(m_Transfer.GetText());
@@ -88,6 +120,8 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 			action = "export";
 		else if (name == "ReservationImport")
 			action = "import";
+		else if (confirmedClear)
+			action = "clear-all";
 		else
 			return;
 		m_iPending = m_Controller.ReserveAdminPlayerToolRequest();
@@ -115,12 +149,24 @@ class GC_AdminReservationsComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void OnRoleChanged(int playerId)
+	{
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override void HandlerDeattached(Widget w)
 	{
 		if (m_Controller)
 			m_Controller.m_OnSlotReservationResult.Remove(OnResult);
 		if (m_Manager)
+		{
 			m_Manager.m_OnLobbyPhaseChanged.Remove(OnPhaseChanged);
+			m_Manager.m_OnPlayerRoleChanged.Remove(OnRoleChanged);
+		}
+		array<string> buttons = {"ReservationExport", "ReservationCopy", "ReservationPaste", "ReservationImport", "ReservationClearAll", "ReservationCancelClear"};
+		foreach (string name : buttons)
+			SCR_ButtonTextComponent.GetButtonText(name, m_wRoot).m_OnClicked.Remove(OnAction);
 		super.HandlerDeattached(w);
 	}
 }

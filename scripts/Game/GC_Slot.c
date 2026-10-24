@@ -109,12 +109,13 @@ class GC_Slot
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void SetAdminLocked(bool value)
+	void SetAdminLocked(bool value, bool notify = true)
 	{
 		if (m_bAdminLocked == value)
 			return;
 		m_bAdminLocked = value;
-		NotifyChanged();
+		if (notify)
+			NotifyChanged();
 	}
 
 	//------------------------------------------------------------------------------------------------

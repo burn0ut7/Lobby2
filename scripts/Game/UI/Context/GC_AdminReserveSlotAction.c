@@ -28,7 +28,7 @@ class GC_AdminReserveSlotAction : GC_ContextMenuAction
 			return false;
 		GC_Slot slot = context.GetSlot();
 		return GC_LobbyManager.GetManager().GetSlot(slot.GetID()) == slot
-			&& slot.GetUUID() == context.GetPlayerIdentity() && !slot.IsKIA() && !slot.IsAdminLocked();
+			&& slot.GetUUID() == context.GetPlayerIdentity() && !slot.IsKIA();
 	}
 
 	//------------------------------------------------------------------------------------------------
