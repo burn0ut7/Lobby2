@@ -1,3 +1,12 @@
+## Bottom padding correction — 2026-10-24
+
+The user's follow-up screenshot shows excess space below the CO name. Reduce
+the tile from 96 to 82 units and the CO row from 36 to 22 units, leaving only
+2 units below the row, matching the faction row's top inset. Keep the CO name
+on one line so a reserved second line no longer adds empty height. Long names
+are constrained by the existing tile width. Text and icon sizes are unchanged.
+Source checks only; Reforger MCP is unavailable for runtime verification.
+
 ## Whole-tile activation - 2026-10-24
 
 The user's supplied screenshot supersedes the unboxed experiment: retain the

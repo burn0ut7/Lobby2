@@ -6,7 +6,7 @@ SizeLayoutWidgetClass {
  AllowWidthOverride 1
  WidthOverride 220
  AllowHeightOverride 1
- HeightOverride 96
+ HeightOverride 82
  components {
   GC_FactionReadyTileComponent "{6A71000000000003}" {
   }
@@ -65,12 +65,12 @@ SizeLayoutWidgetClass {
       OffsetLeft 8
       OffsetTop 58
       OffsetRight 8
-      OffsetBottom -94
+      OffsetBottom -80
      }
      "Ignore Cursor" 1
      Color 0.8 0.82 0.82 1
      Text "CO: Vacant"
-     Wrap 1
+     Wrap 0
      "Font Size" 18
      "Horizontal Alignment" Center
      "Vertical Alignment" Top
