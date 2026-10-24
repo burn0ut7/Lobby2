@@ -1,0 +1,80 @@
+[
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "Lobby Button"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r83a24c6803a34b728db441ac8431adbf",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rf3a909e7339a48ea85ee28bdd99c29b5",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "arguments": [
+      {
+        "type": "int",
+        "value": 1
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r1fc87acb48254b4fbee2bf162aadbca9",
+    "returned": "current=1"
+  },
+  {
+    "method": "GC_TestSlotAccessRemember",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "rbe851ce3000142fc99f702567387707b",
+    "returned": "REMEMBERED slots=42 newSlotsLocked=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "AllSlotLocksButton"
+      }
+    ],
+    "state": "invoked",
+    "receipt": "rbddb6c8b641d4aac9291b5cc7d6d699f",
+    "returned": "dispatched: AllSlotLocksButton"
+  },
+  {
+    "method": "GC_TestSlotAccessCheck",
+    "arguments": [
+      {
+        "type": "string",
+        "value": "locks"
+      },
+      {
+        "type": "bool",
+        "value": true
+      }
+    ],
+    "state": "invoked",
+    "receipt": "r5167d890362240f19edcc9764d17c084",
+    "returned": "PASS locks slots=42 cleared=0"
+  },
+  {
+    "method": "GC_TestSlotStatusSnapshot",
+    "arguments": [],
+    "state": "invoked",
+    "receipt": "re13bc05046d7403e91a5b03d132e95ef",
+    "returned": "slot=1 state=4 adminLock=1 icon=1 nameVisible=1 text='Burn0ut7'\nslot=2 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=3 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=4 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=5 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=6 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=7 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=8 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=9 state=0 adminLock=1 icon=1 nameVisible=0 text=''\nslot=10 state=0 adminLock=1 icon=1 nameVisible=0 text=''\n"
+  }
+]

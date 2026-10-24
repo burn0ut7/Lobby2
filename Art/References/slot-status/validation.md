@@ -1,5 +1,22 @@
 # Slot icon validation — 2026-10-24
 
+## Current: occupied status takes priority
+
+User correction: a connected occupant retains the person icon even when the slot
+is admin-locked. KIA still takes precedence with the skull. Empty locked slots
+use the padlock. Exactly one status icon per row.
+
+Native reload fa9b2eb603f2439ab969dbf9931fdbbd succeeded. Actual ordinary claim
+of slot1 followed by lock-all passed claim preservation for all42 slots
+(r5167d890362240f19edcc9764d17c084). Current screenshot is
+runtime-occupied-priority.png; occupied-priority-results.json preserves receipts.
+It shows person+name for occupied slot1 and padlocks on the empty slots.
+
+The occupied-lock examples below are historical and superseded for this priority.
+The current rule is KIA > connected occupant > admin lock > reservation/disconnection.
+
+## Earlier single-icon validation
+
 Active screenshots: runtime-gallery-v2.png (display-only cases) and
 runtime-occupied-locked.png (actual occupied and admin-locked slot).
 The earlier runtime-gallery.png is rejected/superseded: it used two status icons

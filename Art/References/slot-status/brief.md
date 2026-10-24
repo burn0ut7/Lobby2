@@ -15,10 +15,9 @@ No new screen, panel, control or generated asset.
 Stock icons in {2EFEA2AF1F38E7F0}icons_wrapperUI-64.imageset: server-locked,
 death (skull), time (reservation/held), disconnection, player. White silhouettes,
 existing player-name colors, no new color-only distinction. Existing role hover,
-context menu and click rules are unchanged. Each row has at most one status icon. Priority: KIA skull, admin padlock, initial
-reservation clock, disconnected symbol, connected player, unoccupied reserved
-clock, lifecycle lock. Connected occupants use player even when the lifecycle
-state is RESERVED, unless admin-locked. Names remain separate from the status.
+context menu and click rules are unchanged. Each row has at most one status icon. Priority: KIA skull, connected player, admin padlock, initial
+reservation clock, disconnected symbol, unoccupied reserved clock, lifecycle lock.
+Connected occupants use player even when admin-locked or in lifecycle RESERVED. Names remain separate from the status.
 
 Validation uses the optional test addon's detached display copies. This gallery
 exercises the production widget but is not evidence of authoritative reservation,
