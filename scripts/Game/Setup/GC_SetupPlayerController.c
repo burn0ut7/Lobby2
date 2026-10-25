@@ -44,12 +44,20 @@ modded class GC_LobbyPlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! The character and turret hooks share this owner-specific combat policy.
-	void GC_FilterRestrictedActions(ActionManager actions)
+	//! Shared by normal weapon inputs and animation-driven flare firing.
+	bool GC_IsCombatRestricted()
 	{
+		if (!GC_LobbyGameMode.GetGameMode())
+			return false;
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
 		bool adminFreeze = freeze && freeze.AffectsPlayer(GetPlayerId());
-		if (!actions || (!adminFreeze && !(GC_SetupActive() && m_bGC_SetupSafeStart)))
+		return adminFreeze || (GC_SetupActive() && m_bGC_SetupSafeStart);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_FilterRestrictedActions(ActionManager actions)
+	{
+		if (!actions || !GC_IsCombatRestricted())
 			return;
 		actions.SetActionValue("CharacterFire", 0);
 		actions.SetActionValue("CharacterThrowGrenade", 0);
