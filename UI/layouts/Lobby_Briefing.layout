@@ -43,11 +43,12 @@ FrameWidgetClass "{6A233D0B6063CA4A}" {
     OffsetTop 170.844
     SizeX 287
     OffsetRight -294.361
-    SizeY 820.001
-    OffsetBottom -990.845
+    SizeY 780
+    OffsetBottom -950.844
     Alignment 0 0
    }
    "Z Order" 1
+   HeightOverride 780
   }
   SizeLayoutWidgetClass "{6A233D0B6063CA56}" : "{6A38000000000001}UI/layouts/Players/Lobby_Player_List_Panel.layout" {
    Name "PlayerListPanel"
@@ -71,19 +72,20 @@ FrameWidgetClass "{6A233D0B6063CA4A}" {
   FrameWidgetClass "{6A233D0B6063CA58}" {
    Name "ToolMenu"
    Slot FrameWidgetSlot "{59107CDEE98682C5}" {
-    Anchor 0.5 0 0.5 0
-    PositionX 0
-    OffsetLeft 0
-    PositionY 82
-    OffsetTop 82
+    Anchor 0 1 0 1
+    PositionX 8
+    OffsetLeft 8
+    PositionY -52
+    OffsetTop -52
     SizeX 0
-    OffsetRight 0
+    OffsetRight -8
     SizeY 40
-    OffsetBottom -122
-    Alignment 0.5 0
+    OffsetBottom 12
+    Alignment 0 1
     SizeToContent 1
    }
    "Z Order" 1
+   "Ignore Cursor" 0
    Clipping False
    {
     FrameWidgetClass "{6A233D0B6063CA59}" {

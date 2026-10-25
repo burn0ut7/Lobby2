@@ -1,5 +1,71 @@
 //! Optional checks use production callbacks; they do not emulate physical keys.
 #ifdef WORKBENCH
+modded class SCR_MapMarkerManagerComponent
+{
+	//------------------------------------------------------------------------------------------------
+	int GC_TestMapMarkerCount()
+	{
+		return GetStaticMarkers().Count() + GetDisabledMarkers().Count();
+	}
+}
+
+modded class SCR_MapRadialDisplay
+{
+	//------------------------------------------------------------------------------------------------
+	string GC_TestDisplayState()
+	{
+		float x, y, width, height;
+		m_wBase.GetScreenPos(x, y);
+		m_wBase.GetScreenSize(width, height);
+		return string.Format("shown=%1 entries=%2 segments=%3 baseVisible=%4 baseOpacity=%5 baseRect=%6,%7,%8,%9", m_bShown, m_aEntries.Count(), m_aSegments.Count(), m_wBase.IsVisibleInHierarchy(), m_wBase.GetOpacity(), x, y, width, height);
+	}
+}
+
+modded class SCR_MapRadialUI
+{
+	//------------------------------------------------------------------------------------------------
+	string GC_TestContextMenu(string action)
+	{
+		if (action == "open")
+			OnInputMenuOpen(1, EActionTrigger.UP);
+		else if (action == "close" && m_RadialMenu)
+			m_RadialMenu.Close();
+		else if (action == "category" && m_RadialMenu && m_RadialMenu.IsOpened() && m_RadialMenu.GetEntryCount() > 0)
+			m_RadialMenu.PerformEntry(m_RadialMenu.GetEntries()[0]);
+		else if (action == "custom" && m_RadialMenu && m_RadialMenu.IsOpened())
+		{
+			foreach (SCR_SelectionMenuEntry entry : m_RadialMenu.GetEntries())
+			{
+				SCR_MapMarkerMenuEntry markerEntry = SCR_MapMarkerMenuEntry.Cast(entry);
+				if (markerEntry && markerEntry.GetMarkerType() == SCR_EMapMarkerType.PLACED_CUSTOM)
+				{
+					m_RadialMenu.PerformEntry(entry);
+					break;
+				}
+			}
+		}
+		else if (action != "snapshot")
+			return "REJECTED action";
+
+		string result = string.Format("cursor=%1 opened=%2 display=%3", m_CursorModule.GetCursorState(), m_RadialMenu && m_RadialMenu.IsOpened(), m_Display != null);
+		if (m_Display)
+		{
+			result += " " + m_Display.GC_TestDisplayState();
+			Widget widget = m_Display.GetRootWidget();
+			float x, y, width, height;
+			widget.GetScreenPos(x, y);
+			widget.GetScreenSize(width, height);
+			result += string.Format(" rect=%1,%2,%3,%4", x, y, width, height);
+			while (widget)
+			{
+				result += string.Format(" | %1 visible=%2 opacity=%3 z=%4", widget.GetName(), widget.IsVisible(), widget.GetOpacity(), widget.GetZOrder());
+				widget = widget.GetParent();
+			}
+		}
+		return result;
+	}
+}
+
 modded class SCR_InputButtonComponent
 {
 	void GC_TestMapKey()
@@ -18,6 +84,46 @@ modded class GC_Lobby_SpectatorMenu
 
 modded class GC_LobbyManager
 {
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMapHit(string name)
+	{
+		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
+		if (!menu || !menu.GetRootWidget())
+			return "UNAVAILABLE menu";
+		Widget target = menu.GetRootWidget().FindAnyWidget(name);
+		if (!target)
+			return "UNAVAILABLE widget";
+		float x, y, width, height;
+		target.GetScreenPos(x, y);
+		target.GetScreenSize(width, height);
+		array<Widget> hits = {};
+		WidgetManager.TraceWidgets(x + width * 0.5, y + height * 0.5, GetGame().GetWorkspace(), hits);
+		string result = string.Format("target=%1 rect=%2,%3,%4,%5 hits=%6", name, x, y, width, height, hits.Count());
+		InputManager input = GetGame().GetInputManager();
+		result += string.Format(" mapSelect=%1 contextMenu=%2 menuSelect=%3 toggle=%4 toggleContext=%5 mapContext=%6", input.IsActionActive("MapSelect"), input.IsActionActive("MapContextualMenu"), input.IsActionActive("MenuSelect"), input.IsActionActive("GC_ToggleBriefing"), input.IsContextActive("GC_BriefingToggle"), input.IsContextActive("GC_Lobby_Preview"));
+		Widget ancestor = menu.GetRootWidget();
+		while (ancestor)
+		{
+			result += string.Format(" ancestor=%1:%2", ancestor.GetName(), ancestor.GetZOrder());
+			ancestor = ancestor.GetParent();
+		}
+		foreach (Widget hit : hits)
+		{
+			if (!(hit.GetFlags() & WidgetFlags.IGNORE_CURSOR))
+				result += string.Format(" | pointerTarget=%1 enabled=%2", hit.GetName(), hit.IsEnabled());
+		}
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMapContext(string action)
+	{
+		SCR_MapRadialUI radial = SCR_MapRadialUI.GetInstance();
+		if (!radial)
+			return "UNAVAILABLE radial menu";
+		return radial.GC_TestContextMenu(action);
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_TestMapUI(string action)
 	{
@@ -48,6 +154,13 @@ modded class GC_LobbyManager
 			if (!toolMenu)
 				return "UNAVAILABLE tool menu";
 			toolMenu.OnMouseEnter(root.FindAnyWidget("ToolMenu"), 0, 0);
+		}
+		else if (action == "tool-leave")
+		{
+			SCR_MapToolMenuUI toolMenu = SCR_MapToolMenuUI.Cast(SCR_MapEntity.GetMapInstance().GetMapUIComponent(SCR_MapToolMenuUI));
+			if (!toolMenu)
+				return "UNAVAILABLE tool menu";
+			toolMenu.OnMouseLeave(root.FindAnyWidget("ToolMenu"), root.FindAnyWidget("MapFrame"), 0, 0);
 		}
 		else if (action != "snapshot")
 			return "REJECTED action";

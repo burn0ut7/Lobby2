@@ -34,14 +34,6 @@ class GC_Lobby_BriefingMenu : GC_Lobby_PreviewMenu
 	}
 
 	//------------------------------------------------------------------------------------------------
-	override void OnMenuUpdate(float tDelta)
-	{
-		super.OnMenuUpdate(tDelta);
-		if (IsFocused() && m_InputManager)
-			m_InputManager.ActivateContext("GC_BriefingToggle");
-	}
-
-	//------------------------------------------------------------------------------------------------
 	override void OnMenuClose()
 	{
 		if (m_BriefingToggle)
