@@ -69,6 +69,11 @@ modded class GC_LobbyPlayerController
 			GC_LobbyPlayerController.Cast(this).GC_TestDedicatedAction(token, message);
 			return;
 		}
+		if (action == "ao-snapshot")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAOSnapshot());
+			return;
+		}
 
 		if (action == "scope-move")
 		{
@@ -406,6 +411,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"ao-snapshot",
 			"dedicated-action",
 			"scope-snapshot",
 			"scope-move",

@@ -1,0 +1,4363 @@
+{
+  "calls": [
+    {
+      "method": "GC_TestSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r91afaf11e9344d73b300d7505f796881",
+        "receipt": "r91afaf11e9344d73b300d7505f796881",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r91afaf11e9344d73b300d7505f796881",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r91afaf11e9344d73b300d7505f796881",
+        "returnType": "string",
+        "returned": "phase=PREGAME groups=7 slots=42 briefings=21 revision=0 player=1 admin=1\ncanonical=0 value=true\ncanonical=1 value=300\ncanonical=2 value=4\ncanonical=3 value=2\ncanonical=4 value=0.500\ncanonical=5 value=1000.000\ncanonical=6 value=SILENT THUNDER\ncanonical=7 value=standard\nmenu=rootFrame\nactiveView=0\nbutton=Mission Preview Button\nText=PREVIEW\nbutton=Lobby Button\nText=LOBBY\nbutton=Briefing Button\nText=BRIEFING\nbutton=Game Button\nText=GAME\nbutton=Debrief Button\nText=DEBRIEF\nTitleText=BANGALORIOUS\nDescription=COOPERATIVE ATTACK\nPhaseElapsed=00:12\nPlayerCountText=1\nBriefingIndexLabel=BRIEFING\nbutton=BriefingTitleRow01\nOrder=01\nTitle=RICH TEXT SHOWCASE\nbutton=BriefingTitleRow02\nOrder=02\nTitle=SITUATION\nbutton=BriefingTitleRow03\nOrder=03\nTitle=MISSION\nbutton=BriefingTitleRow04\nOrder=04\nTitle=OBJECTIVES\nbutton=BriefingTitleRow\nOrder=05\nTitle=SERVICE SUPPORT\nbutton=BriefingTitleRow\nOrder=06\nTitle=INTELLIGENCE SUMMARY AND THREAT ASSESSMENT\nbutton=BriefingTitleRow\nOrder=07\nTitle=SCENARIO\nbutton=VoiceChannelsButton\nVoiceChannelsButtonLabel=VOICE\nbutton=PlayerListButton\nPlayerListButtonLabel=PLAYERS\nbutton=DeafenButton\nPlayerName=Burn0ut7\nm_ChannelTagOverlay=[Global]\nm_WarningText=Warning Text\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatSwitchChannel\"/></shadow>\nText=Change channels\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatHistoryBrowse\"/></shadow>\nText=Cycle history\nm_MessageText= \nm_MessageText= \nm_MessageText= \nm_MessageText= \nm_MessageText= \n",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r91afaf11e9344d73b300d7505f796881",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=PREGAME groups=7 slots=42 briefings=21 revision=0 player=1 admin=1\\ncanonical=0 value=true\\ncanonical=1 value=300\\ncanonical=2 value=4\\ncanonical=3 value=2\\ncanonical=4 value=0.500\\ncanonical=5 value=1000.000\\ncanonical=6 value=SILENT THUNDER\\ncanonical=7 value=standard\\nmenu=rootFrame\\nactiveView=0\\nbutton=Mission Preview Button\\nText=PREVIEW\\nbutton=Lobby Button\\nText=LOBBY\\nbutton=Briefing Button\\nText=BRIEFING\\nbutton=Game Button\\nText=GAME\\nbutton=Debrief Button\\nText=DEBRIEF\\nTitleText=BANGALORIOUS\\nDescription=COOPERATIVE ATTACK\\nPhaseElapsed=00:12\\nPlayerCountText=1\\nBriefingIndexLabel=BRIEFING\\nbutton=BriefingTitleRow01\\nOrder=01\\nTitle=RICH TEXT SHOWCASE\\nbutton=BriefingTitleRow02\\nOrder=02\\nTitle=SITUATION\\nbutton=BriefingTitleRow03\\nOrder=03\\nTitle=MISSION\\nbutton=BriefingTitleRow04\\nOrder=04\\nTitle=OBJECTIVES\\nbutton=BriefingTitleRow\\nOrder=05\\nTitle=SERVICE SUPPORT\\nbutton=BriefingTitleRow\\nOrder=06\\nTitle=INTELLIGENCE SUMMARY AND THREAT ASSESSMENT\\nbutton=BriefingTitleRow\\nOrder=07\\nTitle=SCENARIO\\nbutton=VoiceChannelsButton\\nVoiceChannelsButtonLabel=VOICE\\nbutton=PlayerListButton\\nPlayerListButtonLabel=PLAYERS\\nbutton=DeafenButton\\nPlayerName=Burn0ut7\\nm_ChannelTagOverlay=[Global]\\nm_WarningText=Warning Text\\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\\\"ChatSwitchChannel\\\"/></shadow>\\nText=Change channels\\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\\\"ChatHistoryBrowse\\\"/></shadow>\\nText=Cycle history\\nm_MessageText= \\nm_MessageText= \\nm_MessageText= \\nm_MessageText= \\nm_MessageText= \\n\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOTimeFormat",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r6ca0479e89af4eb0bf95770e77657e45",
+        "receipt": "r6ca0479e89af4eb0bf95770e77657e45",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r6ca0479e89af4eb0bf95770e77657e45",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOTimeFormat",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r6ca0479e89af4eb0bf95770e77657e45",
+        "returnType": "string",
+        "returned": " [20 actual=20.000 pass=1] [30 actual=30.000 pass=1] [65.25 actual=1:05.250 pass=1] [59.999 actual=59.999 pass=1] [60 actual=1:00.000 pass=1] [0 actual=0.000 pass=1] [-1 actual=0.000 pass=1] [0.001 actual=0.001 pass=1]",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r6ca0479e89af4eb0bf95770e77657e45",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOTimeFormat",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\" [20 actual=20.000 pass=1] [30 actual=30.000 pass=1] [65.25 actual=1:05.250 pass=1] [59.999 actual=59.999 pass=1] [60 actual=1:00.000 pass=1] [0 actual=0.000 pass=1] [-1 actual=0.000 pass=1] [0.001 actual=0.001 pass=1]\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestFreezeAdvance",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r3494e6f56cb2402d95e52bf238a4d3d6",
+        "receipt": "r3494e6f56cb2402d95e52bf238a4d3d6",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r3494e6f56cb2402d95e52bf238a4d3d6",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyFreezeComponent",
+          "method": "GC_TestFreezeAdvance",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r3494e6f56cb2402d95e52bf238a4d3d6",
+        "returnType": "string",
+        "returned": "DISPATCHED production phase request",
+        "elapsedMs": 27,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r3494e6f56cb2402d95e52bf238a4d3d6",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyFreezeComponent",
+          "method": "GC_TestFreezeAdvance",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"DISPATCHED production phase request\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rc61586c0c0264dfba5f551f9597d31db",
+        "receipt": "rc61586c0c0264dfba5f551f9597d31db",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rc61586c0c0264dfba5f551f9597d31db",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rc61586c0c0264dfba5f551f9597d31db",
+        "returnType": "string",
+        "returned": "phase=SLOTTING groups=7 slots=42 briefings=21 revision=0 player=1 admin=1\ncanonical=0 value=true\ncanonical=1 value=300\ncanonical=2 value=4\ncanonical=3 value=2\ncanonical=4 value=0.500\ncanonical=5 value=1000.000\ncanonical=6 value=SILENT THUNDER\ncanonical=7 value=standard\nmenu=rootFrame\nactiveView=1\nbutton=Mission Preview Button\nText=PREVIEW\nbutton=Lobby Button\nText=LOBBY\nbutton=Briefing Button\nText=BRIEFING\nbutton=Game Button\nText=GAME\nbutton=Debrief Button\nText=DEBRIEF\nTitleText=BANGALORIOUS\nDescription=COOPERATIVE ATTACK\nPhaseElapsed=00:00\nPlayerCountText=1\nText0=Factions\nbutton=Button\nText=Soviet Army\nCounter=0 / 10\nbutton=Button\nText=US Army\nCounter=0 / 32\nSlotsTitle=Slots\nbutton=FactionRatioButton\nbutton=AllSlotLocksButton\nSquadName=Kompas-21\nSquadDescription=Rifle Squad\nPlayerCount=0 / 2\nPlayerCountLabel=PLAYERS\nslot=1 player=-1\nbutton=SlotButton\nRoleName=Senior Rifleman\nslot=2 player=-1\nbutton=SlotButton\nRoleName=Light AT Rifleman\nSquadName=Buran-12\nSquadDescription=Rifle Squad\nPlayerCount=0 / 4\nPlayerCountLabel=PLAYERS\nslot=3 player=-1\nbutton=SlotButton\nRoleName=Senior Rifleman\nslot=4 player=-1\nbutton=SlotButton\nRoleName=Automatic Rifleman\nslot=5 player=-1\nbutton=SlotButton\nRoleName=Grenadier\nslot=6 player=-1\nbutton=SlotButton\nRoleName=Grenadier\nSquadName=Kompas-13\nSquadDescription=Rifle Squad\nPlayerCount=0 / 4\nPlayerCountLabel=PLAYERS\nslot=7 player=-1\nbutton=SlotButton\nRoleName=Senior Rifleman\nslot=8 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist\nslot=9 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist\nslot=10 player=-1\nbutton=SlotButton\nRoleName=Anti-Tank Specialist Assistant\nLoadoutTitle=Loadout\nbutton=VoiceChannelsButton\nVoiceChannelsButtonLabel=VOICE\nbutton=PlayerListButton\nPlayerListButtonLabel=PLAYERS\nbutton=DeafenButton\nbutton=ChannelHeader\nChannelName=GLOBAL\nPlayerName=Burn0ut7\nbutton=ChannelHeader\nChannelName=Soviet Army HQ\nbutton=ChannelHeader\nChannelName=Kompas-21\nbutton=ChannelHeader\nChannelName=Buran-12\nbutton=ChannelHeader\nChannelName=Kompas-13\nbutton=ChannelHeader\nChannelName=US Army HQ\nbutton=ChannelHeader\nChannelName=Atlas Red 1\nbutton=ChannelHeader\nChannelName=Atlas Red 2\nbutton=ChannelHeader\nChannelName=Atlas Red 3\nbutton=ChannelHeader\nChannelName=Atlas Red 4\nbutton=ChannelHeader\nChannelName=Burn0ut7'S CHANNEL\nm_ChannelTagOverlay=[Global]\nm_WarningText=Warning Text\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatSwitchChannel\"/></shadow>\nText=Change channels\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatHistoryBrowse\"/></shadow>\nText=Cycle history\n",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rc61586c0c0264dfba5f551f9597d31db",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=SLOTTING groups=7 slots=42 briefings=21 revision=0 player=1 admin=1\\ncanonical=0 value=true\\ncanonical=1 value=300\\ncanonical=2 value=4\\ncanonical=3 value=2\\ncanonical=4 value=0.500\\ncanonical=5 value=1000.000\\ncanonical=6 value=SILENT THUNDER\\ncanonical=7 value=standard\\nmenu=rootFrame\\nactiveView=1\\nbutton=Mission Preview Button\\nText=PREVIEW\\nbutton=Lobby Button\\nText=LOBBY\\nbutton=Briefing Button\\nText=BRIEFING\\nbutton=Game Button\\nText=GAME\\nbutton=Debrief Button\\nText=DEBRIEF\\nTitleText=BANGALORIOUS\\nDescription=COOPERATIVE ATTACK\\nPhaseElapsed=00:00\\nPlayerCountText=1\\nText0=Factions\\nbutton=Button\\nText=Soviet Army\\nCounter=0 / 10\\nbutton=Button\\nText=US Army\\nCounter=0 / 32\\nSlotsTitle=Slots\\nbutton=FactionRatioButton\\nbutton=AllSlotLocksButton\\nSquadName=Kompas-21\\nSquadDescription=Rifle Squad\\nPlayerCount=0 / 2\\nPlayerCountLabel=PLAYERS\\nslot=1 player=-1\\nbutton=SlotButton\\nRoleName=Senior Rifleman\\nslot=2 player=-1\\nbutton=SlotButton\\nRoleName=Light AT Rifleman\\nSquadName=Buran-12\\nSquadDescription=Rifle Squad\\nPlayerCount=0 / 4\\nPlayerCountLabel=PLAYERS\\nslot=3 player=-1\\nbutton=SlotButton\\nRoleName=Senior Rifleman\\nslot=4 player=-1\\nbutton=SlotButton\\nRoleName=Automatic Rifleman\\nslot=5 player=-1\\nbutton=SlotButton\\nRoleName=Grenadier\\nslot=6 player=-1\\nbutton=SlotButton\\nRoleName=Grenadier\\nSquadName=Kompas-13\\nSquadDescription=Rifle Squad\\nPlayerCount=0 / 4\\nPlayerCountLabel=PLAYERS\\nslot=7 player=-1\\nbutton=SlotButton\\nRoleName=Senior Rifleman\\nslot=8 player=-1\\nbutton=SlotButton\\nRoleName=Anti-Tank Specialist\\nslot=9 player=-1\\nbutton=SlotButton\\nRoleName=Anti-Tank Specialist\\nslot=10 player=-1\\nbutton=SlotButton\\nRoleName=Anti-Tank Specialist Assistant\\nLoadoutTitle=Loadout\\nbutton=VoiceChannelsButton\\nVoiceChannelsButtonLabel=VOICE\\nbutton=PlayerListButton\\nPlayerListButtonLabel=PLAYERS\\nbutton=DeafenButton\\nbutton=ChannelHeader\\nChannelName=GLOBAL\\nPlayerName=Burn0ut7\\nbutton=ChannelHeader\\nChannelName=Soviet Army HQ\\nbutton=ChannelHeader\\nChannelName=Kompas-21\\nbutton=ChannelHeader\\nChannelName=Buran-12\\nbutton=ChannelHeader\\nChannelName=Kompas-13\\nbutton=ChannelHeader\\nChannelName=US Army HQ\\nbutton=ChannelHeader\\nChannelName=Atlas Red 1\\nbutton=ChannelHeader\\nChannelName=Atlas Red 2\\nbutton=ChannelHeader\\nChannelName=Atlas Red 3\\nbutton=ChannelHeader\\nChannelName=Atlas Red 4\\nbutton=ChannelHeader\\nChannelName=Burn0ut7'S CHANNEL\\nm_ChannelTagOverlay=[Global]\\nm_WarningText=Warning Text\\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\\\"ChatSwitchChannel\\\"/></shadow>\\nText=Change channels\\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\\\"ChatHistoryBrowse\\\"/></shadow>\\nText=Cycle history\\n\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestSelectSlot",
+      "args": [
+        {
+          "type": "int",
+          "value": 1
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rccc2fa962a9e4f62823a0cd2df9e2865",
+        "receipt": "rccc2fa962a9e4f62823a0cd2df9e2865",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rccc2fa962a9e4f62823a0cd2df9e2865",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestSelectSlot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rccc2fa962a9e4f62823a0cd2df9e2865",
+        "returnType": "string",
+        "returned": "dispatched: SlotButton",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rccc2fa962a9e4f62823a0cd2df9e2865",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestSelectSlot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"dispatched: SlotButton\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestFreezeAdvance",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "ra5f5490c052748edb09544a755d4ad6e",
+        "receipt": "ra5f5490c052748edb09544a755d4ad6e",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "ra5f5490c052748edb09544a755d4ad6e",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyFreezeComponent",
+          "method": "GC_TestFreezeAdvance",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "ra5f5490c052748edb09544a755d4ad6e",
+        "returnType": "string",
+        "returned": "DISPATCHED production phase request",
+        "elapsedMs": 7,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "ra5f5490c052748edb09544a755d4ad6e",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyFreezeComponent",
+          "method": "GC_TestFreezeAdvance",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"DISPATCHED production phase request\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r00444af002434f1a83a56239db14a940",
+        "receipt": "r00444af002434f1a83a56239db14a940",
+        "returnType": "string",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r00444af002434f1a83a56239db14a940",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r00444af002434f1a83a56239db14a940",
+        "returnType": "string",
+        "returned": "phase=1787356802 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC8FA670> @\"ENTITY:6917529027641082071\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <135.296997 1.000000 123.139000> @\"{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et\" alive=1 position=<135.297,1,123.139> offset=<135.297,1,123.139> vehicle=NULL HUD=absent AO=not-evaluated",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r00444af002434f1a83a56239db14a940",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1787356802 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC8FA670> @\\\"ENTITY:6917529027641082071\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <135.296997 1.000000 123.139000> @\\\"{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et\\\" alive=1 position=<135.297,1,123.139> offset=<135.297,1,123.139> vehicle=NULL HUD=absent AO=not-evaluated\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestFreezeAdvance",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "re332de08d09e41718639eb23735999fa",
+        "receipt": "re332de08d09e41718639eb23735999fa",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "re332de08d09e41718639eb23735999fa",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyFreezeComponent",
+          "method": "GC_TestFreezeAdvance",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "re332de08d09e41718639eb23735999fa",
+        "returnType": "string",
+        "returned": "DISPATCHED production phase request",
+        "elapsedMs": 4,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "re332de08d09e41718639eb23735999fa",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyFreezeComponent",
+          "method": "GC_TestFreezeAdvance",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"DISPATCHED production phase request\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rd7f58248a195434498533d28ec2e2535",
+        "receipt": "rd7f58248a195434498533d28ec2e2535",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rd7f58248a195434498533d28ec2e2535",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rd7f58248a195434498533d28ec2e2535",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636002 1.000000 123.199997> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<132.636,1,123.2> offset=<132.636,1,123.2> vehicle=NULL HUD=absent limits=0 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rd7f58248a195434498533d28ec2e2535",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636002 1.000000 123.199997> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<132.636,1,123.2> offset=<132.636,1,123.2> vehicle=NULL HUD=absent limits=0 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSpawn",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r1be4a7c907aa49acb98aee91c6a5b51e",
+        "receipt": "r1be4a7c907aa49acb98aee91c6a5b51e",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r1be4a7c907aa49acb98aee91c6a5b51e",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSpawn",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r1be4a7c907aa49acb98aee91c6a5b51e",
+        "returnType": "string",
+        "returned": "spawned index=0 origin=<132.636,1,123.2>; configure after native initialization",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r1be4a7c907aa49acb98aee91c6a5b51e",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSpawn",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"spawned index=0 origin=<132.636,1,123.2>; configure after native initialization\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "float",
+          "value": 20
+        },
+        {
+          "type": "int",
+          "value": 10
+        },
+        {
+          "type": "float",
+          "value": 10
+        },
+        {
+          "type": "vector",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r31654fab3bdf4c9f85339a0b52bd2380",
+        "receipt": "r31654fab3bdf4c9f85339a0b52bd2380",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r31654fab3bdf4c9f85339a0b52bd2380",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r31654fab3bdf4c9f85339a0b52bd2380",
+        "returnType": "string",
+        "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r31654fab3bdf4c9f85339a0b52bd2380",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"behavior=1 polygon=1 enabled=1 permitsOrigin=1\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        {
+          "type": "vector",
+          "value": [
+            15,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r482b83bcbe544dbba25fb5ab7b2b1604",
+        "receipt": "r482b83bcbe544dbba25fb5ab7b2b1604",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r482b83bcbe544dbba25fb5ab7b2b1604",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r482b83bcbe544dbba25fb5ab7b2b1604",
+        "returnType": "string",
+        "returned": "arranged=1 destination=<147.636,1,123.2>",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r482b83bcbe544dbba25fb5ab7b2b1604",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"arranged=1 destination=<147.636,1,123.2>\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r1d38fd8feaf44e1e87b06da318dd13c1",
+        "receipt": "r1d38fd8feaf44e1e87b06da318dd13c1",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r1d38fd8feaf44e1e87b06da318dd13c1",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r1d38fd8feaf44e1e87b06da318dd13c1",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,1.66893e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r1d38fd8feaf44e1e87b06da318dd13c1",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,1.66893e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "float",
+          "value": 120
+        },
+        {
+          "type": "int",
+          "value": 10
+        },
+        {
+          "type": "float",
+          "value": 10
+        },
+        {
+          "type": "vector",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r096894932fe8457cb109347ef36ee426",
+        "receipt": "r096894932fe8457cb109347ef36ee426",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r096894932fe8457cb109347ef36ee426",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r096894932fe8457cb109347ef36ee426",
+        "returnType": "string",
+        "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r096894932fe8457cb109347ef36ee426",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"behavior=1 polygon=1 enabled=1 permitsOrigin=1\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        {
+          "type": "vector",
+          "value": [
+            15,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r2132fa937bd846faa9c35f44b96ce0b1",
+        "receipt": "r2132fa937bd846faa9c35f44b96ce0b1",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r2132fa937bd846faa9c35f44b96ce0b1",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r2132fa937bd846faa9c35f44b96ce0b1",
+        "returnType": "string",
+        "returned": "arranged=1 destination=<147.636,1,123.2>",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r2132fa937bd846faa9c35f44b96ce0b1",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"arranged=1 destination=<147.636,1,123.2>\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r06f2f17bbe884d65adbdd798d1846660",
+        "receipt": "r06f2f17bbe884d65adbdd798d1846660",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r06f2f17bbe884d65adbdd798d1846660",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r06f2f17bbe884d65adbdd798d1846660",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.736 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.722",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r06f2f17bbe884d65adbdd798d1846660",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.736 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.722\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOToggle",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "bool",
+          "value": false
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r9ed280614b5448c3a70ebd5a8ec46eb6",
+        "receipt": "r9ed280614b5448c3a70ebd5a8ec46eb6",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r9ed280614b5448c3a70ebd5a8ec46eb6",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r9ed280614b5448c3a70ebd5a8ec46eb6",
+        "returnType": "string",
+        "returned": "true",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r9ed280614b5448c3a70ebd5a8ec46eb6",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"true\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r41aab3d98c7c40239897a2095b063f9e",
+        "receipt": "r41aab3d98c7c40239897a2095b063f9e",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r41aab3d98c7c40239897a2095b063f9e",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r41aab3d98c7c40239897a2095b063f9e",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r41aab3d98c7c40239897a2095b063f9e",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOToggle",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": true
+        },
+        {
+          "type": "bool",
+          "value": false
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r9006d85124224c3dab387886de81160f",
+        "receipt": "r9006d85124224c3dab387886de81160f",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r9006d85124224c3dab387886de81160f",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r9006d85124224c3dab387886de81160f",
+        "returnType": "string",
+        "returned": "true",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r9006d85124224c3dab387886de81160f",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"true\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOFilter",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 3
+        },
+        {
+          "type": "bool",
+          "value": true
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r3b9a3da2656349fa84e46cf143831ed3",
+        "receipt": "r3b9a3da2656349fa84e46cf143831ed3",
+        "returnType": "string",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r3b9a3da2656349fa84e46cf143831ed3",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r3b9a3da2656349fa84e46cf143831ed3",
+        "returnType": "string",
+        "returned": "changed=1 item={E096C6BD45C87B63}Prefabs/Items/PersonalBelongings/PersonalBelongings_USSR.et applies=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r3b9a3da2656349fa84e46cf143831ed3",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"changed=1 item={E096C6BD45C87B63}Prefabs/Items/PersonalBelongings/PersonalBelongings_USSR.et applies=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rad3c20fe43d147e79d1d2e5fa18759de",
+        "receipt": "rad3c20fe43d147e79d1d2e5fa18759de",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rad3c20fe43d147e79d1d2e5fa18759de",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rad3c20fe43d147e79d1d2e5fa18759de",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rad3c20fe43d147e79d1d2e5fa18759de",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOFilter",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "bool",
+          "value": true
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r822ad1f1bc4e4292a11b269160b1aa8f",
+        "receipt": "r822ad1f1bc4e4292a11b269160b1aa8f",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r822ad1f1bc4e4292a11b269160b1aa8f",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r822ad1f1bc4e4292a11b269160b1aa8f",
+        "returnType": "string",
+        "returned": "changed=1 item={E096C6BD45C87B63}Prefabs/Items/PersonalBelongings/PersonalBelongings_USSR.et applies=1",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r822ad1f1bc4e4292a11b269160b1aa8f",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"changed=1 item={E096C6BD45C87B63}Prefabs/Items/PersonalBelongings/PersonalBelongings_USSR.et applies=1\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r01d02a5943504bd582e969b08f2b6d73",
+        "receipt": "r01d02a5943504bd582e969b08f2b6d73",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r01d02a5943504bd582e969b08f2b6d73",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r01d02a5943504bd582e969b08f2b6d73",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.652 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.648",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r01d02a5943504bd582e969b08f2b6d73",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.652 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.648\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOFilter",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r4447236c1f8a41718882c4b0b974a81c",
+        "receipt": "r4447236c1f8a41718882c4b0b974a81c",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r4447236c1f8a41718882c4b0b974a81c",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r4447236c1f8a41718882c4b0b974a81c",
+        "returnType": "string",
+        "returned": "changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=0",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r4447236c1f8a41718882c4b0b974a81c",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r2ac6e082bd0f42a1885738f9a1d0101c",
+        "receipt": "r2ac6e082bd0f42a1885738f9a1d0101c",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r2ac6e082bd0f42a1885738f9a1d0101c",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r2ac6e082bd0f42a1885738f9a1d0101c",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r2ac6e082bd0f42a1885738f9a1d0101c",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOFilter",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 3
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r02f5ac58898949938ef9c197293695e1",
+        "receipt": "r02f5ac58898949938ef9c197293695e1",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r02f5ac58898949938ef9c197293695e1",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r02f5ac58898949938ef9c197293695e1",
+        "returnType": "string",
+        "returned": "changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=1",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r02f5ac58898949938ef9c197293695e1",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=1\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "ra0fd6aa5397249cbb33797e1491b1c49",
+        "receipt": "ra0fd6aa5397249cbb33797e1491b1c49",
+        "returnType": "string",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "ra0fd6aa5397249cbb33797e1491b1c49",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "ra0fd6aa5397249cbb33797e1491b1c49",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.683 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.683",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "ra0fd6aa5397249cbb33797e1491b1c49",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.683 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.683\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOFilter",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 2
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rfae282ac68014906a45a1ebed1eb9783",
+        "receipt": "rfae282ac68014906a45a1ebed1eb9783",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rfae282ac68014906a45a1ebed1eb9783",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rfae282ac68014906a45a1ebed1eb9783",
+        "returnType": "string",
+        "returned": "changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rfae282ac68014906a45a1ebed1eb9783",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r8de69817b67d4c55a8d8f115b9aa9f81",
+        "receipt": "r8de69817b67d4c55a8d8f115b9aa9f81",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r8de69817b67d4c55a8d8f115b9aa9f81",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r8de69817b67d4c55a8d8f115b9aa9f81",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r8de69817b67d4c55a8d8f115b9aa9f81",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOFilter",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 2
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r8f0012123dcd432084ac8e2a943da5fb",
+        "receipt": "r8f0012123dcd432084ac8e2a943da5fb",
+        "returnType": "string",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r8f0012123dcd432084ac8e2a943da5fb",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r8f0012123dcd432084ac8e2a943da5fb",
+        "returnType": "string",
+        "returned": "changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r8f0012123dcd432084ac8e2a943da5fb",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rd06f609880724b5c8015f5a13bf3799a",
+        "receipt": "rd06f609880724b5c8015f5a13bf3799a",
+        "returnType": "string",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rd06f609880724b5c8015f5a13bf3799a",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rd06f609880724b5c8015f5a13bf3799a",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rd06f609880724b5c8015f5a13bf3799a",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOFilter",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r3ab188e4adad4411a549d15bbda5c4f2",
+        "receipt": "r3ab188e4adad4411a549d15bbda5c4f2",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r3ab188e4adad4411a549d15bbda5c4f2",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r3ab188e4adad4411a549d15bbda5c4f2",
+        "returnType": "string",
+        "returned": "changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=1",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r3ab188e4adad4411a549d15bbda5c4f2",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOFilter",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"changed=1 item={4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et applies=1\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r6a39949cc25b4b3c91d01ae035998e6a",
+        "receipt": "r6a39949cc25b4b3c91d01ae035998e6a",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r6a39949cc25b4b3c91d01ae035998e6a",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r6a39949cc25b4b3c91d01ae035998e6a",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.784 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.775",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r6a39949cc25b4b3c91d01ae035998e6a",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.784 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=10 remaining=119.775\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        {
+          "type": "vector",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r995b64ff45994642aa8049f92f01fd93",
+        "receipt": "r995b64ff45994642aa8049f92f01fd93",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r995b64ff45994642aa8049f92f01fd93",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r995b64ff45994642aa8049f92f01fd93",
+        "returnType": "string",
+        "returned": "arranged=1 destination=<132.636,1,123.2>",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r995b64ff45994642aa8049f92f01fd93",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"arranged=1 destination=<132.636,1,123.2>\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r910b7b611ebb43f7b6a6cde976a3e836",
+        "receipt": "r910b7b611ebb43f7b6a6cde976a3e836",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r910b7b611ebb43f7b6a6cde976a3e836",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r910b7b611ebb43f7b6a6cde976a3e836",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,2.14577e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r910b7b611ebb43f7b6a6cde976a3e836",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,2.14577e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSpawn",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r1979093311c94c84a88b288866f4f6fd",
+        "receipt": "r1979093311c94c84a88b288866f4f6fd",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r1979093311c94c84a88b288866f4f6fd",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSpawn",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r1979093311c94c84a88b288866f4f6fd",
+        "returnType": "string",
+        "returned": "spawned index=1 origin=<132.636,1,123.2>; configure after native initialization",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r1979093311c94c84a88b288866f4f6fd",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSpawn",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"spawned index=1 origin=<132.636,1,123.2>; configure after native initialization\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "float",
+          "value": 20
+        },
+        {
+          "type": "int",
+          "value": 10
+        },
+        {
+          "type": "float",
+          "value": 10
+        },
+        {
+          "type": "vector",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r1824e1070c514f7e9cf8e6750bd27617",
+        "receipt": "r1824e1070c514f7e9cf8e6750bd27617",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r1824e1070c514f7e9cf8e6750bd27617",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r1824e1070c514f7e9cf8e6750bd27617",
+        "returnType": "string",
+        "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r1824e1070c514f7e9cf8e6750bd27617",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"behavior=1 polygon=1 enabled=1 permitsOrigin=1\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        {
+          "type": "vector",
+          "value": [
+            15,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r3136ac475e014951841022017aeed2ce",
+        "receipt": "r3136ac475e014951841022017aeed2ce",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r3136ac475e014951841022017aeed2ce",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r3136ac475e014951841022017aeed2ce",
+        "returnType": "string",
+        "returned": "arranged=1 destination=<147.636,1,123.2>",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r3136ac475e014951841022017aeed2ce",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"arranged=1 destination=<147.636,1,123.2>\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r2a853b457c4c4a79a3f250486b4b55ea",
+        "receipt": "r2a853b457c4c4a79a3f250486b4b55ea",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r2a853b457c4c4a79a3f250486b4b55ea",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r2a853b457c4c4a79a3f250486b4b55ea",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,2.14577e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=2 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r2a853b457c4c4a79a3f250486b4b55ea",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,2.14577e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=2 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "float",
+          "value": 120
+        },
+        {
+          "type": "int",
+          "value": 11
+        },
+        {
+          "type": "float",
+          "value": 10
+        },
+        {
+          "type": "vector",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rc4fcbc96cc314fe2815955613e599a3d",
+        "receipt": "rc4fcbc96cc314fe2815955613e599a3d",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rc4fcbc96cc314fe2815955613e599a3d",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rc4fcbc96cc314fe2815955613e599a3d",
+        "returnType": "string",
+        "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rc4fcbc96cc314fe2815955613e599a3d",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"behavior=1 polygon=1 enabled=1 permitsOrigin=1\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        {
+          "type": "vector",
+          "value": [
+            15,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "racc01f9514aa4b699bac0289dba7047b",
+        "receipt": "racc01f9514aa4b699bac0289dba7047b",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "racc01f9514aa4b699bac0289dba7047b",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "racc01f9514aa4b699bac0289dba7047b",
+        "returnType": "string",
+        "returned": "arranged=1 destination=<147.636,1,123.2>",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "racc01f9514aa4b699bac0289dba7047b",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"arranged=1 destination=<147.636,1,123.2>\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rd0f3bb7ec9aa47a0af8500dd3df04b96",
+        "receipt": "rd0f3bb7ec9aa47a0af8500dd3df04b96",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rd0f3bb7ec9aa47a0af8500dd3df04b96",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rd0f3bb7ec9aa47a0af8500dd3df04b96",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.650 limits=2 clocks=2 selected=AOFixture0 behavior=1 priority=11 remaining=119.636",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rd0f3bb7ec9aa47a0af8500dd3df04b96",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=1:59.650 limits=2 clocks=2 selected=AOFixture0 behavior=1 priority=11 remaining=119.636\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOToggle",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "bool",
+          "value": false
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "ra2199e7b0d9a45cfaba0e93679ce02a2",
+        "receipt": "ra2199e7b0d9a45cfaba0e93679ce02a2",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "ra2199e7b0d9a45cfaba0e93679ce02a2",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "ra2199e7b0d9a45cfaba0e93679ce02a2",
+        "returnType": "string",
+        "returned": "true",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "ra2199e7b0d9a45cfaba0e93679ce02a2",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"true\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r4b5eb933bb764acfb2c976bacaca6314",
+        "receipt": "r4b5eb933bb764acfb2c976bacaca6314",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r4b5eb933bb764acfb2c976bacaca6314",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r4b5eb933bb764acfb2c976bacaca6314",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=2 clocks=1 selected=AOFixture1 behavior=0 priority=10 remaining=19.0254",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r4b5eb933bb764acfb2c976bacaca6314",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=2 clocks=1 selected=AOFixture1 behavior=0 priority=10 remaining=19.0254\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOToggle",
+      "args": [
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "bool",
+          "value": false
+        },
+        {
+          "type": "bool",
+          "value": true
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r1356fef7a7c74fea9990903d635f8bba",
+        "receipt": "r1356fef7a7c74fea9990903d635f8bba",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r1356fef7a7c74fea9990903d635f8bba",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r1356fef7a7c74fea9990903d635f8bba",
+        "returnType": "string",
+        "returned": "removed",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r1356fef7a7c74fea9990903d635f8bba",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOToggle",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"removed\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r18572b7ee7f44721a394f149e283331f",
+        "receipt": "r18572b7ee7f44721a394f149e283331f",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r18572b7ee7f44721a394f149e283331f",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r18572b7ee7f44721a394f149e283331f",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r18572b7ee7f44721a394f149e283331f",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <147.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<147.636,1,123.2> offset=<15,2.38419e-06,-1.52588e-05> vehicle=NULL HUD=absent limits=1 clocks=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        {
+          "type": "int",
+          "value": 0
+        },
+        {
+          "type": "int",
+          "value": 1
+        },
+        {
+          "type": "bool",
+          "value": true
+        },
+        {
+          "type": "float",
+          "value": 3
+        },
+        {
+          "type": "int",
+          "value": 11
+        },
+        {
+          "type": "float",
+          "value": 10
+        },
+        {
+          "type": "vector",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r39345641e65a4bc4b8c3afdad3ba00c7",
+        "receipt": "r39345641e65a4bc4b8c3afdad3ba00c7",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r39345641e65a4bc4b8c3afdad3ba00c7",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r39345641e65a4bc4b8c3afdad3ba00c7",
+        "returnType": "string",
+        "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=0",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r39345641e65a4bc4b8c3afdad3ba00c7",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOConfigure",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"behavior=1 polygon=1 enabled=1 permitsOrigin=0\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        {
+          "type": "vector",
+          "value": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rea1b139a1c0947dc8d910fd6f8763199",
+        "receipt": "rea1b139a1c0947dc8d910fd6f8763199",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rea1b139a1c0947dc8d910fd6f8763199",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rea1b139a1c0947dc8d910fd6f8763199",
+        "returnType": "string",
+        "returned": "arranged=1 destination=<132.636,1,123.2>",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rea1b139a1c0947dc8d910fd6f8763199",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOMove",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"arranged=1 destination=<132.636,1,123.2>\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "rb3c2658a8a6642a29366383eb6ef8326",
+        "receipt": "rb3c2658a8a6642a29366383eb6ef8326",
+        "returnType": "string",
+        "elapsedMs": 3,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "rb3c2658a8a6642a29366383eb6ef8326",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "rb3c2658a8a6642a29366383eb6ef8326",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\"ENTITY:6917529027641082083\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,2.14577e-06,-1.52588e-05> vehicle=NULL HUD=2.580 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=11 remaining=2.56631",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "rb3c2658a8a6642a29366383eb6ef8326",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC91E8F0> @\\\"ENTITY:6917529027641082083\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <132.636017 1.000002 123.199982> @\\\"{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\\" alive=1 position=<132.636,1,123.2> offset=<1.52588e-05,2.14577e-06,-1.52588e-05> vehicle=NULL HUD=2.580 limits=1 clocks=1 selected=AOFixture0 behavior=1 priority=11 remaining=2.56631\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "prepared": {
+        "state": "prepared",
+        "processId": 20188,
+        "targetToken": "r51a18adda8cd45b484932df428cd3826",
+        "receipt": "r51a18adda8cd45b484932df428cd3826",
+        "returnType": "string",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "prepared",
+          "token": "r51a18adda8cd45b484932df428cd3826",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": -1,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": ""
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      },
+      "result": {
+        "state": "invoked",
+        "processId": 20188,
+        "receipt": "r51a18adda8cd45b484932df428cd3826",
+        "returnType": "string",
+        "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC918370> @\"ENTITY:6917529027641082139\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <135.296997 1.000000 123.139000> @\"{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et\" alive=1 position=<135.297,1,123.139> offset=<2.661,0,-0.060997> vehicle=NULL HUD=absent AO=not-evaluated",
+        "elapsedMs": 2,
+        "adapter": {
+          "protocol": 2,
+          "state": "invoked",
+          "token": "r51a18adda8cd45b484932df428cd3826",
+          "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+          "entityName": "GameMode_Lobby3",
+          "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+          "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+          "componentType": "GC_LobbyManager",
+          "method": "GC_TestAOSnapshot",
+          "error": "",
+          "errorLine": 0,
+          "entityId": "",
+          "entityType": "",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "angles": [
+            0,
+            0,
+            0
+          ],
+          "total": 0,
+          "nextOffset": -1,
+          "resultJson": "{\"called\":true,\"value\":\"phase=1 player=1 controlled=SCR_ChimeraCharacter<0x00000209EC918370> @\\\"ENTITY:6917529027641082139\\\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <135.296997 1.000000 123.139000> @\\\"{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et\\\" alive=1 position=<135.297,1,123.139> offset=<2.661,0,-0.060997> vehicle=NULL HUD=absent AO=not-evaluated\"}"
+        },
+        "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+      }
+    }
+  ],
+  "log": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"source\":\"workbench\",\"session\":\"logs_2026-10-24_23-33-45\",\"path\":\"C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-24_23-33-45\\\\console.log\",\"revision\":\"90380:F45434A1A413415EDB10D174DED556BEE7ED4AF808A1F019A8C0DB80E4F0F16C\",\"header\":\"Log C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-24_23-33-45\\\\console.log started at 2026-10-24 23:33:45 (2026-10-25 03:33:45 UTC)\",\"scope\":\"latest\",\"fromLine\":231,\"toLine\":742,\"totalLines\":742,\"cycle\":{\"startLine\":231,\"time\":\"23:35:08.615\",\"kind\":\"reload\",\"completionLine\":285},\"severityCounts\":{\"error\":16,\"warning\":64,\"info\":432},\"categoryCounts\":{\"SCRIPT\":296,\"PROFILING\":38,\"ENGINE\":10,\"GUI\":25,\"INIT\":8,\"DEFAULT\":9,\"RESOURCES\":14,\"WORLD\":52,\"ENTITY\":28,\"PATHFINDING\":12,\"TERRAIN\":6,\"RENDER\":4,\"PLATFORM\":3,\"NETWORK\":7},\"matchedLines\":6,\"entries\":[{\"line\":611,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"23:36:19.884 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter\\u003C0x00000209EC91E8F0\\u003E @\\u0022ENTITY:6917529027641082083\\u0022 (\\u0027SCR_ChimeraCharacter\\u0027,\\u0027Assets/Characters/Basebody/Basebody_Male_01.xob\\u0027) at \\u003C147.636002 1.000000 123.199997\\u003E @\\u0022{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\u0022 limit=AOFixture0 destination=\\u003C132.636,1,123.2\\u003E\",\"textTruncated\":false,\"continuation\":false},{\"line\":612,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"23:36:19.985 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter\\u003C0x00000209EC91E8F0\\u003E @\\u0022ENTITY:6917529027641082083\\u0022 (\\u0027SCR_ChimeraCharacter\\u0027,\\u0027Assets/Characters/Basebody/Basebody_Male_01.xob\\u0027) at \\u003C132.636017 1.000001 123.199982\\u003E @\\u0022{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\u0022\",\"textTruncated\":false,\"continuation\":false},{\"line\":665,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"23:37:36.636 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter\\u003C0x00000209EC91E8F0\\u003E @\\u0022ENTITY:6917529027641082083\\u0022 (\\u0027SCR_ChimeraCharacter\\u0027,\\u0027Assets/Characters/Basebody/Basebody_Male_01.xob\\u0027) at \\u003C147.636017 1.000002 123.199982\\u003E @\\u0022{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\u0022 limit=AOFixture1 destination=\\u003C132.636,1,123.2\\u003E\",\"textTruncated\":false,\"continuation\":false},{\"line\":666,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"23:37:36.741 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter\\u003C0x00000209EC91E8F0\\u003E @\\u0022ENTITY:6917529027641082083\\u0022 (\\u0027SCR_ChimeraCharacter\\u0027,\\u0027Assets/Characters/Basebody/Basebody_Male_01.xob\\u0027) at \\u003C132.636017 1.000002 123.199982\\u003E @\\u0022{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\u0022\",\"textTruncated\":false,\"continuation\":false},{\"line\":677,\"category\":\"SCRIPT\",\"severity\":\"error\",\"text\":\"23:37:38.151 SCRIPT    (E): GC | AO | hard return unavailable: safe destination=0 editable=SCR_EditableCharacterComponent\\u003C0x00000209177362D8\\u003E (Owner : @\\u0022ENTITY:6917529027641082083\\u0022 (\\u0027SCR_ChimeraCharacter\\u0027,\\u0027Assets/Characters/Basebody/Basebody_Male_01.xob\\u0027) at \\u003C147.636017 1.000002 123.199982\\u003E @\\u0022{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\u0022) mover=SCR_ChimeraCharacter\\u003C0x00000209EC91E8F0\\u003E @\\u0022ENTITY:6917529027641082083\\u0022 (\\u0027SCR_ChimeraCharacter\\u0027,\\u0027Assets/Characters/Basebody/Basebody_Male_01.xob\\u0027) at \\u003C147.636017 1.000002 123.199982\\u003E @\\u0022{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et\\u0022 limit=AOFixture1\",\"textTruncated\":false,\"continuation\":false},{\"line\":740,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"23:38:02.197 SCRIPT       : GC | AO | expired player=1 limit=AOFixture0 dead=1\",\"textTruncated\":false,\"continuation\":false}],\"truncated\":false}"
+      }
+    ]
+  }
+}

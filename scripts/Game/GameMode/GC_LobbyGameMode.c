@@ -8,6 +8,13 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 {
 	protected bool m_bStartupLogged;
 	protected ref GC_MapPlans m_MapPlans;
+	protected ref GC_AOLimitSystem m_AOLimits;
+
+	//------------------------------------------------------------------------------------------------
+	GC_AOLimitSystem GetAOLimits()
+	{
+		return m_AOLimits;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_MapPlans GetMapPlans()
@@ -35,6 +42,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		{
 			m_MapPlans = new GC_MapPlans();
 			m_MapPlans.Start(this);
+			m_AOLimits = new GC_AOLimitSystem();
+			m_AOLimits.Start(this);
 		}
 
 		PrintFormat("GC | Phase UI Trace | game mode initialized: this=%1 state=%2 server=%3 rplMode=%4 playerController=%5 menuManager=%6", this, GC_LobbyManager.GetPhaseName(GetState()), Replication.IsServer(), RplSession.Mode(), GetGame().GetPlayerController(), GetGame().GetMenuManager());
@@ -155,6 +164,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyGameMode()
 	{
+		if (m_AOLimits && GetGame())
+			m_AOLimits.Stop();
 		if (m_MapPlans && GetGame())
 			m_MapPlans.Stop();
 		if (GetGame())

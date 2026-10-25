@@ -1,0 +1,27 @@
+GC_AOLimitEntity {
+ ID "8F470B543A20D942"
+ components {
+  RplComponent "{8F470B543A20D943}" {
+   Streamable Disabled
+  }
+ }
+ IsClosed 1
+ Points {
+  ShapePoint "{8F470B543A20D945}" {
+   Position -50 0 -50
+  }
+  ShapePoint "{8F470B543A20D946}" {
+   Position 50 0 -50
+  }
+  ShapePoint "{8F470B543A20D947}" {
+   Position 50 0 50
+  }
+  ShapePoint "{8F470B543A20D948}" {
+   Position -50 0 50
+  }
+ }
+ LineColor 1 0.2 0.2 1
+ m_bEnabled 1
+ m_eBehavior SOFT_KILL
+ m_fGraceSeconds 20
+}

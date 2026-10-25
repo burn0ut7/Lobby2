@@ -1,0 +1,92 @@
+FrameWidgetClass {
+ Name "LobbyAOWarning"
+ "Z Order" 10000
+ "Ignore Cursor" 1
+ {
+  FrameWidgetClass {
+   Name "AOCard"
+   Slot FrameWidgetSlot {
+    Anchor 0.5 0 0.5 0
+    OffsetLeft 0
+    OffsetTop 70
+    SizeX 420
+    OffsetRight -420
+    SizeY 100
+    OffsetBottom -170
+    Alignment 0.5 0
+   }
+   "Ignore Cursor" 1
+   {
+    ImageWidgetClass {
+     Name "AOBackground"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 1
+      OffsetLeft 0
+      OffsetTop 0
+      OffsetRight 0
+      OffsetBottom 0
+     }
+     Color 0 0 0 0.78
+     Image ""
+     "Ignore Cursor" 1
+    }
+    ImageWidgetClass {
+     Name "AOSkull"
+     Slot FrameWidgetSlot {
+      OffsetLeft 24
+      OffsetTop 18
+      SizeX 60
+      OffsetRight -84
+      SizeY 64
+      OffsetBottom -82
+     }
+     Color 1 1 1 1
+     Texture "{98B5DB89D3410108}UI/Textures/Editor/ContextMenu/ContextAction_Kill.edds"
+     Image ""
+     Size 60 64
+     "Ignore Cursor" 1
+    }
+    TextWidgetClass {
+     Name "AOTitle"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 0
+      OffsetLeft 100
+      OffsetTop 10
+      OffsetRight 20
+      SizeY 34
+      OffsetBottom -44
+     }
+     Text "RETURN TO AO"
+     "Font Size" 28
+     FontProperties FontProperties {
+      Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
+     }
+     Color 1 1 1 1
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+     "Ignore Cursor" 1
+    }
+    TextWidgetClass {
+     Name "AOTimer"
+     Slot FrameWidgetSlot {
+      Anchor 0 0 1 0
+      OffsetLeft 100
+      OffsetTop 44
+      OffsetRight 20
+      SizeY 44
+      OffsetBottom -88
+     }
+     Text "20.000"
+     "Font Size" 40
+     FontProperties FontProperties {
+      Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
+     }
+     Color 1 1 1 1
+     "Horizontal Alignment" Center
+     "Vertical Alignment" Center
+     "Ignore Cursor" 1
+    }
+   }
+  }
+ }
+}
