@@ -14,6 +14,7 @@ class GC_SetupPlayerState
 	float m_fOutsideDeadline;
 	bool m_bEnrolled;
 	bool m_bReturnFailed;
+	bool m_bHasSafeTransform;
 }
 
 [EntityEditorProps(category: "Lobby2/Mission", description: "Mission-start setup zone. Author a closed polygon; players starting inside are released when its timer expires.", color: "230 160 40 255")]
@@ -134,6 +135,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 			return;
 		array<int> players = {};
 		GetGame().GetPlayerManager().GetPlayers(players);
+		array<IEntity> corrected = {};
 		foreach (int playerId : players)
 		{
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
@@ -152,6 +154,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 				state.m_Character = character;
 				state.m_Mover = mover;
 				mover.GetWorldTransform(state.m_aTransform);
+				state.m_bHasSafeTransform = Contains(mover.GetOrigin());
 				Faction faction = manager.GetPlayerFaction(playerId);
 				bool matches = !m_aFactionKeys || m_aFactionKeys.IsEmpty() || (faction && m_aFactionKeys.Contains(faction.GetFactionKey()));
 				state.m_bEnrolled = matches && Contains(character.GetOrigin()) && !controller.GC_GetSetupZone();
@@ -164,7 +167,8 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 			if (state.m_Mover != mover)
 			{
 				state.m_Mover = mover;
-				// Preserve the last safe position when a player boards outside.
+				// A different body needs its own safe pose, especially a newly boarded vehicle.
+				state.m_bHasSafeTransform = inside;
 				if (inside)
 					mover.GetWorldTransform(state.m_aTransform);
 			}
@@ -186,14 +190,23 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 				}
 			}
 			else if (m_eBehavior == GC_ESetupBehavior.HARD && inside)
+			{
 				mover.GetWorldTransform(state.m_aTransform);
+				state.m_bHasSafeTransform = true;
+			}
 			else if (!inside || (m_eBehavior == GC_ESetupBehavior.FREEZE && vector.DistanceSq(mover.GetOrigin(), state.m_aTransform[3]) > 0.0025))
 			{
-				SCR_EditableEntityComponent editable = SCR_EditableEntityComponent.Cast(mover.FindComponent(SCR_EditableEntityComponent));
-				bool accepted = editable && editable.SetTransform(state.m_aTransform);
-				if (!accepted && !state.m_bReturnFailed)
-					PrintFormat("GC | Setup | return unavailable zone=%1 player=%2 mover=%3", GetName(), playerId, mover, level: LogLevel.ERROR);
-				state.m_bReturnFailed = !accepted;
+				// Multiple enrolled occupants must not correct the same body more than once.
+				if (!corrected.Contains(mover))
+				{
+					SCR_EditableEntityComponent editable = SCR_EditableEntityComponent.Cast(mover.FindComponent(SCR_EditableEntityComponent));
+					bool accepted = state.m_bHasSafeTransform && editable && editable.GC_SetBoundaryTransform(state.m_aTransform);
+					if (!accepted && !state.m_bReturnFailed)
+						PrintFormat("GC | Setup | return unavailable zone=%1 player=%2 mover=%3", GetName(), playerId, mover, level: LogLevel.ERROR);
+					state.m_bReturnFailed = !accepted;
+					if (accepted)
+						corrected.Insert(mover);
+				}
 			}
 			controller.GC_SetSetupZone(this, character, m_fDeadline - now, outside, m_bSafeStart, m_eBehavior == GC_ESetupBehavior.FREEZE);
 		}

@@ -213,7 +213,8 @@ class GC_AOLimitSystem
 			Math3D.MatrixCopy(state.m_aTransform, destination);
 			hasDestination = true;
 		}
-		else if (selected.GetReturnTransform(destination))
+		// A generic return marker is not a verified parking pose for an occupied vehicle.
+		else if (!Vehicle.Cast(mover) && selected.GetReturnTransform(destination))
 			hasDestination = IsSafeForMover(mover, destination[3], constrained);
 		SCR_EditableEntityComponent editable = SCR_EditableEntityComponent.Cast(mover.FindComponent(SCR_EditableEntityComponent));
 		if (!hasDestination || !editable)
@@ -226,7 +227,7 @@ class GC_AOLimitSystem
 		// Native movement can cross the edge again before our next sample.
 		// Enforce the current violation each tick; an accepted owner RPC is not
 		// a receipt that requires a later inside sample before enforcing again.
-		bool accepted = editable.SetTransform(destination);
+		bool accepted = editable.GC_SetBoundaryTransform(destination);
 		if (accepted && !state.m_bReturning)
 			PrintFormat("GC | AO | return dispatched=1 mover=%1 limit=%2 destination=%3", mover, selected.GetName(), destination[3]);
 		else if (!accepted && !state.m_bFailed)

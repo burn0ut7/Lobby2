@@ -13,7 +13,8 @@ Behavior, Grace Seconds and Safe Start. Each zone has an independent duration.
   time outside. Re-entry resets that countdown. Zone expiry releases the player
   even if the outside grace period has not expired.
 - Hard returns the character or occupied vehicle to its last observed safe
-  transform through the native editable-entity movement operation.
+  pose through native body movement, without Game Master teleport feedback or
+  a black-screen fade. Characters keep their current facing direction.
 - Freeze disables native movement controls and holds the moving body's position.
 - Safe Start blocks character fire, grenades, melee and turret fire through the
   character/turret input-processing hooks, and animation-driven handheld flares
@@ -26,6 +27,11 @@ only the zone's remaining time, not a new timer. Players starting outside or in 
 excluded faction are unaffected. Keep matching setup polygons non-overlapping:
 one player belongs to the first qualifying zone evaluated, without AO priorities.
 Vehicle return moves the whole vehicle, including other occupants.
+Linear and angular velocity are cleared during correction. The vehicle needs its
+own safe pose observed inside the area; boarding outside cannot reuse a character's
+pose. If no safe pose exists, the return is reported unavailable instead of placing
+the vehicle at an unverified location. This is a sampled position correction, not
+a physical collision mesh; author compatible zones and keep their edges clear.
 
 The setup countdown is owner-only, continuously visible as a compact top-center
 bar. A soft violation shows an AO-style "RETURN TO SETUP" death countdown below
