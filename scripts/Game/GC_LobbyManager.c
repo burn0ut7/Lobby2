@@ -1779,7 +1779,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     int GetFactionPlayerCount(FactionKey factionKey) { return m_Roster.GetFactionPlayerCount(factionKey); }
     int GetGroupPlayerCount(SCR_AIGroup group) { return m_Roster.GetGroupPlayerCount(group); }
     array<ref GC_Slot> GetSlotsForGroup(SCR_AIGroup group) { return m_Roster.GetSlotsForGroup(group); }
-    int GetFactionSlotCount(FactionKey factionKey) { return m_Roster.GetFactionSlotCount(factionKey); }
+
+	//------------------------------------------------------------------------------------------------
+	int GetGroupSlotCount(SCR_AIGroup group, bool includeLocked = true)
+	{
+		return m_Roster.GetGroupSlotCount(group, includeLocked);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetFactionSlotCount(FactionKey factionKey, bool includeLocked = true)
+	{
+		return m_Roster.GetFactionSlotCount(factionKey, includeLocked);
+	}
+
     GC_Slot GetSlot(int id) { return m_Roster.GetSlot(id); }
     GC_Slot GetSlotByPlayerId(int playerId) { return m_Roster.GetSlotByPlayerId(playerId); }
 	GC_Slot GetSlotByUUID(UUID identity) { return m_Roster.GetSlotByUUID(identity); }

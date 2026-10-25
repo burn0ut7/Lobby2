@@ -297,11 +297,25 @@ class GC_LobbyRoster
 		return playerIds.Count();
 	}
 
-	int GetFactionSlotCount(FactionKey factionKey)
+	//------------------------------------------------------------------------------------------------
+	//! Capacity includes claims and other restrictions; only admin locks can be excluded.
+	int GetGroupSlotCount(SCR_AIGroup group, bool includeLocked = true)
+	{
+		int count;
+		foreach (GC_Slot slot : GetSlotsForGroup(group))
+		{
+			if (slot && (includeLocked || !slot.IsAdminLocked()))
+				count++;
+		}
+		return count;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetFactionSlotCount(FactionKey factionKey, bool includeLocked = true)
 	{
 		int count;
 		foreach (SCR_AIGroup group : GetGroupsForFaction(factionKey))
-			count += GetSlotsForGroup(group).Count();
+			count += GetGroupSlotCount(group, includeLocked);
 		return count;
 	}
 

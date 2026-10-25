@@ -109,11 +109,11 @@ class GC_FactionWidgetComponent : SCR_ScriptedWidgetComponent
 		if (counter)
 		{
 			int currentCount = m_LobbyManager.GetFactionPlayerCount(m_FactionKey);
-			int totalCount = m_LobbyManager.GetFactionSlotCount(m_FactionKey);
-			int quota = m_LobbyManager.GetFactionBalanceQuota(m_FactionKey);
-			if (quota >= 0)
-				totalCount = Math.Min(totalCount, quota);
-			counter.SetTextFormat("%1 / %2", currentCount, totalCount);
+			int availableCount = m_LobbyManager.GetFactionSlotCount(m_FactionKey, false);
+			if (availableCount == 0)
+				counter.SetText("Locked");
+			else
+				counter.SetTextFormat("%1 / %2", currentCount, availableCount);
 		}
 
 		if (flag)

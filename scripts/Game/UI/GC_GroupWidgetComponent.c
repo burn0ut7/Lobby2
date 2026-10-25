@@ -164,11 +164,9 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		UpdateFactionAccent();
 		ClearSlotWidgets();
 
-		int slotCount;
 		if (m_Group)
 		{
 			array<ref GC_Slot> slots = m_LobbyManager.GetSlotsForGroup(m_Group);
-			slotCount = slots.Count();
 
 			foreach (GC_Slot slot : slots)
 			{
@@ -191,7 +189,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 			}
 		}
 
-		UpdatePlayerCount(slotCount);
+		UpdatePlayerCount();
 	}
 
 	protected void UpdateGroupName()
@@ -215,23 +213,24 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		}
 	}
 
-	protected void UpdatePlayerCount(int slotCount = -1)
+	//------------------------------------------------------------------------------------------------
+	protected void UpdatePlayerCount()
 	{
 		if (!m_wPlayerCount)
 			return;
 
 		int playerCount;
+		int availableCount;
 		if (m_Group)
 		{
 			playerCount = m_LobbyManager.GetGroupPlayerCount(m_Group);
-			if (slotCount < 0)
-				slotCount = m_LobbyManager.GetSlotsForGroup(m_Group).Count();
+			availableCount = m_LobbyManager.GetGroupSlotCount(m_Group, false);
 		}
 
-		if (slotCount < 0)
-			slotCount = 0;
-
-		m_wPlayerCount.SetTextFormat("%1 / %2", playerCount, slotCount);
+		if (availableCount == 0)
+			m_wPlayerCount.SetText("Locked");
+		else
+			m_wPlayerCount.SetTextFormat("%1 / %2", playerCount, availableCount);
 	}
 
 	protected bool HasCurrentSlotTopology()
