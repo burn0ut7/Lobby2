@@ -1,0 +1,18 @@
+{
+  "reload": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"state\":\"reloaded\",\"processId\":11016,\"runReload\":true,\"plugin\":null,\"pluginAction\":null,\"uiAction\":null,\"requestedWorld\":null,\"loadedWorld\":null,\"expectedThread\":13064,\"actualThread\":13064,\"completed\":2,\"nativeResult\":1,\"queued\":1,\"elapsedMs\":2526,\"foregroundBefore\":264104,\"foregroundAfter\":264104,\"foregrounds\":{\"264104\":28656},\"allocationsReleased\":true}"
+      }
+    ]
+  },
+  "logs": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"source\":\"workbench\",\"session\":\"logs_2026-10-25_02-28-41\",\"path\":\"C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-25_02-28-41\\\\console.log\",\"revision\":\"253767:E475ACC21CDED448B4F22B0ADA7E41882737E85341438247A9FDB6923291C7E5\",\"header\":\"Log C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-25_02-28-41\\\\console.log started at 2026-10-25 02:28:41 (2026-10-25 06:28:41 UTC)\",\"scope\":\"latest\",\"fromLine\":2236,\"toLine\":2291,\"totalLines\":2291,\"cycle\":{\"startLine\":2236,\"time\":\"02:45:57.208\",\"kind\":\"reload\",\"completionLine\":2291},\"severityCounts\":{\"error\":0,\"warning\":32,\"info\":24},\"categoryCounts\":{\"SCRIPT\":43,\"PROFILING\":5,\"RESOURCES\":1,\"ENGINE\":3,\"GUI\":2,\"INIT\":2},\"matchedLines\":0,\"entries\":[],\"truncated\":false}"
+      }
+    ]
+  }
+}

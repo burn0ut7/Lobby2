@@ -1,0 +1,14 @@
+GC_SetupZoneEntity {
+ ID "6A4D831C2E5079B1"
+ components {
+  RplComponent "{6A4D831C2E5079B2}" {
+   Streamable Disabled
+  }
+ }
+ IsClosed 1
+ LineColor 0.9 0.62 0.15 1
+ m_fDuration 120
+ m_eBehavior SOFT
+ m_fGraceSeconds 20
+ m_bSafeStart 1
+}

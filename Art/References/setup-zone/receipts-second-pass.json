@@ -1,0 +1,677 @@
+[
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Lobby Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r6ed75231200741f0b55491bdcd18b1f8",
+      "returned": "dispatched: Lobby Button",
+      "elapsedMs": 23
+    }
+  },
+  {
+    "method": "GC_TestSelectFaction",
+    "args": [
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r1181df7a4a4843b58d868865595a8100",
+      "returned": "dispatched: Button",
+      "elapsedMs": 6
+    }
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      11
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rad3ffe422db84289bb98f99c58354ef4",
+      "returned": "dispatched: SlotButton",
+      "elapsedMs": 3
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r03fd081b882f46119199fd2f3e99c65f",
+      "returned": "dispatched: Briefing Button",
+      "elapsedMs": 9
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Game Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r0ba62778ef554358bafa60371581e44f",
+      "returned": "dispatched: Game Button",
+      "elapsedMs": 5
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r654a6514b37a435c81c11b11fea531ed",
+      "returned": "active=0 frozen=0 alive=1 offset=<123.896,1,119.864> faction=US timer= guidance= movementDisabled=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "float",
+        6
+      ],
+      [
+        "float",
+        5
+      ],
+      [
+        "float",
+        2
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r624324c4809b43f6870dd89802d26110",
+      "returned": "configured=1 behavior=2 remaining=6 origin=<123.896,1,119.864>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r9bf7e2c0dfe34a9b96c37549676db17a",
+      "returned": "active=0 frozen=0 alive=1 offset=<0,0,0> faction=US timer= guidance= movementDisabled=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestAOContinuousWalk",
+    "args": [
+      [
+        "float",
+        4
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r72306d0b27894d8aa50e4e3f6448f83a",
+      "returned": "walkSeconds=4 position=<123.896,1,119.864>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "rf4e8852f58534b299622554f2bff3407",
+      "returned": "active=0 frozen=0 alive=1 offset=<0,-3.57628e-07,15.1628> faction=US timer= guidance= movementDisabled=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "float",
+        4
+      ],
+      [
+        "float",
+        5
+      ],
+      [
+        "float",
+        3
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rc1e0be7b0d2c4e819f6dc03450021d22",
+      "returned": "configured=1 behavior=2 remaining=4 origin=<123.896,1,135.027>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "rf39bd16d9f7a4d00975bdf220bfb382c",
+      "returned": "active=1 frozen=1 alive=1 offset=<0,0,0> faction=US timer=0:04 guidance=Movement locked • Weapons disabled movementDisabled=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestAOContinuousWalk",
+    "args": [
+      [
+        "float",
+        2
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r794aeb0cce754702b8a490433cc9e6c7",
+      "returned": "walkSeconds=2 position=<123.896,1,135.027>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r12c69315cbcf4e32bf2d6efe43f94da3",
+      "returned": "active=1 frozen=1 alive=1 offset=<0,0,0> faction=US timer=0:02 guidance=Movement locked • Weapons disabled movementDisabled=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "rda9795b9907a468eba36cd3f805efab1",
+      "returned": "active=0 frozen=0 alive=1 offset=<0,0,0> faction=US timer= guidance= movementDisabled=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "float",
+        5
+      ],
+      [
+        "float",
+        3
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "USSR"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r9178ab87d0aa47af8592944a1a2155b4",
+      "returned": "configured=1 behavior=2 remaining=60 origin=<123.896,1,135.027>",
+      "elapsedMs": 0
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r5b1c5fbaa1894595804fd5a514f16716",
+      "returned": "active=0 frozen=0 alive=1 offset=<0,0,0> faction=US timer= guidance= movementDisabled=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "float",
+        5
+      ],
+      [
+        "float",
+        3
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "bool",
+        true
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rc8852bdf61534073af41b434b236c1b4",
+      "returned": "configured=1 behavior=2 remaining=60 origin=<123.896,1,135.027>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupMove",
+    "args": [
+      [
+        "vector",
+        [
+          9,
+          0,
+          0
+        ]
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r7366f2e62a514c9bb35ea2cefbe01658",
+      "returned": "accepted=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "ra31b8113e74a4b188b9dc7004b58bcf6",
+      "returned": "active=0 frozen=0 alive=1 offset=<9.00001,2.74181e-06,-0.000839233> faction=US timer= guidance= movementDisabled=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "float",
+        5
+      ],
+      [
+        "float",
+        30
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rd45c76b9c79b4a3dbe1acc7359cb782c",
+      "returned": "configured=1 behavior=0 remaining=60 origin=<132.896,1,135.026>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestEquipGrenade",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "redfb8a41a3f54fa6a55bd4b5e4ddee62",
+      "returned": "fixture-equip=1 inventoryGrenades=3 prefab={E8F00BF730225B00}Prefabs/Weapons/Grenades/Grenade_M67.et",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "args": [
+      {
+        "type": "string",
+        "value": "CharacterThrowGrenade"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r1baebd6b57894046ad78059a18cdaba6",
+      "returned": "freeze=0 action=CharacterThrowGrenade observing=1 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "action": "snapshot",
+    "result": {
+      "state": "invoked",
+      "receipt": "rd5b58067a48e4ebfba2157791bd72770",
+      "returned": "freeze=0 action=CharacterThrowGrenade observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "action": "CharacterMelee",
+    "result": {
+      "state": "invoked",
+      "receipt": "rebf5b78400374dc2a6a42a1d988afa48",
+      "returned": "freeze=0 action=CharacterMelee observing=1 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "action": "snapshot",
+    "result": {
+      "state": "invoked",
+      "receipt": "rd3ef72eca6fa472399d65a952bae67f7",
+      "returned": "freeze=0 action=CharacterMelee observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupRemove",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r7abf9c12af46421ab2415aa78f0a4d4a",
+      "returned": "removed",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "args": [
+      {
+        "type": "string",
+        "value": "CharacterMelee"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r6b866472d62d412999c194cdb11e57dc",
+      "returned": "freeze=0 action=CharacterMelee observing=1 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "args": [
+      {
+        "type": "string",
+        "value": "snapshot"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r92dd7ee8f707492abbe155ee91196c7b",
+      "returned": "freeze=0 action=CharacterMelee observing=0 throwingFrames=0 meleeFrames=356 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "args": [
+      {
+        "type": "string",
+        "value": "CharacterThrowGrenade"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r654b61dd581b4a96a65adc18873a2d05",
+      "returned": "freeze=0 action=CharacterThrowGrenade observing=1 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "args": [
+      {
+        "type": "string",
+        "value": "snapshot"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r90174100a8854de08c9d8cf836d219bc",
+      "returned": "freeze=0 action=CharacterThrowGrenade observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupAdminFreeze",
+    "args": [
+      [
+        "string",
+        "start"
+      ],
+      [
+        "int",
+        20
+      ],
+      [
+        "int",
+        1
+      ],
+      [
+        "bool",
+        true
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rc7a6f4f9feb245d3ad006a1df487d751",
+      "returned": "DISPATCHED selected-player request; inspect audit and subsequent state",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupAdminFreeze",
+    "args": [
+      [
+        "string",
+        "start"
+      ],
+      [
+        "int",
+        20
+      ],
+      [
+        "int",
+        1
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r1b8c7044e78c4881b7a039df83425bfd",
+      "returned": "DISPATCHED selected-player request; inspect audit and subsequent state",
+      "elapsedMs": 3
+    }
+  },
+  {
+    "method": "GC_TestFreezeSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r8c19910d14854c41b4a618ae3a035bc2",
+      "returned": "configured=0 remaining=0 revision=4 active=0 areas=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeRequest",
+    "args": [
+      {
+        "type": "string",
+        "value": "end"
+      },
+      {
+        "type": "int",
+        "value": 0
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r674811af297f4fd6bad53d86d7cd393a",
+      "returned": "DISPATCHED production controller request; inspect subsequent snapshot and audit",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      {
+        "type": "int",
+        "value": 0
+      },
+      {
+        "type": "float",
+        "value": 90
+      },
+      {
+        "type": "float",
+        "value": 20
+      },
+      {
+        "type": "float",
+        "value": 3
+      },
+      {
+        "type": "bool",
+        "value": true
+      },
+      {
+        "type": "string",
+        "value": "US"
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r2a3d406c84654df3bd533ab245da84fb",
+      "returned": "configured=1 behavior=0 remaining=90 origin=<132.896,1,135.026>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupMove",
+    "args": [
+      {
+        "type": "vector",
+        "value": [
+          8,
+          0,
+          0
+        ]
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r07c61faba2c849f893194ed0e034ca6e",
+      "returned": "accepted=1",
+      "elapsedMs": 3
+    }
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r1b1e045be9d7422a8253bf4dd609937b",
+      "returned": "active=0 frozen=0 alive=1 offset=<2.40099,-2.38419e-06,-11.887> faction=US timer= guidance= movementDisabled=0",
+      "elapsedMs": 3
+    }
+  },
+  {
+    "method": "GC_TestAdminSlotSnapshot",
+    "args": [
+      {
+        "type": "int",
+        "value": 11
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rd4e38648d42342ddb5719f687275bdc4",
+      "returned": "slot=11 player=1 state=2 locked=0 selectable=0 entity=-2147480782",
+      "elapsedMs": 2
+    }
+  }
+]

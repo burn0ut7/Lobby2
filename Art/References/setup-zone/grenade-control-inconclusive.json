@@ -1,0 +1,66 @@
+[
+  {
+    "method": "GC_TestEquipGrenade",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r74d6f0e4706945e3b2691f1d2720054b",
+      "returned": "fixture-equip=1 inventoryGrenades=3 prefab={E8F00BF730225B00}Prefabs/Weapons/Grenades/Grenade_M67.et"
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "args": [
+      {
+        "type": "string",
+        "value": "CharacterFire"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rf471ef51d4594133ae5679869517669b",
+      "returned": "freeze=0 action=CharacterFire observing=1 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1"
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "args": [
+      {
+        "type": "string",
+        "value": "snapshot"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r6962ddc0ae384e27b6b9c65fab5ce43b",
+      "returned": "freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1"
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "action": "raise",
+    "result": {
+      "state": "invoked",
+      "receipt": "r7baed0755ee54119ace199b5765b3760",
+      "returned": "freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1"
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "action": "CharacterFire",
+    "result": {
+      "state": "invoked",
+      "receipt": "r4f4de9e59cba42af9b8c56ccfbb01bc2",
+      "returned": "freeze=0 action=CharacterFire observing=1 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1"
+    }
+  },
+  {
+    "method": "GC_TestFreezeCombat",
+    "action": "snapshot",
+    "result": {
+      "state": "invoked",
+      "receipt": "r1d2d2a62c60c4617b5a9820ceee56c89",
+      "returned": "freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=1 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1"
+    }
+  }
+]

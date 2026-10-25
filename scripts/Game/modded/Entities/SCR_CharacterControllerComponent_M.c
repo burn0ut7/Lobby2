@@ -5,9 +5,26 @@ modded class SCR_CharacterControllerComponent
 	//------------------------------------------------------------------------------------------------
 	override void OnPrepareControls(IEntity owner, ActionManager am, float dt, bool player)
 	{
-		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
-		if (player && freeze && freeze.IsFreezeActive())
-			freeze.FilterCombatActions(am);
+		if (player && GC_LobbyGameMode.GetGameMode())
+		{
+			int playerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(owner);
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (controller)
+				controller.GC_FilterRestrictedActions(am);
+		}
 		super.OnPrepareControls(owner, am, dt, player);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool SCR_GetDisableMovementControls()
+	{
+		if (GC_LobbyGameMode.GetGameMode())
+		{
+			int playerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(GetOwner());
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (controller && controller.GC_IsSetupFrozen())
+				return true;
+		}
+		return super.SCR_GetDisableMovementControls();
 	}
 }

@@ -695,12 +695,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void RequestAdminFreeze(int expectedRevision, string action, int seconds)
+	void RequestAdminFreeze(int expectedRevision, string action, int seconds, array<int> selectedPlayers = null, array<string> selectedIdentities = null)
 	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
 		{
 			m_iAdminActionRequestId++;
-			Rpc(RpcAsk_AdminFreeze, expectedRevision, action, seconds, m_iAdminActionRequestId);
+			Rpc(RpcAsk_AdminFreeze, expectedRevision, action, seconds, m_iAdminActionRequestId, selectedPlayers, selectedIdentities, selectedPlayers != null);
 		}
 	}
 
@@ -711,7 +711,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	{
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
 		IEntity character = GetControlledEntity();
-		if (!Replication.IsServer() || !freeze || !freeze.IsFreezeActive() || !character)
+		if (!Replication.IsServer() || !freeze || !freeze.AffectsPlayer(GetPlayerId()) || !character)
 			return;
 		RplId characterId = Replication.FindItemId(character);
 		if (characterId == RplId.Invalid())
@@ -725,7 +725,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	{
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
 		IEntity character = GetControlledEntity();
-		if (GetGame().GetPlayerController() != this || !freeze || !freeze.IsFreezeActive() || !character || Replication.FindItemId(character) != characterId)
+		if (GetGame().GetPlayerController() != this || !freeze || !freeze.AffectsPlayer(GetPlayerId()) || !character || Replication.FindItemId(character) != characterId)
 			return;
 		if (freeze.GetRevision() != freezeRevision)
 			return;
@@ -734,11 +734,16 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_AdminFreeze(int expectedRevision, string action, int seconds, int requestId)
+	protected void RpcAsk_AdminFreeze(int expectedRevision, string action, int seconds, int requestId, array<int> selectedPlayers, array<string> selectedIdentities, bool selectedOnly)
 	{
+		if (!selectedOnly)
+		{
+			selectedPlayers = null;
+			selectedIdentities = null;
+		}
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
 		if (freeze)
-			SendAdminActionResult(freeze.ExecuteAdminAction(GetPlayerId(), expectedRevision, action, seconds), requestId);
+			SendAdminActionResult(freeze.ExecuteAdminAction(GetPlayerId(), expectedRevision, action, seconds, selectedPlayers, selectedIdentities), requestId);
 		else
 			GC_AdminActionLogger.Log(GetPlayerId(), "mission-freeze", action, "rejected-inactive-mode");
 	}

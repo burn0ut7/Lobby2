@@ -245,11 +245,6 @@ class GC_AOLimitSystem
 			return;
 		}
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
-		if (freeze && freeze.IsFreezeActive())
-		{
-			ClearPlayers();
-			return;
-		}
 		float now = m_Mode.GetWorld().GetWorldTime() * 0.001;
 		array<int> players = {};
 		GetGame().GetPlayerManager().GetPlayers(players);
@@ -259,6 +254,8 @@ class GC_AOLimitSystem
 		{
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 			if (!controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.PLAYING)
+				continue;
+			if ((freeze && freeze.AffectsPlayer(playerId)) || controller.GC_SetupActive())
 				continue;
 			ChimeraCharacter character = ChimeraCharacter.Cast(controller.GetControlledEntity());
 			if (!character || !SCR_AIDamageHandling.IsAlive(character))

@@ -1,5 +1,5 @@
 #ifdef WORKBENCH
-[WorkbenchToolAttribute("Map / AO Polygon", "Select one map shape or AO limit and replace its points with a regular polygon.\nRadius is centre-to-vertex distance in metres.\nUse the normal Move/Rotate and Vector tools for subsequent editing.\nGeneration replaces existing points; Undo restores them.", awesomeFontCode: 0xF5EE)]
+[WorkbenchToolAttribute("Map / AO Polygon", "Select one map shape, AO limit or setup zone and replace its points with a regular polygon.\nRadius is centre-to-vertex distance in metres.\nUse the normal Move/Rotate and Vector tools for subsequent editing.\nGeneration replaces existing points; Undo restores them.", awesomeFontCode: 0xF5EE)]
 class GC_AOPolygonTool : WorldEditorTool
 {
 	[Attribute("5", UIWidgets.EditBox, "Number of equally spaced vertices and sides.", params: "3 128 1", category: "Polygon")]
@@ -26,17 +26,17 @@ class GC_AOPolygonTool : WorldEditorTool
 
 		if (m_API.GetSelectedEntitiesCount() != 1)
 		{
-			Print("GC | Polygon | Select exactly one map shape or AO limit.", LogLevel.WARNING);
+			Print("GC | Polygon | Select exactly one map shape, AO limit or setup zone.", LogLevel.WARNING);
 			return;
 		}
 
 		IEntitySource source = m_API.GetSelectedEntity();
 		PolylineShapeEntity shape = PolylineShapeEntity.Cast(m_API.SourceToEntity(source));
-		if (!shape || (!GC_AOLimitEntity.Cast(shape) && !shape.FindComponent(GC_MapShapeComponent))
+		if (!shape || (!GC_AOLimitEntity.Cast(shape) && !GC_SetupZoneEntity.Cast(shape) && !shape.FindComponent(GC_MapShapeComponent))
 			|| source.GetSubScene() != m_API.GetCurrentSubScene()
 			|| m_API.IsEntityLayerLockedHierarchy(source.GetSubScene(), source.GetLayerID()))
 		{
-			Print("GC | Polygon | Select a map shape or AO limit in an unlocked layer of the active subscene.", LogLevel.WARNING);
+			Print("GC | Polygon | Select a map shape, AO limit or setup zone in an unlocked layer of the active subscene.", LogLevel.WARNING);
 			return;
 		}
 

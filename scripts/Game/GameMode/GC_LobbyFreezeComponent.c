@@ -15,6 +15,12 @@ class GC_LobbyFreezeComponent : ScriptComponent
 	protected int m_iRemainingSeconds;
 	[RplProp(onRplName: "OnStateChanged")]
 	protected int m_iRevision;
+	[RplProp()]
+	protected bool m_bSelectedPlayersOnly;
+	[RplProp()]
+	protected ref array<int> m_aSelectedPlayers = {};
+	[RplProp()]
+	protected ref array<string> m_aSelectedIdentities = {};
 	ref ScriptInvoker m_OnChanged = new ScriptInvoker();
 	protected float m_fSecondElapsed;
 	protected float m_fBoundaryElapsed;
@@ -71,13 +77,43 @@ class GC_LobbyFreezeComponent : ScriptComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Configuration never substitutes for an authenticated execution request.
-	string ExecuteAdminAction(int requesterId, int expectedRevision, string action, int seconds)
+	string ExecuteAdminAction(int requesterId, int expectedRevision, string action, int seconds, array<int> selectedPlayers = null, array<string> selectedIdentities = null)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		string context = string.Format("%1 seconds=%2 revision=%3", action, seconds, expectedRevision);
 		if (!manager || !manager.AuthorizeAdminAction(requesterId, "mission-freeze", context))
 			return "rejected-not-logged-in";
+		if ((action == "configure" || action == "start") && selectedPlayers)
+		{
+			if (selectedPlayers.IsEmpty() || selectedPlayers.Count() > 128 || !selectedIdentities || selectedIdentities.Count() != selectedPlayers.Count())
+			{
+				GC_AdminActionLogger.Log(requesterId, "mission-freeze", context, "rejected-selection");
+				return "rejected-selection";
+			}
+			foreach (int index, int playerId : selectedPlayers)
+			{
+				if (!GetGame().GetPlayerManager().IsPlayerConnected(playerId) || selectedIdentities[index].IsEmpty()
+					|| manager.GetPlayerVoiceIdentity(playerId) != selectedIdentities[index])
+				{
+					GC_AdminActionLogger.Log(requesterId, "mission-freeze", context, "rejected-stale-selection");
+					return "rejected-stale-selection";
+				}
+			}
+		}
 		string outcome = ApplyAdminAction(expectedRevision, action, seconds);
+		if (outcome == "applied" && (action == "configure" || action == "start"))
+		{
+			m_bSelectedPlayersOnly = selectedPlayers != null;
+			m_aSelectedPlayers.Clear();
+			m_aSelectedIdentities.Clear();
+			if (selectedPlayers)
+			{
+				m_aSelectedPlayers.Copy(selectedPlayers);
+				m_aSelectedIdentities.Copy(selectedIdentities);
+			}
+			Replication.BumpMe();
+		}
+		context += string.Format(" selectedOnly=%1 players=%2", m_bSelectedPlayersOnly, m_aSelectedPlayers);
 		GC_AdminActionLogger.Log(requesterId, "mission-freeze", context, outcome);
 		return outcome;
 	}
@@ -174,18 +210,18 @@ class GC_LobbyFreezeComponent : ScriptComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Called at native character and turret control-processing boundaries, after input
-	//! collection. A game-mode frame callback runs too early to suppress firing.
-	void FilterCombatActions(ActionManager actions)
+	//! Admin scope is independent of setup-zone enrollment.
+	bool AffectsPlayer(int playerId)
 	{
-		if (!actions || GetInstance() != this || !IsFreezeActive())
-			return;
-		actions.SetActionValue("CharacterFire", 0);
-		actions.SetActionValue("CharacterThrowGrenade", 0);
-		actions.SetActionValue("CharacterMelee", 0);
-		actions.SetActionValue("CharacterFireStatic", 0);
-		actions.SetActionValue("TurretFire", 0);
-		actions.SetActionValue("VehicleFire", 0);
+		if (GetInstance() != this || !IsFreezeActive())
+			return false;
+		if (!m_bSelectedPlayersOnly)
+			return true;
+		int index = m_aSelectedPlayers.Find(playerId);
+		if (index < 0 || !m_aSelectedIdentities.IsIndexValid(index))
+			return false;
+		return GetGame().GetPlayerManager().IsPlayerConnected(playerId)
+			&& GC_LobbyManager.GetManager().GetPlayerVoiceIdentity(playerId) == m_aSelectedIdentities[index];
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -197,8 +233,14 @@ class GC_LobbyFreezeComponent : ScriptComponent
 		map<IEntity, vector> currentPositions = new map<IEntity, vector>();
 		foreach (int playerId : players)
 		{
+			if (!AffectsPlayer(playerId))
+				continue;
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 			if (!controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.PLAYING)
+				continue;
+			// Setup owns its enrolled player's boundary until release. Do not
+			// issue competing returns to an unrelated admin staging area.
+			if (controller.GC_SetupActive())
 				continue;
 			IEntity character = controller.GetControlledEntity();
 			if (!character)
@@ -240,7 +282,10 @@ class GC_LobbyFreezeComponent : ScriptComponent
 	//! Presentation reads the replicated seconds; it never advances a local clock.
 	protected void UpdateCountdownPresentation()
 	{
-		if (GetInstance() != this || !IsFreezeActive() || RplSession.Mode() == RplMode.Dedicated || !GetGame().GetPlayerController())
+		PlayerController player = GetGame().GetPlayerController();
+		GC_LobbyPlayerController lobbyPlayer = GC_LobbyPlayerController.Cast(player);
+		if (GetInstance() != this || RplSession.Mode() == RplMode.Dedicated || !player || !AffectsPlayer(player.GetPlayerId())
+			|| (lobbyPlayer && lobbyPlayer.GC_SetupActive()))
 		{
 			CloseCountdownPresentation();
 			return;

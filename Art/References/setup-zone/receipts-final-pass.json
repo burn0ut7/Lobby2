@@ -1,0 +1,326 @@
+[
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Lobby Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r222dc650349344d4b51ca26d0ba782f2",
+      "returned": "dispatched: Lobby Button",
+      "elapsedMs": 24
+    }
+  },
+  {
+    "method": "GC_TestSelectFaction",
+    "args": [
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r1ff7ab952db542afa31008df65ae20e3",
+      "returned": "dispatched: Button",
+      "elapsedMs": 6
+    }
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      11
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rdfbf24bce5894ad787925fdb39d6cb4b",
+      "returned": "dispatched: SlotButton",
+      "elapsedMs": 3
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r9116edfc22e448269e6d96483d3db292",
+      "returned": "dispatched: Briefing Button",
+      "elapsedMs": 9
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Game Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rc439478eb5484e0089876475ab77cd42",
+      "returned": "dispatched: Game Button",
+      "elapsedMs": 5
+    }
+  },
+  {
+    "method": "GC_TestSetupFreezeDenied",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r5fe8258d27b34195b1d4d42c73e4b22c",
+      "returned": "result=rejected-not-logged-in revisionBefore=3 revisionAfter=3",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestStagingArea",
+    "args": [
+      {
+        "type": "vector",
+        "value": [
+          123,
+          1,
+          120
+        ]
+      },
+      {
+        "type": "float",
+        "value": 100
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rb43f3069cbf043bda3d877e3674ef86a",
+      "returned": "fixture-area-installed; no countdown or authorization changed",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestSetupAdminFreeze",
+    "args": [
+      {
+        "type": "string",
+        "value": "start"
+      },
+      {
+        "type": "int",
+        "value": 60
+      },
+      {
+        "type": "int",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "value": false
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r08660200d1564825ad62483d94169e52",
+      "returned": "DISPATCHED selected-player request; inspect audit and subsequent state",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "AffectsPlayer",
+    "id": 1,
+    "result": {
+      "state": "invoked",
+      "receipt": "r56f3c461c1e942a3a73d28da5f35ee15",
+      "returned": true,
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "AffectsPlayer",
+    "id": 2,
+    "result": {
+      "state": "invoked",
+      "receipt": "rd179e56fcda745f694c0b4702b62748d",
+      "returned": false,
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeWeapon",
+    "args": [
+      {
+        "type": "string",
+        "value": "raise"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r2938b88a93a84c51a95b162e8fe66d71",
+      "returned": "ammo=29 raised=0 canFire=1 freeze=1 position=<123.896,1,119.864>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeWeapon",
+    "args": [
+      {
+        "type": "string",
+        "value": "fire"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rbb49f0d5394a45058d5cdd0099278c6d",
+      "returned": "ammo=29 raised=1 canFire=1 freeze=1 position=<123.896,1,119.864>",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestFreezeWeapon",
+    "args": [
+      {
+        "type": "string",
+        "value": "snapshot"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r4b1cde6a3abd42d2ae24be29842f1da4",
+      "returned": "ammo=29 raised=1 canFire=1 freeze=1 position=<123.896,1,119.864>",
+      "elapsedMs": 3
+    }
+  },
+  {
+    "method": "GC_TestFreezeRequest",
+    "args": [
+      {
+        "type": "string",
+        "value": "end"
+      },
+      {
+        "type": "int",
+        "value": 0
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r8436c3de22694feab7a1667d10169248",
+      "returned": "DISPATCHED production controller request; inspect subsequent snapshot and audit",
+      "elapsedMs": 3
+    }
+  },
+  {
+    "method": "Snapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r82a9711c9d5443668128bb5bebb79606",
+      "returned": "mode=SCR_BaseGameMode controller=SCR_PlayerController groupAgents=0 voiceDisabled=0 voiceEntries=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "PossessCharacter",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r2c6844f0efaf4a4687c682dea732bbc8",
+      "returned": "possessed=1",
+      "elapsedMs": 5
+    }
+  },
+  {
+    "method": "WeaponInput",
+    "args": [
+      {
+        "type": "string",
+        "value": "raise"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "r10b2138711eb41b4a7b24d9d79d35767",
+      "returned": "ammo=200 raised=0 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestLoadedFire",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r05c172e2b7c142a699b283ac4fe86c46",
+      "returned": "ammo=200 raised=1 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "WeaponInput",
+    "args": [
+      {
+        "type": "string",
+        "value": "snapshot"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rbd8bd2f4c61543f98497fa9078591ded",
+      "returned": "ammo=190 raised=1 canFire=1",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestLoadedTurretOwnership",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r10a420488e83404b91256fe319448cfb",
+      "returned": "lobbyManager=0 freezeComponent=0",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "TurretSetup",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r80b277ea3b8b49349e02fa94e7f7cc34",
+      "returned": "DISPATCHED compartment entry; inspect later",
+      "elapsedMs": 13
+    }
+  },
+  {
+    "method": "TurretInput",
+    "args": [
+      {
+        "type": "string",
+        "value": "snapshot"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rae55a073e61c4772877d6703a1f909a6",
+      "returned": "occupied=1 ammo=99",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "GC_TestLoadedTurretFire",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "receipt": "r0c028e78117e4e2c89a14c38d64afd6a",
+      "returned": "occupied=1 ammo=99",
+      "elapsedMs": 2
+    }
+  },
+  {
+    "method": "TurretInput",
+    "args": [
+      {
+        "type": "string",
+        "value": "snapshot"
+      }
+    ],
+    "result": {
+      "state": "invoked",
+      "receipt": "rc6dd2b929cbc4bfe881e80d7ca3c097d",
+      "returned": "occupied=1 ammo=89",
+      "elapsedMs": 2
+    }
+  }
+]
