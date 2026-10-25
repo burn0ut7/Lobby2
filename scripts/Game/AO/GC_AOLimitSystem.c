@@ -12,9 +12,8 @@ class GC_AOReturnState
 {
 	vector m_aTransform[4];
 	bool m_bHasSafeTransform;
-	bool m_bPending;
+	bool m_bReturning;
 	bool m_bFailed;
-	float m_fIssuedAt;
 }
 
 //! One server-owned evaluator. Limits never independently teleport or kill players.
@@ -93,9 +92,8 @@ class GC_AOLimitSystem
 				SendWarning(playerId, state.m_Character, -1);
 			}
 		}
-		// Retain history and pending receipts: every destination is revalidated
-		// against current rules before use. Removing a rule must not lose the
-		// return point needed by another active rule or replay an in-flight move.
+		// Retain history: every destination is revalidated against current rules.
+		// Removing a rule must not lose the return point needed by another rule.
 		foreach (IEntity mover, GC_AOReturnState returnState : m_mReturns)
 			returnState.m_bFailed = false;
 	}
@@ -210,7 +208,7 @@ class GC_AOLimitSystem
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void EvaluateReturn(IEntity mover, GC_AOLimitEntity selected, float now, GC_AOReturnState state)
+	protected void EvaluateReturn(IEntity mover, GC_AOLimitEntity selected, GC_AOReturnState state)
 	{
 		bool constrained;
 		if (IsSafeForMover(mover, mover.GetOrigin(), constrained))
@@ -222,23 +220,13 @@ class GC_AOLimitSystem
 				mover.GetWorldTransform(state.m_aTransform);
 				state.m_bHasSafeTransform = true;
 			}
-			if (state.m_bPending)
+			if (state.m_bReturning)
 				PrintFormat("GC | AO | return observed mover=%1", mover);
-			state.m_bPending = false;
+			state.m_bReturning = false;
 			state.m_bFailed = false;
 			return;
 		}
-		if (state.m_bPending)
-		{
-			if (now - state.m_fIssuedAt > 2)
-			{
-				state.m_bPending = false;
-				state.m_bFailed = true;
-				PrintFormat("GC | AO | return unverified; no replay mover=%1", mover, level: LogLevel.ERROR);
-			}
-			return;
-		}
-		if (!selected || state.m_bFailed)
+		if (!selected)
 			return;
 		vector destination[4];
 		bool hasDestination;
@@ -252,14 +240,21 @@ class GC_AOLimitSystem
 		SCR_EditableEntityComponent editable = SCR_EditableEntityComponent.Cast(mover.FindComponent(SCR_EditableEntityComponent));
 		if (!hasDestination || !editable)
 		{
+			if (!state.m_bFailed)
+				PrintFormat("GC | AO | hard return unavailable: safe destination=%1 editable=%2 mover=%3 limit=%4", hasDestination, editable, mover, selected.GetName(), level: LogLevel.ERROR);
 			state.m_bFailed = true;
-			PrintFormat("GC | AO | hard return unavailable: safe destination=%1 editable=%2 mover=%3 limit=%4", hasDestination, editable, mover, selected.GetName(), level: LogLevel.ERROR);
 			return;
 		}
-		state.m_bPending = editable.SetTransform(destination);
-		state.m_bFailed = !state.m_bPending;
-		state.m_fIssuedAt = now;
-		PrintFormat("GC | AO | return dispatched=%1 mover=%2 limit=%3 destination=%4", state.m_bPending, mover, selected.GetName(), destination[3]);
+		// Native movement can cross the edge again before our next sample.
+		// Enforce the current violation each tick; an accepted owner RPC is not
+		// a receipt that requires a later inside sample before enforcing again.
+		bool accepted = editable.SetTransform(destination);
+		if (accepted && !state.m_bReturning)
+			PrintFormat("GC | AO | return dispatched=1 mover=%1 limit=%2 destination=%3", mover, selected.GetName(), destination[3]);
+		else if (!accepted && !state.m_bFailed)
+			PrintFormat("GC | AO | return rejected mover=%1 limit=%2", mover, selected.GetName(), level: LogLevel.ERROR);
+		state.m_bReturning = accepted;
+		state.m_bFailed = !accepted;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -315,7 +310,7 @@ class GC_AOLimitSystem
 			GC_AOReturnState returnState;
 			if (!m_mReturns.Find(movingEntity, returnState))
 				returnState = new GC_AOReturnState();
-			EvaluateReturn(movingEntity, selectedLimit, now, returnState);
+			EvaluateReturn(movingEntity, selectedLimit, returnState);
 			currentReturns.Set(movingEntity, returnState);
 		}
 		m_mReturns = currentReturns;

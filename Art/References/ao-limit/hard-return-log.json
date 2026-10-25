@@ -1,0 +1,790 @@
+{
+  "source": "workbench",
+  "session": "logs_2026-10-25_00-57-43",
+  "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-25_00-57-43\\console.log",
+  "revision": "123217:1AECD2C8B4C4CB14BB40BB7BCDBBCAE1707AB2541C74FB9F637624E0987F9E23",
+  "header": "Log C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-25_00-57-43\\console.log started at 2026-10-25 00:57:43 (2026-10-25 04:57:43 UTC)",
+  "scope": "session",
+  "fromLine": 1,
+  "toLine": 1091,
+  "totalLines": 1091,
+  "severityCounts": {
+    "error": 45,
+    "warning": 166,
+    "info": 880
+  },
+  "categoryCounts": {
+    "UNKNOWN": 3,
+    "ENGINE": 80,
+    "PROFILING": 105,
+    "INIT": 30,
+    "RESOURCES": 111,
+    "RENDER": 41,
+    "AUDIO": 8,
+    "NETWORK": 16,
+    "SCRIPT": 440,
+    "GUI": 44,
+    "DEFAULT": 14,
+    "PLATFORM": 7,
+    "WORLD": 106,
+    "ENTITY": 41,
+    "PATHFINDING": 20,
+    "TERRAIN": 25
+  },
+  "matchedLines": 108,
+  "entries": [
+    {
+      "line": 600,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:33.562 SCRIPT       : RST_MCP_BEGIN r6f30a1256cef4329aa8eb085f9585514",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 602,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:33.562 SCRIPT       : RST_MCP_END r6f30a1256cef4329aa8eb085f9585514 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 603,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:33.767 SCRIPT       : RST_MCP_BEGIN r61a0c76b5e794d0aa62da5d231887ad2",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 604,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:33.767 SCRIPT       : RST_MCP_END r61a0c76b5e794d0aa62da5d231887ad2 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 605,
+      "category": "SCRIPT",
+      "severity": "error",
+      "text": "00:58:33.767 SCRIPT    (E): GC | AO | invalid configuration or duplicate priority/order: AOFixture0",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 606,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:40.138 SCRIPT       : RST_MCP_BEGIN r98dab2f2df224493ae58a3167d434875",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 607,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:40.138 SCRIPT       : RST_MCP_END r98dab2f2df224493ae58a3167d434875 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 608,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:40.341 SCRIPT       : RST_MCP_BEGIN rd805f334ab824bad9348304f9e979d61",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 609,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:40.341 SCRIPT       : RST_MCP_END rd805f334ab824bad9348304f9e979d61 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 610,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:41.285 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter<0x0000017A16D8D070> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.623901 39.000000 2727.809570> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0 destination=<1189.69,39,2727.53>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 611,
+      "category": "SCRIPT",
+      "severity": "error",
+      "text": "00:58:43.305 SCRIPT    (E): GC | AO | return unverified; no replay mover=SCR_ChimeraCharacter<0x0000017A16D8D070> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1188.349609 39.000256 2733.085205> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 612,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:44.535 SCRIPT       : RST_MCP_BEGIN r38fd9d0b58d64f608bc0e9c8135e00c5",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 613,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:44.536 SCRIPT       : RST_MCP_END r38fd9d0b58d64f608bc0e9c8135e00c5 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 614,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:53.759 SCRIPT       : RST_MCP_BEGIN r466340ada3754ecb84edac0eb84eac44",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 615,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "00:58:53.759 SCRIPT       : RST_MCP_END r466340ada3754ecb84edac0eb84eac44 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 958,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.023 SCRIPT       : RST_MCP_BEGIN r50a60198371245ae9ec6c9fdb77e6124",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 973,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.045 SCRIPT       : RST_MCP_END r50a60198371245ae9ec6c9fdb77e6124 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 975,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.272 SCRIPT       : RST_MCP_BEGIN r9f539df947314b359e3a95be2a28acdc",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 976,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.274 SCRIPT       : RST_MCP_END r9f539df947314b359e3a95be2a28acdc invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 977,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.495 SCRIPT       : RST_MCP_BEGIN rb7e4fb4a43234913a020007d3638299a",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 983,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.497 SCRIPT       : RST_MCP_END rb7e4fb4a43234913a020007d3638299a invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 984,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.774 SCRIPT       : RST_MCP_BEGIN rd8baed0d262a470790bbf869804f8024",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1000,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:08.781 SCRIPT       : RST_MCP_END rd8baed0d262a470790bbf869804f8024 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1007,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:09.280 SCRIPT       : RST_MCP_BEGIN ra112d05c8e78415bbd168ed28bbd8bee",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1018,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:09.284 SCRIPT       : RST_MCP_END ra112d05c8e78415bbd168ed28bbd8bee invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1023,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:10.501 SCRIPT       : RST_MCP_BEGIN rc58b22d7f4e64c4db2582e8347941da2",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1024,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:10.501 SCRIPT       : RST_MCP_END rc58b22d7f4e64c4db2582e8347941da2 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1025,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:10.705 SCRIPT       : RST_MCP_BEGIN r0348af5088654bb49457d85368ef1353",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1026,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:10.705 SCRIPT       : RST_MCP_END r0348af5088654bb49457d85368ef1353 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1027,
+      "category": "SCRIPT",
+      "severity": "error",
+      "text": "01:00:10.706 SCRIPT    (E): GC | AO | invalid configuration or duplicate priority/order: AOFixture0",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1028,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:13.844 SCRIPT       : RST_MCP_BEGIN r583b862d2d234f189e5e26e5d83c5ab3",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1029,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:13.844 SCRIPT       : RST_MCP_END r583b862d2d234f189e5e26e5d83c5ab3 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1030,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:14.052 SCRIPT       : RST_MCP_BEGIN r6e254d3638724b4096ed1cad3a677a48",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1031,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:14.052 SCRIPT       : RST_MCP_END r6e254d3638724b4096ed1cad3a677a48 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1032,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:15.021 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.612915 39.000000 2727.855225> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0 destination=<1189.68,39,2727.57>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1033,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:16.466 SCRIPT       : RST_MCP_BEGIN r4979ffdc4aca47b08ab0963b0d63eb63",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1034,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:16.466 SCRIPT       : RST_MCP_END r4979ffdc4aca47b08ab0963b0d63eb63 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1035,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:18.895 SCRIPT       : RST_MCP_BEGIN rfe04965f5e4b4a1382f4faf89f4cc1c7",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1036,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:18.895 SCRIPT       : RST_MCP_END rfe04965f5e4b4a1382f4faf89f4cc1c7 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1037,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:21.306 SCRIPT       : RST_MCP_BEGIN rdbb141a847ec46c1b055a5f0887ba7e0",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1038,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:21.306 SCRIPT       : RST_MCP_END rdbb141a847ec46c1b055a5f0887ba7e0 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1039,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:23.720 SCRIPT       : RST_MCP_BEGIN ra932d2f1ad954c1b8c9d9ee190a4b1e8",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1040,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:23.721 SCRIPT       : RST_MCP_END ra932d2f1ad954c1b8c9d9ee190a4b1e8 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1041,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:26.133 SCRIPT       : RST_MCP_BEGIN rc6e68be856b3496d984ab180b034c9c9",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1042,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:26.133 SCRIPT       : RST_MCP_END rc6e68be856b3496d984ab180b034c9c9 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1043,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:26.247 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.680054 38.999985 2727.573975> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1044,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:28.548 SCRIPT       : RST_MCP_BEGIN r1cd7a30f207b402a9b752a736185a3ae",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1045,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:28.548 SCRIPT       : RST_MCP_END r1cd7a30f207b402a9b752a736185a3ae invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1046,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:33.315 SCRIPT       : RST_MCP_BEGIN r895da9425dc84285bf30f9d98c6985a4",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1047,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:33.315 SCRIPT       : RST_MCP_END r895da9425dc84285bf30f9d98c6985a4 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1048,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:33.515 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.649048 39.000175 2727.703125> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0 destination=<1189.67,39,2727.6>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1049,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:37.454 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.673950 38.999985 2727.600098> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1050,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:38.033 SCRIPT       : RST_MCP_BEGIN rbe4c3cae76b34e74840da08b43a98588",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1051,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:38.033 SCRIPT       : RST_MCP_END rbe4c3cae76b34e74840da08b43a98588 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1052,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:38.238 SCRIPT       : RST_MCP_BEGIN r513300839a5948f499ef67ecf1220d3a",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1053,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:38.238 SCRIPT       : RST_MCP_END r513300839a5948f499ef67ecf1220d3a invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1054,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:38.448 SCRIPT       : RST_MCP_BEGIN r559dd73a8add4b5186301a2862843ac5",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1055,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:38.448 SCRIPT       : RST_MCP_END r559dd73a8add4b5186301a2862843ac5 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1056,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:39.056 SCRIPT       : RST_MCP_BEGIN r6ced50e8b22e43d3a952409fa97a2f71",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1057,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:39.057 SCRIPT       : RST_MCP_END r6ced50e8b22e43d3a952409fa97a2f71 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1058,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:39.572 SCRIPT       : RST_MCP_BEGIN r29076df4df6d40b5a626bd6805ecd5e2",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1059,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:39.572 SCRIPT       : RST_MCP_END r29076df4df6d40b5a626bd6805ecd5e2 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1060,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:40.485 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.643311 39.000496 2727.714600> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0 destination=<1189.71,39.0002,2727.43>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1061,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:47.667 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.682739 39.000168 2727.551270> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1062,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:47.768 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.642822 39.000416 2727.717041> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0 destination=<1189.68,39.0002,2727.55>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1063,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:47.868 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter<0x0000017A1E1AE730> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1189.682007 38.999985 2727.552002> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1064,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:48.269 SCRIPT       : RST_MCP_BEGIN rcc2eb009ebc24094931081f35bf466ab",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1065,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:00:48.270 SCRIPT       : RST_MCP_END rcc2eb009ebc24094931081f35bf466ab invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1066,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:01.852 SCRIPT       : RST_MCP_BEGIN ra2dfb87b309c45e3b2d1bc80a9ca7637",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1067,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:01.852 SCRIPT       : RST_MCP_END ra2dfb87b309c45e3b2d1bc80a9ca7637 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1068,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:02.061 SCRIPT       : RST_MCP_BEGIN rd5c1fb272579418da3d7a5bbe3cda6f8",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1069,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:02.106 SCRIPT       : RST_MCP_END rd5c1fb272579418da3d7a5bbe3cda6f8 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1070,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:02.563 SCRIPT       : RST_MCP_BEGIN r49b5c4aeaddf4d6aa4f4300b0ab2f892",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1071,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:02.564 SCRIPT       : RST_MCP_END r49b5c4aeaddf4d6aa4f4300b0ab2f892 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1072,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:03.529 SCRIPT       : RST_MCP_BEGIN ra53294f6a68c4c3a94bd6a16563b54e8",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1073,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:03.529 SCRIPT       : RST_MCP_END ra53294f6a68c4c3a94bd6a16563b54e8 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1074,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:03.753 SCRIPT       : RST_MCP_BEGIN r300f516e780b45b58b5c415201528227",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1075,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:03.753 SCRIPT       : RST_MCP_END r300f516e780b45b58b5c415201528227 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1076,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:03.847 SCRIPT       : GC | AO | return dispatched=1 mover=Vehicle<0x0000017916314248> @\"ENTITY:4611686018427389228\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1199.682007 39.027519 2737.547852> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\" limit=AOFixture0 destination=<1199.68,39.0275,2737.55>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1077,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:03.949 SCRIPT       : GC | AO | return observed mover=Vehicle<0x0000017916314248> @\"ENTITY:4611686018427389228\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1199.682007 39.650375 2737.547852> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1078,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:04.579 SCRIPT       : RST_MCP_BEGIN r8be2954229004d2e9c22ead312c2421c",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1079,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:04.579 SCRIPT       : RST_MCP_END r8be2954229004d2e9c22ead312c2421c invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1080,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:04.800 SCRIPT       : RST_MCP_BEGIN r72b3cc5959df4a11ba087c2e3ea82b80",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1081,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:04.800 SCRIPT       : RST_MCP_END r72b3cc5959df4a11ba087c2e3ea82b80 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1082,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:04.864 SCRIPT       : GC | AO | return dispatched=1 mover=Vehicle<0x0000017916314248> @\"ENTITY:4611686018427389228\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1199.682007 39.095097 2737.593262> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\" limit=AOFixture0 destination=<1199.68,39.0951,2737.59>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1083,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:04.966 SCRIPT       : GC | AO | return observed mover=Vehicle<0x0000017916314248> @\"ENTITY:4611686018427389228\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1199.682007 39.650883 2737.593262> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1084,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:05.632 SCRIPT       : RST_MCP_BEGIN r8681566da4004856ad789723ca18aff2",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1085,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:05.632 SCRIPT       : RST_MCP_END r8681566da4004856ad789723ca18aff2 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1086,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:05.864 SCRIPT       : RST_MCP_BEGIN r7fae437d7a984d7b9ef8bb8b0f999e50",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1087,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:05.864 SCRIPT       : RST_MCP_END r7fae437d7a984d7b9ef8bb8b0f999e50 invoked",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1088,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:05.874 SCRIPT       : GC | AO | return dispatched=1 mover=Vehicle<0x0000017916314248> @\"ENTITY:4611686018427389228\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1199.681885 39.097130 2737.639893> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\" limit=AOFixture0 destination=<1199.68,39.0971,2737.64>",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1089,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:05.977 SCRIPT       : GC | AO | return observed mover=Vehicle<0x0000017916314248> @\"ENTITY:4611686018427389228\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1199.681885 39.639992 2737.639893> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\"",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1090,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:06.706 SCRIPT       : RST_MCP_BEGIN r3b4071522b804f3f9433d3e710b4f553",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 1091,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "01:01:06.706 SCRIPT       : RST_MCP_END r3b4071522b804f3f9433d3e710b4f553 invoked",
+      "textTruncated": false,
+      "continuation": false
+    }
+  ],
+  "truncated": false
+}

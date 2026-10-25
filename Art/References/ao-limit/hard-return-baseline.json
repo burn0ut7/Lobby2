@@ -1,0 +1,125 @@
+[
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Lobby Button"
+    ],
+    "receipt": "r037e9f92362b446e8ec828f5f8b26d20",
+    "state": "invoked",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestSelectFaction",
+    "args": [
+      "US"
+    ],
+    "receipt": "rebcf14133c06484b843dfbe045576153",
+    "state": "invoked",
+    "returned": "dispatched: Button"
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      9
+    ],
+    "receipt": "r8b7737a835354ec5bbd9e884dcff953c",
+    "state": "invoked",
+    "returned": "dispatched: SlotButton"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "receipt": "r497e0ff089034ca6a224b491e51e77fe",
+    "state": "invoked",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestAOSnapshot",
+    "args": [],
+    "receipt": "re6c48895b1a64c9fadca6689d9f07a2c",
+    "state": "invoked",
+    "returned": "phase=1787356802 player=1 controlled=SCR_ChimeraCharacter<0x0000017A16D49170> @\"ENTITY:4611686018427388079\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1194.457031 39.000000 2723.128906> @\"{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et\" alive=1 position=<1194.46,39,2723.13> offset=<1194.46,39,2723.13> vehicle=NULL HUD=absent AO=not-evaluated"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "receipt": "rc7e193f4d0c246de903a11ee13cf09c5",
+    "state": "invoked",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestAOSnapshot",
+    "args": [],
+    "receipt": "r651b8fab3aab4351afa813e14e00e252",
+    "state": "invoked",
+    "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000017A16D8D070> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1190.152954 39.000000 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1190.15,39,2725.61> offset=<1190.15,39,2725.61> vehicle=NULL HUD=absent limits=1 clocks=0"
+  },
+  {
+    "method": "GC_TestFreezeRequest",
+    "args": [
+      "end",
+      0
+    ],
+    "receipt": "r6f30a1256cef4329aa8eb085f9585514",
+    "state": "invoked",
+    "returned": "DISPATCHED production controller request; inspect subsequent snapshot and audit"
+  },
+  {
+    "method": "GC_TestAOSpawn",
+    "args": [],
+    "receipt": "r61a0c76b5e794d0aa62da5d231887ad2",
+    "state": "invoked",
+    "returned": "spawned index=0 origin=<1190.15,39,2725.61>; configure after native initialization"
+  },
+  {
+    "method": "GC_TestAOConfigure",
+    "args": [
+      0,
+      0,
+      false,
+      {
+        "type": "float",
+        "value": 20
+      },
+      10,
+      {
+        "type": "float",
+        "value": 2
+      },
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "receipt": "r98dab2f2df224493ae58a3167d434875",
+    "state": "invoked",
+    "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+  },
+  {
+    "method": "GC_TestAOContinuousWalk",
+    "args": [
+      {
+        "type": "float",
+        "value": 12
+      }
+    ],
+    "receipt": "rd805f334ab824bad9348304f9e979d61",
+    "state": "invoked",
+    "returned": "walkSeconds=12 position=<1190.15,39,2725.61>"
+  },
+  {
+    "method": "GC_TestAOSnapshot",
+    "args": [],
+    "receipt": "r38fd9d0b58d64f608bc0e9c8135e00c5",
+    "state": "invoked",
+    "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000017A16D8D070> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1187.506226 39.000771 2736.575195> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1187.49,39.0008,2736.65> offset=<-2.66443,0.000793457,11.0405> vehicle=NULL HUD=absent limits=2 clocks=1 selected=AOFixture0 behavior=0 priority=10 remaining=16.7516"
+  },
+  {
+    "method": "GC_TestAOSnapshot",
+    "args": [],
+    "receipt": "r466340ada3754ecb84edac0eb84eac44",
+    "state": "invoked",
+    "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000017A16D8D070> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1182.027466 39.000469 2759.245850> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1182.03,39.0005,2759.25> offset=<-8.12549,0.000469208,33.6379> vehicle=NULL HUD=absent limits=2 clocks=2 selected=AOFixture0 behavior=0 priority=10 remaining=7.52811"
+  }
+]
