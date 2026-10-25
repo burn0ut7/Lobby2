@@ -81,6 +81,9 @@ modded class GC_LobbyManager
 			if (text)
 				result += name + "=" + text.GetText() + "; ";
 		}
+		result += string.Format("ReservationPanel=%1 ReservationsSelectedBar=%2 MapPlanPanel=%3 MapPlansSelectedBar=%4",
+			root.FindAnyWidget("ReservationPanel").IsVisible(), root.FindAnyWidget("ReservationsSelectedBar").IsVisible(),
+			root.FindAnyWidget("MapPlanPanel").IsVisible(), root.FindAnyWidget("MapPlansSelectedBar").IsVisible());
 		return result;
 	}
 

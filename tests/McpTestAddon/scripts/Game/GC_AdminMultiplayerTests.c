@@ -7,20 +7,6 @@ modded class GC_LobbyPlayerController
 
 	protected string m_sGCTestNearbyCharacters;
 	protected int m_iGCTestNearbyCharacters;
-	protected string m_sGCScopeHealToken;
-	protected string m_sGCScopeHealSnapshot;
-	protected int m_iGCScopeHealRequest;
-
-	//------------------------------------------------------------------------------------------------
-	protected void GC_TestScopeHealResult(int requestId, string outcome)
-	{
-		if (requestId != m_iGCScopeHealRequest || m_sGCScopeHealToken.IsEmpty())
-			return;
-		m_OnAdminPlayerToolResult.Remove(GC_TestScopeHealResult);
-		Rpc(GC_TestRpcPeerReport, m_sGCScopeHealToken, m_sGCScopeHealSnapshot + " outcome=" + outcome);
-		m_sGCScopeHealToken = string.Empty;
-	}
-
 	//------------------------------------------------------------------------------------------------
 	protected bool GC_TestNearbyCharacter(IEntity entity)
 	{
@@ -78,28 +64,15 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "dedicated-action")
+		{
+			GC_LobbyPlayerController.Cast(this).GC_TestDedicatedAction(token, message);
+			return;
+		}
 
 		if (action == "scope-move")
 		{
 			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAdminScopeMove(message.ToVector()));
-			return;
-		}
-		if (action == "scope-heal")
-		{
-			array<string> healFields = {};
-			message.Split("|", healFields, false);
-			if (healFields.Count() != 2 || !m_sGCScopeHealToken.IsEmpty())
-				return;
-			m_sGCScopeHealToken = token;
-			m_sGCScopeHealSnapshot = manager.GC_TestAdminScopeSnapshot(healFields[1].ToInt());
-			m_iGCScopeHealRequest = ReserveAdminPlayerToolRequest();
-			m_OnAdminPlayerToolResult.Insert(GC_TestScopeHealResult);
-			GC_EAdminHealScope scope = GC_EAdminHealScope.EVERYONE;
-			if (healFields[0] == "faction")
-				scope = GC_EAdminHealScope.FACTION;
-			array<int> selected = {};
-			array<string> identities = {};
-			RequestAdminHeal(scope, selected, identities, m_iGCScopeHealRequest, 50, "USSR");
 			return;
 		}
 		if (action == "scope-snapshot")
@@ -433,9 +406,9 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"dedicated-action",
 			"scope-snapshot",
 			"scope-move",
-			"scope-heal",
 			"scope-request",
 			"scope-picker",
 			"scope-ui",

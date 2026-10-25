@@ -179,3 +179,90 @@ were restored. Reopened production Lobby2 as PID 40608; native inventory
 confirmed only core, ArmaReforger and Lobby2 loaded. The test addon was unloaded.
 Independent review approved retaining the compiled fixture and failed evidence
 with the explicit dedicated-gameplay limitation.
+
+
+## Expanded dedicated-client regression - 2026-10-24
+
+The previous identity gate was overly broad. Normal slot assignment and the
+following global/faction actions were tested without fabricated IDs. All three
+runs used the native Dedicated Server Tool, ArmaReforgerServerDiag.exe and two
+separate ArmaReforgerSteamDiag.exe clients on Everon. Embedded Workbench Play was
+never started. Temporary native session-admin grants were explicitly authorized.
+Requests originated on owning clients and passed production server checks.
+Fixtures only arranged damage, death, positions and a staging area.
+
+The core run (server 18644, clients 50216/39548; server log session
+`logs_2026-10-24_23-00-11`) finished at 23:01:57 local with native SUCCESS and zero
+failures. The [actual faction-heal capture](../Art/References/admin-tools/dedicated-distant-faction-heal.png)
+shows the rendered client result. Helpers invoke real widget handlers; physical
+mouse/gamepad navigation is not claimed.
+
+The supplementary run (server 34856, clients 51112/49364; server session
+`logs_2026-10-24_23-04-49`) passed core actions, freeze start/extend/end and ammo
+suppression/resumption, reservation export, map-plan save and native admin chat.
+At 23:06:47 native ban-list submission returned true (`pending-ban-operation=1`)
+and the server crashed with an access violation reading address 0x38. This run
+did not finish and is not an overall pass. Callback and page parameters remain
+strongly referenced; the unresolved native stack does not establish a root cause.
+The automatic suite does not replay that known crash; the explicit `ban-list`
+helper remains available for a separately configured follow-up.
+
+Installed source at PAK revision `4942ab6194e34c74bd5972e7761785e2` provides no
+usable dedicated authentication guard: `BackendAuthenticatorApi.c` documents its
+API as client-only, disabled on dedicated, with separate server authentication
+marked TBD. `BanCommands.c` uses the same dedicated/non-null checks as Lobby2;
+`BanServiceApi.c` supplies external declarations only. No guessed identity or
+readiness guard or replacement ban backend was added. Successful ban/list/unban
+persistence remains unverified and the native crash remains unresolved.
+
+The final expanded run (server 50748, clients 44096/28940; server session
+`logs_2026-10-24_23-12-59`, peer sessions both `logs_2026-10-24_23-13-00`)
+finished at 23:15:12 local with native SUCCESS and `failures=0`, explicitly
+excluding replay of the native ban-list crash. Players were approximately 9.6 km
+apart. Before distant requests, the admin client reported
+`server=0 connected=2 listed=1 character=0 slotEntity=0 replicationItem=0`.
+The owner still controlled the target's living character. Absence is verified
+from the client replication state, not assumed from distance or server visibility.
+
+| Check | Observed result |
+|---|---|
+| Normal phase/slot setup | PREGAME through GAME; 26 slots unlocked, faction rules changed; both normal client slot requests spawned native faction characters. |
+| Everyone heal, rendered menu handler | Both players healed from 0.5 to 1; distant owner confirmed health 1. |
+| Faction heal, rendered Soviet selection | Distant USSR player healed to 1; US admin remained at 0.5. |
+| Nearby 50m | Admin healed; distant player remained at 0.5. |
+| Everyone/faction messages | Both owners received Everyone; only USSR received faction message. |
+| Player lists | Moderation RPC returned both rows; actual menu selected distant row; picker listed distant player. |
+| Missing account identity | Picker nonselectable; selected heal/message, teleport/faction teleport, kick/ban/unban rejected; target stayed connected and unchanged. Negative checks only. |
+| Everyone KIA recovery | Distant KIA slot respawned through production recovery; owner confirmed living health 1 at remote position. |
+| Freeze | Start/extension replicated; owner HUD active; fire consumed no ammo while frozen; End cleared freeze and same input consumed ammo. |
+| Reservation export | Client parsed version 1 with 26 authored slots. |
+| Map-plan save | Client profile JSON read back: version 1, Everon world, US/USSR factions, empty markers/texts/drawings. Gameplay Clear correctly rejected. |
+| Native Admin chat | Ordinary distant player's message appeared in admin's native channel history. |
+| Menu tabs | Reservations/Markers panels and selected bars visible; return to Heal verified. |
+| Permission loss | Role revoked; heal/message/group-lock rejected; health, message count and all 26 slot locks unchanged. |
+
+The [distant owner freeze capture](../Art/References/admin-tools/dedicated-distant-freeze.png)
+shows the actual standalone-client staging HUD. Saved JSON was read from
+`Lobby2DedicatedScopePeer1/profile/Lobby2MapPlans/dedicated-regression.json`.
+[Filtered logs](evidence/dedicated-admin-20261024.txt) retain results, client
+reports and audits from all three runs without startup credentials. Original
+server logs are under `Documents/My Games/Lobby2DedicatedScope/logs`; peer logs
+are under their respective `Lobby2DedicatedScopePeer1/2/logs` directories.
+
+No populated marker round-trip, physical menu traversal, large-server load,
+positive identity-dependent dedicated targeting/teleport, or persistent bans are
+established by this run. Earlier listen-server positives remain separate evidence.
+The final fixture additionally refuses identity-negative actions if either account
+identity is present, preventing accidental real kicks/bans on reuse. This guard
+was added after the final runtime run; its valid-identity branch has source review
+and compilation coverage, not a new authenticated-session test.
+
+
+Cleanup completed: native stop reported no surviving server/peer processes;
+original Dedicated Server Tool world/profile/parameters and peer profiles/window
+sizes were restored. Production Lobby2 reopened as PID 33784, with only core,
+ArmaReforger and Lobby2 in the native loaded-addon inventory. Optional test addons
+are unloaded. Final fixture compilation succeeded (`b4c3f0d37a7e459e86e13d6ae5c765b1`).
+Independent review approved the test helpers and evidence with the above limits;
+Enforce readability and `git diff --check` passed. This is bounded dedicated-client
+coverage, not a claim that every admin function or the native ban backend passed.

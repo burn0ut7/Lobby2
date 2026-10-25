@@ -1,0 +1,623 @@
+logs_2026-10-24_23-00-11
+23:00:47.138 SCRIPT       : GC | Admin Action | player=1 identity= action=test-dedicated-admin-role target=grant outcome=changed=true
+23:00:47.194   SCRIPT       : GC | MCP Peer Observation | token=ready player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=3 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=0 factionLock=0 balance=0 freezeState=configured=0 remaining=0 revision=0 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:00:49.171 SCRIPT       : 	PASS ready terminal result
+23:00:49.205   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=SLOTTING outcome=succeeded
+23:00:49.205   SCRIPT       : GC | MCP Peer Observation | token=slotting player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=1 outcome=dispatched-phase
+23:00:51.171 SCRIPT       : 	PASS slotting terminal result
+23:00:51.204   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-group-lock target=group=-1 locked=0 outcome=applied slots=26
+23:00:51.238   SCRIPT       : GC | MCP Peer Observation | token=unlock player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=2 outcome=applied
+23:00:53.171 SCRIPT       : 	PASS unlock terminal result
+23:00:53.171 SCRIPT       : 	PASS Slot 1 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 2 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 3 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 4 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 5 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 6 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 7 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 8 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 9 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 10 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 11 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 12 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 13 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 14 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 15 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 16 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 17 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 18 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 19 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 20 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 21 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 22 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 23 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 24 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 25 unlocked
+23:00:53.171 SCRIPT       : 	PASS Slot 26 unlocked
+23:00:53.204   SCRIPT       : GC | Admin Action | player=1 identity= action=faction-rules target=revision=0 lockMode=2 balance=0 outcome=applied
+23:00:53.238   SCRIPT       : GC | MCP Peer Observation | token=rules player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=3 outcome=applied
+23:00:55.171 SCRIPT       : 	PASS rules terminal result
+23:00:55.171 SCRIPT       : 	PASS Faction rules changed on authority
+23:00:55.205   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-self-select target=slot=11 outcome=applied
+23:00:55.205   SCRIPT       : GC | MCP Peer Observation | token=join-admin player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 freezeState=configured=0 remaining=0 revision=1 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:00:55.206   SCRIPT       : GC | Admin Action | player=2 identity= action=slot-self-select target=slot=1 outcome=applied
+23:00:55.206   SCRIPT       : GC | MCP Peer Observation | token=join-target player=2 report=player=2 admin=0 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 freezeState=configured=0 remaining=0 revision=1 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:00:57.171 SCRIPT       : 	PASS Normal client slot requests establish native factions without backend identity
+23:00:57.206   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=BRIEFING outcome=succeeded
+23:00:57.206   SCRIPT       : GC | MCP Peer Observation | token=briefing player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=4 outcome=dispatched-phase
+23:00:59.171 SCRIPT       : 	PASS briefing terminal result
+23:00:59.205   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=GAME outcome=succeeded
+23:00:59.205   SCRIPT       : GC | MCP Peer Observation | token=game player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=5 outcome=dispatched-phase
+23:01:01.204 SCRIPT       : 	PASS game terminal result
+23:01:01.238   SCRIPT       : GC | MCP Peer Observation | token=move player=2 report=fixtureMove=1 server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<10351.6, 32.5333, 361.561> health=1
+23:01:03.204 SCRIPT       : 	PASS move terminal result
+23:01:03.239   SCRIPT       : GC | MCP Peer Observation | token=absence player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR
+23:01:05.238 SCRIPT       : 	PASS absence terminal result
+23:01:05.238 SCRIPT       : 	PASS absence remote entity absent on client
+23:01:05.238 SCRIPT       : 	PASS Authority verifies separation over 5km
+23:01:05.305   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=15 request=7 faction= player=1 identity= outcome=applied
+23:01:05.305   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=15 request=7 faction= player=2 identity= outcome=applied
+23:01:05.305   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=15 request=7 faction= outcome=Healed 2 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:01:05.339   SCRIPT       : GC | MCP Peer Observation | token=everyone player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=7 outcome=Healed 2 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:01:07.238 SCRIPT       : 	PASS everyone terminal result
+23:01:07.238 SCRIPT       : 	PASS everyone remote entity absent on client
+23:01:07.238 SCRIPT       : 	PASS Everyone UI heals both real players
+23:01:07.271   SCRIPT       : GC | MCP Peer Observation | token=everyone-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4500, 107.722, 8000> health=1
+23:01:09.237 SCRIPT       : 	PASS everyone-owner terminal result
+23:01:09.272   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=3 radius=15 request=9 faction=USSR player=2 identity= outcome=applied
+23:01:09.272   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=3 radius=15 request=9 faction=USSR outcome=Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:01:09.305   SCRIPT       : GC | MCP Peer Observation | token=faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=9 outcome=Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:01:11.237 SCRIPT       : 	PASS faction terminal result
+23:01:11.237 SCRIPT       : 	PASS faction remote entity absent on client
+23:01:11.237 SCRIPT       : 	PASS Faction UI heals distant USSR and excludes US
+23:01:11.272   SCRIPT       : GC | MCP Peer Observation | token=faction-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4500, 107.722, 8000> health=1
+23:01:13.237 SCRIPT       : 	PASS faction-owner terminal result
+23:01:13.272   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=2 radius=50 request=10 faction= player=1 identity= outcome=applied
+23:01:13.272   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=2 radius=50 request=10 faction= outcome=Within 50m: Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s). Repaired 0 vehicle(s). Skipped 0 destroyed or unhealed vehicle(s).
+23:01:13.306   SCRIPT       : GC | MCP Peer Observation | token=nearby player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=10 outcome=Within 50m: Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s). Repaired 0 vehicle(s). Skipped 0 destroyed or unhealed vehicle(s).
+23:01:15.238 SCRIPT       : 	PASS nearby terminal result
+23:01:15.238 SCRIPT       : 	PASS nearby remote entity absent on client
+23:01:15.238 SCRIPT       : 	PASS Nearby heals local admin and excludes distant player
+23:01:15.272   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=1 faction=USSR length=26 players=1,2, outcome=dispatched message=1 recipients=2 skipped=0
+23:01:15.307   SCRIPT       : GC | MCP Peer Observation | token=message-all player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=11 outcome=dispatched message=1 recipients=2 skipped=0
+23:01:17.238 SCRIPT       : 	PASS message-all terminal result
+23:01:17.238 SCRIPT       : 	PASS message-all remote entity absent on client
+23:01:17.272   SCRIPT       : GC | MCP Peer Observation | token=message-all-admin player=1 report=player=1 admin=1 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=10 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=US freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<10342.8,31.4006,352.803> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=11 entity=-2147480425 controlledPosition=<10342.8,31.4006,352.803> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:01:17.272   SCRIPT       : GC | MCP Peer Observation | token=message-all-target player=2 report=player=2 admin=0 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=11 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<4500,107.722,8000> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147480177 controlledPosition=<4500,107.722,8000> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:01:19.238 SCRIPT       : 	PASS message-all-admin terminal result
+23:01:19.238 SCRIPT       : 	PASS message-all-target terminal result
+23:01:19.272   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=3 faction=USSR length=25 players=2, outcome=dispatched message=2 recipients=1 skipped=0
+23:01:19.305   SCRIPT       : GC | MCP Peer Observation | token=message-faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=12 outcome=dispatched message=2 recipients=1 skipped=0
+23:01:21.238 SCRIPT       : 	PASS message-faction terminal result
+23:01:21.238 SCRIPT       : 	PASS message-faction remote entity absent on client
+23:01:21.271   SCRIPT       : GC | MCP Peer Observation | token=message-faction-admin player=1 report=player=1 admin=1 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=10 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=US freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<10342.8,31.4006,352.803> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=11 entity=-2147480425 controlledPosition=<10342.8,31.4006,352.803> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:01:21.271   SCRIPT       : GC | MCP Peer Observation | token=message-faction-target player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=11 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<4500,107.722,8000> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147480177 controlledPosition=<4500,107.722,8000> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:01:23.238 SCRIPT       : 	PASS message-faction-admin terminal result
+23:01:23.238 SCRIPT       : 	PASS message-faction-target terminal result
+23:01:23.271   SCRIPT       : GC | Admin Action | player=1 identity= action=moderation-session target= outcome=returned
+23:01:23.305   SCRIPT       : GC | MCP Peer Observation | token=moderation player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=13 outcome=rows=2 player=1 identity= player=2 identity=
+23:01:25.237 SCRIPT       : 	PASS moderation terminal result
+23:01:25.237 SCRIPT       : 	PASS moderation remote entity absent on client
+23:01:25.272   SCRIPT       : GC | MCP Peer Observation | token=picker player=1 report=listed=1 selectable=0 character=0
+23:01:27.238 SCRIPT       : 	PASS picker terminal result
+23:01:27.238 SCRIPT       : 	LIMIT: empty account identity prevents selected-player operations; verifying rejection, not successful targeting.
+23:01:27.272   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=0 radius=50 request=14 faction= outcome=rejected-stale-selection
+23:01:27.305   SCRIPT       : GC | MCP Peer Observation | token=selected player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=14 outcome=A selected player disconnected. Select players again.
+23:01:29.238 SCRIPT       : 	PASS selected terminal result
+23:01:29.238 SCRIPT       : 	PASS selected remote entity absent on client
+23:01:29.238 SCRIPT       : 	PASS Identity-less selected heal does not mutate target
+23:01:29.272   SCRIPT       : GC | Admin Action | player=1 identity= action=teleport target=from=1 identity= to=2 identity= request=15 outcome=A selected player changed or disconnected. Select again.
+23:01:29.305   SCRIPT       : GC | MCP Peer Observation | token=teleport player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=15 outcome=A selected player changed or disconnected. Select again.
+23:01:31.237 SCRIPT       : 	PASS teleport terminal result
+23:01:31.237 SCRIPT       : 	PASS teleport remote entity absent on client
+23:01:31.237 SCRIPT       : 	PASS Rejected teleport does not move admin
+23:01:31.273   SCRIPT       : GC | Admin Action | player=1 identity= action=teleport-faction target=faction=US to=2 identity= request=16 outcome=The destination player must still have a living spawned character.
+23:01:31.304   SCRIPT       : GC | MCP Peer Observation | token=teleport-faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=16 outcome=The destination player must still have a living spawned character.
+23:01:33.238 SCRIPT       : 	PASS teleport-faction terminal result
+23:01:33.238 SCRIPT       : 	PASS teleport-faction remote entity absent on client
+23:01:33.238 SCRIPT       : 	PASS Rejected faction teleport does not move admin
+23:01:33.272   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=2 faction=USSR length=26 outcome=rejected-stale-recipient
+23:01:33.305   SCRIPT       : GC | MCP Peer Observation | token=selected-message player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=17 outcome=rejected-stale-recipient
+23:01:35.237 SCRIPT       : 	PASS selected-message terminal result
+23:01:35.237 SCRIPT       : 	PASS selected-message remote entity absent on client
+23:01:35.272   SCRIPT       : GC | Admin Action | player=1 identity= action=player-kick target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=1 outcome=rejected-account-identity
+23:01:35.304   SCRIPT       : GC | MCP Peer Observation | token=kick player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=1 outcome=rejected-account-identity
+23:01:37.238 SCRIPT       : 	PASS kick terminal result
+23:01:37.238 SCRIPT       : 	PASS kick remote entity absent on client
+23:01:37.238 SCRIPT       : 	PASS Rejected kick keeps target connected
+23:01:37.272   SCRIPT       : GC | Admin Action | player=1 identity= action=player-ban target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=2 outcome=rejected-account-identity
+23:01:37.306   SCRIPT       : GC | MCP Peer Observation | token=ban player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=2 outcome=rejected-account-identity
+23:01:39.238 SCRIPT       : 	PASS ban terminal result
+23:01:39.238 SCRIPT       : 	PASS ban remote entity absent on client
+23:01:39.272   SCRIPT       : GC | Admin Action | player=1 identity= action=player-unban target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=3 outcome=rejected-account-identity
+23:01:39.305   SCRIPT       : GC | MCP Peer Observation | token=unban player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=3 outcome=rejected-account-identity
+23:01:41.238 SCRIPT       : 	PASS unban terminal result
+23:01:41.238 SCRIPT       : 	PASS unban remote entity absent on client
+23:01:41.272   SCRIPT       : GC | Admin Action | player=1 identity= action=moderation-session target= outcome=returned
+23:01:41.272   SCRIPT       : GC | MCP Peer Observation | token=moderation-open player=1 report=ToolTitle=Kick / Ban; ToolSummary=; ToolStatus=; ModerationStatus=; 
+23:01:43.272   SCRIPT       : GC | MCP Peer Observation | token=moderation-ui player=1 report=rows=2 selected=1 identityReady=0 kickEnabled=1 banEnabled=1
+23:01:45.237 SCRIPT       : 	PASS moderation-ui terminal result
+23:01:47.272   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=50 request=21 faction= player=1 identity= outcome=applied
+23:01:47.281   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-respawn target=scope=1 radius=50 request=21 faction= player=2 identity= outcome=applied
+23:01:47.281   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=50 request=21 faction= outcome=Healed 1 player(s). Respawned 1. Skipped 0 unavailable or unhealed player(s).
+23:01:47.306   SCRIPT       : GC | MCP Peer Observation | token=respawn player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=21 outcome=Healed 1 player(s). Respawned 1. Skipped 0 unavailable or unhealed player(s).
+23:01:49.237 SCRIPT       : 	PASS respawn terminal result
+23:01:49.237 SCRIPT       : 	PASS Everyone recovers a distant KIA slot
+23:01:49.271   SCRIPT       : GC | MCP Peer Observation | token=respawn-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4499.15, 107.604, 7999.43> health=1
+23:01:51.237 SCRIPT       : 	PASS respawn-owner terminal result
+23:01:51.237 SCRIPT       : GC | Admin Action | player=1 identity= action=test-dedicated-admin-role target=revoke outcome=changed=true
+23:01:51.272   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=50 request=22 faction= outcome=rejected-not-logged-in
+23:01:51.305   SCRIPT       : GC | MCP Peer Observation | token=denied-heal player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=22 outcome=Admin login required.
+23:01:53.237 SCRIPT       : 	PASS denied-heal terminal result
+23:01:53.237 SCRIPT       : 	PASS Logged-out heal rejected without mutation
+23:01:53.272   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=1 faction=USSR length=26 outcome=rejected-not-logged-in
+23:01:53.304   SCRIPT       : GC | MCP Peer Observation | token=denied-message player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=23 outcome=rejected-not-logged-in
+23:01:55.238 SCRIPT       : 	PASS denied-message terminal result
+23:01:55.271   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-group-lock target=group=-1 locked=1 outcome=rejected-not-logged-in
+23:01:55.271   SCRIPT       : GC | MCP Peer Observation | token=denied-message-owner player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<4499.15,107.607,7999.43> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.15,107.607,7999.43> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:01:55.305   SCRIPT       : GC | MCP Peer Observation | token=denied-lock player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=24 outcome=rejected-not-logged-in
+23:01:57.237 SCRIPT       : 	PASS denied-message-owner terminal result
+23:01:57.237 SCRIPT       : 	PASS denied-lock terminal result
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 1 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 2 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 3 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 4 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 5 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 6 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 7 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 8 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 9 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 10 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 11 unchanged
+23:01:57.237 SCRIPT       : 	PASS Logged-out group lock leaves slot 12 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 13 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 14 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 15 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 16 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 17 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 18 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 19 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 20 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 21 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 22 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 23 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 24 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 25 unchanged
+23:01:57.238 SCRIPT       : 	PASS Logged-out group lock leaves slot 26 unchanged
+23:01:57.238 SCRIPT       : 	Dedicated regression finished; failures=0; identity-dependent successes remain untested.
+23:01:57.238 SCRIPT       : 	✅ GC_DedicatedAdminRange: SUCCESS
+
+logs_2026-10-24_23-04-49
+23:05:21.261 SCRIPT       : GC | Admin Action | player=1 identity= action=test-dedicated-admin-role target=grant outcome=changed=true
+23:05:21.395   SCRIPT       : GC | MCP Peer Observation | token=ready player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=0 factionLock=0 balance=0 freezeState=configured=0 remaining=0 revision=0 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:05:23.261 SCRIPT       : 	PASS ready terminal result
+23:05:23.295   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=SLOTTING outcome=succeeded
+23:05:23.296   SCRIPT       : GC | MCP Peer Observation | token=slotting player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=1 outcome=dispatched-phase
+23:05:25.262 SCRIPT       : 	PASS slotting terminal result
+23:05:25.295   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-group-lock target=group=-1 locked=0 outcome=applied slots=26
+23:05:25.329   SCRIPT       : GC | MCP Peer Observation | token=unlock player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=2 outcome=applied
+23:05:27.261 SCRIPT       : 	PASS unlock terminal result
+23:05:27.261 SCRIPT       : 	PASS Slot 1 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 2 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 3 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 4 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 5 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 6 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 7 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 8 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 9 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 10 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 11 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 12 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 13 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 14 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 15 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 16 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 17 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 18 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 19 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 20 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 21 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 22 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 23 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 24 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 25 unlocked
+23:05:27.261 SCRIPT       : 	PASS Slot 26 unlocked
+23:05:27.294   SCRIPT       : GC | Admin Action | player=1 identity= action=faction-rules target=revision=0 lockMode=2 balance=0 outcome=applied
+23:05:27.329   SCRIPT       : GC | MCP Peer Observation | token=rules player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=3 outcome=applied
+23:05:29.261 SCRIPT       : 	PASS rules terminal result
+23:05:29.261 SCRIPT       : 	PASS Faction rules changed on authority
+23:05:29.297   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-self-select target=slot=11 outcome=applied
+23:05:29.297   SCRIPT       : GC | MCP Peer Observation | token=join-admin player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 freezeState=configured=0 remaining=0 revision=1 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:05:29.297   SCRIPT       : GC | Admin Action | player=2 identity= action=slot-self-select target=slot=1 outcome=applied
+23:05:29.297   SCRIPT       : GC | MCP Peer Observation | token=join-target player=2 report=player=2 admin=0 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 freezeState=configured=0 remaining=0 revision=1 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:05:31.261 SCRIPT       : 	PASS Normal client slot requests establish native factions without backend identity
+23:05:31.295   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=BRIEFING outcome=succeeded
+23:05:31.296   SCRIPT       : GC | MCP Peer Observation | token=briefing player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=4 outcome=dispatched-phase
+23:05:33.261 SCRIPT       : 	PASS briefing terminal result
+23:05:33.295   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=GAME outcome=succeeded
+23:05:33.295   SCRIPT       : GC | MCP Peer Observation | token=game player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=5 outcome=dispatched-phase
+23:05:35.261 SCRIPT       : 	PASS game terminal result
+23:05:35.296   SCRIPT       : GC | MCP Peer Observation | token=move player=2 report=fixtureMove=1 server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<10351.6, 32.5334, 361.561> health=1
+23:05:37.261 SCRIPT       : 	PASS move terminal result
+23:05:37.296   SCRIPT       : GC | MCP Peer Observation | token=absence player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR
+23:05:39.261 SCRIPT       : 	PASS absence terminal result
+23:05:39.261 SCRIPT       : 	PASS absence remote entity absent on client
+23:05:39.261 SCRIPT       : 	PASS Authority verifies separation over 5km
+23:05:39.296   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=15 request=7 faction= player=1 identity= outcome=applied
+23:05:39.296   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=15 request=7 faction= player=2 identity= outcome=applied
+23:05:39.296   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=15 request=7 faction= outcome=Healed 2 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:05:39.361   SCRIPT       : GC | MCP Peer Observation | token=everyone player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=7 outcome=Healed 2 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:05:41.261 SCRIPT       : 	PASS everyone terminal result
+23:05:41.261 SCRIPT       : 	PASS everyone remote entity absent on client
+23:05:41.261 SCRIPT       : 	PASS Everyone UI heals both real players
+23:05:41.295   SCRIPT       : GC | MCP Peer Observation | token=everyone-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4500, 107.722, 8000> health=1
+23:05:43.261 SCRIPT       : 	PASS everyone-owner terminal result
+23:05:43.295   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=3 radius=15 request=9 faction=USSR player=2 identity= outcome=applied
+23:05:43.295   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=3 radius=15 request=9 faction=USSR outcome=Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:05:43.328   SCRIPT       : GC | MCP Peer Observation | token=faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=9 outcome=Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:05:45.261 SCRIPT       : 	PASS faction terminal result
+23:05:45.261 SCRIPT       : 	PASS faction remote entity absent on client
+23:05:45.261 SCRIPT       : 	PASS Faction UI heals distant USSR and excludes US
+23:05:45.296   SCRIPT       : GC | MCP Peer Observation | token=faction-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4500, 107.722, 8000> health=1
+23:05:47.262 SCRIPT       : 	PASS faction-owner terminal result
+23:05:47.295   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=2 radius=50 request=10 faction= player=1 identity= outcome=applied
+23:05:47.295   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=2 radius=50 request=10 faction= outcome=Within 50m: Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s). Repaired 0 vehicle(s). Skipped 0 destroyed or unhealed vehicle(s).
+23:05:47.328   SCRIPT       : GC | MCP Peer Observation | token=nearby player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=10 outcome=Within 50m: Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s). Repaired 0 vehicle(s). Skipped 0 destroyed or unhealed vehicle(s).
+23:05:49.261 SCRIPT       : 	PASS nearby terminal result
+23:05:49.261 SCRIPT       : 	PASS nearby remote entity absent on client
+23:05:49.261 SCRIPT       : 	PASS Nearby heals local admin and excludes distant player
+23:05:49.329   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=1 faction=USSR length=26 players=1,2, outcome=dispatched message=1 recipients=2 skipped=0
+23:05:49.396   SCRIPT       : GC | MCP Peer Observation | token=message-all player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=11 outcome=dispatched message=1 recipients=2 skipped=0
+23:05:51.261 SCRIPT       : 	PASS message-all terminal result
+23:05:51.261 SCRIPT       : 	PASS message-all remote entity absent on client
+23:05:51.295   SCRIPT       : GC | MCP Peer Observation | token=message-all-admin player=1 report=player=1 admin=1 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=10 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=US freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<10342.8,31.4006,352.803> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=11 entity=-2147480425 controlledPosition=<10342.8,31.4006,352.803> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:05:51.295   SCRIPT       : GC | MCP Peer Observation | token=message-all-target player=2 report=player=2 admin=0 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=11 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<4500,107.722,8000> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147480177 controlledPosition=<4500,107.722,8000> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:05:53.261 SCRIPT       : 	PASS message-all-admin terminal result
+23:05:53.261 SCRIPT       : 	PASS message-all-target terminal result
+23:05:53.295   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=3 faction=USSR length=25 players=2, outcome=dispatched message=2 recipients=1 skipped=0
+23:05:53.328   SCRIPT       : GC | MCP Peer Observation | token=message-faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=12 outcome=dispatched message=2 recipients=1 skipped=0
+23:05:55.261 SCRIPT       : 	PASS message-faction terminal result
+23:05:55.261 SCRIPT       : 	PASS message-faction remote entity absent on client
+23:05:55.296   SCRIPT       : GC | MCP Peer Observation | token=message-faction-admin player=1 report=player=1 admin=1 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=10 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=US freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<10342.8,31.4006,352.803> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=11 entity=-2147480425 controlledPosition=<10342.8,31.4006,352.803> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:05:55.296   SCRIPT       : GC | MCP Peer Observation | token=message-faction-target player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=11 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<4500,107.722,8000> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147480177 controlledPosition=<4500,107.722,8000> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:05:57.261 SCRIPT       : 	PASS message-faction-admin terminal result
+23:05:57.261 SCRIPT       : 	PASS message-faction-target terminal result
+23:05:57.295   SCRIPT       : GC | Admin Action | player=1 identity= action=moderation-session target= outcome=returned
+23:05:57.329   SCRIPT       : GC | MCP Peer Observation | token=moderation player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=13 outcome=rows=2 player=1 identity= player=2 identity=
+23:05:59.261 SCRIPT       : 	PASS moderation terminal result
+23:05:59.261 SCRIPT       : 	PASS moderation remote entity absent on client
+23:05:59.295   SCRIPT       : GC | MCP Peer Observation | token=picker player=1 report=listed=1 selectable=0 character=0
+23:06:01.261 SCRIPT       : 	PASS picker terminal result
+23:06:01.261 SCRIPT       : 	LIMIT: empty account identity prevents selected-player operations; verifying rejection, not successful targeting.
+23:06:01.295   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=0 radius=50 request=14 faction= outcome=rejected-stale-selection
+23:06:01.329   SCRIPT       : GC | MCP Peer Observation | token=selected player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=14 outcome=A selected player disconnected. Select players again.
+23:06:03.261 SCRIPT       : 	PASS selected terminal result
+23:06:03.261 SCRIPT       : 	PASS selected remote entity absent on client
+23:06:03.261 SCRIPT       : 	PASS Identity-less selected heal does not mutate target
+23:06:03.296   SCRIPT       : GC | Admin Action | player=1 identity= action=teleport target=from=1 identity= to=2 identity= request=15 outcome=A selected player changed or disconnected. Select again.
+23:06:03.329   SCRIPT       : GC | MCP Peer Observation | token=teleport player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=15 outcome=A selected player changed or disconnected. Select again.
+23:06:05.261 SCRIPT       : 	PASS teleport terminal result
+23:06:05.261 SCRIPT       : 	PASS teleport remote entity absent on client
+23:06:05.261 SCRIPT       : 	PASS Rejected teleport does not move admin
+23:06:05.296   SCRIPT       : GC | Admin Action | player=1 identity= action=teleport-faction target=faction=US to=2 identity= request=16 outcome=The destination player must still have a living spawned character.
+23:06:05.362   SCRIPT       : GC | MCP Peer Observation | token=teleport-faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=16 outcome=The destination player must still have a living spawned character.
+23:06:07.261 SCRIPT       : 	PASS teleport-faction terminal result
+23:06:07.261 SCRIPT       : 	PASS teleport-faction remote entity absent on client
+23:06:07.261 SCRIPT       : 	PASS Rejected faction teleport does not move admin
+23:06:07.296   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=2 faction=USSR length=26 outcome=rejected-stale-recipient
+23:06:07.329   SCRIPT       : GC | MCP Peer Observation | token=selected-message player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=17 outcome=rejected-stale-recipient
+23:06:09.261 SCRIPT       : 	PASS selected-message terminal result
+23:06:09.261 SCRIPT       : 	PASS selected-message remote entity absent on client
+23:06:09.296   SCRIPT       : GC | Admin Action | player=1 identity= action=player-kick target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=1 outcome=rejected-account-identity
+23:06:09.329   SCRIPT       : GC | MCP Peer Observation | token=kick player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=1 outcome=rejected-account-identity
+23:06:11.261 SCRIPT       : 	PASS kick terminal result
+23:06:11.261 SCRIPT       : 	PASS kick remote entity absent on client
+23:06:11.261 SCRIPT       : 	PASS Rejected kick keeps target connected
+23:06:11.329   SCRIPT       : GC | Admin Action | player=1 identity= action=player-ban target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=2 outcome=rejected-account-identity
+23:06:11.362   SCRIPT       : GC | MCP Peer Observation | token=ban player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=2 outcome=rejected-account-identity
+23:06:13.261 SCRIPT       : 	PASS ban terminal result
+23:06:13.261 SCRIPT       : 	PASS ban remote entity absent on client
+23:06:13.296   SCRIPT       : GC | Admin Action | player=1 identity= action=player-unban target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=3 outcome=rejected-account-identity
+23:06:13.329   SCRIPT       : GC | MCP Peer Observation | token=unban player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=3 outcome=rejected-account-identity
+23:06:15.261 SCRIPT       : 	PASS unban terminal result
+23:06:15.261 SCRIPT       : 	PASS unban remote entity absent on client
+23:06:15.296   SCRIPT       : GC | Admin Action | player=1 identity= action=moderation-session target= outcome=returned
+23:06:15.296   SCRIPT       : GC | MCP Peer Observation | token=moderation-open player=1 report=ToolTitle=Kick / Ban; ToolSummary=; ToolStatus=; ModerationStatus=; 
+23:06:17.296   SCRIPT       : GC | MCP Peer Observation | token=moderation-ui player=1 report=rows=2 selected=1 identityReady=0 kickEnabled=1 banEnabled=1
+23:06:19.261 SCRIPT       : 	PASS moderation-ui terminal result
+23:06:21.295   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=50 request=21 faction= player=1 identity= outcome=applied
+23:06:21.306   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-respawn target=scope=1 radius=50 request=21 faction= player=2 identity= outcome=applied
+23:06:21.306   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=50 request=21 faction= outcome=Healed 1 player(s). Respawned 1. Skipped 0 unavailable or unhealed player(s).
+23:06:21.395   SCRIPT       : GC | MCP Peer Observation | token=respawn player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=21 outcome=Healed 1 player(s). Respawned 1. Skipped 0 unavailable or unhealed player(s).
+23:06:23.261 SCRIPT       : 	PASS respawn terminal result
+23:06:23.261 SCRIPT       : 	PASS Everyone recovers a distant KIA slot
+23:06:23.295   SCRIPT       : GC | MCP Peer Observation | token=respawn-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4499.16, 107.605, 7999.42> health=1
+23:06:25.261 SCRIPT       : 	PASS respawn-owner terminal result
+23:06:25.296   SCRIPT       : GC | Admin Action | player=1 identity= action=mission-freeze target=start seconds=60 revision=3 outcome=applied
+23:06:25.329   SCRIPT       : GC | MCP Peer Observation | token=freeze-start player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=4 outcome=applied
+23:06:27.261 SCRIPT       : 	PASS freeze-start terminal result
+23:06:27.261 SCRIPT       : 	PASS freeze-start remote entity absent on client
+23:06:27.261 SCRIPT       : 	PASS Freeze active on authority
+23:06:27.294   SCRIPT       : GC | MCP Peer Observation | token=freeze-owner player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=59 revision=4 active=1 areas=0 hud=visible=1 active=1 remaining=59 text=00:59 width=240 height=60 weapon=ammo=29 raised=0 canFire=1 freeze=1 position=<4499.16,107.607,7999.42> combat=freeze=1 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.16,107.607,7999.42> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:06:29.261 SCRIPT       : 	PASS freeze-owner terminal result
+23:06:29.295   SCRIPT       : GC | MCP Peer Observation | token=freeze-raise player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=57 revision=4 active=1 areas=0 hud=visible=1 active=1 remaining=57 text=00:57 width=240 height=60 weapon=ammo=29 raised=0 canFire=1 freeze=1 position=<4499.16,107.608,7999.42> combat=freeze=1 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.16,107.608,7999.42> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:06:31.296   SCRIPT       : GC | MCP Peer Observation | token=freeze-fire player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=55 revision=4 active=1 areas=0 hud=visible=1 active=1 remaining=55 text=00:55 width=240 height=60 weapon=ammo=29 raised=1 canFire=1 freeze=1 position=<4499.16,107.608,7999.42> combat=freeze=1 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.16,107.608,7999.42> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:06:33.261 SCRIPT       : 	PASS Freeze suppresses remote client's fire input without ammo consumption
+23:06:33.296   SCRIPT       : GC | Admin Action | player=1 identity= action=mission-freeze target=extend seconds=30 revision=4 outcome=applied
+23:06:33.328   SCRIPT       : GC | MCP Peer Observation | token=freeze-extend player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=5 outcome=applied
+23:06:35.261 SCRIPT       : 	PASS freeze-extend terminal result
+23:06:35.261 SCRIPT       : 	PASS freeze-extend remote entity absent on client
+23:06:35.261 SCRIPT       : 	PASS Freeze extension applied
+23:06:35.295   SCRIPT       : GC | Admin Action | player=1 identity= action=mission-freeze target=end seconds=0 revision=5 outcome=applied
+23:06:35.328   SCRIPT       : GC | MCP Peer Observation | token=freeze-end player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=6 outcome=applied
+23:06:37.261 SCRIPT       : 	PASS freeze-end terminal result
+23:06:37.261 SCRIPT       : 	PASS freeze-end remote entity absent on client
+23:06:37.261 SCRIPT       : 	PASS Freeze ended on authority
+23:06:37.295   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-reservation target=slot=-1 operation=export outcome=Exported 26 authored slots. 0 runtime-only slots excluded. Copy the text to save it.
+23:06:37.295   SCRIPT       : GC | MCP Peer Observation | token=freeze-ended-owner player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=6 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=1 canFire=1 freeze=0 position=<4499.16,107.608,7999.42> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.16,107.608,7999.42> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:06:37.297   SCRIPT       : GC | MCP Peer Observation | token=unfrozen-raise player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=6 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=1 canFire=1 freeze=0 position=<4499.16,107.608,7999.42> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.16,107.608,7999.42> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:06:37.362   SCRIPT       : GC | MCP Peer Observation | token=reservation-export player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=25 outcome=Exported 26 authored slots. 0 runtime-only slots excluded. Copy the text to save it. parsed=1 version=1 slots=26
+23:06:39.261 SCRIPT       : 	PASS freeze-ended-owner terminal result
+23:06:39.261 SCRIPT       : 	PASS reservation-export terminal result
+23:06:39.261 SCRIPT       : 	PASS reservation-export remote entity absent on client
+23:06:39.295   SCRIPT       : GC | Admin Action | player=1 identity= action=map-plan target=save outcome=Plan exported.
+23:06:39.295   SCRIPT       : GC | MCP Peer Observation | token=unfrozen-fire player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=6 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=1 canFire=1 freeze=0 position=<4499.16,107.608,7999.42> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.16,107.608,7999.42> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:06:39.329   SCRIPT       : GC | MCP Peer Observation | token=map-save player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=26 outcome=Saved plan to $profile:Lobby2MapPlans/dedicated-regression.json bytes=169
+23:06:41.261 SCRIPT       : 	PASS map-save terminal result
+23:06:41.261 SCRIPT       : 	PASS map-save remote entity absent on client
+23:06:41.261 SCRIPT       : 	PASS Same remote fire input consumes ammo after freeze ends
+23:06:41.295   SCRIPT       : GC | Admin Action | player=1 identity= action=map-plan target=clear outcome=Load and Clear are available before gameplay only.
+23:06:41.329   SCRIPT       : GC | MCP Peer Observation | token=map-clear player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=27 outcome=Load and Clear are available before gameplay only. bytes=0
+23:06:43.261 SCRIPT       : 	PASS map-clear terminal result
+23:06:43.261 SCRIPT       : 	PASS map-clear remote entity absent on client
+23:06:43.295   SCRIPT       : GC | Admin Action | player=2 identity= action=chat-send target=channel=Admin length=23 outcome=accepted-native-chat
+23:06:43.295   SCRIPT       : GC | MCP Peer Observation | token=admin-chat player=2 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=US request=1 outcome=player=2 admin=0 channels=7 panel=0 spectator=0 nativeGroup=1000 groupFrequency=38000 nativeFaction=USSR [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=0] [4:Local available=1] [5:Admin available=1] [6:Spectator available=0] messages=0
+23:06:45.295   SCRIPT       : GC | MCP Peer Observation | token=admin-chat-read player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=28 outcome=player=1 admin=1 channels=7 panel=0 spectator=0 nativeGroup=1004 groupFrequency=38000 nativeFaction=US menu=1592975600 visible=1 [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=0] [4:Local available=1] [5:Admin available=1] [6:Spectator available=0] messages=1 {Admin|2|Dedicated admin contact}
+23:06:47.261 SCRIPT       : 	PASS admin-chat-read terminal result
+23:06:47.296   SCRIPT       : GC | Admin Action | player=1 identity= action=ban-list target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=7 outcome=pending-ban-operation=1
+23:06:47.578 ENGINE    (E): Application crashed! Generated memory dump: C:/Users/Gray/Documents/My Games/Lobby2DedicatedScope/logs/logs_2026-10-24_23-04-49\ArmaReforgerServerDiag_2026-10-24_23-06-47.mdmp
+
+logs_2026-10-24_23-12-59
+23:13:28.354 SCRIPT       : GC | Admin Action | player=1 identity= action=test-dedicated-admin-role target=grant outcome=changed=true
+23:13:28.396   SCRIPT       : GC | MCP Peer Observation | token=ready player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=0 factionLock=0 balance=0 freezeState=configured=0 remaining=0 revision=0 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:13:30.354 SCRIPT       : 	PASS ready terminal result
+23:13:30.388   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=SLOTTING outcome=succeeded
+23:13:30.388   SCRIPT       : GC | MCP Peer Observation | token=slotting player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=1 outcome=dispatched-phase
+23:13:32.354 SCRIPT       : 	PASS slotting terminal result
+23:13:32.388   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-group-lock target=group=-1 locked=0 outcome=applied slots=26
+23:13:32.421   SCRIPT       : GC | MCP Peer Observation | token=unlock player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=2 outcome=applied
+23:13:34.354 SCRIPT       : 	PASS unlock terminal result
+23:13:34.354 SCRIPT       : 	PASS Slot 1 unlocked
+23:13:34.354 SCRIPT       : 	PASS Slot 2 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 3 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 4 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 5 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 6 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 7 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 8 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 9 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 10 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 11 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 12 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 13 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 14 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 15 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 16 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 17 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 18 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 19 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 20 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 21 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 22 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 23 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 24 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 25 unlocked
+23:13:34.355 SCRIPT       : 	PASS Slot 26 unlocked
+23:13:34.388   SCRIPT       : GC | Admin Action | player=1 identity= action=faction-rules target=revision=0 lockMode=2 balance=0 outcome=applied
+23:13:34.422   SCRIPT       : GC | MCP Peer Observation | token=rules player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction= position=<10347.1, 30.98, 350.326> health=1 request=3 outcome=applied
+23:13:36.354 SCRIPT       : 	PASS rules terminal result
+23:13:36.354 SCRIPT       : 	PASS Faction rules changed on authority
+23:13:36.389   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-self-select target=slot=11 outcome=applied
+23:13:36.389   SCRIPT       : GC | MCP Peer Observation | token=join-admin player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 freezeState=configured=0 remaining=0 revision=1 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:13:36.389   SCRIPT       : GC | Admin Action | player=2 identity= action=slot-self-select target=slot=1 outcome=applied
+23:13:36.389   SCRIPT       : GC | MCP Peer Observation | token=join-target player=2 report=player=2 admin=0 messages=0 presentation=state=0 requested=0 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 freezeState=configured=0 remaining=0 revision=1 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+23:13:38.354 SCRIPT       : 	PASS Normal client slot requests establish native factions without backend identity
+23:13:38.389   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=BRIEFING outcome=succeeded
+23:13:38.389   SCRIPT       : GC | MCP Peer Observation | token=briefing player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=4 outcome=dispatched-phase
+23:13:40.354 SCRIPT       : 	PASS briefing terminal result
+23:13:40.388   SCRIPT       : GC | Admin Action | player=1 identity= action=advance-phase target=GAME outcome=succeeded
+23:13:40.388   SCRIPT       : GC | MCP Peer Observation | token=game player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=5 outcome=dispatched-phase
+23:13:42.354 SCRIPT       : 	PASS game terminal result
+23:13:42.388   SCRIPT       : GC | MCP Peer Observation | token=move player=2 report=fixtureMove=1 server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<10351.6, 32.5334, 361.561> health=1
+23:13:44.354 SCRIPT       : 	PASS move terminal result
+23:13:44.388   SCRIPT       : GC | MCP Peer Observation | token=absence player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR
+23:13:46.354 SCRIPT       : 	PASS absence terminal result
+23:13:46.354 SCRIPT       : 	PASS absence remote entity absent on client
+23:13:46.354 SCRIPT       : 	PASS Authority verifies separation over 5km
+23:13:46.388   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=15 request=7 faction= player=1 identity= outcome=applied
+23:13:46.388   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=15 request=7 faction= player=2 identity= outcome=applied
+23:13:46.388   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=15 request=7 faction= outcome=Healed 2 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:13:46.422   SCRIPT       : GC | MCP Peer Observation | token=everyone player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=7 outcome=Healed 2 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:13:48.354 SCRIPT       : 	PASS everyone terminal result
+23:13:48.354 SCRIPT       : 	PASS everyone remote entity absent on client
+23:13:48.354 SCRIPT       : 	PASS Everyone UI heals both real players
+23:13:48.389   SCRIPT       : GC | MCP Peer Observation | token=everyone-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4500, 107.722, 8000> health=1
+23:13:50.354 SCRIPT       : 	PASS everyone-owner terminal result
+23:13:50.389   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=3 radius=15 request=9 faction=USSR player=2 identity= outcome=applied
+23:13:50.389   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=3 radius=15 request=9 faction=USSR outcome=Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:13:50.421   SCRIPT       : GC | MCP Peer Observation | token=faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=9 outcome=Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s).
+23:13:52.355 SCRIPT       : 	PASS faction terminal result
+23:13:52.355 SCRIPT       : 	PASS faction remote entity absent on client
+23:13:52.355 SCRIPT       : 	PASS Faction UI heals distant USSR and excludes US
+23:13:52.388   SCRIPT       : GC | MCP Peer Observation | token=faction-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4500, 107.722, 8000> health=1
+23:13:54.354 SCRIPT       : 	PASS faction-owner terminal result
+23:13:54.388   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=2 radius=50 request=10 faction= player=1 identity= outcome=applied
+23:13:54.389   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=2 radius=50 request=10 faction= outcome=Within 50m: Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s). Repaired 0 vehicle(s). Skipped 0 destroyed or unhealed vehicle(s).
+23:13:54.421   SCRIPT       : GC | MCP Peer Observation | token=nearby player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=10 outcome=Within 50m: Healed 1 player(s). Respawned 0. Skipped 0 unavailable or unhealed player(s). Repaired 0 vehicle(s). Skipped 0 destroyed or unhealed vehicle(s).
+23:13:56.354 SCRIPT       : 	PASS nearby terminal result
+23:13:56.354 SCRIPT       : 	PASS nearby remote entity absent on client
+23:13:56.354 SCRIPT       : 	PASS Nearby heals local admin and excludes distant player
+23:13:56.388   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=1 faction=USSR length=26 players=1,2, outcome=dispatched message=1 recipients=2 skipped=0
+23:13:56.421   SCRIPT       : GC | MCP Peer Observation | token=message-all player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=11 outcome=dispatched message=1 recipients=2 skipped=0
+23:13:58.354 SCRIPT       : 	PASS message-all terminal result
+23:13:58.354 SCRIPT       : 	PASS message-all remote entity absent on client
+23:13:58.388   SCRIPT       : GC | MCP Peer Observation | token=message-all-admin player=1 report=player=1 admin=1 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=10 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=US freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<10342.8,31.4006,352.803> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=11 entity=-2147480425 controlledPosition=<10342.8,31.4006,352.803> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:13:58.388   SCRIPT       : GC | MCP Peer Observation | token=message-all-target player=2 report=player=2 admin=0 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=11 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<4500,107.722,8000> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147480177 controlledPosition=<4500,107.722,8000> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:14:00.354 SCRIPT       : 	PASS message-all-admin terminal result
+23:14:00.354 SCRIPT       : 	PASS message-all-target terminal result
+23:14:00.388   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=3 faction=USSR length=25 players=2, outcome=dispatched message=2 recipients=1 skipped=0
+23:14:00.422   SCRIPT       : GC | MCP Peer Observation | token=message-faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=12 outcome=dispatched message=2 recipients=1 skipped=0
+23:14:02.354 SCRIPT       : 	PASS message-faction terminal result
+23:14:02.354 SCRIPT       : 	PASS message-faction remote entity absent on client
+23:14:02.388   SCRIPT       : GC | MCP Peer Observation | token=message-faction-admin player=1 report=player=1 admin=1 messages=1 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=10 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=US freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<10342.8,31.4006,352.803> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=11 entity=-2147480425 controlledPosition=<10342.8,31.4006,352.803> priority=0 muted=0 transmitting=0 eligible=1 latestId=1 audience=1 text=Dedicated message-everyone
+23:14:02.388   SCRIPT       : GC | MCP Peer Observation | token=message-faction-target player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=11 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=0 canFire=1 freeze=0 position=<4500,107.722,8000> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147480177 controlledPosition=<4500,107.722,8000> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:14:04.354 SCRIPT       : 	PASS message-faction-admin terminal result
+23:14:04.354 SCRIPT       : 	PASS message-faction-target terminal result
+23:14:04.389   SCRIPT       : GC | Admin Action | player=1 identity= action=moderation-session target= outcome=returned
+23:14:04.421   SCRIPT       : GC | MCP Peer Observation | token=moderation player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=13 outcome=rows=2 player=1 identity= player=2 identity=
+23:14:06.354 SCRIPT       : 	PASS moderation terminal result
+23:14:06.354 SCRIPT       : 	PASS moderation remote entity absent on client
+23:14:06.389   SCRIPT       : GC | MCP Peer Observation | token=picker player=1 report=listed=1 selectable=0 character=0
+23:14:08.354 SCRIPT       : 	PASS picker terminal result
+23:14:08.354 SCRIPT       : 	LIMIT: empty account identity prevents selected-player operations; verifying rejection, not successful targeting.
+23:14:08.388   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=0 radius=50 request=14 faction= outcome=rejected-stale-selection
+23:14:08.421   SCRIPT       : GC | MCP Peer Observation | token=selected player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=14 outcome=A selected player disconnected. Select players again.
+23:14:10.354 SCRIPT       : 	PASS selected terminal result
+23:14:10.354 SCRIPT       : 	PASS selected remote entity absent on client
+23:14:10.354 SCRIPT       : 	PASS Identity-less selected heal does not mutate target
+23:14:10.388   SCRIPT       : GC | Admin Action | player=1 identity= action=teleport target=from=1 identity= to=2 identity= request=15 outcome=A selected player changed or disconnected. Select again.
+23:14:10.421   SCRIPT       : GC | MCP Peer Observation | token=teleport player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=15 outcome=A selected player changed or disconnected. Select again.
+23:14:12.354 SCRIPT       : 	PASS teleport terminal result
+23:14:12.355 SCRIPT       : 	PASS teleport remote entity absent on client
+23:14:12.355 SCRIPT       : 	PASS Rejected teleport does not move admin
+23:14:12.388   SCRIPT       : GC | Admin Action | player=1 identity= action=teleport-faction target=faction=US to=2 identity= request=16 outcome=The destination player must still have a living spawned character.
+23:14:12.421   SCRIPT       : GC | MCP Peer Observation | token=teleport-faction player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=16 outcome=The destination player must still have a living spawned character.
+23:14:14.354 SCRIPT       : 	PASS teleport-faction terminal result
+23:14:14.354 SCRIPT       : 	PASS teleport-faction remote entity absent on client
+23:14:14.354 SCRIPT       : 	PASS Rejected faction teleport does not move admin
+23:14:14.388   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=2 faction=USSR length=26 outcome=rejected-stale-recipient
+23:14:14.421   SCRIPT       : GC | MCP Peer Observation | token=selected-message player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=17 outcome=rejected-stale-recipient
+23:14:16.354 SCRIPT       : 	PASS selected-message terminal result
+23:14:16.354 SCRIPT       : 	PASS selected-message remote entity absent on client
+23:14:16.389   SCRIPT       : GC | Admin Action | player=1 identity= action=player-kick target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=1 outcome=rejected-account-identity
+23:14:16.422   SCRIPT       : GC | MCP Peer Observation | token=kick player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=1 outcome=rejected-account-identity
+23:14:18.354 SCRIPT       : 	PASS kick terminal result
+23:14:18.354 SCRIPT       : 	PASS kick remote entity absent on client
+23:14:18.354 SCRIPT       : 	PASS Rejected kick keeps target connected
+23:14:18.388   SCRIPT       : GC | Admin Action | player=1 identity= action=player-ban target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=2 outcome=rejected-account-identity
+23:14:18.421   SCRIPT       : GC | MCP Peer Observation | token=ban player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=2 outcome=rejected-account-identity
+23:14:20.354 SCRIPT       : 	PASS ban terminal result
+23:14:20.354 SCRIPT       : 	PASS ban remote entity absent on client
+23:14:20.388   SCRIPT       : GC | Admin Action | player=1 identity= action=player-unban target=player=2 identity= duration=60 page=0 reason=Dedicated regression name=Burn0ut7 expiresAt=0 requestId=3 outcome=rejected-account-identity
+23:14:20.422   SCRIPT       : GC | MCP Peer Observation | token=unban player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=3 outcome=rejected-account-identity
+23:14:22.354 SCRIPT       : 	PASS unban terminal result
+23:14:22.354 SCRIPT       : 	PASS unban remote entity absent on client
+23:14:22.389   SCRIPT       : GC | Admin Action | player=1 identity= action=moderation-session target= outcome=returned
+23:14:22.389   SCRIPT       : GC | MCP Peer Observation | token=moderation-open player=1 report=ToolTitle=Kick / Ban; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0
+23:14:24.389   SCRIPT       : GC | MCP Peer Observation | token=moderation-ui player=1 report=rows=2 selected=1 identityReady=0 kickEnabled=1 banEnabled=1
+23:14:26.354 SCRIPT       : 	PASS moderation-ui terminal result
+23:14:28.388   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-player target=scope=1 radius=50 request=21 faction= player=1 identity= outcome=applied
+23:14:28.399   SCRIPT       : GC | Admin Action | player=1 identity= action=heal-respawn target=scope=1 radius=50 request=21 faction= player=2 identity= outcome=applied
+23:14:28.399   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=50 request=21 faction= outcome=Healed 1 player(s). Respawned 1. Skipped 0 unavailable or unhealed player(s).
+23:14:28.454   SCRIPT       : GC | MCP Peer Observation | token=respawn player=1 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=0 replicationItem=0 faction=USSR position=<10347.1, 30.98, 350.326> health=1 request=21 outcome=Healed 1 player(s). Respawned 1. Skipped 0 unavailable or unhealed player(s).
+23:14:30.354 SCRIPT       : 	PASS respawn terminal result
+23:14:30.355 SCRIPT       : 	PASS Everyone recovers a distant KIA slot
+23:14:30.388   SCRIPT       : GC | MCP Peer Observation | token=respawn-owner player=2 report=server=0 connected=2 listed=1 identityReady=0 character=1 slotEntity=1 replicationItem=1 faction=USSR position=<4499.08, 107.596, 7999.45> health=1
+23:14:32.354 SCRIPT       : 	PASS respawn-owner terminal result
+23:14:32.388   SCRIPT       : GC | Admin Action | player=1 identity= action=mission-freeze target=start seconds=60 revision=3 outcome=applied
+23:14:32.422   SCRIPT       : GC | MCP Peer Observation | token=freeze-start player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=4 outcome=applied
+23:14:34.354 SCRIPT       : 	PASS freeze-start terminal result
+23:14:34.354 SCRIPT       : 	PASS freeze-start remote entity absent on client
+23:14:34.354 SCRIPT       : 	PASS Freeze active on authority
+23:14:34.389   SCRIPT       : GC | MCP Peer Observation | token=freeze-owner player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=59 revision=4 active=1 areas=0 hud=visible=1 active=1 remaining=59 text=00:59 width=240 height=60 weapon=ammo=29 raised=0 canFire=1 freeze=1 position=<4499.08,107.599,7999.45> combat=freeze=1 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.08,107.599,7999.45> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:14:36.354 SCRIPT       : 	PASS freeze-owner terminal result
+23:14:36.388   SCRIPT       : GC | MCP Peer Observation | token=freeze-raise player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=57 revision=4 active=1 areas=0 hud=visible=1 active=1 remaining=57 text=00:57 width=240 height=60 weapon=ammo=29 raised=0 canFire=1 freeze=1 position=<4499.08,107.599,7999.45> combat=freeze=1 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=0 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.08,107.599,7999.45> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:14:38.389   SCRIPT       : GC | MCP Peer Observation | token=freeze-fire player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=55 revision=4 active=1 areas=0 hud=visible=1 active=1 remaining=55 text=00:55 width=240 height=60 weapon=ammo=29 raised=1 canFire=1 freeze=1 position=<4499.08,107.599,7999.45> combat=freeze=1 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.08,107.599,7999.45> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:14:40.354 SCRIPT       : 	PASS freeze-fire terminal result
+23:14:40.354 SCRIPT       : 	PASS Freeze suppresses remote client's fire input without ammo consumption
+23:14:40.388   SCRIPT       : GC | Admin Action | player=1 identity= action=mission-freeze target=extend seconds=30 revision=4 outcome=applied
+23:14:40.421   SCRIPT       : GC | MCP Peer Observation | token=freeze-extend player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=5 outcome=applied
+23:14:42.354 SCRIPT       : 	PASS freeze-extend terminal result
+23:14:42.354 SCRIPT       : 	PASS freeze-extend remote entity absent on client
+23:14:42.354 SCRIPT       : 	PASS Freeze extension applied
+23:14:42.389   SCRIPT       : GC | Admin Action | player=1 identity= action=mission-freeze target=end seconds=0 revision=5 outcome=applied
+23:14:42.421   SCRIPT       : GC | MCP Peer Observation | token=freeze-end player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=6 outcome=applied
+23:14:44.354 SCRIPT       : 	PASS freeze-end terminal result
+23:14:44.354 SCRIPT       : 	PASS freeze-end remote entity absent on client
+23:14:44.354 SCRIPT       : 	PASS Freeze ended on authority
+23:14:44.390   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-reservation target=slot=-1 operation=export outcome=Exported 26 authored slots. 0 runtime-only slots excluded. Copy the text to save it.
+23:14:44.390   SCRIPT       : GC | MCP Peer Observation | token=freeze-ended-owner player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=6 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=1 canFire=1 freeze=0 position=<4499.08,107.599,7999.45> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.08,107.599,7999.45> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:14:44.390   SCRIPT       : GC | MCP Peer Observation | token=unfrozen-raise player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=6 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=1 canFire=1 freeze=0 position=<4499.08,107.599,7999.45> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.08,107.599,7999.45> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:14:44.421   SCRIPT       : GC | MCP Peer Observation | token=reservation-export player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=25 outcome=Exported 26 authored slots. 0 runtime-only slots excluded. Copy the text to save it. parsed=1 version=1 slots=26
+23:14:46.354 SCRIPT       : 	PASS freeze-ended-owner terminal result
+23:14:46.354 SCRIPT       : 	PASS reservation-export terminal result
+23:14:46.354 SCRIPT       : 	PASS reservation-export remote entity absent on client
+23:14:46.388   SCRIPT       : GC | Admin Action | player=1 identity= action=map-plan target=save outcome=Plan exported.
+23:14:46.388   SCRIPT       : GC | MCP Peer Observation | token=unfrozen-fire player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=6 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=29 raised=1 canFire=1 freeze=0 position=<4499.08,107.599,7999.45> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.08,107.599,7999.45> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:14:46.422   SCRIPT       : GC | MCP Peer Observation | token=map-save player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=26 outcome=Saved plan to $profile:Lobby2MapPlans/dedicated-regression.json bytes=169
+23:14:48.354 SCRIPT       : 	PASS map-save terminal result
+23:14:48.354 SCRIPT       : 	PASS map-save remote entity absent on client
+23:14:48.354 SCRIPT       : 	PASS unfrozen-fire terminal result
+23:14:48.355 SCRIPT       : 	PASS Same remote fire input consumes ammo after freeze ends
+23:14:48.388   SCRIPT       : GC | Admin Action | player=1 identity= action=map-plan target=clear outcome=Load and Clear are available before gameplay only.
+23:14:48.421   SCRIPT       : GC | MCP Peer Observation | token=map-clear player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=27 outcome=Load and Clear are available before gameplay only. bytes=0
+23:14:50.354 SCRIPT       : 	PASS map-clear terminal result
+23:14:50.354 SCRIPT       : 	PASS map-clear remote entity absent on client
+23:14:50.389   SCRIPT       : GC | Admin Action | player=2 identity= action=chat-send target=channel=Admin length=23 outcome=accepted-native-chat
+23:14:50.389   SCRIPT       : GC | MCP Peer Observation | token=admin-chat player=2 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=US request=1 outcome=player=2 admin=0 channels=7 panel=0 spectator=0 nativeGroup=1000 groupFrequency=38000 nativeFaction=USSR [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=0] [4:Local available=1] [5:Admin available=1] [6:Spectator available=0] messages=0
+23:14:52.388   SCRIPT       : GC | MCP Peer Observation | token=admin-chat-read player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=28 outcome=player=1 admin=1 channels=7 panel=0 spectator=0 nativeGroup=1004 groupFrequency=38000 nativeFaction=US menu=-1841060672 visible=1 [0:Global available=1] [1:Faction available=1] [2:Group available=1] [3:Vehicle available=0] [4:Local available=1] [5:Admin available=1] [6:Spectator available=0] messages=1 {Admin|2|Dedicated admin contact}
+23:14:54.354 SCRIPT       : 	PASS admin-chat-read terminal result
+23:14:54.354 SCRIPT       : 	LIMIT ban-list not replayed: native crash on this unconfigured dedicated session; see AdminReplicationScope.md.
+23:14:56.388   SCRIPT       : GC | MCP Peer Observation | token=reservations-tab player=1 report=ToolTitle=Slot reservations; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=1 ReservationsSelectedBar=1 MapPlanPanel=0 MapPlansSelectedBar=0
+23:14:58.354 SCRIPT       : 	PASS reservations-tab terminal result
+23:14:58.388   SCRIPT       : GC | Admin Action | player=1 identity= action=map-plan target=status outcome=Recovery saved.
+23:14:58.388   SCRIPT       : GC | MCP Peer Observation | token=markers-tab player=1 report=ToolTitle=; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=1 MapPlansSelectedBar=1
+23:15:00.354 SCRIPT       : 	PASS markers-tab terminal result
+23:15:00.388   SCRIPT       : GC | MCP Peer Observation | token=heal-tab player=1 report=ToolTitle=Heal; ToolSummary=All connected players in Soviet Army when applied, including distant players.; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0
+23:15:02.354 SCRIPT       : 	PASS heal-tab terminal result
+23:15:02.388   SCRIPT       : GC | MCP Peer Observation | token=final-absence player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR
+23:15:04.354 SCRIPT       : 	PASS final-absence terminal result
+23:15:04.354 SCRIPT       : 	PASS final-absence remote entity absent on client
+23:15:06.354 SCRIPT       : 	PASS respawn-owner terminal result
+23:15:06.354 SCRIPT       : GC | Admin Action | player=1 identity= action=test-dedicated-admin-role target=revoke outcome=changed=true
+23:15:06.389   SCRIPT       : GC | Admin Action | player=1 identity= action=heal target=scope=1 radius=50 request=30 faction= outcome=rejected-not-logged-in
+23:15:06.422   SCRIPT       : GC | MCP Peer Observation | token=denied-heal player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=30 outcome=Admin login required.
+23:15:08.354 SCRIPT       : 	PASS denied-heal terminal result
+23:15:08.354 SCRIPT       : 	PASS Logged-out heal rejected without mutation
+23:15:08.388   SCRIPT       : GC | Admin Action | player=1 identity= action=message-send target=audience=1 faction=USSR length=26 outcome=rejected-not-logged-in
+23:15:08.421   SCRIPT       : GC | MCP Peer Observation | token=denied-message player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=31 outcome=rejected-not-logged-in
+23:15:10.354 SCRIPT       : 	PASS denied-message terminal result
+23:15:10.388   SCRIPT       : GC | Admin Action | player=1 identity= action=slot-group-lock target=group=-1 locked=1 outcome=rejected-not-logged-in
+23:15:10.388   SCRIPT       : GC | MCP Peer Observation | token=denied-message-owner player=2 report=player=2 admin=0 messages=2 presentation=state=1 requested=0 spectatorBody=0 bodyVisible=1 children=15 visibleChildren=12 cameraExists=0 cameraCurrent=0 rulesRevision=1 factionLock=2 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=6 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=ammo=19 raised=1 canFire=1 freeze=0 position=<4499.08,107.599,7999.45> combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=3 nativeThrowInputFrames=0 raised=1 canFire=1 slot=1 entity=-2147479872 controlledPosition=<4499.08,107.599,7999.45> priority=0 muted=0 transmitting=0 eligible=1 latestId=2 audience=3 text=Dedicated message-faction
+23:15:10.422   SCRIPT       : GC | MCP Peer Observation | token=denied-lock player=1 report=server=0 connected=2 listed=1 identityReady=0 character=0 slotEntity=0 replicationItem=0 faction=USSR request=32 outcome=rejected-not-logged-in
+23:15:12.354 SCRIPT       : 	PASS denied-message-owner terminal result
+23:15:12.354 SCRIPT       : 	PASS denied-lock terminal result
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 1 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 2 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 3 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 4 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 5 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 6 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 7 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 8 unchanged
+23:15:12.354 SCRIPT       : 	PASS Logged-out group lock leaves slot 9 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 10 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 11 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 12 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 13 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 14 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 15 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 16 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 17 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 18 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 19 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 20 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 21 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 22 unchanged
+23:15:12.355 SCRIPT       : 	PASS Logged-out group lock leaves slot 23 unchanged
+23:15:12.356 SCRIPT       : 	PASS Logged-out group lock leaves slot 24 unchanged
+23:15:12.356 SCRIPT       : 	PASS Logged-out group lock leaves slot 25 unchanged
+23:15:12.356 SCRIPT       : 	PASS Logged-out group lock leaves slot 26 unchanged
+23:15:12.356 SCRIPT       : 	Dedicated regression finished; failures=0; identity-dependent successes remain untested.
+23:15:12.356 SCRIPT       : 	✅ GC_DedicatedAdminRange: SUCCESS

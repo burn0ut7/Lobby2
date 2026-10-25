@@ -65,21 +65,29 @@ with the target's character and slot replication item confirmed absent.
 `GC_DedicatedAdminSuite` is an explicitly selected native autotest entry point
 (`-autotest GC_DedicatedAdminSuite` on the dedicated server). Launch through the
 MCP Dedicated Server Tool with the test addon and the Everon Lobby2 world loaded.
-It requires a fresh disposable PREGAME session and exactly two clients with
-nonempty backend identities. It temporarily grants the first client's native
-session-admin role, with explicit user authorization, and revokes its owned role
-in teardown. Do not run it on a shared server. It changes phase, slots, health
-and positions through the existing fixtures and production handlers.
+It requires a fresh disposable PREGAME session and exactly two clients. Backend
+identities are not required for the global/faction coverage. It temporarily grants
+the first client's native session-admin role with explicit user authorization,
+and revokes its owned role in teardown. Do not run it on a shared server. It changes
+phase, slots, health, positions and freeze state through test fixtures and real
+production requests. The target moves over 9 km away on Everon.
 
-The bounded sequence checks distant-player selection, selected/Everyone/faction
-healing, moderation selection, teleport arrival, and logged-out rejection.
-`scope-heal` captures the client's replication state immediately before the
-production request and reports its correlated production result. Require the
-final native test result, health/position observations and central audit together;
-a dispatch or the early `autotest_succeded.log` file is not acceptance.
-This does not enable standalone `workbench_runtime_invoke` support.
-The first dedicated run failed its identity prerequisite; gameplay stages remain
-unverified on dedicated. See the dated evidence below in AdminReplicationScope.
+The sequence checks owner-client replication absence, rendered Everyone/Faction
+heal handlers, nearby exclusion, messages, moderation roster, KIA recovery, freeze
+and resumed firing, reservation export, map-plan save/phase rejection, admin chat,
+menu tabs and logged-out rejection. Missing identities are tested as rejection
+cases for selected actions/teleport/moderation; they do not establish successful
+identity-dependent behavior. The `dedicated-action` transport captures absence
+before each request and correlates its production result. Native ban-list retrieval
+crashed this unconfigured dedicated session after submission; the automatic suite
+records that limitation without replaying the crash. The helper retains the
+explicit `ban-list` action for a suitably configured follow-up.
+
+Require the final native test result, peer observations and central audits together;
+a dispatch or the early `autotest_succeded.log` file is not acceptance. This does
+not enable standalone `workbench_runtime_invoke` support. See the dated dedicated
+runs in [AdminReplicationScope.md](AdminReplicationScope.md), including the initial
+identity-gated failure and the later expanded coverage.
 
 ### Game Master recovery — 2026-10-24
 
