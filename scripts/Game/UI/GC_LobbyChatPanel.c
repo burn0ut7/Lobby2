@@ -36,11 +36,11 @@ modded class SCR_ChatPanel
 				return m_LocalChannelStyle;
 			case GC_LobbyAdminChatChannel:
 				if (!m_GC_AdminChannelStyle)
-					m_GC_AdminChannelStyle = GC_CreateChannelStyle("Admin", "6", 0.86, 0.7, 0.37);
+					m_GC_AdminChannelStyle = GC_CreateChannelStyle("Admin", "6", "gameMaster", 0.86, 0.7, 0.37);
 				return m_GC_AdminChannelStyle;
 			case GC_LobbySpectatorChatChannel:
 				if (!m_GC_SpectatorChannelStyle)
-					m_GC_SpectatorChannelStyle = GC_CreateChannelStyle("Spectator", "7", 0.57, 0.76, 0.83);
+					m_GC_SpectatorChannelStyle = GC_CreateChannelStyle("Spectator", "7", "death", 0.57, 0.76, 0.83);
 				return m_GC_SpectatorChannelStyle;
 		}
 
@@ -48,7 +48,7 @@ modded class SCR_ChatPanel
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected SCR_ChatMessageStyle GC_CreateChannelStyle(string name, string prefix, float red, float green, float blue)
+	protected SCR_ChatMessageStyle GC_CreateChannelStyle(string name, string prefix, string iconName, float red, float green, float blue)
 	{
 		SCR_ChatMessageStyle style = new SCR_ChatMessageStyle();
 		style.m_Color = new Color(red, green, blue, 1);
@@ -59,8 +59,8 @@ modded class SCR_ChatPanel
 		style.m_bColoredBadge = true;
 		style.m_bColoredIcon = true;
 		style.m_bColoredPlayerName = true;
-		style.m_IconImageset = m_GlobalChannelStyle.m_IconImageset;
-		style.m_sIconName = m_GlobalChannelStyle.m_sIconName;
+		style.m_IconImageset = "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset";
+		style.m_sIconName = iconName;
 		return style;
 	}
 }
