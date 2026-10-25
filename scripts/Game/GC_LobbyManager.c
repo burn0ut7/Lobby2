@@ -1854,6 +1854,32 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Resolve the current audience on authority, independently of streamed characters or lobby slots.
+	bool GC_GetFactionPlayers(string factionKey, out array<int> players, out array<string> identities)
+	{
+		players = {};
+		identities = {};
+		if (!Replication.IsServer() || GetManager() != this || factionKey.IsEmpty())
+			return false;
+		SCR_FactionManager factions = SCR_FactionManager.Cast(GetGame().GetFactionManager());
+		if (!factions)
+			return false;
+		Faction faction = factions.GetFactionByKey(factionKey);
+		if (!faction)
+			return false;
+		array<int> connected = {};
+		GetGame().GetPlayerManager().GetPlayers(connected);
+		foreach (int playerId : connected)
+		{
+			if (factions.GetPlayerFaction(playerId) != faction)
+				continue;
+			players.Insert(playerId);
+			identities.Insert(GetPlayerVoiceIdentity(playerId));
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Resolve announcement recipients on authority. Admin chat uses native channels.
 	string SendAdminMessage(int requesterId, GC_EAdminMessageAudience audience, string message, array<string> selectedIdentities, string factionKey = "")
 	{
@@ -1901,14 +1927,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 		else if (audience == GC_EAdminMessageAudience.FACTION)
 		{
-			foreach (GC_Slot slot : GetSlots())
+			array<string> identities;
+			if (!GC_GetFactionPlayers(factionKey, recipients, identities))
 			{
-				SCR_AIGroup group = slot.GetGroup();
-				if (!group || !group.GetFaction() || group.GetFaction().GetFactionKey() != factionKey)
-					continue;
-				int memberId = slot.GetPlayerId();
-				if (memberId > 0 && GetGame().GetPlayerManager().IsPlayerConnected(memberId) && !recipients.Contains(memberId))
-					recipients.Insert(memberId);
+				GC_AdminActionLogger.Log(requesterId, "message-send", target, "rejected-faction");
+				return "rejected-faction";
 			}
 		}
 		else
@@ -1937,7 +1960,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			controller.DeliverAdminMessage(m_iAdminMessageSequence, requesterId, senderName, audience, message);
 			sent++;
 		}
-		outcome = string.Format("dispatched message=%1 recipients=%2", m_iAdminMessageSequence, sent);
+		outcome = string.Format("dispatched message=%1 recipients=%2 skipped=%3", m_iAdminMessageSequence, sent, recipients.Count() - sent);
 		GC_AdminActionLogger.Log(requesterId, "message-send", target, outcome);
 		return outcome;
 	}
@@ -2629,26 +2652,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected void RecordAdminSessionEvent(int playerId, bool connected, int cause)
 	{
 		if (connected)
-		{
-			string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
-			GC_AdminSessionPlayer record;
-			foreach (GC_AdminSessionPlayer prior : m_aModerationHistory)
-			{
-				if (prior.m_sIdentity == identity && !identity.IsEmpty())
-					record = prior;
-			}
-			if (!record)
-			{
-				record = new GC_AdminSessionPlayer();
-				m_aModerationHistory.Insert(record);
-			}
-			record.m_iPlayerId = playerId;
-			record.m_sName = GetGame().GetPlayerManager().GetPlayerName(playerId);
-			record.m_sIdentity = identity;
-			// Installed native API; obsolete but no replacement platform-ID accessor is exposed.
-			if (GetGame().GetPlayerManager().GetPlatformKind(playerId) == PlatformKind.STEAM)
-				record.m_sSteamId = GetGame().GetBackendApi().GetPlayerPlatformId(playerId);
-		}
+			GC_RefreshModerationPlayer(playerId);
 		string label;
 		if (connected)
 		{
@@ -2670,6 +2674,37 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (m_aAdminSessionHistory.Count() > 256)
 			m_aAdminSessionHistory.RemoveOrdered(0);
 		NotifyModerationChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Session display history is refreshed from live players; a missed join event cannot hide a target.
+	protected void GC_RefreshModerationPlayer(int playerId)
+	{
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (!Replication.IsServer() || !players.IsPlayerConnected(playerId))
+			return;
+		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		GC_AdminSessionPlayer record;
+		foreach (GC_AdminSessionPlayer prior : m_aModerationHistory)
+		{
+			if ((!identity.IsEmpty() && prior.m_sIdentity == identity)
+				|| (prior.m_sIdentity.IsEmpty() && prior.m_iPlayerId == playerId))
+			{
+				record = prior;
+				break;
+			}
+		}
+		if (!record)
+		{
+			record = new GC_AdminSessionPlayer();
+			m_aModerationHistory.Insert(record);
+		}
+		record.m_iPlayerId = playerId;
+		record.m_sName = players.GetPlayerName(playerId);
+		record.m_sIdentity = identity;
+		// Installed native API; obsolete but no replacement platform-ID accessor is exposed.
+		if (players.GetPlatformKind(playerId) == PlatformKind.STEAM)
+			record.m_sSteamId = GetGame().GetBackendApi().GetPlayerPlatformId(playerId);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -2893,6 +2928,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 		array<string> rows = {};
 		PlayerManager players = GetGame().GetPlayerManager();
+		array<int> connectedPlayers = {};
+		players.GetPlayers(connectedPlayers);
+		foreach (int connectedPlayerId : connectedPlayers)
+			GC_RefreshModerationPlayer(connectedPlayerId);
 		foreach (GC_AdminSessionPlayer record : m_aModerationHistory)
 		{
 			bool connected = players.IsPlayerConnected(record.m_iPlayerId)

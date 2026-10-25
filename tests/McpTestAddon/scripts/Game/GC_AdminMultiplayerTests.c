@@ -66,6 +66,38 @@ modded class GC_LobbyPlayerController
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
 
+		if (action == "scope-snapshot")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAdminScopeSnapshot(message.ToInt()));
+			return;
+		}
+		if (action == "scope-picker")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAdminScopePicker(message.ToInt()));
+			return;
+		}
+		if (action == "scope-ui")
+		{
+			array<string> uiFields = {};
+			message.Split("|", uiFields, false);
+			if (uiFields.Count() != 2)
+				return;
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAdminScopeUi(uiFields[0], uiFields[1]));
+			return;
+		}
+		if (action == "scope-request")
+		{
+			array<string> fields = {};
+			message.Split("|", fields, false);
+			if (fields.Count() != 3)
+			{
+				Rpc(GC_TestRpcPeerReport, token, "REJECTED expected action|faction|targetId");
+				return;
+			}
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAdminScopeRequest(fields[0], fields[1], fields[2].ToInt()));
+			return;
+		}
+
 		if (action == "lottery-snapshot" || action == "lottery-start")
 		{
 			if (action == "lottery-start")
@@ -365,6 +397,10 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"scope-snapshot",
+			"scope-request",
+			"scope-picker",
+			"scope-ui",
 			"lottery-snapshot",
 			"lottery-start",
 			"phase-clock",

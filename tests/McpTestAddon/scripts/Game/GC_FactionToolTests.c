@@ -22,8 +22,8 @@ modded class GC_AdminToolsComponent
 				}
 			}
 		}
-		return string.Format("tool=%1 faction=%2 players=%3 confirmed=%4 pending=%5 status=%6", m_iTool, m_sTargetFaction,
-			m_aFactionPlayers.Count(), m_bConfirmFactionTeleport, m_iPending, m_Status.GetText());
+		return string.Format("tool=%1 faction=%2 confirmed=%3 pending=%4 status=%5", m_iTool, m_sTargetFaction,
+			m_bConfirmFactionTeleport, m_iPending, m_Status.GetText());
 	}
 }
 
@@ -89,8 +89,16 @@ modded class GC_LobbyManager
 		if (stale && !identities.IsEmpty())
 			identities[0] = "stale-test-identity";
 		if (teleport)
-			return GC_ExecuteFactionTeleport(requesterId, factionKey, players, identities, destinationId, GetPlayerVoiceIdentity(destinationId), 900);
-		return GC_ExecuteAdminHeal(requesterId, GC_EAdminHealScope.FACTION, players, identities, 900, 15, factionKey);
+		{
+			string destinationIdentity = GetPlayerVoiceIdentity(destinationId);
+			if (stale)
+				destinationIdentity = "stale-test-identity";
+			return GC_ExecuteFactionTeleport(requesterId, factionKey, destinationId, destinationIdentity, 900);
+		}
+		// Faction membership is resolved at execution; stale identity checks belong to selected-player requests.
+		if (stale)
+			return GC_ExecuteAdminHeal(requesterId, GC_EAdminHealScope.SELECTED, players, identities, 900, 15, "");
+		return GC_ExecuteAdminHeal(requesterId, GC_EAdminHealScope.FACTION, {}, {}, 900, 15, factionKey);
 	}
 }
 #endif

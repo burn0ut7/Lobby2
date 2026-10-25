@@ -308,6 +308,10 @@ class GC_Slot
 
 	IEntity GetEntity()
 	{
+		// Proxies can arrive after the slot snapshot, or return after streaming out.
+		// Authority owns lifecycle changes and must not reacquire a cleared corpse.
+		if (!Replication.IsServer())
+			ResolveReplicatedEntity();
 		return m_Entity;
 	}
 
@@ -352,8 +356,9 @@ class GC_Slot
 	//! Resolves a slot entity that was unavailable during the first JIP pass.
 	bool ResolveReplicatedEntity()
 	{
-		if (m_Entity)
+		if (m_Entity && !m_Entity.IsDeleted())
 			return true;
+		m_Entity = null;
 
 		if (m_EntityRplId == RplId.Invalid())
 			return false;

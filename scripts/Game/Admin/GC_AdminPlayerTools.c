@@ -44,13 +44,22 @@ modded class GC_LobbyManager
 			return string.Format("Choose a distance from %1 to %2 metres.", GC_MIN_HEAL_RADIUS, GC_MAX_HEAL_RADIUS);
 		}
 
-		if (scope == GC_EAdminHealScope.FACTION && !GC_MatchesFactionSelection(factionKey, selectedIds, selectedIdentities))
-		{
-			GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-stale-faction-selection");
-			return "Faction membership changed or is empty. Review the faction and try again.";
-		}
 		array<int> targets = {};
-		if (scope == GC_EAdminHealScope.SELECTED || scope == GC_EAdminHealScope.FACTION)
+		if (scope == GC_EAdminHealScope.FACTION)
+		{
+			array<string> identities;
+			if (!GC_GetFactionPlayers(factionKey, targets, identities))
+			{
+				GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-faction");
+				return "The selected faction is unavailable.";
+			}
+			if (targets.IsEmpty())
+			{
+				GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-empty-faction");
+				return "No connected players are in that faction.";
+			}
+		}
+		else if (scope == GC_EAdminHealScope.SELECTED)
 		{
 			if (!selectedIds || !selectedIdentities || selectedIds.IsEmpty() || selectedIds.Count() != selectedIdentities.Count() || selectedIds.Count() > 128)
 			{
@@ -188,56 +197,20 @@ modded class GC_LobbyManager
 
 
 	//------------------------------------------------------------------------------------------------
-	//! The same snapshot feeds the preview and authority validation, including KIA claims.
-	void GC_GetFactionPlayers(string factionKey, out array<int> players, out array<string> identities)
-	{
-		players = {};
-		identities = {};
-		if (factionKey.IsEmpty())
-			return;
-		foreach (GC_Slot slot : GetSlots())
-		{
-			SCR_AIGroup group = slot.GetGroup();
-			if (!group || !group.GetFaction() || group.GetFaction().GetFactionKey() != factionKey)
-				continue;
-			int playerId = slot.GetPlayerId();
-			if (playerId <= 0 || players.Contains(playerId) || !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
-				continue;
-			players.Insert(playerId);
-			identities.Insert(GetPlayerVoiceIdentity(playerId));
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected bool GC_MatchesFactionSelection(string factionKey, array<int> players, array<string> identities)
-	{
-		if (!players || !identities || players.IsEmpty() || players.Count() > 128 || players.Count() != identities.Count())
-			return false;
-		array<int> current;
-		array<string> currentIdentities;
-		GC_GetFactionPlayers(factionKey, current, currentIdentities);
-		if (current.Count() != players.Count())
-			return false;
-		foreach (int index, int playerId : current)
-		{
-			int selected = players.Find(playerId);
-			if (selected < 0 || identities[selected].IsEmpty() || identities[selected] != currentIdentities[index])
-				return false;
-		}
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	string GC_ExecuteFactionTeleport(int requesterId, string factionKey, array<int> players, array<string> identities, int toId, string toIdentity, int requestId)
+	string GC_ExecuteFactionTeleport(int requesterId, string factionKey, int toId, string toIdentity, int requestId)
 	{
 		string context = string.Format("faction=%1 to=%2 identity=%3 request=%4", factionKey, toId, toIdentity, requestId);
 		if (!AuthorizeAdminAction(requesterId, "teleport-faction", context))
 			return "Admin login required.";
 		string error;
+		array<int> players;
+		array<string> identities;
 		ChimeraCharacter destination = GC_GetAdminToolCharacter(toId);
 		GC_LobbyPlayerController requester = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requesterId));
-		if (!GC_MatchesFactionSelection(factionKey, players, identities))
-			error = "Faction membership changed or is empty. Review the faction and confirm again.";
+		if (!GC_GetFactionPlayers(factionKey, players, identities))
+			error = "The selected faction is unavailable.";
+		else if (players.IsEmpty())
+			error = "No connected players are in that faction.";
 		else if (!destination || toIdentity.IsEmpty() || GetPlayerVoiceIdentity(toId) != toIdentity)
 			error = "The destination player must still have a living spawned character.";
 		else if (!requester || requester.GC_HasFactionTeleport())

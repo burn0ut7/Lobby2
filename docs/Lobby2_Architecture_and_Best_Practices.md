@@ -104,6 +104,14 @@ Do not turn `GC_LobbyRoster` into a competing player, faction, or group authorit
 - `SCR_BaseGameMode`'s automatically replicated state is the only phase transport for live transitions and JIP.
 - UI observes `GC_LobbyGameMode.GetState()` and derives presentation and interaction permissions from it.
 
+Admin Tools select players from the native connected roster, not streamed
+characters. Everyone and faction audiences are resolved at execution on the
+server; faction audiences use native player affiliation, including members
+without a Lobby2 slot. Selected-player requests remain bound to account identity.
+Teleport destinations are resolved on authority and sent as coordinates to the
+moving owner. Local spectator/entity-context availability does not define these
+server-wide audiences. See [replication audit and evidence](../tests/AdminReplicationScope.md).
+
 ### 4. Prefer deep modules
 
 A module should expose a small, meaningful interface while hiding the data and mechanics required to implement it.

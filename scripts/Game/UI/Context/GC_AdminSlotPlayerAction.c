@@ -39,7 +39,7 @@ class GC_AdminSlotPlayerAction : GC_ContextMenuAction
 			return slot.HasClaim();
 		return m_eAction == GC_EAdminSlotAction.HEAL_OR_RESPAWN
 			&& manager.GetLobbyPhase() != SCR_EGameModeState.POSTGAME
-			&& (slot.IsKIA() || slot.GetEntity() != null);
+			&& (slot.IsKIA() || slot.GetEntityRplId() != RplId.Invalid());
 	}
 
 	//------------------------------------------------------------------------------------------------

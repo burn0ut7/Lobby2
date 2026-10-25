@@ -28,8 +28,6 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	protected ref map<SCR_ButtonBaseComponent, string> m_mFactionButtons = new map<SCR_ButtonBaseComponent, string>();
 	protected bool m_bTeleportFaction;
 	protected bool m_bConfirmFactionTeleport;
-	protected ref array<int> m_aFactionPlayers = {};
-	protected ref array<string> m_aFactionIdentities = {};
 
 	//------------------------------------------------------------------------------------------------
 	static void OpenMessage(int targetId)
@@ -314,7 +312,6 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans);
 		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans);
 		bool factionTarget = (heal && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
-		m_Manager.GC_GetFactionPlayers(m_sTargetFaction, m_aFactionPlayers, m_aFactionIdentities);
 		bool selectedMessage = message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS;
 		m_wRoot.FindAnyWidget("MessageFields").SetVisible(message);
 		m_wRoot.FindAnyWidget("MessagePlayers").SetVisible(selectedMessage);
@@ -370,8 +367,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			else if (m_eScope == GC_EAdminHealScope.FACTION)
 			{
 				action = "Heal faction";
-				summary = string.Format("%1 connected players in %2.", m_aFactionPlayers.Count(), GetSelectedFactionName());
-				enabled = enabled && !m_aFactionPlayers.IsEmpty();
+				summary = string.Format("All connected players in %1 when applied, including distant players.", GetSelectedFactionName());
+				enabled = enabled && !m_sTargetFaction.IsEmpty();
 			}
 		}
 		if (teleport)
@@ -385,13 +382,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			if (m_bTeleportFaction)
 			{
 				description = "Move faction members near the destination. Dead or seated players are skipped; the destination stays in place.";
-				int count = m_aFactionPlayers.Count();
-				if (toSelected && m_aFactionPlayers.Contains(destinations[0]))
-					count--;
-				enabled = enabled && count > 0 && toSelected;
-				summary = string.Format("%1 players from %2.", count, GetSelectedFactionName());
+				enabled = enabled && !m_sTargetFaction.IsEmpty() && toSelected;
+				summary = string.Format("All connected players in %1 when confirmed.", GetSelectedFactionName());
 				if (toSelected)
-					summary = string.Format("Move %1 players from %2 to %3.", count, GetSelectedFactionName(), GetGame().GetPlayerManager().GetPlayerName(destinations[0]));
+					summary = string.Format("Move all current members of %1 to %2.", GetSelectedFactionName(), GetGame().GetPlayerManager().GetPlayerName(destinations[0]));
 				action = "Review teleport";
 				if (m_bConfirmFactionTeleport)
 					action = "Confirm teleport";
@@ -431,7 +425,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			else if (m_eMessageAudience == GC_EAdminMessageAudience.FACTION)
 			{
 				enabled = enabled && !m_sTargetFaction.IsEmpty();
-				summary = "Connected players in the selected faction's slots.";
+				summary = "All connected players in the selected faction when sent.";
 			}
 			TextWidget.Cast(m_wRoot.FindAnyWidget("MessageLabel")).SetTextFormat("MESSAGE (%1 / 512)", m_MessageText.GetText().Length());
 		}
@@ -499,12 +493,6 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			return;
 		array<int> destinations;
 		array<string> destinationIdentities;
-		bool factionTarget = (m_iTool == 0 && m_eScope == GC_EAdminHealScope.FACTION) || (m_iTool == 1 && m_bTeleportFaction);
-		if (factionTarget)
-		{
-			players.Copy(m_aFactionPlayers);
-			identities.Copy(m_aFactionIdentities);
-		}
 		if (m_iTool == 1)
 		{
 			if (!m_To.GetSelection(destinations, destinationIdentities))
@@ -526,7 +514,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (m_iTool == 0)
 			m_Controller.RequestAdminHeal(m_eScope, players, identities, m_iPending, m_iHealRadius, m_sTargetFaction);
 		else if (m_iTool == 1 && m_bTeleportFaction)
-			m_Controller.GC_RequestFactionTeleport(m_sTargetFaction, players, identities, destinations[0], destinationIdentities[0], m_iPending);
+			m_Controller.GC_RequestFactionTeleport(m_sTargetFaction, destinations[0], destinationIdentities[0], m_iPending);
 		else if (m_iTool == 1)
 			m_Controller.GC_RequestAdminTeleport(players[0], identities[0], destinations[0], destinationIdentities[0], m_iPending);
 		else
@@ -598,14 +586,14 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		while (rows.GetChildren())
 			rows.GetChildren().RemoveFromHierarchy();
 		array<string> keys = {};
-		foreach (GC_Slot slot : m_Manager.GetSlots())
+		array<Faction> factions = {};
+		GetGame().GetFactionManager().GetFactionsList(factions);
+		foreach (Faction faction : factions)
 		{
-			SCR_AIGroup group = slot.GetGroup();
-			if (!group || !group.GetFaction())
+			if (!faction)
 				continue;
-			Faction faction = group.GetFaction();
 			string key = faction.GetFactionKey();
-			if (keys.Contains(key))
+			if (key.IsEmpty() || keys.Contains(key))
 				continue;
 			keys.Insert(key);
 			Widget row = GetGame().GetWorkspace().CreateWidgets("{6A5A000000000010}UI/layouts/Admin/Lobby_AdminOption.layout", rows);

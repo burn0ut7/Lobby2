@@ -18,20 +18,20 @@ modded class GC_LobbyPlayerController
 	protected string m_sGC_FactionContext;
 
 	//------------------------------------------------------------------------------------------------
-	void GC_RequestFactionTeleport(string factionKey, array<int> players, array<string> identities, int toId, string toIdentity, int requestId)
+	void GC_RequestFactionTeleport(string factionKey, int toId, string toIdentity, int requestId)
 	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
-			Rpc(GC_RpcAskFactionTeleport, factionKey, players, identities, toId, toIdentity, requestId);
+			Rpc(GC_RpcAskFactionTeleport, factionKey, toId, toIdentity, requestId);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void GC_RpcAskFactionTeleport(string factionKey, array<int> players, array<string> identities, int toId, string toIdentity, int requestId)
+	protected void GC_RpcAskFactionTeleport(string factionKey, int toId, string toIdentity, int requestId)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		string result = "Admin tools are unavailable in this mode.";
 		if (manager)
-			result = manager.GC_ExecuteFactionTeleport(GetPlayerId(), factionKey, players, identities, toId, toIdentity, requestId);
+			result = manager.GC_ExecuteFactionTeleport(GetPlayerId(), factionKey, toId, toIdentity, requestId);
 		else
 			GC_AdminActionLogger.Log(GetPlayerId(), "teleport-faction", factionKey, "rejected-inactive-mode");
 		if (!result.IsEmpty())

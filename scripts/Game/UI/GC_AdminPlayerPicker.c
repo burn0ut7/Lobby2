@@ -32,6 +32,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		{
 			m_Manager.m_OnPlayerConnected.Insert(OnRosterChanged);
 			m_Manager.m_OnPlayerDisconnected.Insert(OnRosterChanged);
+			m_Manager.m_OnVoiceAssignmentChanged.Insert(OnIdentityChanged);
 		}
 	}
 
@@ -260,6 +261,24 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void OnIdentityChanged(int playerId)
+	{
+		int index = m_aSelected.Find(playerId);
+		if (index >= 0 && m_Manager.GetPlayerVoiceIdentity(playerId) != m_aIdentities[index])
+		{
+			OnRosterChanged(playerId);
+			return;
+		}
+
+		// Voice events also carry mute/channel changes; retain the focused row.
+		foreach (SCR_ButtonBaseComponent button, int rowPlayerId : m_mRows)
+		{
+			if (rowPlayerId == playerId)
+				m_mRowIdentities.Set(button, m_Manager.GetPlayerVoiceIdentity(playerId));
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void OnRosterChanged(int playerId)
 	{
 		int index = m_aSelected.Find(playerId);
@@ -289,6 +308,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		{
 			m_Manager.m_OnPlayerConnected.Remove(OnRosterChanged);
 			m_Manager.m_OnPlayerDisconnected.Remove(OnRosterChanged);
+			m_Manager.m_OnVoiceAssignmentChanged.Remove(OnIdentityChanged);
 		}
 		m_mRows.Clear();
 		m_mRowIdentities.Clear();

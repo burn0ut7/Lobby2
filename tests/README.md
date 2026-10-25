@@ -57,6 +57,11 @@ See `Art/References/faction-readiness/validation.md` for observed results.
 
 ## Connected admin test fixture
 
+See [AdminReplicationScope.md](AdminReplicationScope.md) for the per-action
+replication audit, separate-client absence checks, regression helpers and
+validation limits. Server-wide scopes must be exercised from a separate client
+with the target's character and slot replication item confirmed absent.
+
 ### Game Master recovery — 2026-10-24
 
 `GC_HealSlotContextAction` adds **Heal / Respawn slot** to the native Game Master

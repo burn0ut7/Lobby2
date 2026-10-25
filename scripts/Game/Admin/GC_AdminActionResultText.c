@@ -46,8 +46,22 @@ class GC_AdminActionResultText
 			return "The template slot or group changed. Select it again.";
 		if (outcome == "applied")
 			return "Action completed.";
+		if (outcome.StartsWith("dispatched message="))
+		{
+			array<string> fields = {};
+			outcome.Split(" ", fields, true);
+			if (fields.Count() != 4)
+				return "Message dispatch result is incomplete. Check the server log.";
+			string recipients = fields[2];
+			string skipped = fields[3];
+			recipients.Replace("recipients=", "");
+			skipped.Replace("skipped=", "");
+			return string.Format("Message dispatched to %1 player(s). Skipped %2 unavailable player(s).", recipients, skipped);
+		}
 		if (outcome.StartsWith("dispatched"))
 			return "Message sent to the requested audience.";
+		if (outcome == "rejected-faction")
+			return "The selected faction is unavailable.";
 		if (outcome == "rejected-rate-limit")
 			return "Please wait a moment before sending again.";
 		if (outcome == "rejected-empty-audience")
