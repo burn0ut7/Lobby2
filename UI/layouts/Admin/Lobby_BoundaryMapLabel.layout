@@ -1,0 +1,21 @@
+FrameWidgetClass {
+ Name "BoundaryMapLabel"
+ Slot FrameWidgetSlot { OffsetLeft 0 OffsetTop 0 SizeX 300 SizeY 30 }
+ "Ignore Cursor" 1
+ {
+  PanelWidgetClass {
+   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   Color 0 0 0 0.8
+   style full
+   "Ignore Cursor" 1
+  }
+  TextWidgetClass {
+   Name "Text"
+   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 4 OffsetTop 0 OffsetRight 4 OffsetBottom 0 }
+   "Font Size" 18
+   "Vertical Alignment" Center
+   "Ignore Cursor" 1
+   Color 1 1 1 1
+  }
+ }
+}

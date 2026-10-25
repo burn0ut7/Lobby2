@@ -3,6 +3,7 @@ class GC_MapShapeOverlay
 {
 	protected Widget m_Root;
 	protected Widget m_Parent;
+	protected ref array<Widget> m_aLabels = {};
 	protected CanvasWidget m_Canvas;
 	protected ref array<int> m_aCounts = {};
 	protected ref array<float> m_aWidths = {};
@@ -58,6 +59,12 @@ class GC_MapShapeOverlay
 		// This timer owns discovery, snapshots and expiry, never moving-map projection.
 		if (now - m_fLastReceive > 1500 && !m_aCommands.IsEmpty())
 		{
+			foreach (Widget label : m_aLabels)
+			{
+				if (label)
+					label.RemoveFromHierarchy();
+			}
+			m_aLabels.Clear();
 			m_aCounts.Clear();
 			m_aCommands.Clear();
 			m_Canvas.SetDrawCommands(m_aCommands);
@@ -65,7 +72,7 @@ class GC_MapShapeOverlay
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Receive(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points)
+	void Receive(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<string> names = null)
 	{
 		if (!m_Canvas || generation != m_iGeneration || counts.Count() != colors.Count() || counts.Count() != widths.Count() || counts.Count() != fills.Count() || counts.Count() != inverted.Count())
 			return;
@@ -78,6 +85,34 @@ class GC_MapShapeOverlay
 		}
 		if (total != points.Count())
 			return;
+
+		while (m_aLabels.Count() > counts.Count())
+		{
+			Widget removed = m_aLabels[m_aLabels.Count() - 1];
+			if (removed)
+				removed.RemoveFromHierarchy();
+			m_aLabels.Remove(m_aLabels.Count() - 1);
+		}
+		m_aLabels.Resize(counts.Count());
+		foreach (int labelIndex, int labelCount : counts)
+		{
+			Widget label = m_aLabels[labelIndex];
+			bool named = names && names.IsIndexValid(labelIndex) && !names[labelIndex].IsEmpty();
+			if (!named)
+			{
+				if (label)
+					label.RemoveFromHierarchy();
+				m_aLabels[labelIndex] = null;
+				continue;
+			}
+			if (!label)
+			{
+				label = GetGame().GetWorkspace().CreateWidgets("{6A5A00000000B004}UI/layouts/Admin/Lobby_BoundaryMapLabel.layout", m_Root);
+				m_aLabels[labelIndex] = label;
+			}
+			if (label)
+				TextWidget.Cast(label.FindAnyWidget("Text")).SetText(names[labelIndex]);
+		}
 		m_aCounts.Copy(counts);
 		m_aWidths.Copy(widths);
 		m_aPoints.Copy(points);
@@ -156,6 +191,8 @@ class GC_MapShapeOverlay
 		mapEntity.ScreenToWorld(0, 0, originX, originZ);
 		float zoom = mapEntity.GetCurrentZoom();
 		int offset;
+		array<vector> labelPositions = {};
+		array<float> labelWidths = {};
 		foreach (int index, int count : m_aCounts)
 		{
 			LineDrawCommand line = LineDrawCommand.Cast(m_aCommands[index * 2 + 1]);
@@ -173,6 +210,39 @@ class GC_MapShapeOverlay
 				float width, height;
 				m_Canvas.GetScreenSize(width, height);
 				GC_MapShapeOutsideFill.Build(line.m_Vertices, width, height, outside);
+			}
+			if (m_aLabels.IsIndexValid(index) && m_aLabels[index])
+			{
+				vector center;
+				for (int pointIndex; pointIndex < count; pointIndex++)
+					center += m_aPoints[offset + pointIndex];
+				center /= count;
+
+				float labelX = GetGame().GetWorkspace().DPIUnscale((center[0] - originX) * zoom);
+				float labelY = GetGame().GetWorkspace().DPIUnscale((originZ - center[2]) * zoom);
+				TextWidget text = TextWidget.Cast(m_aLabels[index].FindAnyWidget("Text"));
+				float textWidth, textHeight;
+				text.GetTextSize(textWidth, textHeight);
+				FrameSlot.SetSizeX(m_aLabels[index], textWidth + 8);
+				// Nearby zones remain separately readable when their centers overlap.
+				for (int pass; pass < labelPositions.Count(); pass++)
+				{
+					bool shifted = false;
+					foreach (int previous, vector position : labelPositions)
+					{
+						if (labelX < position[0] + labelWidths[previous] && labelX + textWidth + 8 > position[0]
+							&& Math.AbsFloat(labelY - position[1]) < 24)
+						{
+							labelY = position[1] + 24;
+							shifted = true;
+						}
+					}
+					if (!shifted)
+						break;
+				}
+				FrameSlot.SetPos(m_aLabels[index], labelX, labelY);
+				labelPositions.Insert(Vector(labelX, labelY, 0));
+				labelWidths.Insert(textWidth + 8);
 			}
 			offset += count;
 		}
@@ -194,6 +264,7 @@ class GC_MapShapeOverlay
 		m_Root = null;
 		m_Parent = null;
 		m_Canvas = null;
+		m_aLabels.Clear();
 		m_aCounts.Clear();
 		m_aWidths.Clear();
 		m_aPoints.Clear();

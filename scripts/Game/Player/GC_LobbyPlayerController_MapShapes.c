@@ -57,19 +57,20 @@ modded class GC_LobbyPlayerController
 		array<bool> inverted = {};
 		array<float> widths = {};
 		array<vector> points = {};
-		mode.GetMapShapes().GetSnapshot(GetPlayerId(), counts, colors, fills, inverted, widths, points);
+		array<string> names = {};
+		mode.GetMapShapes().GetSnapshot(GetPlayerId(), counts, colors, fills, inverted, widths, points, names);
 		if (GetGame().GetPlayerController() == this)
-			GC_RpcDo_MapShapes(generation, counts, colors, fills, inverted, widths, points);
+			GC_RpcDo_MapShapes(generation, counts, colors, fills, inverted, widths, points, names);
 		else
-			Rpc(GC_RpcDo_MapShapes, generation, counts, colors, fills, inverted, widths, points);
+			Rpc(GC_RpcDo_MapShapes, generation, counts, colors, fills, inverted, widths, points, names);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void GC_RpcDo_MapShapes(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points)
+	protected void GC_RpcDo_MapShapes(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<string> names)
 	{
 		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode() || !m_GC_MapShapes)
 			return;
-		m_GC_MapShapes.Receive(generation, counts, colors, fills, inverted, widths, points);
+		m_GC_MapShapes.Receive(generation, counts, colors, fills, inverted, widths, points, names);
 	}
 }

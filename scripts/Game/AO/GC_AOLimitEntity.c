@@ -38,6 +38,8 @@ class GC_AOLimitEntity : PolylineShapeEntity
 {
 	[Attribute("1", UIWidgets.CheckBox, "Enable this restriction. Trusted server scripts can call SetEnabled later.", category: "AO")]
 	protected bool m_bEnabled;
+	[Attribute("", UIWidgets.EditBox, "Optional name in the admin boundary list and map. Empty uses the entity name.", category: "AO")]
+	protected string m_sAdminName;
 	[Attribute("0", UIWidgets.ComboBox, "Hard: return the character or whole occupied vehicle. Soft: kill the affected character after the grace period.", enums: ParamEnumArray.FromEnum(GC_EAOBehavior), category: "AO")]
 	protected GC_EAOBehavior m_eBehavior;
 	[Attribute("0", UIWidgets.CheckBox, "Off: stay INSIDE the polygon. On: stay OUTSIDE the polygon. Height is ignored.", category: "AO")]
@@ -204,6 +206,42 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void GetAdminInfo(GC_BoundaryAdminRow row)
+	{
+		row.Name = m_sAdminName;
+		row.Kind = "AO";
+		row.Factions = GC_BoundaryAdmin.FactionText(m_aFactionKeys);
+		row.Behavior = "Hard";
+		if (m_eBehavior == GC_EAOBehavior.SOFT_KILL)
+			row.Behavior = "Soft";
+		row.Valid = m_bValid;
+		row.Enabled = IsEnabled();
+		row.State = "Disabled";
+		if (row.Enabled)
+			row.State = "Active";
+		if (!m_bValid)
+		{
+			row.State = "Invalid";
+			row.Details = "Invalid configuration; check the zone in Workbench.";
+			return;
+		}
+		row.Details = string.Format("Grace: %1s | Priority: %2", m_fGraceSeconds, m_iPriority);
+		if (m_bInverted)
+			row.Details += " | Stay outside";
+		else
+			row.Details += " | Stay inside";
+		array<string> vehicleStates = {"Any", "On foot", "In vehicle", "Driver", "Passenger"};
+		array<string> vehicleFilters = {"All vehicles", "Only listed vehicles", "Except listed vehicles"};
+		array<string> itemFilters = {"Any inventory", "Has any listed item", "Has all listed items", "Has no listed items", "Missing any listed item"};
+		if (m_eVehicleState != GC_EAOVehicleState.ANY)
+			row.Details += "\nVehicle: " + vehicleStates[m_eVehicleState];
+		if (m_eVehicleMode != GC_EAOListMode.IGNORE)
+			row.Details += "\n" + vehicleFilters[m_eVehicleMode] + " (" + m_aVehiclePrefabs.Count().ToString() + " prefabs)";
+		if (m_eItemCondition != GC_EAOItemCondition.IGNORE)
+			row.Details += "\nInventory: " + itemFilters[m_eItemCondition] + " (" + m_aItemPrefabs.Count().ToString() + " prefabs)";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GetWarningText()
 	{
 		return m_sWarningText;
@@ -329,6 +367,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 		if (!mode || !Replication.IsServer())
 			return;
 		m_System = mode.GetAOLimits();
+		mode.GetBoundaryAdmin().Register(this);
 		GetPointsPositions(m_aPolygon);
 		for (int i; i < m_aPolygon.Count(); i++)
 			m_aPolygon[i] = CoordToParent(m_aPolygon[i]);
@@ -360,5 +399,8 @@ class GC_AOLimitEntity : PolylineShapeEntity
 			GetGame().GetCallqueue().Remove(RegisterLimit);
 		if (m_System)
 			m_System.Unregister(this);
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (mode && mode.GetBoundaryAdmin())
+			mode.GetBoundaryAdmin().Unregister(this);
 	}
 }

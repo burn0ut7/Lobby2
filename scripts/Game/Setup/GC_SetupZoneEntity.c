@@ -26,6 +26,8 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 {
 	[Attribute("120", UIWidgets.EditBox, "Seconds from the start of GAME until release (1-3600).", category: "Setup")]
 	protected float m_fDuration;
+	[Attribute("", UIWidgets.EditBox, "Optional name in the admin boundary list and map. Empty uses the entity name.", category: "Setup")]
+	protected string m_sAdminName;
 	[Attribute("SETUP", UIWidgets.EditBox, "Heading displayed beside the setup countdown. Keep it short to fit the compact HUD.", category: "Setup")]
 	protected string m_sDisplayText;
 	[Attribute("0", UIWidgets.ComboBox, "Soft: outside countdown then death. Hard: return to last safe position. Freeze: prevent movement until release.", enums: ParamEnumArray.FromEnum(GC_ESetupBehavior), category: "Setup")]
@@ -43,6 +45,67 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	protected bool m_bStarted;
 	protected bool m_bFinished;
 	protected bool m_bValid;
+
+	//------------------------------------------------------------------------------------------------
+	//! Ending is permanent for this instance; no re-enrollment after release.
+	bool EndSetup()
+	{
+		if (!Replication.IsServer())
+			return false;
+		m_bFinished = true;
+		ReleasePlayers();
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool ExtendSetup(float seconds)
+	{
+		if (!Replication.IsServer() || !m_bValid || m_bFinished || seconds <= 0 || seconds > 3600)
+			return false;
+		if (m_bStarted && GetWorld().GetWorldTime() * 0.001 >= m_fDeadline)
+		{
+			EndSetup();
+			return false;
+		}
+		if (m_bStarted)
+			m_fDeadline += seconds;
+		else
+			m_fDuration += seconds;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GetAdminInfo(GC_BoundaryAdminRow row)
+	{
+		row.Name = m_sAdminName;
+		row.Kind = "Setup";
+		row.Factions = GC_BoundaryAdmin.FactionText(m_aFactionKeys);
+		row.Behavior = "Soft";
+		if (m_eBehavior == GC_ESetupBehavior.HARD)
+			row.Behavior = "Hard";
+		else if (m_eBehavior == GC_ESetupBehavior.FREEZE)
+			row.Behavior = "Freeze";
+		row.Valid = m_bValid;
+		row.Enabled = m_bValid && !m_bFinished;
+		row.Remaining = m_fDuration;
+		row.State = "Waiting";
+		if (m_bStarted)
+		{
+			row.Remaining = Math.Max(0, m_fDeadline - GetWorld().GetWorldTime() * 0.001);
+			row.State = "Active";
+		}
+		if (m_bFinished)
+		{
+			row.Remaining = 0;
+			row.State = "Ended";
+		}
+		if (!m_bValid)
+			row.State = "Invalid";
+		string safeStart = "Off";
+		if (m_bSafeStart)
+			safeStart = "On";
+		row.Details = string.Format("Return grace: %1s | Safe start: %2", m_fGraceSeconds, safeStart);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	string GetDisplayText()
@@ -226,6 +289,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		m_Mode = GC_LobbyGameMode.GetGameMode();
 		if (!m_Mode || !Replication.IsServer())
 			return;
+		m_Mode.GetBoundaryAdmin().Register(this);
 		if (!m_bValid)
 		{
 			GetPointsPositions(m_aPolygon);
@@ -260,5 +324,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		GetGame().GetCallqueue().Remove(Evaluate);
 		if (Replication.IsServer())
 			ReleasePlayers();
+		if (m_Mode && m_Mode.GetBoundaryAdmin())
+			m_Mode.GetBoundaryAdmin().Unregister(this);
 	}
 }

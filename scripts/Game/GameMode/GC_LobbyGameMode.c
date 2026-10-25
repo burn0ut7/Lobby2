@@ -10,6 +10,13 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	protected ref GC_MapPlans m_MapPlans;
 	protected ref GC_AOLimitSystem m_AOLimits;
 	protected ref GC_MapShapeSystem m_MapShapes;
+	protected ref GC_BoundaryAdmin m_BoundaryAdmin;
+
+	//------------------------------------------------------------------------------------------------
+	GC_BoundaryAdmin GetBoundaryAdmin()
+	{
+		return m_BoundaryAdmin;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_MapShapeSystem GetMapShapes()
@@ -47,6 +54,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 
 		if (Replication.IsServer())
 		{
+			m_BoundaryAdmin = new GC_BoundaryAdmin();
+			m_BoundaryAdmin.Start(this);
 			m_MapShapes = new GC_MapShapeSystem();
 			m_MapPlans = new GC_MapPlans();
 			m_MapPlans.Start(this);
@@ -172,6 +181,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyGameMode()
 	{
+		if (m_BoundaryAdmin && GetGame())
+			m_BoundaryAdmin.Stop();
 		if (m_MapShapes)
 			m_MapShapes.Stop();
 		if (m_AOLimits && GetGame())

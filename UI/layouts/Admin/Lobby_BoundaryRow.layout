@@ -1,0 +1,52 @@
+SizeLayoutWidgetClass {
+ Name "BoundaryRow" Slot LayoutSlot {
+  HorizontalAlign 3
+ }
+ AllowHeightOverride 1 HeightOverride 150 {
+  FrameWidgetClass {
+   Slot AlignableSlot {
+    HorizontalAlign 3 VerticalAlign 3
+   }
+   {
+    PanelWidgetClass {
+     Slot FrameWidgetSlot {
+      Anchor 0 .98 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     Color .15 .18 .19 1 style full "Ignore Cursor" 1
+    }
+    TextWidgetClass {
+     Name "ZoneName" Slot FrameWidgetSlot {
+      Anchor 0 0 .72 0 OffsetLeft 6 OffsetTop 6 OffsetRight 8 SizeY 30
+     }
+     "Font Size" 26 Wrap 1 "Ignore Cursor" 1
+    }
+    TextWidgetClass {
+     Name "ZoneBody" Slot FrameWidgetSlot {
+      Anchor 0 0 .72 0 OffsetLeft 6 OffsetTop 40 OffsetRight 8 SizeY 100
+     }
+     "Font Size" 20 Wrap 1 "Ignore Cursor" 1
+    }
+    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+     Name "ZoneAction" Slot FrameWidgetSlot {
+      Anchor .77 .08 1 .39 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+      }
+     }
+    }
+    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+     Name "ZoneExtend" Slot FrameWidgetSlot {
+      Anchor .77 .43 1 .74 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+      }
+     }
+    }
+   }
+  }
+ }
+}

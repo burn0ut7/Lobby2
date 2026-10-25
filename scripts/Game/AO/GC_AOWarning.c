@@ -84,6 +84,8 @@ class GC_AOWarning
 			if (!m_bSetupWarning && lobbyPlayer.GC_HasSetupReturnWarning())
 				top += 108;
 		}
+		if (lobbyPlayer && lobbyPlayer.GC_AnnouncementActive())
+			top += 52;
 		FrameSlot.SetPos(m_Card, 0, top);
 		m_Timer.SetText(FormatTime(Math.Max(0, (m_fDeadline - now) * 0.001)));
 	}

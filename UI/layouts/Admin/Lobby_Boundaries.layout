@@ -1,0 +1,186 @@
+FrameWidgetClass {
+ Name "BoundaryPanel" Slot FrameWidgetSlot {
+  Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+ }
+ components {
+  GC_AdminBoundariesComponent "{6A5A00000000B001}" {
+  }
+ }
+ {
+  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+   Name "BoundaryAOs" Slot FrameWidgetSlot {
+    Anchor 0 0 .24 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   components {
+    SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+     m_bCanBeToggled 1 m_bShowBorderOnFocus 1
+    }
+   }
+  }
+  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+   Name "BoundarySetups" Slot FrameWidgetSlot {
+    Anchor .25 0 .49 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   components {
+    SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+     m_bCanBeToggled 1 m_bShowBorderOnFocus 1
+    }
+   }
+  }
+  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+   Name "BoundaryNotice" Slot FrameWidgetSlot {
+    Anchor .5 0 .82 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   components {
+    SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+     m_bCanBeToggled 1 m_bShowBorderOnFocus 1
+    }
+   }
+  }
+  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+   Name "BoundaryMap" Slot FrameWidgetSlot {
+    Anchor .57 .095 1 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   components {
+    SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+     m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+    }
+   }
+  }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+ Name "BoundaryPanic" Slot FrameWidgetSlot {
+  Anchor 0 .095 .5 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+ }
+ components {
+  SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+   m_BackgroundDefault 0.38 0.025 0.015 1 m_BackgroundHovered 0.55 0.04 0.02 1 m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+  }
+ }
+}
+  ScrollLayoutWidgetClass {
+   Name "BoundaryScroll" Slot FrameWidgetSlot {
+    Anchor 0 .18 1 .87 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   "Scrollbar Always Visible" 1 {
+    VerticalLayoutWidgetClass {
+     Name "BoundaryRows" Slot AlignableSlot {
+      HorizontalAlign 3 VerticalAlign 0 Padding 0 0 12 0
+     }
+    }
+   }
+  }
+  TextWidgetClass {
+   Name "BoundaryEmpty" Slot FrameWidgetSlot {
+    Anchor 0 .22 .8 .3 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   Text "No zones of this type in the mission." "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+  }
+  FrameWidgetClass {
+   Name "AnnouncementFields" Slot FrameWidgetSlot {
+    Anchor 0 .20 1 .88 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   {
+    TextWidgetClass {
+     Name "NoticeTitleLabel" Slot FrameWidgetSlot {
+      Anchor 0 0 .65 .065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     Text "Heading" "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+    }
+    FrameWidgetClass {
+     Slot FrameWidgetSlot {
+      Anchor 0 .07 .65 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     {
+      PanelWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+       }
+       Color 0.08 0.1 0.11 1 style full "Ignore Cursor" 1
+      }
+      EditBoxWidgetClass {
+       Name "NoticeTitle" Slot FrameWidgetSlot {
+        Anchor 0.02 0.05 0.98 0.95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+       }
+       "Font Size" 24
+      }
+     }
+    }
+    TextWidgetClass {
+     Name "NoticeMinutesLabel" Slot FrameWidgetSlot {
+      Anchor .7 0 .98 .065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     Text "Minutes" "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+    }
+    FrameWidgetClass {
+     Slot FrameWidgetSlot {
+      Anchor .7 .07 1 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     {
+      PanelWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+       }
+       Color 0.08 0.1 0.11 1 style full "Ignore Cursor" 1
+      }
+      EditBoxWidgetClass {
+       Name "NoticeMinutes" Slot FrameWidgetSlot {
+        Anchor 0.02 0.05 0.98 0.95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+       }
+       "Font Size" 24
+      }
+     }
+    }
+    TextWidgetClass {
+     Name "NoticeAudienceLabel" Slot FrameWidgetSlot {
+      Anchor 0 .2 1 .27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     Text "Show to (select one or more factions)" "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+    }
+    ScrollLayoutWidgetClass {
+     Name "NoticeFactionScroll" Slot FrameWidgetSlot {
+      Anchor 0 .29 .65 .72 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     "Scrollbar Always Visible" 1 {
+      VerticalLayoutWidgetClass {
+       Name "NoticeFactions" Slot AlignableSlot {
+        HorizontalAlign 3 VerticalAlign 0 Padding 0 0 12 0
+       }
+      }
+     }
+    }
+    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+     Name "NoticeStart" Slot FrameWidgetSlot {
+      Anchor .7 .3 1 .4 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+      }
+     }
+    }
+    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+     Name "NoticeStop" Slot FrameWidgetSlot {
+      Anchor .7 .43 1 .53 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+      }
+     }
+    }
+    TextWidgetClass {
+     Name "NoticeCurrent" Slot FrameWidgetSlot {
+      Anchor 0 .76 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     Text "No announcement running." "Font Size" 21 Wrap 1 "Ignore Cursor" 1
+    }
+   }
+  }
+  TextWidgetClass {
+   Name "BoundaryStatus" Slot FrameWidgetSlot {
+    Anchor 0 .91 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   }
+   Text "" "Font Size" 21 Wrap 1 "Ignore Cursor" 1
+  }
+ }
+}
