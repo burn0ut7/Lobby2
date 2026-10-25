@@ -48,3 +48,24 @@ $grp GC_AOLimitEntity : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
   IsClosed 1
  }
 }
+PolylineShapeEntity MapShape_PolygonFixture : "{8F470B543A20D963}Prefabs/Logic/Map/MapShape.et" {
+ coords 220 1 160
+ Points {
+  ShapePoint "{6AB256089DFB7361}" {
+   Position 0 0 100
+  }
+  ShapePoint "{6AB256089DFB4FB0}" {
+   Position 95.106 0 30.902
+  }
+  ShapePoint "{6AB256089DFB4376}" {
+   Position 58.778 0 -80.902
+  }
+  ShapePoint "{6AB256089DFB4424}" {
+   Position -58.778 0 -80.902
+  }
+  ShapePoint "{6AB256089DFB5B3A}" {
+   Position -95.106 0 30.902
+  }
+ }
+ IsClosed 1
+}

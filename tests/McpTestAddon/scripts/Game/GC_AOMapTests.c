@@ -42,7 +42,11 @@ modded class GC_LobbyManager
 			factions.Insert(factionKey);
 		bool eligibility = limit.SetEligibility(factions, GC_EAOVehicleState.ANY,
 			GC_EAOListMode.IGNORE, {}, GC_EAOItemCondition.IGNORE, {});
-		return string.Format("eligibility=%1 style=%2", eligibility, limit.SetMapStyle(visibility, color, width, factionColor));
+		GC_MapShapeComponent shape = GC_MapShapeComponent.Cast(limit.FindComponent(GC_MapShapeComponent));
+		if (!shape)
+			return "UNAVAILABLE map shape component";
+		return string.Format("eligibility=%1 visibility=%2 style=%3 enabled=%4", eligibility,
+			shape.SetFactionKeys(factions), shape.SetStyle(color, width, factionColor, false, 0), shape.SetEnabled(visibility != 3));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -51,10 +55,11 @@ modded class GC_LobbyManager
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (!controller)
 			return "UNAVAILABLE controller";
-		array<int> counts = {}, colors = {};
+		array<int> counts = {}, colors = {}, fills = {};
+		array<bool> inverted = {};
 		array<float> widths = {};
 		array<vector> points = {};
-		GC_LobbyGameMode.GetGameMode().GetAOLimits().GetMapOutlines(controller.GetPlayerId(), counts, colors, widths, points);
+		GC_LobbyGameMode.GetGameMode().GetMapShapes().GetSnapshot(controller.GetPlayerId(), counts, colors, fills, inverted, widths, points);
 		string result = string.Format("serverOutlines=%1 points=%2", counts.Count(), points.Count());
 		foreach (int i, int count : counts)
 			result += string.Format(" [%1 vertices=%2 color=%3 width=%4]", i, count, colors[i], widths[i]);
@@ -103,13 +108,13 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	string GC_TestAOMapLocal()
 	{
-		if (!m_GC_AOMap)
+		if (!m_GC_MapShapes)
 			return "overlay=absent";
-		return m_GC_AOMap.GC_TestMapState();
+		return m_GC_MapShapes.GC_TestMapState();
 	}
 }
 
-modded class GC_AOMapOverlay
+modded class GC_MapShapeOverlay
 {
 	//------------------------------------------------------------------------------------------------
 	string GC_TestMapState()
@@ -117,6 +122,18 @@ modded class GC_AOMapOverlay
 		string result = string.Format("canvas=%1 generation=%2 commands=%3", m_Canvas != null, m_iGeneration, m_aCommands.Count());
 		foreach (CanvasWidgetCommand command : m_aCommands)
 		{
+			PolygonDrawCommand fill = PolygonDrawCommand.Cast(command);
+			if (fill)
+			{
+				result += string.Format(" [fill vertices=%1 color=%2]", fill.m_Vertices.Count() / 2, fill.m_iColor);
+				continue;
+			}
+			TriMeshDrawCommand outside = TriMeshDrawCommand.Cast(command);
+			if (outside)
+			{
+				result += string.Format(" [outside vertices=%1 triangles=%2 color=%3]", outside.m_Vertices.Count() / 2, outside.m_Indices.Count() / 3, outside.m_iColor);
+				continue;
+			}
 			LineDrawCommand line = LineDrawCommand.Cast(command);
 			result += string.Format(" [line vertices=%1 color=%2 width=%3 closed=%4 first=%5,%6]",
 				line.m_Vertices.Count() / 2, line.m_iColor, line.m_fWidth, line.m_bShouldEnclose, line.m_Vertices[0], line.m_Vertices[1]);

@@ -79,6 +79,11 @@ modded class GC_LobbyPlayerController
 			Rpc(GC_TestRpcPeerReport, token, GC_TestAOMapLocal());
 			return;
 		}
+		if (action == "map-shape-view")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAOMapView(1.5, message.ToVector()));
+			return;
+		}
 
 		if (action == "scope-move")
 		{
@@ -418,6 +423,7 @@ modded class GC_LobbyManager
 		array<string> allowedActions = {
 			"ao-snapshot",
 			"ao-map",
+			"map-shape-view",
 			"dedicated-action",
 			"scope-snapshot",
 			"scope-move",

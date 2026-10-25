@@ -1,0 +1,1342 @@
+[
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "r0f92e877cd7047eea711969b14707e66",
+    "state": "invoked",
+    "returned": "serverOutlines=0 points=0 canvas=1 generation=1 commands=0"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "rd220bb8dee034ac491df7459177fb903",
+    "state": "invoked",
+    "returned": "spawned index=0 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      0,
+      "",
+      859006719
+    ],
+    "receipt": "r222931e1e4e44f6d9d0b1101d338f2b0",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "rfaab3366ff634725a9a1998ebff6181a",
+    "state": "invoked",
+    "returned": "spawned index=1 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      1,
+      1,
+      "",
+      872394752
+    ],
+    "receipt": "r18374df05a2d4e80882e9a8207b09154",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "rbbf5b4b292834d0c8b78828db3dd86b4",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestAOMapView",
+    "args": [
+      {
+        "type": "float",
+        "value": 2
+      },
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "receipt": "rc8ac7b32260f4d86a6a0487b0129bb08",
+    "state": "invoked",
+    "returned": "zoom=2 center=<1194.46,39,2723.13>"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "rd75cb6182f1946f1b1a7b4132d9c5256",
+    "state": "invoked",
+    "returned": "serverOutlines=2 points=10 [0 vertices=4 color=-16776961 width=3] [1 vertices=6 color=-16776961 width=3] canvas=1 generation=1 commands=4 [fill vertices=4 color=859006719] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=948,-257] [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=3.91111 closed=1 first=1348,-257]"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      true,
+      600
+    ],
+    "receipt": "r71077a08e818477185b1008a1b80d2b2",
+    "state": "invoked",
+    "returned": "frames=0/600 seconds=0 misalignedFrames=0 missingFrames=0 maxErrorPixels=0 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      false,
+      600
+    ],
+    "receipt": "r7a127bb6fd6046da8e584b5b465f84c9",
+    "state": "invoked",
+    "returned": "frames=600/600 seconds=2.139 misalignedFrames=0 missingFrames=0 maxErrorPixels=0 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestAOMapView",
+    "args": [
+      {
+        "type": "float",
+        "value": 1
+      },
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "receipt": "rc69b48f5d6934e9eb50b5dcea9f81729",
+    "state": "invoked",
+    "returned": "zoom=1 center=<1194.46,39,2723.13>"
+  },
+  {
+    "method": "GC_TestAOSpawn",
+    "args": [],
+    "receipt": "r0eb00b0768734d91acab90b5c0b1a332",
+    "state": "invoked",
+    "returned": "spawned index=0 origin=<1194.46,39,2723.13>; configure after native initialization"
+  },
+  {
+    "method": "GC_TestAOConfigure",
+    "args": [
+      0,
+      1,
+      false,
+      {
+        "type": "float",
+        "value": 20
+      },
+      10,
+      {
+        "type": "float",
+        "value": 60
+      },
+      [
+        0,
+        0,
+        200
+      ]
+    ],
+    "receipt": "r9f010d9ff2e2472ab075d5f7db0a4796",
+    "state": "invoked",
+    "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=0"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "r95b8d6b65172458a90a62935b37d4f14",
+    "state": "invoked",
+    "returned": "serverOutlines=2 points=10 [0 vertices=4 color=-16776961 width=3] [1 vertices=6 color=-16776961 width=3] canvas=1 generation=1 commands=4 [fill vertices=4 color=859006719] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1126,-1918] [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=3.91111 closed=1 first=1326,-1918]"
+  },
+  {
+    "method": "GC_TestMapShapeAO",
+    "args": [
+      0,
+      true,
+      true
+    ],
+    "receipt": "r26c89b90a8ef4435b9b16d39d8b98fa1",
+    "state": "invoked",
+    "returned": "enabled=1 style=1"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "r3ebe6d516f2f467ebf1915ed36846eab",
+    "state": "invoked",
+    "returned": "serverOutlines=3 points=14 [0 vertices=4 color=-16776961 width=3] [1 vertices=6 color=-16776961 width=3] [2 vertices=4 color=-20480 width=3] canvas=1 generation=1 commands=6 [fill vertices=4 color=859006719] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1126,-1918] [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=3.91111 closed=1 first=1326,-1918] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=3.91111 closed=1 first=1246,-2158]"
+  },
+  {
+    "method": "GC_TestSnapshot",
+    "args": [],
+    "receipt": "r64774ab1f6a946298d21aa4bb8b2bf7a",
+    "state": "invoked",
+    "returned": "phase=PREGAME groups=7 slots=24 briefings=21 revision=0 player=1 admin=1\ncanonical=0 value=true\ncanonical=1 value=300\ncanonical=2 value=4\ncanonical=3 value=2\ncanonical=4 value=0.500\ncanonical=5 value=1000.000\ncanonical=6 value=SILENT THUNDER\ncanonical=7 value=standard\nmenu=rootFrame\nBriefingMarkerDescription=testttt\nCoordText=011 993\nHeightText=-255 m\nactiveView=0\nbutton=Mission Preview Button\nText=PREVIEW\nbutton=Lobby Button\nText=LOBBY\nbutton=Briefing Button\nText=BRIEFING\nbutton=Game Button\nText=GAME\nbutton=Debrief Button\nText=DEBRIEF\nTitleText=BANGALORIOUS\nDescription=COOPERATIVE ATTACK\nPhaseElapsed=01:25\nPlayerCountText=2\nBriefingIndexLabel=BRIEFING\nbutton=BriefingTitleRow01\nOrder=01\nTitle=RICH TEXT SHOWCASE\nbutton=BriefingTitleRow02\nOrder=02\nTitle=SITUATION\nbutton=BriefingTitleRow03\nOrder=03\nTitle=MISSION\nbutton=BriefingTitleRow04\nOrder=04\nTitle=OBJECTIVES\nbutton=BriefingTitleRow\nOrder=05\nTitle=SERVICE SUPPORT\nbutton=BriefingTitleRow\nOrder=06\nTitle=INTELLIGENCE SUMMARY AND THREAT ASSESSMENT\nbutton=BriefingTitleRow\nOrder=07\nTitle=SCENARIO\nbutton=VoiceChannelsButton\nVoiceChannelsButtonLabel=VOICE\nbutton=PlayerListButton\nPlayerListButtonLabel=PLAYERS\nbutton=DeafenButton\nPlayerName=Burn0ut7\nPlayerName=Burn0ut7 (0)\nbutton=ToolMenuButton0\nbutton=ToolMenuButton1\nbutton=ToolMenuButton2\nbutton=ToolMenuButton3\nbutton=ToolMenuButton4\nbutton=ToolMenuButton5\nbutton=ToolMenuButton6\nm_ChannelTagOverlay=[Global]\nm_WarningText=Warning Text\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatSwitchChannel\"/></shadow>\nText=Change channels\nSlotRichText=<shadow color='0,0,0' size='0' offset='1,1' opacity='0.5' mode='image'><action name=\"ChatHistoryBrowse\"/></shadow>\nText=Cycle history\nm_MessageText= \nm_MessageText= \nm_MessageText= \nm_MessageText= \nm_MessageText= \n"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shapes-jip",
+      "ao-map",
+      ""
+    ],
+    "receipt": "rd318705e2ba44b89b268663f74802f76",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shapes-jip"
+    ],
+    "receipt": "rc23fe510073a4955ba8fc6c082d78bc0",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=1 commands=6 [fill vertices=4 color=859006719] [line vertices=4 color=-16776961 width=2 closed=1 first=1014,1472] [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=2 closed=1 first=1214,1472] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=2 closed=1 first=1134,1232]"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      2,
+      "US",
+      1727987712
+    ],
+    "receipt": "r3192590b1e1f444aacbbda3476c40f99",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "r44e7155b39644fb3b963f1b46a45622e",
+    "state": "invoked",
+    "returned": "serverOutlines=2 points=10 [0 vertices=6 color=-16776961 width=3] [1 vertices=4 color=-20480 width=3] canvas=1 generation=1 commands=4 [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=3.91111 closed=1 first=1326,-1918] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=3.91111 closed=1 first=1246,-2158]"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shapes-filter",
+      "ao-map",
+      ""
+    ],
+    "receipt": "r30214cca9ffb4b2095b4270b6e296b01",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shapes-filter"
+    ],
+    "receipt": "rab7c1642a95c4850aac16b51464751c9",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=1 commands=4 [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=2 closed=1 first=1214,1472] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=2 closed=1 first=1134,1232]"
+  },
+  {
+    "method": "GC_TestAdminAssignPlayer",
+    "args": [
+      2,
+      1
+    ],
+    "receipt": "r4caa7e19d9404328a24a48e958dce0eb",
+    "state": "invoked",
+    "returned": "DISPATCHED inspect authority and remote assignment"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Lobby Button"
+    ],
+    "receipt": "rd3478fea1d504f96b8f41a1aa27194cf",
+    "state": "invoked",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestSelectFaction",
+    "args": [
+      "US"
+    ],
+    "receipt": "r0fd1cb071c094271a356f7c515848861",
+    "state": "invoked",
+    "returned": "dispatched: Button"
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      9
+    ],
+    "receipt": "r0d3de80ab9ca419b8f3296cb578bd71a",
+    "state": "invoked",
+    "returned": "dispatched: SlotButton"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "rbfb182f41a034dd48c8eded28ba17c6c",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "rb5d65361f72a404db6c93cd66b7da6e6",
+    "state": "invoked",
+    "returned": "serverOutlines=3 points=15 [0 vertices=5 color=-16776961 width=3] [1 vertices=6 color=-16776961 width=3] [2 vertices=4 color=-20480 width=3] canvas=1 generation=2 commands=6 [fill vertices=5 color=1727987712] [line vertices=5 color=-16776961 width=3.91111 closed=1 first=1306,-2118] [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=3.91111 closed=1 first=1326,-1918] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=3.91111 closed=1 first=1246,-2158]"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shapes-ussr",
+      "ao-map",
+      ""
+    ],
+    "receipt": "rc53babac6a634b0b80e76c4b761d9f64",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shapes-ussr"
+    ],
+    "receipt": "rfd671990ffa04e2ba0015d98b7e5311f",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=4 [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=2 closed=1 first=1214,1472] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=2 closed=1 first=1134,1232]"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      2,
+      "",
+      1727987712
+    ],
+    "receipt": "r4ddab9b55bbc4c9b93f7f212e93d206f",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shapes-live",
+      "ao-map",
+      ""
+    ],
+    "receipt": "rb4ebac9685b6450cae7af33a6a4cb64a",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shapes-live"
+    ],
+    "receipt": "rce68a77ea2914a4f815ff1d5f4c0ee04",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=6 [fill vertices=5 color=1727987712] [line vertices=5 color=-16776961 width=2 closed=1 first=1194,1272] [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=2 closed=1 first=1214,1472] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=2 closed=1 first=1134,1232]"
+  },
+  {
+    "method": "GC_TestMapShapeToggle",
+    "args": [
+      1,
+      false,
+      false
+    ],
+    "receipt": "r6cbf973a83e14749b620a3db94a1fcfc",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shapes-disabled",
+      "ao-map",
+      ""
+    ],
+    "receipt": "r361d3488c1e54eb29c9f6066a24b377c",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shapes-disabled"
+    ],
+    "receipt": "rc1b4e02568e5463b9090b4f23510fd83",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=4 [fill vertices=5 color=1727987712] [line vertices=5 color=-16776961 width=2 closed=1 first=1194,1272] [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=2 closed=1 first=1134,1232]"
+  },
+  {
+    "method": "GC_TestMapShapeToggle",
+    "args": [
+      1,
+      true,
+      false
+    ],
+    "receipt": "r3c4475be958a445b9f76b67be19024d6",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestMapShapeToggle",
+    "args": [
+      0,
+      false,
+      true
+    ],
+    "receipt": "r690b35329d99425b95d5c5bf68c87335",
+    "state": "invoked",
+    "returned": "removed"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shapes-deleted",
+      "ao-map",
+      ""
+    ],
+    "receipt": "r629f1bef70ae4b0fbc6ca518bc4fbbfd",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shapes-deleted"
+    ],
+    "receipt": "rfa1d0be5f3dd480695ea38b655db9cfb",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=4 [fill vertices=4 color=872394752] [line vertices=4 color=-20480 width=2 closed=1 first=1134,1232] [fill vertices=6 color=872394752] [line vertices=6 color=-16776961 width=2 closed=1 first=1214,1472]"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "r236a5ad813304d05a8422ce876bfb0a0",
+    "state": "invoked",
+    "returned": "spawned index=0 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      1,
+      "",
+      872394752
+    ],
+    "receipt": "r2603175bc792482daccd82023998dba1",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapShapeInvert",
+    "args": [
+      0,
+      true
+    ],
+    "receipt": "r37cd315df1ae4808ba8467cc07eaa3ad",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "rd2a50c2091a3416da992cf3091616209",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestAOMapView",
+    "args": [
+      {
+        "type": "float",
+        "value": 1.5
+      },
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "receipt": "r77a743d70331420c8240113d6ee3be67",
+    "state": "invoked",
+    "returned": "zoom=1.5 center=<1194.46,39,2723.13>"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      true,
+      600
+    ],
+    "receipt": "ra53654fcbf4b42c99d4db8d36cbf7945",
+    "state": "invoked",
+    "returned": "frames=0/600 seconds=0 misalignedFrames=0 missingFrames=0 maxErrorPixels=0 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      false,
+      600
+    ],
+    "receipt": "r04e44b445a684ef69b917b2b20e679b7",
+    "state": "invoked",
+    "returned": "frames=600/600 seconds=2.25376 misalignedFrames=0 missingFrames=0 maxErrorPixels=0 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestMapShapeFillCoverage",
+    "args": [],
+    "receipt": "r1e4f981d23c746daaa6e5e5704455287",
+    "state": "invoked",
+    "returned": "scenarios=6 samples=4608 mismatches=0 overlaps=0"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "re3834821109b4749913978e36610e9f8",
+    "state": "invoked",
+    "returned": "spawned index=0 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      1,
+      "",
+      872394752
+    ],
+    "receipt": "r6e8ce110eb8645538f0c08612f987a46",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapShapeInvert",
+    "args": [
+      0,
+      true
+    ],
+    "receipt": "r98db1dc69b3a405c9fa4451cfa1e583d",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "r6d1bbedd722644c8ad6b3b307c9b9993",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "inverse-jip",
+      "ao-map",
+      ""
+    ],
+    "receipt": "r80db9f41e19d4fa6a83acff1d2687307",
+    "state": "invoked",
+    "returned": "UNAVAILABLE connected controller"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "r6ff69bf12bf94b5e83b1cdcc5a3574c9",
+    "state": "invoked",
+    "returned": "serverOutlines=0 points=0 canvas=1 generation=1 commands=0"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "re2e8bbe6332a435eb3bed9b2161ffbb0",
+    "state": "invoked",
+    "returned": "spawned index=0 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      1,
+      "",
+      872394752
+    ],
+    "receipt": "r5d6098ed9c3c4e3bafa5ad3f13280561",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapShapeInvert",
+    "args": [
+      0,
+      true
+    ],
+    "receipt": "r539bb7b29a7247bab3aa97282bc4f358",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "r68d5387a1c534cc3851a95de5fc3b6bd",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "inverse-jip-final",
+      "ao-map",
+      ""
+    ],
+    "receipt": "r28f36a4dda8b478bab6550b017b14097",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "inverse-jip-final"
+    ],
+    "receipt": "r02f2d7ec01e04d45a5f7d9b0607dc0c3",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=1 commands=2 [outside vertices=12 triangles=6 color=872394752] [line vertices=6 color=-16776961 width=2 closed=1 first=1214,1472]"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "inverse-view",
+      "map-shape-view",
+      "1194.46 39 2723.13"
+    ],
+    "receipt": "rfae433908f504f8dba97a5b4aba0bf9e",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestAdminAssignPlayer",
+    "args": [
+      2,
+      1
+    ],
+    "receipt": "r2dae4a2fe59a48feaa22b044aea64a06",
+    "state": "invoked",
+    "returned": "DISPATCHED inspect authority and remote assignment"
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      9
+    ],
+    "receipt": "r1b577a054ec44653aa8e20c010e161b9",
+    "state": "invoked",
+    "returned": "rejected: slot is not in the visible view"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      1,
+      "US",
+      872394752
+    ],
+    "receipt": "rdd92b7c59fca443f82038b5dbe45cadb",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "rc1d8e40a1a5d4d49b32e18d46eac7cd7",
+    "state": "invoked",
+    "returned": "serverOutlines=0 points=0 canvas=1 generation=1 commands=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "inverse-faction",
+      "ao-map",
+      ""
+    ],
+    "receipt": "rfdac992e2ae84099965d460e0af1b6aa",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "inverse-faction"
+    ],
+    "receipt": "r94c704d896bf481cb7a3e71cc89aaccd",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=1 commands=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Lobby Button"
+    ],
+    "receipt": "rdaeed4198a974bfda487e8f3e21212a6",
+    "state": "invoked",
+    "returned": "dispatched: Lobby Button"
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      9
+    ],
+    "receipt": "rd7949df815d64403a3fd8faf76ed504d",
+    "state": "invoked",
+    "returned": "rejected: slot is not in the visible view"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "r825689b2d83e4a28a536b4949f04b0e1",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "r502b3e3faa544c79b8a66ab3498da755",
+    "state": "invoked",
+    "returned": "serverOutlines=0 points=0 canvas=0 generation=1 commands=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      2,
+      "",
+      1727987712
+    ],
+    "receipt": "r7708333863c445149335446c91f7befc",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapShapeInvert",
+    "args": [
+      0,
+      false
+    ],
+    "receipt": "rf2600f9bea554f69a139f1e710d6c3a3",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "inverse-live-normal",
+      "ao-map",
+      ""
+    ],
+    "receipt": "re7163fc65f864700857d2c434fb583ea",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "inverse-live-normal"
+    ],
+    "receipt": "r8a68f8f878764c5db440eca26282cf51",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=2 [fill vertices=5 color=1727987712] [line vertices=5 color=-16776961 width=2 closed=1 first=641,210]"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Lobby Button"
+    ],
+    "receipt": "ra396d59a70c745eaa9b6476a6dbfeeb0",
+    "state": "invoked",
+    "returned": "rejected: widget missing or hidden"
+  },
+  {
+    "method": "GC_TestSelectFaction",
+    "args": [
+      "US"
+    ],
+    "receipt": "rd7c0457b934e439f9bfc53d3d22079ba",
+    "state": "invoked",
+    "returned": "rejected: widget missing or hidden"
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      9
+    ],
+    "receipt": "rc48ed9099a9e4d948fbcbd87d15cbd1f",
+    "state": "invoked",
+    "returned": "rejected: slot is not in the visible view"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "r8b3c985fba3c4c578f6f799a994f394f",
+    "state": "invoked",
+    "returned": "rejected: widget missing or hidden"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      2,
+      "US",
+      1727987712
+    ],
+    "receipt": "r609aa061046742fd9504ebda1d90b723",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "rc5731f207cb24f32a03ca790ee2328e4",
+    "state": "invoked",
+    "returned": "serverOutlines=0 points=0 canvas=0 generation=1 commands=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "inverse-us-only",
+      "ao-map",
+      ""
+    ],
+    "receipt": "r6187a4b9528148358d4d4488635b700d",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestAdminAssignPlayer",
+    "args": [
+      1,
+      9
+    ],
+    "receipt": "rf256ba1dca1a40a5857bf86ca7aabf25",
+    "state": "invoked",
+    "returned": "DISPATCHED inspect authority and remote assignment"
+  },
+  {
+    "method": "GC_TestOpenView",
+    "args": [
+      "briefing"
+    ],
+    "receipt": "r8e71a66e10ed48b1837896e5b8c2ab51",
+    "state": "invoked",
+    "returned": "dispatched: production pause-menu action"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "rfc0e00c269ed444cb2fe2bf0bd0dc3df",
+    "state": "invoked",
+    "returned": "serverOutlines=1 points=5 [0 vertices=5 color=-16776961 width=3] canvas=1 generation=2 commands=2 [fill vertices=5 color=1727987712] [line vertices=5 color=-16776961 width=3.91111 closed=1 first=1195,1272]"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "inverse-us-only"
+    ],
+    "receipt": "r920cfca482894058a1d2de3c5a9042a0",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      2,
+      "",
+      1727987712
+    ],
+    "receipt": "r06e0e2174c0f4aacab33ec098ef03ced",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapShapeToggle",
+    "args": [
+      0,
+      false,
+      false
+    ],
+    "receipt": "r5f852f8c8aa94483bacd5b790b441e10",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shape-off-final",
+      "ao-map",
+      ""
+    ],
+    "receipt": "r6c327644b5cd49848d68302caacfd795",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shape-off-final"
+    ],
+    "receipt": "r3037681eb5bc46b78676e2feeffade67",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=0"
+  },
+  {
+    "method": "GC_TestMapShapeToggle",
+    "args": [
+      0,
+      true,
+      false
+    ],
+    "receipt": "r54d0b34f81174c7690d81517b44e5088",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shape-on-final",
+      "ao-map",
+      ""
+    ],
+    "receipt": "rb3b5822522db4ce59df187de8620247d",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shape-on-final"
+    ],
+    "receipt": "rc5c7a1070ad846809064e6ad9fe115d7",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=2 [fill vertices=5 color=1727987712] [line vertices=5 color=-16776961 width=2 closed=1 first=-3007,321]"
+  },
+  {
+    "method": "GC_TestMapShapeToggle",
+    "args": [
+      0,
+      false,
+      true
+    ],
+    "receipt": "re0f9fb85a2814396b761ab8b24faf5e5",
+    "state": "invoked",
+    "returned": "removed"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "shape-delete-final",
+      "ao-map",
+      ""
+    ],
+    "receipt": "ra0b7de12857243ecb44c5c66e0a80221",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "shape-delete-final"
+    ],
+    "receipt": "r463a134aea9c46bab6a3ce7145568bbd",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=2 commands=0"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "r399f29837e2f40a9a47e66b1eb689246",
+    "state": "invoked",
+    "returned": "spawned index=1 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      1,
+      2,
+      "",
+      859006719
+    ],
+    "receipt": "rd2f4de7a40014aedac1be707e184c85e",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "line-view",
+      "map-shape-view",
+      "1194.46 39 2723.13"
+    ],
+    "receipt": "r8b5b5ff20ce94dc7bad8b3196e163bad",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "line-baseline",
+      "map-shape-view",
+      "1194.46 39 2723.13"
+    ],
+    "receipt": "re83cbd7f5c9348b4b9ce4bac389b0399",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "re6cd3f1dd3d547ae8f3773cbe964cfd9",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestMapLineComparison",
+    "args": [
+      true
+    ],
+    "receipt": "rd2ad46406489406e9d20a94ce056402b",
+    "state": "invoked",
+    "returned": " candidate0 texture=0 candidate1 texture=1 candidate2 texture=1 candidate3 texture=1 candidate4 texture=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "r55707b65b80a451e86904385b3194314",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestMapLineComparison",
+    "args": [
+      true
+    ],
+    "receipt": "r99c9f1fff2ac4d078a89c2ab30b743db",
+    "state": "invoked",
+    "returned": " candidate0 texture=0 candidate1 texture=1 candidate2 texture=1 candidate3 texture=1 candidate4 texture=0"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "rd204aa7919f64f9fb0d5f9c02b860de5",
+    "state": "invoked",
+    "returned": "spawned index=0 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      2,
+      "",
+      859006719
+    ],
+    "receipt": "r863b697c32f04e34a0ad573bd7404d4e",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapLineComparison",
+    "args": [
+      false
+    ],
+    "receipt": "r7d72fbe35c7d4f659aac7760149f10d9",
+    "state": "invoked",
+    "returned": "closed"
+  },
+  {
+    "method": "GC_TestAOMapView",
+    "args": [
+      {
+        "type": "float",
+        "value": 1.5
+      },
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "receipt": "r4e1a5020cd6b43c8b4f3210382d36dbd",
+    "state": "invoked",
+    "returned": "zoom=1.5 center=<1194.46,39,2723.13>"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      true,
+      600
+    ],
+    "receipt": "r73c9cdc0704d412fa01376c4b3c6dcba",
+    "state": "invoked",
+    "returned": "frames=0/600 seconds=0 misalignedFrames=0 missingFrames=0 maxErrorPixels=0 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      false,
+      600
+    ],
+    "receipt": "r4a12e3c965b448b79db1fd763af2cd6b",
+    "state": "invoked",
+    "returned": "frames=600/600 seconds=2.37377 misalignedFrames=0 missingFrames=0 maxErrorPixels=0.999756 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "receipt": "r590dc0226ec341d2bb824bd8986a5d57",
+    "state": "invoked",
+    "returned": "dispatched: Briefing Button"
+  },
+  {
+    "method": "GC_TestMapShapeSpawn",
+    "args": [],
+    "receipt": "r887310e2bf4d4a0ba25dc0ce3ff60fed",
+    "state": "invoked",
+    "returned": "spawned index=0 AO=0"
+  },
+  {
+    "method": "GC_TestMapShapeConfigure",
+    "args": [
+      0,
+      2,
+      "",
+      859006719
+    ],
+    "receipt": "r519bee741d7c49eeb80c194951403c28",
+    "state": "invoked",
+    "returned": "polygon=1 visibility=1 style=1 enabled=1"
+  },
+  {
+    "method": "GC_TestMapLineComparison",
+    "args": [
+      true
+    ],
+    "receipt": "rbbf4ea955ea947dd801c65fa42dd7ab6",
+    "state": "invoked",
+    "returned": " candidate0 texture=0 candidate1 texture=1 candidate2 texture=1 candidate3 texture=1 candidate4 texture=0"
+  },
+  {
+    "method": "GC_TestMapLineComparison",
+    "args": [
+      false
+    ],
+    "receipt": "rac6b7500cf9d4792970994509a6f46f5",
+    "state": "invoked",
+    "returned": "closed"
+  },
+  {
+    "method": "GC_TestAOMapView",
+    "args": [
+      {
+        "type": "float",
+        "value": 1.5
+      },
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "receipt": "r4b27b12e2e8f4db3b55b28189c9394dc",
+    "state": "invoked",
+    "returned": "zoom=1.5 center=<1194.46,39,2723.13>"
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "receipt": "r1253f018061a475b894a106259b81da1",
+    "state": "invoked",
+    "returned": "serverOutlines=1 points=5 [0 vertices=5 color=-16776961 width=3] canvas=1 generation=1 commands=2 [fill vertices=5 color=859006719] [line vertices=5 color=-16776961 width=6.91111 closed=1 first=1308.01,554.759]"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      true,
+      600
+    ],
+    "receipt": "rcd89b06fc8ee46fb8ef7cf0afbaafc80",
+    "state": "invoked",
+    "returned": "frames=0/600 seconds=0 misalignedFrames=0 missingFrames=0 maxErrorPixels=0 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestAOMapMotion",
+    "args": [
+      false,
+      600
+    ],
+    "receipt": "r2e49180060544f14bffbaf4246a58e1e",
+    "state": "invoked",
+    "returned": "frames=600/600 seconds=3.5118 misalignedFrames=0 missingFrames=0 maxErrorPixels=0.999512 commandReplacements=0"
+  },
+  {
+    "method": "GC_TestMapShapeFillCoverage",
+    "args": [],
+    "receipt": "rb935c8394e6c41bca2240389605a2d62",
+    "state": "invoked",
+    "returned": "scenarios=6 samples=4608 mismatches=0 overlaps=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "line-final-read",
+      "ao-map",
+      ""
+    ],
+    "receipt": "rd9b48c0fb8bb40e590459b07efdce531",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      "line-final-read"
+    ],
+    "receipt": "rb1a64cfd79f146e2b52d51534bb41c02",
+    "state": "invoked",
+    "returned": "CLIENT-REPORTED canvas=1 generation=1 commands=2 [fill vertices=5 color=859006719] [line vertices=5 color=-16776961 width=5 closed=1 first=1194.46,1272.87]"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "line-final-view",
+      "map-shape-view",
+      "1194.46 39 2723.13"
+    ],
+    "receipt": "r0ef09c66806d4a669a39c2dcf5dc3104",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestMapShapeStyle",
+    "args": [
+      0,
+      {
+        "type": "float",
+        "value": 1
+      },
+      false
+    ],
+    "receipt": "rf720b6f68c7d4560a86937cf2dbc1e55",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "line-thin-view",
+      "map-shape-view",
+      "1194.46 39 2723.13"
+    ],
+    "receipt": "re239c0aa17b24b6085f75e681c4a0b63",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestMapShapeStyle",
+    "args": [
+      0,
+      {
+        "type": "float",
+        "value": 20
+      },
+      true
+    ],
+    "receipt": "r9e1f3545148c44328f3f14f0579f860b",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "line-thick-view",
+      "map-shape-view",
+      "1194.46 39 2723.13"
+    ],
+    "receipt": "r9db798abf1474982b24c98a7d0df4537",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestMapShapeStyle",
+    "args": [
+      0,
+      {
+        "type": "float",
+        "value": 3
+      },
+      true
+    ],
+    "receipt": "r3f17ba4a800e481e8f21a0aecbafb127",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestMapShapeInvert",
+    "args": [
+      0,
+      true
+    ],
+    "receipt": "r43dce3fbea794aa29b1d871e9a0734eb",
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      2,
+      "line-inverse-final",
+      "map-shape-view",
+      "1194.46 39 2723.13"
+    ],
+    "receipt": "r41d5f73ab77d4ef69c6291a46aef05a8",
+    "state": "invoked",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  }
+]

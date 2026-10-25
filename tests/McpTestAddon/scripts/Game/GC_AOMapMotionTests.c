@@ -16,24 +16,24 @@ modded class GC_LobbyManager
 modded class GC_LobbyPlayerController
 {
 	//------------------------------------------------------------------------------------------------
-	GC_AOMapOverlay GC_TestAOMapOverlay()
+	GC_MapShapeOverlay GC_TestAOMapOverlay()
 	{
-		return m_GC_AOMap;
+		return m_GC_MapShapes;
 	}
 }
 
-modded class GC_AOMapOverlay
+modded class GC_MapShapeOverlay
 {
 	//------------------------------------------------------------------------------------------------
 	float GC_TestProjectionError(SCR_MapEntity mapEntity)
 	{
-		if (!m_Canvas || m_aCommands.IsEmpty() || m_aCommands.Count() != m_aCounts.Count())
+		if (!m_Canvas || m_aCommands.IsEmpty() || m_aCommands.Count() != m_aCounts.Count() * 2)
 			return -1;
 		float error;
 		int offset;
 		foreach (int index, int count : m_aCounts)
 		{
-			LineDrawCommand line = LineDrawCommand.Cast(m_aCommands[index]);
+			LineDrawCommand line = LineDrawCommand.Cast(m_aCommands[index * 2 + 1]);
 			for (int i; i < count; i++)
 			{
 				vector point = m_aPoints[offset + i];
@@ -98,7 +98,7 @@ modded class SCR_MapEntity
 		if (!IsOpen() || m_iGC_AOMotionFrames >= m_iGC_AOMotionTarget || !GC_LobbyGameMode.GetGameMode())
 			return;
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-		GC_AOMapOverlay overlay;
+		GC_MapShapeOverlay overlay;
 		if (controller)
 			overlay = controller.GC_TestAOMapOverlay();
 		float error = -1;
@@ -106,7 +106,8 @@ modded class SCR_MapEntity
 			error = overlay.GC_TestProjectionError(this);
 		if (error < 0)
 			m_iGC_AOMotionMissing++;
-		else if (error > 0)
+		// Native forward projection truncates to integer pixels; production retains fractions.
+		else if (error > 1.01)
 			m_iGC_AOMotionMisses++;
 		m_fGC_AOMaxError = Math.Max(m_fGC_AOMaxError, error);
 		if (overlay)

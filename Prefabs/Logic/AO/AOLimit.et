@@ -1,6 +1,9 @@
 GC_AOLimitEntity {
  ID "8F470B543A20D942"
  components {
+  GC_MapShapeComponent "{8F470B543A20D964}" {
+   m_bEnabled 0
+  }
   RplComponent "{8F470B543A20D943}" {
    Streamable Disabled
   }

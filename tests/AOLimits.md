@@ -4,7 +4,7 @@ Place `Prefabs/Logic/AO/AOLimit.et` and author its closed polygon points. The pr
 
 ## Workbench polygon authoring
 
-Select one AO limit in an unlocked layer of the active subscene, then choose **Tools > AO Polygon**. Set **Sides** (3–128), **Radius** (centre-to-vertex metres), and **Rotation** (0–360°), then press **Generate AO polygon**. Five sides and a 100 m radius make a regular pentagon with every vertex 100 m from the entity origin. Zero rotation places its first point along local +Z; positive rotation goes toward local +X. The entity's own transform applies afterward.
+Select one AO limit in an unlocked layer of the active subscene, then choose **Tools > Map / AO Polygon**. Set **Sides** (3–128), **Radius** (centre-to-vertex metres), and **Rotation** (0–360°), then press **Generate polygon**. Five sides and a 100 m radius make a regular pentagon with every vertex 100 m from the entity origin. Zero rotation places its first point along local +Z; positive rotation goes toward local +X. The entity's own transform applies afterward.
 
 Generation replaces all point positions and per-point data, closes the shape, and is one Undo/Redo action. Use the normal Move/Rotate tools for the whole AO and the Vector Tool or `Points > Position` fields for individual vertices. Generation uses a flat local XZ plane. Save the world to keep the result. The generator exists only in the Workbench module and never runs in gameplay; it leaves normal native polyline data for the AO system.
 
@@ -24,28 +24,11 @@ Trusted server mission scripts can spawn/delete the prefab and call `SetEnabled`
 
 The owner-only warning displays seconds and three milliseconds (`20.000`), adding minutes only when nonzero (`1:05.250`). It is input-transparent. Authority supplies remaining time at 10 Hz; local updates interpolate for smooth display, never kill. This is a visual countdown, not millisecond-precision enforcement: actual expiry follows server evaluation and transport latency. Missing updates expire the HUD after 1.5 seconds; server enforcement remains authoritative.
 
-## Map outlines
+## Map shapes
 
-Each AO has a **Map outline** category. Visibility is independent of enforcement:
+The AO prefab includes `GC_MapShapeComponent`, disabled by default. Enable it to draw the AO's canonical polygon. Configure faction keys, outline and solid fill on that component; see [MapShapes.md](MapShapes.md). Map visibility and fill inversion are independent of AO eligibility and enforcement inversion. Empty map faction keys show everyone; copy the desired keys into the map component when restricting its audience.
 
-| Visibility | Recipients |
-|---|---|
-| EVERYONE | Every player opening a map |
-| AFFECTED_FACTIONS | Everyone when Faction Keys is empty; otherwise only players belonging to a listed faction |
-| APPLICABLE_PLAYERS | Living controlled characters matching all faction, inventory and vehicle filters |
-| HIDDEN | Nobody |
-
-The matching-player option tests current character eligibility, including a spectator body if it matches; it does not wait for GAME or require a boundary violation. Use faction visibility for planning before characters have their mission inventory. Disabled, invalid and removed limits are never drawn.
-
-Set color (including opacity), width (1–20 UI pixels), and optional faction color independently per AO. Faction color uses the first listed faction; an empty list uses the configured color. Width stays fixed while zooming and follows UI scaling. The Workbench line color is separate. All visible boundaries are drawn; enforcement priority does not hide lower-priority outlines.
-
-The trusted eligibility API is `SetEligibility(factions, vehicleState, vehicleMode, vehicles, itemCondition, items)`. The former faction-mode argument has been removed. Empty or null faction arrays mean everyone. External mission scripts using the old signature must remove that argument; saved custom AO resources should remove obsolete `m_eFactionMode` entries. Their faction keys now always act as an inclusion list.
-
-Faction-key simplification verified in embedded Workbench Play on 2026-10-25: empty keys accepted unaffiliated, US and USSR players; populated keys accepted only listed native factions, including a two-faction list. Live faction visibility removed/restored the fixture outline, and faction color used US color for `US` and configured blue for an empty list. Receipts and matching logs are in `Art/References/ao-map/faction-keys-{runtime,log}.json`. This is embedded coverage, not a new standalone multiplayer test. The fixture reports an invalid configuration before its polygon is assigned; configuration then succeeds. Session logs also contain unrelated resource/plugin and missing-loadout-manager errors.
-
-The overlay uses CanvasWidget/LineDrawCommand, closes each polygon, clips to the existing map frame, and captures no input. Projection follows the native map's pan/zoom events immediately, reusing drawing commands rather than redrawing on an independent timer. It introduces no MapItem/MapLink boundary markers or external addon dependency. The server filters a fresh owner-only snapshot every 0.5 seconds while that player's map is open. Changes to eligibility, geometry, enablement or style appear on the next refresh. Stale snapshots clear after 1.5 seconds. Closing the map releases the overlay, removes its listeners and stops requests.
-
-Trusted server scripts can call `SetMapStyle(visibility, packedARGB, width, useFactionColor)`. It returns false for invalid visibility/width or missing authority/registration and does not restart violation timers.
+The old AO map visibility attributes and `SetMapStyle` API are removed. Mission scripts now use the attached map component's `SetFactionKeys`, `SetStyle`, `SetInvertFill` and `SetEnabled`. AO geometry still changes through `GC_AOLimitEntity.SetPolygon`. Historical map test records below describe the earlier outline-only implementation.
 
 ## Validation
 

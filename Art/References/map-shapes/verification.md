@@ -1,0 +1,30 @@
+# Map shapes verification — 2026-10-25
+
+Final independent review approved the code, screenshots, runtime evidence and documented limits. Saved scripts passed the readability/UTF-8/whitespace review and `git diff --check`. Peer processes were stopped; original peer parameters and 1920×1080 dimensions were restored; both localhost Play options were verified off. Production-only Lobby2 restarted successfully (PID 49360, session `logs_2026-10-25_01-51-24`, loaded core/ArmaReforger/Lobby2), compiled without Game errors, and reopened Arland. Known duplicate Dedicated Server Tool/Steam errors remain unrelated to this feature.
+
+Production: native polyline map component, AO prefab attachment disabled by default, solid inside/outside fill, faction-key-only filtering, live server APIs and owner snapshots. The shared Workbench helper generated and saved five points at radius 100 m on `MapShape_PolygonFixture` in the optional AOPolygon world. Production has no dependency on the test addon or another map addon.
+
+## Observed results
+
+- Game/Workbench modules reloaded successfully, including final production smoothing changes (operation `ca8f3c7b8b1b49da8a0d8ed9eb0bb2be`). No Game script compile errors. Existing world/resource/plugin errors are separate from successful feature assertions.
+- Embedded Arland host: no drawing from authored AO by default; standalone shapes spawn with `AO=0`; native filled rectangle and concave L render correctly. Enabling the AO's attached component adds its canonical geometry to the same canvas. Live geometry/color/faction changes, disabling, re-enabling and deletion update snapshots.
+- Native outside-fill coverage test: six scenarios, 4,608 samples, zero coverage mismatches and zero overlapping triangles against `Math2D.IsPointInPolygonXZ`. Covers concavity, reversed winding, partial viewport intersections, polygon surrounding the viewport, entirely offscreen polygon and 128 vertices.
+- Separate 1280×720 diagnostic peer joined after shapes were created. It received normal and inverted geometry/styles. US-only shape was visible on the US host and absent on the other faction's peer; empty keys restored visibility. Outside-to-inside fill, pentagon geometry, red color, disable/re-enable and deletion propagated live. `runtime-peer-inverted.png` shows the clear concave interior on a joining client.
+- Final smoothed lines render at host DPI-scaled width 3.91111 and peer width 2 for configured 3 UI pixels (native draw widths include an additional 3 pixels consumed by the transparent edge treatment). Final peer captures cover widths 1, 3 and 20, regular and inverted fill. See `runtime-line-final-peer.png`, `runtime-line-thin-peer.png`, `runtime-line-thick-peer.png` and `runtime-line-inverted-final-peer.png`.
+- Final native pan/zoom measurement: 600 frames, zero misaligned/missing frames, zero command replacements; maximum difference from native integer projection 0.999512 pixels. Fractional projection is expected to differ by less than one pixel from integer truncation, so tolerance is 1.01 pixels. Earlier integer-projection runs measured zero difference. These are alignment/reuse checks, not CPU benchmarks.
+
+## Line rendering investigation
+
+The native-resolution baseline exhibited hard stair steps at shallow angles. Installed `EnWidgets.c:89–99` exposes width, outline width/color and texture, but no antialiasing switch. Installed `SCR_MapEntity.c:904–965` implements an axis-aligned pan/zoom transform with integer forward outputs and float inverse outputs; `GetCurrentZoom` returns its current pixel-per-world-unit scale.
+
+The comparison tested the untextured line, mirrored white gradient, horizontal/vertical guide slices and native transparent outline. Texture options were faint or uneven. The selected native outline uses a one-pixel transparent edge with the same RGB and compensates its measured width loss by adding three pixels to the command width. It preserves visual weight and produces blended edge pixels without extra commands, textures or markers. Fractional coordinates use the native inverse transform and current zoom, avoiding integer endpoint quantization.
+
+`runtime-line-final-comparison.png` is a native 3840×2160 capture; `line-final-detail.png` is an unscaled crop. Columns left to right: original, mirrored gradient, guide slice, vertical guide slice, chosen transparent edge. Rows request 1, 4 and 7 screen pixels. `line-comparison-experiment.c.txt` preserves the explicit research fixture outside script import folders; its bare texture paths loaded but produced GUID warnings, so it is not part of the shipped test module. Production uses no texture resources from that experiment.
+
+## Evidence and limits
+
+`runtime-final.json` retains method arguments, return values and receipts, including unsuccessful setup/navigation attempts. `receipt-log.txt` contains matching begin/end log lines. Peer startup/JIP excerpts preserve three test sessions. Failed initial peer launch lacked the base addon path; a later launch attempted to join an embedded single-player session after reload reset localhost mode. Both were stopped, corrected explicitly and replaced by successful connected tests. Neither failed launch counts as multiplayer coverage.
+
+The screenshots meet the reference's clear boundary, translucent fill and readable terrain goals; the inverted shape leaves its interior clear and clips tint to the map. The new line treatment improves shallow-angle edges while retaining existing UI composition and native movement synchronization.
+
+Not tested in this slice: dedicated-server topology, packet loss/latency, many simultaneous 128-vertex inverted shapes, CPU rendering cost, console/gamepad, every UI-scale setting, or unrelated-mode/mode-switch runtime behavior. No new shared base-game override was added. Native gameplay/spectator map discovery is retained from the prior AO overlay, but the new fill/line treatment was visually checked in the briefing map. Simple, non-self-intersecting polygons with nonzero XZ area are the authoring contract; holes and self-intersection repair are unsupported.

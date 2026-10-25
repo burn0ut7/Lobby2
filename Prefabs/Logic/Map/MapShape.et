@@ -1,0 +1,13 @@
+PolylineShapeEntity {
+ ID "8F470B543A20D960"
+ components {
+  RplComponent "{8F470B543A20D961}" {
+   Streamable Disabled
+  }
+  GC_MapShapeComponent "{8F470B543A20D962}" {
+   m_bEnabled 1
+  }
+ }
+ IsClosed 1
+ LineColor 0.2 0.5 1 1
+}

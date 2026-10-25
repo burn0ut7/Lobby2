@@ -29,14 +29,6 @@ enum GC_EAOItemCondition
 	MISSING_ANY
 }
 
-enum GC_EAOMapVisibility
-{
-	EVERYONE,
-	AFFECTED_FACTIONS,
-	APPLICABLE_PLAYERS,
-	HIDDEN
-}
-
 [EntityEditorProps(category: "Lobby2/Mission", description: "Closed XZ polygon AO. Applicable limits combine. Highest priority breached limit acts; equal priorities prefer hard return, then earliest soft deadline. Exact ties retain the first evaluated limit.", color: "255 70 70 255")]
 class GC_AOLimitEntityClass : PolylineShapeEntityClass
 {
@@ -68,14 +60,6 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected GC_EAOItemCondition m_eItemCondition;
 	[Attribute("", UIWidgets.Auto, "Item prefabs (including derived prefabs). Required when item condition is enabled.", params: "et", category: "Eligibility")]
 	protected ref array<ResourceName> m_aItemPrefabs;
-	[Attribute("0", UIWidgets.ComboBox, "Who sees this enabled AO on maps. AFFECTED_FACTIONS follows the faction filter only. APPLICABLE_PLAYERS also checks the current character, inventory and vehicle. Visibility never changes enforcement.", enums: ParamEnumArray.FromEnum(GC_EAOMapVisibility), category: "Map outline")]
-	protected GC_EAOMapVisibility m_eMapVisibility;
-	[Attribute("0 0 0 1", UIWidgets.ColorPicker, "Map outline color, including opacity. Independent of the Workbench line color.", category: "Map outline")]
-	protected ref Color m_MapColor;
-	[Attribute("1", UIWidgets.CheckBox, "Use the first listed faction's color when Faction Keys is populated; otherwise use Map Color.", category: "Map outline")]
-	protected bool m_bMapFactionColor;
-	[Attribute("3", UIWidgets.EditBox, "Map line width in UI pixels, independent of map zoom. Range 1-20.", params: "1 20", category: "Map outline")]
-	protected float m_fMapLineWidth;
 	protected ref array<vector> m_aPolygon = {};
 	protected GC_AOLimitSystem m_System;
 	protected bool m_bValid;
@@ -245,46 +229,11 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Server supplies only the outlines this recipient is allowed to see.
-	void AppendMapOutline(int playerId, array<int> counts, array<int> colors, array<float> widths, array<vector> points)
+	//! Shared map component reads the enforcement polygon without owning a second copy.
+	void GetMapPolygon(array<vector> points)
 	{
-		if (!IsEnabled() || m_eMapVisibility == GC_EAOMapVisibility.HIDDEN)
-			return;
-		if (m_eMapVisibility == GC_EAOMapVisibility.AFFECTED_FACTIONS && !MatchesFaction(playerId))
-			return;
-		if (m_eMapVisibility == GC_EAOMapVisibility.APPLICABLE_PLAYERS)
-		{
-			ChimeraCharacter character = ChimeraCharacter.Cast(GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId));
-			if (!character || !SCR_AIDamageHandling.IsAlive(character)
-				|| !AppliesTo(playerId, character, CompartmentAccessComponent.GetVehicleIn(character)))
-				return;
-		}
-
-		Color color = m_MapColor;
-		if (m_bMapFactionColor && m_aFactionKeys && !m_aFactionKeys.IsEmpty())
-		{
-			Faction faction = GetGame().GetFactionManager().GetFactionByKey(m_aFactionKeys[0]);
-			if (faction)
-				color = faction.GetFactionColor();
-		}
-		counts.Insert(m_aPolygon.Count());
-		colors.Insert(color.PackToInt());
-		widths.Insert(Math.Clamp(m_fMapLineWidth, 1, 20));
-		points.InsertAll(m_aPolygon);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	//! Trusted mission API; changes appear on the next open-map refresh.
-	bool SetMapStyle(GC_EAOMapVisibility visibility, int color, float width, bool factionColor)
-	{
-		if (!Replication.IsServer() || !m_System || visibility < 0 || visibility > GC_EAOMapVisibility.HIDDEN
-			|| width < 1 || width > 20)
-			return false;
-		m_eMapVisibility = visibility;
-		m_MapColor = Color.FromInt(color);
-		m_fMapLineWidth = width;
-		m_bMapFactionColor = factionColor;
-		return true;
+		if (m_bValid)
+			points.Copy(m_aPolygon);
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -1,0 +1,51 @@
+//! Explicit rendering experiment; never runs automatically or ships in production.
+modded class GC_LobbyManager
+{
+	protected Widget m_GC_LineComparisonRoot;
+	protected ref array<ref CanvasWidgetCommand> m_aGC_LineComparison = {};
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMapLineComparison(bool show)
+	{
+		if (m_GC_LineComparisonRoot)
+			m_GC_LineComparisonRoot.RemoveFromHierarchy();
+		m_GC_LineComparisonRoot = null;
+		m_aGC_LineComparison.Clear();
+		if (!show)
+			return "closed";
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		if (!mapEntity || !mapEntity.IsOpen())
+			return "UNAVAILABLE map";
+		m_GC_LineComparisonRoot = GetGame().GetWorkspace().CreateWidgets("{8F470B543A20D950}UI/layouts/Mission/Lobby_AOMap.layout", mapEntity.GetMapWidget().GetParent());
+		CanvasWidget canvas = CanvasWidget.Cast(m_GC_LineComparisonRoot.FindAnyWidget("AOMapCanvas"));
+		array<string> textures = {"", "UI/Textures/Common/gradient_transparent_white_linear_photoshop_mirrored.edds", "UI/Textures/Map/cursorLines/guidingLine_slice.edds", "UI/Textures/Map/cursorLines/guidingLine_slice_vertical.edds"};
+		string result;
+		for (int candidate; candidate < 5; candidate++)
+		{
+			ref SharedItemRef texture;
+			if (candidate > 0 && candidate < 4)
+				texture = CanvasWidget.LoadTexture(textures[candidate]);
+			result += string.Format(" candidate%1 texture=%2", candidate, texture != null);
+			for (int sample; sample < 3; sample++)
+			{
+				float x = 270 + candidate * 230;
+				float y = 180 + sample * 100;
+				LineDrawCommand line = new LineDrawCommand();
+				line.m_iColor = Color.BLUE;
+				line.m_fWidth = 1 + sample * 3;
+				line.m_Vertices = {x, y, x + 190, y + 17, x + 180, y + 65};
+				line.m_pTexture = texture;
+				line.m_UVScale = "1 1 0";
+				if (candidate == 4)
+				{
+					line.m_fWidth += 3;
+					line.m_fOutlineWidth = 1;
+					line.m_iOutlineColor = 0x000000FF;
+				}
+				m_aGC_LineComparison.Insert(line);
+			}
+		}
+		canvas.SetDrawCommands(m_aGC_LineComparison);
+		return result;
+	}
+}

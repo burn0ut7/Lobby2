@@ -9,6 +9,13 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	protected bool m_bStartupLogged;
 	protected ref GC_MapPlans m_MapPlans;
 	protected ref GC_AOLimitSystem m_AOLimits;
+	protected ref GC_MapShapeSystem m_MapShapes;
+
+	//------------------------------------------------------------------------------------------------
+	GC_MapShapeSystem GetMapShapes()
+	{
+		return m_MapShapes;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_AOLimitSystem GetAOLimits()
@@ -40,6 +47,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 
 		if (Replication.IsServer())
 		{
+			m_MapShapes = new GC_MapShapeSystem();
 			m_MapPlans = new GC_MapPlans();
 			m_MapPlans.Start(this);
 			m_AOLimits = new GC_AOLimitSystem();
@@ -164,6 +172,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyGameMode()
 	{
+		if (m_MapShapes)
+			m_MapShapes.Stop();
 		if (m_AOLimits && GetGame())
 			m_AOLimits.Stop();
 		if (m_MapPlans && GetGame())

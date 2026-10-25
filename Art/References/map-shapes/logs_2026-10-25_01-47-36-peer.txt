@@ -1,0 +1,4 @@
+C:\Users\Gray\Documents\My Games\PeerPlugin1\logs\logs_2026-10-25_01-47-36\console.log
+159: 01:47:38.722 ENGINE       : Game successfully created.
+168: 01:47:39.793 NETWORK      : Starting RPL client, number of addresses to try connecting to: 1
+313: 01:47:47.020 SCRIPT       : GC | JIP topology ready: attempts=2 groups=7 factions=2 slots=24

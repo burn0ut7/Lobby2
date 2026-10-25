@@ -1,5 +1,5 @@
 //! Passive map overlay. Authority supplies geometry; only projection happens here.
-class GC_AOMapOverlay
+class GC_MapShapeOverlay
 {
 	protected Widget m_Root;
 	protected Widget m_Parent;
@@ -53,20 +53,21 @@ class GC_AOMapOverlay
 		if (now >= m_fNextRequest)
 		{
 			m_fNextRequest = now + 500;
-			controller.GC_RequestAOMap(m_iGeneration);
+			controller.GC_RequestMapShapes(m_iGeneration);
 		}
 		// This timer owns discovery, snapshots and expiry, never moving-map projection.
 		if (now - m_fLastReceive > 1500 && !m_aCommands.IsEmpty())
 		{
+			m_aCounts.Clear();
 			m_aCommands.Clear();
 			m_Canvas.SetDrawCommands(m_aCommands);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Receive(int generation, array<int> counts, array<int> colors, array<float> widths, array<vector> points)
+	void Receive(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points)
 	{
-		if (!m_Canvas || generation != m_iGeneration || counts.Count() != colors.Count() || counts.Count() != widths.Count())
+		if (!m_Canvas || generation != m_iGeneration || counts.Count() != colors.Count() || counts.Count() != widths.Count() || counts.Count() != fills.Count() || counts.Count() != inverted.Count())
 			return;
 		int total;
 		foreach (int count : counts)
@@ -81,18 +82,44 @@ class GC_AOMapOverlay
 		m_aWidths.Copy(widths);
 		m_aPoints.Copy(points);
 		m_fLastReceive = GetGame().GetWorld().GetWorldTime();
-		m_aCommands.Resize(counts.Count());
+		m_aCommands.Resize(counts.Count() * 2);
 		foreach (int index, int count : counts)
 		{
-			LineDrawCommand line = LineDrawCommand.Cast(m_aCommands[index]);
+			LineDrawCommand line = LineDrawCommand.Cast(m_aCommands[index * 2 + 1]);
 			if (!line)
 			{
 				line = new LineDrawCommand();
 				line.m_bShouldEnclose = true;
+				line.m_fOutlineWidth = 1;
+				line.m_iOutlineColor = 0;
 				line.m_Vertices = {};
-				m_aCommands[index] = line;
+				m_aCommands[index * 2 + 1] = line;
+			}
+			if (inverted[index])
+			{
+				TriMeshDrawCommand outside = TriMeshDrawCommand.Cast(m_aCommands[index * 2]);
+				if (!outside)
+				{
+					outside = new TriMeshDrawCommand();
+					outside.m_Vertices = {};
+					outside.m_Indices = {};
+					m_aCommands[index * 2] = outside;
+				}
+				outside.m_iColor = fills[index];
+			}
+			else
+			{
+				PolygonDrawCommand fill = PolygonDrawCommand.Cast(m_aCommands[index * 2]);
+				if (!fill)
+				{
+					fill = new PolygonDrawCommand();
+					m_aCommands[index * 2] = fill;
+				}
+				fill.m_iColor = fills[index];
+				fill.m_Vertices = line.m_Vertices;
 			}
 			line.m_iColor = colors[index];
+			line.m_iOutlineColor = colors[index] & 0x00FFFFFF;
 			if (line.m_Vertices.Count() != count * 2)
 				line.m_Vertices.Resize(count * 2);
 		}
@@ -123,20 +150,29 @@ class GC_AOMapOverlay
 		if (!m_Canvas || !mapEntity || !mapEntity.IsOpen() || !GC_LobbyGameMode.GetGameMode())
 			return;
 
+		// Use the native inverse transform to retain fractional screen positions.
+		// WorldToScreen exposes integer outputs, which quantize slow movement.
+		float originX, originZ;
+		mapEntity.ScreenToWorld(0, 0, originX, originZ);
+		float zoom = mapEntity.GetCurrentZoom();
 		int offset;
-		foreach (int index, CanvasWidgetCommand command : m_aCommands)
+		foreach (int index, int count : m_aCounts)
 		{
-			int count = m_aCounts[index];
-			LineDrawCommand line = LineDrawCommand.Cast(command);
-			line.m_fWidth = GetGame().GetWorkspace().DPIScale(m_aWidths[index]);
+			LineDrawCommand line = LineDrawCommand.Cast(m_aCommands[index * 2 + 1]);
+			// The native transparent outline consumes stroke width; preserve its visual weight.
+			line.m_fWidth = GetGame().GetWorkspace().DPIScale(m_aWidths[index]) + 3;
 			for (int i; i < count; i++)
 			{
 				vector point = m_aPoints[offset + i];
-				int x, y;
-				mapEntity.WorldToScreen(point[0], point[2], x, y, true);
-				// WorldToScreen returns scaled coordinates local to the map frame.
-				line.m_Vertices[i * 2] = x;
-				line.m_Vertices[i * 2 + 1] = y;
+				line.m_Vertices[i * 2] = (point[0] - originX) * zoom;
+				line.m_Vertices[i * 2 + 1] = (originZ - point[2]) * zoom;
+			}
+			TriMeshDrawCommand outside = TriMeshDrawCommand.Cast(m_aCommands[index * 2]);
+			if (outside)
+			{
+				float width, height;
+				m_Canvas.GetScreenSize(width, height);
+				GC_MapShapeOutsideFill.Build(line.m_Vertices, width, height, outside);
 			}
 			offset += count;
 		}
