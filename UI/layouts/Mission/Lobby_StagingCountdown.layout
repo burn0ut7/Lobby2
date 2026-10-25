@@ -9,8 +9,8 @@ FrameWidgetClass {
     Anchor 0.5 0 0.5 0
     OffsetLeft 0
     OffsetTop 28
-    SizeX 420
-    OffsetRight -420
+    SizeX 324
+    OffsetRight -324
     SizeY 44
     OffsetBottom -72
     Alignment 0.5 0
@@ -34,7 +34,7 @@ FrameWidgetClass {
      Name "StagingCountdownTitle"
      Slot FrameWidgetSlot {
       Anchor 0 0 0.6 1
-      OffsetLeft 18
+      OffsetLeft 12
       OffsetTop 0
       OffsetRight 0
       OffsetBottom 0
@@ -55,7 +55,7 @@ FrameWidgetClass {
       Anchor 0.6 0 1 1
       OffsetLeft 0
       OffsetTop 0
-      OffsetRight 18
+      OffsetRight 12
       OffsetBottom 0
      }
      Text "00:00"
