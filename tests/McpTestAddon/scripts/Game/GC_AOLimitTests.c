@@ -36,7 +36,7 @@ modded class GC_LobbyManager
 		points.Insert(center + Vector(halfExtent, 0, -halfExtent));
 		points.Insert(center + Vector(halfExtent, 0, halfExtent));
 		points.Insert(center + Vector(-halfExtent, 0, halfExtent));
-		bool behaviorSet = limit.SetBehavior(behavior, seconds, priority, index);
+		bool behaviorSet = limit.SetBehavior(behavior, seconds, priority);
 		bool polygonSet = limit.SetPolygon(points, inverted, "");
 		return string.Format("behavior=%1 polygon=%2 enabled=%3 permitsOrigin=%4", behaviorSet, polygonSet, limit.SetEnabled(true), limit.Permits(m_vGC_AOOrigin));
 	}

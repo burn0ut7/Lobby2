@@ -37,7 +37,7 @@ enum GC_EAOMapVisibility
 	HIDDEN
 }
 
-[EntityEditorProps(category: "Lobby2/Mission", description: "Closed XZ polygon AO. Applicable limits combine. Highest priority breached limit acts; hard wins equal priority, then earliest soft deadline, then unique order.", color: "255 70 70 255")]
+[EntityEditorProps(category: "Lobby2/Mission", description: "Closed XZ polygon AO. Applicable limits combine. Highest priority breached limit acts; equal priorities prefer hard return, then earliest soft deadline. Exact ties retain the first evaluated limit.", color: "255 70 70 255")]
 class GC_AOLimitEntityClass : PolylineShapeEntityClass
 {
 }
@@ -50,10 +50,8 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected GC_EAOBehavior m_eBehavior;
 	[Attribute("0", UIWidgets.CheckBox, "Off: stay INSIDE the polygon. On: stay OUTSIDE the polygon. Height is ignored.", category: "AO")]
 	protected bool m_bInverted;
-	[Attribute("0", UIWidgets.EditBox, "Larger priority acts first among breached applicable limits. Other limits keep their own timers. Hard wins equal priority.", category: "AO")]
+	[Attribute("0", UIWidgets.EditBox, "Higher numbers win among breached applicable limits. Equal priorities are allowed: hard wins, then earliest soft deadline; exact ties retain the first evaluated limit. Other limits keep their timers. Use distinct priorities to explicitly choose a winner.", category: "AO")]
 	protected int m_iPriority;
-	[Attribute("0", UIWidgets.EditBox, "Unique order among limits with the same priority. Lower order breaks remaining ties. Duplicate priority/order pairs are rejected.", category: "AO")]
-	protected int m_iOrder;
 	[Attribute("20", UIWidgets.EditBox, "Continuous seconds outside before death. Re-entry or exemption clears this limit's timer. Range 0.1-3600.", category: "AO")]
 	protected float m_fGraceSeconds;
 	[Attribute("", UIWidgets.EditBox, "Optional named entity at a safe return transform for characters first observed outside. Must satisfy ALL applicable hard limits. Otherwise a previously observed safe transform is required.", category: "AO")]
@@ -94,16 +92,15 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Trusted authority API; validation preserves a deterministic ordering.
-	bool SetBehavior(GC_EAOBehavior behavior, float graceSeconds, int priority, int order)
+	//! Trusted authority API. Equal priorities are allowed.
+	bool SetBehavior(GC_EAOBehavior behavior, float graceSeconds, int priority)
 	{
 		if (!Replication.IsServer() || !m_System || behavior < 0 || behavior > GC_EAOBehavior.SOFT_KILL
-			|| graceSeconds < 0.1 || graceSeconds > 3600 || !m_System.IsOrderAvailable(this, priority, order))
+			|| graceSeconds < 0.1 || graceSeconds > 3600)
 			return false;
 		m_eBehavior = behavior;
 		m_fGraceSeconds = graceSeconds;
 		m_iPriority = priority;
-		m_iOrder = order;
 		m_System.ResetLimit(this);
 		return true;
 	}
@@ -127,12 +124,6 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
-	int GetOrder()
-	{
-		return m_iOrder;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	float GetGraceSeconds()
 	{
 		return m_fGraceSeconds;
@@ -142,8 +133,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	//! Runtime geometry is world-space. The caller owns safe, non-self-intersecting authoring.
 	bool SetPolygon(array<vector> worldPoints, bool inverted, string returnEntity)
 	{
-		if (!Replication.IsServer() || !m_System || !ValidatePolygon(worldPoints) || !ValidateSettings()
-			|| !m_System.IsOrderAvailable(this, m_iPriority, m_iOrder))
+		if (!Replication.IsServer() || !m_System || !ValidatePolygon(worldPoints) || !ValidateSettings())
 			return false;
 		m_aPolygon.Copy(worldPoints);
 		m_bInverted = inverted;
@@ -371,7 +361,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 		if (!m_bValid || !m_System || !m_System.Register(this))
 		{
 			m_bValid = false;
-			PrintFormat("GC | AO | invalid configuration or duplicate priority/order: %1", GetName(), level: LogLevel.ERROR);
+			PrintFormat("GC | AO | invalid configuration: %1", GetName(), level: LogLevel.ERROR);
 		}
 	}
 

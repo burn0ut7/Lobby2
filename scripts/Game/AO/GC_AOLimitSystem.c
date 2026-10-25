@@ -41,20 +41,9 @@ class GC_AOLimitSystem
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool IsOrderAvailable(GC_AOLimitEntity candidate, int priority, int order)
-	{
-		foreach (GC_AOLimitEntity limit : m_aLimits)
-		{
-			if (limit && limit != candidate && limit.GetPriority() == priority && limit.GetOrder() == order)
-				return false;
-		}
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	bool Register(GC_AOLimitEntity limit)
 	{
-		if (!Replication.IsServer() || !IsOrderAvailable(limit, limit.GetPriority(), limit.GetOrder()))
+		if (!Replication.IsServer())
 			return false;
 		if (!m_aLimits.Contains(limit))
 			m_aLimits.Insert(limit);
@@ -109,7 +98,8 @@ class GC_AOLimitSystem
 			return candidate.GetBehavior() == GC_EAOBehavior.HARD_RETURN;
 		if (candidate.GetBehavior() == GC_EAOBehavior.SOFT_KILL && deadline != currentDeadline)
 			return deadline < currentDeadline;
-		return candidate.GetOrder() < current.GetOrder();
+		// Exact ties retain the first evaluated limit in the server's scan.
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------

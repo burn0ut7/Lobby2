@@ -1,0 +1,805 @@
+{
+  "calls": [
+    {
+      "method": "GC_TestClick",
+      "args": [
+        "Lobby Button"
+      ],
+      "receipt": "r278dcea3ff0e484ca8cae72fb91b4e34",
+      "returned": "dispatched: Lobby Button"
+    },
+    {
+      "method": "GC_TestSelectFaction",
+      "args": [
+        "US"
+      ],
+      "receipt": "r1012f0b31a444b4784b6e213ddb6a9bf",
+      "returned": "dispatched: Button"
+    },
+    {
+      "method": "GC_TestSelectSlot",
+      "args": [
+        9
+      ],
+      "receipt": "r783c5a6c88d34ef49d6340393fad625b",
+      "returned": "dispatched: SlotButton"
+    },
+    {
+      "method": "GC_TestFreezeAdvance",
+      "args": [],
+      "receipt": "r2e1778f8aa89481b9bdae848058f772b",
+      "returned": "DISPATCHED production phase request"
+    },
+    {
+      "method": "GC_TestFreezeAdvance",
+      "args": [],
+      "receipt": "rde735bef4437464cb8f6137eae9a9fe5",
+      "returned": "DISPATCHED production phase request"
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "receipt": "r38c413c4d68148e79ec74ccd5d5fb6fa",
+      "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1190.152954 39.000000 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1190.15,39,2725.61> offset=<1190.15,39,2725.61> vehicle=NULL HUD=absent limits=1 clocks=0"
+    },
+    {
+      "method": "GC_TestAOSpawn",
+      "args": [],
+      "receipt": "r1af2846813034fd7b3066f4d2ba8a802",
+      "returned": "spawned index=0 origin=<1190.15,39,2725.61>; configure after native initialization"
+    },
+    {
+      "method": "GC_TestAOSpawn",
+      "args": [],
+      "receipt": "r640ddab76d05408fa8d9e7088e6bc829",
+      "returned": "spawned index=1 origin=<1190.15,39,2725.61>; configure after native initialization"
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        0,
+        1,
+        false,
+        {
+          "type": "float",
+          "value": 3600
+        },
+        0,
+        {
+          "type": "float",
+          "value": 2
+        },
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "receipt": "r6bb87062086546e5805a3603a56f8a3e",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        1,
+        1,
+        false,
+        {
+          "type": "float",
+          "value": 3500
+        },
+        0,
+        {
+          "type": "float",
+          "value": 2
+        },
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "receipt": "rbab5f135248f4198abc7f74a5e74cb0a",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        [
+          5,
+          0,
+          0
+        ]
+      ],
+      "receipt": "rfbc02b77bff44bb6b3274c65a37cc72e",
+      "returned": "arranged=1 destination=<1195.15,39,2725.61>"
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "receipt": "r3a27c6a72a61414c9861e323570bec54",
+      "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1195.15,39,2725.61> offset=<4.99902,-1.52588e-05,0> vehicle=NULL HUD=58:19.422 limits=3 clocks=2 selected=AOFixture1 behavior=1 priority=0 remaining=3499.42"
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        0,
+        1,
+        false,
+        {
+          "type": "float",
+          "value": 3600
+        },
+        20,
+        {
+          "type": "float",
+          "value": 2
+        },
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "receipt": "r17b9be01c5f54de48d9b1dfa003a48c2",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "receipt": "rac367a2be4b34dc5b3dbdfa0276f02d6",
+      "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1195.15,39,2725.61> offset=<4.99902,-1.52588e-05,0> vehicle=NULL HUD=59:59.427 limits=3 clocks=2 selected=AOFixture0 behavior=1 priority=20 remaining=3599.42"
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        0,
+        0,
+        false,
+        {
+          "type": "float",
+          "value": 20
+        },
+        0,
+        {
+          "type": "float",
+          "value": 2
+        },
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "receipt": "r0063fc57e84e41389f2c83deeaf26314",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "receipt": "r0aa06af0c07849619d1e90b9c65b082a",
+      "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1195.15,39,2725.61> offset=<4.99902,-1.52588e-05,0> vehicle=NULL HUD=absent limits=3 clocks=2 selected=AOFixture0 behavior=0 priority=0 remaining=19.3097"
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        1,
+        0,
+        false,
+        {
+          "type": "float",
+          "value": 20
+        },
+        0,
+        {
+          "type": "float",
+          "value": 2
+        },
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "receipt": "rff088961ca1b4e7586419839f4c510ee",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        [
+          5,
+          0,
+          0
+        ]
+      ],
+      "receipt": "redaa1cf1fe6546059a41b26882a1c41c",
+      "returned": "arranged=1 destination=<1195.15,39,2725.61>"
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "receipt": "r5f714936832b423f80890a207c36e1d2",
+      "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1195.15,39,2725.61> offset=<4.99902,-1.52588e-05,0> vehicle=NULL HUD=absent limits=3 clocks=2 selected=AOFixture0 behavior=0 priority=0 remaining=18.1791"
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "receipt": "r1b3a000ede294ec28d129766b3e01ad0",
+      "returned": "arranged=1 destination=<1190.15,39,2725.61>"
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        [
+          5,
+          0,
+          0
+        ]
+      ],
+      "receipt": "r1a534f08e82246f3bdb3212122b2efa0",
+      "returned": "arranged=1 destination=<1195.15,39,2725.61>"
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "receipt": "r35687ffbddc044ef807500cd2ffaa18a",
+      "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1190.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1190.15,39,2725.61> offset=<-0.000976562,-1.52588e-05,0> vehicle=NULL HUD=absent limits=3 clocks=0"
+    },
+    {
+      "method": "GC_TestAOConfigure",
+      "args": [
+        1,
+        1,
+        false,
+        {
+          "type": "float",
+          "value": 3500
+        },
+        0,
+        {
+          "type": "float",
+          "value": 2
+        },
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "receipt": "rf1ff0590be214e778696a00eacd1ec97",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+    },
+    {
+      "method": "GC_TestAOMove",
+      "args": [
+        [
+          5,
+          0,
+          0
+        ]
+      ],
+      "receipt": "r4c02106589e94280a12abacf57ba7a98",
+      "returned": "arranged=1 destination=<1195.15,39,2725.61>"
+    },
+    {
+      "method": "GC_TestAOSnapshot",
+      "args": [],
+      "receipt": "rd3e7d3b903ae4396aca0b110df0dc96f",
+      "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1190.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1190.15,39,2725.61> offset=<-0.000976562,-1.52588e-05,0> vehicle=NULL HUD=absent limits=3 clocks=0"
+    }
+  ],
+  "log": {
+    "source": "workbench",
+    "session": "logs_2026-10-25_01-03-32",
+    "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-25_01-03-32\\console.log",
+    "revision": "67173:AAB3289FB61CB024D4890184F3967E173C4B3A8968C92A02451F00F4ED781E1C",
+    "header": "Log C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-25_01-03-32\\console.log started at 2026-10-25 01:03:32 (2026-10-25 05:03:32 UTC)",
+    "scope": "latest",
+    "fromLine": 208,
+    "toLine": 590,
+    "totalLines": 590,
+    "cycle": {
+      "startLine": 208,
+      "time": "01:03:34.731",
+      "kind": "compilation",
+      "completionLine": 233
+    },
+    "severityCounts": {
+      "error": 17,
+      "warning": 40,
+      "info": 326
+    },
+    "categoryCounts": {
+      "SCRIPT": 187,
+      "PROFILING": 39,
+      "INIT": 9,
+      "ENGINE": 8,
+      "DEFAULT": 10,
+      "BACKEND": 1,
+      "PLATFORM": 4,
+      "GUI": 18,
+      "RESOURCES": 12,
+      "WORLD": 50,
+      "ENTITY": 20,
+      "PATHFINDING": 8,
+      "TERRAIN": 6,
+      "RENDER": 4,
+      "NETWORK": 7
+    },
+    "matchedLines": 58,
+    "entries": [
+      {
+        "line": 478,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:04.362 SCRIPT       : RST_MCP_BEGIN r278dcea3ff0e484ca8cae72fb91b4e34",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 493,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:04.384 SCRIPT       : RST_MCP_END r278dcea3ff0e484ca8cae72fb91b4e34 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 495,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:04.601 SCRIPT       : RST_MCP_BEGIN r1012f0b31a444b4784b6e213ddb6a9bf",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 496,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:04.604 SCRIPT       : RST_MCP_END r1012f0b31a444b4784b6e213ddb6a9bf invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 497,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:04.815 SCRIPT       : RST_MCP_BEGIN r783c5a6c88d34ef49d6340393fad625b",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 503,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:04.816 SCRIPT       : RST_MCP_END r783c5a6c88d34ef49d6340393fad625b invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 504,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:05.088 SCRIPT       : RST_MCP_BEGIN r2e1778f8aa89481b9bdae848058f772b",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 520,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:05.093 SCRIPT       : RST_MCP_END r2e1778f8aa89481b9bdae848058f772b invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 527,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:05.574 SCRIPT       : RST_MCP_BEGIN rde735bef4437464cb8f6137eae9a9fe5",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 538,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:05.577 SCRIPT       : RST_MCP_END rde735bef4437464cb8f6137eae9a9fe5 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 543,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:06.683 SCRIPT       : RST_MCP_BEGIN r38c413c4d68148e79ec74ccd5d5fb6fa",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 544,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:06.683 SCRIPT       : RST_MCP_END r38c413c4d68148e79ec74ccd5d5fb6fa invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 545,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:06.900 SCRIPT       : RST_MCP_BEGIN r1af2846813034fd7b3066f4d2ba8a802",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 546,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:06.901 SCRIPT       : RST_MCP_END r1af2846813034fd7b3066f4d2ba8a802 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 547,
+        "category": "SCRIPT",
+        "severity": "error",
+        "text": "01:04:06.901 SCRIPT    (E): GC | AO | invalid configuration: AOFixture0",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 548,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:07.265 SCRIPT       : RST_MCP_BEGIN r640ddab76d05408fa8d9e7088e6bc829",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 549,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:07.265 SCRIPT       : RST_MCP_END r640ddab76d05408fa8d9e7088e6bc829 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 550,
+        "category": "SCRIPT",
+        "severity": "error",
+        "text": "01:04:07.265 SCRIPT    (E): GC | AO | invalid configuration: AOFixture1",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 551,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:16.857 SCRIPT       : RST_MCP_BEGIN r6bb87062086546e5805a3603a56f8a3e",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 552,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:16.857 SCRIPT       : RST_MCP_END r6bb87062086546e5805a3603a56f8a3e invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 553,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:17.060 SCRIPT       : RST_MCP_BEGIN rbab5f135248f4198abc7f74a5e74cb0a",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 554,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:17.060 SCRIPT       : RST_MCP_END rbab5f135248f4198abc7f74a5e74cb0a invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 555,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:17.250 SCRIPT       : RST_MCP_BEGIN rfbc02b77bff44bb6b3274c65a37cc72e",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 556,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:17.250 SCRIPT       : RST_MCP_END rfbc02b77bff44bb6b3274c65a37cc72e invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 557,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:17.868 SCRIPT       : RST_MCP_BEGIN r3a27c6a72a61414c9861e323570bec54",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 558,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:17.868 SCRIPT       : RST_MCP_END r3a27c6a72a61414c9861e323570bec54 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 559,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:18.069 SCRIPT       : RST_MCP_BEGIN r17b9be01c5f54de48d9b1dfa003a48c2",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 560,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:18.070 SCRIPT       : RST_MCP_END r17b9be01c5f54de48d9b1dfa003a48c2 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 561,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:18.673 SCRIPT       : RST_MCP_BEGIN rac367a2be4b34dc5b3dbdfa0276f02d6",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 562,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:18.673 SCRIPT       : RST_MCP_END rac367a2be4b34dc5b3dbdfa0276f02d6 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 563,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:18.877 SCRIPT       : RST_MCP_BEGIN r0063fc57e84e41389f2c83deeaf26314",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 564,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:18.877 SCRIPT       : RST_MCP_END r0063fc57e84e41389f2c83deeaf26314 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 565,
+        "category": "SCRIPT",
+        "severity": "error",
+        "text": "01:04:18.899 SCRIPT    (E): GC | AO | hard return unavailable: safe destination=0 editable=SCR_EditableCharacterComponent<0x0000016CE537E1B0> (Owner : @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\") mover=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 566,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:19.591 SCRIPT       : RST_MCP_BEGIN r0aa06af0c07849619d1e90b9c65b082a",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 567,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:19.591 SCRIPT       : RST_MCP_END r0aa06af0c07849619d1e90b9c65b082a invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 568,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:19.795 SCRIPT       : RST_MCP_BEGIN rff088961ca1b4e7586419839f4c510ee",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 569,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:19.795 SCRIPT       : RST_MCP_END rff088961ca1b4e7586419839f4c510ee invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 570,
+        "category": "SCRIPT",
+        "severity": "error",
+        "text": "01:04:19.813 SCRIPT    (E): GC | AO | hard return unavailable: safe destination=0 editable=SCR_EditableCharacterComponent<0x0000016CE537E1B0> (Owner : @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\") mover=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 571,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:20.003 SCRIPT       : RST_MCP_BEGIN redaa1cf1fe6546059a41b26882a1c41c",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 572,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:20.003 SCRIPT       : RST_MCP_END redaa1cf1fe6546059a41b26882a1c41c invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 573,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:20.723 SCRIPT       : RST_MCP_BEGIN r5f714936832b423f80890a207c36e1d2",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 574,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:20.723 SCRIPT       : RST_MCP_END r5f714936832b423f80890a207c36e1d2 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 575,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:30.951 SCRIPT       : RST_MCP_BEGIN r1b3a000ede294ec28d129766b3e01ad0",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 576,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:30.952 SCRIPT       : RST_MCP_END r1b3a000ede294ec28d129766b3e01ad0 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 577,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:31.562 SCRIPT       : RST_MCP_BEGIN r1a534f08e82246f3bdb3212122b2efa0",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 578,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:31.562 SCRIPT       : RST_MCP_END r1a534f08e82246f3bdb3212122b2efa0 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 579,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:31.636 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0 destination=<1190.15,39,2725.61>",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 580,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:31.738 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1190.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\"",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 581,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.168 SCRIPT       : RST_MCP_BEGIN r35687ffbddc044ef807500cd2ffaa18a",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 582,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.168 SCRIPT       : RST_MCP_END r35687ffbddc044ef807500cd2ffaa18a invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 583,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.372 SCRIPT       : RST_MCP_BEGIN rf1ff0590be214e778696a00eacd1ec97",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 584,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.372 SCRIPT       : RST_MCP_END rf1ff0590be214e778696a00eacd1ec97 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 585,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.588 SCRIPT       : RST_MCP_BEGIN r4c02106589e94280a12abacf57ba7a98",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 586,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.589 SCRIPT       : RST_MCP_END r4c02106589e94280a12abacf57ba7a98 invoked",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 587,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.650 SCRIPT       : GC | AO | return dispatched=1 mover=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1195.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" limit=AOFixture0 destination=<1190.15,39,2725.61>",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 588,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:32.752 SCRIPT       : GC | AO | return observed mover=SCR_ChimeraCharacter<0x0000016D1639CB30> @\"ENTITY:4611686018427389159\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1190.151978 38.999985 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\"",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 589,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:33.197 SCRIPT       : RST_MCP_BEGIN rd3e7d3b903ae4396aca0b110df0dc96f",
+        "textTruncated": false,
+        "continuation": false
+      },
+      {
+        "line": 590,
+        "category": "SCRIPT",
+        "severity": "info",
+        "text": "01:04:33.197 SCRIPT       : RST_MCP_END rd3e7d3b903ae4396aca0b110df0dc96f invoked",
+        "textTruncated": false,
+        "continuation": false
+      }
+    ],
+    "truncated": false
+  }
+}
