@@ -1111,24 +1111,33 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//------------------------------------------------------------------------------------------------
 	void RequestAdminGroupLock(RplId groupId, bool locked, int requestId = -1)
 	{
+		GC_ESlotLockScope scope = GC_ESlotLockScope.GROUP;
+		if (groupId == RplId.Invalid())
+			scope = GC_ESlotLockScope.ALL;
+		RequestAdminScopedSlotLock(scope, groupId, string.Empty, locked, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RequestAdminScopedSlotLock(GC_ESlotLockScope scope, RplId groupId, FactionKey factionKey, bool locked, int requestId = -1)
+	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
 		{
 			if (requestId < 0)
 				requestId = ReserveAdminPlayerToolRequest();
-			Rpc(RpcAsk_AdminGroupLock, groupId, locked, requestId);
+			Rpc(RpcAsk_AdminScopedSlotLock, scope, groupId, factionKey, locked, requestId);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_AdminGroupLock(RplId groupId, bool locked, int requestId)
+	protected void RpcAsk_AdminScopedSlotLock(GC_ESlotLockScope scope, RplId groupId, string factionKey, bool locked, int requestId)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		string outcome = "rejected-inactive-mode";
 		if (manager)
-			outcome = manager.ExecuteAdminGroupLock(GetPlayerId(), groupId, locked);
+			outcome = manager.ExecuteAdminSlotLocks(GetPlayerId(), scope, groupId, factionKey, locked);
 		else
-			GC_AdminActionLogger.Log(GetPlayerId(), "slot-group-lock", groupId.ToString(), "rejected-inactive-mode");
+			GC_AdminActionLogger.Log(GetPlayerId(), "slot-scope-lock", string.Format("scope=%1 group=%2 faction=%3", scope, groupId, factionKey), outcome);
 		Rpc(RpcDo_AdminGroupLockResult, requestId, outcome);
 	}
 

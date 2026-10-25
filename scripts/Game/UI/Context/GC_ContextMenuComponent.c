@@ -66,6 +66,7 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 	protected TextWidget m_wHeader;
 	protected ref GC_ContextMenuContext m_Context;
 	protected GC_LobbyManager m_LobbyManager;
+	protected InputManager m_InputManager;
 	protected float m_fMenuHeight;
 
 	override void HandlerAttached(Widget w)
@@ -80,7 +81,8 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 			m_LobbyManager.m_OnFactionRulesChanged.Insert(OnFactionRulesChanged);
 		}
 
-		InputManager inputManager = GetGame().GetInputManager();
+		m_InputManager = GetGame().GetInputManager();
+		InputManager inputManager = m_InputManager;
 		if (inputManager)
 		{
 			inputManager.AddActionListener("MouseLeft", EActionTrigger.UP, RequestClose);
@@ -96,7 +98,8 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 
 	override void HandlerDeattached(Widget w)
 	{
-		InputManager inputManager = GetGame().GetInputManager();
+		// The game can already be tearing down when an open popup is destroyed.
+		InputManager inputManager = m_InputManager;
 		if (inputManager)
 		{
 			inputManager.RemoveActionListener("MouseLeft", EActionTrigger.UP, RequestClose);
@@ -119,6 +122,7 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 
 		m_Context = null;
 		m_LobbyManager = null;
+		m_InputManager = null;
 		m_wHeader = null;
 		m_wActions = null;
 		super.HandlerDeattached(w);

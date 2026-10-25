@@ -3483,14 +3483,40 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	string ExecuteAdminGroupLock(int requesterId, RplId groupId, bool locked)
 	{
-		string target = string.Format("group=%1 locked=%2", groupId, locked);
-		if (!AuthorizeAdminAction(requesterId, "slot-group-lock", target))
+		GC_ESlotLockScope scope = GC_ESlotLockScope.GROUP;
+		if (groupId == RplId.Invalid())
+			scope = GC_ESlotLockScope.ALL;
+		return ExecuteAdminSlotLocks(requesterId, scope, groupId, string.Empty, locked);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Resolve the scope on authority. An invalid scoped target never means all slots.
+	string ExecuteAdminSlotLocks(int requesterId, GC_ESlotLockScope scope, RplId groupId, FactionKey factionKey, bool locked)
+	{
+		string action = "slot-group-lock";
+		if (scope == GC_ESlotLockScope.FACTION)
+			action = "slot-faction-lock";
+		string target = string.Format("scope=%1 group=%2 faction=%3 locked=%4", scope, groupId, factionKey, locked);
+		if (!AuthorizeAdminAction(requesterId, action, target))
 			return "rejected-not-logged-in";
+		if ((scope != GC_ESlotLockScope.ALL && scope != GC_ESlotLockScope.GROUP && scope != GC_ESlotLockScope.FACTION)
+			|| (scope == GC_ESlotLockScope.GROUP && !GetRegisteredGroupByRplId(groupId))
+			|| (scope == GC_ESlotLockScope.FACTION && (factionKey.IsEmpty() || !GetRegisteredFaction(factionKey))))
+		{
+			GC_AdminActionLogger.Log(requesterId, action, target, "rejected-invalid-target");
+			return "rejected-invalid-target";
+		}
 		array<int> slotIds = {};
 		foreach (GC_Slot slot : m_Roster.GetSlots())
 		{
-			if (groupId != RplId.Invalid() && slot.GetGroupRplId() != groupId)
+			if (scope == GC_ESlotLockScope.GROUP && slot.GetGroupRplId() != groupId)
 				continue;
+			if (scope == GC_ESlotLockScope.FACTION)
+			{
+				SCR_AIGroup group = ResolveSlotGroup(slot);
+				if (!group || !group.GetFaction() || group.GetFaction().GetFactionKey() != factionKey)
+					continue;
+			}
 			if (!slot.CanAdminLock())
 				continue;
 			slotIds.Insert(slot.GetID());
@@ -3500,7 +3526,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			outcome = "rejected-no-slots";
 		else
 		{
-			if (groupId == RplId.Invalid())
+			if (scope == GC_ESlotLockScope.ALL)
 			{
 				m_iNewSlotLockOverride = 0;
 				if (locked)
@@ -3509,7 +3535,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			ApplySlotLocks(slotIds, locked);
 			Rpc(RpcDo_ApplySlotLocks, slotIds, locked);
 		}
-		GC_AdminActionLogger.Log(requesterId, "slot-group-lock", target, string.Format("%1 slots=%2", outcome, slotIds.Count()));
+		GC_AdminActionLogger.Log(requesterId, action, target, string.Format("%1 slots=%2", outcome, slotIds.Count()));
 		return outcome;
 	}
 

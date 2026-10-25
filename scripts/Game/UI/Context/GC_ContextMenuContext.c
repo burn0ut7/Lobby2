@@ -425,6 +425,8 @@ class GC_ContextMenuActionRegistry
 		s_aActions.Insert(new GC_AdminVoiceAction(false));
 		s_aActions.Insert(new GC_AdminReserveSlotAction());
 		s_aActions.Insert(new GC_AdminSlotToggleAction());
+		s_aActions.Insert(new GC_AdminScopeSlotLockAction(true));
+		s_aActions.Insert(new GC_AdminScopeSlotLockAction(false));
 		s_aActions.Insert(new GC_AdminSlotPlayerAction(GC_EAdminSlotAction.FREE));
 		s_aActions.Insert(new GC_AdminSlotPlayerAction(GC_EAdminSlotAction.HEAL_OR_RESPAWN));
 	}
