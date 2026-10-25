@@ -42,6 +42,13 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	protected bool m_bValid;
 
 	//------------------------------------------------------------------------------------------------
+	void GetBoundaryPolygon(array<vector> points)
+	{
+		if (m_bValid)
+			points.Copy(m_aPolygon);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool Contains(vector position)
 	{
 		return m_bValid && Math2D.IsPointInPolygonXZ(m_aPolygon, position);

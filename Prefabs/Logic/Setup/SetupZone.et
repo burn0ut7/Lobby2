@@ -1,6 +1,9 @@
 GC_SetupZoneEntity {
  ID "6A4D831C2E5079B1"
  components {
+  GC_BoundaryWallComponent "{6A4D831C2E5079C0}" {
+   m_bEnabled 1
+  }
   RplComponent "{6A4D831C2E5079B2}" {
    Streamable Disabled
   }

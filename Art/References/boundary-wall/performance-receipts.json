@@ -1,0 +1,1246 @@
+{
+  "receipts": [
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r0935a0046c1f4f7aa8e5f8c13764aa50",
+      "returnType": "string",
+      "returned": "dispatched: Lobby Button",
+      "elapsedMs": 29,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r0935a0046c1f4f7aa8e5f8c13764aa50",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Lobby Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r0eef00dfc58e4106975f478a82a7b50b",
+      "returnType": "string",
+      "returned": "dispatched: Button",
+      "elapsedMs": 6,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r0eef00dfc58e4106975f478a82a7b50b",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSelectFaction",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r1a5c81adcd684cc182c0a19b5d6d94ba",
+      "returnType": "string",
+      "returned": "dispatched: SlotButton",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r1a5c81adcd684cc182c0a19b5d6d94ba",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSelectSlot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: SlotButton\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r363175f71b4d45c196e06edc38a0dcbb",
+      "returnType": "string",
+      "returned": "dispatched: Briefing Button",
+      "elapsedMs": 9,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r363175f71b4d45c196e06edc38a0dcbb",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Briefing Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r3dc2119cf72b4aea87dd7af75f3ddc3b",
+      "returnType": "string",
+      "returned": "dispatched: Game Button",
+      "elapsedMs": 5,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r3dc2119cf72b4aea87dd7af75f3ddc3b",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Game Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r4fdf858abc41453591625a86484f48a2",
+      "returnType": "string",
+      "returned": "configured=1 behavior=0 remaining=60 origin=<123.896,1,119.864>",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r4fdf858abc41453591625a86484f48a2",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSetupSpawn",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"configured=1 behavior=0 remaining=60 origin=<123.896,1,119.864>\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r60efe82e02124429a93137f20395c10a",
+      "returnType": "string",
+      "returned": "enabled=1 audience=1 points=4 mesh=1 visible=1 opacity=6.28663e-13 color=1502806016 failed=0",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r60efe82e02124429a93137f20395c10a",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"enabled=1 audience=1 points=4 mesh=1 visible=1 opacity=6.28663e-13 color=1502806016 failed=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r9e6c0263ab01420e880d8af8c0cb405c",
+      "returnType": "string",
+      "returned": "accepted=1",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r9e6c0263ab01420e880d8af8c0cb405c",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSetupMove",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"accepted=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "rbbb3eaf4a8ca49eba1b0e3f0aa1ea317",
+      "returnType": "string",
+      "returned": "enabled=1 audience=1 points=4 mesh=1 visible=1 opacity=0.174509 color=1502806016 failed=0",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rbbb3eaf4a8ca49eba1b0e3f0aa1ea317",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"enabled=1 audience=1 points=4 mesh=1 visible=1 opacity=0.174509 color=1502806016 failed=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "re1f8ca1ebe0e4131a48bce0519ac8d0f",
+      "returnType": "string",
+      "returned": "removed",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "re1f8ca1ebe0e4131a48bce0519ac8d0f",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSetupRemove",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"removed\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r76edfee3bfa442a68a1b41e859940d86",
+      "returnType": "string",
+      "returned": "spawned index=0 origin=<123.896,1,124.864>; configure after native initialization",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r76edfee3bfa442a68a1b41e859940d86",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOSpawn",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"spawned index=0 origin=<123.896,1,124.864>; configure after native initialization\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r36864cb6bb1e4578a3989e095f016d7d",
+      "returnType": "string",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r36864cb6bb1e4578a3989e095f016d7d",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOConfigure",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"behavior=1 polygon=1 enabled=1 permitsOrigin=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r88cf95c19c774e8888616fab965b5e59",
+      "returnType": "bool",
+      "returned": true,
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r88cf95c19c774e8888616fab965b5e59",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallAOPolygon",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":true}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r1430f8d2fe044db8884d1ff6c2ce9823",
+      "returnType": "string",
+      "returned": "STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r1430f8d2fe044db8884d1ff6c2ce9823",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileStart",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r2002650193f2469fb7f53d8dbac0fb32",
+      "returnType": "string",
+      "returned": "remaining=0 adapter=NVIDIA GeForce RTX 5090\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\n107193,36497,564.972,1.77,0.97352,0,0.474\n107294,36553,561.12,1.78215,1.01411,0,0.48855\n107395,36609,566.409,1.76551,0.97343,0,0.49091\n107494,36665,550.609,1.81617,0.98,0,0.49985\n107595,36721,555.926,1.7988,0.98601,0,0.49031\n107696,36777,543.839,1.83878,1.00524,0,0.51461\n107796,36831,545.986,1.83155,1.01444,0,0.51159\n107896,36886,524.323,1.90722,1.0959,0,0.49231\n107997,36941,561.703,1.7803,0.99431,0,0.48033\n108097,36996,557.868,1.79254,0.96401,0,0.51449\n108197,37048,517.711,1.93158,1.06046,0,0.48298\n108298,37100,512.713,1.95041,1.04581,0,0.54287\n108398,37152,522.966,1.91217,1.01171,0,0.52457\n108498,37205,534.194,1.87198,1.05226,0,0.50149\n108599,37261,552.645,1.80948,1.0212,0,0.50696\n108700,37315,501.02,1.99593,1.06944,0,0.55372\n108801,37368,537.88,1.85915,0.99437,0,0.49012\n108901,37420,520.608,1.92083,1.09782,0,0.51589\n109001,37473,539.593,1.85325,1.03911,0,0.51197\n109101,37528,553.159,1.8078,0.98757,0,0.5232\n109202,37585,564.296,1.77212,0.98644,0,0.50118\n109302,37640,553.44,1.80688,0.95416,0,0.48866\n109402,37696,534.591,1.87059,1.00628,0,0.48795\n109503,37752,550.109,1.81782,0.97375,0,0.51229\n109603,37808,573.911,1.74243,0.96025,0,0.51421\n109703,37863,533.353,1.87493,1.06332,0,0.49831\n109804,37919,569.003,1.75746,0.97378,0,0.49371\n109905,37976,562.464,1.77789,1.04698,0,0.45306\n110006,38032,545.161,1.83432,0.96625,0,0.51887\n110107,38088,534.522,1.87083,1.02037,0,0.53452\n110208,38145,553.909,1.80535,1.0359,0,0.48527\n110308,38200,573.727,1.74299,0.96311,0,0.50218\n110409,38256,552.7,1.8093,0.99689,0,0.49917\n110509,38312,573.348,1.74414,0.9847,0,0.48947\n110610,38369,556.375,1.79735,0.99728,0,0.51031\n110710,38424,581.277,1.72035,0.96285,0,0.48031\n110811,38480,560.121,1.78533,0.99565,0,0.49298\n110911,38536,561.318,1.78152,1.00491,0,0.48405\n111011,38593,582.093,1.71794,0.93676,0,0.49587\n111111,38649,554.161,1.80453,0.99903,0,0.50901\n111211,38705,561.299,1.78158,0.97369,0,0.485\n111311,38760,542.773,1.84239,0.99198,0,0.50854\n111411,38816,543.682,1.83931,1.02767,0,0.48608\n111511,38871,553.03,1.80822,0.98703,0,0.47788\n111611,38926,549.408,1.82014,1.00755,0,0.49505\n111712,38982,561.662,1.78043,0.9774,0,0.46716\n111812,39036,499.298,2.00281,1.07066,0,0.56609\n111912,39087,530.828,1.88385,1.0749,0,0.51916\n112012,39142,556.266,1.7977,0.97936,0,0.48894\n112112,39198,556.3,1.79759,0.99922,0,0.49296\n112212,39253,566.085,1.76652,0.95245,0,0.48344\n112313,39308,541.967,1.84513,1.03587,0,0.47313\n112414,39364,573.467,1.74378,1.00084,0,0.46028\n112514,39419,556.7,1.7963,1.01728,0,0.46347\n112615,39475,563.453,1.77477,0.98744,0,0.47851\n112715,39530,555.284,1.80088,0.98427,0,0.47653\n112815,39585,572.298,1.74734,0.98383,0,0.47684\n112915,39640,546.093,1.83119,1.00409,0,0.47282\n113016,39696,555.546,1.80003,0.9866,0,0.50375\n113117,39752,561.189,1.78193,1.00567,0,0.47213\n113217,39808,566.697,1.76461,0.98097,0,0.4617\n113317,39864,561.372,1.78135,0.98308,0,0.47146\n113417,39920,581.193,1.7206,0.97314,0,0.4581\n113517,39976,557.28,1.79443,0.98227,0,0.50468\n113618,40032,552.291,1.81064,1.02897,0,0.47955\n113718,40087,554.342,1.80394,1.00068,0,0.45925\n113819,40143,547.115,1.82777,1.00778,0,0.52511\n113920,40199,576.615,1.73426,0.95702,0,0.47623\n114020,40255,556.443,1.79713,0.98237,0,0.50646\n114121,40311,553.839,1.80558,0.94558,0,0.49225\n114222,40367,560.086,1.78544,0.99603,0,0.47678\n114323,40422,523.549,1.91004,1.04021,0,0.51124\n114423,40474,522.201,1.91497,1.02583,0,0.51588\n114524,40527,534.294,1.87163,1.03075,0,0.47869\n114624,40579,536.466,1.86405,1.03263,0,0.48858\n114724,40631,515.999,1.93799,1.04099,0,0.52124\n114824,40683,524.436,1.90681,1.04875,0,0.50841\n114925,40735,515.275,1.94071,1.05554,0,0.508\n115025,40789,558.659,1.79,1.01029,0,0.47528\n115125,40844,564.755,1.77068,0.95149,0,0.49164\n115225,40900,557.317,1.79431,0.95825,0,0.5025\n115325,40956,546.2,1.83083,0.98674,0,0.53658\n115425,41012,545.697,1.83252,0.98721,0,0.50482\n115526,41067,527.966,1.89406,1.02623,0,0.55334\n115626,41121,533.404,1.87475,1.06168,0,0.52667\n115726,41176,556.886,1.7957,1.00208,0,0.51471\n115827,41231,525.287,1.90372,1.08527,0,0.50662\n115927,41285,538.167,1.85816,1.04702,0,0.5137\n116027,41339,541.856,1.84551,0.99206,0,0.52937\n116127,41394,543.446,1.84011,1.0022,0,0.52915\n116227,41448,533.211,1.87543,1.03318,0,0.52618\n116327,41501,530.155,1.88624,1.02977,0,0.55109\n116428,41555,514.438,1.94387,1.09508,0,0.55039\n116530,41609,514.321,1.94431,1.03871,0,0.5349\n116629,41662,528.854,1.89088,1.08262,0,0.4981\n116730,41715,519.211,1.926,1.06601,0,0.47699\n116831,41769,538.842,1.85583,1.01938,0,0.51653\n116932,41823,518.35,1.9292,1.08433,0,0.53469\n117032,41877,549.285,1.82055,0.99812,0,0.51465\n117132,41931,529.644,1.88806,1.05887,0,0.51487\n",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r2002650193f2469fb7f53d8dbac0fb32",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileReport",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"remaining=0 adapter=NVIDIA GeForce RTX 5090\\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\\n107193,36497,564.972,1.77,0.97352,0,0.474\\n107294,36553,561.12,1.78215,1.01411,0,0.48855\\n107395,36609,566.409,1.76551,0.97343,0,0.49091\\n107494,36665,550.609,1.81617,0.98,0,0.49985\\n107595,36721,555.926,1.7988,0.98601,0,0.49031\\n107696,36777,543.839,1.83878,1.00524,0,0.51461\\n107796,36831,545.986,1.83155,1.01444,0,0.51159\\n107896,36886,524.323,1.90722,1.0959,0,0.49231\\n107997,36941,561.703,1.7803,0.99431,0,0.48033\\n108097,36996,557.868,1.79254,0.96401,0,0.51449\\n108197,37048,517.711,1.93158,1.06046,0,0.48298\\n108298,37100,512.713,1.95041,1.04581,0,0.54287\\n108398,37152,522.966,1.91217,1.01171,0,0.52457\\n108498,37205,534.194,1.87198,1.05226,0,0.50149\\n108599,37261,552.645,1.80948,1.0212,0,0.50696\\n108700,37315,501.02,1.99593,1.06944,0,0.55372\\n108801,37368,537.88,1.85915,0.99437,0,0.49012\\n108901,37420,520.608,1.92083,1.09782,0,0.51589\\n109001,37473,539.593,1.85325,1.03911,0,0.51197\\n109101,37528,553.159,1.8078,0.98757,0,0.5232\\n109202,37585,564.296,1.77212,0.98644,0,0.50118\\n109302,37640,553.44,1.80688,0.95416,0,0.48866\\n109402,37696,534.591,1.87059,1.00628,0,0.48795\\n109503,37752,550.109,1.81782,0.97375,0,0.51229\\n109603,37808,573.911,1.74243,0.96025,0,0.51421\\n109703,37863,533.353,1.87493,1.06332,0,0.49831\\n109804,37919,569.003,1.75746,0.97378,0,0.49371\\n109905,37976,562.464,1.77789,1.04698,0,0.45306\\n110006,38032,545.161,1.83432,0.96625,0,0.51887\\n110107,38088,534.522,1.87083,1.02037,0,0.53452\\n110208,38145,553.909,1.80535,1.0359,0,0.48527\\n110308,38200,573.727,1.74299,0.96311,0,0.50218\\n110409,38256,552.7,1.8093,0.99689,0,0.49917\\n110509,38312,573.348,1.74414,0.9847,0,0.48947\\n110610,38369,556.375,1.79735,0.99728,0,0.51031\\n110710,38424,581.277,1.72035,0.96285,0,0.48031\\n110811,38480,560.121,1.78533,0.99565,0,0.49298\\n110911,38536,561.318,1.78152,1.00491,0,0.48405\\n111011,38593,582.093,1.71794,0.93676,0,0.49587\\n111111,38649,554.161,1.80453,0.99903,0,0.50901\\n111211,38705,561.299,1.78158,0.97369,0,0.485\\n111311,38760,542.773,1.84239,0.99198,0,0.50854\\n111411,38816,543.682,1.83931,1.02767,0,0.48608\\n111511,38871,553.03,1.80822,0.98703,0,0.47788\\n111611,38926,549.408,1.82014,1.00755,0,0.49505\\n111712,38982,561.662,1.78043,0.9774,0,0.46716\\n111812,39036,499.298,2.00281,1.07066,0,0.56609\\n111912,39087,530.828,1.88385,1.0749,0,0.51916\\n112012,39142,556.266,1.7977,0.97936,0,0.48894\\n112112,39198,556.3,1.79759,0.99922,0,0.49296\\n112212,39253,566.085,1.76652,0.95245,0,0.48344\\n112313,39308,541.967,1.84513,1.03587,0,0.47313\\n112414,39364,573.467,1.74378,1.00084,0,0.46028\\n112514,39419,556.7,1.7963,1.01728,0,0.46347\\n112615,39475,563.453,1.77477,0.98744,0,0.47851\\n112715,39530,555.284,1.80088,0.98427,0,0.47653\\n112815,39585,572.298,1.74734,0.98383,0,0.47684\\n112915,39640,546.093,1.83119,1.00409,0,0.47282\\n113016,39696,555.546,1.80003,0.9866,0,0.50375\\n113117,39752,561.189,1.78193,1.00567,0,0.47213\\n113217,39808,566.697,1.76461,0.98097,0,0.4617\\n113317,39864,561.372,1.78135,0.98308,0,0.47146\\n113417,39920,581.193,1.7206,0.97314,0,0.4581\\n113517,39976,557.28,1.79443,0.98227,0,0.50468\\n113618,40032,552.291,1.81064,1.02897,0,0.47955\\n113718,40087,554.342,1.80394,1.00068,0,0.45925\\n113819,40143,547.115,1.82777,1.00778,0,0.52511\\n113920,40199,576.615,1.73426,0.95702,0,0.47623\\n114020,40255,556.443,1.79713,0.98237,0,0.50646\\n114121,40311,553.839,1.80558,0.94558,0,0.49225\\n114222,40367,560.086,1.78544,0.99603,0,0.47678\\n114323,40422,523.549,1.91004,1.04021,0,0.51124\\n114423,40474,522.201,1.91497,1.02583,0,0.51588\\n114524,40527,534.294,1.87163,1.03075,0,0.47869\\n114624,40579,536.466,1.86405,1.03263,0,0.48858\\n114724,40631,515.999,1.93799,1.04099,0,0.52124\\n114824,40683,524.436,1.90681,1.04875,0,0.50841\\n114925,40735,515.275,1.94071,1.05554,0,0.508\\n115025,40789,558.659,1.79,1.01029,0,0.47528\\n115125,40844,564.755,1.77068,0.95149,0,0.49164\\n115225,40900,557.317,1.79431,0.95825,0,0.5025\\n115325,40956,546.2,1.83083,0.98674,0,0.53658\\n115425,41012,545.697,1.83252,0.98721,0,0.50482\\n115526,41067,527.966,1.89406,1.02623,0,0.55334\\n115626,41121,533.404,1.87475,1.06168,0,0.52667\\n115726,41176,556.886,1.7957,1.00208,0,0.51471\\n115827,41231,525.287,1.90372,1.08527,0,0.50662\\n115927,41285,538.167,1.85816,1.04702,0,0.5137\\n116027,41339,541.856,1.84551,0.99206,0,0.52937\\n116127,41394,543.446,1.84011,1.0022,0,0.52915\\n116227,41448,533.211,1.87543,1.03318,0,0.52618\\n116327,41501,530.155,1.88624,1.02977,0,0.55109\\n116428,41555,514.438,1.94387,1.09508,0,0.55039\\n116530,41609,514.321,1.94431,1.03871,0,0.5349\\n116629,41662,528.854,1.89088,1.08262,0,0.4981\\n116730,41715,519.211,1.926,1.06601,0,0.47699\\n116831,41769,538.842,1.85583,1.01938,0,0.51653\\n116932,41823,518.35,1.9292,1.08433,0,0.53469\\n117032,41877,549.285,1.82055,0.99812,0,0.51465\\n117132,41931,529.644,1.88806,1.05887,0,0.51487\\n\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "re21e48c09900420cbda6cfb27cd28825",
+      "returnType": "bool",
+      "returned": true,
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "re21e48c09900420cbda6cfb27cd28825",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallConfigure",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":true}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r2cdb4c945d2e426c8732d11792647c1f",
+      "returnType": "string",
+      "returned": "enabled=1 audience=1 points=60 mesh=1 visible=1 opacity=0.174869 color=1502806016 failed=0",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r2cdb4c945d2e426c8732d11792647c1f",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"enabled=1 audience=1 points=60 mesh=1 visible=1 opacity=0.174869 color=1502806016 failed=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "rc722ef058408455aabaec9c0c914c74b",
+      "returnType": "string",
+      "returned": "STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rc722ef058408455aabaec9c0c914c74b",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileStart",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "rfa30d0198f5b4232a41aa1181e987c69",
+      "returnType": "string",
+      "returned": "remaining=0 adapter=NVIDIA GeForce RTX 5090\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\n120836,43857,528.028,1.89384,1.03562,0,0.49844\n120937,43910,538.19,1.85808,1.01895,0,0.54601\n121037,43965,554.763,1.80257,0.9957,0,0.51081\n121138,44021,539.336,1.85413,0.9979,0,0.52924\n121238,44076,557.877,1.79251,0.98535,0,0.50936\n121338,44131,538.831,1.85587,1.01842,0,0.55095\n121439,44187,557.538,1.7936,0.98825,0,0.49133\n121540,44243,532.138,1.87921,1.03841,0,0.50618\n121640,44299,558.416,1.79078,0.98283,0,0.51055\n121741,44352,492.851,2.02901,1.07335,0,0.59466\n121842,44404,545.828,1.83208,0.99454,0,0.54552\n121943,44458,537.909,1.85905,0.98998,0,0.55621\n122044,44513,572.194,1.74766,0.95961,0,0.51387\n122145,44569,544.256,1.83737,1.03455,0,0.51683\n122245,44624,554.204,1.80439,0.9917,0,0.51934\n122346,44679,556.573,1.79671,0.98298,0,0.51692\n122446,44735,549.831,1.81874,1.00231,0,0.5261\n122546,44790,546.884,1.82854,1.01608,0,0.5073\n122647,44846,583.094,1.71499,0.9668,0,0.45689\n122748,44901,550.503,1.81652,0.98594,0,0.51745\n122850,44957,530.189,1.88612,1.01644,0,0.52572\n122950,45013,573.339,1.74417,0.95079,0,0.50182\n123050,45068,542.817,1.84224,0.98966,0,0.51341\n123151,45120,487.258,2.0523,1.13302,0,0.53135\n123251,45172,517.414,1.93269,1.05102,0,0.52817\n123352,45223,487.85,2.04981,1.09544,0,0.59001\n123452,45274,539.15,1.85477,1.05074,0,0.48594\n123552,45328,527.688,1.89506,1.03297,0,0.53156\n123652,45382,533.163,1.8756,1.0644,0,0.47954\n123753,45434,507.135,1.97186,1.07081,0,0.48571\n123853,45484,527.409,1.89606,1.03156,0,0.51302\n123953,45534,504.439,1.9824,1.10718,0,0.49542\n124055,45586,531.288,1.88222,1.02828,0,0.46955\n124155,45640,539.034,1.85517,1.03993,0,0.51466\n124256,45694,532.331,1.87853,1.05278,0,0.5026\n124357,45750,534.554,1.87072,1.06963,0,0.5076\n124457,45805,554.517,1.80337,1.00424,0,0.47674\n124558,45861,535.395,1.86778,1.06452,0,0.50702\n124658,45916,561.839,1.77987,1.00528,0,0.48834\n124758,45971,558.953,1.78906,1.00025,0,0.49816\n124858,46026,549.233,1.82072,1.01169,0,0.51421\n124959,46082,550.406,1.81684,1.05616,0,0.47113\n125059,46138,546.424,1.83008,0.99701,0,0.51527\n125159,46193,553.128,1.8079,1.00471,0,0.4813\n125260,46248,540.243,1.85102,1.00943,0,0.50287\n125360,46303,543.425,1.84018,1.01035,0,0.52909\n125461,46359,537.296,1.86117,1.00181,0,0.50836\n125561,46414,540.216,1.85111,1.01694,0,0.50594\n125663,46469,527.794,1.89468,1.05295,0,0.51331\n125764,46524,553.324,1.80726,1.02091,0,0.45973\n125865,46580,538.112,1.85835,1.0139,0,0.52418\n125965,46636,547.441,1.82668,1.04638,0,0.50074\n126066,46692,548.399,1.82349,1.00656,0,0.48042\n126166,46748,533.043,1.87602,1.03079,0,0.52849\n126267,46804,537.083,1.86191,1.01678,0,0.49607\n126368,46860,577.237,1.73239,0.98987,0,0.45125\n126468,46916,562.281,1.77847,1.00192,0,0.45167\n126568,46972,564.659,1.77098,0.99053,0,0.46579\n126669,47028,559.998,1.78572,0.97652,0,0.46209\n126768,47083,550.273,1.81728,1.04937,0,0.47198\n126868,47138,546.941,1.82835,1.04085,0,0.46858\n126968,47193,552.822,1.8089,0.99524,0,0.48669\n127068,47249,568.356,1.75946,0.99988,0,0.47221\n127169,47304,537.224,1.86142,1.05782,0,0.51742\n127269,47360,573.089,1.74493,0.99247,0,0.4781\n127369,47415,548.273,1.82391,0.98873,0,0.5473\n127469,47469,542,1.84502,1.03056,0,0.48066\n127570,47524,540.152,1.85133,1.03577,0,0.50172\n127671,47579,556.88,1.79572,1.0023,0,0.48999\n127771,47634,537.62,1.86005,1.04725,0,0.52121\n127872,47688,539.188,1.85464,1.0368,0,0.45539\n127972,47742,540.056,1.85166,1.0438,0,0.51375\n128072,47797,538.109,1.85836,1.04326,0,0.48587\n128173,47852,541.292,1.84743,0.99321,0,0.52024\n128274,47907,577.991,1.73013,0.98791,0,0.46165\n128374,47962,544.906,1.83518,1.02591,0,0.49883\n128474,48018,579.106,1.7268,0.97849,0,0.47082\n128575,48074,545.911,1.8318,0.99154,0,0.50772\n128675,48128,549.454,1.81999,1.05175,0,0.48978\n128776,48184,537.071,1.86195,1.01216,0,0.50076\n128876,48238,569.188,1.75689,0.98991,0,0.48275\n128976,48294,553.391,1.80704,1.0062,0,0.49566\n129076,48349,562.133,1.77894,0.97525,0,0.50769\n129176,48404,540.736,1.84933,1.03515,0,0.50676\n129276,48459,558.79,1.78958,0.97603,0,0.51353\n129377,48510,523.749,1.90931,1.04965,0,0.50334\n129477,48563,533.168,1.87558,1.00835,0,0.53029\n129577,48615,527.346,1.89629,1.0378,0,0.51445\n129678,48668,540.906,1.84875,1.00273,0,0.52695\n129779,48724,571.34,1.75027,0.97615,0,0.49763\n129880,48780,552.288,1.81065,1.02029,0,0.49551\n129980,48835,546.29,1.83053,0.97303,0,0.52114\n130080,48891,558.594,1.79021,0.9766,0,0.48967\n130180,48947,549.895,1.81853,1.01538,0,0.52101\n130280,49002,550.582,1.81626,1.01553,0,0.50058\n130380,49058,555.284,1.80088,1.00032,0,0.51553\n130480,49114,554.09,1.80476,1.00691,0,0.48512\n130582,49170,567.154,1.76319,0.99247,0,0.49435\n130683,49225,532.334,1.87852,1.04025,0,0.46615\n130784,49280,539.325,1.85417,1.00325,0,0.5144\n",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rfa30d0198f5b4232a41aa1181e987c69",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileReport",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"remaining=0 adapter=NVIDIA GeForce RTX 5090\\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\\n120836,43857,528.028,1.89384,1.03562,0,0.49844\\n120937,43910,538.19,1.85808,1.01895,0,0.54601\\n121037,43965,554.763,1.80257,0.9957,0,0.51081\\n121138,44021,539.336,1.85413,0.9979,0,0.52924\\n121238,44076,557.877,1.79251,0.98535,0,0.50936\\n121338,44131,538.831,1.85587,1.01842,0,0.55095\\n121439,44187,557.538,1.7936,0.98825,0,0.49133\\n121540,44243,532.138,1.87921,1.03841,0,0.50618\\n121640,44299,558.416,1.79078,0.98283,0,0.51055\\n121741,44352,492.851,2.02901,1.07335,0,0.59466\\n121842,44404,545.828,1.83208,0.99454,0,0.54552\\n121943,44458,537.909,1.85905,0.98998,0,0.55621\\n122044,44513,572.194,1.74766,0.95961,0,0.51387\\n122145,44569,544.256,1.83737,1.03455,0,0.51683\\n122245,44624,554.204,1.80439,0.9917,0,0.51934\\n122346,44679,556.573,1.79671,0.98298,0,0.51692\\n122446,44735,549.831,1.81874,1.00231,0,0.5261\\n122546,44790,546.884,1.82854,1.01608,0,0.5073\\n122647,44846,583.094,1.71499,0.9668,0,0.45689\\n122748,44901,550.503,1.81652,0.98594,0,0.51745\\n122850,44957,530.189,1.88612,1.01644,0,0.52572\\n122950,45013,573.339,1.74417,0.95079,0,0.50182\\n123050,45068,542.817,1.84224,0.98966,0,0.51341\\n123151,45120,487.258,2.0523,1.13302,0,0.53135\\n123251,45172,517.414,1.93269,1.05102,0,0.52817\\n123352,45223,487.85,2.04981,1.09544,0,0.59001\\n123452,45274,539.15,1.85477,1.05074,0,0.48594\\n123552,45328,527.688,1.89506,1.03297,0,0.53156\\n123652,45382,533.163,1.8756,1.0644,0,0.47954\\n123753,45434,507.135,1.97186,1.07081,0,0.48571\\n123853,45484,527.409,1.89606,1.03156,0,0.51302\\n123953,45534,504.439,1.9824,1.10718,0,0.49542\\n124055,45586,531.288,1.88222,1.02828,0,0.46955\\n124155,45640,539.034,1.85517,1.03993,0,0.51466\\n124256,45694,532.331,1.87853,1.05278,0,0.5026\\n124357,45750,534.554,1.87072,1.06963,0,0.5076\\n124457,45805,554.517,1.80337,1.00424,0,0.47674\\n124558,45861,535.395,1.86778,1.06452,0,0.50702\\n124658,45916,561.839,1.77987,1.00528,0,0.48834\\n124758,45971,558.953,1.78906,1.00025,0,0.49816\\n124858,46026,549.233,1.82072,1.01169,0,0.51421\\n124959,46082,550.406,1.81684,1.05616,0,0.47113\\n125059,46138,546.424,1.83008,0.99701,0,0.51527\\n125159,46193,553.128,1.8079,1.00471,0,0.4813\\n125260,46248,540.243,1.85102,1.00943,0,0.50287\\n125360,46303,543.425,1.84018,1.01035,0,0.52909\\n125461,46359,537.296,1.86117,1.00181,0,0.50836\\n125561,46414,540.216,1.85111,1.01694,0,0.50594\\n125663,46469,527.794,1.89468,1.05295,0,0.51331\\n125764,46524,553.324,1.80726,1.02091,0,0.45973\\n125865,46580,538.112,1.85835,1.0139,0,0.52418\\n125965,46636,547.441,1.82668,1.04638,0,0.50074\\n126066,46692,548.399,1.82349,1.00656,0,0.48042\\n126166,46748,533.043,1.87602,1.03079,0,0.52849\\n126267,46804,537.083,1.86191,1.01678,0,0.49607\\n126368,46860,577.237,1.73239,0.98987,0,0.45125\\n126468,46916,562.281,1.77847,1.00192,0,0.45167\\n126568,46972,564.659,1.77098,0.99053,0,0.46579\\n126669,47028,559.998,1.78572,0.97652,0,0.46209\\n126768,47083,550.273,1.81728,1.04937,0,0.47198\\n126868,47138,546.941,1.82835,1.04085,0,0.46858\\n126968,47193,552.822,1.8089,0.99524,0,0.48669\\n127068,47249,568.356,1.75946,0.99988,0,0.47221\\n127169,47304,537.224,1.86142,1.05782,0,0.51742\\n127269,47360,573.089,1.74493,0.99247,0,0.4781\\n127369,47415,548.273,1.82391,0.98873,0,0.5473\\n127469,47469,542,1.84502,1.03056,0,0.48066\\n127570,47524,540.152,1.85133,1.03577,0,0.50172\\n127671,47579,556.88,1.79572,1.0023,0,0.48999\\n127771,47634,537.62,1.86005,1.04725,0,0.52121\\n127872,47688,539.188,1.85464,1.0368,0,0.45539\\n127972,47742,540.056,1.85166,1.0438,0,0.51375\\n128072,47797,538.109,1.85836,1.04326,0,0.48587\\n128173,47852,541.292,1.84743,0.99321,0,0.52024\\n128274,47907,577.991,1.73013,0.98791,0,0.46165\\n128374,47962,544.906,1.83518,1.02591,0,0.49883\\n128474,48018,579.106,1.7268,0.97849,0,0.47082\\n128575,48074,545.911,1.8318,0.99154,0,0.50772\\n128675,48128,549.454,1.81999,1.05175,0,0.48978\\n128776,48184,537.071,1.86195,1.01216,0,0.50076\\n128876,48238,569.188,1.75689,0.98991,0,0.48275\\n128976,48294,553.391,1.80704,1.0062,0,0.49566\\n129076,48349,562.133,1.77894,0.97525,0,0.50769\\n129176,48404,540.736,1.84933,1.03515,0,0.50676\\n129276,48459,558.79,1.78958,0.97603,0,0.51353\\n129377,48510,523.749,1.90931,1.04965,0,0.50334\\n129477,48563,533.168,1.87558,1.00835,0,0.53029\\n129577,48615,527.346,1.89629,1.0378,0,0.51445\\n129678,48668,540.906,1.84875,1.00273,0,0.52695\\n129779,48724,571.34,1.75027,0.97615,0,0.49763\\n129880,48780,552.288,1.81065,1.02029,0,0.49551\\n129980,48835,546.29,1.83053,0.97303,0,0.52114\\n130080,48891,558.594,1.79021,0.9766,0,0.48967\\n130180,48947,549.895,1.81853,1.01538,0,0.52101\\n130280,49002,550.582,1.81626,1.01553,0,0.50058\\n130380,49058,555.284,1.80088,1.00032,0,0.51553\\n130480,49114,554.09,1.80476,1.00691,0,0.48512\\n130582,49170,567.154,1.76319,0.99247,0,0.49435\\n130683,49225,532.334,1.87852,1.04025,0,0.46615\\n130784,49280,539.325,1.85417,1.00325,0,0.5144\\n\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r83ff6815296544b68243b8c8bd085d78",
+      "returnType": "bool",
+      "returned": true,
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r83ff6815296544b68243b8c8bd085d78",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallConfigure",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":true}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "rd8d29110208d49c28c2e96f2c8771e43",
+      "returnType": "string",
+      "returned": "STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rd8d29110208d49c28c2e96f2c8771e43",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileStart",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r929816d7d79b48d394a80cac3f0dc30f",
+      "returnType": "string",
+      "returned": "remaining=0 adapter=NVIDIA GeForce RTX 5090\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\n156207,63004,527.994,1.89396,1.0385,0,0.56406\n156308,63058,547.148,1.82766,1.00656,0,0.53487\n156408,63113,536.89,1.86258,1.04082,0,0.53364\n156508,63167,566.001,1.76678,0.98029,0,0.4876\n156610,63222,550.27,1.81729,1.01824,0,0.48756\n156710,63277,540.465,1.85026,1.03918,0,0.50639\n156810,63332,530.524,1.88493,1.0342,0,0.53135\n156910,63387,559.951,1.78587,1.03676,0,0.4834\n157010,63441,527.599,1.89538,1.04573,0,0.549\n157111,63496,536.944,1.86239,1.01566,0,0.5554\n157211,63550,534.514,1.87086,1.04941,0,0.53256\n157312,63604,537.504,1.86045,1.02971,0,0.5228\n157413,63659,562.563,1.77758,0.9904,0,0.5008\n157513,63714,535.232,1.86835,1.00836,0,0.53477\n157614,63769,559.653,1.78682,0.98242,0,0.48656\n157714,63823,527.126,1.89708,1.04148,0,0.55279\n157814,63877,543.369,1.84037,1.0569,0,0.49081\n157916,63933,546.024,1.83142,1.02427,0,0.51246\n158015,63988,542.27,1.8441,1.0279,0,0.49267\n158115,64044,538.596,1.85668,1.018,0,0.54077\n158215,64099,550.24,1.81739,0.96121,0,0.55012\n158316,64151,515.156,1.94116,1.02579,0,0.53081\n158416,64203,525.221,1.90396,1.01247,0,0.51978\n158516,64255,514.181,1.94484,1.04508,0,0.54079\n158617,64308,523.336,1.91082,1.05369,0,0.5506\n158717,64364,550.655,1.81602,1.018,0,0.50967\n158817,64419,544.556,1.83636,1.00947,0,0.52182\n158918,64474,523.664,1.90962,1.05462,0,0.53419\n159018,64529,536.544,1.86378,1.0507,0,0.49935\n159119,64585,553.596,1.80637,1.00234,0,0.50122\n159219,64640,547.63,1.82605,1.00175,0,0.51356\n159320,64694,437.449,2.28598,0.98604,0,0.97117\n159420,64749,532.263,1.87877,1.05029,0,0.52808\n159521,64805,560.808,1.78314,0.99315,0,0.49895\n159622,64860,544.333,1.83711,1.0115,0,0.53029\n159722,64913,499.281,2.00288,1.08988,0,0.5314\n159823,64965,514.986,1.9418,1.08224,0,0.48604\n159924,65017,507.336,1.97108,1.03686,0,0.51638\n160025,65069,514.038,1.94538,1.02872,0,0.52159\n160125,65123,535.441,1.86762,1.04921,0,0.51367\n160226,65178,545.319,1.83379,0.98873,0,0.52652\n160327,65234,541.753,1.84586,1.02368,0,0.50272\n160427,65289,542.756,1.84245,1.02385,0,0.51122\n160527,65344,560.62,1.78374,0.9785,0,0.47661\n160628,65400,518.409,1.92898,1.057,0,0.54747\n160729,65456,582.079,1.71798,0.95597,0,0.47015\n160829,65511,527.579,1.89545,1.02336,0,0.52837\n160929,65567,556.359,1.7974,0.99901,0,0.50279\n161030,65623,550.158,1.81766,0.99395,0,0.48012\n161130,65678,534.794,1.86988,1.03678,0,0.5187\n161231,65733,550.679,1.81594,0.99389,0,0.48654\n161331,65789,554.146,1.80458,0.97669,0,0.50821\n161432,65845,547.253,1.82731,0.98907,0,0.50123\n161533,65901,564.975,1.76999,0.96647,0,0.48088\n161633,65956,564.892,1.77025,0.98788,0,0.49081\n161734,66008,463.876,2.15575,1.19494,0,0.59583\n161834,66060,532.498,1.87794,1.03094,0,0.49937\n161935,66114,549.592,1.81953,1.01232,0,0.49835\n162036,66169,542.267,1.84411,1.00243,0,0.53081\n162136,66224,559.462,1.78743,0.97952,0,0.47991\n162236,66279,522.687,1.91319,1.01563,0,0.55726\n162336,66334,557.662,1.7932,0.98414,0,0.49506\n162436,66389,553.505,1.80667,0.99277,0,0.50498\n162536,66445,570.112,1.75404,0.9885,0,0.48138\n162637,66501,554.911,1.80209,1.01343,0,0.46777\n162737,66557,557.06,1.79514,0.96874,0,0.53234\n162838,66613,533.561,1.8742,1.02933,0,0.49429\n162939,66669,548.363,1.82361,1.07123,0,0.46668\n163040,66725,553.434,1.8069,1.03192,0,0.47141\n163141,66781,584.85,1.70984,0.97291,0,0.4623\n163241,66837,554.315,1.80403,0.99995,0,0.51482\n163342,66894,552.663,1.80942,1.01151,0,0.48677\n163442,66949,568.592,1.75873,0.95725,0,0.44888\n163543,67005,552.379,1.81035,1.0084,0,0.50323\n163644,67060,533.874,1.8731,1.05478,0,0.4856\n163744,67115,566.213,1.76612,0.98769,0,0.4635\n163845,67170,529.336,1.88916,1.0768,0,0.45944\n163946,67225,540.33,1.85072,1.04235,0,0.48296\n164048,67281,560.334,1.78465,0.99467,0,0.47257\n164149,67337,532.473,1.87803,0.9955,0,0.50387\n164249,67391,519.556,1.92472,1.00279,0,0.51517\n164350,67447,527.766,1.89478,1.04571,0,0.53824\n164450,67503,570.705,1.75222,0.98954,0,0.46597\n164550,67558,567.65,1.76165,1.00191,0,0.46725\n164650,67615,561.429,1.78117,0.95736,0,0.49187\n164751,67672,574.808,1.73971,0.97191,0,0.48976\n164851,67728,557.569,1.7935,1.00433,0,0.46544\n164952,67785,574.132,1.74176,1.00261,0,0.46467\n165053,67842,569.976,1.75446,0.96787,0,0.48333\n165153,67898,563.136,1.77577,0.98359,0,0.46838\n165254,67954,550.533,1.81642,1.00809,0,0.50759\n165355,68008,514.806,1.94248,1.04324,0,0.53697\n165455,68060,524.698,1.90586,1.05047,0,0.48684\n165556,68113,533.943,1.87286,1.06015,0,0.48157\n165657,68166,544.995,1.83488,0.98886,0,0.52493\n165757,68222,562.012,1.77932,0.96712,0,0.51731\n165858,68278,558.909,1.7892,1.00862,0,0.46636\n165959,68334,554.474,1.80351,1.00314,0,0.49401\n166059,68390,544.647,1.83605,1.0653,0,0.4906\n166160,68446,571.145,1.75087,0.94649,0,0.51651\n",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r929816d7d79b48d394a80cac3f0dc30f",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileReport",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"remaining=0 adapter=NVIDIA GeForce RTX 5090\\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\\n156207,63004,527.994,1.89396,1.0385,0,0.56406\\n156308,63058,547.148,1.82766,1.00656,0,0.53487\\n156408,63113,536.89,1.86258,1.04082,0,0.53364\\n156508,63167,566.001,1.76678,0.98029,0,0.4876\\n156610,63222,550.27,1.81729,1.01824,0,0.48756\\n156710,63277,540.465,1.85026,1.03918,0,0.50639\\n156810,63332,530.524,1.88493,1.0342,0,0.53135\\n156910,63387,559.951,1.78587,1.03676,0,0.4834\\n157010,63441,527.599,1.89538,1.04573,0,0.549\\n157111,63496,536.944,1.86239,1.01566,0,0.5554\\n157211,63550,534.514,1.87086,1.04941,0,0.53256\\n157312,63604,537.504,1.86045,1.02971,0,0.5228\\n157413,63659,562.563,1.77758,0.9904,0,0.5008\\n157513,63714,535.232,1.86835,1.00836,0,0.53477\\n157614,63769,559.653,1.78682,0.98242,0,0.48656\\n157714,63823,527.126,1.89708,1.04148,0,0.55279\\n157814,63877,543.369,1.84037,1.0569,0,0.49081\\n157916,63933,546.024,1.83142,1.02427,0,0.51246\\n158015,63988,542.27,1.8441,1.0279,0,0.49267\\n158115,64044,538.596,1.85668,1.018,0,0.54077\\n158215,64099,550.24,1.81739,0.96121,0,0.55012\\n158316,64151,515.156,1.94116,1.02579,0,0.53081\\n158416,64203,525.221,1.90396,1.01247,0,0.51978\\n158516,64255,514.181,1.94484,1.04508,0,0.54079\\n158617,64308,523.336,1.91082,1.05369,0,0.5506\\n158717,64364,550.655,1.81602,1.018,0,0.50967\\n158817,64419,544.556,1.83636,1.00947,0,0.52182\\n158918,64474,523.664,1.90962,1.05462,0,0.53419\\n159018,64529,536.544,1.86378,1.0507,0,0.49935\\n159119,64585,553.596,1.80637,1.00234,0,0.50122\\n159219,64640,547.63,1.82605,1.00175,0,0.51356\\n159320,64694,437.449,2.28598,0.98604,0,0.97117\\n159420,64749,532.263,1.87877,1.05029,0,0.52808\\n159521,64805,560.808,1.78314,0.99315,0,0.49895\\n159622,64860,544.333,1.83711,1.0115,0,0.53029\\n159722,64913,499.281,2.00288,1.08988,0,0.5314\\n159823,64965,514.986,1.9418,1.08224,0,0.48604\\n159924,65017,507.336,1.97108,1.03686,0,0.51638\\n160025,65069,514.038,1.94538,1.02872,0,0.52159\\n160125,65123,535.441,1.86762,1.04921,0,0.51367\\n160226,65178,545.319,1.83379,0.98873,0,0.52652\\n160327,65234,541.753,1.84586,1.02368,0,0.50272\\n160427,65289,542.756,1.84245,1.02385,0,0.51122\\n160527,65344,560.62,1.78374,0.9785,0,0.47661\\n160628,65400,518.409,1.92898,1.057,0,0.54747\\n160729,65456,582.079,1.71798,0.95597,0,0.47015\\n160829,65511,527.579,1.89545,1.02336,0,0.52837\\n160929,65567,556.359,1.7974,0.99901,0,0.50279\\n161030,65623,550.158,1.81766,0.99395,0,0.48012\\n161130,65678,534.794,1.86988,1.03678,0,0.5187\\n161231,65733,550.679,1.81594,0.99389,0,0.48654\\n161331,65789,554.146,1.80458,0.97669,0,0.50821\\n161432,65845,547.253,1.82731,0.98907,0,0.50123\\n161533,65901,564.975,1.76999,0.96647,0,0.48088\\n161633,65956,564.892,1.77025,0.98788,0,0.49081\\n161734,66008,463.876,2.15575,1.19494,0,0.59583\\n161834,66060,532.498,1.87794,1.03094,0,0.49937\\n161935,66114,549.592,1.81953,1.01232,0,0.49835\\n162036,66169,542.267,1.84411,1.00243,0,0.53081\\n162136,66224,559.462,1.78743,0.97952,0,0.47991\\n162236,66279,522.687,1.91319,1.01563,0,0.55726\\n162336,66334,557.662,1.7932,0.98414,0,0.49506\\n162436,66389,553.505,1.80667,0.99277,0,0.50498\\n162536,66445,570.112,1.75404,0.9885,0,0.48138\\n162637,66501,554.911,1.80209,1.01343,0,0.46777\\n162737,66557,557.06,1.79514,0.96874,0,0.53234\\n162838,66613,533.561,1.8742,1.02933,0,0.49429\\n162939,66669,548.363,1.82361,1.07123,0,0.46668\\n163040,66725,553.434,1.8069,1.03192,0,0.47141\\n163141,66781,584.85,1.70984,0.97291,0,0.4623\\n163241,66837,554.315,1.80403,0.99995,0,0.51482\\n163342,66894,552.663,1.80942,1.01151,0,0.48677\\n163442,66949,568.592,1.75873,0.95725,0,0.44888\\n163543,67005,552.379,1.81035,1.0084,0,0.50323\\n163644,67060,533.874,1.8731,1.05478,0,0.4856\\n163744,67115,566.213,1.76612,0.98769,0,0.4635\\n163845,67170,529.336,1.88916,1.0768,0,0.45944\\n163946,67225,540.33,1.85072,1.04235,0,0.48296\\n164048,67281,560.334,1.78465,0.99467,0,0.47257\\n164149,67337,532.473,1.87803,0.9955,0,0.50387\\n164249,67391,519.556,1.92472,1.00279,0,0.51517\\n164350,67447,527.766,1.89478,1.04571,0,0.53824\\n164450,67503,570.705,1.75222,0.98954,0,0.46597\\n164550,67558,567.65,1.76165,1.00191,0,0.46725\\n164650,67615,561.429,1.78117,0.95736,0,0.49187\\n164751,67672,574.808,1.73971,0.97191,0,0.48976\\n164851,67728,557.569,1.7935,1.00433,0,0.46544\\n164952,67785,574.132,1.74176,1.00261,0,0.46467\\n165053,67842,569.976,1.75446,0.96787,0,0.48333\\n165153,67898,563.136,1.77577,0.98359,0,0.46838\\n165254,67954,550.533,1.81642,1.00809,0,0.50759\\n165355,68008,514.806,1.94248,1.04324,0,0.53697\\n165455,68060,524.698,1.90586,1.05047,0,0.48684\\n165556,68113,533.943,1.87286,1.06015,0,0.48157\\n165657,68166,544.995,1.83488,0.98886,0,0.52493\\n165757,68222,562.012,1.77932,0.96712,0,0.51731\\n165858,68278,558.909,1.7892,1.00862,0,0.46636\\n165959,68334,554.474,1.80351,1.00314,0,0.49401\\n166059,68390,544.647,1.83605,1.0653,0,0.4906\\n166160,68446,571.145,1.75087,0.94649,0,0.51651\\n\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r0c593ff9a6d642edb215c396b32a1797",
+      "returnType": "bool",
+      "returned": true,
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r0c593ff9a6d642edb215c396b32a1797",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallConfigure",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":true}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r4ce44cc4e4404173b8eec9d3c888a6ae",
+      "returnType": "string",
+      "returned": "STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r4ce44cc4e4404173b8eec9d3c888a6ae",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileStart",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r049866d3f823416ca5201128670d2259",
+      "returnType": "string",
+      "returned": "remaining=0 adapter=NVIDIA GeForce RTX 5090\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\n169683,70330,563.612,1.77427,0.95563,0,0.52877\n169783,70386,546.771,1.82892,1.00204,0,0.51751\n169883,70441,554.979,1.80187,1.01111,0,0.50595\n169983,70497,573.618,1.74332,0.95854,0,0.48246\n170084,70553,563.139,1.77576,1.01349,0,0.48876\n170185,70609,550.882,1.81527,1.00978,0,0.50723\n170286,70665,567.733,1.76139,0.95707,0,0.52741\n170387,70721,556.492,1.79697,1.00248,0,0.49156\n170487,70777,554.143,1.80459,0.96146,0,0.50968\n170588,70833,552.27,1.81071,1.00725,0,0.48827\n170688,70889,533.148,1.87565,1.01406,0,0.5226\n170788,70944,559.168,1.78837,0.96619,0,0.53779\n170889,71000,562.566,1.77757,0.9734,0,0.49599\n170989,71056,551.794,1.81227,1.02078,0,0.48895\n171090,71112,561.186,1.78194,0.96192,0,0.50924\n171190,71167,550.973,1.81497,1.01063,0,0.51077\n171290,71222,555.917,1.79883,0.99157,0,0.51146\n171390,71278,543.499,1.83993,1.00939,0,0.51277\n171491,71334,574.277,1.74132,0.99245,0,0.46633\n171592,71390,540.307,1.8508,1.00479,0,0.52197\n171692,71446,581.439,1.71987,0.97553,0,0.46942\n171793,71502,541.407,1.84704,1.02001,0,0.53303\n171894,71554,492.761,2.02938,1.10116,0,0.55389\n171993,71603,562.816,1.77678,0.98148,0,0.49027\n172093,71658,538.909,1.8556,1.01029,0,0.50546\n172193,71713,559.059,1.78872,0.98184,0,0.48737\n172294,71767,523.837,1.90899,1.08495,0,0.52338\n172395,71821,530.271,1.88583,1.02778,0,0.50352\n172496,71874,527.137,1.89704,1.06005,0,0.49534\n172596,71927,524.587,1.90626,1.07791,0,0.51907\n172697,71980,520.625,1.92077,1.06758,0,0.51989\n172798,72031,497.882,2.00851,1.02538,0,0.52262\n172899,72081,499.768,2.00093,1.05159,0,0.56876\n172999,72131,501.027,1.9959,1.06169,0,0.49839\n173099,72182,528.282,1.89293,1.05746,0,0.48237\n173200,72234,519.316,1.92561,1.02847,0,0.53729\n173301,72287,534.9,1.86951,0.99593,0,0.55658\n173401,72340,540.377,1.85056,1.01428,0,0.52841\n173501,72393,530.777,1.88403,1.07337,0,0.48392\n173602,72447,544.333,1.83711,1.01094,0,0.54197\n173702,72500,532.325,1.87855,1.07983,0,0.49\n173803,72554,531.932,1.87994,1.04911,0,0.50018\n173903,72607,515.145,1.9412,1.05026,0,0.54366\n174004,72661,547.696,1.82583,1.01111,0,0.49098\n174104,72714,518.783,1.92759,1.06923,0,0.48341\n174204,72768,551.919,1.81186,1.03004,0,0.48847\n174304,72821,531.827,1.88031,1.08698,0,0.4784\n174404,72875,525.569,1.9027,1.04888,0,0.54072\n174505,72929,531.228,1.88243,1.03083,0,0.5253\n174606,72983,549.704,1.81916,1.00389,0,0.48264\n174705,73036,509.832,1.96143,1.04919,0,0.56221\n174806,73090,549.366,1.82028,1.03769,0,0.49716\n174906,73143,522.283,1.91467,1.06994,0,0.51302\n175006,73196,519.537,1.92479,1.09542,0,0.52958\n175106,73249,514.84,1.94235,1.1077,0,0.52698\n175206,73302,530.279,1.8858,1.07879,0,0.50125\n175307,73355,508.14,1.96796,1.06666,0,0.55037\n175407,73407,528.446,1.89234,1.06091,0,0.53943\n175508,73460,505.352,1.97882,1.14452,0,0.53635\n175608,73512,514.417,1.94395,1.07216,0,0.53496\n175708,73564,520.04,1.92293,1.08203,0,0.51572\n175809,73617,544.974,1.83495,1.03098,0,0.51236\n175909,73669,514.92,1.94205,1.0926,0,0.51684\n176010,73722,524.56,1.90636,1.06393,0,0.52275\n176110,73773,528.544,1.89199,1.05929,0,0.51534\n176211,73827,534.185,1.87201,1.05491,0,0.51118\n176311,73880,517.596,1.93201,1.02096,0,0.52855\n176411,73934,523.807,1.9091,1.07628,0,0.54118\n176511,73987,525.174,1.90413,1.03188,0,0.53248\n176612,74041,537.588,1.86016,1.02044,0,0.51322\n176712,74095,527.554,1.89554,1.03632,0,0.51786\n176812,74149,531.581,1.88118,1.05121,0,0.51772\n176912,74203,534.759,1.87,1.02683,0,0.51757\n177013,74258,530.062,1.88657,1.03168,0,0.54681\n177113,74312,526.155,1.90058,1.03715,0,0.51085\n177214,74367,543.638,1.83946,0.98312,0,0.52916\n177315,74422,522.223,1.91489,1.03515,0,0.53341\n177416,74477,547.618,1.82609,1.01513,0,0.52096\n177516,74531,532.53,1.87783,1.04778,0,0.51663\n177617,74586,554.828,1.80236,0.97673,0,0.51337\n177718,74641,548.92,1.82176,1.00516,0,0.51553\n177819,74696,525.489,1.90299,1.03295,0,0.55501\n177919,74750,556.44,1.79714,0.96781,0,0.52282\n178019,74804,548.267,1.82393,1.00086,0,0.52238\n178119,74858,539.139,1.85481,1.03946,0,0.51682\n178220,74913,546.852,1.82865,1.00415,0,0.51628\n178321,74967,542.708,1.84261,1.02531,0,0.51874\n178421,75021,549.269,1.8206,0.98522,0,0.50603\n178522,75076,529.855,1.88731,1.02258,0,0.49732\n178623,75131,537.84,1.85929,1.01634,0,0.52697\n178724,75185,535.975,1.86576,1.03122,0,0.51184\n178824,75239,526.676,1.8987,1.0224,0,0.52124\n178924,75293,541.835,1.84558,1.018,0,0.53559\n179024,75347,533.589,1.8741,1.02434,0,0.51167\n179124,75401,532.612,1.87754,1.02965,0,0.51337\n179224,75455,547.948,1.82499,1.01849,0,0.50949\n179325,75509,535.306,1.86809,1.02681,0,0.5327\n179425,75562,524.81,1.90545,1.04799,0,0.50389\n179525,75615,537.028,1.8621,1.03956,0,0.48501\n179626,75669,541.909,1.84533,1.00357,0,0.50735\n",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r049866d3f823416ca5201128670d2259",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileReport",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"remaining=0 adapter=NVIDIA GeForce RTX 5090\\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\\n169683,70330,563.612,1.77427,0.95563,0,0.52877\\n169783,70386,546.771,1.82892,1.00204,0,0.51751\\n169883,70441,554.979,1.80187,1.01111,0,0.50595\\n169983,70497,573.618,1.74332,0.95854,0,0.48246\\n170084,70553,563.139,1.77576,1.01349,0,0.48876\\n170185,70609,550.882,1.81527,1.00978,0,0.50723\\n170286,70665,567.733,1.76139,0.95707,0,0.52741\\n170387,70721,556.492,1.79697,1.00248,0,0.49156\\n170487,70777,554.143,1.80459,0.96146,0,0.50968\\n170588,70833,552.27,1.81071,1.00725,0,0.48827\\n170688,70889,533.148,1.87565,1.01406,0,0.5226\\n170788,70944,559.168,1.78837,0.96619,0,0.53779\\n170889,71000,562.566,1.77757,0.9734,0,0.49599\\n170989,71056,551.794,1.81227,1.02078,0,0.48895\\n171090,71112,561.186,1.78194,0.96192,0,0.50924\\n171190,71167,550.973,1.81497,1.01063,0,0.51077\\n171290,71222,555.917,1.79883,0.99157,0,0.51146\\n171390,71278,543.499,1.83993,1.00939,0,0.51277\\n171491,71334,574.277,1.74132,0.99245,0,0.46633\\n171592,71390,540.307,1.8508,1.00479,0,0.52197\\n171692,71446,581.439,1.71987,0.97553,0,0.46942\\n171793,71502,541.407,1.84704,1.02001,0,0.53303\\n171894,71554,492.761,2.02938,1.10116,0,0.55389\\n171993,71603,562.816,1.77678,0.98148,0,0.49027\\n172093,71658,538.909,1.8556,1.01029,0,0.50546\\n172193,71713,559.059,1.78872,0.98184,0,0.48737\\n172294,71767,523.837,1.90899,1.08495,0,0.52338\\n172395,71821,530.271,1.88583,1.02778,0,0.50352\\n172496,71874,527.137,1.89704,1.06005,0,0.49534\\n172596,71927,524.587,1.90626,1.07791,0,0.51907\\n172697,71980,520.625,1.92077,1.06758,0,0.51989\\n172798,72031,497.882,2.00851,1.02538,0,0.52262\\n172899,72081,499.768,2.00093,1.05159,0,0.56876\\n172999,72131,501.027,1.9959,1.06169,0,0.49839\\n173099,72182,528.282,1.89293,1.05746,0,0.48237\\n173200,72234,519.316,1.92561,1.02847,0,0.53729\\n173301,72287,534.9,1.86951,0.99593,0,0.55658\\n173401,72340,540.377,1.85056,1.01428,0,0.52841\\n173501,72393,530.777,1.88403,1.07337,0,0.48392\\n173602,72447,544.333,1.83711,1.01094,0,0.54197\\n173702,72500,532.325,1.87855,1.07983,0,0.49\\n173803,72554,531.932,1.87994,1.04911,0,0.50018\\n173903,72607,515.145,1.9412,1.05026,0,0.54366\\n174004,72661,547.696,1.82583,1.01111,0,0.49098\\n174104,72714,518.783,1.92759,1.06923,0,0.48341\\n174204,72768,551.919,1.81186,1.03004,0,0.48847\\n174304,72821,531.827,1.88031,1.08698,0,0.4784\\n174404,72875,525.569,1.9027,1.04888,0,0.54072\\n174505,72929,531.228,1.88243,1.03083,0,0.5253\\n174606,72983,549.704,1.81916,1.00389,0,0.48264\\n174705,73036,509.832,1.96143,1.04919,0,0.56221\\n174806,73090,549.366,1.82028,1.03769,0,0.49716\\n174906,73143,522.283,1.91467,1.06994,0,0.51302\\n175006,73196,519.537,1.92479,1.09542,0,0.52958\\n175106,73249,514.84,1.94235,1.1077,0,0.52698\\n175206,73302,530.279,1.8858,1.07879,0,0.50125\\n175307,73355,508.14,1.96796,1.06666,0,0.55037\\n175407,73407,528.446,1.89234,1.06091,0,0.53943\\n175508,73460,505.352,1.97882,1.14452,0,0.53635\\n175608,73512,514.417,1.94395,1.07216,0,0.53496\\n175708,73564,520.04,1.92293,1.08203,0,0.51572\\n175809,73617,544.974,1.83495,1.03098,0,0.51236\\n175909,73669,514.92,1.94205,1.0926,0,0.51684\\n176010,73722,524.56,1.90636,1.06393,0,0.52275\\n176110,73773,528.544,1.89199,1.05929,0,0.51534\\n176211,73827,534.185,1.87201,1.05491,0,0.51118\\n176311,73880,517.596,1.93201,1.02096,0,0.52855\\n176411,73934,523.807,1.9091,1.07628,0,0.54118\\n176511,73987,525.174,1.90413,1.03188,0,0.53248\\n176612,74041,537.588,1.86016,1.02044,0,0.51322\\n176712,74095,527.554,1.89554,1.03632,0,0.51786\\n176812,74149,531.581,1.88118,1.05121,0,0.51772\\n176912,74203,534.759,1.87,1.02683,0,0.51757\\n177013,74258,530.062,1.88657,1.03168,0,0.54681\\n177113,74312,526.155,1.90058,1.03715,0,0.51085\\n177214,74367,543.638,1.83946,0.98312,0,0.52916\\n177315,74422,522.223,1.91489,1.03515,0,0.53341\\n177416,74477,547.618,1.82609,1.01513,0,0.52096\\n177516,74531,532.53,1.87783,1.04778,0,0.51663\\n177617,74586,554.828,1.80236,0.97673,0,0.51337\\n177718,74641,548.92,1.82176,1.00516,0,0.51553\\n177819,74696,525.489,1.90299,1.03295,0,0.55501\\n177919,74750,556.44,1.79714,0.96781,0,0.52282\\n178019,74804,548.267,1.82393,1.00086,0,0.52238\\n178119,74858,539.139,1.85481,1.03946,0,0.51682\\n178220,74913,546.852,1.82865,1.00415,0,0.51628\\n178321,74967,542.708,1.84261,1.02531,0,0.51874\\n178421,75021,549.269,1.8206,0.98522,0,0.50603\\n178522,75076,529.855,1.88731,1.02258,0,0.49732\\n178623,75131,537.84,1.85929,1.01634,0,0.52697\\n178724,75185,535.975,1.86576,1.03122,0,0.51184\\n178824,75239,526.676,1.8987,1.0224,0,0.52124\\n178924,75293,541.835,1.84558,1.018,0,0.53559\\n179024,75347,533.589,1.8741,1.02434,0,0.51167\\n179124,75401,532.612,1.87754,1.02965,0,0.51337\\n179224,75455,547.948,1.82499,1.01849,0,0.50949\\n179325,75509,535.306,1.86809,1.02681,0,0.5327\\n179425,75562,524.81,1.90545,1.04799,0,0.50389\\n179525,75615,537.028,1.8621,1.03956,0,0.48501\\n179626,75669,541.909,1.84533,1.00357,0,0.50735\\n\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r054de682980f43018cbf27dd9b1a7f59",
+      "returnType": "bool",
+      "returned": true,
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r054de682980f43018cbf27dd9b1a7f59",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallAOPolygon",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":true}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r73ff526df3b94f43a2b8519a1a0d4b3d",
+      "returnType": "string",
+      "returned": "enabled=1 audience=1 points=60 mesh=0 visible=0 opacity=-1 color=1502806016 failed=0",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r73ff526df3b94f43a2b8519a1a0d4b3d",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"enabled=1 audience=1 points=60 mesh=0 visible=0 opacity=-1 color=1502806016 failed=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "rf147599927b3402989f1080eb163698d",
+      "returnType": "string",
+      "returned": "STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rf147599927b3402989f1080eb163698d",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileStart",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "rf4be026818e3427a8c57e372233a1292",
+      "returnType": "string",
+      "returned": "remaining=0 adapter=NVIDIA GeForce RTX 5090\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\n183282,77569,550.731,1.81577,1.01946,0,0.49737\n183383,77624,562.632,1.77736,0.98659,0,0.4615\n183483,77679,566.627,1.76483,0.97838,0,0.48741\n183584,77734,539.383,1.85397,1.01529,0,0.50025\n183684,77790,564.289,1.77214,1.00273,0,0.48543\n183785,77845,543.632,1.83948,1.03491,0,0.4552\n183885,77899,541.862,1.84549,1.02972,0,0.51532\n183986,77954,548.074,1.82457,1.04976,0,0.45975\n184086,78009,556.877,1.79573,0.9973,0,0.48789\n184187,78065,542.935,1.84184,1.02162,0,0.48807\n184287,78121,562.791,1.77686,0.95412,0,0.53426\n184387,78175,542.717,1.84258,1.07386,0,0.47157\n184488,78230,555.222,1.80108,0.98464,0,0.51219\n184589,78285,525.826,1.90177,1.05917,0,0.50857\n184690,78341,585.905,1.70676,0.9355,0,0.48549\n184790,78396,534.148,1.87214,1.0376,0,0.50307\n184891,78452,556.675,1.79638,1.0284,0,0.48287\n184992,78507,547.684,1.82587,1.00598,0,0.52964\n185092,78560,486.287,2.0564,1.12007,0,0.62054\n185193,78614,556.303,1.79758,0.99586,0,0.47579\n185294,78669,547.285,1.8272,1.00366,0,0.51212\n185395,78724,553.744,1.80589,1.00208,0,0.50332\n185496,78779,539.651,1.85305,1.04168,0,0.49266\n185596,78833,543.372,1.84036,1.00256,0,0.50718\n185697,78888,524.323,1.90722,1.03873,0,0.5152\n185798,78943,540.619,1.84973,1.04051,0,0.46924\n185898,78997,522.534,1.91375,1.08557,0,0.48769\n185998,79050,524.893,1.90515,1.06051,0,0.50793\n186098,79104,545.28,1.83392,1.02355,0,0.50544\n186199,79158,532.181,1.87906,1.01067,0,0.50975\n186299,79211,538.976,1.85537,1.0431,0,0.48163\n186399,79264,535.693,1.86674,1.02308,0,0.485\n186500,79318,511.632,1.95453,1.07672,0,0.54052\n186601,79372,551.028,1.81479,1.00344,0,0.48432\n186701,79426,583.638,1.71339,0.95964,0,0.47961\n186801,79481,565.742,1.76759,0.98963,0,0.47168\n186901,79535,573.684,1.74312,0.98028,0,0.48218\n187001,79591,552.535,1.80984,0.99924,0,0.46665\n187102,79645,505.999,1.97629,1.04106,0,0.5696\n187203,79698,525.715,1.90217,1.04156,0,0.47709\n187304,79750,527.359,1.89624,1.05298,0,0.4697\n187404,79802,509.668,1.96206,1.09574,0,0.47615\n187504,79857,526.743,1.89846,1.0177,0,0.51421\n187605,79911,529.451,1.88875,1.03755,0,0.51064\n187706,79965,522.103,1.91533,1.06175,0,0.51732\n187807,80017,518.489,1.92868,1.03733,0,0.5339\n187908,80069,507.565,1.97019,1.07947,0,0.50695\n188009,80121,510.347,1.95945,1.07694,0,0.51368\n188110,80173,525.928,1.9014,1.04348,0,0.50508\n188210,80227,547.918,1.82509,1.01114,0,0.51486\n188310,80280,533.701,1.87371,1.05274,0,0.50497\n188411,80334,531.155,1.88269,1.04055,0,0.52323\n188511,80388,516.774,1.93508,1.05485,0,0.5431\n188611,80441,539.802,1.85253,1.05574,0,0.49036\n188711,80495,546.678,1.82923,1.01133,0,0.51036\n188812,80550,537.198,1.86151,1.07319,0,0.48402\n188913,80603,519.729,1.92408,1.07627,0,0.49058\n189012,80657,550.079,1.81792,1.01908,0,0.49428\n189112,80711,516.572,1.93584,1.02089,0,0.50305\n189212,80765,542.361,1.84379,1.01543,0,0.54539\n189312,80816,411.526,2.42998,0.98498,0,1.14763\n189413,80871,541.633,1.84627,1.03726,0,0.49635\n189514,80925,522.351,1.91442,1.03839,0,0.51864\n189614,80979,538.642,1.85652,1.06739,0,0.50645\n189714,81034,519.972,1.92318,1.00592,0,0.54767\n189815,81089,549.113,1.82112,1.01352,0,0.49271\n189916,81143,533.45,1.87459,1.03815,0,0.48781\n190016,81196,524.125,1.90794,1.04357,0,0.52574\n190117,81250,557.793,1.79278,1.00557,0,0.49858\n190218,81304,537.031,1.86209,1.02735,0,0.51648\n190317,81357,525.95,1.90132,1.03968,0,0.49268\n190418,81411,537.979,1.85881,1.02744,0,0.49951\n190519,81465,535.538,1.86728,0.99886,0,0.51182\n190619,81519,536.438,1.86415,1.02887,0,0.52454\n190720,81573,529.213,1.8896,1.01625,0,0.49912\n190821,81627,546.177,1.83091,1.02876,0,0.46761\n190921,81680,539.665,1.853,1.03254,0,0.47588\n191022,81735,545.099,1.83453,1.0263,0,0.52422\n191122,81787,485.484,2.0598,1.17644,0,0.51514\n191223,81839,510.371,1.95936,1.04979,0,0.52262\n191324,81890,518.261,1.92953,1.03712,0,0.4949\n191425,81942,538.442,1.85721,1.00394,0,0.53447\n191526,81996,541.427,1.84697,1.04409,0,0.50552\n191626,82049,532.686,1.87728,1.03559,0,0.4865\n191726,82097,495.408,2.01854,1.10061,0,0.5993\n191827,82147,520.6,1.92086,1.07467,0,0.48865\n191928,82199,519.718,1.92412,1.0561,0,0.48527\n192028,82251,522.12,1.91527,1.08949,0,0.48859\n192129,82304,523.974,1.90849,1.05417,0,0.55069\n192230,82358,533.914,1.87296,1.04725,0,0.49983\n192331,82412,543.712,1.83921,1.02015,0,0.52194\n192432,82466,528.148,1.89341,1.03811,0,0.54906\n192533,82520,533.399,1.87477,1.04303,0,0.49696\n192633,82574,539.174,1.85469,1.02607,0,0.50545\n192733,82628,542.505,1.8433,0.98429,0,0.50166\n192833,82682,554.628,1.80301,0.99783,0,0.49849\n192933,82736,539.182,1.85466,0.9918,0,0.51676\n193034,82790,553.541,1.80655,0.98419,0,0.50656\n193135,82844,536.144,1.86517,1.0198,0,0.52012\n193235,82897,526.269,1.90017,1.06062,0,0.50081\n",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rf4be026818e3427a8c57e372233a1292",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileReport",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"remaining=0 adapter=NVIDIA GeForce RTX 5090\\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\\n183282,77569,550.731,1.81577,1.01946,0,0.49737\\n183383,77624,562.632,1.77736,0.98659,0,0.4615\\n183483,77679,566.627,1.76483,0.97838,0,0.48741\\n183584,77734,539.383,1.85397,1.01529,0,0.50025\\n183684,77790,564.289,1.77214,1.00273,0,0.48543\\n183785,77845,543.632,1.83948,1.03491,0,0.4552\\n183885,77899,541.862,1.84549,1.02972,0,0.51532\\n183986,77954,548.074,1.82457,1.04976,0,0.45975\\n184086,78009,556.877,1.79573,0.9973,0,0.48789\\n184187,78065,542.935,1.84184,1.02162,0,0.48807\\n184287,78121,562.791,1.77686,0.95412,0,0.53426\\n184387,78175,542.717,1.84258,1.07386,0,0.47157\\n184488,78230,555.222,1.80108,0.98464,0,0.51219\\n184589,78285,525.826,1.90177,1.05917,0,0.50857\\n184690,78341,585.905,1.70676,0.9355,0,0.48549\\n184790,78396,534.148,1.87214,1.0376,0,0.50307\\n184891,78452,556.675,1.79638,1.0284,0,0.48287\\n184992,78507,547.684,1.82587,1.00598,0,0.52964\\n185092,78560,486.287,2.0564,1.12007,0,0.62054\\n185193,78614,556.303,1.79758,0.99586,0,0.47579\\n185294,78669,547.285,1.8272,1.00366,0,0.51212\\n185395,78724,553.744,1.80589,1.00208,0,0.50332\\n185496,78779,539.651,1.85305,1.04168,0,0.49266\\n185596,78833,543.372,1.84036,1.00256,0,0.50718\\n185697,78888,524.323,1.90722,1.03873,0,0.5152\\n185798,78943,540.619,1.84973,1.04051,0,0.46924\\n185898,78997,522.534,1.91375,1.08557,0,0.48769\\n185998,79050,524.893,1.90515,1.06051,0,0.50793\\n186098,79104,545.28,1.83392,1.02355,0,0.50544\\n186199,79158,532.181,1.87906,1.01067,0,0.50975\\n186299,79211,538.976,1.85537,1.0431,0,0.48163\\n186399,79264,535.693,1.86674,1.02308,0,0.485\\n186500,79318,511.632,1.95453,1.07672,0,0.54052\\n186601,79372,551.028,1.81479,1.00344,0,0.48432\\n186701,79426,583.638,1.71339,0.95964,0,0.47961\\n186801,79481,565.742,1.76759,0.98963,0,0.47168\\n186901,79535,573.684,1.74312,0.98028,0,0.48218\\n187001,79591,552.535,1.80984,0.99924,0,0.46665\\n187102,79645,505.999,1.97629,1.04106,0,0.5696\\n187203,79698,525.715,1.90217,1.04156,0,0.47709\\n187304,79750,527.359,1.89624,1.05298,0,0.4697\\n187404,79802,509.668,1.96206,1.09574,0,0.47615\\n187504,79857,526.743,1.89846,1.0177,0,0.51421\\n187605,79911,529.451,1.88875,1.03755,0,0.51064\\n187706,79965,522.103,1.91533,1.06175,0,0.51732\\n187807,80017,518.489,1.92868,1.03733,0,0.5339\\n187908,80069,507.565,1.97019,1.07947,0,0.50695\\n188009,80121,510.347,1.95945,1.07694,0,0.51368\\n188110,80173,525.928,1.9014,1.04348,0,0.50508\\n188210,80227,547.918,1.82509,1.01114,0,0.51486\\n188310,80280,533.701,1.87371,1.05274,0,0.50497\\n188411,80334,531.155,1.88269,1.04055,0,0.52323\\n188511,80388,516.774,1.93508,1.05485,0,0.5431\\n188611,80441,539.802,1.85253,1.05574,0,0.49036\\n188711,80495,546.678,1.82923,1.01133,0,0.51036\\n188812,80550,537.198,1.86151,1.07319,0,0.48402\\n188913,80603,519.729,1.92408,1.07627,0,0.49058\\n189012,80657,550.079,1.81792,1.01908,0,0.49428\\n189112,80711,516.572,1.93584,1.02089,0,0.50305\\n189212,80765,542.361,1.84379,1.01543,0,0.54539\\n189312,80816,411.526,2.42998,0.98498,0,1.14763\\n189413,80871,541.633,1.84627,1.03726,0,0.49635\\n189514,80925,522.351,1.91442,1.03839,0,0.51864\\n189614,80979,538.642,1.85652,1.06739,0,0.50645\\n189714,81034,519.972,1.92318,1.00592,0,0.54767\\n189815,81089,549.113,1.82112,1.01352,0,0.49271\\n189916,81143,533.45,1.87459,1.03815,0,0.48781\\n190016,81196,524.125,1.90794,1.04357,0,0.52574\\n190117,81250,557.793,1.79278,1.00557,0,0.49858\\n190218,81304,537.031,1.86209,1.02735,0,0.51648\\n190317,81357,525.95,1.90132,1.03968,0,0.49268\\n190418,81411,537.979,1.85881,1.02744,0,0.49951\\n190519,81465,535.538,1.86728,0.99886,0,0.51182\\n190619,81519,536.438,1.86415,1.02887,0,0.52454\\n190720,81573,529.213,1.8896,1.01625,0,0.49912\\n190821,81627,546.177,1.83091,1.02876,0,0.46761\\n190921,81680,539.665,1.853,1.03254,0,0.47588\\n191022,81735,545.099,1.83453,1.0263,0,0.52422\\n191122,81787,485.484,2.0598,1.17644,0,0.51514\\n191223,81839,510.371,1.95936,1.04979,0,0.52262\\n191324,81890,518.261,1.92953,1.03712,0,0.4949\\n191425,81942,538.442,1.85721,1.00394,0,0.53447\\n191526,81996,541.427,1.84697,1.04409,0,0.50552\\n191626,82049,532.686,1.87728,1.03559,0,0.4865\\n191726,82097,495.408,2.01854,1.10061,0,0.5993\\n191827,82147,520.6,1.92086,1.07467,0,0.48865\\n191928,82199,519.718,1.92412,1.0561,0,0.48527\\n192028,82251,522.12,1.91527,1.08949,0,0.48859\\n192129,82304,523.974,1.90849,1.05417,0,0.55069\\n192230,82358,533.914,1.87296,1.04725,0,0.49983\\n192331,82412,543.712,1.83921,1.02015,0,0.52194\\n192432,82466,528.148,1.89341,1.03811,0,0.54906\\n192533,82520,533.399,1.87477,1.04303,0,0.49696\\n192633,82574,539.174,1.85469,1.02607,0,0.50545\\n192733,82628,542.505,1.8433,0.98429,0,0.50166\\n192833,82682,554.628,1.80301,0.99783,0,0.49849\\n192933,82736,539.182,1.85466,0.9918,0,0.51676\\n193034,82790,553.541,1.80655,0.98419,0,0.50656\\n193135,82844,536.144,1.86517,1.0198,0,0.52012\\n193235,82897,526.269,1.90017,1.06062,0,0.50081\\n\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r16e47a5598d54120a17b9ab6bf5596d4",
+      "returnType": "bool",
+      "returned": true,
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r16e47a5598d54120a17b9ab6bf5596d4",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestWallConfigure",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":true}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "r3546812320ec4190a6591c0b61ff1c72",
+      "returnType": "string",
+      "returned": "STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r3546812320ec4190a6591c0b61ff1c72",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileStart",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"STARTED native ProfileData samples at 100ms intervals; averages are not individual frame times\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    },
+    {
+      "state": "invoked",
+      "processId": 42352,
+      "receipt": "rf2074f09496942c79b833513677e0145",
+      "returnType": "string",
+      "returned": "remaining=0 adapter=NVIDIA GeForce RTX 5090\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\n217668,95631,538.68,1.85639,1.02816,0,0.49318\n217768,95685,544.058,1.83804,0.99246,0,0.52672\n217868,95740,534.934,1.86939,1.02181,0,0.48952\n217969,95795,536.72,1.86317,1.00813,0,0.54132\n218070,95849,521.921,1.916,1.06596,0,0.49167\n218171,95904,542.623,1.8429,0.99185,0,0.51864\n218271,95959,527.17,1.89692,1.03529,0,0.48785\n218371,96014,531.587,1.88116,1.06083,0,0.51817\n218472,96069,544.07,1.838,1.03421,0,0.48484\n218573,96124,542.408,1.84363,1.00966,0,0.50775\n218673,96178,545.92,1.83177,1.02302,0,0.49012\n218775,96233,546.854,1.82864,1.01738,0,0.52732\n218874,96287,549.737,1.81905,0.99833,0,0.4913\n218975,96343,553.021,1.80825,0.99748,0,0.5336\n219075,96397,550.819,1.81548,1.04706,0,0.46467\n219176,96452,546.406,1.83014,1.04061,0,0.49166\n219276,96506,530.054,1.8866,1.02675,0,0.50744\n219376,96557,566.746,1.76446,0.98077,0,0.45234\n219477,96612,518.003,1.93049,1.04456,0,0.53098\n219577,96667,547.504,1.82647,1.01466,0,0.50889\n219677,96722,550.931,1.81511,1.02139,0,0.50161\n219778,96776,548.071,1.82458,0.98904,0,0.50921\n219879,96830,537.553,1.86028,1.0273,0,0.51673\n219980,96885,546.807,1.8288,0.9811,0,0.53246\n220080,96938,548.826,1.82207,1.01967,0,0.48316\n220180,96992,551.797,1.81226,0.98752,0,0.50688\n220280,97046,525.754,1.90203,1.00939,0,0.52323\n220382,97100,531.409,1.88179,1.06017,0,0.51734\n220482,97154,527.969,1.89405,1.03667,0,0.51255\n220583,97207,541.903,1.84535,0.99575,0,0.49654\n220683,97259,543.446,1.84011,1.01012,0,0.48622\n220784,97313,546.81,1.82879,0.99732,0,0.49345\n220885,97366,512.831,1.94996,1.07554,0,0.54633\n220985,97420,548.98,1.82156,0.99227,0,0.52141\n221085,97474,550.449,1.8167,0.98869,0,0.49757\n221185,97528,517.25,1.9333,1.0221,0,0.54277\n221286,97583,542.049,1.84485,0.96554,0,0.55832\n221387,97638,546.129,1.83107,1.03828,0,0.4874\n221488,97693,533.777,1.87344,1.02505,0,0.56889\n221589,97749,534.045,1.8725,0.99204,0,0.55291\n221689,97803,541.187,1.84779,1.04175,0,0.52674\n221790,97856,518.605,1.92825,1.01856,0,0.59652\n221891,97908,537.135,1.86173,1.03493,0,0.51042\n221992,97964,562.031,1.77926,0.98604,0,0.49385\n222092,98018,546.007,1.83148,1.03529,0,0.47459\n222192,98072,538.364,1.85748,1.0174,0,0.51286\n222293,98127,550.125,1.81777,1.03488,0,0.46616\n222394,98181,530.425,1.88528,1.06184,0,0.51991\n222494,98235,537.239,1.86137,1.02466,0,0.54826\n222595,98286,458.102,2.18292,1.17862,0,0.64396\n222695,98336,510.384,1.95931,1.04497,0,0.58165\n222796,98390,540.357,1.85063,1.02329,0,0.51056\n222896,98444,513.922,1.94582,1.11099,0,0.54667\n222996,98498,513.988,1.94557,1.06614,0,0.5282\n223097,98553,539.479,1.85364,0.98676,0,0.49946\n223197,98607,526.684,1.89867,1.01924,0,0.51276\n223297,98661,545.768,1.83228,1.00217,0,0.50331\n223398,98716,546.872,1.82858,1.02839,0,0.47378\n223499,98771,553.437,1.80689,1.00547,0,0.50352\n223599,98826,543.342,1.84046,1.09242,0,0.47425\n223700,98880,515.988,1.93803,1.07021,0,0.51383\n223801,98934,521.621,1.9171,1.05891,0,0.51609\n223902,98989,548.576,1.8229,0.98419,0,0.52921\n224003,99043,498.271,2.00694,1.05321,0,0.55291\n224103,99096,510.665,1.95823,1.08277,0,0.48821\n224204,99148,515.599,1.93949,1.05084,0,0.51095\n224304,99201,538.193,1.85807,1.02015,0,0.50569\n224405,99254,516.484,1.93617,1.06449,0,0.51132\n224506,99307,518.205,1.92974,1.05471,0,0.54655\n224606,99359,510.916,1.95727,1.01093,0,0.51199\n224706,99412,524.907,1.9051,1.07896,0,0.48654\n224808,99465,512.981,1.94939,1.09273,0,0.50606\n224908,99518,559.003,1.7889,0.96104,0,0.50051\n225009,99572,500.12,1.99952,1.05561,0,0.53459\n225110,99626,530.24,1.88594,1.03214,0,0.47386\n225210,99680,532.725,1.87714,1.01433,0,0.5134\n225311,99734,546.027,1.83141,1.03686,0,0.49852\n225412,99788,544.998,1.83487,1.0034,0,0.53485\n225513,99842,564.2,1.77242,0.98202,0,0.48362\n225612,99896,544.778,1.83561,1.0077,0,0.47287\n225712,99951,561.621,1.78056,0.98535,0,0.49703\n225813,100006,569.304,1.75653,0.99008,0,0.46729\n225913,100061,552.984,1.80837,0.9909,0,0.49664\n226013,100116,560.5,1.78412,1.01064,0,0.46677\n226113,100171,559.494,1.78733,0.99061,0,0.46918\n226214,100226,555.318,1.80077,1.01826,0,0.48686\n226313,100281,572.574,1.7465,1.02155,0,0.44971\n226413,100337,549.523,1.81976,1.02432,0,0.49945\n226514,100392,564.36,1.77192,0.97701,0,0.48002\n226614,100448,549.535,1.81972,1.01447,0,0.50837\n226715,100504,578.73,1.72792,0.9726,0,0.48495\n226815,100559,561.937,1.77956,0.97286,0,0.47316\n226917,100615,563.288,1.77529,1.01444,0,0.4775\n227017,100671,558.332,1.79105,1.01502,0,0.46601\n227118,100726,553.974,1.80514,1.01199,0,0.51095\n227220,100782,546.866,1.8286,1.02882,0,0.47752\n227320,100836,540.865,1.84889,0.99734,0,0.51915\n227420,100888,537.161,1.86164,1.0553,0,0.47899\n227520,100940,521.246,1.91848,1.02815,0,0.49041\n227621,100992,518.419,1.92894,1.04,0,0.4839\n",
+      "elapsedMs": 2,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rf2074f09496942c79b833513677e0145",
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminProfileReport",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"remaining=0 adapter=NVIDIA GeForce RTX 5090\\ntick,frame,fps,frameMs,renderMs,gpuMs,simulationMs\\n217668,95631,538.68,1.85639,1.02816,0,0.49318\\n217768,95685,544.058,1.83804,0.99246,0,0.52672\\n217868,95740,534.934,1.86939,1.02181,0,0.48952\\n217969,95795,536.72,1.86317,1.00813,0,0.54132\\n218070,95849,521.921,1.916,1.06596,0,0.49167\\n218171,95904,542.623,1.8429,0.99185,0,0.51864\\n218271,95959,527.17,1.89692,1.03529,0,0.48785\\n218371,96014,531.587,1.88116,1.06083,0,0.51817\\n218472,96069,544.07,1.838,1.03421,0,0.48484\\n218573,96124,542.408,1.84363,1.00966,0,0.50775\\n218673,96178,545.92,1.83177,1.02302,0,0.49012\\n218775,96233,546.854,1.82864,1.01738,0,0.52732\\n218874,96287,549.737,1.81905,0.99833,0,0.4913\\n218975,96343,553.021,1.80825,0.99748,0,0.5336\\n219075,96397,550.819,1.81548,1.04706,0,0.46467\\n219176,96452,546.406,1.83014,1.04061,0,0.49166\\n219276,96506,530.054,1.8866,1.02675,0,0.50744\\n219376,96557,566.746,1.76446,0.98077,0,0.45234\\n219477,96612,518.003,1.93049,1.04456,0,0.53098\\n219577,96667,547.504,1.82647,1.01466,0,0.50889\\n219677,96722,550.931,1.81511,1.02139,0,0.50161\\n219778,96776,548.071,1.82458,0.98904,0,0.50921\\n219879,96830,537.553,1.86028,1.0273,0,0.51673\\n219980,96885,546.807,1.8288,0.9811,0,0.53246\\n220080,96938,548.826,1.82207,1.01967,0,0.48316\\n220180,96992,551.797,1.81226,0.98752,0,0.50688\\n220280,97046,525.754,1.90203,1.00939,0,0.52323\\n220382,97100,531.409,1.88179,1.06017,0,0.51734\\n220482,97154,527.969,1.89405,1.03667,0,0.51255\\n220583,97207,541.903,1.84535,0.99575,0,0.49654\\n220683,97259,543.446,1.84011,1.01012,0,0.48622\\n220784,97313,546.81,1.82879,0.99732,0,0.49345\\n220885,97366,512.831,1.94996,1.07554,0,0.54633\\n220985,97420,548.98,1.82156,0.99227,0,0.52141\\n221085,97474,550.449,1.8167,0.98869,0,0.49757\\n221185,97528,517.25,1.9333,1.0221,0,0.54277\\n221286,97583,542.049,1.84485,0.96554,0,0.55832\\n221387,97638,546.129,1.83107,1.03828,0,0.4874\\n221488,97693,533.777,1.87344,1.02505,0,0.56889\\n221589,97749,534.045,1.8725,0.99204,0,0.55291\\n221689,97803,541.187,1.84779,1.04175,0,0.52674\\n221790,97856,518.605,1.92825,1.01856,0,0.59652\\n221891,97908,537.135,1.86173,1.03493,0,0.51042\\n221992,97964,562.031,1.77926,0.98604,0,0.49385\\n222092,98018,546.007,1.83148,1.03529,0,0.47459\\n222192,98072,538.364,1.85748,1.0174,0,0.51286\\n222293,98127,550.125,1.81777,1.03488,0,0.46616\\n222394,98181,530.425,1.88528,1.06184,0,0.51991\\n222494,98235,537.239,1.86137,1.02466,0,0.54826\\n222595,98286,458.102,2.18292,1.17862,0,0.64396\\n222695,98336,510.384,1.95931,1.04497,0,0.58165\\n222796,98390,540.357,1.85063,1.02329,0,0.51056\\n222896,98444,513.922,1.94582,1.11099,0,0.54667\\n222996,98498,513.988,1.94557,1.06614,0,0.5282\\n223097,98553,539.479,1.85364,0.98676,0,0.49946\\n223197,98607,526.684,1.89867,1.01924,0,0.51276\\n223297,98661,545.768,1.83228,1.00217,0,0.50331\\n223398,98716,546.872,1.82858,1.02839,0,0.47378\\n223499,98771,553.437,1.80689,1.00547,0,0.50352\\n223599,98826,543.342,1.84046,1.09242,0,0.47425\\n223700,98880,515.988,1.93803,1.07021,0,0.51383\\n223801,98934,521.621,1.9171,1.05891,0,0.51609\\n223902,98989,548.576,1.8229,0.98419,0,0.52921\\n224003,99043,498.271,2.00694,1.05321,0,0.55291\\n224103,99096,510.665,1.95823,1.08277,0,0.48821\\n224204,99148,515.599,1.93949,1.05084,0,0.51095\\n224304,99201,538.193,1.85807,1.02015,0,0.50569\\n224405,99254,516.484,1.93617,1.06449,0,0.51132\\n224506,99307,518.205,1.92974,1.05471,0,0.54655\\n224606,99359,510.916,1.95727,1.01093,0,0.51199\\n224706,99412,524.907,1.9051,1.07896,0,0.48654\\n224808,99465,512.981,1.94939,1.09273,0,0.50606\\n224908,99518,559.003,1.7889,0.96104,0,0.50051\\n225009,99572,500.12,1.99952,1.05561,0,0.53459\\n225110,99626,530.24,1.88594,1.03214,0,0.47386\\n225210,99680,532.725,1.87714,1.01433,0,0.5134\\n225311,99734,546.027,1.83141,1.03686,0,0.49852\\n225412,99788,544.998,1.83487,1.0034,0,0.53485\\n225513,99842,564.2,1.77242,0.98202,0,0.48362\\n225612,99896,544.778,1.83561,1.0077,0,0.47287\\n225712,99951,561.621,1.78056,0.98535,0,0.49703\\n225813,100006,569.304,1.75653,0.99008,0,0.46729\\n225913,100061,552.984,1.80837,0.9909,0,0.49664\\n226013,100116,560.5,1.78412,1.01064,0,0.46677\\n226113,100171,559.494,1.78733,0.99061,0,0.46918\\n226214,100226,555.318,1.80077,1.01826,0,0.48686\\n226313,100281,572.574,1.7465,1.02155,0,0.44971\\n226413,100337,549.523,1.81976,1.02432,0,0.49945\\n226514,100392,564.36,1.77192,0.97701,0,0.48002\\n226614,100448,549.535,1.81972,1.01447,0,0.50837\\n226715,100504,578.73,1.72792,0.9726,0,0.48495\\n226815,100559,561.937,1.77956,0.97286,0,0.47316\\n226917,100615,563.288,1.77529,1.01444,0,0.4775\\n227017,100671,558.332,1.79105,1.01502,0,0.46601\\n227118,100726,553.974,1.80514,1.01199,0,0.51095\\n227220,100782,546.866,1.8286,1.02882,0,0.47752\\n227320,100836,540.865,1.84889,0.99734,0,0.51915\\n227420,100888,537.161,1.86164,1.0553,0,0.47899\\n227520,100940,521.246,1.91848,1.02815,0,0.49041\\n227621,100992,518.419,1.92894,1.04,0,0.4839\\n\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  ],
+  "log": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"source\":\"workbench\",\"session\":\"logs_2026-10-25_03-06-19\",\"path\":\"C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-25_03-06-19\\\\console.log\",\"revision\":\"68523:A791E8DE01E92BC94E0227889DC74C4481D43118CEA995D978425F83FD7467C0\",\"header\":\"Log C:\\\\Users\\\\Gray\\\\Documents\\\\My Games\\\\ArmaReforgerWorkbench\\\\logs\\\\logs_2026-10-25_03-06-19\\\\console.log started at 2026-10-25 03:06:19 (2026-10-25 07:06:19 UTC)\",\"scope\":\"latest\",\"fromLine\":219,\"toLine\":624,\"totalLines\":624,\"cycle\":{\"startLine\":219,\"time\":\"03:06:22.015\",\"kind\":\"compilation\",\"completionLine\":244},\"severityCounts\":{\"error\":17,\"warning\":45,\"info\":344},\"categoryCounts\":{\"SCRIPT\":196,\"PROFILING\":37,\"INIT\":8,\"ENGINE\":8,\"DEFAULT\":13,\"BACKEND\":1,\"PLATFORM\":4,\"GUI\":18,\"RESOURCES\":12,\"WORLD\":52,\"ENTITY\":28,\"PATHFINDING\":12,\"TERRAIN\":6,\"RENDER\":4,\"NETWORK\":7},\"matchedLines\":64,\"entries\":[{\"line\":503,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:05.125 SCRIPT       : RST_MCP_BEGIN r0935a0046c1f4f7aa8e5f8c13764aa50\",\"textTruncated\":false,\"continuation\":false},{\"line\":518,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:05.152 SCRIPT       : RST_MCP_END r0935a0046c1f4f7aa8e5f8c13764aa50 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":520,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:05.559 SCRIPT       : RST_MCP_BEGIN r0eef00dfc58e4106975f478a82a7b50b\",\"textTruncated\":false,\"continuation\":false},{\"line\":521,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:05.563 SCRIPT       : RST_MCP_END r0eef00dfc58e4106975f478a82a7b50b invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":522,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:05.963 SCRIPT       : RST_MCP_BEGIN r1a5c81adcd684cc182c0a19b5d6d94ba\",\"textTruncated\":false,\"continuation\":false},{\"line\":528,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:05.965 SCRIPT       : RST_MCP_END r1a5c81adcd684cc182c0a19b5d6d94ba invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":529,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:06.405 SCRIPT       : RST_MCP_BEGIN r363175f71b4d45c196e06edc38a0dcbb\",\"textTruncated\":false,\"continuation\":false},{\"line\":546,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:06.411 SCRIPT       : RST_MCP_END r363175f71b4d45c196e06edc38a0dcbb invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":553,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:06.805 SCRIPT       : RST_MCP_BEGIN r3dc2119cf72b4aea87dd7af75f3ddc3b\",\"textTruncated\":false,\"continuation\":false},{\"line\":565,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:06.808 SCRIPT       : RST_MCP_END r3dc2119cf72b4aea87dd7af75f3ddc3b invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":570,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:20.656 SCRIPT       : RST_MCP_BEGIN r4fdf858abc41453591625a86484f48a2\",\"textTruncated\":false,\"continuation\":false},{\"line\":571,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:20.657 SCRIPT       : RST_MCP_END r4fdf858abc41453591625a86484f48a2 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":572,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:21.156 SCRIPT       : RST_MCP_BEGIN r60efe82e02124429a93137f20395c10a\",\"textTruncated\":false,\"continuation\":false},{\"line\":573,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:21.156 SCRIPT       : RST_MCP_END r60efe82e02124429a93137f20395c10a invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":574,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:21.678 SCRIPT       : RST_MCP_BEGIN r9e6c0263ab01420e880d8af8c0cb405c\",\"textTruncated\":false,\"continuation\":false},{\"line\":575,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:21.679 SCRIPT       : RST_MCP_END r9e6c0263ab01420e880d8af8c0cb405c invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":576,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:22.192 SCRIPT       : RST_MCP_BEGIN rbbb3eaf4a8ca49eba1b0e3f0aa1ea317\",\"textTruncated\":false,\"continuation\":false},{\"line\":577,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:22.192 SCRIPT       : RST_MCP_END rbbb3eaf4a8ca49eba1b0e3f0aa1ea317 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":578,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:52.301 SCRIPT       : RST_MCP_BEGIN re1f8ca1ebe0e4131a48bce0519ac8d0f\",\"textTruncated\":false,\"continuation\":false},{\"line\":579,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:52.301 SCRIPT       : RST_MCP_END re1f8ca1ebe0e4131a48bce0519ac8d0f invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":580,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:52.802 SCRIPT       : RST_MCP_BEGIN r76edfee3bfa442a68a1b41e859940d86\",\"textTruncated\":false,\"continuation\":false},{\"line\":581,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:52.802 SCRIPT       : RST_MCP_END r76edfee3bfa442a68a1b41e859940d86 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":583,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:53.301 SCRIPT       : RST_MCP_BEGIN r36864cb6bb1e4578a3989e095f016d7d\",\"textTruncated\":false,\"continuation\":false},{\"line\":584,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:53.301 SCRIPT       : RST_MCP_END r36864cb6bb1e4578a3989e095f016d7d invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":585,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:53.804 SCRIPT       : RST_MCP_BEGIN r88cf95c19c774e8888616fab965b5e59\",\"textTruncated\":false,\"continuation\":false},{\"line\":586,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:07:53.805 SCRIPT       : RST_MCP_END r88cf95c19c774e8888616fab965b5e59 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":587,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:06.290 SCRIPT       : RST_MCP_BEGIN r1430f8d2fe044db8884d1ff6c2ce9823\",\"textTruncated\":false,\"continuation\":false},{\"line\":588,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:06.290 SCRIPT       : RST_MCP_END r1430f8d2fe044db8884d1ff6c2ce9823 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":589,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:17.948 SCRIPT       : RST_MCP_BEGIN r2002650193f2469fb7f53d8dbac0fb32\",\"textTruncated\":false,\"continuation\":false},{\"line\":590,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:17.948 SCRIPT       : RST_MCP_END r2002650193f2469fb7f53d8dbac0fb32 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":591,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:18.114 SCRIPT       : RST_MCP_BEGIN re21e48c09900420cbda6cfb27cd28825\",\"textTruncated\":false,\"continuation\":false},{\"line\":592,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:18.115 SCRIPT       : RST_MCP_END re21e48c09900420cbda6cfb27cd28825 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":593,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:19.778 SCRIPT       : RST_MCP_BEGIN r2cdb4c945d2e426c8732d11792647c1f\",\"textTruncated\":false,\"continuation\":false},{\"line\":594,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:19.779 SCRIPT       : RST_MCP_END r2cdb4c945d2e426c8732d11792647c1f invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":595,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:19.933 SCRIPT       : RST_MCP_BEGIN rc722ef058408455aabaec9c0c914c74b\",\"textTruncated\":false,\"continuation\":false},{\"line\":596,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:19.933 SCRIPT       : RST_MCP_END rc722ef058408455aabaec9c0c914c74b invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":597,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:31.588 SCRIPT       : RST_MCP_BEGIN rfa30d0198f5b4232a41aa1181e987c69\",\"textTruncated\":false,\"continuation\":false},{\"line\":598,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:31.589 SCRIPT       : RST_MCP_END rfa30d0198f5b4232a41aa1181e987c69 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":599,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:53.644 SCRIPT       : RST_MCP_BEGIN r83ff6815296544b68243b8c8bd085d78\",\"textTruncated\":false,\"continuation\":false},{\"line\":600,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:53.644 SCRIPT       : RST_MCP_END r83ff6815296544b68243b8c8bd085d78 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":601,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:55.301 SCRIPT       : RST_MCP_BEGIN rd8d29110208d49c28c2e96f2c8771e43\",\"textTruncated\":false,\"continuation\":false},{\"line\":602,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:08:55.301 SCRIPT       : RST_MCP_END rd8d29110208d49c28c2e96f2c8771e43 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":603,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:06.964 SCRIPT       : RST_MCP_BEGIN r929816d7d79b48d394a80cac3f0dc30f\",\"textTruncated\":false,\"continuation\":false},{\"line\":604,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:06.964 SCRIPT       : RST_MCP_END r929816d7d79b48d394a80cac3f0dc30f invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":605,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:07.113 SCRIPT       : RST_MCP_BEGIN r0c593ff9a6d642edb215c396b32a1797\",\"textTruncated\":false,\"continuation\":false},{\"line\":606,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:07.113 SCRIPT       : RST_MCP_END r0c593ff9a6d642edb215c396b32a1797 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":607,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:08.779 SCRIPT       : RST_MCP_BEGIN r4ce44cc4e4404173b8eec9d3c888a6ae\",\"textTruncated\":false,\"continuation\":false},{\"line\":608,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:08.779 SCRIPT       : RST_MCP_END r4ce44cc4e4404173b8eec9d3c888a6ae invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":609,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:20.446 SCRIPT       : RST_MCP_BEGIN r049866d3f823416ca5201128670d2259\",\"textTruncated\":false,\"continuation\":false},{\"line\":610,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:20.446 SCRIPT       : RST_MCP_END r049866d3f823416ca5201128670d2259 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":611,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:20.566 SCRIPT       : RST_MCP_BEGIN r054de682980f43018cbf27dd9b1a7f59\",\"textTruncated\":false,\"continuation\":false},{\"line\":612,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:20.566 SCRIPT       : RST_MCP_END r054de682980f43018cbf27dd9b1a7f59 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":613,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:22.227 SCRIPT       : RST_MCP_BEGIN r73ff526df3b94f43a2b8519a1a0d4b3d\",\"textTruncated\":false,\"continuation\":false},{\"line\":614,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:22.228 SCRIPT       : RST_MCP_END r73ff526df3b94f43a2b8519a1a0d4b3d invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":615,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:22.378 SCRIPT       : RST_MCP_BEGIN rf147599927b3402989f1080eb163698d\",\"textTruncated\":false,\"continuation\":false},{\"line\":616,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:22.378 SCRIPT       : RST_MCP_END rf147599927b3402989f1080eb163698d invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":617,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:34.030 SCRIPT       : RST_MCP_BEGIN rf4be026818e3427a8c57e372233a1292\",\"textTruncated\":false,\"continuation\":false},{\"line\":618,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:34.030 SCRIPT       : RST_MCP_END rf4be026818e3427a8c57e372233a1292 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":619,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:55.109 SCRIPT       : RST_MCP_BEGIN r16e47a5598d54120a17b9ab6bf5596d4\",\"textTruncated\":false,\"continuation\":false},{\"line\":620,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:55.109 SCRIPT       : RST_MCP_END r16e47a5598d54120a17b9ab6bf5596d4 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":621,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:56.764 SCRIPT       : RST_MCP_BEGIN r3546812320ec4190a6591c0b61ff1c72\",\"textTruncated\":false,\"continuation\":false},{\"line\":622,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:09:56.764 SCRIPT       : RST_MCP_END r3546812320ec4190a6591c0b61ff1c72 invoked\",\"textTruncated\":false,\"continuation\":false},{\"line\":623,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:10:08.416 SCRIPT       : RST_MCP_BEGIN rf2074f09496942c79b833513677e0145\",\"textTruncated\":false,\"continuation\":false},{\"line\":624,\"category\":\"SCRIPT\",\"severity\":\"info\",\"text\":\"03:10:08.416 SCRIPT       : RST_MCP_END rf2074f09496942c79b833513677e0145 invoked\",\"textTruncated\":false,\"continuation\":false}],\"truncated\":false}"
+      }
+    ]
+  },
+  "stats": [
+    {
+      "key": "wallPerfOff1",
+      "count": 100,
+      "fps": 546.9719500000001,
+      "frame": 1.8303423000000003,
+      "render": 1.0098636,
+      "sim": 0.5005624
+    },
+    {
+      "key": "wallPerfNear1",
+      "count": 100,
+      "fps": 545.08045,
+      "frame": 1.8365441000000005,
+      "render": 1.0167974000000004,
+      "sim": 0.5035538999999999
+    },
+    {
+      "key": "wallPerfOff2",
+      "count": 100,
+      "fps": 543.4436000000001,
+      "frame": 1.8433133999999995,
+      "render": 1.0152937999999996,
+      "sim": 0.5103423
+    },
+    {
+      "key": "wallPerfNear2",
+      "count": 100,
+      "fps": 536.5940699999996,
+      "frame": 1.8655497000000005,
+      "render": 1.0291113,
+      "sim": 0.5152550000000002
+    },
+    {
+      "key": "wallPerfFar",
+      "count": 100,
+      "fps": 535.1954600000001,
+      "frame": 1.8718361000000001,
+      "render": 1.0312833000000003,
+      "sim": 0.5108555000000001
+    },
+    {
+      "key": "wallPerfOff3",
+      "count": 100,
+      "fps": 538.9000199999999,
+      "frame": 1.8578606000000002,
+      "render": 1.0236265,
+      "sim": 0.5071581999999999
+    }
+  ]
+}

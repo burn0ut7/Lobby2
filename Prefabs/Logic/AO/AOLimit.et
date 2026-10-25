@@ -1,6 +1,9 @@
 GC_AOLimitEntity {
  ID "8F470B543A20D942"
  components {
+  GC_BoundaryWallComponent "{6A4D831C2E5079C1}" {
+   m_bEnabled 0
+  }
   GC_MapShapeComponent "{8F470B543A20D964}" {
    m_bEnabled 0
   }
