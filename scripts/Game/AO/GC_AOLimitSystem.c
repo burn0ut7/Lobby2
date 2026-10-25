@@ -63,6 +63,18 @@ class GC_AOLimitSystem
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void GetMapOutlines(int playerId, array<int> counts, array<int> colors, array<float> widths, array<vector> points)
+	{
+		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode() != m_Mode || !GC_LobbyManager.GetManager())
+			return;
+		foreach (GC_AOLimitEntity limit : m_aLimits)
+		{
+			if (limit)
+				limit.AppendMapOutline(playerId, counts, colors, widths, points);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void Unregister(GC_AOLimitEntity limit)
 	{
 		ResetLimit(limit);

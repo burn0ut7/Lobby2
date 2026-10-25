@@ -1,0 +1,432 @@
+00:18:52.727      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:4611686018427387907" ('GameMode_Lobby3', GC_LobbyGameMode) at <135.296997 1.000000 123.139000> state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D35D75A8>
+00:19:02.134   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B8DEE1E2F0> @"ENTITY:6917529027641082066" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:4611686018427387907" ('GameMode_Lobby3', GC_LobbyGameMode) at <135.296997 1.000000 123.139000> menuManager=MenuManager<0x000001B8D35D75A8>
+00:19:10.945 SCRIPT       : RST_MCP_BEGIN rad918ddebdb545d98576d7fa69e8fb98
+00:19:10.945 SCRIPT       : RST_MCP_END rad918ddebdb545d98576d7fa69e8fb98 invoked
+00:19:11.094 SCRIPT       : RST_MCP_BEGIN rca1a46cced6b4beaaa6a0292a722ec33
+00:19:11.094 SCRIPT       : RST_MCP_END rca1a46cced6b4beaaa6a0292a722ec33 invoked
+00:19:28.970 SCRIPT       : RST_MCP_BEGIN r3a64df6a39af49f0b39dd169de8be893
+00:19:28.970 SCRIPT       : RST_MCP_END r3a64df6a39af49f0b39dd169de8be893 invoked
+00:19:32.897 SCRIPT       : RST_MCP_BEGIN r8bdcddd3a49749d898fb5df3ad87a126
+00:19:32.897 SCRIPT       : RST_MCP_END r8bdcddd3a49749d898fb5df3ad87a126 invoked
+00:19:33.039 SCRIPT       : RST_MCP_BEGIN r9b634e07b445486abfa85b7369f744f1
+00:19:33.039 SCRIPT       : RST_MCP_END r9b634e07b445486abfa85b7369f744f1 invoked
+00:19:33.192 SCRIPT       : RST_MCP_BEGIN rfe072c52ff1f4de8b2a7a8568ea09281
+00:19:33.192 SCRIPT       : RST_MCP_END rfe072c52ff1f4de8b2a7a8568ea09281 invoked
+00:19:37.479 SCRIPT       : RST_MCP_BEGIN r52b7d8cdc3364b0fa9baf68b1ee670a9
+00:19:37.479 SCRIPT       : RST_MCP_END r52b7d8cdc3364b0fa9baf68b1ee670a9 invoked
+00:20:39.369      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D36100D8>
+00:20:39.589   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B9A003E660> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D36100D8>
+00:20:41.941 SCRIPT       : RST_MCP_BEGIN r9742917b982c4633a637014777df852a
+00:20:41.941 SCRIPT       : RST_MCP_END r9742917b982c4633a637014777df852a invoked
+00:20:42.190 SCRIPT       : RST_MCP_BEGIN reb9543a2f09c49748261a2d8a24b5528
+00:20:42.190 SCRIPT       : RST_MCP_END reb9543a2f09c49748261a2d8a24b5528 invoked
+00:20:45.793 SCRIPT       : RST_MCP_BEGIN rc31c5b3cc8294a188476e2471a4d3495
+00:20:45.793 SCRIPT       : RST_MCP_END rc31c5b3cc8294a188476e2471a4d3495 invoked
+00:20:46.024 SCRIPT       : RST_MCP_BEGIN rb8e8eab4da7f4c32b52bc58cfd0916b3
+00:20:46.024 SCRIPT       : RST_MCP_END rb8e8eab4da7f4c32b52bc58cfd0916b3 invoked
+00:20:46.265 SCRIPT       : RST_MCP_BEGIN rcbd1f4045e9144fb932739e68de6dcaa
+00:20:46.265 SCRIPT       : RST_MCP_END rcbd1f4045e9144fb932739e68de6dcaa invoked
+00:20:46.508 SCRIPT       : RST_MCP_BEGIN r0b387ef99f4f407497295c5df99d3f52
+00:20:46.508 SCRIPT       : RST_MCP_END r0b387ef99f4f407497295c5df99d3f52 invoked
+00:20:50.928 SCRIPT       : RST_MCP_BEGIN r184af18b49ac48e093b9f1ea0308f314
+00:20:50.929 SCRIPT       : RST_MCP_END r184af18b49ac48e093b9f1ea0308f314 invoked
+00:20:51.153 SCRIPT       : RST_MCP_BEGIN rc2fd732f56284f7689b98e2f50a0dda0
+00:20:51.153 SCRIPT       : RST_MCP_END rc2fd732f56284f7689b98e2f50a0dda0 invoked
+00:20:51.376 SCRIPT       : RST_MCP_BEGIN r9b522aab768a409e9e653951f5752e08
+00:20:51.376 SCRIPT       : RST_MCP_END r9b522aab768a409e9e653951f5752e08 invoked
+00:20:59.639 SCRIPT       : RST_MCP_BEGIN rf1d9eb6c2a3943bb8befe767b5f47474
+00:20:59.639 SCRIPT       : RST_MCP_END rf1d9eb6c2a3943bb8befe767b5f47474 invoked
+00:21:06.677 SCRIPT       : RST_MCP_BEGIN r7f23aa9337004562b886b1dc8d7916d0
+00:21:06.677 SCRIPT       : RST_MCP_END r7f23aa9337004562b886b1dc8d7916d0 invoked
+00:21:53.666      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D35E6E70>
+00:21:53.869   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B8DE703A00> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D35E6E70>
+00:22:11.267 SCRIPT       : RST_MCP_BEGIN r843662e16e33414a874be1204c63b623
+00:22:11.267 SCRIPT       : RST_MCP_END r843662e16e33414a874be1204c63b623 invoked
+00:22:11.512 SCRIPT       : RST_MCP_BEGIN r2288b825e26f498295c63bbd79177e6d
+00:22:11.512 SCRIPT       : RST_MCP_END r2288b825e26f498295c63bbd79177e6d invoked
+00:22:11.735 SCRIPT       : RST_MCP_BEGIN r96708527344641adac37ed8cab08794c
+00:22:11.735 SCRIPT       : RST_MCP_END r96708527344641adac37ed8cab08794c invoked
+00:22:11.986 SCRIPT       : RST_MCP_BEGIN r691b54ad3e484bab8546c90676dd5f0f
+00:22:11.986 SCRIPT       : RST_MCP_END r691b54ad3e484bab8546c90676dd5f0f invoked
+00:22:12.261 SCRIPT       : RST_MCP_BEGIN rb64247e937724a09bc27c04fcd34a9e2
+00:22:12.262 SCRIPT       : RST_MCP_END rb64247e937724a09bc27c04fcd34a9e2 invoked
+00:22:12.521 SCRIPT       : RST_MCP_BEGIN r8f53ccafd3304652ba9b49bb443a777b
+00:22:12.521 SCRIPT       : RST_MCP_END r8f53ccafd3304652ba9b49bb443a777b invoked
+00:22:12.780 SCRIPT       : RST_MCP_BEGIN r31a4b86e65f7433ba04dafc4e33346a2
+00:22:12.780 SCRIPT       : RST_MCP_END r31a4b86e65f7433ba04dafc4e33346a2 invoked
+00:22:16.290 SCRIPT       : RST_MCP_BEGIN r42ebb7c479bc4861b0e7ad77b397189a
+00:22:16.290 SCRIPT       : RST_MCP_END r42ebb7c479bc4861b0e7ad77b397189a invoked
+00:22:28.969 SCRIPT       : RST_MCP_BEGIN r89efe2298e96459dad3faafe648930e2
+00:22:28.969 SCRIPT       : RST_MCP_END r89efe2298e96459dad3faafe648930e2 invoked
+00:22:33.431 SCRIPT       : RST_MCP_BEGIN rda0d7be3323645ce94f1d4689a8535eb
+00:22:33.431 SCRIPT       : RST_MCP_END rda0d7be3323645ce94f1d4689a8535eb invoked
+00:22:33.851 SCRIPT       : RST_MCP_BEGIN r8c5617b05f59466e8b8138b695f14408
+00:22:33.851 SCRIPT       : RST_MCP_END r8c5617b05f59466e8b8138b695f14408 invoked
+00:22:50.739 SCRIPT       : RST_MCP_BEGIN re74a84cb503f44fd91e1a13c4a1b9312
+00:22:50.739 SCRIPT       : RST_MCP_END re74a84cb503f44fd91e1a13c4a1b9312 invoked
+00:22:58.877 SCRIPT       : RST_MCP_BEGIN rc55e593609c642c6b70d161c0560cbfb
+00:22:58.901 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=SLOTTING outcome=succeeded
+00:22:58.901 SCRIPT       : RST_MCP_END rc55e593609c642c6b70d161c0560cbfb invoked
+00:23:03.935 SCRIPT       : RST_MCP_BEGIN r5d8b819994b6411d8a331a95605e85ae
+00:23:03.938 SCRIPT       : RST_MCP_END r5d8b819994b6411d8a331a95605e85ae invoked
+00:23:04.185 SCRIPT       : RST_MCP_BEGIN r7c725867340f4890aa8e407fade73894
+00:23:04.185 SCRIPT       : RST_MCP_END r7c725867340f4890aa8e407fade73894 invoked
+00:23:16.222 SCRIPT       : RST_MCP_BEGIN r836daaf66c3340a18094cfab261cc128
+00:23:16.223 SCRIPT       : RST_MCP_END r836daaf66c3340a18094cfab261cc128 invoked
+00:23:24.942 SCRIPT       : RST_MCP_BEGIN rac3fc8c860044325abc38128ff453853
+00:23:24.942 SCRIPT       : RST_MCP_END rac3fc8c860044325abc38128ff453853 invoked
+00:23:31.509 SCRIPT       : RST_MCP_BEGIN rbae17d505c2e4b00a4c98e5ef39cb774
+00:23:31.511 SCRIPT       : RST_MCP_END rbae17d505c2e4b00a4c98e5ef39cb774 invoked
+00:23:31.838 SCRIPT       : RST_MCP_BEGIN r851ab03d67044a9092264910b0b01579
+00:23:31.839 SCRIPT       : RST_MCP_END r851ab03d67044a9092264910b0b01579 invoked
+00:23:32.085 SCRIPT       : RST_MCP_BEGIN rfb1ad0b6d8d14dfb8938674e2b5faa91
+00:23:32.085 SCRIPT       : RST_MCP_END rfb1ad0b6d8d14dfb8938674e2b5faa91 invoked
+00:23:39.396 SCRIPT       : RST_MCP_BEGIN r8f7c7db123634c6f965162c2ca18c7a4
+00:23:39.396 SCRIPT       : RST_MCP_END r8f7c7db123634c6f965162c2ca18c7a4 invoked
+00:23:52.960 SCRIPT       : RST_MCP_BEGIN rf88d8d5e58fc41d78162d4f8a4cc5e64
+00:23:52.961 SCRIPT       : RST_MCP_END rf88d8d5e58fc41d78162d4f8a4cc5e64 invoked
+00:23:53.203 SCRIPT       : RST_MCP_BEGIN rf5ec5053d3634589911b81f0cd011340
+00:23:53.203 SCRIPT       : RST_MCP_END rf5ec5053d3634589911b81f0cd011340 invoked
+00:24:14.272 SCRIPT       : RST_MCP_BEGIN r20871ab7174b4287a8413688f3152153
+00:24:14.278 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=BRIEFING outcome=succeeded
+00:24:14.279 SCRIPT       : RST_MCP_END r20871ab7174b4287a8413688f3152153 invoked
+00:26:38.341 SCRIPT       : RST_MCP_BEGIN rdb73920e91854397a4316c05ef78600c
+00:26:38.342 SCRIPT       : RST_MCP_END rdb73920e91854397a4316c05ef78600c invoked
+00:27:14.605      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D35F00D8>
+00:27:14.782   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B9A1F97370> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D35F00D8>
+00:27:22.368 SCRIPT       : RST_MCP_BEGIN r49f079232874424e96c38d558f40419d
+00:27:22.368 SCRIPT       : RST_MCP_END r49f079232874424e96c38d558f40419d invoked
+00:27:22.865 SCRIPT       : RST_MCP_BEGIN r6153ddab0a7c457caf54343eaff35c1c
+00:27:22.865 SCRIPT       : RST_MCP_END r6153ddab0a7c457caf54343eaff35c1c invoked
+00:27:23.098 SCRIPT       : RST_MCP_BEGIN r8721eb35d035420490b4193608189f5c
+00:27:23.098 SCRIPT       : RST_MCP_END r8721eb35d035420490b4193608189f5c invoked
+00:27:23.587 SCRIPT       : RST_MCP_BEGIN r0554c08545d34e3888cf48fb8bcd2d7e
+00:27:23.587 SCRIPT       : RST_MCP_END r0554c08545d34e3888cf48fb8bcd2d7e invoked
+00:27:23.870 SCRIPT       : RST_MCP_BEGIN rfb6e4b2bf272457895d5c2f72bc37c17
+00:27:23.870 SCRIPT       : RST_MCP_END rfb6e4b2bf272457895d5c2f72bc37c17 invoked
+00:27:24.119 SCRIPT       : RST_MCP_BEGIN r29c9b0194b97470483a0952cc444847a
+00:27:24.120 SCRIPT       : RST_MCP_END r29c9b0194b97470483a0952cc444847a invoked
+00:27:24.372 SCRIPT       : RST_MCP_BEGIN rc59f80a2ae9f446ea84c246a6d08d68f
+00:27:24.373 SCRIPT       : RST_MCP_END rc59f80a2ae9f446ea84c246a6d08d68f invoked
+00:27:29.792 SCRIPT       : RST_MCP_BEGIN rfcbe12b7f152403d9c118efb859e7795
+00:27:29.792 SCRIPT       : RST_MCP_END rfcbe12b7f152403d9c118efb859e7795 invoked
+00:27:30.052 SCRIPT       : RST_MCP_BEGIN r7e73bf332a284b27ae56c5dd5082fd0a
+00:27:30.052 SCRIPT       : RST_MCP_END r7e73bf332a284b27ae56c5dd5082fd0a invoked
+00:27:30.897 SCRIPT       : RST_MCP_BEGIN re857eccc06224336b2cd8024f0070d40
+00:27:30.897 SCRIPT       : RST_MCP_END re857eccc06224336b2cd8024f0070d40 invoked
+00:27:31.145 SCRIPT       : RST_MCP_BEGIN r93611cf15ab04c91807b4367b7a18ed8
+00:27:31.145 SCRIPT       : RST_MCP_END r93611cf15ab04c91807b4367b7a18ed8 invoked
+00:27:31.985 SCRIPT       : RST_MCP_BEGIN rfd39aff2a04040b28f29f53467e64066
+00:27:31.985 SCRIPT       : RST_MCP_END rfd39aff2a04040b28f29f53467e64066 invoked
+00:27:32.220 SCRIPT       : RST_MCP_BEGIN re79f5e25fcf54e9db8fac6a291a5f5d0
+00:27:32.245 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=SLOTTING outcome=succeeded
+00:27:32.245 SCRIPT       : RST_MCP_END re79f5e25fcf54e9db8fac6a291a5f5d0 invoked
+00:27:32.479 SCRIPT       : RST_MCP_BEGIN r6c3a2100c48345f48bdb84caad715090
+00:27:32.482 SCRIPT       : RST_MCP_END r6c3a2100c48345f48bdb84caad715090 invoked
+00:27:32.734 SCRIPT       : RST_MCP_BEGIN r787041ebd59249d591f6676dea448431
+00:27:32.736 SCRIPT       : RST_MCP_END r787041ebd59249d591f6676dea448431 invoked
+00:27:33.014 SCRIPT       : RST_MCP_BEGIN rdd00bb3c426f4ca79cda6413de53c618
+00:27:33.021 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=BRIEFING outcome=succeeded
+00:27:33.021 SCRIPT       : RST_MCP_END rdd00bb3c426f4ca79cda6413de53c618 invoked
+00:27:33.864 SCRIPT       : RST_MCP_BEGIN r35c56c9e644e4f96a600e7035f4f3c4f
+00:27:33.864 SCRIPT       : RST_MCP_END r35c56c9e644e4f96a600e7035f4f3c4f invoked
+00:27:40.020 SCRIPT       : RST_MCP_BEGIN r34d815a2fdf54cf5a96127f8fe93aefe
+00:27:40.020 SCRIPT       : RST_MCP_END r34d815a2fdf54cf5a96127f8fe93aefe invoked
+00:27:48.041 SCRIPT       : RST_MCP_BEGIN re2dec936c3524aec98d4b4d8e956bd0a
+00:27:48.041 SCRIPT       : RST_MCP_END re2dec936c3524aec98d4b4d8e956bd0a invoked
+00:27:48.291 SCRIPT       : RST_MCP_BEGIN rce95e124ae9041be99b6734cda90e6e0
+00:27:48.291 SCRIPT       : RST_MCP_END rce95e124ae9041be99b6734cda90e6e0 invoked
+00:28:29.366 SCRIPT       : RST_MCP_BEGIN rba26e658b9dc4d2896c412b67a2c524d
+00:28:29.366 SCRIPT       : RST_MCP_END rba26e658b9dc4d2896c412b67a2c524d invoked
+00:28:29.689 SCRIPT       : RST_MCP_BEGIN rc4a45020cc694e9c8207a4dc4eec8095
+00:28:29.689 SCRIPT       : RST_MCP_END rc4a45020cc694e9c8207a4dc4eec8095 invoked
+00:28:33.871 SCRIPT       : RST_MCP_BEGIN rdd880ca7ce3747c491b32ba53b922684
+00:28:33.871 SCRIPT       : RST_MCP_END rdd880ca7ce3747c491b32ba53b922684 invoked
+00:28:34.755 SCRIPT       : RST_MCP_BEGIN rb5a178d92e4e4463894c2f79cb8109d6
+00:28:34.755 SCRIPT       : RST_MCP_END rb5a178d92e4e4463894c2f79cb8109d6 invoked
+00:29:23.921      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D3638958>
+00:29:24.116   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B9892B3F00> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D3638958>
+00:29:30.153 SCRIPT       : RST_MCP_BEGIN rc10096630982494c85858fae31e05f22
+00:29:30.153 SCRIPT       : RST_MCP_END rc10096630982494c85858fae31e05f22 invoked
+00:29:30.595 SCRIPT       : RST_MCP_BEGIN r4abbfe4a992845cb8b8f523991dbcb55
+00:29:30.595 SCRIPT       : RST_MCP_END r4abbfe4a992845cb8b8f523991dbcb55 invoked
+00:29:30.835 SCRIPT       : RST_MCP_BEGIN r17a6b79c096d4e88813a8a60be15be6c
+00:29:30.835 SCRIPT       : RST_MCP_END r17a6b79c096d4e88813a8a60be15be6c invoked
+00:29:31.126 SCRIPT       : RST_MCP_BEGIN r18b6461bb19f452397e17257132700cc
+00:29:31.126 SCRIPT       : RST_MCP_END r18b6461bb19f452397e17257132700cc invoked
+00:29:31.549 SCRIPT       : RST_MCP_BEGIN rc658351385e946c280dbcbfe9bf0140b
+00:29:31.549 SCRIPT       : RST_MCP_END rc658351385e946c280dbcbfe9bf0140b invoked
+00:29:31.776 SCRIPT       : RST_MCP_BEGIN r5bb8248da6624b9ab4e3770a187b49af
+00:29:31.777 SCRIPT       : RST_MCP_END r5bb8248da6624b9ab4e3770a187b49af invoked
+00:29:32.007 SCRIPT       : RST_MCP_BEGIN rc89c34fff1ce44c9b51b79704b78b4ed
+00:29:32.007 SCRIPT       : RST_MCP_END rc89c34fff1ce44c9b51b79704b78b4ed invoked
+00:29:32.939 SCRIPT       : RST_MCP_BEGIN r4c85937c374c4a60a52d0bdb3901fee5
+00:29:32.939 SCRIPT       : RST_MCP_END r4c85937c374c4a60a52d0bdb3901fee5 invoked
+00:29:41.346 SCRIPT       : RST_MCP_BEGIN rdd102bd7bee7405787c0fb37f0527fd0
+00:29:41.346 SCRIPT       : RST_MCP_END rdd102bd7bee7405787c0fb37f0527fd0 invoked
+00:29:41.595 SCRIPT       : RST_MCP_BEGIN r03b4ab8e10934ba7beb84655a846cd22
+00:29:41.595 SCRIPT       : RST_MCP_END r03b4ab8e10934ba7beb84655a846cd22 invoked
+00:29:49.440 SCRIPT       : RST_MCP_BEGIN r88da7450100946d189d20e8fe79ebd41
+00:29:49.440 SCRIPT       : RST_MCP_END r88da7450100946d189d20e8fe79ebd41 invoked
+00:30:14.276      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=2 playerController=NULL menuManager=MenuManager<0x000001B8D3624710>
+00:30:14.625   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B9892B0750> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=2 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D3624710>
+00:30:25.940 SCRIPT       : RST_MCP_BEGIN r7492a28651124ea294cc13d0635f0120
+00:30:25.941 SCRIPT       : RST_MCP_END r7492a28651124ea294cc13d0635f0120 invoked
+00:30:26.704 SCRIPT       : RST_MCP_BEGIN r87fe5af3452b40c48941fec5626ad159
+00:30:26.704 SCRIPT       : RST_MCP_END r87fe5af3452b40c48941fec5626ad159 invoked
+00:30:27.252 SCRIPT       : RST_MCP_BEGIN r5251b463b3184f20826f950195ce0a93
+00:30:27.252 SCRIPT       : RST_MCP_END r5251b463b3184f20826f950195ce0a93 invoked
+00:30:27.835 SCRIPT       : RST_MCP_BEGIN r020fc716a3284bff8c1305f18a128472
+00:30:27.835 SCRIPT       : RST_MCP_END r020fc716a3284bff8c1305f18a128472 invoked
+00:30:28.549 SCRIPT       : RST_MCP_BEGIN r7bb52af0f7fe491f9ff8fadb4b77fe0c
+00:30:28.549 SCRIPT       : RST_MCP_END r7bb52af0f7fe491f9ff8fadb4b77fe0c invoked
+00:30:29.083 SCRIPT       : RST_MCP_BEGIN r1e980f7936ed434d97b7b95deacde0bd
+00:30:29.083 SCRIPT       : RST_MCP_END r1e980f7936ed434d97b7b95deacde0bd invoked
+00:30:29.632 SCRIPT       : RST_MCP_BEGIN r3f25a11087fa4a5680e23c3ab4715dac
+00:30:29.659 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=SLOTTING outcome=succeeded
+00:30:29.659 SCRIPT       : RST_MCP_END r3f25a11087fa4a5680e23c3ab4715dac invoked
+00:30:30.238 SCRIPT       : RST_MCP_BEGIN r1071239ca93c4ac1be7d9a621cb5cfa2
+00:30:30.241 SCRIPT       : RST_MCP_END r1071239ca93c4ac1be7d9a621cb5cfa2 invoked
+00:30:30.708     SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B998F47A20> @"ENTITY:4611686018427389163" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=2 publishedController=GC_LobbyPlayerController<0x000001B9892B0750> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D3624710>
+00:30:30.810 SCRIPT       : RST_MCP_BEGIN rf7ac3920595343fcbb32b8e3ecb7b9dd
+00:30:30.813 SCRIPT       : RST_MCP_END rf7ac3920595343fcbb32b8e3ecb7b9dd invoked
+00:30:31.583 SCRIPT       : RST_MCP_BEGIN rf9cb63031d4d46a49a1bea53d59e51c2
+00:30:31.591 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=BRIEFING outcome=succeeded
+00:30:31.591 SCRIPT       : RST_MCP_END rf9cb63031d4d46a49a1bea53d59e51c2 invoked
+00:30:37.435 SCRIPT       : RST_MCP_BEGIN rbbd0b91d5168405094290232f173f528
+00:30:37.435 SCRIPT       : RST_MCP_END rbbd0b91d5168405094290232f173f528 invoked
+00:30:37.531   SCRIPT       : GC | MCP Peer Observation | token=map-both player=2 report=canvas=0 generation=0 commands=0
+00:30:38.890 SCRIPT       : RST_MCP_BEGIN r707ce571f7544d8e92708a3e2936e854
+00:30:38.890 SCRIPT       : RST_MCP_END r707ce571f7544d8e92708a3e2936e854 invoked
+00:30:39.712 SCRIPT       : RST_MCP_BEGIN r979d66bb6c014996b2562cf70a9d0e5a
+00:30:39.712 SCRIPT       : RST_MCP_END r979d66bb6c014996b2562cf70a9d0e5a invoked
+00:30:41.131 SCRIPT       : RST_MCP_BEGIN r48fbe0bfad9c4d6a8cbfced1e764275d
+00:30:41.131 SCRIPT       : RST_MCP_END r48fbe0bfad9c4d6a8cbfced1e764275d invoked
+00:30:41.956 SCRIPT       : RST_MCP_BEGIN r69f26daa75c64a199c9d14975527d6fa
+00:30:41.956 SCRIPT       : RST_MCP_END r69f26daa75c64a199c9d14975527d6fa invoked
+00:30:42.013   SCRIPT       : GC | MCP Peer Observation | token=map-filter player=2 report=canvas=0 generation=0 commands=0
+00:30:43.163 SCRIPT       : RST_MCP_BEGIN r2d16083ae69449a59e957f9c95b90447
+00:30:43.163 SCRIPT       : RST_MCP_END r2d16083ae69449a59e957f9c95b90447 invoked
+00:30:55.278 SCRIPT       : RST_MCP_BEGIN r7f6cbc5971084437b2f1bcc84398fcb6
+00:30:55.278 SCRIPT       : RST_MCP_END r7f6cbc5971084437b2f1bcc84398fcb6 invoked
+00:30:55.310   SCRIPT       : GC | MCP Peer Observation | token=map-open player=2 report=phase=BRIEFING revision=0
+00:30:56.807 SCRIPT       : RST_MCP_BEGIN r80e831c7c7c64a77ad4bbb09a80bf7b0
+00:30:56.807 SCRIPT       : RST_MCP_END r80e831c7c7c64a77ad4bbb09a80bf7b0 invoked
+00:30:57.629 SCRIPT       : RST_MCP_BEGIN r87ccaaed77c3420380db0897b7e30551
+00:30:57.629 SCRIPT       : RST_MCP_END r87ccaaed77c3420380db0897b7e30551 invoked
+00:30:57.685   SCRIPT       : GC | MCP Peer Observation | token=map-filter-open player=2 report=canvas=0 generation=0 commands=0
+00:30:59.106 SCRIPT       : RST_MCP_BEGIN rb3b6e2fed7a74a9eae3540123cae426a
+00:30:59.107 SCRIPT       : RST_MCP_END rb3b6e2fed7a74a9eae3540123cae426a invoked
+00:31:06.889 SCRIPT       : RST_MCP_BEGIN r96120cd0cdcc4a3691d763a5a2e1f571
+00:31:06.889 SCRIPT       : RST_MCP_END r96120cd0cdcc4a3691d763a5a2e1f571 invoked
+00:31:06.939   SCRIPT       : GC | MCP Peer Observation | token=map-join player=2 report=player=2 admin=0 messages=0 presentation=state=0 requested=1 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=1 cameraCurrent=1 bodyPosition=<1194.46,39,2723.13> cameraPosition=<1194.46,39.2301,2723.13> nearby= [controlled=1 spectator=1 flags=10242 position=<1194.46,39,2723.13>] [controlled=0 spectator=1 flags=8322 position=<1194.46,39,2723.13>] [controlled=0 spectator=0 flags=10371 position=<1196.26,39,2726.05>] [controlled=0 spectator=0 flags=10371 position=<1190.15,39,2725.61>] rulesRevision=0 factionLock=0 balance=0 freezeState=configured=0 remaining=0 revision=2 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+00:31:08.126 SCRIPT       : RST_MCP_BEGIN r10b451c8288347fd95be093d625cb648
+00:31:08.126 SCRIPT       : RST_MCP_END r10b451c8288347fd95be093d625cb648 invoked
+00:31:08.669 SCRIPT       : RST_MCP_BEGIN rf8d94a85d7484ece9c659dbf97da2182
+00:31:08.669 SCRIPT       : RST_MCP_END rf8d94a85d7484ece9c659dbf97da2182 invoked
+00:31:08.709   SCRIPT       : GC | MCP Peer Observation | token=map-open2 player=2 report=phase=BRIEFING revision=0
+00:31:10.199 SCRIPT       : RST_MCP_BEGIN rf6d3f186d56f4a6aa0c4b82b39a52799
+00:31:10.199 SCRIPT       : RST_MCP_END rf6d3f186d56f4a6aa0c4b82b39a52799 invoked
+00:31:10.243   SCRIPT       : GC | MCP Peer Observation | token=map-filter2 player=2 report=canvas=0 generation=0 commands=0
+00:31:11.443 SCRIPT       : RST_MCP_BEGIN rec1a68e7883141c48db1451f5d23afce
+00:31:11.444 SCRIPT       : RST_MCP_END rec1a68e7883141c48db1451f5d23afce invoked
+00:31:19.083 SCRIPT       : RST_MCP_BEGIN r482486e20a3649499a29f26872bedc1d
+00:31:19.084 SCRIPT       : RST_MCP_END r482486e20a3649499a29f26872bedc1d invoked
+00:31:19.886 SCRIPT       : RST_MCP_BEGIN r4d272fe9a5b24a53bd9a421fca429602
+00:31:19.886 SCRIPT       : RST_MCP_END r4d272fe9a5b24a53bd9a421fca429602 invoked
+00:31:19.930   SCRIPT       : GC | MCP Peer Observation | token=map-slotting-join player=2 report=player=2 admin=0 messages=0 presentation=state=0 requested=1 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=1 cameraCurrent=1 bodyPosition=<1194.46,39,2723.13> cameraPosition=<1194.46,39.2301,2723.13> nearby= [controlled=1 spectator=1 flags=10242 position=<1194.46,39,2723.13>] [controlled=0 spectator=1 flags=8322 position=<1194.46,39,2723.13>] [controlled=0 spectator=0 flags=10371 position=<1196.26,39,2726.05>] [controlled=0 spectator=0 flags=10371 position=<1190.15,39,2725.61>] rulesRevision=0 factionLock=0 balance=0 freezeState=configured=0 remaining=0 revision=2 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=none priority=0 muted=0 transmitting=0 eligible=1
+00:31:21.287 SCRIPT       : RST_MCP_BEGIN r8362de29a71c40e197e4cae8a3de5bc3
+00:31:21.287 SCRIPT       : RST_MCP_END r8362de29a71c40e197e4cae8a3de5bc3 invoked
+00:31:21.340   SCRIPT       : GC | MCP Peer Observation | token=map-roster player=2 report=slots=24 rows=id,group,locked,player | 1,-2147457761,1,-1 | 2,-2147457761,1,-1 | 3,-2147457335,1,-1 | 4,-2147457335,1,-1 | 5,-2147457335,1,-1 | 6,-2147457335,1,-1 | 7,-2147457329,1,-1 | 8,-2147457329,1,-1 | 9,-2147457118,0,1 | 10,-2147457118,1,-1 | 11,-2147457118,1,-1 | 12,-2147457118,1,-1 | 13,-2147457112,1,-1 | 14,-2147457112,1,-1 | 15,-2147457112,1,-1 | 16,-2147457112,1,-1 | 17,-2147457106,1,-1 | 18,-2147457106,1,-1 | 19,-2147457106,1,-1 | 20,-2147457106,1,-1 | 21,-2147457100,1,-1 | 22,-2147457100,1,-1 | 23,-2147457100,1,-1 | 24,-2147457100,1,-1
+00:31:22.441 SCRIPT       : RST_MCP_BEGIN r571320ad367a4354a48182fe906e1254
+00:31:22.441 SCRIPT       : RST_MCP_END r571320ad367a4354a48182fe906e1254 invoked
+00:31:23.239 SCRIPT       : RST_MCP_BEGIN r64963cb7cd1a4fa891189f66c4afa8fc
+00:31:23.239 SCRIPT       : RST_MCP_END r64963cb7cd1a4fa891189f66c4afa8fc invoked
+00:31:25.021 SCRIPT       : RST_MCP_BEGIN r4c284435ec3f4436afebc8d659ba6faf
+00:31:25.021 SCRIPT       : RST_MCP_END r4c284435ec3f4436afebc8d659ba6faf invoked
+00:31:25.084   SCRIPT       : GC | MCP Peer Observation | token=map-after-join player=2 report=canvas=0 generation=0 commands=0
+00:31:26.189 SCRIPT       : RST_MCP_BEGIN re26d30c0ed3b4d68a2aca36ad50ec5ca
+00:31:26.189 SCRIPT       : RST_MCP_END re26d30c0ed3b4d68a2aca36ad50ec5ca invoked
+00:31:34.466 SCRIPT       : RST_MCP_BEGIN rdacdd04614ca4a4e98ab84890c3d1979
+00:31:34.467 SCRIPT       : RST_MCP_END rdacdd04614ca4a4e98ab84890c3d1979 invoked
+00:31:43.563 SCRIPT       : RST_MCP_BEGIN r19f3ff2a0abb4a7bae7245754855b109
+00:31:43.575 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=slot-assign target=player=2 identity=00bbbddd-0035-858f-0027-9c18001998a1 slot=1 claim= outcome=applied
+00:31:43.575 SCRIPT       : RST_MCP_END r19f3ff2a0abb4a7bae7245754855b109 invoked
+00:31:45.189 SCRIPT       : RST_MCP_BEGIN rc1c7e0869be840fd944de5296de79b3b
+00:31:45.189 SCRIPT       : RST_MCP_END rc1c7e0869be840fd944de5296de79b3b invoked
+00:31:45.264   SCRIPT       : GC | MCP Peer Observation | token=map-open3 player=2 report=phase=BRIEFING revision=0
+00:31:46.755 SCRIPT       : RST_MCP_BEGIN rc83d678adc274975ab0bf10e753be99e
+00:31:46.755 SCRIPT       : RST_MCP_END rc83d678adc274975ab0bf10e753be99e invoked
+00:31:46.802   SCRIPT       : GC | MCP Peer Observation | token=map-ussr player=2 report=canvas=1 generation=1 commands=1 [line vertices=4 color=-16777216 width=5 closed=1 first=1254,1462]
+00:31:47.896 SCRIPT       : RST_MCP_BEGIN re59a4c922d4a4baa9982c65ecb5faf37
+00:31:47.896 SCRIPT       : RST_MCP_END re59a4c922d4a4baa9982c65ecb5faf37 invoked
+00:31:48.657 SCRIPT       : RST_MCP_BEGIN r0b129d8393c5486d9b26e203a45976d5
+00:31:48.657 SCRIPT       : RST_MCP_END r0b129d8393c5486d9b26e203a45976d5 invoked
+00:31:50.112 SCRIPT       : RST_MCP_BEGIN r3b172968a81e4d5eb5984e7c56ec944e
+00:31:50.112 SCRIPT       : RST_MCP_END r3b172968a81e4d5eb5984e7c56ec944e invoked
+00:31:50.171   SCRIPT       : GC | MCP Peer Observation | token=map-everyone player=2 report=canvas=1 generation=1 commands=2 [line vertices=4 color=-16776961 width=3 closed=1 first=924,1492] [line vertices=4 color=-16777216 width=5 closed=1 first=1254,1462]
+00:31:51.259 SCRIPT       : RST_MCP_BEGIN r33f982183a504d88bc0f8aad9f34f128
+00:31:51.259 SCRIPT       : RST_MCP_END r33f982183a504d88bc0f8aad9f34f128 invoked
+00:31:57.484 SCRIPT       : RST_MCP_BEGIN r7bda7a121eda42cdb1b00a571b33abf3
+00:31:57.484 SCRIPT       : RST_MCP_END r7bda7a121eda42cdb1b00a571b33abf3 invoked
+00:31:58.589 SCRIPT       : RST_MCP_BEGIN rfd15c2a8078246e095fe5deb7dbd13e3
+00:31:58.589 SCRIPT       : RST_MCP_END rfd15c2a8078246e095fe5deb7dbd13e3 invoked
+00:32:15.232 SCRIPT       : RST_MCP_BEGIN r56cf0d5e7fdb4813a07664a8bc7b771e
+00:32:15.232 SCRIPT       : RST_MCP_END r56cf0d5e7fdb4813a07664a8bc7b771e invoked
+00:32:16.587 SCRIPT       : RST_MCP_BEGIN r310030223637400d93b6f7c81a4c0b9b
+00:32:16.587 SCRIPT       : RST_MCP_END r310030223637400d93b6f7c81a4c0b9b invoked
+00:32:17.330 SCRIPT       : RST_MCP_BEGIN ra2cc9a60d86d4db481138044d5ae8f4b
+00:32:17.330 SCRIPT       : RST_MCP_END ra2cc9a60d86d4db481138044d5ae8f4b invoked
+00:32:18.692 SCRIPT       : RST_MCP_BEGIN r646d19c866b749648d9e2e2c5f21ee19
+00:32:18.692 SCRIPT       : RST_MCP_END r646d19c866b749648d9e2e2c5f21ee19 invoked
+00:32:19.459 SCRIPT       : RST_MCP_BEGIN r7a9f87e8a9934a79bcf65168d7de2c4b
+00:32:19.459 SCRIPT       : RST_MCP_END r7a9f87e8a9934a79bcf65168d7de2c4b invoked
+00:32:20.809 SCRIPT       : RST_MCP_BEGIN r83533caeb58d46ed8ed0e10b7393bc6e
+00:32:20.809 SCRIPT       : RST_MCP_END r83533caeb58d46ed8ed0e10b7393bc6e invoked
+00:32:21.566 SCRIPT       : RST_MCP_BEGIN rc3af23d698c04f8c962debb2e803ba89
+00:32:21.567 SCRIPT       : RST_MCP_END rc3af23d698c04f8c962debb2e803ba89 invoked
+00:32:22.873 SCRIPT       : RST_MCP_BEGIN r9818e38b1c6649fb8b1bae7e4e9c0338
+00:32:22.874 SCRIPT       : RST_MCP_END r9818e38b1c6649fb8b1bae7e4e9c0338 invoked
+00:32:23.611 SCRIPT       : RST_MCP_BEGIN r7c3e5c83a2854f72bebe968b97536c3d
+00:32:23.611 SCRIPT       : RST_MCP_END r7c3e5c83a2854f72bebe968b97536c3d invoked
+00:32:24.974 SCRIPT       : RST_MCP_BEGIN ra950d347df534e6680b3bd6629f4f957
+00:32:24.975 SCRIPT       : RST_MCP_END ra950d347df534e6680b3bd6629f4f957 invoked
+00:32:25.729 SCRIPT       : RST_MCP_BEGIN re68db3e651fd4865bb3ce8d685b20820
+00:32:25.729 SCRIPT       : RST_MCP_END re68db3e651fd4865bb3ce8d685b20820 invoked
+00:32:27.045 SCRIPT       : RST_MCP_BEGIN r475a82eef73e41159d8f19e330e2ec11
+00:32:27.045 SCRIPT       : RST_MCP_END r475a82eef73e41159d8f19e330e2ec11 invoked
+00:32:27.777 SCRIPT       : RST_MCP_BEGIN rbacf12de7b7b4b20ab3842b56ea0f151
+00:32:27.777 SCRIPT       : RST_MCP_END rbacf12de7b7b4b20ab3842b56ea0f151 invoked
+00:32:27.841   SCRIPT       : GC | MCP Peer Observation | token=map-disable player=2 report=canvas=1 generation=1 commands=1 [line vertices=4 color=2130771968 width=4 closed=1 first=924,1492]
+00:32:28.924 SCRIPT       : RST_MCP_BEGIN r45ecc290dce14e318ca1f07a1fae93b9
+00:32:28.924 SCRIPT       : RST_MCP_END r45ecc290dce14e318ca1f07a1fae93b9 invoked
+00:32:29.633 SCRIPT       : RST_MCP_BEGIN r330188e8a071412b91c86bae99f8158b
+00:32:29.634 SCRIPT       : RST_MCP_END r330188e8a071412b91c86bae99f8158b invoked
+00:32:30.438 SCRIPT       : RST_MCP_BEGIN ra932213703fc451f8d7ccc98a1c00e86
+00:32:30.438 SCRIPT       : RST_MCP_END ra932213703fc451f8d7ccc98a1c00e86 invoked
+00:32:31.141 SCRIPT       : RST_MCP_BEGIN r01f57d2aa24647daa577725dd14b0bde
+00:32:31.141 SCRIPT       : RST_MCP_END r01f57d2aa24647daa577725dd14b0bde invoked
+00:32:32.360 SCRIPT       : RST_MCP_BEGIN r5c9c1468ea604f5b815807248e6843e6
+00:32:32.360 SCRIPT       : RST_MCP_END r5c9c1468ea604f5b815807248e6843e6 invoked
+00:32:32.931 SCRIPT       : RST_MCP_BEGIN r450ed311b65449de84e6a68e453ecf34
+00:32:32.931 SCRIPT       : RST_MCP_END r450ed311b65449de84e6a68e453ecf34 invoked
+00:32:34.111 SCRIPT       : RST_MCP_BEGIN ra707689e85914bd9b6468b33aca5875e
+00:32:34.111 SCRIPT       : RST_MCP_END ra707689e85914bd9b6468b33aca5875e invoked
+00:32:34.696 SCRIPT       : RST_MCP_BEGIN r7a849e7558054a33b200c4dc019b8aba
+00:32:34.696 SCRIPT       : RST_MCP_END r7a849e7558054a33b200c4dc019b8aba invoked
+00:32:34.786   SCRIPT       : GC | MCP Peer Observation | token=map-remove player=2 report=canvas=1 generation=1 commands=1 [line vertices=4 color=-16777216 width=5 closed=1 first=1254,1462]
+00:32:35.641 SCRIPT       : RST_MCP_BEGIN r4a841cd27d9c44439d2bbe47d747c353
+00:32:35.641 SCRIPT       : RST_MCP_END r4a841cd27d9c44439d2bbe47d747c353 invoked
+00:35:01.676      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D3611A70>
+00:35:01.859   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B9892B34E0> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D3611A70>
+00:36:12.821      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D362FAE0>
+00:36:12.970   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B8B8A84F90> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D362FAE0>
+00:36:17.369 SCRIPT       : RST_MCP_BEGIN rac57f5a2d79d43eab6071a687a505590
+00:36:17.369 SCRIPT       : RST_MCP_END rac57f5a2d79d43eab6071a687a505590 invoked
+00:36:17.847 SCRIPT       : RST_MCP_BEGIN rc74c8e9aa7974dd380aa1221bcc64d3e
+00:36:17.847 SCRIPT       : RST_MCP_END rc74c8e9aa7974dd380aa1221bcc64d3e invoked
+00:36:18.141 SCRIPT       : RST_MCP_BEGIN r3bbaee203c7a4b95a6f05539b502431f
+00:36:18.141 SCRIPT       : RST_MCP_END r3bbaee203c7a4b95a6f05539b502431f invoked
+00:36:18.422 SCRIPT       : RST_MCP_BEGIN ref56295d8e7446478fd5fbf19da68f7e
+00:36:18.448 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=SLOTTING outcome=succeeded
+00:36:18.448 SCRIPT       : RST_MCP_END ref56295d8e7446478fd5fbf19da68f7e invoked
+00:36:18.708 SCRIPT       : RST_MCP_BEGIN r385339928ae44d808c2960c337a3c451
+00:36:18.713 SCRIPT       : RST_MCP_END r385339928ae44d808c2960c337a3c451 invoked
+00:36:18.969 SCRIPT       : RST_MCP_BEGIN r6f07b14098964dd083e9472ead9a3572
+00:36:18.970 SCRIPT       : RST_MCP_END r6f07b14098964dd083e9472ead9a3572 invoked
+00:36:19.278 SCRIPT       : RST_MCP_BEGIN rea1e26a2d0484d15af1c9ac5c5d9e0db
+00:36:19.285 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=BRIEFING outcome=succeeded
+00:36:19.285 SCRIPT       : RST_MCP_END rea1e26a2d0484d15af1c9ac5c5d9e0db invoked
+00:36:19.597 SCRIPT       : RST_MCP_BEGIN r27a61f7674ba480d8671b9dd4a2939ba
+00:36:19.601 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=GAME outcome=succeeded
+00:36:19.601 SCRIPT       : RST_MCP_END r27a61f7674ba480d8671b9dd4a2939ba invoked
+00:36:20.704 SCRIPT       : RST_MCP_BEGIN r3bc812babb4e4458bafe5522bdbc1e76
+00:36:20.705 SCRIPT       : RST_MCP_END r3bc812babb4e4458bafe5522bdbc1e76 invoked
+00:36:21.006 SCRIPT       : RST_MCP_BEGIN r3aaf72e355574480ba19a02f1bb6ad48
+00:36:21.007 SCRIPT       : RST_MCP_END r3aaf72e355574480ba19a02f1bb6ad48 invoked
+00:36:22.004 SCRIPT       : RST_MCP_BEGIN re6344637d47b4af284bc801c4ae0b199
+00:36:22.005 SCRIPT       : RST_MCP_END re6344637d47b4af284bc801c4ae0b199 invoked
+00:36:35.758 SCRIPT       : RST_MCP_BEGIN r398a7b43cdee42848f73b2fcfe22ca70
+00:36:35.758 SCRIPT       : RST_MCP_END r398a7b43cdee42848f73b2fcfe22ca70 invoked
+00:36:36.427 SCRIPT       : RST_MCP_BEGIN r9bdb87164f1240618b428c733208b379
+00:36:36.427 SCRIPT       : RST_MCP_END r9bdb87164f1240618b428c733208b379 invoked
+00:36:37.265 SCRIPT       : RST_MCP_BEGIN r3cd865f7a6b44343bd5907c3ff2e0981
+00:36:37.265 SCRIPT       : RST_MCP_END r3cd865f7a6b44343bd5907c3ff2e0981 invoked
+00:36:37.538 SCRIPT       : RST_MCP_BEGIN r29203d262f7748a4aa0c97cfcf34462b
+00:36:37.538 SCRIPT       : RST_MCP_END r29203d262f7748a4aa0c97cfcf34462b invoked
+00:36:38.418 SCRIPT       : RST_MCP_BEGIN rad1195a3f486426b8b2c6d11dfa7215b
+00:36:38.418 SCRIPT       : RST_MCP_END rad1195a3f486426b8b2c6d11dfa7215b invoked
+00:36:38.690 SCRIPT       : RST_MCP_BEGIN rf76ea1aa37094289a0f1656d4c695988
+00:36:38.690 SCRIPT       : RST_MCP_END rf76ea1aa37094289a0f1656d4c695988 invoked
+00:36:39.535 SCRIPT       : RST_MCP_BEGIN rdc08c51de8db42459e00b39d1a07d87c
+00:36:39.568 SCRIPT       : RST_MCP_END rdc08c51de8db42459e00b39d1a07d87c invoked
+00:36:40.422 SCRIPT       : RST_MCP_BEGIN rc76d3bbae30e4dbea004df9477cd8289
+00:36:40.424 SCRIPT       : GC | Spectator Map | opened config={19C76194B21EC3E1}Configs/Map/MapEditor.conf markers=0 drawings=0
+00:36:40.424 SCRIPT       : RST_MCP_END rc76d3bbae30e4dbea004df9477cd8289 invoked
+00:36:41.305 SCRIPT       : RST_MCP_BEGIN rf61e9083a0b2437ab875da06fdbf9e03
+00:36:41.305 SCRIPT       : RST_MCP_END rf61e9083a0b2437ab875da06fdbf9e03 invoked
+00:37:33.186      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=1 rplMode=0 playerController=NULL menuManager=MenuManager<0x000001B8D363DEA8>
+00:37:33.380   SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x000001B9A1ADF910> @"ENTITY:4611686018427388074" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=1 rplMode=0 publishedController=NULL gameMode=GC_LobbyGameMode<0x000001B8BB8D0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x000001B8D363DEA8>
+00:37:37.896 SCRIPT       : RST_MCP_BEGIN r2fdbd7c5b2be4e46ab1e96d1f86504a7
+00:37:37.896 SCRIPT       : RST_MCP_END r2fdbd7c5b2be4e46ab1e96d1f86504a7 invoked
+00:37:38.343 SCRIPT       : RST_MCP_BEGIN r630da452040d46c89caca23a0c9379ba
+00:37:38.343 SCRIPT       : RST_MCP_END r630da452040d46c89caca23a0c9379ba invoked
+00:37:38.600 SCRIPT       : RST_MCP_BEGIN r51823df8803145cd8178d8ff2d19d0b8
+00:37:38.600 SCRIPT       : RST_MCP_END r51823df8803145cd8178d8ff2d19d0b8 invoked
+00:37:39.360 SCRIPT       : RST_MCP_BEGIN r065e24b886a14adfb175d30f3a9436ed
+00:37:39.361 SCRIPT       : RST_MCP_END r065e24b886a14adfb175d30f3a9436ed invoked
+00:37:39.613 SCRIPT       : RST_MCP_BEGIN r92a307c5a1bc450e8a0be536017caaf7
+00:37:39.641 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=SLOTTING outcome=succeeded
+00:37:39.641 SCRIPT       : RST_MCP_END r92a307c5a1bc450e8a0be536017caaf7 invoked
+00:37:39.893 SCRIPT       : RST_MCP_BEGIN r78b8b00c4e6145179167d5e26df43e21
+00:37:39.896 SCRIPT       : RST_MCP_END r78b8b00c4e6145179167d5e26df43e21 invoked
+00:37:40.149 SCRIPT       : RST_MCP_BEGIN rbc9b39cf0af04a63b214d248d9656e34
+00:37:40.151 SCRIPT       : RST_MCP_END rbc9b39cf0af04a63b214d248d9656e34 invoked
+00:37:40.455 SCRIPT       : RST_MCP_BEGIN r0eeb8e08e9c84b8881603f7a9388796f
+00:37:40.463 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=BRIEFING outcome=succeeded
+00:37:40.463 SCRIPT       : RST_MCP_END r0eeb8e08e9c84b8881603f7a9388796f invoked
+00:37:41.232 SCRIPT       : RST_MCP_BEGIN r150f442acfc945be84808eabca0cad95
+00:37:41.232 SCRIPT       : RST_MCP_END r150f442acfc945be84808eabca0cad95 invoked
+00:37:41.502 SCRIPT       : RST_MCP_BEGIN r97f6cae451924f7e8c86e44b07c764ea
+00:37:41.507 SCRIPT       : GC | Admin Action | player=1 identity=1e7013aa-2f4c-4bec-af61-da40e4c5ec02 action=advance-phase target=GAME outcome=succeeded
+00:37:41.507 SCRIPT       : RST_MCP_END r97f6cae451924f7e8c86e44b07c764ea invoked
+00:37:42.533 SCRIPT       : RST_MCP_BEGIN rcb27810065124c7d970722ab09f1745e
+00:37:42.533 SCRIPT       : RST_MCP_END rcb27810065124c7d970722ab09f1745e invoked
+00:37:43.424 SCRIPT       : RST_MCP_BEGIN rd6e5e340104f4176bb8093a2748ececf
+00:37:43.424 SCRIPT       : RST_MCP_END rd6e5e340104f4176bb8093a2748ececf invoked
+00:37:48.696 SCRIPT       : RST_MCP_BEGIN r9b8804caecce4fc2a0a676fe4e976682
+00:37:48.696 SCRIPT       : RST_MCP_END r9b8804caecce4fc2a0a676fe4e976682 invoked
+00:37:49.385 SCRIPT       : RST_MCP_BEGIN rc21966a46ff24a8d9938280ea447ee02
+00:37:49.385 SCRIPT       : RST_MCP_END rc21966a46ff24a8d9938280ea447ee02 invoked
+00:37:50.274 SCRIPT       : RST_MCP_BEGIN rcf2e3f91daab43c49fc14c9a2abc3a7a
+00:37:50.275 SCRIPT       : RST_MCP_END rcf2e3f91daab43c49fc14c9a2abc3a7a invoked
+00:37:50.520 SCRIPT       : RST_MCP_BEGIN r7925d96010a34f5cb3e02c5e39ed2dc9
+00:37:50.520 SCRIPT       : RST_MCP_END r7925d96010a34f5cb3e02c5e39ed2dc9 invoked
+00:37:51.391 SCRIPT       : RST_MCP_BEGIN r49b0f36c9ba04b2b9cb33fc6ef2779c9
+00:37:51.391 SCRIPT       : RST_MCP_END r49b0f36c9ba04b2b9cb33fc6ef2779c9 invoked
+00:37:51.657 SCRIPT       : RST_MCP_BEGIN r67972a4531a947438d222c22222a9d3d
+00:37:51.657 SCRIPT       : RST_MCP_END r67972a4531a947438d222c22222a9d3d invoked
+00:37:52.500 SCRIPT       : RST_MCP_BEGIN rb1e5392d199e4f89a5c3082675d69ee4
+00:37:52.523 SCRIPT       : RST_MCP_END rb1e5392d199e4f89a5c3082675d69ee4 invoked
+00:37:53.376 SCRIPT       : RST_MCP_BEGIN rf7758fcbfdb24578b45a49579ce65155
+00:37:53.377 SCRIPT       : GC | Spectator Map | opened config={19C76194B21EC3E1}Configs/Map/MapEditor.conf markers=0 drawings=0
+00:37:53.377 SCRIPT       : RST_MCP_END rf7758fcbfdb24578b45a49579ce65155 invoked
+00:37:54.245 SCRIPT       : RST_MCP_BEGIN rd9c17fdcb90e40ef8c82f62a9a02a65b
+00:37:54.245 SCRIPT       : RST_MCP_END rd9c17fdcb90e40ef8c82f62a9a02a65b invoked
+00:38:04.129 SCRIPT       : RST_MCP_BEGIN r4e5348b8f6ba45208e626b37ff222e0a
+00:38:04.130 SCRIPT       : RST_MCP_END r4e5348b8f6ba45208e626b37ff222e0a invoked
+00:38:04.725 SCRIPT       : RST_MCP_BEGIN r32eea18e901f4f93a08b7c11d64f343b
+00:38:04.726 SCRIPT       : GC | Spectator Map | closed
+00:38:04.726 SCRIPT       : RST_MCP_END r32eea18e901f4f93a08b7c11d64f343b invoked
+00:38:05.409 SCRIPT       : RST_MCP_BEGIN r714029b212f14bde91d45e1d19044e06
+00:38:05.409 SCRIPT       : RST_MCP_END r714029b212f14bde91d45e1d19044e06 invoked
+00:38:05.660 SCRIPT       : RST_MCP_BEGIN r4c58af4378544faa986d16ed692624c7
+00:38:05.661 SCRIPT       : GC | Spectator Map | opened config={19C76194B21EC3E1}Configs/Map/MapEditor.conf markers=0 drawings=0
+00:38:05.661 SCRIPT       : RST_MCP_END r4c58af4378544faa986d16ed692624c7 invoked
+00:38:06.541 SCRIPT       : RST_MCP_BEGIN r97facfac116e4876a35bdaee9af6f015
+00:38:06.541 SCRIPT       : RST_MCP_END r97facfac116e4876a35bdaee9af6f015 invoked
+00:38:06.814 SCRIPT       : RST_MCP_BEGIN r41a4bb40d0c8481bbd48ce554176076e
+00:38:06.814 SCRIPT       : GC | Spectator Map | closed
+00:38:06.814 SCRIPT       : RST_MCP_END r41a4bb40d0c8481bbd48ce554176076e invoked
+00:38:07.486 SCRIPT       : RST_MCP_BEGIN rdece32bb7f43408d89ecd23b4e1a5244
+00:38:07.487 SCRIPT       : RST_MCP_END rdece32bb7f43408d89ecd23b4e1a5244 invoked

@@ -22,6 +22,27 @@ Trusted server mission scripts can spawn/delete the prefab and call `SetEnabled`
 
 The owner-only warning displays seconds and three milliseconds (`20.000`), adding minutes only when nonzero (`1:05.250`). It is input-transparent. Authority supplies remaining time at 10 Hz; local updates interpolate for smooth display, never kill. This is a visual countdown, not millisecond-precision enforcement: actual expiry follows server evaluation and transport latency. Missing updates expire the HUD after 1.5 seconds; server enforcement remains authoritative.
 
+## Map outlines
+
+Each AO has a **Map outline** category. Visibility is independent of enforcement:
+
+| Visibility | Recipients |
+|---|---|
+| EVERYONE | Every player opening a map |
+| AFFECTED_FACTIONS | Players matching this AO's faction filter; IGNORE means everyone and EXCEPT_MATCHING excludes the listed factions |
+| APPLICABLE_PLAYERS | Living controlled characters matching all faction, inventory and vehicle filters |
+| HIDDEN | Nobody |
+
+The matching-player option tests current character eligibility, including a spectator body if it matches; it does not wait for GAME or require a boundary violation. Use faction visibility for planning before characters have their mission inventory. Disabled, invalid and removed limits are never drawn.
+
+Set color (including opacity), width (1–20 UI pixels), and optional faction color independently per AO. Faction color uses the first listed faction only for ONLY_MATCHING; other faction modes use the configured color. Width stays fixed while zooming and follows UI scaling. The Workbench line color is separate. All visible boundaries are drawn; enforcement priority does not hide lower-priority outlines.
+
+The overlay uses CanvasWidget/LineDrawCommand, closes each polygon, clips to the existing map frame, and captures no input. It introduces no MapItem/MapLink boundary markers or external addon dependency. The server filters a fresh owner-only snapshot every 0.5 seconds while that player's map is open. Changes to eligibility, geometry, enablement or style appear on the next refresh. Stale snapshots clear after 1.5 seconds. Closing the map releases the overlay and stops requests.
+
+Trusted server scripts can call `SetMapStyle(visibility, packedARGB, width, useFactionColor)`. It returns false for invalid visibility/width or missing authority/registration and does not restart violation timers.
+
 ## Validation
 
 Use the optional McpTestAddon and named `GameMode_Lobby3` in Empty_Lobby. `GC_TestAOSpawn`, `GC_TestAOConfigure`, `GC_TestAOFilter`, `GC_TestAOToggle`, `GC_TestAOMove`, `GC_TestAOSnapshot` and `GC_TestAOTimeFormat` arrange native state and invoke production APIs. No tests run on loading and no permissions are granted. `GC_TestAOMove` arranges boundary crossings through the native editable transform; it does not prove movement-input behavior. See Art/References/ao-limit for concepts, raw MCP receipts, logs, screenshots and the final verification record. Pending verification must not be treated as acceptance.
+
+For map checks use Arland_Lobby's `GameMode_Lobby2`; Empty_Lobby has no map entity. `GC_TestAOMapStyle`, `GC_TestAOMapSnapshot`, and `GC_TestAOMapView` exercise style, server filtering, projected commands and native pan/zoom. `GC_TestAOMapSurface` uses the inventory map gadget or existing spectator toggle handler. Peer transport action `ao-map` reports the owning client's rendered command state. See Art/References/ao-map for captures and receipts. Native edge panning can move an unattended map after centering; capture promptly after the helper's deferred pan.

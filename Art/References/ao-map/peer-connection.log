@@ -1,0 +1,40 @@
+Log C:\Users\Gray\Documents\My Games\PeerPlugin1\logs\logs_2026-10-25_00-30-21\console.log started at 2026-10-25 00:30:21 (2026-10-25 04:30:21 UTC)
+00:30:21.385 ENGINE       : FileSystem: Adding relative directory 'C:\Users\Gray\Documents\My Games\PeerPlugin1\logs\logs_2026-10-25_00-30-21' to filesystem under name logs
+00:30:21.385 ENGINE       : FileSystem: Adding relative directory 'C:\Users\Gray\Documents\My Games\PeerPlugin1\profile' to filesystem under name profile
+00:30:21.386 ENGINE       : Initializing engine, version 192142
+00:30:21.386 ENGINE       : CLI Params: -gproj C:/Program Files (x86)/Steam/steamapps/common/Arma Reforger/addons/data/ArmaReforger.gproj -addonsDir C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/addons/Lobby2/,C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/addons/Lobby2IsolationProbe/,C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/addons/Lobby2/tests/McpTestAddon/ -addons Lobby2,Lobby2IsolationProbe,Lobby2McpTests -window -screenWidth 1920 -screenHeight 1080 -forceupdate -nofocus -client -rpl-reconnect -rpl-timeout-disable -profile PeerPlugin1 -addonsDir C:/Program Files (x86)/Steam/steamapps/common/Arma Reforger/addons,C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/addons,C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/addons/Lobby2/tests/McpTestAddon
+00:30:21.392  ENGINE       : dir: 'C:/Users/Gray/Documents/My Games/PeerPlugin1/addons'
+00:30:21.597 RESOURCES    : ResourceDB: loading cache (id=5 name=profile path=C:\Users\Gray\Documents\My Games\PeerPlugin1\profile/resourceDatabase.rdb)
+00:30:21.597 RESOURCES    : ResourceDB: loading cache (id=6 name=logs path=C:\Users\Gray\Documents\My Games\PeerPlugin1\logs\logs_2026-10-25_00-30-21/resourceDatabase.rdb)
+00:30:21.996 RENDER       : AMD AGS library initialized, version 6.1.0 x DLL 6.1.0
+00:30:22.008 RENDER       : GPU_NVIDIA (0x10DE) (NVIDIA GeForce RTX 5090) with 1 GPU detected, VRAM 32187MB (fast 0MB), shared 15956MB, driver version 621.1
+00:30:22.284  RENDER       : Enfusion shader version 13
+00:30:22.446 RPL       (W): -rpl-timeout-disable active. This may cause extreme memory consumption and performance issues!
+00:30:22.446 NETWORK      : Using new GameRplScheduler.
+00:30:22.546  SCRIPT       : Module: GameLib; loaded 465x files; 607x classes; used 775K of static memory; defines: "ENF_WB,PLATFORM_WINDOWS,ENABLE_DIAG,ENF_ENABLE_VHC_OVERRIDE,ENF_ENABLE_RPLCOMPONENT_IN_GAMECODE"; CRC32: 4507af04
+00:30:23.462  SCRIPT    (W): @"scripts/Game/Editor/Components/EditableEntity/SCR_EditableEntityComponent.c,785": 'GetPlayerPlatformKind' is obsolete
+00:30:23.462  SCRIPT    (W): @"scripts/Game/Editor/Components/EditableEntity/SCR_EditableEntityComponent.c,786": 'GetPlayerPlatformId' is obsolete
+00:30:23.536  SCRIPT    (W): @"scripts/Game/GC_LobbyManager.c,2707": 'GetPlayerPlatformId' is obsolete
+00:30:24.070  SCRIPT       : Module: Game; loaded 5859x files; 11358x classes; used 33060K of static memory; defines: "ENF_WB,PLATFORM_WINDOWS,ENABLE_DIAG,ENF_ENABLE_VHC_OVERRIDE,ENF_ENABLE_RPLCOMPONENT_IN_GAMECODE,ENABLE_BASE_DESTRUCTION,BUDGET_OPTIMIZATION_CHECKS,DEBUG,RESPAWN_TIMER_COMPONENT_DEBUG,GAME_MODE_DEBUG,DEBUG_CONFIGURABLE_DIALOGS,DISABLE_WEAPON_SWITCHING,SCRIPTED_AIM_MODIFIER_DEBUG"; CRC32: cfe409fc
+00:30:24.111 INIT         : Creating game instance(ArmaReforgerScripted), version 1.8.0.13 built 2026-08-21 14:30:18 UTC.
+00:30:25.200 NETWORK      : Starting RPL client, number of addresses to try connecting to: 1
+00:30:25.200 RPL          : Starting client
+00:30:25.309 RPL          : ClientImpl event: connected (identity=0x00000000)
+00:30:29.579      SCRIPT       : GC | Phase UI Trace | game mode initialized: this=GC_LobbyGameMode<0x00000156F71B0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" state=PREGAME server=0 rplMode=1 playerController=NULL menuManager=MenuManager<0x00000156067200D8>
+00:30:30.658 RPL          : rpl::Pip::ProcessNetToGame
+00:30:30.781 RPL          : rpl::Pip::ProcessNetToGame
+00:30:30.783 RPL          : rpl::Pip::ProcessNetToGame
+00:30:30.783    SCRIPT       : GC | Phase UI Trace | player controller initialized: this=GC_LobbyPlayerController<0x00000156F7E85320> @"ENTITY:4611686018427387954" ('GC_LobbyPlayerController') at <0.000000 0.000000 0.000000> @"{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et" player=0 server=0 rplMode=1 publishedController=NULL gameMode=GC_LobbyGameMode<0x00000156F71B0030> @"ENTITY:2305843009213693955" ('GameMode_Lobby2', GC_LobbyGameMode) at <1194.457031 39.000000 2723.128906> @"{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" menuManager=MenuManager<0x00000156067200D8>
+00:30:30.836      SCRIPT    (W): Slot_GameVersion Has no Content!
+00:30:30.889  RPL          : rpl::Pip::ProcessNetToGame
+00:30:30.902  RPL          : rpl::Pip::ProcessNetToGame
+00:30:31.199  RPL          : rpl::Pip::ProcessNetToGame
+00:30:31.648  RPL          : rpl::Pip::ProcessNetToGame
+00:30:31.649   SCRIPT       : GC | Phase UI | replicated phase update: phase=BRIEFING activeView=1
+00:30:31.652  RPL          : rpl::Pip::ProcessNetToGame
+00:30:32.054  RPL          : rpl::Pip::ProcessNetToGame
+00:31:43.626  RPL          : rpl::Pip::ProcessNetToGame
+00:31:45.243  RPL          : rpl::Pip::ProcessNetToGame
+00:31:45.243  RPL          : rpl::Pip::ProcessNetToGame
+00:31:45.254 SCRIPT       : GC | OpenMap
+00:31:45.254 SCRIPT       : GC | OpenMap config={6A115D5DFF7ED871}Configs/Map/MapLobby.conf root=FrameWidget<0x0000015600EC7A10> { Name: 'rootFrame' }

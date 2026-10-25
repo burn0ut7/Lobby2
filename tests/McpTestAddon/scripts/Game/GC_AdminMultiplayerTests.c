@@ -74,6 +74,11 @@ modded class GC_LobbyPlayerController
 			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestAOSnapshot());
 			return;
 		}
+		if (action == "ao-map")
+		{
+			Rpc(GC_TestRpcPeerReport, token, GC_TestAOMapLocal());
+			return;
+		}
 
 		if (action == "scope-move")
 		{
@@ -412,6 +417,7 @@ modded class GC_LobbyManager
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
 			"ao-snapshot",
+			"ao-map",
 			"dedicated-action",
 			"scope-snapshot",
 			"scope-move",

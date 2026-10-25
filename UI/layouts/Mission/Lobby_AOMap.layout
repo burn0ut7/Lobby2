@@ -1,0 +1,26 @@
+FrameWidgetClass {
+ Name "AOMapOverlay"
+ Slot FrameWidgetSlot {
+  Anchor 0 0 1 1
+  OffsetLeft 0
+  OffsetTop 0
+  OffsetRight 0
+  OffsetBottom 0
+ }
+ Clipping True
+ "Z Order" 1
+ "Ignore Cursor" 1
+ {
+  CanvasWidgetClass {
+   Name "AOMapCanvas"
+   Slot FrameWidgetSlot {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   "Ignore Cursor" 1
+  }
+ }
+}
