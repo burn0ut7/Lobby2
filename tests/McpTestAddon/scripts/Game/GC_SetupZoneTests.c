@@ -1,6 +1,49 @@
 //! Explicit runtime fixtures; no automatic tests or authority bypasses.
 modded class GC_LobbyManager
 {
+	protected int m_iGC_WallMotionTicks;
+
+	//------------------------------------------------------------------------------------------------
+	bool GC_TestWallSetupPolygon(int vertices, float radius)
+	{
+		if (vertices < 3 || vertices > 60 || radius < 1)
+			return false;
+		// Configure the new fixture before its deferred start, through the public API.
+		GC_TestSetupSpawn(0, 600, 30, radius, false, "US", false);
+		if (!m_GC_SetupFixture)
+			return false;
+		array<vector> points = {};
+		for (int i; i < vertices; i++)
+		{
+			float angle = Math.PI2 * i / vertices;
+			points.Insert(m_vGC_SetupOrigin + Vector(Math.Sin(angle) * radius, 0, Math.Cos(angle) * radius));
+		}
+		array<string> factions = {"US"};
+		return m_GC_SetupFixture.Configure(points, factions,
+			GC_LobbyGameMode.GetGameMode().GetElapsedTime() + 600, 0, 30, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_TestWallMotion(int ticks)
+	{
+		GetGame().GetCallqueue().Remove(GC_TestWallMotionTick);
+		m_iGC_WallMotionTicks = ticks;
+		if (ticks > 0)
+			GetGame().GetCallqueue().CallLater(GC_TestWallMotionTick, 50, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_TestWallMotionTick()
+	{
+		m_iGC_WallMotionTicks--;
+		if (m_iGC_WallMotionTicks < 0 || !m_GC_SetupFixture)
+		{
+			GetGame().GetCallqueue().Remove(GC_TestWallMotionTick);
+			return;
+		}
+		GC_TestSetupMove(Vector(Math.Sin(m_iGC_WallMotionTicks * 0.05) * 3, 0, 45));
+	}
+
 	protected GC_SetupZoneEntity m_GC_SetupFixture;
 	protected vector m_vGC_SetupOrigin;
 

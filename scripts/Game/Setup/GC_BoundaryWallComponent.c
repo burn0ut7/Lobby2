@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Mission", description: "Local proximity wall for setup/AO polygons. Uses the vanilla virtual-area mesh and texture; no collision. Maximum 60 polygon points.")]
+[ComponentEditorProps(category: "Lobby2/Mission", description: "Local proximity wall for setup/AO polygons. Uses native meshes and the vanilla virtual-area texture; no collision. Maximum 60 polygon points.")]
 class GC_BoundaryWallComponentClass : ScriptComponentClass
 {
 }
@@ -7,7 +7,7 @@ class GC_BoundaryWallComponent : ScriptComponent
 {
 	[Attribute("1", UIWidgets.CheckBox, "Show the boundary only to affected players near an edge.", category: "Boundary wall"), RplProp(onRplName: "ClearMesh")]
 	protected bool m_bEnabled;
-	[Attribute("10", UIWidgets.EditBox, "Fade in within this horizontal distance from the boundary, in meters.", params: "1 100", category: "Boundary wall"), RplProp()]
+	[Attribute("10", UIWidgets.EditBox, "Show only wall portions within this horizontal radius of the player, in meters.", params: "1 100", category: "Boundary wall"), RplProp(onRplName: "ClearMesh")]
 	protected float m_fRange;
 	[Attribute("3", UIWidgets.EditBox, "Wall height above terrain, in meters.", params: "0.5 20", category: "Boundary wall"), RplProp(onRplName: "ClearMesh")]
 	protected float m_fHeight;
@@ -23,6 +23,12 @@ class GC_BoundaryWallComponent : ScriptComponent
 	protected GC_AOLimitEntity m_AO;
 	protected IEntity m_Wall;
 	protected ref Material m_Material;
+	protected ref Resource m_Mesh;
+	protected ref array<vector> m_aGroundPoints = {};
+	protected vector m_aVertices[2040]; // 60 edges * 17 columns * 2 vertices
+	protected int m_iVisibleColumns;
+	protected vector m_vLastVisualPosition;
+	protected bool m_bPositionValid;
 	protected bool m_bFailed;
 	protected float m_fOpacity = -1;
 	protected float m_fMaximumOpacity;
@@ -108,14 +114,17 @@ class GC_BoundaryWallComponent : ScriptComponent
 			SCR_EntityHelper.DeleteEntityAndChildren(m_Wall);
 		m_Wall = null;
 		m_Material = null;
+		m_Mesh = null;
+		m_aGroundPoints.Clear();
+		m_bPositionValid = false;
 		m_bFailed = false;
 		m_fOpacity = -1;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool CreateMesh()
+	protected bool CreateWall()
 	{
-		// SCR_Shape's native mesh wrapper has a fixed 60-point buffer.
+		// Match the supported polygon limit with a bounded geometry buffer.
 		if (m_aPolygon.Count() > 60)
 		{
 			PrintFormat("GC | Boundary wall | maximum 60 points exceeded: %1", GetOwner().GetName(), level: LogLevel.ERROR);
@@ -131,7 +140,7 @@ class GC_BoundaryWallComponent : ScriptComponent
 		parameters.Set("CastShadow", "0");
 		parameters.Set("ReceiveShadow", "0");
 		parameters.Set("AlphaTest", "0.01");
-		parameters.Set("AlphaMul", "0");
+		parameters.Set("AlphaMul", m_fMaximumOpacity.ToString());
 		parameters.Set("BlendMode", "AlphaBlend");
 		parameters.Set("AlbedoMap", "{930D6120C56C73C9}Assets/Editor/VirtualArea/VirtualArea_01.edds");
 		parameters.Set("DisablePrexposure", "1");
@@ -139,29 +148,110 @@ class GC_BoundaryWallComponent : ScriptComponent
 		m_Material = Material.Create("GC_BoundaryWall_" + s_iMaterialSerial.ToString(), "MatCommon", parameters);
 		if (!m_Material)
 			return false;
-		string materialName;
-		m_Material.GetName(materialName);
 		vector origin = m_aPolygon[0];
-		array<vector> positions = {};
 		BaseWorld world = GetOwner().GetWorld();
 		foreach (vector point : m_aPolygon)
 		{
 			point[1] = world.GetSurfaceY(point[0], point[2]) - 0.05;
-			positions.Insert(point - origin);
+			m_aGroundPoints.Insert(point);
 		}
-		Resource mesh = SCR_Shape.CreateAreaMesh(positions, m_fHeight, materialName, true);
-		if (!mesh || !mesh.GetResource())
-			return false;
 		EntitySpawnParams spawn = new EntitySpawnParams();
 		spawn.TransformMode = ETransformMode.WORLD;
 		spawn.Transform[3] = origin;
 		m_Wall = GetGame().SpawnEntity(GenericEntity, world, spawn);
 		if (!m_Wall)
 			return false;
-		m_Wall.SetObject(mesh.GetResource().ToMeshObject(), "");
-		m_Wall.SetFlags(EntityFlags.VISIBLE);
-		// Commit the attached mesh to the scene before camera culling uses its bounds.
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool UpdateNearbyMesh(vector position)
+	{
+		float uvs[4080];
+		int indices[5760];
+		int vertexCount, indexCount;
+		vector origin = position;
+		origin[1] = m_aPolygon[0][1];
+		float radiusSq = m_fRange * m_fRange;
+		for (int edge; edge < m_aGroundPoints.Count(); edge++)
+		{
+			vector first = m_aGroundPoints[edge];
+			vector delta = m_aGroundPoints[(edge + 1) % m_aGroundPoints.Count()] - first;
+			vector horizontal = delta;
+			horizontal[1] = 0;
+			vector relative = position - first;
+			relative[1] = 0;
+			float lengthSq = horizontal.LengthSq();
+			if (lengthSq <= 0.0001)
+				continue;
+
+			float center = vector.Dot(relative, horizontal) / lengthSq;
+			float perpendicularSq = Math.Max(0, relative.LengthSq() - center * center * lengthSq);
+			if (perpendicularSq >= radiusSq)
+				continue;
+
+			float halfSpan = Math.Sqrt((radiusSq - perpendicularSq) / lengthSq);
+			float start = Math.Max(0, center - halfSpan);
+			float end = Math.Min(1, center + halfSpan);
+			if (end <= start)
+				continue;
+
+			int edgeStart = vertexCount;
+			for (int column = 0; column <= 16; column++)
+			{
+				vector point = first + delta * (start + (end - start) * column / 16.0);
+				vector distance = point - position;
+				distance[1] = 0;
+				float fraction = Math.Clamp(1 - distance.Length() / m_fRange, 0, 1);
+				float fade = fraction * fraction * (3 - 2 * fraction);
+				m_aVertices[vertexCount] = point - origin;
+				m_aVertices[vertexCount + 1] = point - origin + vector.Up * m_fHeight;
+				// Sample the vanilla vertical gradient, avoiding its final wrap row.
+				// The transparent top and distant columns both use V=0.
+				uvs[vertexCount * 2] = 0.5;
+				uvs[vertexCount * 2 + 1] = fade * 0.9;
+				uvs[vertexCount * 2 + 2] = 0.5;
+				uvs[vertexCount * 2 + 3] = 0;
+				vertexCount += 2;
+			}
+			for (int strip = 0; strip < 16; strip++)
+			{
+				int vertex = edgeStart + strip * 2;
+				indices[indexCount++] = vertex;
+				indices[indexCount++] = vertex + 2;
+				indices[indexCount++] = vertex + 1;
+				indices[indexCount++] = vertex + 1;
+				indices[indexCount++] = vertex + 2;
+				indices[indexCount++] = vertex + 3;
+			}
+		}
+		if (vertexCount == 0)
+			return false;
+
+		// In-place mesh edits retain stale rendered geometry in Workbench 1.8.
+		// Replace only the clipped mesh, keeping the entity and material alive.
+		string materialName;
+		m_Material.GetName(materialName);
+		int vertexCounts[1] = {vertexCount};
+		int indexCounts[1] = {indexCount};
+		string materials[1] = {materialName};
+		Resource resource = MeshObject.Create(1, vertexCounts, indexCounts, materials, 0);
+		if (!resource || !resource.GetResource())
+		{
+			m_bFailed = true;
+			PrintFormat("GC | Boundary wall | mesh unavailable: %1", GetOwner().GetName(), level: LogLevel.ERROR);
+			return false;
+		}
+		MeshObject mesh = resource.GetResource().ToMeshObject();
+		mesh.UpdateVerts(0, m_aVertices, uvs);
+		mesh.UpdateIndices(0, indices);
+		m_Wall.SetObject(mesh, "");
+		m_Mesh = resource;
+		m_Wall.SetOrigin(origin);
 		m_Wall.Update();
+		m_iVisibleColumns = vertexCount / 2;
+		m_vLastVisualPosition = position;
+		m_bPositionValid = true;
 		return true;
 	}
 
@@ -209,22 +299,28 @@ class GC_BoundaryWallComponent : ScriptComponent
 		float fraction = 1 - Math.Sqrt(distanceSq) / m_fRange;
 		if (!m_Wall && fraction > 0 && !m_bFailed)
 		{
-			m_bFailed = !CreateMesh();
+			m_bFailed = !CreateWall();
 			if (m_bFailed)
 				PrintFormat("GC | Boundary wall | mesh unavailable: %1", owner.GetName(), level: LogLevel.ERROR);
 		}
-		if (!m_Wall)
+		if (!m_Wall || m_bFailed)
 			return;
 		float opacity = m_fMaximumOpacity * fraction * fraction * (3 - 2 * fraction);
-		if (Math.AbsFloat(opacity - m_fOpacity) > 0.001)
-		{
-			m_Material.SetParam("AlphaMul", opacity);
-			m_fOpacity = opacity;
-		}
+		m_fOpacity = opacity;
 		if (fraction <= 0)
 			m_Wall.ClearFlags(EntityFlags.VISIBLE);
 		else
+		{
+			if (!m_bPositionValid || vector.DistanceSq(position, m_vLastVisualPosition) > 0.01)
+			{
+				if (!UpdateNearbyMesh(position))
+				{
+					m_Wall.ClearFlags(EntityFlags.VISIBLE);
+					return;
+				}
+			}
 			m_Wall.SetFlags(EntityFlags.VISIBLE);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------

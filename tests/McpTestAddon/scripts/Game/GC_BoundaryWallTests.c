@@ -1,6 +1,34 @@
 #ifdef WORKBENCH
 modded class GC_BoundaryWallComponent
 {
+	protected int m_iGC_MeshUpdates;
+
+	//------------------------------------------------------------------------------------------------
+	override protected bool UpdateNearbyMesh(vector position)
+	{
+		bool result = super.UpdateNearbyMesh(position);
+		m_iGC_MeshUpdates++;
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestLocalMesh()
+	{
+		if (!m_Wall)
+			return GC_TestSnapshot();
+		float maximumDistance;
+		int visibleColumns;
+		for (int column; column < m_iVisibleColumns; column++)
+		{
+			vector offset = m_aVertices[column * 2] + m_Wall.GetOrigin() - m_vLastVisualPosition;
+			offset[1] = 0;
+			maximumDistance = Math.Max(maximumDistance, offset.Length());
+			visibleColumns++;
+		}
+		return string.Format("updates=%1 columns=%2 maximumDistance=%3 range=%4 %5",
+			m_iGC_MeshUpdates, visibleColumns, maximumDistance, m_fRange, GC_TestSnapshot());
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_TestBounds()
 	{
@@ -25,6 +53,24 @@ modded class GC_BoundaryWallComponent
 
 modded class GC_LobbyManager
 {
+	//------------------------------------------------------------------------------------------------
+	string GC_TestWallLocal(string entityName)
+	{
+		IEntity entity = GetGame().GetWorld().FindEntityByName(entityName);
+		if (entityName.IsEmpty())
+		{
+			GC_LobbyPlayerController player = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			if (player)
+				entity = player.GC_GetSetupZone();
+		}
+		if (!entity)
+			return "missing entity";
+		GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(entity.FindComponent(GC_BoundaryWallComponent));
+		if (!wall)
+			return "missing component";
+		return wall.GC_TestLocalMesh();
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_TestWallBounds(string entityName)
 	{
