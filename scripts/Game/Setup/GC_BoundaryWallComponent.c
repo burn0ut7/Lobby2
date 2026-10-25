@@ -160,6 +160,8 @@ class GC_BoundaryWallComponent : ScriptComponent
 			return false;
 		m_Wall.SetObject(mesh.GetResource().ToMeshObject(), "");
 		m_Wall.SetFlags(EntityFlags.VISIBLE);
+		// Commit the attached mesh to the scene before camera culling uses its bounds.
+		m_Wall.Update();
 		return true;
 	}
 

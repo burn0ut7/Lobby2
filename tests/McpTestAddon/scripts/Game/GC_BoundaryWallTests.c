@@ -2,6 +2,18 @@
 modded class GC_BoundaryWallComponent
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestBounds()
+	{
+		if (!m_Wall)
+			return "no mesh";
+		vector minimum, maximum, worldMinimum, worldMaximum;
+		m_Wall.GetBounds(minimum, maximum);
+		m_Wall.GetWorldBounds(worldMinimum, worldMaximum);
+		return string.Format("local=%1/%2 world=%3/%4 origin=%5 flags=%6 opacity=%7",
+			minimum, maximum, worldMinimum, worldMaximum, m_Wall.GetOrigin(), m_Wall.GetFlags(), m_fOpacity);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestSnapshot()
 	{
 		bool mesh = m_Wall != null;
@@ -13,6 +25,34 @@ modded class GC_BoundaryWallComponent
 
 modded class GC_LobbyManager
 {
+	//------------------------------------------------------------------------------------------------
+	string GC_TestWallBounds(string entityName)
+	{
+		IEntity entity = GetGame().GetWorld().FindEntityByName(entityName);
+		if (entityName.IsEmpty())
+		{
+			GC_LobbyPlayerController player = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			if (player)
+				entity = player.GC_GetSetupZone();
+		}
+		if (!entity)
+			return "missing entity";
+		GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(entity.FindComponent(GC_BoundaryWallComponent));
+		if (!wall)
+			return "missing component";
+		return wall.GC_TestBounds();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestWallLook(float degrees)
+	{
+		ChimeraCharacter character = ChimeraCharacter.Cast(GetGame().GetPlayerController().GetControlledEntity());
+		if (!character)
+			return "missing character";
+		character.GetCharacterController().SetHeadingAngle(degrees * Math.DEG2RAD, true);
+		return string.Format("requestedHeading=%1 position=%2", degrees, character.GetOrigin());
+	}
+
 	//------------------------------------------------------------------------------------------------
 	bool GC_TestWallAOPolygon(int vertices, float radius)
 	{
