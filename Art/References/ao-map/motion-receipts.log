@@ -1,0 +1,29 @@
+00:41:51.858    SCRIPT       : SCRIPT       : Compiling Game scripts
+00:41:52.411   SCRIPT       : Compiling Game scripts
+00:41:52.984   PROFILING    : Compiling Game scripts took: 1126.964900 ms
+00:41:53.015  SCRIPT    (E): World Editor: ScriptPlugin: SCR_DedicatedServerPlugin: Shortcut with same name 'Dedicated Server Tool' already exists!
+00:43:06.656 SCRIPT       : RST_MCP_BEGIN r043d9be9c1de4c29b77f19f4933dba99
+00:43:06.657 SCRIPT       : RST_MCP_END r043d9be9c1de4c29b77f19f4933dba99 invoked
+00:43:06.657 SCRIPT    (E): GC | AO | invalid configuration or duplicate priority/order: AOFixture0
+00:43:07.084 SCRIPT       : RST_MCP_BEGIN r046551365752478f99d0feeb3453803c
+00:43:07.084 SCRIPT       : RST_MCP_END r046551365752478f99d0feeb3453803c invoked
+00:43:07.309 SCRIPT       : RST_MCP_BEGIN rb3e280ceb98247a3a50d93c741511ae0
+00:43:07.309 SCRIPT       : RST_MCP_END rb3e280ceb98247a3a50d93c741511ae0 invoked
+00:43:08.132 SCRIPT       : RST_MCP_BEGIN r1de3fbc50a19486a87b2ebd5cb59f829
+00:43:08.132 SCRIPT       : RST_MCP_END r1de3fbc50a19486a87b2ebd5cb59f829 invoked
+00:43:13.396 SCRIPT       : RST_MCP_BEGIN r35e881b309cb4d76b31edde98e28e2bc
+00:43:13.396 SCRIPT       : RST_MCP_END r35e881b309cb4d76b31edde98e28e2bc invoked
+00:44:13.511   SCRIPT       : SCRIPT       : Compiling Game scripts
+00:44:13.992  SCRIPT       : Compiling Game scripts
+00:44:14.546  PROFILING    : Compiling Game scripts took: 1034.130900 ms
+00:44:45.697 SCRIPT       : RST_MCP_BEGIN raa463effdf8d4ba58d41da05097b962a
+00:44:45.698 SCRIPT       : RST_MCP_END raa463effdf8d4ba58d41da05097b962a invoked
+00:44:45.698 SCRIPT    (E): GC | AO | invalid configuration or duplicate priority/order: AOFixture0
+00:44:46.038 SCRIPT       : RST_MCP_BEGIN r17912e43acd840868712578e6b21390a
+00:44:46.038 SCRIPT       : RST_MCP_END r17912e43acd840868712578e6b21390a invoked
+00:44:46.191 SCRIPT       : RST_MCP_BEGIN r8d623b2a1bf54f189cb8693a7a23abaf
+00:44:46.191 SCRIPT       : RST_MCP_END r8d623b2a1bf54f189cb8693a7a23abaf invoked
+00:44:46.949 SCRIPT       : RST_MCP_BEGIN rfe16aaa81be44b899b4ffbdae6e24776
+00:44:46.949 SCRIPT       : RST_MCP_END rfe16aaa81be44b899b4ffbdae6e24776 invoked
+00:44:52.189 SCRIPT       : RST_MCP_BEGIN r354d6d81b4f541cf91ad5a56d6c5bb74
+00:44:52.189 SCRIPT       : RST_MCP_END r354d6d81b4f541cf91ad5a56d6c5bb74 invoked
