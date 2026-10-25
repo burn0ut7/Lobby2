@@ -330,16 +330,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return false;
 			}
 
-			// Give every claimed slot one final authority-side spawn attempt before
-			// the base game begins. A failed prefab does not block the mission; the
-			// affected player remains a spectator and the error is logged.
-			ForceSpawnClaimedSlots();
-
-			PrintFormat("GC | Phase | invoking native StartGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
-			gameMode.StartGameMode();
-			if (gameMode.GetState() != SCR_EGameModeState.GAME)
+			if (!StartLobbyGame())
 			{
-				PrintFormat("GC | Phase | native StartGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
 				GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-transition-failed");
 				return false;
 			}
@@ -358,6 +350,31 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (requestedPhase == SCR_EGameModeState.BRIEFING)
 			QueueBriefingSlotSpawns();
 		GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "succeeded");
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Shared start operation for authenticated admin requests and CO readiness.
+	protected bool StartLobbyGame()
+	{
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown)
+			return false;
+
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		if (!gameMode || gameMode.GetState() != SCR_EGameModeState.BRIEFING)
+			return false;
+
+		// A failed prefab does not block the mission; the affected player remains
+		// a spectator and the existing spawn handler logs the failure.
+		ForceSpawnClaimedSlots();
+		PrintFormat("GC | Phase | invoking native StartGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
+		gameMode.StartGameMode();
+		if (gameMode.GetState() != SCR_EGameModeState.GAME)
+		{
+			PrintFormat("GC | Phase | native StartGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
+			return false;
+		}
+
 		return true;
 	}
 
@@ -4870,7 +4887,38 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		PrintFormat("GC | Readiness | player=%1 faction=%2 ready=%3 revision=%4 accepted=%5 reason=%6",
 			requesterId, factionKey, ready, m_iFactionReadinessRevision, result.IsEmpty(), result);
+		if (result.IsEmpty() && ready)
+			TryStartReadyBriefing();
 		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Match the briefing tiles: every faction with a command slot must acknowledge.
+	//! Vacant command slots still count; topology changes alone never start a game.
+	protected void TryStartReadyBriefing()
+	{
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown
+			|| GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+			return;
+
+		ReconcileFactionReadiness();
+		bool hasCommandSlot;
+		foreach (Faction faction : GetRegisteredFactions())
+		{
+			FactionKey factionKey = faction.GetFactionKey();
+			if (!GetFactionCommanderSlot(factionKey))
+				continue;
+
+			hasCommandSlot = true;
+			if (!IsFactionReady(factionKey))
+				return;
+		}
+
+		if (!hasCommandSlot)
+			return;
+
+		Print("GC | Readiness | all commanding officers ready; starting session");
+		StartLobbyGame();
 	}
 
 	//------------------------------------------------------------------------------------------------

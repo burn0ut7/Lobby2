@@ -53,9 +53,14 @@ changes or leaving BRIEFING. Client presentation uses native connected-player
 state without requiring another player's controller to exist locally.
 
 The bottom-center briefing tiles show faction, state and commander to everyone.
-Only the local commander can activate the readiness icon. Readiness is advisory: the existing
-admin phase transition remains unchanged. Group ordering overrides, commander
-selection overrides and automatic start are outside this slice.
+Only the local commander can activate the readiness icon. An accepted ready
+request starts GAME when every displayed faction command slot has a valid
+acknowledgement. Vacant, disconnected and KIA command slots block automatic
+start; factions without a command slot are not displayed and do not count.
+Topology changes alone do not start the session. The existing authenticated
+admin transition can still start with any readiness state. Both paths share
+the manager's authority-only start operation, including final slot spawning and
+native `StartGameMode()`. Group ordering and commander selection are unchanged.
 
 ## Slot lotteries
 
