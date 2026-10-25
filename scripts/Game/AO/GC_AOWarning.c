@@ -3,6 +3,8 @@ class GC_AOWarning
 {
 	protected Widget m_Root;
 	protected TextWidget m_Timer;
+	protected Widget m_Card;
+	protected bool m_bSetupWarning;
 	protected IEntity m_Character;
 	protected float m_fDeadline;
 	protected float m_fLastUpdate;
@@ -29,8 +31,9 @@ class GC_AOWarning
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Update(IEntity character, float seconds)
+	void Update(IEntity character, float seconds, bool setupWarning = false)
 	{
+		m_bSetupWarning = setupWarning;
 		m_Character = character;
 		m_fLastUpdate = GetGame().GetWorld().GetWorldTime();
 		m_fDeadline = m_fLastUpdate + seconds * 1000;
@@ -38,8 +41,18 @@ class GC_AOWarning
 		{
 			m_Root = GetGame().GetWorkspace().CreateWidgets(LAYOUT);
 			if (m_Root)
+			{
 				m_Timer = TextWidget.Cast(m_Root.FindAnyWidget("AOTimer"));
-			if (!m_Timer)
+				m_Card = m_Root.FindAnyWidget("AOCard");
+				if (m_bSetupWarning)
+				{
+					m_Root.SetName("LobbySetupWarning");
+					TextWidget title = TextWidget.Cast(m_Root.FindAnyWidget("AOTitle"));
+					if (title)
+						title.SetText("RETURN TO SETUP");
+				}
+			}
+			if (!m_Timer || !m_Card)
 			{
 				Close();
 				Print("GC | AO | warning layout unavailable", LogLevel.ERROR);
@@ -55,14 +68,25 @@ class GC_AOWarning
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		PlayerController controller = GetGame().GetPlayerController();
+		GC_LobbyPlayerController lobbyPlayer = GC_LobbyPlayerController.Cast(controller);
 		float now = GetGame().GetWorld().GetWorldTime();
 		if (!mode || mode.GetState() != SCR_EGameModeState.GAME || !controller
 			|| controller.GetControlledEntity() != m_Character || !m_Character
-			|| !SCR_AIDamageHandling.IsAlive(m_Character) || now - m_fLastUpdate > 1500)
+			|| !SCR_AIDamageHandling.IsAlive(m_Character) || now - m_fLastUpdate > 1500
+			|| (m_bSetupWarning && (!lobbyPlayer || !lobbyPlayer.GC_HasSetupReturnWarning())))
 		{
 			Close();
 			return;
 		}
+		// Reserve separate rows rather than relying on root creation order/Z order.
+		float top = 70;
+		if (lobbyPlayer && lobbyPlayer.GC_SetupActive())
+		{
+			top = 80;
+			if (!m_bSetupWarning && lobbyPlayer.GC_HasSetupReturnWarning())
+				top += 108;
+		}
+		FrameSlot.SetPos(m_Card, 0, top);
 		m_Timer.SetText(FormatTime(Math.Max(0, (m_fDeadline - now) * 0.001)));
 	}
 
@@ -74,6 +98,7 @@ class GC_AOWarning
 			m_Root.RemoveFromHierarchy();
 		m_Root = null;
 		m_Timer = null;
+		m_Card = null;
 		m_Character = null;
 	}
 }

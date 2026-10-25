@@ -255,7 +255,7 @@ class GC_AOLimitSystem
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 			if (!controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.PLAYING)
 				continue;
-			if ((freeze && freeze.AffectsPlayer(playerId)) || controller.GC_SetupActive())
+			if (freeze && freeze.AffectsPlayer(playerId))
 				continue;
 			ChimeraCharacter character = ChimeraCharacter.Cast(controller.GetControlledEntity());
 			if (!character || !SCR_AIDamageHandling.IsAlive(character))

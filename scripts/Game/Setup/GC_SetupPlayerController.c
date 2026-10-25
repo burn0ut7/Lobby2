@@ -10,7 +10,7 @@ modded class GC_LobbyPlayerController
 	protected bool m_bGC_SetupFrozen;
 	protected Widget m_GC_SetupHud;
 	protected TextWidget m_GC_SetupTimer;
-	protected TextWidget m_GC_SetupGuidance;
+	protected ref GC_AOWarning m_GC_SetupWarning;
 
 	//------------------------------------------------------------------------------------------------
 	GC_SetupZoneEntity GC_GetSetupZone()
@@ -41,6 +41,12 @@ modded class GC_LobbyPlayerController
 	bool GC_IsSetupFrozen()
 	{
 		return GC_SetupActive() && m_bGC_SetupFrozen;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool GC_HasSetupReturnWarning()
+	{
+		return GC_SetupActive() && m_fGC_SetupOutsideDeadline > 0;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -116,19 +122,26 @@ modded class GC_LobbyPlayerController
 			if (!m_GC_SetupHud)
 				return;
 			m_GC_SetupTimer = TextWidget.Cast(m_GC_SetupHud.FindAnyWidget("StagingCountdownTime"));
-			m_GC_SetupGuidance = TextWidget.Cast(m_GC_SetupHud.FindAnyWidget("StagingCountdownGuidance"));
 			TextWidget title = TextWidget.Cast(m_GC_SetupHud.FindAnyWidget("StagingCountdownTitle"));
 			if (title)
 				title.SetText("SETUP");
 			GetGame().GetCallqueue().CallLater(GC_RefreshSetupHud, 100, true);
 		}
+		if (outsideSeconds >= 0)
+		{
+			if (!m_GC_SetupWarning)
+				m_GC_SetupWarning = new GC_AOWarning();
+			m_GC_SetupWarning.Update(character, outsideSeconds, true);
+		}
+		else if (m_GC_SetupWarning)
+			m_GC_SetupWarning.Close();
 		GC_RefreshSetupHud();
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void GC_RefreshSetupHud()
 	{
-		if (!GC_SetupActive() || !m_GC_SetupTimer || !m_GC_SetupGuidance)
+		if (!GC_SetupActive() || !m_GC_SetupTimer)
 		{
 			GC_CloseSetupHud();
 			return;
@@ -140,26 +153,18 @@ modded class GC_LobbyPlayerController
 		if (seconds < 10)
 			secondText = "0" + secondText;
 		m_GC_SetupTimer.SetText((remaining / 60).ToString() + ":" + secondText);
-		string guidance = "Stay in your setup area";
-		if (m_bGC_SetupFrozen)
-			guidance = "Movement locked";
-		GC_LobbyFreezeComponent adminFreeze = GC_LobbyFreezeComponent.GetInstance();
-		if (m_bGC_SetupSafeStart || (adminFreeze && adminFreeze.AffectsPlayer(GetPlayerId())))
-			guidance += " • Weapons disabled";
-		if (m_fGC_SetupOutsideDeadline > 0)
-			guidance = string.Format("Return to setup area • Death in %1 s", Math.Max(0, Math.Ceil((m_fGC_SetupOutsideDeadline - now) * 0.001)));
-		m_GC_SetupGuidance.SetText(guidance);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void GC_CloseSetupHud()
 	{
 		GetGame().GetCallqueue().Remove(GC_RefreshSetupHud);
+		if (m_GC_SetupWarning)
+			m_GC_SetupWarning.Close();
 		if (m_GC_SetupHud)
 			m_GC_SetupHud.RemoveFromHierarchy();
 		m_GC_SetupHud = null;
 		m_GC_SetupTimer = null;
-		m_GC_SetupGuidance = null;
 	}
 
 	//------------------------------------------------------------------------------------------------

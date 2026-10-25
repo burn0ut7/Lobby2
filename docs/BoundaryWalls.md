@@ -13,8 +13,8 @@ The wall follows the enforcement polygon, shows only nearby portions with a
 smooth fade toward the range limit, and has no collision. Approaching one edge
 does not illuminate the rest of the perimeter. It appears on both sides so a player
 outside a soft boundary can find the way back. Setup release removes it. AO uses
-its existing faction, item and vehicle eligibility and is suspended while the
-player is under setup or admin freeze.
+its existing faction, item and vehicle eligibility, also during setup. It is
+suspended while the player is under admin freeze.
 
 At 10 m or farther the default wall is invisible. Proximity checks are capped at
 about 30 per second. The entity and material are reused. After at least 10 cm of

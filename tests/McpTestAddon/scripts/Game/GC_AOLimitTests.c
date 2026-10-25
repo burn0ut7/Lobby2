@@ -142,7 +142,10 @@ modded class GC_LobbyManager
 			if (vehicle)
 				result += string.Format(" vehiclePosition=%1", vehicle.GetOrigin());
 		}
-		TextWidget timer = TextWidget.Cast(GetGame().GetWorkspace().FindAnyWidget("AOTimer"));
+		Widget warning = GetGame().GetWorkspace().FindAnyWidget("LobbyAOWarning");
+		TextWidget timer;
+		if (warning)
+			timer = TextWidget.Cast(warning.FindAnyWidget("AOTimer"));
 		if (timer)
 			result += " HUD=" + timer.GetText();
 		else

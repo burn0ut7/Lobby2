@@ -78,7 +78,7 @@ class GC_BoundaryWallComponent : ScriptComponent
 				bool applies;
 				if (m_Setup)
 					applies = controller.GC_GetSetupZone() == m_Setup;
-				else if (m_AO && !controller.GC_SetupActive() && !(freeze && freeze.AffectsPlayer(playerId)))
+				else if (m_AO && !(freeze && freeze.AffectsPlayer(playerId)))
 					applies = m_AO.AppliesTo(playerId, character, CompartmentAccessComponent.GetVehicleIn(character));
 				if (applies)
 					audience.Insert(Replication.FindItemId(character));

@@ -16,7 +16,8 @@ Behavior, Grace Seconds and Safe Start. Each zone has an independent duration.
   transform through the native editable-entity movement operation.
 - Freeze disables native movement controls and holds the moving body's position.
 - Safe Start blocks character fire, grenades, melee and turret fire through the
-  character/turret input-processing hooks. It is enabled by default.
+  character/turret input-processing hooks, and animation-driven handheld flares
+  through their vanilla animation gate. It is enabled by default.
 
 Enrollment is captured when a living, playing character is first observed during
 GAME. It must start inside and match the configured faction. Walking into a zone
@@ -26,15 +27,18 @@ excluded faction are unaffected. Keep matching setup polygons non-overlapping:
 one player belongs to the first qualifying zone evaluated, without AO priorities.
 Vehicle return moves the whole vehicle, including other occupants.
 
-The setup countdown is owner-only, continuously visible at the top center. A soft
-violation replaces its guidance with the separate death countdown. State updates
+The setup countdown is owner-only, continuously visible as a compact top-center
+bar. A soft violation shows an AO-style "RETURN TO SETUP" death countdown below
+it. An active AO warning occupies its own row below any setup warning. State updates
 arrive at 10 Hz; local time only presents the countdown. Death, changed possession,
 phase exit, zone removal, release and mode shutdown end the local restriction/HUD.
 Missing owner updates expire local presentation after 1.5 seconds. Authority
 continues enforcement. This is not an anti-cheat boundary.
 
-AO enforcement is suspended only for players currently in setup or affected by an
-admin freeze. The AO entity and its rules remain independent.
+AO enforcement continues during setup; both return deadlines remain independent.
+Admin freeze still suspends AO for its affected players. The AO entity and its
+rules remain independent. Author compatible setup and AO polygons, especially
+when either uses hard return.
 
 ## Admin mission freeze
 

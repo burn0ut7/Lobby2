@@ -9,13 +9,12 @@ FrameWidgetClass {
     Anchor 0.5 0 0.5 0
     OffsetLeft 0
     OffsetTop 28
-    SizeX 360
-    OffsetRight -360
-    SizeY 90
-    OffsetBottom -118
+    SizeX 420
+    OffsetRight -420
+    SizeY 44
+    OffsetBottom -72
     Alignment 0.5 0
    }
-   "Z Order" 10000
    "Ignore Cursor" 1
    {
     PanelWidgetClass {
@@ -27,71 +26,45 @@ FrameWidgetClass {
       OffsetRight 0
       OffsetBottom 0
      }
-     Color 0.025 0.055 0.065 0.88
-     style full
-     "Ignore Cursor" 1
-    }
-    PanelWidgetClass {
-     Slot FrameWidgetSlot {
-      Anchor 0 0 0 1
-      OffsetLeft 0
-      OffsetTop 0
-      SizeX 2
-      OffsetRight -2
-      OffsetBottom 0
-     }
-     Color 0.9 0.62 0.15 1
+     Color 0 0 0 0.78
      style full
      "Ignore Cursor" 1
     }
     TextWidgetClass {
      Name "StagingCountdownTitle"
      Slot FrameWidgetSlot {
-      Anchor 0 0 1 0
-      OffsetLeft 12
-      OffsetTop 8
-      OffsetRight 12
-      SizeY 18
-      OffsetBottom -26
+      Anchor 0 0 0.6 1
+      OffsetLeft 18
+      OffsetTop 0
+      OffsetRight 0
+      OffsetBottom 0
      }
      Text "STAGING"
-     "Font Size" 16
-     Color 0.9 0.62 0.15 1
-     "Horizontal Alignment" Center
+     "Font Size" 24
+     FontProperties FontProperties {
+      Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
+     }
+     Color 1 1 1 1
+     "Horizontal Alignment" Left
      "Vertical Alignment" Center
      "Ignore Cursor" 1
     }
     TextWidgetClass {
      Name "StagingCountdownTime"
      Slot FrameWidgetSlot {
-      Anchor 0 0 1 0
-      OffsetLeft 12
-      OffsetTop 27
-      OffsetRight 12
-      SizeY 34
-      OffsetBottom -61
+      Anchor 0.6 0 1 1
+      OffsetLeft 0
+      OffsetTop 0
+      OffsetRight 18
+      OffsetBottom 0
      }
      Text "00:00"
-     "Font Size" 32
-     Color 0.94 0.94 0.89 1
-     "Horizontal Alignment" Center
-     "Vertical Alignment" Center
-     "Ignore Cursor" 1
-    }
-    TextWidgetClass {
-     Name "StagingCountdownGuidance"
-     Slot FrameWidgetSlot {
-      Anchor 0 0 1 0
-      OffsetLeft 10
-      OffsetTop 65
-      OffsetRight 10
-      SizeY 17
-      OffsetBottom -82
+     "Font Size" 28
+     FontProperties FontProperties {
+      Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
      }
-     Text "Stay in your staging area • Weapons disabled"
-     "Font Size" 14
-     Color 0.8 0.84 0.82 1
-     "Horizontal Alignment" Center
+     Color 1 1 1 1
+     "Horizontal Alignment" Right
      "Vertical Alignment" Center
      "Ignore Cursor" 1
     }
