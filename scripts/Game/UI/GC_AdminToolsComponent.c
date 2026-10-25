@@ -306,6 +306,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool reservations = m_iTool == 4;
 		bool boundaries = m_iTool == 7;
 		m_Boundaries.SetActive(boundaries);
+		m_wRoot.FindAnyWidget("ToolDescription").SetVisible(!boundaries);
+		m_wRoot.FindAnyWidget("ContextDivider").SetVisible(!boundaries);
 		SCR_ButtonTextComponent.GetButtonText("ToolBoundaries", m_wRoot).SetToggled(boundaries, false, false);
 		bool mapPlans = m_iTool == 6;
 		m_MapPlans.SetActive(mapPlans);
@@ -450,7 +452,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (boundaries)
 		{
 			title = "Boundaries";
-			description = "Stop all boundaries disables every AO and ends all setup and announcement timers, for all factions.";
+			description = string.Empty;
 		}
 		if (mapPlans)
 		{

@@ -147,6 +147,7 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		}
 		if (name == "BoundaryAOs" || name == "BoundarySetups" || name == "BoundaryNotice")
 		{
+			SetStatus(string.Empty);
 			m_iTab = 0;
 			if (name == "BoundarySetups")
 				m_iTab = 1;
@@ -272,9 +273,9 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		{
 			m_wRoot.FindAnyWidget("BoundaryEmpty").SetVisible(false);
 			RebuildFactions();
-			string current = "No announcement running. Display only; no movement or combat restrictions.";
+			string current;
 			if (m_fAnnouncementRemaining > 0)
-				current = m_sAnnouncement + " — " + Math.Ceil(m_fAnnouncementRemaining).ToString() + "s remaining\nApplies to: " + m_sAnnouncementFactions + "\nDisplay only; no movement or combat restrictions.";
+				current = m_sAnnouncement + " — " + Math.Ceil(m_fAnnouncementRemaining).ToString() + "s\nFactions: " + m_sAnnouncementFactions;
 			TextWidget.Cast(m_wRoot.FindAnyWidget("NoticeCurrent")).SetText(current);
 			string start = "Start timer";
 			if (m_fAnnouncementRemaining > 0)

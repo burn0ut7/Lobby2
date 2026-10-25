@@ -63,7 +63,7 @@ FrameWidgetClass {
    }
   }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolBoundaries" Slot FrameWidgetSlot { Anchor 0.018 0.56 0.2 0.625 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
-FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" { Name "BoundaryPanel" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" { Name "BoundaryPanel" Slot FrameWidgetSlot { Anchor 0.24 0.12 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
    Name "ToolHeal"
    Slot FrameWidgetSlot {

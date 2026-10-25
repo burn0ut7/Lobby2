@@ -182,7 +182,7 @@ class GC_BoundaryAdmin
 				m_aAnnouncementFactions.Copy(factions);
 				m_fAnnouncementDeadline = GetGame().GetWorld().GetWorldTime() * 0.001 + seconds;
 				UpdateAnnouncement();
-				result = "Announcement started for " + FactionText(factions) + ". Display only; no restrictions.";
+				result = "Announcement started for " + FactionText(factions) + ".";
 			}
 		}
 		else if (action == "extend" && (seconds < 1 || seconds > 3600))

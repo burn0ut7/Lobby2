@@ -134,7 +134,7 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
      Name "NoticeAudienceLabel" Slot FrameWidgetSlot {
       Anchor 0 .2 1 .27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
      }
-     Text "Show to (select one or more factions)" "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+     Text "Factions" "Font Size" 22 Wrap 1 "Ignore Cursor" 1
     }
     ScrollLayoutWidgetClass {
      Name "NoticeFactionScroll" Slot FrameWidgetSlot {
@@ -172,7 +172,7 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
      Name "NoticeCurrent" Slot FrameWidgetSlot {
       Anchor 0 .76 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
      }
-     Text "No announcement running." "Font Size" 21 Wrap 1 "Ignore Cursor" 1
+     Text "" "Font Size" 21 Wrap 1 "Ignore Cursor" 1
     }
    }
   }
