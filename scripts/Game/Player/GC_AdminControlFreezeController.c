@@ -6,7 +6,7 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	bool GC_AreAdminControlsFrozen()
 	{
-		return GC_LobbyGameMode.GetGameMode() && m_bGC_AdminControlsFrozen;
+		return GC_LobbyGameMode.GetGameMode() && m_bGC_AdminControlsFrozen && !SCR_Global.IsAdmin(GetPlayerId());
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -35,6 +35,8 @@ modded class GC_LobbyPlayerController
 	{
 		if (!Replication.IsServer() || !GC_LobbyManager.GetManager() || !SCR_Global.IsAdmin(requesterId))
 			return false;
+		if (frozen && SCR_Global.IsAdmin(GetPlayerId()))
+			return false;
 		m_bGC_AdminControlsFrozen = frozen;
 		Rpc(GC_RpcDoAdminControlFreeze, frozen);
 		return true;
@@ -55,7 +57,8 @@ modded class GC_LobbyPlayerController
 		if (GetGame().GetPlayerController() != this || !GC_AreAdminControlsFrozen())
 			return;
 		// One-frame context ownership: unfreezing or leaving the mode stops activation.
-		// Higher-priority menus remain usable, including the admin's own Unfreeze tool.
+		// This is an input-manager rule, not a menu/widget. Preserve pause and voice
+		// events while preventing gameplay listeners from receiving blocked actions.
 		InputManager input = GetGame().GetInputManager();
 		if (input)
 			input.ActivateContext("GC_AdminControlFreeze");

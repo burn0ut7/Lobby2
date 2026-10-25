@@ -4,6 +4,18 @@ modded class GC_LobbyManager
 	protected ref array<int> m_aGC_AdminFreezeUnavailable = {};
 
 	//------------------------------------------------------------------------------------------------
+	override void PublishPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
+	{
+		super.PublishPlayerRoleChanged(playerId, roleFlags);
+		if (!Replication.IsServer() || GetManager() != this || !SCR_Global.IsAdmin(playerId))
+			return;
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		if (controller)
+			controller.GC_SetAdminControlsFrozen(playerId, false);
+		GC_UpdateAdminFrozenBodies();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Resolve seats from native compartments. A passenger never selects the vehicle body.
 	protected IEntity GC_GetAdminFreezeBody(GC_LobbyPlayerController controller)
 	{
@@ -114,6 +126,12 @@ modded class GC_LobbyManager
 			if (origin && character && vector.DistanceSq(origin.GetOrigin(), character.GetOrigin()) > radiusMeters * radiusMeters)
 				continue;
 			string targetContext = string.Format("%1 player=%2 identity=%3", context, targetId, GetPlayerVoiceIdentity(targetId));
+			if (frozen && SCR_Global.IsAdmin(targetId))
+			{
+				skipped++;
+				GC_AdminActionLogger.Log(requesterId, action, targetContext, "skipped-admin-exempt");
+				continue;
+			}
 			if (!controller || (origin && !character))
 			{
 				skipped++;

@@ -9,10 +9,22 @@ audience at execution, not future joiners. Locks last for that controller's sess
 and follow possession; disconnect/mode shutdown clears them. Unfreezing does not
 cancel separate setup or staging restrictions.
 
+Authenticated admins are skipped in every freeze scope, including explicit
+selection. The controller setter and effective control checks also enforce this
+exemption. An admin login clears any earlier lock and reconciles held bodies;
+logging out does not resurrect that lock. This exemption applies to Admin Tools
+freeze, not independently configured setup/staging restrictions. A vehicle held
+because of another frozen driver/gunner still physically carries all occupants.
+
 The affected player's action manager clears gameplay actions; menus and
 communication remain available, including recovery through Admin Tools. A native
 input context also suppresses lower-priority gameplay contexts. Shared character
 callbacks preserve inherited behavior outside active Lobby2.
+The context is an invisible ActionManager rule, not a popup, widget or menu.
+It explicitly permits MenuOpen/MenuOpenWB/MenuBack and VONDirect/VONChannel,
+preserving the user's configured pause, local-talk and radio-talk bindings.
+The shared OnPrepareControls filtering follows the existing safe-start path;
+the context additionally blocks gameplay listeners such as inventory opening.
 
 Authority derives body holds from native occupied seats. On foot, it holds the
 living character. A pilot/driver or turret occupant holds the vehicle root; a cargo
@@ -59,7 +71,12 @@ dispatch alone are not passing evidence.
 Required checks before gameplay acceptance:
 
 - Compile production and optional test addon; inspect actual UI, focus, disabled
-  pending actions, empty/long selections, all scopes, close/reopen and self-unfreeze.
+  pending actions, empty/long selections, all scopes and close/reopen.
+- Confirm admins are skipped in every scope, including self/explicit selection;
+  login while frozen releases controls/body, and logout does not restore the lock.
+- While frozen, open/close pause, transmit/release local voice and radio with the
+  configured keys (including T and Caps Lock where bound), and verify reception on
+  another peer. Check that no freeze popup or cursor capture appears.
 - Hold movement, aiming, fire, grenade, melee, interaction and inventory inputs
   before/during/after freeze; observe actual positions/ammunition/actions.
 - Use a moving vehicle with separate driver, gunner and passenger peers. Verify
@@ -78,3 +95,10 @@ Independent source review approved the implement-only checkpoint after revisions
 to context ordering, unavailable-body reporting and simulation/mode lifecycle
 handling. The saved-script readability review and git diff whitespace check passed.
 Live acceptance is deferred by the user's instruction, not implied by source review.
+
+Follow-up source evidence: catalogue `4ee49efc58494a12b2fde693a84d62e9`,
+`game.c` subscribes to UIConstants.MENU_ACTION_OPEN and MENU_ACTION_OPEN_WB;
+`Global/Constants.c` resolves these to MenuOpen and MenuOpenWB. The freeze context
+previously omitted those actions; both are now permitted. Existing VONDirect and
+VONChannel bindings/listeners remain unchanged. This follow-up is also uncompiled
+and untested in gameplay at the user's request.
