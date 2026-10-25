@@ -2,7 +2,7 @@
 
 This optional project owns Lobby2-specific test controls and checks. The MCP
 server remains addon-agnostic. Production Lobby2 does not depend on this addon,
-and none of its methods run automatically. Do not publish the test addon.
+and loading it alone runs no tests. Do not publish the test addon.
 
 ## Load and unload
 
@@ -61,6 +61,25 @@ See [AdminReplicationScope.md](AdminReplicationScope.md) for the per-action
 replication audit, separate-client absence checks, regression helpers and
 validation limits. Server-wide scopes must be exercised from a separate client
 with the target's character and slot replication item confirmed absent.
+
+`GC_DedicatedAdminSuite` is an explicitly selected native autotest entry point
+(`-autotest GC_DedicatedAdminSuite` on the dedicated server). Launch through the
+MCP Dedicated Server Tool with the test addon and the Everon Lobby2 world loaded.
+It requires a fresh disposable PREGAME session and exactly two clients with
+nonempty backend identities. It temporarily grants the first client's native
+session-admin role, with explicit user authorization, and revokes its owned role
+in teardown. Do not run it on a shared server. It changes phase, slots, health
+and positions through the existing fixtures and production handlers.
+
+The bounded sequence checks distant-player selection, selected/Everyone/faction
+healing, moderation selection, teleport arrival, and logged-out rejection.
+`scope-heal` captures the client's replication state immediately before the
+production request and reports its correlated production result. Require the
+final native test result, health/position observations and central audit together;
+a dispatch or the early `autotest_succeded.log` file is not acceptance.
+This does not enable standalone `workbench_runtime_invoke` support.
+The first dedicated run failed its identity prerequisite; gameplay stages remain
+unverified on dedicated. See the dated evidence below in AdminReplicationScope.
 
 ### Game Master recovery — 2026-10-24
 

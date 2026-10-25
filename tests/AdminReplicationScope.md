@@ -131,3 +131,51 @@ production Lobby2 project as PID 45268; native project inventory contained only
 core, ArmaReforger and Lobby2. Production-only full reload succeeded:
 `7ee0bc51ef4b4a359ab45ac6013856d7`. Independent review approved the implementation
 and evidence; final diff/Enforce readability checks passed.
+
+## Dedicated Server Tool attempt — 2026-10-24
+
+**Not passed: blocked before gameplay by missing backend identities.**
+This run used `ArmaReforgerServerDiag.exe` PID 39400 and separate
+`ArmaReforgerSteamDiag.exe` clients 23156 and 23632, launched by MCP's native
+Dedicated Server Tool from Workbench PID 40500. Embedded Play was not started.
+All three runtime logs report engine build 192142. The server loaded
+`$Lobby2:worlds/examples/eden/Eden_Lobby.ent`, listened on port 2001 and
+registered two connected players. Both accounts arrived with a zero native
+identity and Lobby2's identity lookup remained empty.
+
+The optional native `GC_DedicatedAdminSuite` compiled successfully (reload
+`bd309496ac3d45d5b875b8ce07c7fe24`) and was explicitly selected through
+`-autotest GC_DedicatedAdminSuite`. Its stage-zero identity gate timed out after
+120 seconds. `autotest.log` records `GC_DedicatedAdminRange: FAILURE`,
+`Failure reason: Stage timeout: 0` at 22:49:20 local time; the runner shut down
+the dedicated server. No temporary role was granted and no admin-action stage
+ran. This run proves neither replication absence nor heal/teleport/moderation
+success on a dedicated server. Those stages of the retained fixture are compiled
+but still require dedicated runtime validation.
+
+Evidence remains in `Documents/My Games/Lobby2DedicatedScope/logs/`
+`logs_2026-10-24_22-47-07/{console.log,autotest.log}` and the corresponding
+`Lobby2DedicatedScopePeer1` session `logs_2026-10-24_22-47-13` and
+`Lobby2DedicatedScopePeer2` session `logs_2026-10-24_22-47-24`.
+Do not publish raw startup command lines containing the native admin password.
+The initial `autotest_succeded.log` is provisional; the final failure takes
+precedence.
+The [standalone client capture](../Art/References/admin-tools/dedicated-client-prerequisite.png)
+shows both players in PREGAME while the identity prerequisite remained unmet;
+it is not evidence of distant-player action coverage.
+
+Installed `SCR_PlayerIdentityUtils.c` (PAK revision
+`4942ab6194e34c74bd5972e7761785e2`, game `data007.pak`, lines 20–41)
+only synthesizes Peer Tool identities in non-dedicated mode. Dedicated mode
+requires a backend identity and explicitly references server `publicAddress`
+configuration when it is absent. Completing this test requires a backend-ready
+dedicated configuration and two distinct authenticated clients. No identity
+fallback or permission bypass was added to production.
+
+Cleanup: native Dedicated Server Tool stop operation
+`6e361a860137437bb68c55a1e486d9ec` reported no surviving processes. Original
+server world/profile/parameters and both peer profiles/parameters/window sizes
+were restored. Reopened production Lobby2 as PID 40608; native inventory
+confirmed only core, ArmaReforger and Lobby2 loaded. The test addon was unloaded.
+Independent review approved retaining the compiled fixture and failed evidence
+with the explicit dedicated-gameplay limitation.
