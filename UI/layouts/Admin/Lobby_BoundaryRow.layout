@@ -24,11 +24,11 @@ SizeLayoutWidgetClass {
      Name "ZoneBody" Slot FrameWidgetSlot {
       Anchor 0 0 .72 0 OffsetLeft 6 OffsetTop 40 OffsetRight 8 SizeY 100
      }
-     "Font Size" 20 Wrap 1 "Ignore Cursor" 1
+     "Font Size" 22 Wrap 1 "Ignore Cursor" 1
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "ZoneAction" Slot FrameWidgetSlot {
-      Anchor .77 .08 1 .39 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+      Anchor .77 0 1 0 OffsetLeft 0 OffsetTop 8 OffsetRight 0 SizeY 42 OffsetBottom -50
      }
      components {
       SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
@@ -38,7 +38,7 @@ SizeLayoutWidgetClass {
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "ZoneExtend" Slot FrameWidgetSlot {
-      Anchor .77 .43 1 .74 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+      Anchor .77 0 1 0 OffsetLeft 0 OffsetTop 56 OffsetRight 0 SizeY 42 OffsetBottom -98
      }
      components {
       SCR_ButtonTextComponent "{7C41F8A018B24C00}" {

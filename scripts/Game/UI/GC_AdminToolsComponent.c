@@ -450,7 +450,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (boundaries)
 		{
 			title = "Boundaries";
-			description = "Each row is one zone. A zone can apply to several factions.";
+			description = "Stop all boundaries disables every AO and ends all setup and announcement timers, for all factions.";
 		}
 		if (mapPlans)
 		{

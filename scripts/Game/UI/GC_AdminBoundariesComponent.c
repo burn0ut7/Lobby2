@@ -27,7 +27,7 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		Bind("BoundaryAOs", "AO limits");
 		Bind("BoundarySetups", "Setup timers");
 		Bind("BoundaryNotice", "Announcement timer");
-		Bind("BoundaryMap", "Show all zones on map: Off");
+		Bind("BoundaryMap", "All zones on map: Off");
 		Bind("BoundaryPanic", "Stop all boundaries");
 		Bind("NoticeStart", "Start timer");
 		Bind("NoticeStop", "Stop timer");
@@ -221,9 +221,9 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		SCR_ButtonTextComponent.GetButtonText("BoundaryAOs", m_wRoot).SetToggled(m_iTab == 0, false, false);
 		SCR_ButtonTextComponent.GetButtonText("BoundarySetups", m_wRoot).SetToggled(m_iTab == 1, false, false);
 		SCR_ButtonTextComponent.GetButtonText("BoundaryNotice", m_wRoot).SetToggled(m_iTab == 2, false, false);
-		string mapText = "Show all zones on map: Off";
+		string mapText = "All zones on map: Off";
 		if (m_bShowMap)
-			mapText = "Show all zones on map: On";
+			mapText = "All zones on map: On";
 		SCR_ButtonTextComponent.GetButtonText("BoundaryMap", m_wRoot).SetText(mapText);
 		if (m_iTab == 2)
 		{
@@ -268,7 +268,7 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			float bodyTop = Math.Max(40, headingHeight + 12);
 			FrameSlot.SetSizeY(heading, Math.Max(30, headingHeight));
 			TextWidget body = TextWidget.Cast(row.FindAnyWidget("ZoneBody"));
-			string details = "Applies to: " + zone.Factions + "\n" + zone.Behavior + " | " + zone.State;
+			string details = "Affected factions: " + zone.Factions + "\nStatus: " + zone.State;
 			if (zone.Kind == "Setup" && zone.Enabled)
 			{
 				int remaining = Math.Ceil(zone.Remaining);
@@ -277,7 +277,7 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 					seconds = "0" + seconds;
 				details += " | " + (remaining / 60).ToString() + ":" + seconds + " remaining";
 			}
-			details += "\n" + zone.Details;
+			details += "\nMode: " + zone.Behavior + "\n" + zone.Details;
 			body.SetText(details);
 			WrapZoneText(body, row, details);
 			float width, height;
@@ -289,14 +289,14 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			string label = "End setup";
 			if (zone.Kind == "AO")
 			{
-				label = "Enable";
+				label = "Enable AO";
 				if (zone.Enabled)
-					label = "Disable";
+					label = "Disable AO";
 			}
 			action.SetText(label);
 			action.SetEnabled(zone.Valid && (zone.Kind == "AO" || zone.Enabled));
 			SCR_ButtonTextComponent extend = SCR_ButtonTextComponent.GetButtonText("ZoneExtend", row);
-			extend.SetText("+5 min");
+			extend.SetText("+5 minutes");
 			extend.GetRootWidget().SetVisible(zone.Kind == "Setup");
 			extend.SetEnabled(zone.Valid && zone.Enabled);
 		}

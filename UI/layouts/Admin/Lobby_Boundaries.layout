@@ -39,7 +39,7 @@ FrameWidgetClass {
   }
   ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
    Name "BoundaryMap" Slot FrameWidgetSlot {
-    Anchor .57 .095 1 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+    Anchor .25 .095 .49 .17 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    components {
     SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
@@ -49,7 +49,7 @@ FrameWidgetClass {
   }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
  Name "BoundaryPanic" Slot FrameWidgetSlot {
-  Anchor 0 .095 .5 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+  Anchor 0 .095 .24 .17 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
  }
  components {
   SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
@@ -59,7 +59,7 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
 }
   ScrollLayoutWidgetClass {
    Name "BoundaryScroll" Slot FrameWidgetSlot {
-    Anchor 0 .18 1 .87 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+    Anchor 0 .20 1 .87 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    "Scrollbar Always Visible" 1 {
     VerticalLayoutWidgetClass {
