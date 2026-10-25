@@ -35,8 +35,15 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestBoundaryDenied()
+	string GC_TestBoundaryDenied(string entityName = "", int seconds = 0)
 	{
+		if (!entityName.IsEmpty())
+		{
+			IEntity entity = GetGame().GetWorld().FindEntityByName(entityName);
+			if (!entity)
+				return "UNAVAILABLE entity";
+			return GC_LobbyGameMode.GetGameMode().GetBoundaryAdmin().Execute(-1, "extend", entity.GetID().ToString(), "", seconds, {});
+		}
 		return GC_LobbyGameMode.GetGameMode().GetBoundaryAdmin().Execute(-1, "panic", "", "", 0, {});
 	}
 
@@ -167,6 +174,11 @@ modded class GC_AdminBoundariesComponent
 		Widget row;
 		if (!m_mRows.Find(key, row))
 			return "UNAVAILABLE row " + key;
+		if (action.StartsWith("time="))
+		{
+			EditBoxWidget.Cast(row.FindAnyWidget("ZoneTime")).SetText(action.Substring(5, action.Length() - 5));
+			return "time=" + EditBoxWidget.Cast(row.FindAnyWidget("ZoneTime")).GetText();
+		}
 		if (!action.IsEmpty())
 		{
 			Widget target = row.FindAnyWidget(action);

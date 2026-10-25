@@ -162,7 +162,16 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		if (m_mActions.Find(button, key))
 		{
 			if (name == "ZoneExtend")
-				Request("extend", key);
+			{
+				Widget row = m_mRows.Get(key);
+				int seconds = ParseExtension(EditBoxWidget.Cast(row.FindAnyWidget("ZoneTime")).GetText());
+				if (seconds < 1)
+				{
+					SetStatus("Enter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).");
+					return;
+				}
+				Request("extend", key, "", seconds);
+			}
 			else
 			{
 				foreach (GC_BoundaryAdminRow zone : m_aZones)
@@ -213,6 +222,40 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Accept whole seconds or minutes:seconds without silently truncating malformed input.
+	protected int ParseExtension(string value)
+	{
+		value.TrimInPlace();
+		if (value.IsEmpty() || value.Length() > 7)
+			return 0;
+		array<string> parts = {};
+		value.Split(":", parts, false);
+		if (parts.Count() < 1 || parts.Count() > 2)
+			return 0;
+		foreach (string part : parts)
+		{
+			if (part.IsEmpty())
+				return 0;
+			for (int i = 0; i < part.Length(); i++)
+			{
+				int character = part.ToAscii(i);
+				if (character < 48 || character > 57)
+					return 0;
+			}
+		}
+		int seconds = parts[0].ToInt();
+		if (parts.Count() == 2)
+		{
+			if (parts[1].Length() != 2 || parts[1].ToInt() > 59)
+				return 0;
+			seconds = seconds * 60 + parts[1].ToInt();
+		}
+		if (seconds < 1 || seconds > 3600)
+			return 0;
+		return seconds;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void Refresh()
 	{
 		m_wRoot.FindAnyWidget("BoundaryScroll").SetVisible(m_iTab != 2);
@@ -252,6 +295,7 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 				if (!row)
 					continue;
 				m_mRows.Set(zone.Key, row);
+				EditBoxWidget.Cast(row.FindAnyWidget("ZoneTime")).SetText("5:00");
 				array<string> actions = {"ZoneAction", "ZoneExtend"};
 				foreach (string actionName : actions)
 				{
@@ -296,9 +340,11 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			action.SetText(label);
 			action.SetEnabled(zone.Valid && (zone.Kind == "AO" || zone.Enabled));
 			SCR_ButtonTextComponent extend = SCR_ButtonTextComponent.GetButtonText("ZoneExtend", row);
-			extend.SetText("+5 minutes");
+			extend.SetText("Add time");
 			extend.GetRootWidget().SetVisible(zone.Kind == "Setup");
 			extend.SetEnabled(zone.Valid && zone.Enabled);
+			row.FindAnyWidget("ZoneTimeFields").SetVisible(zone.Kind == "Setup");
+			row.FindAnyWidget("ZoneTimeFields").SetEnabled(zone.Valid && zone.Enabled);
 		}
 		array<string> removed = {};
 		foreach (string key, Widget row : m_mRows)

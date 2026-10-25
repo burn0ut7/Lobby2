@@ -1,0 +1,3266 @@
+[
+  {
+    "method": "GC_TestClick",
+    "args": [
+      [
+        "string",
+        "Lobby Button"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r47afdfa450874040bbdf545b95c27f9d",
+      "returnType": "string",
+      "returned": "dispatched: Lobby Button",
+      "elapsedMs": 27,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r47afdfa450874040bbdf545b95c27f9d",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Lobby Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestSelectFaction",
+    "args": [
+      [
+        "string",
+        "USSR"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r4f33f3c7eb6042a6b970e0ca11c3bc6d",
+      "returnType": "string",
+      "returned": "dispatched: Button",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r4f33f3c7eb6042a6b970e0ca11c3bc6d",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSelectFaction",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      [
+        "int",
+        1
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r370b98710f444931965214f2849e6a48",
+      "returnType": "string",
+      "returned": "dispatched: SlotButton",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r370b98710f444931965214f2849e6a48",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSelectSlot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: SlotButton\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      [
+        "string",
+        "Briefing Button"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r0a1bc8b490ef4ef791fa0af31f7ffd22",
+      "returnType": "string",
+      "returned": "dispatched: Briefing Button",
+      "elapsedMs": 10,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r0a1bc8b490ef4ef791fa0af31f7ffd22",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Briefing Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      [
+        "string",
+        "Game Button"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "ra128aa8281d9445d87fee187c1334990",
+      "returnType": "string",
+      "returned": "dispatched: Game Button",
+      "elapsedMs": 6,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "ra128aa8281d9445d87fee187c1334990",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Game Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundarySetup",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "US,USSR,FIA"
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        600
+      ],
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "ra65839e8c03447b9adc5043422c50083",
+      "returnType": "string",
+      "returned": "true",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "ra65839e8c03447b9adc5043422c50083",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundarySetup",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"true\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAdminScopeUi",
+    "args": [
+      [
+        "string",
+        "open"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r8c1acf46507b4a4393d649a8a10b5483",
+      "returnType": "string",
+      "returned": "ToolTitle=Heal; ToolSummary=0 players selected.; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0",
+      "elapsedMs": 6,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r8c1acf46507b4a4393d649a8a10b5483",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminScopeUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"ToolTitle=Heal; ToolSummary=0 players selected.; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAdminScopeUi",
+    "args": [
+      [
+        "string",
+        "click"
+      ],
+      [
+        "string",
+        "ToolBoundaries"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rd41c0a1b350048529c8dc78f50645eec",
+      "returnType": "string",
+      "returned": "ToolTitle=Boundaries; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rd41c0a1b350048529c8dc78f50645eec",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminScopeUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"ToolTitle=Boundaries; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAdminScopeUi",
+    "args": [
+      [
+        "string",
+        "click"
+      ],
+      [
+        "string",
+        "BoundarySetups"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r52eb5a6f02b942579f51c21ba732a47f",
+      "returnType": "string",
+      "returned": "ToolTitle=Boundaries; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r52eb5a6f02b942579f51c21ba732a47f",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminScopeUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"ToolTitle=Boundaries; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r0e544d7a849f46688757d4339967166d",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":112.99230194091797,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":593.2250366210938,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 5,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r0e544d7a849f46688757d4339967166d",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":112.99230194091797,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":593.2250366210938,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=30"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rfaf0320268d0498395d774d12e0253d7",
+      "returnType": "string",
+      "returned": "time=30",
+      "elapsedMs": 5,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rfaf0320268d0498395d774d12e0253d7",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=30\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r41fd5b0ec9f249529fe76740710e30d0",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 10:23 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: added 30 seconds.",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r41fd5b0ec9f249529fe76740710e30d0",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 10:23 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: added 30 seconds.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r0bf9f2b8e2b647ffbaa37a4eab805238",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":112.21144104003906,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":622.4441528320313,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r0bf9f2b8e2b647ffbaa37a4eab805238",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":112.21144104003906,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":622.4441528320313,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r2726f200914f436faa3b498352a23ee4",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":111.96522521972656,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":622.1979370117188,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r2726f200914f436faa3b498352a23ee4",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":111.96522521972656,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":622.1979370117188,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=2:00"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r035149bedcdd45dea975da2ccea1b353",
+      "returnType": "string",
+      "returned": "time=2:00",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r035149bedcdd45dea975da2ccea1b353",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=2:00\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rcd27c82cdced447d99a66c2f6de5bd9d",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 12:22 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: added 120 seconds.",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rcd27c82cdced447d99a66c2f6de5bd9d",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 12:22 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: added 120 seconds.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rf11a06a8cae647729015b9730332572a",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":111.23403930664063,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":741.4667358398438,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rf11a06a8cae647729015b9730332572a",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":111.23403930664063,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":741.4667358398438,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r633250d1acc7476a85adc31dee42d4ab",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":110.99950408935547,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":741.2322387695313,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r633250d1acc7476a85adc31dee42d4ab",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":110.99950408935547,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":741.2322387695313,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=5:00"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rad8b9a0d7af14f2896668e96b84cfbdf",
+      "returnType": "string",
+      "returned": "time=5:00",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rad8b9a0d7af14f2896668e96b84cfbdf",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=5:00\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r67597f42533f49f780967227a124780f",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 17:21 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: added 300 seconds.",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r67597f42533f49f780967227a124780f",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 17:21 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: added 300 seconds.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rc9d1561b0fde40e898ce71f97bfd06a1",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":110.29947662353516,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":1040.5321044921876,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rc9d1561b0fde40e898ce71f97bfd06a1",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":110.29947662353516,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":1040.5321044921876,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r91b95734e7e94c2f976e63ed4790f8e9",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":110.0699691772461,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":1040.3026123046876,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r91b95734e7e94c2f976e63ed4790f8e9",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":110.0699691772461,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":1040.3026123046876,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=10:00"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r470dec553a914337b522c77bc8596283",
+      "returnType": "string",
+      "returned": "time=10:00",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r470dec553a914337b522c77bc8596283",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=10:00\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "ra21f36b80b8e40979c180da100dea619",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 27:20 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: added 600 seconds.",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "ra21f36b80b8e40979c180da100dea619",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 27:20 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: added 600 seconds.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rae10161eaaef46348f8c20c1489f5a22",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":109.376708984375,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":1639.609375,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rae10161eaaef46348f8c20c1489f5a22",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":109.376708984375,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":1639.609375,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rf90b6df6a86548eca10c3607eb626287",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":109.14849090576172,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":1639.381103515625,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rf90b6df6a86548eca10c3607eb626287",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":109.14849090576172,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":1639.381103515625,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=11:00"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r146949b6251643229e42b62fce30beb2",
+      "returnType": "string",
+      "returned": "time=11:00",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r146949b6251643229e42b62fce30beb2",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=11:00\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "raa34cff05c624009bd6bd3811320251a",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:19 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: added 660 seconds.",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "raa34cff05c624009bd6bd3811320251a",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:19 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: added 660 seconds.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r4b20f0c003214fdaa671824f3e9831ca",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":108.44476318359375,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":2298.677490234375,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r4b20f0c003214fdaa671824f3e9831ca",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":108.44476318359375,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":2298.677490234375,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rc7a54f95c7514bfabbcedf260f6a7fa9",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":98.65426635742188,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":2288.886962890625,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rc7a54f95c7514bfabbcedf260f6a7fa9",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":98.65426635742188,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":2288.886962890625,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time="
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r9791368d766e4d1da31a743c745dcb5b",
+      "returnType": "string",
+      "returned": "time=",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r9791368d766e4d1da31a743c745dcb5b",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rb0c0a97cf435438eba7bd0dd98b352d2",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:09 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rb0c0a97cf435438eba7bd0dd98b352d2",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:09 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=abc"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r3f897c49837043a784e63da302ef8f74",
+      "returnType": "string",
+      "returned": "time=abc",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r3f897c49837043a784e63da302ef8f74",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=abc\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r5c82db1494194d12b8dd757826aa6f52",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:09 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r5c82db1494194d12b8dd757826aa6f52",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:09 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=-2"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r9c7c5b604a984c4ea7452db58930b03b",
+      "returnType": "string",
+      "returned": "time=-2",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r9c7c5b604a984c4ea7452db58930b03b",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=-2\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r908d9b0e78a3443c8cd9da6f088b3e8f",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:08 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r908d9b0e78a3443c8cd9da6f088b3e8f",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:08 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=0"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rabc833c51abb4626a793575373ee4602",
+      "returnType": "string",
+      "returned": "time=0",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rabc833c51abb4626a793575373ee4602",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r9a16ff8c227d413d9375803d25b367ee",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:08 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r9a16ff8c227d413d9375803d25b367ee",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:08 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=1:99"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r1a37263a48bc4e6fb330aa91fcf8a03e",
+      "returnType": "string",
+      "returned": "time=1:99",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r1a37263a48bc4e6fb330aa91fcf8a03e",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=1:99\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r51e9faa4cea840a1b9abac524c264336",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:07 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r51e9faa4cea840a1b9abac524c264336",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:07 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=1:2"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "reaf807594f594cf9ad8753576d0f435d",
+      "returnType": "string",
+      "returned": "time=1:2",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "reaf807594f594cf9ad8753576d0f435d",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=1:2\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "ra8f0add8cc8e446d9a6f977f3d8d2956",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:07 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "ra8f0add8cc8e446d9a6f977f3d8d2956",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:07 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=:30"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r402455fb4c534298a3b0fc5c3e128cd2",
+      "returnType": "string",
+      "returned": "time=:30",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r402455fb4c534298a3b0fc5c3e128cd2",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=:30\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r86965401db98495291a73f03c3f746fc",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:06 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r86965401db98495291a73f03c3f746fc",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:06 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=2:"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r635e534a8a764b868cac189f2cbb7bdf",
+      "returnType": "string",
+      "returned": "time=2:",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r635e534a8a764b868cac189f2cbb7bdf",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=2:\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r15cf88f845d740da837c895c21a97383",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:06 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r15cf88f845d740da837c895c21a97383",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:06 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=3601"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r978a9815dba14cd9ad864027220de6d0",
+      "returnType": "string",
+      "returned": "time=3601",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r978a9815dba14cd9ad864027220de6d0",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=3601\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r168091808d134d8e9dd34c47882496ca",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:05 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r168091808d134d8e9dd34c47882496ca",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:05 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=999999999"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "ra815178a58a94d32b74188904558e278",
+      "returnType": "string",
+      "returned": "time=999999999",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "ra815178a58a94d32b74188904558e278",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=999999999\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r7de91122138f4d248074860d5f24424e",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 38:05 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r7de91122138f4d248074860d5f24424e",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 38:05 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nEnter seconds or m:ss, from 1 second to 60 minutes (for example 30 or 2:00).\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "extend"
+      ],
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r42cd2e367c1f4221a753bb535d10eb46",
+      "returnType": "string",
+      "returned": "Not applied: add between 1 and 3600 seconds.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":93.70038604736328,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":2283.93310546875,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r42cd2e367c1f4221a753bb535d10eb46",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryRequest",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Not applied: add between 1 and 3600 seconds.\\n{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":93.70038604736328,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":2283.93310546875,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "extend"
+      ],
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        -1
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r20698f6dcdd746f591187945ebc82e54",
+      "returnType": "string",
+      "returned": "Not applied: add between 1 and 3600 seconds.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":93.46734619140625,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":2283.699951171875,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r20698f6dcdd746f591187945ebc82e54",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryRequest",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Not applied: add between 1 and 3600 seconds.\\n{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":93.46734619140625,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":2283.699951171875,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "extend"
+      ],
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        3601
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r3fe71260fd4047bd8d22c87799aa9106",
+      "returnType": "string",
+      "returned": "Not applied: add between 1 and 3600 seconds.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":93.23347473144531,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":2283.466064453125,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r3fe71260fd4047bd8d22c87799aa9106",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryRequest",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Not applied: add between 1 and 3600 seconds.\\n{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":93.23347473144531,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":2283.466064453125,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryDenied",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "int",
+        120
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rd651e176ec554ef99ca4200b86522cbb",
+      "returnType": "string",
+      "returned": "Rejected: administrator access required.",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rd651e176ec554ef99ca4200b86522cbb",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryDenied",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Rejected: administrator access required.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryCatalog",
+    "args": [],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r98cff65e4ca54dba8d9723a1113b10c9",
+      "returnType": "string",
+      "returned": "{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":92.7547607421875,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":2282.9873046875,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r98cff65e4ca54dba8d9723a1113b10c9",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryCatalog",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":92.7547607421875,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":2282.9873046875,\\\"Enabled\\\":true,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=11:00"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rd9ce88f6f76548318840a65bbf5790af",
+      "returnType": "string",
+      "returned": "time=11:00",
+      "elapsedMs": 5,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rd9ce88f6f76548318840a65bbf5790af",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=11:00\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=1"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r6d782dc7562c459ba9b8466f22f7c1f8",
+      "returnType": "string",
+      "returned": "time=1",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r6d782dc7562c459ba9b8466f22f7c1f8",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r809576534bc54a8eae255ad8680c5039",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 37:56 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: added 1 seconds.",
+      "elapsedMs": 5,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r809576534bc54a8eae255ad8680c5039",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 37:56 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: added 1 seconds.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "time=60:00"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r6921f51b2a784aaebb67b626cfe2fbb6",
+      "returnType": "string",
+      "returned": "time=60:00",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r6921f51b2a784aaebb67b626cfe2fbb6",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"time=60:00\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rf2d5b778cf7640a384b8d6e1d250e145",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Active | 97:56 remaining\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: added 3600 seconds.",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rf2d5b778cf7640a384b8d6e1d250e145",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Active | 97:56 remaining\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: added 3600 seconds.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneAction"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r03b11785baaf4f39b69e871fc706ea33",
+      "returnType": "string",
+      "returned": "Joint staging\nAffected factions: US Army (US), Soviet Army (USSR), FIA\nStatus: Ended\nMode: Soft\nReturn grace: 120s | Safe start: On\nJoint staging: end applied.",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r03b11785baaf4f39b69e871fc706ea33",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Joint staging\\nAffected factions: US Army (US), Soviet Army (USSR), FIA\\nStatus: Ended\\nMode: Soft\\nReturn grace: 120s | Safe start: On\\nJoint staging: end applied.\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "extend"
+      ],
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        30
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r721d9a5b15a044e787a76cd0acfcff2e",
+      "returnType": "string",
+      "returned": "Not applied: zone removed, invalid, ended, or action unavailable. Refresh the list.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":83.63336181640625,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x400000000000051E {}\",\"Name\":\"Joint staging\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US), Soviet Army (USSR), FIA\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r721d9a5b15a044e787a76cd0acfcff2e",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryRequest",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"Not applied: zone removed, invalid, ended, or action unavailable. Refresh the list.\\n{\\\"zones\\\":[{\\\"Key\\\":\\\"0x200000000000000A {}\\\",\\\"Name\\\":\\\"Setup 1\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Return grace: 20s | Safe start: On\\\",\\\"Remaining\\\":83.63336181640625,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x200000000000000C {}\\\",\\\"Name\\\":\\\"AO 2\\\",\\\"Kind\\\":\\\"AO\\\",\\\"Factions\\\":\\\"All factions\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Active\\\",\\\"Details\\\":\\\"Grace: 20s | Priority: 0 | Stay inside\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":true,\\\"Valid\\\":true},{\\\"Key\\\":\\\"0x400000000000051E {}\\\",\\\"Name\\\":\\\"Joint staging\\\",\\\"Kind\\\":\\\"Setup\\\",\\\"Factions\\\":\\\"US Army (US), Soviet Army (USSR), FIA\\\",\\\"Behavior\\\":\\\"Soft\\\",\\\"State\\\":\\\"Ended\\\",\\\"Details\\\":\\\"Return grace: 120s | Safe start: On\\\",\\\"Remaining\\\":0.0,\\\"Enabled\\\":false,\\\"Valid\\\":true}],\\\"showMap\\\":false,\\\"announcement\\\":\\\"\\\",\\\"remaining\\\":0.0,\\\"factions\\\":\\\"All factions\\\"}\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestBoundaryUi",
+    "args": [
+      [
+        "string",
+        "Joint staging"
+      ],
+      [
+        "string",
+        "ZoneExtend"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "r005110f76b5b402f987c81c5e3622e08",
+      "returnType": "string",
+      "returned": "UNAVAILABLE hidden or disabled",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r005110f76b5b402f987c81c5e3622e08",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestBoundaryUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"UNAVAILABLE hidden or disabled\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAdminScopeUi",
+    "args": [
+      [
+        "string",
+        "click"
+      ],
+      [
+        "string",
+        "BoundaryAOs"
+      ]
+    ],
+    "entityName": "GameMode_Lobby2",
+    "componentType": "GC_LobbyManager",
+    "result": {
+      "state": "invoked",
+      "processId": 42120,
+      "receipt": "rc53345631d374442af841f77b07a61c2",
+      "returnType": "string",
+      "returned": "ToolTitle=Boundaries; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rc53345631d374442af841f77b07a61c2",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminScopeUi",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"ToolTitle=Boundaries; ToolSummary=; ToolStatus=; ModerationStatus=; ReservationPanel=0 ReservationsSelectedBar=0 MapPlanPanel=0 MapPlansSelectedBar=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  }
+]

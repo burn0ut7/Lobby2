@@ -36,9 +36,34 @@ SizeLayoutWidgetClass {
       }
      }
     }
+    FrameWidgetClass {
+     Name "ZoneTimeFields" Slot FrameWidgetSlot {
+      Anchor .77 0 1 0 OffsetLeft 0 OffsetTop 56 OffsetRight 0 SizeY 66 OffsetBottom -122
+     }
+     {
+      TextWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 1 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 SizeY 24 OffsetBottom -24
+       }
+       Text "Add time (m:ss or seconds)" "Font Size" 20 "Ignore Cursor" 1
+      }
+      PanelWidgetClass {
+       Slot FrameWidgetSlot {
+        Anchor 0 0 .48 1 OffsetLeft 0 OffsetTop 26 OffsetRight 0 OffsetBottom 0
+       }
+       Color .08 .1 .11 1 style full "Ignore Cursor" 1
+      }
+      EditBoxWidgetClass {
+       Name "ZoneTime" Slot FrameWidgetSlot {
+        Anchor 0 0 .48 1 OffsetLeft 6 OffsetTop 26 OffsetRight 6 OffsetBottom 0
+       }
+       "Font Size" 24
+      }
+     }
+    }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "ZoneExtend" Slot FrameWidgetSlot {
-      Anchor .77 0 1 0 OffsetLeft 0 OffsetTop 56 OffsetRight 0 SizeY 42 OffsetBottom -98
+      Anchor .89 0 1 0 OffsetLeft 0 OffsetTop 82 OffsetRight 0 SizeY 40 OffsetBottom -122
      }
      components {
       SCR_ButtonTextComponent "{7C41F8A018B24C00}" {

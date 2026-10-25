@@ -185,6 +185,8 @@ class GC_BoundaryAdmin
 				result = "Announcement started for " + FactionText(factions) + ". Display only; no restrictions.";
 			}
 		}
+		else if (action == "extend" && (seconds < 1 || seconds > 3600))
+			result = "Not applied: add between 1 and 3600 seconds.";
 		else
 		{
 			IEntity target;
@@ -201,13 +203,20 @@ class GC_BoundaryAdmin
 			else if (setup && action == "end")
 				applied = setup.EndSetup();
 			else if (setup && action == "extend")
-				applied = setup.ExtendSetup(300);
+				applied = setup.ExtendSetup(seconds);
 			if (applied)
+			{
 				result = Describe(target).Name + ": " + action + " applied.";
+				if (action == "extend")
+					result = Describe(target).Name + ": added " + seconds.ToString() + " seconds.";
+			}
 			else
 				result = "Not applied: zone removed, invalid, ended, or action unavailable. Refresh the list.";
 		}
-		GC_AdminActionLogger.Log(playerId, "boundary-" + action, key + " " + title + " " + FactionText(factions), result);
+		string context = key + " " + title + " " + FactionText(factions);
+		if (action == "extend")
+			context = key + " add " + seconds.ToString() + " seconds";
+		GC_AdminActionLogger.Log(playerId, "boundary-" + action, context, result);
 		return result;
 	}
 
