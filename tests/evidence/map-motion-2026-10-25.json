@@ -1,0 +1,338 @@
+[
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "map-on"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0cfd6d2b5327444681338bc065462432",
+    "returned": "Map visibility updated for you only.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Waiting\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":120.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":true,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestPresentationMotion",
+    "args": [
+      [
+        "float",
+        10
+      ],
+      [
+        "vector",
+        [
+          30,
+          0,
+          20
+        ]
+      ],
+      [
+        "float",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "ree0693c9c4c04caab2c2030fa06ed897",
+    "returned": "DISPATCHED native smooth pan/zoom; inspect presentation report after animation"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "re3cc46d45ee94aecb8b93c05d4fabfde",
+    "returned": "snapshots=1 projections=1567 mapTicks=180 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=1559 panEvents=1069 zoomEvents=497 maxMotionErrorPx=13297.7\ncachedShapes=3 cachedPoints=12 canvas=1 commands=6 framed=1 [Setup 1 (Waiting)] [AO 2 (Active)] setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r4daf84ec9f6f4b9897ce5231c1d2ea40",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "args": [
+      [
+        "int",
+        9
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rbed633b1c1294907b4d7ca2cb39a8c3c",
+    "returned": "current=9"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r59e50a87e6e54bdaad7476f7f442d960",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r4f7c02746c1f475fa819d5164e71bb66",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        true
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re3757aa4b5754f0d9d5096d09f9dda49",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestPresentationMotion",
+    "args": [
+      [
+        "float",
+        8
+      ],
+      [
+        "vector",
+        [
+          30,
+          0,
+          20
+        ]
+      ],
+      [
+        "float",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r177d321095ec4f879b1d26d9b8f9df0e",
+    "returned": "DISPATCHED native smooth pan/zoom; inspect presentation report after animation"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rff9444f6f95140ce99d429fdaac5c61c",
+    "returned": "snapshots=0 projections=352 mapTicks=293 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=352 panEvents=176 zoomEvents=176 maxMotionErrorPx=21607\ncachedShapes=3 cachedPoints=12 canvas=1 commands=6 framed=1 [Setup 1 (Active)] [AO 2 (Active)] setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "map-on"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r172641bc43374e489ad2645c19c8af9b",
+    "returned": "Map visibility updated for you only.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Waiting\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":120.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":true,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestPresentationMotion",
+    "args": [
+      [
+        "float",
+        12
+      ],
+      [
+        "vector",
+        [
+          20,
+          0,
+          15
+        ]
+      ],
+      [
+        "float",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r8d80ca101b954336b99a07e6abb7fe28",
+    "returned": "DISPATCHED native smooth pan/zoom; inspect presentation report after animation"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r6ba2b04de3644fc49766a1fbd46944e4",
+    "returned": "snapshots=1 projections=1041 mapTicks=309 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=1040 panEvents=520 zoomEvents=520 maxMotionErrorPx=1.00031\ncachedShapes=3 cachedPoints=12 canvas=1 commands=6 framed=1 [Setup 1 (Waiting)] [AO 2 (Active)] setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rbe0a2be0c2654bc2bbf6f372788f3aad",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "args": [
+      [
+        "int",
+        9
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r12e1bb593bf64365a60a6db0bf9557cd",
+    "returned": "current=9"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "ra2b9b18064c44f85a948f8a2145d0a54",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "ree4abeb54eef4f35b82851b07b382006",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        true
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r3f6f2c18051e4abfa754e7a8c81f9c40",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestPresentationMotion",
+    "args": [
+      [
+        "float",
+        8
+      ],
+      [
+        "vector",
+        [
+          25,
+          0,
+          10
+        ]
+      ],
+      [
+        "float",
+        3
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r2c380ab1516e40c696d2c0773a00871b",
+    "returned": "DISPATCHED native smooth pan/zoom; inspect presentation report after animation"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r8ccbc048c26b418fb37e851792050ae4",
+    "returned": "snapshots=0 projections=1606 mapTicks=411 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=1605 panEvents=803 zoomEvents=803 maxMotionErrorPx=0.999268\ncachedShapes=3 cachedPoints=12 canvas=1 commands=6 framed=1 [Setup 1 (Active)] [AO 2 (Active)] setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rbd9aee092ff648e087034169c2509bb1",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rb30d740a40c14e4787568b1db33f255d",
+    "returned": "snapshots=0 projections=0 mapTicks=601 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0 panEvents=0 zoomEvents=0 maxMotionErrorPx=0\ncachedShapes=3 cachedPoints=12 canvas=1 commands=6 framed=1 [Setup 1 (Active)] [AO 2 (Active)] setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rb33917a958f246658a3dac21368f948d",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "re00366fe6a44477e90c57caba4ddc48b",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r1bb7a9edbf844c52a82934aad2e77deb",
+    "returned": "snapshots=0 projections=0 mapTicks=3 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0 panEvents=0 zoomEvents=0 maxMotionErrorPx=0\ncachedShapes=3 cachedPoints=12 canvas=0 commands=0 framed=1 [Setup 1 (Active)] [AO 2 (Active)] setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "re38986afa95f491db990cbfeaa12fe84",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r3ed8b8acae304cd2a18c89beda842520",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0 panEvents=0 zoomEvents=0 maxMotionErrorPx=0\ncachedShapes=3 cachedPoints=12 canvas=0 commands=0 framed=1 [Setup 1 (Active)] [AO 2 (Active)] setup=1 combat=1 announcement=0"
+  }
+]

@@ -9,10 +9,47 @@ class GC_BoundaryPresentationProbe
 	static int s_iAOWarnings;
 	static int s_iSetupWarnings;
 	static int s_iAnnouncements;
+	static int s_iPanEvents;
+	static int s_iZoomEvents;
+	static float s_fMaxMotionError;
 }
 
 modded class GC_MapShapeOverlay
 {
+	//------------------------------------------------------------------------------------------------
+	override protected void OnMapPan(float x, float y, bool adjusted)
+	{
+		super.OnMapPan(x, y, adjusted);
+		GC_BoundaryPresentationProbe.s_iPanEvents++;
+		GC_TestMeasureMapMotion();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected void OnMapZoom(float zoom)
+	{
+		super.OnMapZoom(zoom);
+		GC_BoundaryPresentationProbe.s_iZoomEvents++;
+		GC_TestMeasureMapMotion();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Compare submitted vertices with native projection before the map event returns.
+	protected void GC_TestMeasureMapMotion()
+	{
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		if (!m_Canvas || !mapEntity || m_aCommands.IsEmpty() || m_aPoints.IsEmpty())
+			return;
+		float width, height;
+		m_Canvas.GetScreenSize(width, height);
+		if (width <= 0 || height <= 0)
+			return;
+		LineDrawCommand line = LineDrawCommand.Cast(m_aCommands[1]);
+		int x, y;
+		mapEntity.WorldToScreen(m_aPoints[0][0], m_aPoints[0][2], x, y, true);
+		float error = Math.Max(Math.AbsFloat(line.m_Vertices[0] - x), Math.AbsFloat(line.m_Vertices[1] - y));
+		GC_BoundaryPresentationProbe.s_fMaxMotionError = Math.Max(GC_BoundaryPresentationProbe.s_fMaxMotionError, error);
+	}
+
 	//------------------------------------------------------------------------------------------------
 	override void Receive(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<string> names = null, array<vector> frameBounds = null)
 	{
@@ -123,6 +160,9 @@ modded class GC_LobbyManager
 		GC_BoundaryPresentationProbe.s_iAOWarnings = 0;
 		GC_BoundaryPresentationProbe.s_iSetupWarnings = 0;
 		GC_BoundaryPresentationProbe.s_iAnnouncements = 0;
+		GC_BoundaryPresentationProbe.s_iPanEvents = 0;
+		GC_BoundaryPresentationProbe.s_iZoomEvents = 0;
+		GC_BoundaryPresentationProbe.s_fMaxMotionError = 0;
 		return "RESET";
 	}
 
@@ -133,7 +173,22 @@ modded class GC_LobbyManager
 		if (!controller)
 			return "UNAVAILABLE controller";
 		string counts = string.Format("snapshots=%1 projections=%2 mapTicks=%3 setupStates=%4 aoWarnings=%5 setupWarnings=%6 announcements=%7", GC_BoundaryPresentationProbe.s_iSnapshots, GC_BoundaryPresentationProbe.s_iProjections, GC_BoundaryPresentationProbe.s_iMapTicks, GC_BoundaryPresentationProbe.s_iSetupStates, GC_BoundaryPresentationProbe.s_iAOWarnings, GC_BoundaryPresentationProbe.s_iSetupWarnings, GC_BoundaryPresentationProbe.s_iAnnouncements);
-		return counts + " rebuilds=" + GC_BoundaryPresentationProbe.s_iViewRebuilds.ToString() + "\n" + controller.GC_TestPresentationState();
+		string motion = string.Format(" panEvents=%1 zoomEvents=%2 maxMotionErrorPx=%3", GC_BoundaryPresentationProbe.s_iPanEvents, GC_BoundaryPresentationProbe.s_iZoomEvents, GC_BoundaryPresentationProbe.s_fMaxMotionError);
+		return counts + " rebuilds=" + GC_BoundaryPresentationProbe.s_iViewRebuilds.ToString() + motion + "\n" + controller.GC_TestPresentationState();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestPresentationMotion(float zoom, vector offset, float duration)
+	{
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		if (!mapEntity || !mapEntity.IsOpen())
+			return "UNAVAILABLE open map";
+		float width, height, x, z;
+		mapEntity.GetMapWidget().GetScreenSize(width, height);
+		mapEntity.ScreenToWorld(width * 0.5, height * 0.5, x, z);
+		GC_TestPresentationReset();
+		mapEntity.ZoomPanSmooth(zoom, x + offset[0], z + offset[2], duration);
+		return "DISPATCHED native smooth pan/zoom; inspect presentation report after animation";
 	}
 
 	//------------------------------------------------------------------------------------------------

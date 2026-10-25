@@ -257,13 +257,14 @@ class GC_MapShapeOverlay
 	//------------------------------------------------------------------------------------------------
 	protected void OnMapPan(float x, float y, bool adjusted)
 	{
-		m_bProjectionDirty = true;
+		// Keep geometry and labels in the native map's render update, not a later timer tick.
+		Project(SCR_MapEntity.GetMapInstance());
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void OnMapZoom(float zoom)
 	{
-		m_bProjectionDirty = true;
+		Project(SCR_MapEntity.GetMapInstance());
 	}
 
 	//------------------------------------------------------------------------------------------------
