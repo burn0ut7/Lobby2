@@ -102,6 +102,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		GetGame().GetCallqueue().Remove(RestoreMapActionsAfterEditor);
         GetGame().GetCallqueue().Remove(OpenMap);
 		GetGame().GetCallqueue().Remove(OpenMapNow);
+		SCR_MapEntity.GetOnMapClose().Remove(OnPreviousMapClosed);
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
 
 		if (m_InputManager)
@@ -112,8 +113,8 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		if (m_MenuChat)
 			m_MenuChat.Stop();
 
-        if (m_MapEntity)
-            m_MapEntity.CloseMap();
+		if (m_MapEntity && m_MapEntity.IsOpen() && m_MapEntity.GetMapConfig().RootWidgetRef == GetRootWidget())
+			m_MapEntity.CloseMap();
 
 		m_Header = null;
 		m_EditorManager = null;
@@ -214,6 +215,12 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
         GetGame().GetCallqueue().CallLater(OpenMapNow, 0);
     }
 
+	protected void OnPreviousMapClosed(MapConfiguration config)
+	{
+		SCR_MapEntity.GetOnMapClose().Remove(OnPreviousMapClosed);
+		GetGame().GetCallqueue().CallLater(OpenMapNow, 0);
+	}
+
 	protected void OpenMapNow()
     {
         Print("GC | OpenMap");
@@ -232,6 +239,15 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		if (!rootWidget)
 		{
 			Print("GC | OpenMap aborted: preview menu root widget is null", LogLevel.ERROR);
+			return;
+		}
+		if (m_MapEntity.IsOpen())
+		{
+			// The gadget closes its menu after an animation. Let its close handlers
+			// finish before replacing the singleton map configuration.
+			SCR_MapEntity.GetOnMapClose().Remove(OnPreviousMapClosed);
+			SCR_MapEntity.GetOnMapClose().Insert(OnPreviousMapClosed);
+			GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.MapMenu);
 			return;
 		}
 
@@ -256,8 +272,14 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		}
 
 		ResourceName mapConfigPath = "{6A115D5DFF7ED871}Configs/Map/MapLobby.conf";
+		EMapEntityMode mapMode = EMapEntityMode.GC_BRIEFING;
+		if (!IsBriefingView())
+		{
+			mapConfigPath = "{6A75000000000002}Configs/Map/MapPreview.conf";
+			mapMode = EMapEntityMode.GC_PREVIEW;
+		}
 		PrintFormat("GC | OpenMap config=%1 root=%2", mapConfigPath, rootWidget);
-		MapConfiguration mapConfigFullscreen = m_MapEntity.SetupMapConfig(EMapEntityMode.FULLSCREEN, mapConfigPath, rootWidget);
+		MapConfiguration mapConfigFullscreen = m_MapEntity.SetupMapConfig(mapMode, mapConfigPath, rootWidget);
 		if (!mapConfigFullscreen)
 		{
 			Print("GC | OpenMap aborted: map configuration could not be created", LogLevel.ERROR);

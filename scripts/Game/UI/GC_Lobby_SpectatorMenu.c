@@ -67,7 +67,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_InputManager.AddActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
-			m_InputManager.AddActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
+			m_InputManager.AddActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.AddActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.AddActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
@@ -220,7 +220,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_InputManager.RemoveActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
-			m_InputManager.RemoveActionListener("GadgetMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
+			m_InputManager.RemoveActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.RemoveActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.RemoveActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
@@ -268,7 +268,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 		WidgetManager.SetCursor(0);
 		if (m_InputManager)
-			m_InputManager.ActivateContext("MapContext");
+			m_InputManager.ActivateContext("GC_SpectatorMap");
 		if (m_SpectatorMapOverlay)
 			m_SpectatorMapOverlay.Update(tDelta);
 	}
@@ -329,7 +329,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	protected void OnToggleSpectatorMap()
 	{
-		if (!m_bInterfaceVisible)
+		if (!m_bInterfaceVisible || !IsFocused())
 			return;
 
 		if (m_bSpectatorMapOpen)
@@ -342,31 +342,25 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	{
 		if (!m_wMapFrame || !m_MapEntity)
 			return;
+		if (m_MapEntity.IsOpen())
+		{
+			Print("GC | Spectator Map | another map owns the active view", LogLevel.WARNING);
+			return;
+		}
 		if (!m_wMapFrame.FindAnyWidget("MapWidget"))
 		{
 			Print("GC | Spectator Map | map layout has no MapWidget", LogLevel.ERROR);
 			return;
 		}
-		Widget toolMenuBar = m_wMapFrame.FindAnyWidget("ToolMenuHoriz");
-		if (toolMenuBar)
-			SCR_WidgetHelper.RemoveAllChildren(toolMenuBar);
-
-		BaseGameMode gameMode = GetGame().GetGameMode();
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
 		if (!gameMode)
 		{
 			Print("GC | Spectator Map | active game mode is unavailable", LogLevel.ERROR);
 			return;
 		}
 
-		SCR_MapConfigComponent mapConfigComponent = SCR_MapConfigComponent.Cast(gameMode.FindComponent(SCR_MapConfigComponent));
-		if (!mapConfigComponent)
-		{
-			Print("GC | Spectator Map | game mode map configuration is unavailable", LogLevel.ERROR);
-			return;
-		}
-
-		ResourceName mapConfigPath = mapConfigComponent.GetEditorMapConfig();
-		MapConfiguration mapConfig = m_MapEntity.SetupMapConfig(EMapEntityMode.FULLSCREEN, mapConfigPath, m_wMapFrame);
+		ResourceName mapConfigPath = "{6A75000000000003}Configs/Map/MapSpectator.conf";
+		MapConfiguration mapConfig = m_MapEntity.SetupMapConfig(EMapEntityMode.GC_SPECTATOR, mapConfigPath, m_wMapFrame);
 		if (!mapConfig)
 		{
 			PrintFormat("GC | Spectator Map | map configuration failed config=%1", mapConfigPath, level: LogLevel.ERROR);
@@ -392,7 +386,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		m_bSpectatorMapOpen = false;
 		if (m_SpectatorMapOverlay)
 			m_SpectatorMapOverlay.Clear();
-		if (m_MapEntity && m_MapEntity.IsOpen())
+		if (m_MapEntity && m_MapEntity.IsOpen() && m_MapEntity.GetMapConfig().RootWidgetRef == m_wMapFrame)
 			m_MapEntity.CloseMap();
 		if (m_wMapFrame)
 			m_wMapFrame.SetVisible(false);

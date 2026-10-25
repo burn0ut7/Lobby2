@@ -71,13 +71,15 @@ FrameWidgetClass "{6A233D0B6063CA4A}" {
   FrameWidgetClass "{6A233D0B6063CA58}" {
    Name "ToolMenu"
    Slot FrameWidgetSlot "{59107CDEE98682C5}" {
+    Anchor 0.5 0 0.5 0
+    PositionX 0
     OffsetLeft 0
-    PositionY -100
-    OffsetTop -100
-    SizeX -100
-    OffsetRight 100
-    SizeY 30
-    OffsetBottom 70
+    PositionY 82
+    OffsetTop 82
+    SizeX 0
+    OffsetRight 0
+    SizeY 40
+    OffsetBottom -122
     Alignment 0.5 0
     SizeToContent 1
    }

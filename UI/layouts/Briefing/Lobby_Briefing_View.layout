@@ -57,15 +57,42 @@ SizeLayoutWidgetClass {
             Padding 8 8 8 8
            }
            {
-            TextWidgetClass "{6A4100000000000C}" {
-             Name "BriefingIndexLabel"
-             Slot LayoutSlot "{6A4100000000000D}" {
-              Padding 4 4 0 4
+            HorizontalLayoutWidgetClass "{6A75000000000040}" {
+             Name "BriefingHeader"
+             Slot LayoutSlot {
+              HorizontalAlign 3
+              Padding 4 0 0 4
              }
-             Color 0.58 0.62 0.64 1
-             Text "BRIEFING"
-             "Font Size" 17
-             "Min Font Size" 15
+             {
+              TextWidgetClass "{6A4100000000000C}" {
+               Name "BriefingIndexLabel"
+               Slot LayoutSlot {
+                VerticalAlign 1
+                SizeMode Fill
+                FillWeight 1
+               }
+               Color 0.58 0.62 0.64 1
+               Text "BRIEFING"
+               "Font Size" 17
+               "Min Font Size" 15
+              }
+              ButtonWidgetClass "{6A75000000000041}" : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
+               Name "BriefingToggle"
+               Slot LayoutSlot {
+                VerticalAlign 1
+                Padding 8 0 0 0
+               }
+               "Is Visible" 0
+               components {
+                SCR_InputButtonComponent "{5D346C3DD81D95CD}" {
+                 m_sActionName "GC_ToggleBriefing"
+                 m_sLabel "Hide"
+                 m_iHeightInPixel 48
+                 m_bCanBeDisabled 0
+                }
+               }
+              }
+             }
             }
             ImageWidgetClass "{6A4100000000000E}" {
              Name "BriefingIndexDivider"

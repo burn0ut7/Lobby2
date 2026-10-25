@@ -70,6 +70,7 @@ FrameWidgetClass {
   }
   FrameWidgetClass "{6604C04D653ECB55}" {
    Name "ToolMenu"
+   "Is Visible" 0
    Slot FrameWidgetSlot "{59107CDEE98682C5}" {
     OffsetLeft 0
     PositionY -100
