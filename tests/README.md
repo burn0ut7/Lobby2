@@ -1438,3 +1438,9 @@ Optional `GC_TestMapFrameSpawn`, `GC_TestMapFrameConfigure`, and `GC_TestMapFram
 Local MCP screenshots and receipts: `Art/References/ao-map/initial-frame/`. Embedded host coverage exercises serialization/decoding but does not verify remote/dedicated transport or JIP. No resolution matrix, unrelated-mode runtime baseline, or performance benchmark was run for this slice. Normal Lobby2 Arland was restored with Play stopped after testing.
 
 Final clarified lifecycle verified in fresh Play with an authored opt-in: initial PREGAME fit, a new fit after Lobby → Briefing, an independent first GAME map fit, then preservation of manual zoom 2 / center (1499.1,2900.5) after native map close/reopen. No test reset was used in this final run. Screenshots startup.png, briefing.png, game-first.png and receipt r92e75037e7254122bf62e9d52a825095 supplement the local evidence. The earlier once-per-lifetime reopen result predates this clarified behavior.
+
+## Map overlay opening — 2026-10-25
+
+The shape canvas can initially be zero-sized even when the native map reports open. Projection now waits for usable dimensions and rebuilds once on size change through the existing update loop, also refreshing at native map-open completion. The current snapshot bounds are retained until readiness so framing does not wait for another poll. Existing network polling and closed-map cleanup are unchanged.
+
+Optional GC_MapOpeningTests observes opening/projection without changing it. Embedded Arland checks passed through preview, briefing, first GAME opening and stationary GAME reopen with manual zoom preserved. The stationary reopen produced a complete fill 21.1 ms after attachment, before the next ~500 ms snapshot. This is simulation projection timing, not GPU presentation; the full reported 1–2 seconds was not reproduced. Remote transport/latency and alternate resolutions remain untested. Local logs, screenshot and limitations are in Art/References/ao-map/opening-delay/.

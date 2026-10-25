@@ -8,6 +8,9 @@ class GC_MapShapeOverlay
 	protected ref array<int> m_aCounts = {};
 	protected ref array<float> m_aWidths = {};
 	protected ref array<vector> m_aPoints = {};
+	protected ref array<vector> m_aFrameBounds = {};
+	protected float m_fCanvasWidth;
+	protected float m_fCanvasHeight;
 	protected ref array<ref CanvasWidgetCommand> m_aCommands = {};
 	protected float m_fLastReceive;
 	protected float m_fNextRequest;
@@ -58,6 +61,15 @@ class GC_MapShapeOverlay
 		{
 			m_fNextRequest = now + 500;
 			controller.GC_RequestMapShapes(m_iGeneration);
+		}
+		// A newly created canvas is sized on a later UI layout pass. Do not wait
+		// for another snapshot or a user pan to rebuild its initially empty fill.
+		float width, height;
+		m_Canvas.GetScreenSize(width, height);
+		if (width > 0 && height > 0 && (width != m_fCanvasWidth || height != m_fCanvasHeight))
+		{
+			Project(mapEntity);
+			FrameFirstMap(m_aFrameBounds);
 		}
 		// This timer owns discovery, snapshots and expiry, never moving-map projection.
 		if (now - m_fLastReceive > 1500 && !m_aCommands.IsEmpty())
@@ -119,6 +131,9 @@ class GC_MapShapeOverlay
 		m_aCounts.Copy(counts);
 		m_aWidths.Copy(widths);
 		m_aPoints.Copy(points);
+		m_aFrameBounds.Clear();
+		if (frameBounds)
+			m_aFrameBounds.Copy(frameBounds);
 		m_fLastReceive = GetGame().GetWorld().GetWorldTime();
 		m_aCommands.Resize(counts.Count() * 2);
 		foreach (int index, int count : counts)
@@ -162,7 +177,7 @@ class GC_MapShapeOverlay
 				line.m_Vertices.Resize(count * 2);
 		}
 		Project(SCR_MapEntity.GetMapInstance());
-		FrameFirstMap(frameBounds);
+		FrameFirstMap(m_aFrameBounds);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -179,6 +194,8 @@ class GC_MapShapeOverlay
 		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
 		if (mapEntity && mapEntity.GetMapWidget())
 			m_ReadyMapParent = mapEntity.GetMapWidget().GetParent();
+		Project(mapEntity);
+		FrameFirstMap(m_aFrameBounds);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -256,6 +273,12 @@ class GC_MapShapeOverlay
 	{
 		if (!m_Canvas || !mapEntity || !mapEntity.IsOpen() || !GC_LobbyGameMode.GetGameMode())
 			return;
+		float canvasWidth, canvasHeight;
+		m_Canvas.GetScreenSize(canvasWidth, canvasHeight);
+		if (canvasWidth <= 0 || canvasHeight <= 0)
+			return;
+		m_fCanvasWidth = canvasWidth;
+		m_fCanvasHeight = canvasHeight;
 
 		// Use the native inverse transform to retain fractional screen positions.
 		// WorldToScreen exposes integer outputs, which quantize slow movement.
@@ -279,9 +302,7 @@ class GC_MapShapeOverlay
 			TriMeshDrawCommand outside = TriMeshDrawCommand.Cast(m_aCommands[index * 2]);
 			if (outside)
 			{
-				float width, height;
-				m_Canvas.GetScreenSize(width, height);
-				GC_MapShapeOutsideFill.Build(line.m_Vertices, width, height, outside);
+				GC_MapShapeOutsideFill.Build(line.m_Vertices, canvasWidth, canvasHeight, outside);
 			}
 			if (m_aLabels.IsIndexValid(index) && m_aLabels[index])
 			{
@@ -340,6 +361,9 @@ class GC_MapShapeOverlay
 		m_aCounts.Clear();
 		m_aWidths.Clear();
 		m_aPoints.Clear();
+		m_aFrameBounds.Clear();
+		m_fCanvasWidth = 0;
+		m_fCanvasHeight = 0;
 		m_aCommands.Clear();
 		m_fNextRequest = 0;
 	}
