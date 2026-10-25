@@ -58,6 +58,12 @@ class GC_AOWarning
 		TextWidget title = TextWidget.Cast(m_Root.FindAnyWidget("AOTitle"));
 		if (title)
 			title.SetText(warningText);
+		// Fit the visible content; the stock skull texture has transparent side margins.
+		m_Timer.SetText(FormatTime(seconds));
+		float titleWidth, titleHeight, timerWidth, timerHeight;
+		title.GetTextSize(titleWidth, titleHeight);
+		m_Timer.GetTextSize(timerWidth, timerHeight);
+		FrameSlot.SetSizeX(m_Card, Math.Max(titleWidth, timerWidth) + 42);
 		Refresh();
 	}
 
@@ -77,15 +83,15 @@ class GC_AOWarning
 			return;
 		}
 		// Reserve separate rows rather than relying on root creation order/Z order.
-		float top = 70;
-		if (lobbyPlayer && lobbyPlayer.GC_SetupActive())
-		{
-			top = 80;
-			if (!m_bSetupWarning && lobbyPlayer.GC_HasSetupReturnWarning())
-				top += 108;
-		}
+		float top = 28;
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+		bool staging = (lobbyPlayer && lobbyPlayer.GC_SetupActive()) || (freeze && freeze.AffectsPlayer(controller.GetPlayerId()));
+		if (staging)
+			top += 38;
+		if (lobbyPlayer && !m_bSetupWarning && lobbyPlayer.GC_HasSetupReturnWarning())
+			top += 74;
 		if (lobbyPlayer && lobbyPlayer.GC_AnnouncementActive())
-			top += 52;
+			top += 38;
 		FrameSlot.SetPos(m_Card, 0, top);
 		m_Timer.SetText(FormatTime(Math.Max(0, (m_fDeadline - now) * 0.001)));
 	}

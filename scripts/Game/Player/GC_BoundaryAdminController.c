@@ -106,12 +106,6 @@ modded class GC_LobbyPlayerController
 		}
 		TextWidget heading = TextWidget.Cast(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownTitle"));
 		heading.SetText(title);
-		float textWidth, textHeight;
-		heading.GetTextSize(textWidth, textHeight);
-		FrameSlot.SetSizeX(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownCard"), Math.Max(324, textWidth + 140));
-		FrameSlot.SetAnchorMin(heading, 0, 0);
-		FrameSlot.SetAnchorMax(heading, 0, 1);
-		FrameSlot.SetSizeX(heading, textWidth + 4);
 		GC_RefreshAnnouncement();
 	}
 
@@ -127,11 +121,14 @@ modded class GC_LobbyPlayerController
 		string seconds = (remaining % 60).ToString();
 		if (remaining % 60 < 10)
 			seconds = "0" + seconds;
-		TextWidget.Cast(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownTime")).SetText((remaining / 60).ToString() + ":" + seconds);
+		TextWidget timer = TextWidget.Cast(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownTime"));
+		timer.SetText((remaining / 60).ToString() + ":" + seconds);
+		GC_CountdownHud.Fit(m_GC_AnnouncementHud, timer);
 		float top = 28;
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(this);
-		if (controller.GC_SetupActive())
-			top += 52;
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+		if (controller.GC_SetupActive() || (freeze && freeze.AffectsPlayer(GetPlayerId())))
+			top += 38;
 		FrameSlot.SetPos(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownCard"), 0, top);
 	}
 

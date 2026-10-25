@@ -9,10 +9,10 @@ FrameWidgetClass {
     Anchor 0.5 0 0.5 0
     OffsetLeft 0
     OffsetTop 28
-    SizeX 324
-    OffsetRight -324
-    SizeY 44
-    OffsetBottom -72
+    SizeX 130
+    OffsetRight -130
+    SizeY 32
+    OffsetBottom -60
     Alignment 0.5 0
    }
    "Ignore Cursor" 1
@@ -33,14 +33,14 @@ FrameWidgetClass {
     TextWidgetClass {
      Name "StagingCountdownTitle"
      Slot FrameWidgetSlot {
-      Anchor 0 0 0.6 1
-      OffsetLeft 12
+      Anchor 0 0 1 1
+      OffsetLeft 6
       OffsetTop 0
       OffsetRight 0
       OffsetBottom 0
      }
      Text "STAGING"
-     "Font Size" 24
+     "Font Size" 18
      FontProperties FontProperties {
       Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
      }
@@ -52,14 +52,14 @@ FrameWidgetClass {
     TextWidgetClass {
      Name "StagingCountdownTime"
      Slot FrameWidgetSlot {
-      Anchor 0.6 0 1 1
-      OffsetLeft 0
+      Anchor 1 0 1 1
+      OffsetLeft -58
       OffsetTop 0
-      OffsetRight 12
+      OffsetRight 6
       OffsetBottom 0
      }
      Text "00:00"
-     "Font Size" 28
+     "Font Size" 21
      FontProperties FontProperties {
       Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
      }

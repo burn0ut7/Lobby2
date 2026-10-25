@@ -9,10 +9,10 @@ FrameWidgetClass {
     Anchor 0.5 0 0.5 0
     OffsetLeft 0
     OffsetTop 70
-    SizeX 324
-    OffsetRight -324
-    SizeY 100
-    OffsetBottom -170
+    SizeX 180
+    OffsetRight -180
+    SizeY 68
+    OffsetBottom -138
     Alignment 0.5 0
    }
    "Ignore Cursor" 1
@@ -33,31 +33,31 @@ FrameWidgetClass {
     ImageWidgetClass {
      Name "AOSkull"
      Slot FrameWidgetSlot {
-      OffsetLeft 4
-      OffsetTop 18
-      SizeX 60
-      OffsetRight -64
-      SizeY 64
-      OffsetBottom -82
+      OffsetLeft -4
+      OffsetTop 10
+      SizeX 45
+      OffsetRight -41
+      SizeY 48
+      OffsetBottom -58
      }
      Color 1 1 1 1
      Texture "{98B5DB89D3410108}UI/Textures/Editor/ContextMenu/ContextAction_Kill.edds"
      Image ""
-     Size 60 64
+     Size 45 48
      "Ignore Cursor" 1
     }
     TextWidgetClass {
      Name "AOTitle"
      Slot FrameWidgetSlot {
       Anchor 0 0 1 0
-      OffsetLeft 64
-      OffsetTop 10
-      OffsetRight 8
-      SizeY 34
-      OffsetBottom -44
+      OffsetLeft 36
+      OffsetTop 4
+      OffsetRight 6
+      SizeY 26
+      OffsetBottom -30
      }
      Text "RETURN TO AO"
-     "Font Size" 28
+     "Font Size" 21
      FontProperties FontProperties {
       Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
      }
@@ -70,14 +70,14 @@ FrameWidgetClass {
      Name "AOTimer"
      Slot FrameWidgetSlot {
       Anchor 0 0 1 0
-      OffsetLeft 64
-      OffsetTop 44
-      OffsetRight 8
-      SizeY 44
-      OffsetBottom -88
+      OffsetLeft 36
+      OffsetTop 30
+      OffsetRight 6
+      SizeY 34
+      OffsetBottom -64
      }
      Text "20.000"
-     "Font Size" 40
+     "Font Size" 30
      FontProperties FontProperties {
       Font "UI/Fonts/Roboto/Roboto_Bold.fnt"
      }

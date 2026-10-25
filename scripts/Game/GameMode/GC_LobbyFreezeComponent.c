@@ -317,6 +317,7 @@ class GC_LobbyFreezeComponent : ScriptComponent
 		if (seconds < 10)
 			secondText = "0" + secondText;
 		m_wCountdownTime.SetText(minuteText + ":" + secondText);
+		GC_CountdownHud.Fit(m_wCountdown, m_wCountdownTime);
 	}
 
 	//------------------------------------------------------------------------------------------------

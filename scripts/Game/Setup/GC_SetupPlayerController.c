@@ -157,6 +157,7 @@ modded class GC_LobbyPlayerController
 		if (seconds < 10)
 			secondText = "0" + secondText;
 		m_GC_SetupTimer.SetText((remaining / 60).ToString() + ":" + secondText);
+		GC_CountdownHud.Fit(m_GC_SetupHud, m_GC_SetupTimer);
 	}
 
 	//------------------------------------------------------------------------------------------------
