@@ -1,0 +1,3 @@
+# Independent review
+
+/root/label_review, fresh context: Approved, no blocking findings across the complete five-file change since 1a76313. Reviewed source, previous tighter-padding screenshot, custom-labels screenshot and raw runtime readbacks. Defaults, owner RPC routing, current-zone refresh, retained setup return warning, authority and enforcement behavior accepted. Screenshot comparison retained alignment, spacing, contrast and separate warning rows. Defaults/custom/priority/blank-string checks supported by receipts. Remote multiplayer, alternate UI scales and long-label clipping remain unvalidated. No edits requested.

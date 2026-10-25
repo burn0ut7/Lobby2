@@ -75,3 +75,5 @@ input before the production hooks. Runtime-only fixture durations include elapse
 GAME time so each explicit test receives the requested remaining duration.
 
 See `Art/References/setup-zone` for raw receipts, screenshots and validation notes.
+
+Set **Display Text** on each setup zone to replace SETUP beside its countdown. Use a short heading for the compact HUD; blank text hides only the heading. RETURN TO SETUP is unchanged.

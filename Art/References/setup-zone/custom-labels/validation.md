@@ -1,0 +1,9 @@
+# Custom boundary headings
+
+2026-10-25, Workbench 1.8.0.13, Lobby2McpTests Empty_Lobby embedded host PID50596. Narrow wording configuration; unchanged layout, fonts, spacing, priorities, enforcement. Existing tighter-padding reference retained. Setup Display Text defaults SETUP, AO Warning Text defaults RETURN TO AO. Server passes per-zone strings through existing owner RPCs, presentation updates existing headings when selected zone changes. RETURN TO SETUP unchanged. Empty strings intentionally display no heading; countdowns remain. Authoring help recommends short labels for compact fixed-size HUD.
+
+Native reload succeeded (d76754cefc2f4ad0bd5f3d83c9204250), adapter compiled/ready. Initial optional test helper could not reference another modded-class field defined later; corrected test to resolve named fixture entities, then reloaded successfully. No production logic bypass: helpers set only the new text fields, normal production evaluators/RPCs populate HUD.
+
+Receipts record default SETUP / RETURN TO AO, then PREPARE / FALL BACK. Screenshot custom-labels.png is original MCP capture, 1920x1080 capture of editor viewport; widget readback actual screen cards width422.4, heights57.363/130.37. Three rows retain separate positions. Higher priority AO uses HOLD THE LINE; disabling it restores FALL BACK. Blank strings clear both headings without clearing countdowns. Default RETURN TO SETUP remains. No dedicated/remote-client or alternate UI-scale test in this slice. Long headings may clip within existing compact layout; no automatic resizing introduced.
+
+Production code readability/diff review: tab indentation, Allman blocks, existing API naming and controller ownership preserved; no shared base-game override added. An external concurrent commit 38e2b86 captured part of these in-progress edits; review complete changes from 1a76313 for relevant five production scripts only, excluding unrelated changes in that commit.

@@ -45,10 +45,7 @@ class GC_AOWarning
 				m_Timer = TextWidget.Cast(m_Root.FindAnyWidget("AOTimer"));
 				m_Card = m_Root.FindAnyWidget("AOCard");
 				if (m_bSetupWarning)
-				{
 					m_Root.SetName("LobbySetupWarning");
-
-				}
 			}
 			if (!m_Timer || !m_Card)
 			{

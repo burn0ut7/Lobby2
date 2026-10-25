@@ -204,7 +204,6 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! First entry into the permitted side arms this AO for the unit's lifetime.
 	string GetWarningText()
 	{
 		return m_sWarningText;
