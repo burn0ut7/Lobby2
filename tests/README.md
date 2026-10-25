@@ -4,9 +4,12 @@ This optional project owns Lobby2-specific test controls and checks. The MCP
 server remains addon-agnostic. Production Lobby2 does not depend on this addon,
 and loading it alone runs no tests. Do not publish the test addon.
 
-## Load and unload
+## Development setup
 
-1. Save authoring work and stop Play. Close Workbench normally through MCP.
+1. Keep the current Workbench and test project open. Use Reload for script changes.
+   If test dependencies are missing, establish and explain the actual need to
+   switch projects before doing so. An MCP restriction alone is not a Workbench
+   restart requirement; report or repair that restriction in the owning capability.
 2. Make `tests/IsolationProbe` discoverable in Workbench's addon search directory.
    For this checkout, `addons/Lobby2IsolationProbe` is a directory junction to
    that repository folder; it is one source tree, not a copied addon. Alternatively
@@ -23,9 +26,10 @@ and loading it alone runs no tests. Do not publish the test addon.
    `workbench_open_world`, then start `workbench_play`. Answer Workbench's script
    authorization using the user's preference. Poll pending operations; never
    replay an uncertain mutation.
-6. To unload, stop Play, close Workbench, and reopen the **parent** `addon.gproj`.
-   Verify `Lobby2McpTests` is absent from loaded projects. No source copying,
-   production component attachment, settings switch, or alternate server is used.
+6. Leave the test project loaded between iterations and at handoff. Switch only
+   for a specifically required operation, such as an addon-free isolation baseline,
+   or when the user requests it. No source copying, production component attachment,
+   or alternate server is used.
 
 Most helpers require `WORKBENCH` and run only in embedded Play.
 `GC_AdminMultiplayerTests.c` also compiles in test-addon peers. It grants no roles
