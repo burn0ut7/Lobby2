@@ -1,0 +1,50 @@
+$grp GC_AOLimitEntity : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
+ AO_PolygonFixture {
+  coords 175 1 160
+  Points {
+   ShapePoint "{6AB2420CDD0253FF}" {
+    Position 0 0 40
+   }
+   ShapePoint "{6AB2420CDD02A912}" {
+    Position 31.273 0 24.94
+   }
+   ShapePoint "{6AB2420CDD02AC1C}" {
+    Position 38.997 0 -8.901
+   }
+   ShapePoint "{6AB2420CDD02A336}" {
+    Position 17.355 0 -36.039
+   }
+   ShapePoint "{6AB2420CDD02A643}" {
+    Position -17.355 0 -36.039
+   }
+   ShapePoint "{6AB2420CDD02A5D1}" {
+    Position -38.997 0 -8.901
+   }
+   ShapePoint "{6AB2420CDD02B88B}" {
+    Position -31.273 0 24.94
+   }
+  }
+  IsClosed 1
+ }
+ AO_EmptyFixture {
+  coords 128 1 128
+  Points {
+   ShapePoint "{6AB2420CCF660235}" {
+    Position 0 0 100
+   }
+   ShapePoint "{6AB2420CCF6619BA}" {
+    Position 95.106 0 30.902
+   }
+   ShapePoint "{6AB2420CCF661CEA}" {
+    Position 58.778 0 -80.902
+   }
+   ShapePoint "{6AB2420CCF66139A}" {
+    Position -58.778 0 -80.902
+   }
+   ShapePoint "{6AB2420CCF661621}" {
+    Position -95.106 0 30.902
+   }
+  }
+  IsClosed 1
+ }
+}

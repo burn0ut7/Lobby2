@@ -1,0 +1,1253 @@
+[
+  {
+    "key": "history_before",
+    "state": "observed",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "action": "history",
+    "beforeIndex": 0,
+    "afterIndex": 0
+  },
+  {
+    "key": "generate",
+    "state": "invoked",
+    "processId": 34708,
+    "nativeResult": 1
+  },
+  {
+    "key": "history_after",
+    "state": "observed",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "action": "history",
+    "beforeIndex": 1,
+    "afterIndex": 1
+  },
+  {
+    "key": "five_points",
+    "state": "observed",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 5,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      },
+      {
+        "index": 3,
+        "name": ""
+      },
+      {
+        "index": 4,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "undo",
+    "state": "updated",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "action": "undo",
+    "beforeIndex": 1,
+    "afterIndex": 0
+  },
+  {
+    "key": "redo",
+    "state": "updated",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "action": "redo",
+    "beforeIndex": 0,
+    "afterIndex": 1
+  },
+  {
+    "key": "edit_vertex",
+    "state": "updated",
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "action": "set"
+  },
+  {
+    "key": "move_entity",
+    "state": "updated",
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "action": "set"
+  },
+  {
+    "key": "save_custom",
+    "state": "saved",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "nativeResult": true,
+    "modifiedAfter": false
+  },
+  {
+    "key": "reopen_points",
+    "state": "observed",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 5,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      },
+      {
+        "index": 3,
+        "name": ""
+      },
+      {
+        "index": 4,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "reopen_custom_vertex",
+    "state": "observed",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 0
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "5 2 110"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "reopen_transform",
+    "state": "observed",
+    "processId": 34708,
+    "world": "$Lobby2:tests/McpTestAddon/worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 78,
+    "items": [
+      {
+        "index": 3,
+        "name": "coords",
+        "value": "175 1 160"
+      },
+      {
+        "index": 4,
+        "name": "angles",
+        "value": "0 0 0"
+      },
+      {
+        "index": 5,
+        "name": "scale",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "key": "reload_tests",
+    "state": "reloaded",
+    "processId": 12084,
+    "nativeResult": 1
+  },
+  {
+    "key": "triangle_count",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 3,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "triangle_point0",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 0
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "25 0 -0"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_point1",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 1
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-12.5 0 -21.651"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_point2",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 2
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-12.5 0 21.651"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_undo",
+    "state": "updated",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "action": "undo",
+    "beforeIndex": 1,
+    "afterIndex": 0
+  },
+  {
+    "key": "triangle_undo_restored_count",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 5,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      },
+      {
+        "index": 3,
+        "name": ""
+      },
+      {
+        "index": 4,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "triangle_undo_restored_point0",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 0
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "5 2 110"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_undo_restored_point1",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 1
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "95.106 0 30.902"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_undo_restored_point2",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 2
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "58.778 0 -80.902"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_undo_restored_point3",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 3
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-58.778 0 -80.902"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_undo_restored_point4",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 4
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-95.106 0 30.902"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_redo",
+    "state": "updated",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "action": "redo",
+    "beforeIndex": 0,
+    "afterIndex": 1
+  },
+  {
+    "key": "triangle_redo_restored_count",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 3,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "triangle_redo_restored_point0",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 0
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "25 0 -0"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_redo_restored_point1",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 1
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-12.5 0 -21.651"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "triangle_redo_restored_point2",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 2
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-12.5 0 21.651"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_count",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 7,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      },
+      {
+        "index": 3,
+        "name": ""
+      },
+      {
+        "index": 4,
+        "name": ""
+      },
+      {
+        "index": 5,
+        "name": ""
+      },
+      {
+        "index": 6,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "heptagon_point0",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 0
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "0 0 40"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_point1",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 1
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "31.273 0 24.94"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_point2",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 2
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "38.997 0 -8.901"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_point3",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 3
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "17.355 0 -36.039"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_point4",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 4
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-17.355 0 -36.039"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_point5",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 5
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-38.997 0 -8.901"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_point6",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 6
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-31.273 0 24.94"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_count",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 7,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      },
+      {
+        "index": 3,
+        "name": ""
+      },
+      {
+        "index": 4,
+        "name": ""
+      },
+      {
+        "index": 5,
+        "name": ""
+      },
+      {
+        "index": 6,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_point0",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 0
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "0 0 40"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_point1",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 1
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "31.273 0 24.94"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_point2",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 2
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "38.997 0 -8.901"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_point3",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 3
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "17.355 0 -36.039"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_point4",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 4
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-17.355 0 -36.039"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_point5",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 5
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-38.997 0 -8.901"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_unchanged_point6",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 6
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-31.273 0 24.94"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "invalid_history",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "action": "history",
+    "beforeIndex": 2,
+    "afterIndex": 2
+  },
+  {
+    "key": "save_heptagon",
+    "state": "saved",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "nativeResult": true,
+    "modifiedAfter": false
+  },
+  {
+    "key": "heptagon_reopened_count",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [],
+    "total": 7,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      },
+      {
+        "index": 3,
+        "name": ""
+      },
+      {
+        "index": 4,
+        "name": ""
+      },
+      {
+        "index": 5,
+        "name": ""
+      },
+      {
+        "index": 6,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "heptagon_reopened_point0",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 0
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "0 0 40"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_reopened_point1",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 1
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "31.273 0 24.94"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_reopened_point2",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 2
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "38.997 0 -8.901"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_reopened_point3",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 3
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "17.355 0 -36.039"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_reopened_point4",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 4
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-17.355 0 -36.039"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_reopened_point5",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 5
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-38.997 0 -8.901"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "heptagon_reopened_point6",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000001",
+    "path": [
+      {
+        "property": "Points",
+        "index": 6
+      }
+    ],
+    "total": 2,
+    "items": [
+      {
+        "index": 0,
+        "name": "Position",
+        "value": "-31.273 0 24.94"
+      },
+      {
+        "index": 1,
+        "name": "Data"
+      }
+    ]
+  },
+  {
+    "key": "new_prefab_generated",
+    "state": "observed",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "entityId": "4000000000000003",
+    "path": [],
+    "total": 5,
+    "items": [
+      {
+        "index": 0,
+        "name": ""
+      },
+      {
+        "index": 1,
+        "name": ""
+      },
+      {
+        "index": 2,
+        "name": ""
+      },
+      {
+        "index": 3,
+        "name": ""
+      },
+      {
+        "index": 4,
+        "name": ""
+      }
+    ]
+  },
+  {
+    "key": "save_final",
+    "state": "saved",
+    "processId": 12084,
+    "world": "$Lobby2McpTests:worlds/AOPolygon.ent",
+    "nativeResult": true,
+    "modifiedAfter": false
+  }
+]

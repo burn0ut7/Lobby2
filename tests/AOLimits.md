@@ -1,6 +1,14 @@
 # AO limits
 
-Place `Prefabs/Logic/AO/AOLimit.et` and edit its closed polygon points. The default is a 100 m square, soft death after 20 seconds, inside permitted. Invert to prohibit the interior. The native `Math2D.IsPointInPolygonXZ` ignores height; aircraft use their horizontal position. Use simple, non-self-intersecting polygons. Vehicle checks use the vehicle origin, not a hull collision test.
+Place `Prefabs/Logic/AO/AOLimit.et` and author its closed polygon points. The prefab starts without points; it defaults to soft death after 20 seconds, inside permitted. A boundary needs at least three points before it can enforce. Invert to prohibit the interior. The native `Math2D.IsPointInPolygonXZ` ignores height; aircraft use their horizontal position. Use simple, non-self-intersecting polygons. Vehicle checks use the vehicle origin, not a hull collision test.
+
+## Workbench polygon authoring
+
+Select one AO limit in an unlocked layer of the active subscene, then choose **Tools > AO Polygon**. Set **Sides** (3–128), **Radius** (centre-to-vertex metres), and **Rotation** (0–360°), then press **Generate AO polygon**. Five sides and a 100 m radius make a regular pentagon with every vertex 100 m from the entity origin. Zero rotation places its first point along local +Z; positive rotation goes toward local +X. The entity's own transform applies afterward.
+
+Generation replaces all point positions and per-point data, closes the shape, and is one Undo/Redo action. Use the normal Move/Rotate tools for the whole AO and the Vector Tool or `Points > Position` fields for individual vertices. Generation uses a flat local XZ plane. Save the world to keep the result. The generator exists only in the Workbench module and never runs in gameplay; it leaves normal native polyline data for the AO system.
+
+The base prefab deliberately contains no inherited points: native removal of inherited object-array entries does not persist reliably. Keep mission geometry on the placed entity. For a custom prefab with inherited geometry, the tool refuses regeneration on an instance; edit the geometry's defining prefab instead. Previously placed instances relying entirely on the old default square need their points authored before use.
 
 All eligibility conditions combine with AND. A condition that does not match exempts the player from **this limit only**. Factions use native player affiliation; vehicle and item lists include derived prefabs. Inventory includes equipped items and nested managed storage, not vehicle cargo. HAS_ANY/HAS_ALL restrict item holders; HAS_NONE/MISSING_ANY restrict players missing the listed items. IGNORE disables a filter. Non-ignored lists must be populated. Driver means the vehicle's native pilot compartment; turret occupants are passengers.
 
