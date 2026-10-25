@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "An error occurred invoking 'log_read': category/query too long (32/512 characters)."
+    }
+  ],
+  "isError": true
+}

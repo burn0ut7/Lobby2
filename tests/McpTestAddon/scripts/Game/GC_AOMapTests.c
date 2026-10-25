@@ -32,12 +32,15 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestAOMapStyle(int index, int visibility, int color, float width, bool factionColor, int factionMode, string factionKey)
+	string GC_TestAOMapStyle(int index, int visibility, int color, float width, bool factionColor, string factionKey)
 	{
 		if (!m_aGC_AOFixtures.IsIndexValid(index) || !m_aGC_AOFixtures[index])
 			return "UNAVAILABLE fixture";
 		GC_AOLimitEntity limit = m_aGC_AOFixtures[index];
-		bool eligibility = limit.SetEligibility(factionMode, { factionKey }, GC_EAOVehicleState.ANY,
+		array<string> factions = {};
+		if (!factionKey.IsEmpty())
+			factions.Insert(factionKey);
+		bool eligibility = limit.SetEligibility(factions, GC_EAOVehicleState.ANY,
 			GC_EAOListMode.IGNORE, {}, GC_EAOItemCondition.IGNORE, {});
 		return string.Format("eligibility=%1 style=%2", eligibility, limit.SetMapStyle(visibility, color, width, factionColor));
 	}

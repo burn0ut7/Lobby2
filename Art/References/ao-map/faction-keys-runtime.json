@@ -1,0 +1,1423 @@
+[
+  {
+    "method": "GC_TestAOSpawn",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r7cde1214c2de43eb9c04e4af95021dd6",
+      "returnType": "string",
+      "returned": "spawned index=0 origin=<1194.46,39,2723.13>; configure after native initialization",
+      "elapsedMs": 9,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r7cde1214c2de43eb9c04e4af95021dd6",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOSpawn",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"spawned index=0 origin=<1194.46,39,2723.13>; configure after native initialization\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOConfigure",
+    "args": [
+      0,
+      1,
+      false,
+      {
+        "type": "float",
+        "value": 3600
+      },
+      10,
+      {
+        "type": "float",
+        "value": 120
+      },
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r7f93a281c2bb4b9b8b38c102cc4ae1b0",
+      "returnType": "string",
+      "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r7f93a281c2bb4b9b8b38c102cc4ae1b0",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOConfigure",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"behavior=1 polygon=1 enabled=1 permitsOrigin=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "ra42cb7a910874d3584d842e6aaf823e4",
+      "returnType": "string",
+      "returned": "updated=1 faction= applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "ra42cb7a910874d3584d842e6aaf823e4",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction= applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rafe8417bc21b4dcaa5586bc016ea2353",
+      "returnType": "string",
+      "returned": "updated=1 faction= applies=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rafe8417bc21b4dcaa5586bc016ea2353",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction= applies=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "US,USSR"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rd19292c91719456ba0ed56054b7667c6",
+      "returnType": "string",
+      "returned": "updated=1 faction= applies=0",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rd19292c91719456ba0ed56054b7667c6",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction= applies=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r2d1e6ec1d101450a97f6789cbae1498c",
+      "returnType": "string",
+      "returned": "updated=1 faction= applies=1",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r2d1e6ec1d101450a97f6789cbae1498c",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction= applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Lobby Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rb0c2458b9b06421c84181110fa03e9ef",
+      "returnType": "string",
+      "returned": "dispatched: Lobby Button",
+      "elapsedMs": 26,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rb0c2458b9b06421c84181110fa03e9ef",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Lobby Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestSelectFaction",
+    "args": [
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rc0d85acbfc3e4bec96d909768d617f66",
+      "returnType": "string",
+      "returned": "dispatched: Button",
+      "elapsedMs": 6,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rc0d85acbfc3e4bec96d909768d617f66",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSelectFaction",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestSelectSlot",
+    "args": [
+      9
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r439a705c57cc4520b7164f2003f9c657",
+      "returnType": "string",
+      "returned": "dispatched: SlotButton",
+      "elapsedMs": 5,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r439a705c57cc4520b7164f2003f9c657",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestSelectSlot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: SlotButton\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rc5bf5f11a7574ead9807708592bfd9d8",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rc5bf5f11a7574ead9807708592bfd9d8",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rba1923aba4944ce287b8300f25c6d4ec",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rba1923aba4944ce287b8300f25c6d4ec",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "USSR"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rb964c33e202c425185573a9b5a99ca32",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rb964c33e202c425185573a9b5a99ca32",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "USSR,US"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r68de14771d7049a1922c5779e40bcea4",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r68de14771d7049a1922c5779e40bcea4",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "UNKNOWN"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r891961bc2e1e4ea0b167e800f0bede7b",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r891961bc2e1e4ea0b167e800f0bede7b",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "re23f396e50104ca9a84b49399756596b",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "re23f396e50104ca9a84b49399756596b",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestClick",
+    "args": [
+      "Briefing Button"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r3a6981795eb44e159e25e42c13ce1bbb",
+      "returnType": "string",
+      "returned": "dispatched: Briefing Button",
+      "elapsedMs": 9,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r3a6981795eb44e159e25e42c13ce1bbb",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestClick",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"dispatched: Briefing Button\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapStyle",
+    "args": [
+      0,
+      1,
+      -16776961,
+      {
+        "type": "float",
+        "value": 3
+      },
+      false,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rb93da117d66f4f88b23b063d14ebc30c",
+      "returnType": "string",
+      "returned": "eligibility=1 style=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rb93da117d66f4f88b23b063d14ebc30c",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapStyle",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"eligibility=1 style=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r28c0d4eb45f442869189ee93b1041a44",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r28c0d4eb45f442869189ee93b1041a44",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r8bfa512f45d34a829d8f011353f0dc36",
+      "returnType": "string",
+      "returned": "serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16776961 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1075,-1898]",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r8bfa512f45d34a829d8f011353f0dc36",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16776961 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1075,-1898]\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "USSR"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r5bf6c2baa72849f0b996e876720a237b",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r5bf6c2baa72849f0b996e876720a237b",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rbaf29544f3bd484582a9b2d9ee5268d5",
+      "returnType": "string",
+      "returned": "serverOutlines=1 points=4 [0 vertices=4 color=-16777216 width=3] canvas=1 generation=2 commands=1 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033]",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rbaf29544f3bd484582a9b2d9ee5268d5",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"serverOutlines=1 points=4 [0 vertices=4 color=-16777216 width=3] canvas=1 generation=2 commands=1 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033]\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r4f60232225764952a7c740721de136ac",
+      "returnType": "string",
+      "returned": "updated=1 faction=US applies=1",
+      "elapsedMs": 3,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r4f60232225764952a7c740721de136ac",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=US applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "racd2a676534b4d9cbe9778ca88e38271",
+      "returnType": "string",
+      "returned": "serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16776961 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1075,-1898]",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "racd2a676534b4d9cbe9778ca88e38271",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16776961 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1075,-1898]\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapStyle",
+    "args": [
+      0,
+      1,
+      -16776961,
+      {
+        "type": "float",
+        "value": 3
+      },
+      true,
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "ra96f720038b341dd866bfd9f9e3632c7",
+      "returnType": "string",
+      "returned": "eligibility=1 style=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "ra96f720038b341dd866bfd9f9e3632c7",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapStyle",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"eligibility=1 style=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rfc4977370cdb46d69c116e7e538b9956",
+      "returnType": "string",
+      "returned": "serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16478745 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16478745 width=3.91111 closed=1 first=1075,-1898]",
+      "elapsedMs": 5,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rfc4977370cdb46d69c116e7e538b9956",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16478745 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16478745 width=3.91111 closed=1 first=1075,-1898]\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapStyle",
+    "args": [
+      0,
+      1,
+      -16776961,
+      {
+        "type": "float",
+        "value": 3
+      },
+      true,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r4b0ece37dfa7438c9f36e790eb2bb44b",
+      "returnType": "string",
+      "returned": "eligibility=1 style=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r4b0ece37dfa7438c9f36e790eb2bb44b",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapStyle",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"eligibility=1 style=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOMapSnapshot",
+    "args": [],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rcef430d441084d719a82c69dddb520bd",
+      "returnType": "string",
+      "returned": "serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16776961 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1075,-1898]",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rcef430d441084d719a82c69dddb520bd",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOMapSnapshot",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"serverOutlines=2 points=8 [0 vertices=4 color=-16777216 width=3] [1 vertices=4 color=-16776961 width=3] canvas=1 generation=2 commands=2 [line vertices=4 color=-16777216 width=3.91111 closed=1 first=1155,-2033] [line vertices=4 color=-16776961 width=3.91111 closed=1 first=1075,-1898]\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAdminAssignSelf",
+    "args": [
+      1
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rcb0f97567cef415a8dd4e5b368fdf0cf",
+      "returnType": "string",
+      "returned": "DISPATCHED inspect assignment",
+      "elapsedMs": 14,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rcb0f97567cef415a8dd4e5b368fdf0cf",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAdminAssignSelf",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"DISPATCHED inspect assignment\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "US"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "rbcdb4139daca4a9c82eccf2bdd75e558",
+      "returnType": "string",
+      "returned": "updated=1 faction=USSR applies=0",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "rbcdb4139daca4a9c82eccf2bdd75e558",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=USSR applies=0\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "USSR"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r468fc57a6c3249de8231504501fb1b60",
+      "returnType": "string",
+      "returned": "updated=1 faction=USSR applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r468fc57a6c3249de8231504501fb1b60",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=USSR applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      "US,USSR"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r24dffc72081a44bcb99416e1ead438f8",
+      "returnType": "string",
+      "returned": "updated=1 faction=USSR applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r24dffc72081a44bcb99416e1ead438f8",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=USSR applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  },
+  {
+    "method": "GC_TestAOFactions",
+    "args": [
+      0,
+      ""
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 9732,
+      "receipt": "r3df10b9a427c4aa79c21870ebd20a4a0",
+      "returnType": "string",
+      "returned": "updated=1 faction=USSR applies=1",
+      "elapsedMs": 4,
+      "adapter": {
+        "protocol": 2,
+        "state": "invoked",
+        "token": "r3df10b9a427c4aa79c21870ebd20a4a0",
+        "world": "$Lobby2:worlds/examples/arland/Arland_Lobby.ent",
+        "entityName": "GameMode_Lobby2",
+        "adapterBuild": "7130ADF695F18DBC44A05344688606DCABB7CEE5C33A5550BE252F73FBC06728",
+        "profileDirectory": "C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestAOFactions",
+        "error": "",
+        "errorLine": 0,
+        "entityId": "",
+        "entityType": "",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "angles": [
+          0,
+          0,
+          0
+        ],
+        "total": 0,
+        "nextOffset": -1,
+        "resultJson": "{\"called\":true,\"value\":\"updated=1 faction=USSR applies=1\"}"
+      },
+      "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+    }
+  }
+]

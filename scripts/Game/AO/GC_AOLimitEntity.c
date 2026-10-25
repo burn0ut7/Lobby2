@@ -58,9 +58,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected float m_fGraceSeconds;
 	[Attribute("", UIWidgets.EditBox, "Optional named entity at a safe return transform for characters first observed outside. Must satisfy ALL applicable hard limits. Otherwise a previously observed safe transform is required.", category: "AO")]
 	protected string m_sReturnEntity;
-	[Attribute("0", UIWidgets.ComboBox, "Faction filter. ONLY_MATCHING restricts listed factions; EXCEPT_MATCHING exempts them.", enums: ParamEnumArray.FromEnum(GC_EAOListMode), category: "Eligibility")]
-	protected GC_EAOListMode m_eFactionMode;
-	[Attribute("", UIWidgets.Auto, "Native player faction keys", category: "Eligibility")]
+	[Attribute("", UIWidgets.Auto, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility")]
 	protected ref array<string> m_aFactionKeys;
 	[Attribute("0", UIWidgets.ComboBox, "Required vehicle state. Passenger includes turret occupants. All eligibility conditions must match.", enums: ParamEnumArray.FromEnum(GC_EAOVehicleState), category: "Eligibility")]
 	protected GC_EAOVehicleState m_eVehicleState;
@@ -76,7 +74,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected GC_EAOMapVisibility m_eMapVisibility;
 	[Attribute("0 0 0 1", UIWidgets.ColorPicker, "Map outline color, including opacity. Independent of the Workbench line color.", category: "Map outline")]
 	protected ref Color m_MapColor;
-	[Attribute("1", UIWidgets.CheckBox, "Use the first included faction's color when the faction filter is ONLY_MATCHING; otherwise use Map Color.", category: "Map outline")]
+	[Attribute("1", UIWidgets.CheckBox, "Use the first listed faction's color when Faction Keys is populated; otherwise use Map Color.", category: "Map outline")]
 	protected bool m_bMapFactionColor;
 	[Attribute("3", UIWidgets.EditBox, "Map line width in UI pixels, independent of map zoom. Range 1-20.", params: "1 20", category: "Map outline")]
 	protected float m_fMapLineWidth;
@@ -179,7 +177,6 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected bool ValidateSettings()
 	{
 		if (m_fGraceSeconds < 0.1 || m_fGraceSeconds > 3600 || m_eBehavior < 0 || m_eBehavior > GC_EAOBehavior.SOFT_KILL
-			|| m_eFactionMode < 0 || m_eFactionMode > GC_EAOListMode.EXCEPT_MATCHING
 			|| m_eVehicleMode < 0 || m_eVehicleMode > GC_EAOListMode.EXCEPT_MATCHING
 			|| m_eVehicleState < 0 || m_eVehicleState > GC_EAOVehicleState.PASSENGER
 			|| m_eItemCondition < 0 || m_eItemCondition > GC_EAOItemCondition.MISSING_ANY)
@@ -188,28 +185,23 @@ class GC_AOLimitEntity : PolylineShapeEntity
 			return false;
 		if (m_eVehicleMode != GC_EAOListMode.IGNORE && (!m_aVehiclePrefabs || m_aVehiclePrefabs.IsEmpty()))
 			return false;
-		if (m_eFactionMode != GC_EAOListMode.IGNORE && (!m_aFactionKeys || m_aFactionKeys.IsEmpty()))
-			return false;
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	//! Trusted server scripts can replace the filters atomically. Lists are copied.
-	bool SetEligibility(GC_EAOListMode factionMode, array<string> factions, GC_EAOVehicleState vehicleState,
+	bool SetEligibility(array<string> factions, GC_EAOVehicleState vehicleState,
 		GC_EAOListMode vehicleMode, array<ResourceName> vehicles, GC_EAOItemCondition itemCondition, array<ResourceName> items)
 	{
-		if (!Replication.IsServer() || !m_System || factionMode < 0 || factionMode > GC_EAOListMode.EXCEPT_MATCHING
+		if (!Replication.IsServer() || !m_System
 			|| vehicleMode < 0 || vehicleMode > GC_EAOListMode.EXCEPT_MATCHING
 			|| vehicleState < 0 || vehicleState > GC_EAOVehicleState.PASSENGER
 			|| itemCondition < 0 || itemCondition > GC_EAOItemCondition.MISSING_ANY)
-			return false;
-		if (factionMode != GC_EAOListMode.IGNORE && (!factions || factions.IsEmpty()))
 			return false;
 		if (vehicleMode != GC_EAOListMode.IGNORE && (!vehicles || vehicles.IsEmpty()))
 			return false;
 		if (itemCondition != GC_EAOItemCondition.IGNORE && (!items || items.IsEmpty()))
 			return false;
-		m_eFactionMode = factionMode;
 		m_eVehicleState = vehicleState;
 		m_eVehicleMode = vehicleMode;
 		m_eItemCondition = itemCondition;
@@ -256,11 +248,10 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	//------------------------------------------------------------------------------------------------
 	protected bool MatchesFaction(int playerId)
 	{
-		if (m_eFactionMode == GC_EAOListMode.IGNORE)
+		if (!m_aFactionKeys || m_aFactionKeys.IsEmpty())
 			return true;
 		Faction faction = GC_LobbyManager.GetManager().GetPlayerFaction(playerId);
-		bool matches = faction && m_aFactionKeys && m_aFactionKeys.Contains(faction.GetFactionKey());
-		return (m_eFactionMode == GC_EAOListMode.ONLY_MATCHING) == matches;
+		return faction && m_aFactionKeys.Contains(faction.GetFactionKey());
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -280,7 +271,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 		}
 
 		Color color = m_MapColor;
-		if (m_bMapFactionColor && m_eFactionMode == GC_EAOListMode.ONLY_MATCHING && !m_aFactionKeys.IsEmpty())
+		if (m_bMapFactionColor && m_aFactionKeys && !m_aFactionKeys.IsEmpty())
 		{
 			Faction faction = GetGame().GetFactionManager().GetFactionByKey(m_aFactionKeys[0]);
 			if (faction)

@@ -42,7 +42,26 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestAOFilter(int index, int vehicleState, int itemCondition, bool existingItem, int vehicleMode, int factionMode)
+	string GC_TestAOFactions(int index, string factionKeys)
+	{
+		PlayerController player = GetGame().GetPlayerController();
+		if (!m_aGC_AOFixtures.IsIndexValid(index) || !m_aGC_AOFixtures[index] || !player || !player.GetControlledEntity())
+			return "UNAVAILABLE fixture/player";
+		array<string> factions = {};
+		if (!factionKeys.IsEmpty())
+			factionKeys.Split(",", factions, true);
+		GC_AOLimitEntity limit = m_aGC_AOFixtures[index];
+		bool updated = limit.SetEligibility(factions, GC_EAOVehicleState.ANY, GC_EAOListMode.IGNORE, {}, GC_EAOItemCondition.IGNORE, {});
+		Faction faction = GetPlayerFaction(player.GetPlayerId());
+		string key;
+		if (faction)
+			key = faction.GetFactionKey();
+		return string.Format("updated=%1 faction=%2 applies=%3", updated, key,
+			limit.AppliesTo(player.GetPlayerId(), player.GetControlledEntity(), CompartmentAccessComponent.GetVehicleIn(player.GetControlledEntity())));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestAOFilter(int index, int vehicleState, int itemCondition, bool existingItem, int vehicleMode, bool currentFactionOnly)
 	{
 		PlayerController player = GetGame().GetPlayerController();
 		if (!m_aGC_AOFixtures.IsIndexValid(index) || !player || !player.GetControlledEntity())
@@ -60,10 +79,10 @@ modded class GC_LobbyManager
 		}
 		array<string> factions = {};
 		Faction faction = GetPlayerFaction(player.GetPlayerId());
-		if (faction)
+		if (currentFactionOnly && faction)
 			factions.Insert(faction.GetFactionKey());
 		array<ResourceName> vehicles = {"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et"};
-		bool changed = m_aGC_AOFixtures[index].SetEligibility(factionMode, factions, vehicleState, vehicleMode, vehicles, itemCondition, items);
+		bool changed = m_aGC_AOFixtures[index].SetEligibility(factions, vehicleState, vehicleMode, vehicles, itemCondition, items);
 		return string.Format("changed=%1 item=%2 applies=%3", changed, items[0], m_aGC_AOFixtures[index].AppliesTo(player.GetPlayerId(), player.GetControlledEntity(), CompartmentAccessComponent.GetVehicleIn(player.GetControlledEntity())));
 	}
 
