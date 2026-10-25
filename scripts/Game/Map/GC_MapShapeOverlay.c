@@ -13,6 +13,9 @@ class GC_MapShapeOverlay
 	protected float m_fNextRequest;
 	protected int m_iGeneration;
 	protected bool m_bListening;
+	protected bool m_bFramed;
+	protected bool m_bGameMapOpened;
+	protected Widget m_ReadyMapParent;
 	protected static const ResourceName LAYOUT = "{8F470B543A20D950}UI/layouts/Mission/Lobby_AOMap.layout";
 
 	//------------------------------------------------------------------------------------------------
@@ -72,7 +75,7 @@ class GC_MapShapeOverlay
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Receive(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<string> names = null)
+	void Receive(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<string> names = null, array<vector> frameBounds = null)
 	{
 		if (!m_Canvas || generation != m_iGeneration || counts.Count() != colors.Count() || counts.Count() != widths.Count() || counts.Count() != fills.Count() || counts.Count() != inverted.Count())
 			return;
@@ -159,6 +162,74 @@ class GC_MapShapeOverlay
 				line.m_Vertices.Resize(count * 2);
 		}
 		Project(SCR_MapEntity.GetMapInstance());
+		FrameFirstMap(frameBounds);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Native open completion occurs after viewport sizing and initial module centering.
+	void OnMapReady(MapConfiguration config)
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!mode)
+			return;
+		if (mode.GetState() != SCR_EGameModeState.GAME || !m_bGameMapOpened)
+			m_bFramed = false;
+		if (mode.GetState() == SCR_EGameModeState.GAME)
+			m_bGameMapOpened = true;
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		if (mapEntity && mapEntity.GetMapWidget())
+			m_ReadyMapParent = mapEntity.GetMapWidget().GetParent();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void FrameFirstMap(array<vector> bounds)
+	{
+		if (m_bFramed || !bounds || bounds.Count() != 2 || m_ReadyMapParent != m_Parent)
+			return;
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		if (!mapEntity || !mapEntity.IsOpen() || !GC_LobbyGameMode.GetGameMode())
+			return;
+		float width, height, mapX, mapY;
+		mapEntity.GetMapWidget().GetScreenSize(width, height);
+		mapEntity.GetMapWidget().GetScreenPos(mapX, mapY);
+		if (width <= 0 || height <= 0)
+			return;
+
+		// Lobby side panels cover the map. Fit in the readable space between them.
+		float left = 0;
+		float right = width;
+		Widget menu = mapEntity.GetMapMenuRoot();
+		array<string> panelNames = {"BriefingView", "PlayerListPanel"};
+		foreach (int index, string name : panelNames)
+		{
+			Widget panel;
+			if (menu)
+				panel = menu.FindAnyWidget(name);
+			if (!panel || !panel.IsVisible())
+				continue;
+			float x, y, panelWidth, panelHeight;
+			panel.GetScreenPos(x, y);
+			panel.GetScreenSize(panelWidth, panelHeight);
+			if (index == 0)
+				left = Math.Clamp(x - mapX + panelWidth, 0, width);
+			else
+				right = Math.Clamp(x - mapX, 0, width);
+		}
+		if (right <= left)
+			return;
+		vector minimum = bounds[0];
+		vector maximum = bounds[1];
+		float spanX = Math.Max(1, maximum[0] - minimum[0]);
+		float spanZ = Math.Max(1, maximum[2] - minimum[2]);
+		float zoom = Math.Min((right - left) * 0.84 / spanX, height * 0.84 / spanZ);
+		zoom = Math.Clamp(zoom, mapEntity.GetMinZoom(), mapEntity.GetMaxZoom());
+		if (zoom <= 0)
+			return;
+		vector center = (minimum + maximum) * 0.5;
+		center[0] = center[0] + (width * 0.5 - (left + right) * 0.5) / zoom;
+		// Mark before the native animation emits pan/zoom callbacks; never reframe on polling.
+		m_bFramed = true;
+		mapEntity.ZoomPanSmooth(zoom, center[0], center[2], 0.25);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -176,6 +247,7 @@ class GC_MapShapeOverlay
 	//------------------------------------------------------------------------------------------------
 	protected void OnMapClose(MapConfiguration config)
 	{
+		m_ReadyMapParent = null;
 		Close();
 	}
 

@@ -7,6 +7,8 @@ class GC_MapShapeComponent : ScriptComponent
 {
 	[Attribute("1", UIWidgets.CheckBox, "Show this shape on maps. Independent of AO enforcement.", category: "Map shape")]
 	protected bool m_bEnabled;
+	[Attribute("0", UIWidgets.CheckBox, "Frame this visible polygon when the map opens in lobby or briefing, with a margin around all opted-in shapes. Also frame once on the first map opening during play; later openings preserve manual pan and zoom.", category: "Map shape")]
+	protected bool m_bAutoFrameMap;
 	[Attribute("", UIWidgets.Auto, "Empty shows everyone; otherwise only these native faction keys can see the shape.", category: "Map shape")]
 	protected ref array<string> m_aFactionKeys;
 	[Attribute("0.2 0.5 1 1", UIWidgets.ColorPicker, "Outline color and opacity. Set opacity to zero to hide the outline.", category: "Outline")]
@@ -44,6 +46,15 @@ class GC_MapShapeComponent : ScriptComponent
 		m_aFactionKeys = {};
 		if (factions)
 			m_aFactionKeys.Copy(factions);
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool SetAutoFrameMap(bool enabled)
+	{
+		if (!Replication.IsServer() || !m_System)
+			return false;
+		m_bAutoFrameMap = enabled;
 		return true;
 	}
 
@@ -98,7 +109,7 @@ class GC_MapShapeComponent : ScriptComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Recipient filtering happens on authority, before geometry is sent.
-	void AppendSnapshot(int playerId, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points)
+	void AppendSnapshot(int playerId, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<vector> frameBounds = null)
 	{
 		if (!m_bEnabled || !m_Shape)
 			return;
@@ -123,6 +134,25 @@ class GC_MapShapeComponent : ScriptComponent
 		}
 		if (!ValidPolygon(polygon))
 			return;
+		if (m_bAutoFrameMap && frameBounds)
+		{
+			if (frameBounds.IsEmpty())
+			{
+				frameBounds.Insert(polygon[0]);
+				frameBounds.Insert(polygon[0]);
+			}
+			vector minimum = frameBounds[0];
+			vector maximum = frameBounds[1];
+			foreach (vector point : polygon)
+			{
+				minimum[0] = Math.Min(minimum[0], point[0]);
+				minimum[2] = Math.Min(minimum[2], point[2]);
+				maximum[0] = Math.Max(maximum[0], point[0]);
+				maximum[2] = Math.Max(maximum[2], point[2]);
+			}
+			frameBounds[0] = minimum;
+			frameBounds[1] = maximum;
+		}
 		Color lineColor = m_LineColor;
 		if (m_bFactionColor)
 		{

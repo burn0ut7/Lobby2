@@ -2,6 +2,74 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestMapFrameSpawn(string name)
+	{
+		if (!Replication.IsServer() || GetGame().GetWorld().FindEntityByName(name))
+			return "UNAVAILABLE";
+		EntitySpawnParams params = new EntitySpawnParams();
+		params.TransformMode = ETransformMode.WORLD;
+		params.Transform[3] = Vector(1300, 0, 2800);
+		IEntity entity = GetGame().SpawnEntityPrefab(Resource.Load("{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et"), GetGame().GetWorld(), params);
+		if (!entity)
+			return "FAILED";
+		entity.SetName(name);
+		return name;
+	}
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMapFrameConfigure(string name, float width, float height, vector offset, bool frame, string factionKey)
+	{
+		GC_AOLimitEntity limit = GC_AOLimitEntity.Cast(GetGame().GetWorld().FindEntityByName(name));
+		if (!Replication.IsServer() || !limit)
+			return "UNAVAILABLE AO";
+		vector center = Vector(1300, 0, 2800) + offset;
+		array<vector> polygon = {center + Vector(-width / 2, 0, -height / 2),
+			center + Vector(width / 2, 0, -height / 2), center + Vector(width / 2, 0, -height / 4),
+			center + Vector(-width / 4, 0, -height / 4), center + Vector(-width / 4, 0, height / 4),
+			center + Vector(width / 2, 0, height / 4), center + Vector(width / 2, 0, height / 2),
+			center + Vector(-width / 2, 0, height / 2)};
+		bool configured = limit.SetPolygon(polygon, false, "");
+		limit.SetEnabled(false);
+		GC_MapShapeComponent shape = GC_MapShapeComponent.Cast(limit.FindComponent(GC_MapShapeComponent));
+		array<string> factions = {};
+		if (!factionKey.IsEmpty())
+			factions.Insert(factionKey);
+		shape.SetFactionKeys(factions);
+		shape.SetStyle(0xFF0088FF, 3, false, false, 0);
+		shape.SetEnabled(true);
+		shape.SetAutoFrameMap(frame);
+		return configured.ToString();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMapFrameRead(bool resetFirstFrame = false)
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (resetFirstFrame)
+			controller.GC_TestMapFrameReset();
+		array<int> counts = {}, colors = {}, fills = {};
+		array<bool> inverted = {};
+		array<float> widths = {};
+		array<vector> points = {}, bounds = {};
+		array<string> names = {};
+		GC_LobbyGameMode.GetGameMode().GetMapShapes().GetSnapshot(controller.GetPlayerId(), counts, colors, fills, inverted, widths, points, names, bounds);
+		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
+		string result = "bounds=" + bounds.Count().ToString();
+		if (mapEntity && mapEntity.IsOpen())
+		{
+			float width, height, centerX, centerZ;
+			mapEntity.GetMapWidget().GetScreenSize(width, height);
+			mapEntity.GetMapCenterWorldPosition(centerX, centerZ);
+			result += string.Format(" viewport=%1,%2 zoom=%3 center=%4,%5", width, height, mapEntity.GetCurrentZoom(), centerX, centerZ);
+			foreach (vector point : bounds)
+			{
+				int x, y;
+				mapEntity.WorldToScreen(point[0], point[2], x, y, true);
+				result += string.Format(" world=%1 pixel=%2,%3", point, x, y);
+			}
+		}
+		return result + " " + controller.GC_TestAOMapLocal();
+	}
+	//------------------------------------------------------------------------------------------------
 	string GC_TestAOMapSurface(string surface, bool open)
 	{
 		if (surface == "spectator")
@@ -106,6 +174,12 @@ modded class GC_Lobby_SpectatorMenu
 modded class GC_LobbyPlayerController
 {
 	//------------------------------------------------------------------------------------------------
+	void GC_TestMapFrameReset()
+	{
+		if (m_GC_MapShapes)
+			m_GC_MapShapes.GC_TestResetFrame();
+	}
+	//------------------------------------------------------------------------------------------------
 	string GC_TestAOMapLocal()
 	{
 		if (!m_GC_MapShapes)
@@ -117,9 +191,14 @@ modded class GC_LobbyPlayerController
 modded class GC_MapShapeOverlay
 {
 	//------------------------------------------------------------------------------------------------
+	void GC_TestResetFrame()
+	{
+		m_bFramed = false;
+	}
+	//------------------------------------------------------------------------------------------------
 	string GC_TestMapState()
 	{
-		string result = string.Format("canvas=%1 generation=%2 commands=%3", m_Canvas != null, m_iGeneration, m_aCommands.Count());
+		string result = string.Format("canvas=%1 generation=%2 commands=%3 framed=%4", m_Canvas != null, m_iGeneration, m_aCommands.Count(), m_bFramed);
 		foreach (CanvasWidgetCommand command : m_aCommands)
 		{
 			PolygonDrawCommand fill = PolygonDrawCommand.Cast(command);
