@@ -502,28 +502,25 @@ modded class GC_LobbyManager
 		if (GetManager() != this)
 			return "UNAVAILABLE manager";
 
-		SCR_ConfigurableDialogUi dialog = SCR_ConfigurableDialogUi.GetCurrentDialog();
+		SCR_HintManagerComponent hints = SCR_HintManagerComponent.GetInstance();
+		SCR_HintUIInfo hint;
+		if (hints)
+			hint = hints.GetCurrentHint();
 		if (action == "snapshot")
 		{
-			if (!dialog || SCR_ConfigurableDialogUi.GetCurrentDialogTag() != "faction_info")
-				return "dialog=absent";
-			TextWidget title = TextWidget.Cast(dialog.GetRootWidget().FindAnyWidget("Title"));
-			return "title=" + title.GetText() + "\n" + dialog.GetMessageStr();
-		}
-		if (action == "close")
-		{
-			if (!dialog || SCR_ConfigurableDialogUi.GetCurrentDialogTag() != "faction_info")
-				return "UNAVAILABLE dialog";
-			SCR_InputButtonComponent close = dialog.FindButton("cancel");
-			close.OnClick(close.GetRootWidget(), 0, 0, 0);
-			return "DISPATCHED native Close button";
+			if (!hint)
+				return "hint=absent";
+			Widget hintWidget = GC_TestMenuRoot().FindAnyWidget("Hint");
+			PrintFormat("GC | Hint widget exists=%1 visible=%2", hintWidget != null, hintWidget && hintWidget.IsVisibleInHierarchy());
+			return string.Format("dialog=%1 title=%2\n%3", SCR_ConfigurableDialogUi.GetCurrentDialog() != null,
+				hint.GetName(), hint.GetDescription());
 		}
 		if (action == "stale")
 		{
 			GC_FactionInfoAction info = new GC_FactionInfoAction();
 			GC_ContextMenuContext stale = GC_ContextMenuContext.ForFaction("missing-faction-test");
 			info.Execute(stale);
-			return string.Format("eligible=%1 dialogUnchanged=%2", info.CanExecute(stale), dialog == SCR_ConfigurableDialogUi.GetCurrentDialog());
+			return string.Format("eligible=%1 hintUnchanged=%2", info.CanExecute(stale), hints && hint == hints.GetCurrentHint());
 		}
 
 		array<Widget> widgets = {};

@@ -373,5 +373,17 @@ FrameWidgetClass {
    }
    "Is Visible" 1
   }
+  OverlayWidgetClass "{6A46000000000001}" : "{EA1CC57D868E94F9}UI/layouts/HUD/Hint/Hint.layout" {
+   Name "Hint"
+   Slot FrameWidgetSlot "{6A46000000000002}" {
+    Anchor 1 0 1 0
+    OffsetLeft -32
+    OffsetTop 80
+    OffsetRight -288
+    OffsetBottom -1104
+    Alignment 1 0
+    SizeToContent 1
+   }
+  }
  }
 }

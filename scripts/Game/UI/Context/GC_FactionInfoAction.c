@@ -52,11 +52,7 @@ class GC_FactionInfoAction : GC_ContextMenuAction
 		}
 		message += "\n\nTargets use total slots, including locked slots.";
 
-		SCR_ConfigurableDialogUi dialog = SCR_ConfigurableDialogUi.CreateFromPreset(
-			"{6A5F100000000001}Configs/Dialogs/GC_FactionInfo.conf", "faction_info");
-		if (!dialog)
-			return;
-		dialog.SetTitle(WidgetManager.Translate(selectedFaction.GetFactionName()));
-		dialog.SetMessage(message);
+		SCR_HintManagerComponent.ShowCustomHint(message,
+			WidgetManager.Translate(selectedFaction.GetFactionName()), 15);
 	}
 }
