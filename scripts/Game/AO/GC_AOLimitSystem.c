@@ -91,11 +91,11 @@ class GC_AOLimitSystem
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void SendWarning(int playerId, IEntity character, float seconds)
+	protected void SendWarning(int playerId, IEntity character, float seconds, string warningText = "RETURN TO AO")
 	{
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 		if (controller)
-			controller.GC_SendAOWarning(character, seconds);
+			controller.GC_SendAOWarning(character, seconds, warningText);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ class GC_AOLimitSystem
 		}
 		if (state.m_Selected && state.m_Selected.GetBehavior() == GC_EAOBehavior.SOFT_KILL)
 		{
-			SendWarning(playerId, character, Math.Max(0, state.m_fDeadline - now));
+			SendWarning(playerId, character, Math.Max(0, state.m_fDeadline - now), state.m_Selected.GetWarningText());
 			if (now >= state.m_fDeadline)
 			{
 				SCR_DamageManagerComponent damage = SCR_DamageManagerComponent.Cast(character.FindComponent(SCR_DamageManagerComponent));

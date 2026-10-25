@@ -31,7 +31,7 @@ class GC_AOWarning
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Update(IEntity character, float seconds, bool setupWarning = false)
+	void Update(IEntity character, float seconds, bool setupWarning = false, string warningText = "RETURN TO AO")
 	{
 		m_bSetupWarning = setupWarning;
 		m_Character = character;
@@ -47,9 +47,7 @@ class GC_AOWarning
 				if (m_bSetupWarning)
 				{
 					m_Root.SetName("LobbySetupWarning");
-					TextWidget title = TextWidget.Cast(m_Root.FindAnyWidget("AOTitle"));
-					if (title)
-						title.SetText("RETURN TO SETUP");
+
 				}
 			}
 			if (!m_Timer || !m_Card)
@@ -60,6 +58,9 @@ class GC_AOWarning
 			}
 			GetGame().GetCallqueue().CallLater(Refresh, 16, true);
 		}
+		TextWidget title = TextWidget.Cast(m_Root.FindAnyWidget("AOTitle"));
+		if (title)
+			title.SetText(warningText);
 		Refresh();
 	}
 
@@ -109,19 +110,19 @@ modded class GC_LobbyPlayerController
 	protected ref GC_AOWarning m_GC_AOWarning;
 
 	//------------------------------------------------------------------------------------------------
-	void GC_SendAOWarning(IEntity character, float seconds)
+	void GC_SendAOWarning(IEntity character, float seconds, string warningText = "RETURN TO AO")
 	{
 		if (!Replication.IsServer())
 			return;
 		RplId characterId = RplId.Invalid();
 		if (character)
 			characterId = Replication.FindItemId(character);
-		Rpc(GC_RpcDoAOWarning, characterId, seconds);
+		Rpc(GC_RpcDoAOWarning, characterId, seconds, warningText);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void GC_RpcDoAOWarning(RplId characterId, float seconds)
+	protected void GC_RpcDoAOWarning(RplId characterId, float seconds, string warningText)
 	{
 		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())
 			return;
@@ -134,7 +135,7 @@ modded class GC_LobbyPlayerController
 		}
 		if (!m_GC_AOWarning)
 			m_GC_AOWarning = new GC_AOWarning();
-		m_GC_AOWarning.Update(character, seconds);
+		m_GC_AOWarning.Update(character, seconds, false, warningText);
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -46,6 +46,8 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected int m_iPriority;
 	[Attribute("20", UIWidgets.EditBox, "Continuous seconds outside before death. Re-entry or exemption clears this limit's timer. Range 0.1-3600.", category: "AO")]
 	protected float m_fGraceSeconds;
+	[Attribute("RETURN TO AO", UIWidgets.EditBox, "Heading displayed above this AO warning countdown. Keep it short to fit the compact HUD.", category: "AO")]
+	protected string m_sWarningText;
 	[Attribute("", UIWidgets.EditBox, "Optional safe return transform for already enrolled characters without valid return history. Must satisfy ALL applicable hard limits. Units that have never entered the permitted area remain exempt.", category: "AO")]
 	protected string m_sReturnEntity;
 	[Attribute("", UIWidgets.Auto, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility")]
@@ -199,6 +201,13 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	{
 		bool inside = Math2D.IsPointInPolygonXZ(m_aPolygon, position);
 		return inside != m_bInverted;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! First entry into the permitted side arms this AO for the unit's lifetime.
+	string GetWarningText()
+	{
+		return m_sWarningText;
 	}
 
 	//------------------------------------------------------------------------------------------------

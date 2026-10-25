@@ -7,11 +7,11 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
 GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
  coords 1194.457 39 2723.129
 }
-RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
- coords 1205.665 38.911 2686.31
-}
 ScriptedChatEntity : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
  coords 1222.934 39 2701.818
+}
+RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
+ coords 1205.665 38.911 2686.31
 }
 GenericEntity marker2 {
  components {
@@ -38,8 +38,57 @@ SCR_ChimeraCharacter : "{1CA3D30464EE4674}Prefabs/Characters/Factions/BLUFOR/US_
 SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  coords 1197.622 38.853 2682.345
 }
+GC_SetupZoneEntity : "{6A4D831C2E5079B3}Prefabs/Logic/Setup/SetupZone.et" {
+ components {
+  GC_BoundaryWallComponent "{6A4D831C2E5079C0}" {
+   m_Color 0.402 0 0 0.35
+  }
+ }
+ coords 1176.439 39 2705.8
+ Points {
+  ShapePoint "{6AB272E4D201DABE}" {
+   Position -31.968 0 32.137
+  }
+  ShapePoint "{6AB272E4D2F715AC}" {
+   Position -16.754 0 -30.843
+  }
+  ShapePoint "{6AB272E4D35E5F7F}" {
+   Position 53.727 0 -12.483
+  }
+  ShapePoint "{6AB272E4D4AA1B93}" {
+   Position 36.625 0 53.941
+  }
+ }
+}
 SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
  coords 1194.502 38.827 2679.399
+}
+GC_AOLimitEntity : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
+ components {
+  GC_BoundaryWallComponent "{6A4D831C2E5079C1}" {
+   m_bEnabled 1
+  }
+  GC_MapShapeComponent "{8F470B543A20D964}" {
+   m_bEnabled 1
+   m_bInvertFill 1
+   m_FillColor 0 0 0 0.606
+  }
+ }
+ coords 1204.989 39 2720.105
+ Points {
+  ShapePoint "{6AB24B946E978D9E}" {
+   Position -50.822 0 18.791
+  }
+  ShapePoint "{6AB24B946F2E1BD5}" {
+   Position -35.477 0 -29.299
+  }
+  ShapePoint "{6AB24B946F82B9DD}" {
+   Position 38.699 0 -9.793
+  }
+  ShapePoint "{6AB24B9460682EC1}" {
+   Position 43.977 0 43.264
+  }
+ }
 }
 SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  coords 1197.625 39 2738.455

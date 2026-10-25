@@ -78,28 +78,31 @@ modded class GC_LobbyPlayerController
 	{
 		if (!Replication.IsServer())
 			return;
+		string displayText;
+		if (zone)
+			displayText = zone.GetDisplayText();
 		m_GC_SetupZone = zone;
-		GC_ApplySetupState(character, seconds, outsideSeconds, safeStart, frozen);
+		GC_ApplySetupState(character, seconds, outsideSeconds, safeStart, frozen, displayText);
 		RplId characterId = RplId.Invalid();
 		if (character)
 			characterId = Replication.FindItemId(character);
-		Rpc(GC_RpcDoSetupState, characterId, seconds, outsideSeconds, safeStart, frozen);
+		Rpc(GC_RpcDoSetupState, characterId, seconds, outsideSeconds, safeStart, frozen, displayText);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void GC_RpcDoSetupState(RplId characterId, float seconds, float outsideSeconds, bool safeStart, bool frozen)
+	protected void GC_RpcDoSetupState(RplId characterId, float seconds, float outsideSeconds, bool safeStart, bool frozen, string displayText)
 	{
 		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())
 			return;
 		IEntity character = GetControlledEntity();
 		if (!character || Replication.FindItemId(character) != characterId)
 			character = null;
-		GC_ApplySetupState(character, seconds, outsideSeconds, safeStart, frozen);
+		GC_ApplySetupState(character, seconds, outsideSeconds, safeStart, frozen, displayText);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void GC_ApplySetupState(IEntity character, float seconds, float outsideSeconds, bool safeStart, bool frozen)
+	protected void GC_ApplySetupState(IEntity character, float seconds, float outsideSeconds, bool safeStart, bool frozen, string displayText)
 	{
 		m_GC_SetupCharacter = character;
 		m_fGC_SetupUpdated = GetGame().GetWorld().GetWorldTime();
@@ -122,16 +125,17 @@ modded class GC_LobbyPlayerController
 			if (!m_GC_SetupHud)
 				return;
 			m_GC_SetupTimer = TextWidget.Cast(m_GC_SetupHud.FindAnyWidget("StagingCountdownTime"));
-			TextWidget title = TextWidget.Cast(m_GC_SetupHud.FindAnyWidget("StagingCountdownTitle"));
-			if (title)
-				title.SetText("SETUP");
+
 			GetGame().GetCallqueue().CallLater(GC_RefreshSetupHud, 100, true);
 		}
+		TextWidget title = TextWidget.Cast(m_GC_SetupHud.FindAnyWidget("StagingCountdownTitle"));
+		if (title)
+			title.SetText(displayText);
 		if (outsideSeconds >= 0)
 		{
 			if (!m_GC_SetupWarning)
 				m_GC_SetupWarning = new GC_AOWarning();
-			m_GC_SetupWarning.Update(character, outsideSeconds, true);
+			m_GC_SetupWarning.Update(character, outsideSeconds, true, "RETURN TO SETUP");
 		}
 		else if (m_GC_SetupWarning)
 			m_GC_SetupWarning.Close();
