@@ -9,7 +9,7 @@ class GC_BoundaryWallComponent : ScriptComponent
 	protected bool m_bEnabled;
 	[Attribute("10", UIWidgets.EditBox, "Show only wall portions within this horizontal radius of the player, in meters.", params: "1 100", category: "Boundary wall"), RplProp(onRplName: "ClearMesh")]
 	protected float m_fRange;
-	[Attribute("3", UIWidgets.EditBox, "Wall height above terrain, in meters.", params: "0.5 20", category: "Boundary wall"), RplProp(onRplName: "ClearMesh")]
+	[Attribute("3", UIWidgets.EditBox, "Visible wall height centered at the local view altitude, in meters. Polygon elevation is ignored.", params: "0.5 20", category: "Boundary wall"), RplProp(onRplName: "ClearMesh")]
 	protected float m_fHeight;
 	[Attribute("0.578 0 0 0.35", UIWidgets.ColorPicker, "Wall color; alpha is maximum opacity at the boundary.", category: "Boundary wall")]
 	protected ref Color m_Color;
@@ -24,7 +24,6 @@ class GC_BoundaryWallComponent : ScriptComponent
 	protected IEntity m_Wall;
 	protected ref Material m_Material;
 	protected ref Resource m_Mesh;
-	protected ref array<vector> m_aGroundPoints = {};
 	protected vector m_aVertices[2040]; // 60 edges * 17 columns * 2 vertices
 	protected int m_iVisibleColumns;
 	protected vector m_vLastVisualPosition;
@@ -115,7 +114,6 @@ class GC_BoundaryWallComponent : ScriptComponent
 		m_Wall = null;
 		m_Material = null;
 		m_Mesh = null;
-		m_aGroundPoints.Clear();
 		m_bPositionValid = false;
 		m_bFailed = false;
 		m_fOpacity = -1;
@@ -150,11 +148,6 @@ class GC_BoundaryWallComponent : ScriptComponent
 			return false;
 		vector origin = m_aPolygon[0];
 		BaseWorld world = GetOwner().GetWorld();
-		foreach (vector point : m_aPolygon)
-		{
-			point[1] = world.GetSurfaceY(point[0], point[2]) - 0.05;
-			m_aGroundPoints.Insert(point);
-		}
 		EntitySpawnParams spawn = new EntitySpawnParams();
 		spawn.TransformMode = ETransformMode.WORLD;
 		spawn.Transform[3] = origin;
@@ -171,12 +164,11 @@ class GC_BoundaryWallComponent : ScriptComponent
 		int indices[5760];
 		int vertexCount, indexCount;
 		vector origin = position;
-		origin[1] = m_aPolygon[0][1];
 		float radiusSq = m_fRange * m_fRange;
-		for (int edge; edge < m_aGroundPoints.Count(); edge++)
+		for (int edge; edge < m_aPolygon.Count(); edge++)
 		{
-			vector first = m_aGroundPoints[edge];
-			vector delta = m_aGroundPoints[(edge + 1) % m_aGroundPoints.Count()] - first;
+			vector first = m_aPolygon[edge];
+			vector delta = m_aPolygon[(edge + 1) % m_aPolygon.Count()] - first;
 			vector horizontal = delta;
 			horizontal[1] = 0;
 			vector relative = position - first;
@@ -204,6 +196,8 @@ class GC_BoundaryWallComponent : ScriptComponent
 				distance[1] = 0;
 				float fraction = Math.Clamp(1 - distance.Length() / m_fRange, 0, 1);
 				float fade = fraction * fraction * (3 - 2 * fraction);
+				// A local vertical band follows the view, independent of terrain and authored elevation.
+				point[1] = origin[1] - m_fHeight * 0.5;
 				m_aVertices[vertexCount] = point - origin;
 				m_aVertices[vertexCount + 1] = point - origin + vector.Up * m_fHeight;
 				// Sample the vanilla vertical gradient, avoiding its final wrap row.
@@ -311,13 +305,26 @@ class GC_BoundaryWallComponent : ScriptComponent
 			m_Wall.ClearFlags(EntityFlags.VISIBLE);
 		else
 		{
-			if (!m_bPositionValid || vector.DistanceSq(position, m_vLastVisualPosition) > 0.01)
+			vector camera[4];
+			owner.GetWorld().GetCurrentCamera(camera);
+			position[1] = camera[3][1];
+			vector horizontalMovement = position - m_vLastVisualPosition;
+			horizontalMovement[1] = 0;
+			if (!m_bPositionValid || horizontalMovement.LengthSq() > 0.01)
 			{
 				if (!UpdateNearbyMesh(position))
 				{
 					m_Wall.ClearFlags(EntityFlags.VISIBLE);
 					return;
 				}
+			}
+			// Altitude-only movement repositions the existing mesh instead of rebuilding it.
+			vector origin = m_Wall.GetOrigin();
+			if (Math.AbsFloat(origin[1] - position[1]) > 0.01)
+			{
+				origin[1] = position[1];
+				m_Wall.SetOrigin(origin);
+				m_Wall.Update();
 			}
 			m_Wall.SetFlags(EntityFlags.VISIBLE);
 		}

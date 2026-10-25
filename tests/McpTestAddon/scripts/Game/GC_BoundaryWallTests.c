@@ -34,11 +34,13 @@ modded class GC_BoundaryWallComponent
 	{
 		if (!m_Wall)
 			return "no mesh";
+		vector camera[4];
+		GetOwner().GetWorld().GetCurrentCamera(camera);
 		vector minimum, maximum, worldMinimum, worldMaximum;
 		m_Wall.GetBounds(minimum, maximum);
 		m_Wall.GetWorldBounds(worldMinimum, worldMaximum);
-		return string.Format("local=%1/%2 world=%3/%4 origin=%5 flags=%6 opacity=%7",
-			minimum, maximum, worldMinimum, worldMaximum, m_Wall.GetOrigin(), m_Wall.GetFlags(), m_fOpacity);
+		return string.Format("local=%1/%2 world=%3/%4 origin=%5 flags=%6 opacity=%7 camera=%8",
+			minimum, maximum, worldMinimum, worldMaximum, m_Wall.GetOrigin(), m_Wall.GetFlags(), m_fOpacity, camera[3]);
 	}
 
 	//------------------------------------------------------------------------------------------------

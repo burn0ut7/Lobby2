@@ -77,3 +77,5 @@ GAME time so each explicit test receives the requested remaining duration.
 See `Art/References/setup-zone` for raw receipts, screenshots and validation notes.
 
 Set **Display Text** on each setup zone to replace SETUP beside its countdown. Use a short heading for the compact HUD; blank text hides only the heading. RETURN TO SETUP is unchanged.
+
+The proximity wall follows the local view altitude, including seated helicopter views. Its Height setting controls the visible vertical band; polygon point elevations do not need to match terrain. Horizontal proximity/fading and setup enrollment are unchanged.
