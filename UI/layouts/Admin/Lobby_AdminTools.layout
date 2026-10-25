@@ -62,7 +62,7 @@ FrameWidgetClass {
     OffsetBottom 0
    }
   }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolBoundaries" Slot FrameWidgetSlot { Anchor 0.018 0.56 0.2 0.625 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolBoundaries" Slot FrameWidgetSlot { Anchor 0.018 0.42 0.2 0.485 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
 FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" { Name "BoundaryPanel" Slot FrameWidgetSlot { Anchor 0.24 0.12 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
    Name "ToolHeal"
@@ -121,8 +121,8 @@ FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" 
    style full
    "Ignore Cursor" 1
   }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolMapPlans" Slot FrameWidgetSlot { Anchor 0.018 0.49 0.2 0.555 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
-PanelWidgetClass { Name "MapPlansSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 0.49 0.023 0.555 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 1 0.5 0.04 1 style full "Ignore Cursor" 1 }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolMapPlans" Slot FrameWidgetSlot { Anchor 0.018 0.56 0.2 0.625 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
+PanelWidgetClass { Name "MapPlansSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 0.56 0.023 0.625 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 1 0.5 0.04 1 style full "Ignore Cursor" 1 }
 FrameWidgetClass { Name "MapPlanPanel" Slot FrameWidgetSlot { Anchor 0.24 0.05 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminMapPlansComponent "{6A5A000000000101}" {} } {
 PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 0.70 0.08 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.03 0.045 0.05 1 style full "Ignore Cursor" 1 }
 PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 0.70 0.08 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.3 0.36 0.38 1 style outline_2px "Ignore Cursor" 1 }
@@ -133,10 +133,10 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "PlanCancel" Slot FrameWidgetSlot { Anchor 0.63 0.12 0.78 0.21 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 m_bShowBorderOnFocus 1 } } }
 TextWidgetClass { Name "PlanStatus" Slot FrameWidgetSlot { Anchor 0 0.25 1 0.42 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 24 Wrap 1 "Ignore Cursor" 1 }
 } }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolModeration" Slot FrameWidgetSlot { Anchor 0.018 0.42 0.2 0.485 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolModeration" Slot FrameWidgetSlot { Anchor 0.018 0.35 0.2 0.415 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{6A5A000000000070}UI/layouts/Admin/Lobby_AdminModeration.layout" { Name "ModerationFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolReservations" Slot FrameWidgetSlot { Anchor 0.018 0.35 0.2 0.415 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }
-PanelWidgetClass { Name "ReservationsSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 0.35 0.023 0.415 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 1 0.5 0.04 1 style full "Ignore Cursor" 1 }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolReservations" Slot FrameWidgetSlot { Anchor 0.018 0.49 0.2 0.555 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }
+PanelWidgetClass { Name "ReservationsSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 0.49 0.023 0.555 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 1 0.5 0.04 1 style full "Ignore Cursor" 1 }
 FrameWidgetClass { Name "ReservationPanel" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminReservationsComponent "{6A5A000000000099}" {} }
 {
 TextWidgetClass { Name "ReservationTransferHint" Slot FrameWidgetSlot { Anchor 0 0 1 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Right-click a slot in the Lobby to reserve it. For bulk assignments, export this roster, fill in its Arma UIDs, then import. Blank UIDs leave slots unchanged." "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
