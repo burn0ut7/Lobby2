@@ -256,12 +256,17 @@ class GC_AOLimitSystem
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 			if (!controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.PLAYING)
 				continue;
-			if (freeze && freeze.AffectsPlayer(playerId))
-				continue;
 			ChimeraCharacter character = ChimeraCharacter.Cast(controller.GetControlledEntity());
 			if (!character || !SCR_AIDamageHandling.IsAlive(character))
 				continue;
 			IEntity vehicle = CompartmentAccessComponent.GetVehicleIn(character);
+			foreach (GC_AOLimitEntity limit : m_aLimits)
+			{
+				if (limit)
+					limit.ObserveCharacter(character, vehicle);
+			}
+			if (freeze && freeze.AffectsPlayer(playerId))
+				continue;
 			GC_AOPlayerState state = EvaluatePlayer(playerId, character, vehicle, now);
 			currentPlayers.Set(playerId, state);
 			IEntity mover = character;

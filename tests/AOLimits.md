@@ -2,6 +2,15 @@
 
 Place `Prefabs/Logic/AO/AOLimit.et` and author its closed polygon points. The prefab starts without points; it defaults to soft death after 20 seconds, inside permitted. A boundary needs at least three points before it can enforce. Invert to prohibit the interior. The native `Math2D.IsPointInPolygonXZ` ignores height; aircraft use their horizontal position. Use simple, non-self-intersecting polygons. Vehicle checks use the vehicle origin, not a hull collision test.
 
+An AO enrolls each unit when it first enters that AO's permitted area during GAME:
+inside a normal polygon, outside an inverted polygon. A unit starting elsewhere
+is exempt until that first entry. After entry, leaving triggers the configured
+hard return or soft countdown. Enrollment is per unit and per AO, survives admin
+freeze and setting changes, and is separate from the live faction/item/vehicle
+filters. An unenrolled unit receives neither an AO warning nor its boundary wall.
+A replacement spawned unit is evaluated afresh. Setup zones retain their separate
+start-inside-only enrollment; entering a setup area later does not enroll a unit.
+
 ## Workbench polygon authoring
 
 Select one AO limit in an unlocked layer of the active subscene, then choose **Tools > Map / AO Polygon**. Set **Sides** (3–128), **Radius** (centre-to-vertex metres), and **Rotation** (0–360°), then press **Generate polygon**. Five sides and a 100 m radius make a regular pentagon with every vertex 100 m from the entity origin. Zero rotation places its first point along local +Z; positive rotation goes toward local +X. The entity's own transform applies afterward.
@@ -16,7 +25,7 @@ All applicable limits combine as restrictions, not a union of safe areas. Two no
 
 The trusted behavior API is `SetBehavior(behavior, graceSeconds, priority)`. The former Order argument and AO attribute are removed; external scripts must remove the fourth argument and custom AO resources should remove obsolete `m_iOrder` entries. Briefing order is unrelated and unchanged.
 
-Hard return uses the moving body's last observed transform that satisfies all applicable hard limits for connected occupants. `GC_SetBoundaryTransform` uses native body movement with owner routing and linear/angular velocity reset, without Game Master teleport feedback or a black-screen fade. Characters keep their current facing direction. A named Return Entity can supply a safe transform for an on-foot character when no history exists (spawn outside, newly enabled limit, changed eligibility). Author that anchor at a clear, supported location. Vehicles require their own observed safe pose; a generic marker is not a verified parking location. Every destination is checked against all applicable hard limits. Each 100 ms sample corrects a current violation, including when continued movement crosses the edge again between samples; enforcement does not require an intervening inside sample. Unavailable destinations or rejected native moves are logged once per failure episode and reevaluated on later samples. Polygon enforcement is not a physical collision surface.
+Hard return uses the moving body's last observed transform that satisfies all applicable hard limits for connected occupants. `GC_SetBoundaryTransform` uses native body movement with owner routing and linear/angular velocity reset, without Game Master teleport feedback or a black-screen fade. Characters keep their current facing direction. A named Return Entity can supply a safe transform for an on-foot character when no history exists (changed geometry or eligibility after enrollment). Author that anchor at a clear, supported location. Vehicles require their own observed safe pose; a generic marker is not a verified parking location. Every destination is checked against all applicable hard limits. Each 100 ms sample corrects a current violation, including when continued movement crosses the edge again between samples; enforcement does not require an intervening inside sample. Unavailable destinations or rejected native moves are logged once per failure episode and reevaluated on later samples. Polygon enforcement is not a physical collision surface.
 
 Limits apply to living, playing characters in Lobby2 GAME. Staging freeze takes precedence and suspends AO clocks and history. Death, possession changes, disconnect, phase exit, disabling/removal and mode shutdown clean up clocks/HUD. No shared base-game overrides are introduced.
 

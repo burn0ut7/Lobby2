@@ -46,7 +46,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected int m_iPriority;
 	[Attribute("20", UIWidgets.EditBox, "Continuous seconds outside before death. Re-entry or exemption clears this limit's timer. Range 0.1-3600.", category: "AO")]
 	protected float m_fGraceSeconds;
-	[Attribute("", UIWidgets.EditBox, "Optional named entity at a safe return transform for characters first observed outside. Must satisfy ALL applicable hard limits. Otherwise a previously observed safe transform is required.", category: "AO")]
+	[Attribute("", UIWidgets.EditBox, "Optional safe return transform for already enrolled characters without valid return history. Must satisfy ALL applicable hard limits. Units that have never entered the permitted area remain exempt.", category: "AO")]
 	protected string m_sReturnEntity;
 	[Attribute("", UIWidgets.Auto, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility")]
 	protected ref array<string> m_aFactionKeys;
@@ -63,6 +63,8 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected ref array<vector> m_aPolygon = {};
 	protected GC_AOLimitSystem m_System;
 	protected bool m_bValid;
+	// Per-unit enrollment survives filter changes, freezes and temporary loss of possession.
+	protected ref map<IEntity, bool> m_mEnrollment = new map<IEntity, bool>();
 
 	//------------------------------------------------------------------------------------------------
 	//! Trusted authority API. Disabling clears active violations immediately.
@@ -200,6 +202,19 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! First entry into the permitted side arms this AO for the unit's lifetime.
+	void ObserveCharacter(IEntity character, IEntity vehicle)
+	{
+		if (!Replication.IsServer() || !IsEnabled() || !character || m_mEnrollment.Contains(character))
+			return;
+		IEntity mover = character;
+		if (vehicle)
+			mover = vehicle;
+		if (Permits(mover.GetOrigin()))
+			m_mEnrollment.Set(character, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool GetReturnTransform(out vector transform[4])
 	{
 		if (m_sReturnEntity.IsEmpty())
@@ -241,6 +256,9 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	bool AppliesTo(int playerId, IEntity character, IEntity vehicle)
 	{
 		if (!IsEnabled())
+			return false;
+		bool enrolled;
+		if (!m_mEnrollment.Find(character, enrolled) || !enrolled)
 			return false;
 		if (!MatchesFaction(playerId))
 			return false;
