@@ -31,6 +31,16 @@ Most helpers require `WORKBENCH` and run only in embedded Play.
 `GC_AdminMultiplayerTests.c` also compiles in test-addon peers. It grants no roles
 or permissions and runs nothing automatically. Never include it in production.
 
+## UI layers
+
+`GC_TestUILayers(action)` on `GC_LobbyManager` accepts `notify`, `snapshot`,
+`back-down`, `back-up`, and `close-menu`. Notifications use the native popup and
+PLAYER_JOINED paths; `close-menu` exercises native menu teardown without changing
+the mission phase. Run in Arland for native chat coverage (Empty_Lobby has no
+chat entity). Pair with `GC_TestNativeChat`, `GC_TestClick("Continue")`, and
+`GC_TestOpenView("lobby")`. Inspect deferred state and MCP screenshots, not just
+dispatch. See [layer validation](UILayers.md).
+
 ## Slot lotteries
 
 See [SlotLottery.md](SlotLottery.md) for concurrent draws, native `/join`,

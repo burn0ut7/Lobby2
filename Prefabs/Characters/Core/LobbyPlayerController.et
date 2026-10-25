@@ -1,3 +1,14 @@
 GC_LobbyPlayerController : "{225E51284CC95CFA}Prefabs/Characters/Core/DefaultPlayerControllerMP.et" {
  ID "1A9BA6BEFA06E3B1"
+ components {
+  GC_LobbyHUDManagerComponent "{2FDC275D9EBCDB8B}" {
+   InfoDisplays {
+    SCR_InfoDisplay "{6A115D5DFF7ED901}" {
+     m_LayoutPath "{8EF935F196AADE33}UI/layouts/Common/PopupUI.layout"
+     m_eLayer OVERLAY
+     m_bAdaptiveOpacity 0
+    }
+   }
+  }
+ }
 }
