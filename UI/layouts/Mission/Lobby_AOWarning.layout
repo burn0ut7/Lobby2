@@ -9,8 +9,8 @@ FrameWidgetClass {
     Anchor 0.5 0 0.5 0
     OffsetLeft 0
     OffsetTop 70
-    SizeX 180
-    OffsetRight -180
+    SizeX 226
+    OffsetRight -226
     SizeY 68
     OffsetBottom -138
     Alignment 0.5 0

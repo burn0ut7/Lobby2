@@ -28,7 +28,7 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		Bind("BoundarySetups", "Setup timers");
 		Bind("BoundaryNotice", "Announcement timer");
 		Bind("BoundaryMap", "Show all zones on map: Off");
-		Bind("BoundaryPanic", "PANIC: Stop all boundaries");
+		Bind("BoundaryPanic", "Stop all boundaries");
 		Bind("NoticeStart", "Start timer");
 		Bind("NoticeStop", "Stop timer");
 		EditBoxWidget.Cast(w.FindAnyWidget("NoticeTitle")).SetText("HOLD");

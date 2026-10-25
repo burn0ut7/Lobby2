@@ -38,8 +38,6 @@ class GC_AOLimitEntity : PolylineShapeEntity
 {
 	[Attribute("1", UIWidgets.CheckBox, "Enable this restriction. Trusted server scripts can call SetEnabled later.", category: "AO")]
 	protected bool m_bEnabled;
-	[Attribute("", UIWidgets.EditBox, "Optional name in the admin boundary list and map. Empty uses the entity name.", category: "AO")]
-	protected string m_sAdminName;
 	[Attribute("0", UIWidgets.ComboBox, "Hard: return the character or whole occupied vehicle. Soft: kill the affected character after the grace period.", enums: ParamEnumArray.FromEnum(GC_EAOBehavior), category: "AO")]
 	protected GC_EAOBehavior m_eBehavior;
 	[Attribute("0", UIWidgets.CheckBox, "Off: stay INSIDE the polygon. On: stay OUTSIDE the polygon. Height is ignored.", category: "AO")]
@@ -208,7 +206,6 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	//------------------------------------------------------------------------------------------------
 	void GetAdminInfo(GC_BoundaryAdminRow row)
 	{
-		row.Name = m_sAdminName;
 		row.Kind = "AO";
 		row.Factions = GC_BoundaryAdmin.FactionText(m_aFactionKeys);
 		row.Behavior = "Hard";

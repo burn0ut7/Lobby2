@@ -26,8 +26,6 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 {
 	[Attribute("120", UIWidgets.EditBox, "Seconds from the start of GAME until release (1-3600).", category: "Setup")]
 	protected float m_fDuration;
-	[Attribute("", UIWidgets.EditBox, "Optional name in the admin boundary list and map. Empty uses the entity name.", category: "Setup")]
-	protected string m_sAdminName;
 	[Attribute("SETUP", UIWidgets.EditBox, "Heading displayed beside the setup countdown. Keep it short to fit the compact HUD.", category: "Setup")]
 	protected string m_sDisplayText;
 	[Attribute("0", UIWidgets.ComboBox, "Soft: outside countdown then death. Hard: return to last safe position. Freeze: prevent movement until release.", enums: ParamEnumArray.FromEnum(GC_ESetupBehavior), category: "Setup")]
@@ -77,7 +75,6 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	//------------------------------------------------------------------------------------------------
 	void GetAdminInfo(GC_BoundaryAdminRow row)
 	{
-		row.Name = m_sAdminName;
 		row.Kind = "Setup";
 		row.Factions = GC_BoundaryAdmin.FactionText(m_aFactionKeys);
 		row.Behavior = "Soft";

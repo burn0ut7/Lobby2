@@ -58,12 +58,15 @@ class GC_AOWarning
 		TextWidget title = TextWidget.Cast(m_Root.FindAnyWidget("AOTitle"));
 		if (title)
 			title.SetText(warningText);
-		// Fit the visible content; the stock skull texture has transparent side margins.
-		m_Timer.SetText(FormatTime(seconds));
-		float titleWidth, titleHeight, timerWidth, timerHeight;
-		title.GetTextSize(titleWidth, titleHeight);
-		m_Timer.GetTextSize(timerWidth, timerHeight);
-		FrameSlot.SetSizeX(m_Card, Math.Max(titleWidth, timerWidth) + 42);
+		// Keep both warning rows aligned with the setup and announcement cards.
+		FrameSlot.SetSizeX(m_Card, GC_CountdownHud.WIDTH);
+		if (title)
+		{
+			title.SetDesiredFontSize(21);
+			title.SetMinFontSize(8);
+		}
+		m_Timer.SetDesiredFontSize(30);
+		m_Timer.SetMinFontSize(18);
 		Refresh();
 	}
 

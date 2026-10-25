@@ -1,0 +1,5 @@
+# Uniform boundary HUD width
+
+User clarification supersedes content-sized cards: all setup, staging, announcement and return-warning cards must have exactly matching left/right edges. Reuse existing compact HUD composition and the marked current screenshot; this is a width/alignment correction. Width226 design units matches the previous longest default warning. Keep smaller fonts/icons, heights and modest padding. Header label left and timer right fill available row; warning title and timer centered in the remaining skull column. Native desired/min font sizes fit longer labels inside fixed width instead of growing the card. Verify equal rendered widths, readable default labels, longer custom labels and simultaneous stacks.
+
+Additional user direction: remove the optional Admin name attribute from AO/setup prefabs. Native entity names (or stable AO/Setup numbers for unnamed entities) remain the sole display identity. Rename visible emergency button to Stop all boundaries, retaining its red styling and behavior.
