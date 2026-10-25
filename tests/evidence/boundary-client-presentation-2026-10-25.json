@@ -1,0 +1,2694 @@
+[
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r71895a95d3ff4a44a0723b7fb0e10e94",
+    "returned": "snapshots=1 projections=350 mapTicks=350 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestFactionSlotChoices",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r7cf5446f0eaa4e57a8dc9fdd6f55df12",
+    "returned": "phase=PREGAME revision=0 mode=0 locked=0 balance=0 | USSR slot=1 allowed=0 | US slot=9 allowed=0"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r195480810b1344ef9aac6b42146f6e5a",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestFactionSlotChoices",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rc703da3be4c74d01af599317e1269161",
+    "returned": "phase=SLOTTING revision=0 mode=0 locked=0 balance=0 | USSR slot=1 allowed=1 | US slot=9 allowed=1"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "args": [
+      [
+        "int",
+        9
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r1537bc7ffd634ffe891f8cd391e67cbe",
+    "returned": "current=9"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rfea897c961354190b21d71ad9b859af1",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rfaca992a4189406396c8a8535316e2ce",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rf96711f256f8444e83505c0b0fc3ff5a",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r282dfc503d3f45cc9779198b70a42b50",
+    "returned": "active=1 frozen=0 alive=1 offset=<1190.15,39,2725.61> faction=US timer=1:54 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rc7015eb338624030953b39ef4bea9873",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "panic"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rf70b46e8185146a7aa4c9c1ef24981cd",
+    "returned": "Stopped all boundaries: 1 AOs disabled, 1 setups ended.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        600
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "float",
+        50
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "raa505ce0fc5e478bb533071c7a424d5d",
+    "returned": "configured=1 behavior=0 remaining=600 origin=<1190.15,39,2725.61>"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r1149bb44c0d84b668b534888659355cb",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestSetupMove",
+    "args": [
+      [
+        "vector",
+        [
+          0,
+          0,
+          60
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r53c8004de7f34c1f98f2308b888672d2",
+    "returned": "accepted=1"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r89c4c2ed8d7a4d789070e2397bac0299",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=2 aoWarnings=0 setupWarnings=2 announcements=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rdf3f709167b7478fb27e369e917c5e4a",
+    "returned": "active=1 frozen=0 alive=1 offset=<-0.000366211,-0.794064,59.9995> faction=US timer=9:37 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestSetupMove",
+    "args": [
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rb36015a162c14e26990c6ab3bdb09294",
+    "returned": "accepted=1"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rb3de1432ca374ff1a3da3512c5f34431",
+    "returned": "snapshots=1 projections=9 mapTicks=502 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=8\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r653d27e8094d48eea3e824cc85157db3",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rb5e0dff95fea45698664b45d66a1b727",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "args": [
+      [
+        "int",
+        9
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rf451a7cd6b1a4e77b1b8150881ebab89",
+    "returned": "current=9"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "reb2e1996bb5040499e58b98d9ae5a4d6",
+    "returned": "snapshots=1 projections=0 mapTicks=20 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r3c26514b20984a5cabf4298c2bdeea93",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "cp-initial"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r740bc33e999b4174b301a3505536b382",
+    "returned": "UNAVAILABLE connected controller"
+  },
+  {
+    "method": "GC_TestRosterLocks",
+    "args": [],
+    "state": "invoked",
+    "receipt": "raa7d870b560d4f3c9d734b9823876ef6",
+    "returned": "slots=24 rows=id,group,locked,player | 1,-2147477185,1,-1 | 2,-2147477185,1,-1 | 3,-2147476759,1,-1 | 4,-2147476759,1,-1 | 5,-2147476759,1,-1 | 6,-2147476759,1,-1 | 7,-2147476753,1,-1 | 8,-2147476753,1,-1 | 9,-2147476542,0,1 | 10,-2147476542,1,-1 | 11,-2147476542,1,-1 | 12,-2147476542,1,-1 | 13,-2147476536,1,-1 | 14,-2147476536,1,-1 | 15,-2147476536,1,-1 | 16,-2147476536,1,-1 | 17,-2147476530,1,-1 | 18,-2147476530,1,-1 | 19,-2147476530,1,-1 | 20,-2147476530,1,-1 | 21,-2147476524,1,-1 | 22,-2147476524,1,-1 | 23,-2147476524,1,-1 | 24,-2147476524,1,-1"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r47f266a02b8042aa90c23b5543d047a0",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r3f234e2660304799a0fa34b0e0be87c7",
+    "returned": "snapshots=0 projections=11 mapTicks=345 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=2\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestMapFrameRead",
+    "args": [
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rf91bd4f43e0646778980217318313e9f",
+    "returned": "bounds=2 viewport=2613,1408 zoom=15.3401 center=1205.09,2727.12 world=<1154.17,39,2690.81> pixel=524,1261 world=<1248.97,39,2763.37> pixel=1979,147 canvas=1 generation=2 commands=2 framed=1 [outside vertices=32 triangles=16 color=-1694498816] [line vertices=4 color=-13401857 width=6.91111 closed=1 first=524.858,523.388]"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rb6b64102ade548929aa42aa7963dfa79",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r6636122456aa4a0fab8d5c65e4b8659a",
+    "returned": "active=1 frozen=0 alive=1 offset=<1190.15,39,2725.61> faction=US timer=1:54 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "raad0200c263f436385ecce89530a8316",
+    "returned": "snapshots=0 projections=11 mapTicks=2519 setupStates=2 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=2\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r3e6632c0c69d466a802a2aa28cfd02d2",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "cp-initial2"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rc06f89d450684b1199958ea35f252802",
+    "returned": "UNAVAILABLE connected controller"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r40e3f7802e60460e8f14cfbba661b321",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rbb51fb673bd54980b6cc422aa8ae4faf",
+    "returned": "active=1 frozen=0 alive=1 offset=<1190.15,39,2725.61> faction=US timer=1:46 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        true
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r193b04128b294cc7994816ffae48bc82",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestMapFrameRead",
+    "args": [
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r010eb53498664e9c88b3dacb6303d036",
+    "returned": "bounds=2 viewport=2613,1408 zoom=16.2992 center=1201.37,2727.13 world=<1154.17,39,2690.81> pixel=536,1295 world=<1248.97,39,2763.37> pixel=2081,113 canvas=1 generation=3 commands=2 framed=1 [outside vertices=32 triangles=16 color=-1694498816] [line vertices=4 color=-13401857 width=6.91111 closed=1 first=536.7,512.148]"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r12eb3f50d7e94672b9c18527ce3671aa",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rbf2a1a4b9c2445db9660ca240d9e6a84",
+    "returned": "snapshots=0 projections=0 mapTicks=989 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestAOMapView",
+    "args": [
+      [
+        "float",
+        2
+      ],
+      [
+        "vector",
+        [
+          30,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r380a2a9bb6cf47fea523f1a53610371d",
+    "returned": "zoom=2 center=<30,0,0>"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r44acce99f7e04b8fabf7c9ebbc7775b2",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        true
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rc07d0eeaad69401986e53539590ec8b8",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestMapFrameRead",
+    "args": [
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re328dffc1eb64b21b9a129b91df68579",
+    "returned": "bounds=2 viewport=2613,1408 zoom=2 center=29.8297,0.415039 world=<1154.17,39,2690.81> pixel=3554,-4676 world=<1248.97,39,2763.37> pixel=3744,-4821 canvas=1 generation=4 commands=2 framed=1 [outside vertices=4 triangles=2 color=-1694498816] [line vertices=4 color=-13401857 width=6.91111 closed=1 first=3554.67,-4772.96]"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0c695e1e51a84da480c0658525b2e1bb",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "panic"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r389d6df9d42440a59dc802ba64502cc0",
+    "returned": "Stopped all boundaries: 1 AOs disabled, 1 setups ended.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestSetupSpawn",
+    "args": [
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        600
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "float",
+        50
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "bool",
+        false
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r465e8325f80a47a2a4f4b70f6e189518",
+    "returned": "configured=1 behavior=0 remaining=600 origin=<1190.19,39,2725.58>"
+  },
+  {
+    "method": "GC_TestAOSpawn",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r13b1f055aa3b48af8a9b1dcb5ed6823a",
+    "returned": "spawned index=0 origin=<1190.19,39,2725.58>; configure after native initialization"
+  },
+  {
+    "method": "GC_TestAOConfigure",
+    "args": [
+      [
+        "int",
+        0
+      ],
+      [
+        "int",
+        1
+      ],
+      [
+        "bool",
+        false
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        50
+      ],
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r4a8371b24f27429aaa26794bcd444afd",
+    "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r21106e8ce73348f7ba38bf9f8cc2b600",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestSetupMove",
+    "args": [
+      [
+        "vector",
+        [
+          0,
+          0,
+          60
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rf43a4b62a243437994f1e72c9bd387e3",
+    "returned": "accepted=1"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rbe4b5acc84a740a7aec1299afcf170d2",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=2 aoWarnings=1 setupWarnings=2 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r6d4ffb26c5554615bab41db0c8b93833",
+    "returned": "active=1 frozen=0 alive=1 offset=<0.0012207,-0.792938,59.999> faction=US timer=9:38 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestAOSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "ra7d6e411cfbd438cada4c835f45644b2",
+    "returned": "phase=1 player=1 controlled=SCR_ChimeraCharacter<0x000001EDD600D3F0> @\"ENTITY:4611686018427389161\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1190.186646 38.207062 2785.583496> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1190.19,38.2071,2785.58> offset=<0.0012207,-0.792938,59.999> vehicle=NULL HUD=49.776 limits=2 clocks=1 selected=AOFixture0 behavior=1 priority=0 remaining=49.776"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r38da43c9dc264ef2b5b45c136f57b22f",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r459b162cdc5441208ca54b547dc76d9c",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestSetupMove",
+    "args": [
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rcba767e8c293427cbe3c4dad76c6ba1d",
+    "returned": "accepted=1"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "extend"
+      ],
+      [
+        "string",
+        "SetupFixture"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        30
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r1b34f159ef61441b8b52b0d805db53d2",
+    "returned": "SetupFixture: added 30 seconds.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000538 {}\",\"Name\":\"SetupFixture\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 60s | Safe start: On\",\"Remaining\":598.9676513671875,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x4000000000000539 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "announce-start"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        "HOLD"
+      ],
+      [
+        "int",
+        120
+      ],
+      [
+        "string",
+        "US"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r66c26c48533e43d3952234cdd6c923d1",
+    "returned": "Announcement started for US Army (US).\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000538 {}\",\"Name\":\"SetupFixture\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 60s | Safe start: On\",\"Remaining\":598.5927734375,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x4000000000000539 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"HOLD\",\"remaining\":120.0,\"factions\":\"US Army (US)\"}"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r65cec3e2323a42f6baa714a0477e0484",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=4 aoWarnings=0 setupWarnings=0 announcements=1 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=1 combat=1 announcement=1"
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r8dd121a6e4574a47baf3e718e7913f59",
+    "returned": "active=1 frozen=0 alive=1 offset=<0.000610352,1.90735e-05,-0.000488281> faction=US timer=9:38 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r3405cf6bb4764cd3bca54240fb0619a5",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPresentationShape",
+    "args": [
+      [
+        "string",
+        "AOFixture0"
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r9e53938edbf74ecf849fb635238b4ff5",
+    "returned": "enabled=1 audience=1"
+  },
+  {
+    "method": "GC_TestAOMapSurface",
+    "args": [
+      [
+        "string",
+        "gameplay"
+      ],
+      [
+        "bool",
+        true
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r426c5db085384068aab35ac1ac087baf",
+    "returned": "DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rbc812921d6fc40568fa70b6f36a9c160",
+    "returned": "snapshots=1 projections=2 mapTicks=553 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=1\ncachedShapes=2 cachedPoints=8 canvas=1 commands=4 framed=1 setup=1 combat=1 announcement=1"
+  },
+  {
+    "method": "GC_TestPresentationShape",
+    "args": [
+      [
+        "string",
+        "AOFixture0"
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "USSR"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r09f026c07b09431a9689f858e90b8d3b",
+    "returned": "enabled=1 audience=1"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r66be084d65cd4a2b94a64f3a1c1dbdaf",
+    "returned": "snapshots=2 projections=3 mapTicks=1387 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=2\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=1 combat=1 announcement=1"
+  },
+  {
+    "method": "GC_TestPresentationShape",
+    "args": [
+      [
+        "string",
+        "AOFixture0"
+      ],
+      [
+        "bool",
+        false
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rf3aae0e8002644648e3aafcfdba370a1",
+    "returned": "enabled=1 audience=1"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "announce-stop"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r1a8ba0d9ed6841d4baef26da25952bf8",
+    "returned": "Announcement timer stopped.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000538 {}\",\"Name\":\"SetupFixture\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 60s | Safe start: On\",\"Remaining\":544.4299926757813,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x4000000000000539 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"US Army (US)\"}"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "disable"
+      ],
+      [
+        "string",
+        "SetupFixture"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r48b16327caf748d895bb608cec0c2cb1",
+    "returned": "Not applied: zone removed, invalid, ended, or action unavailable. Refresh the list.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000538 {}\",\"Name\":\"SetupFixture\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 60s | Safe start: On\",\"Remaining\":543.8441162109375,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x4000000000000539 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"US Army (US)\"}"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "end"
+      ],
+      [
+        "string",
+        "SetupFixture"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rd0ad8b4dcd6f467fa2df3370037183d1",
+    "returned": "SetupFixture: end applied.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000538 {}\",\"Name\":\"SetupFixture\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 60s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000539 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"US Army (US)\"}"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r01cf72953e8a466cb8c8c4a3d3edea6c",
+    "returned": "snapshots=4 projections=5 mapTicks=2150 setupStates=2 aoWarnings=0 setupWarnings=0 announcements=1 rebuilds=4\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "map-on"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re681b98164c54b649ecacf200818ffd9",
+    "returned": "Map visibility updated for you only.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Waiting\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":120.0,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":true,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r2e60db3c51734dd1ba5e261d24e202a9",
+    "returned": "snapshots=1 projections=672 mapTicks=672 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=671\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "raf1a568ff8df4185b68fac1bd5fae4ae",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "args": [
+      [
+        "int",
+        9
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r1d5cd42eae1b4d97b8c970fa571d3410",
+    "returned": "current=9"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r7b301bf201c34d66a356b46993368d6b",
+    "returned": "snapshots=3 projections=696 mapTicks=696 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=695\ncachedShapes=3 cachedPoints=12 canvas=0 commands=0 framed=1 [Setup 1 (Waiting)] [AO 2 (Active)] setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "client-init"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0ade8afa720445d180add0a865a4c2e8",
+    "returned": "UNAVAILABLE connected controller"
+  },
+  {
+    "method": "GC_TestFactionSlotChoices",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r1405e8780eff4eb1a5e0b340326875ef",
+    "returned": "phase=SLOTTING revision=0 mode=0 locked=0 balance=0 | USSR slot=1 allowed=1 | US slot=9 allowed=1 | current=9 canLeave=1"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r8ea5ac00cc8641c4949f31039143e4b7",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rb6625c7da44440e5afdd72dbe9f625ea",
+    "returned": "snapshots=3 projections=721 mapTicks=721 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=719\ncachedShapes=3 cachedPoints=12 canvas=1 commands=6 framed=1 [Setup 1 (Waiting)] [AO 2 (Active)] setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r4533b247b8a34d1e990736ea5d48b22c",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestPresentationReset",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r5216ffbeac414ce09813f865f6cf7709",
+    "returned": "RESET"
+  },
+  {
+    "method": "GC_TestPresentationReport",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r04e154aed2b94bfd818292adaacc6646",
+    "returned": "snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=3 cachedPoints=12 canvas=0 commands=0 framed=1 [Setup 1 (Active)] [AO 2 (Active)] setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestSetupSnapshot",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rf923b5f7f8c04e529a36b7e83538a751",
+    "returned": "active=1 frozen=0 alive=1 offset=<1190.15,39,2725.61> faction=US timer=1:56 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r972673c7d8134477930d7ee464e38a8b",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "args": [
+      [
+        "int",
+        9
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r631287df54eb4d5698a5346c8c68d889",
+    "returned": "current=9"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-initial"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r3bc8191791d948a9ab0441965b91bcf9",
+    "returned": "UNAVAILABLE connected controller"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-ready"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r617e5c74f892419dba3120bf2356b7cd",
+    "returned": "UNAVAILABLE connected controller"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-ready-final"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re29bfb1eeff64ffab9ef4dca4feec455",
+    "returned": "UNAVAILABLE connected controller"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-connected"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rf3d19d4c51784f7490560917582cda6a",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestAdminAssignPlayer",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "int",
+        10
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0b2763d7656441fab04c6b9e19e8b240",
+    "returned": "DISPATCHED inspect authority and remote assignment"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "peer-connected"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re10f437bd77146589be4542089d59d4f",
+    "returned": "CLIENT-REPORTED snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=0 cachedPoints=0 canvas=0 commands=0 framed=0 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestAssignmentState",
+    "args": [
+      [
+        "int",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r7ff317c74de949f1816c5f5af9d16eec",
+    "returned": "claims=1 slot=10 groupMatches=1 factionMatches=1 controlled=0 voiceMatches=1"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r1c881e265ac64ec1ba4f28736e6a5916",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-briefing"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r6b60f88d8e0a468ba39f757c5b19ccd6",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r004b600ef037483d8bf5d6f74170a30c",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "peer-briefing"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re30a1baa29df4a14ba18b178fbc67134",
+    "returned": "CLIENT-REPORTED snapshots=0 projections=13 mapTicks=171 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=1\ncachedShapes=0 cachedPoints=0 canvas=1 commands=0 framed=0 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-game"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rc4e93631b45c4387b89db458362c2e35",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-timer1"
+      ],
+      [
+        "string",
+        "presentation-setup"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r21864518b3764506a74cec3d39b428b9",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "peer-game"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r2a1c1cd889e34d3791d70b25c6b81066",
+    "returned": "CLIENT-REPORTED snapshots=0 projections=13 mapTicks=220 setupStates=2 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=1\ncachedShapes=0 cachedPoints=0 canvas=0 commands=0 framed=0 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "peer-timer1"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r7e0fa10a7f0c4234b807b4157710b7c2",
+    "returned": "CLIENT-REPORTED active=1 frozen=0 alive=1 offset=<1190.62,39,2723.66> faction=US timer=1:52 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-reset"
+      ],
+      [
+        "string",
+        "presentation-reset"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rb6d88443e9d149e89e577afa403aa70c",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "peer-reset"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rd9b4787e106b4a0d9a0831c0751733f7",
+    "returned": "CLIENT-REPORTED RESET"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-steady"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r8a48937e1c584ff88a0ffa4003fd66ba",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "extend"
+      ],
+      [
+        "string",
+        "SetupZone1"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        30
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rab385d64cd31499aba489512d41761ef",
+    "returned": "Not applied: zone removed, invalid, ended, or action unavailable. Refresh the list.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":49.17118835449219,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "peer-steady"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r63f010712cf24613ae1a9fd01493296c",
+    "returned": "CLIENT-REPORTED snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=0 cachedPoints=0 canvas=0 commands=0 framed=0 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "announce-start"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        "HOLD"
+      ],
+      [
+        "int",
+        120
+      ],
+      [
+        "string",
+        "US"
+      ]
+    ],
+    "state": "pending",
+    "operationId": "5de033df7e024eea9cc4cf02e4a326cc"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-announce"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r2eca2dd4237943569b740d917455c43f",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "peer-announce"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r08b03a4c56ea41f9b70587be458daaa2",
+    "returned": "CLIENT-REPORTED snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=1 rebuilds=0\ncachedShapes=0 cachedPoints=0 canvas=0 commands=0 framed=0 setup=1 combat=1 announcement=1"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "rad2e06ad1716492fbf4e737a9d593185",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestOrdinarySlot",
+    "args": [
+      [
+        "int",
+        9
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rad9e6283bc044d23b2775932b3b8cce1",
+    "returned": "current=9"
+  },
+  {
+    "method": "GC_TestPresentationSubscriber",
+    "args": [
+      [
+        "int",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r1c6b3246f885477695d9337e96d05a23",
+    "returned": "player=2 subscribed=1 revision=3 faction="
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "fixed-initial"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r10cc9f2bd21a4ca5bc9076de1ef4b464",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestAdminAssignPlayer",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "int",
+        10
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r03700b6e2ab245cc91ec32b30c7b555c",
+    "returned": "DISPATCHED inspect authority and remote assignment"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "fixed-initial"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r5afaefa7b0bf4008a7de901ac0321470",
+    "returned": "CLIENT-REPORTED snapshots=1 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=0 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestPresentationSubscriber",
+    "args": [
+      [
+        "int",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r56b415ca032747ed99a59e4ebfbcf672",
+    "returned": "player=2 subscribed=1 revision=3 faction=US"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r25f07a2a14a045268ff4f95f5835aa28",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "fixed-briefing"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r52d4a75c5bff4e9491db1c8effc19d25",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "fixed-briefing"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r7f18a86379c14cf5b4a8021a5751a250",
+    "returned": "CLIENT-REPORTED snapshots=2 projections=10 mapTicks=41 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=9\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestFreezeAdvance",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r3044eb55a3f143a9a502d90ce91e1976",
+    "returned": "DISPATCHED production phase request"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "panic"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r5b24bd5da35a4c6f8c4739cfdff7f2e7",
+    "returned": "Stopped all boundaries: 1 AOs disabled, 1 setups ended.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestBoundarySetup",
+    "args": [
+      [
+        "string",
+        "ClientSetup"
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "int",
+        1
+      ],
+      [
+        "float",
+        600
+      ],
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r6114fdb83fee4f28b2370bf268fc3d50",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "fixed-game-map"
+      ],
+      [
+        "string",
+        "presentation-map-open"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r305f96ab63824b03975bc96eb7dc9919",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "fixed-game-map"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r3f9de51ba14f49b8a5ddf6cc4dad711c",
+    "returned": "CLIENT-REPORTED DISPATCHED native map gadget"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "fixed-reset"
+      ],
+      [
+        "string",
+        "presentation-reset"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0a6122de46e640ac87151487f5cfb9c4",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestAOSpawn",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r9cf8e363710643058d7de81aa6b4d149",
+    "returned": "spawned index=0 origin=<1190.15,39,2725.61>; configure after native initialization"
+  },
+  {
+    "method": "GC_TestAOConfigure",
+    "args": [
+      [
+        "int",
+        0
+      ],
+      [
+        "int",
+        1
+      ],
+      [
+        "bool",
+        false
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        50
+      ],
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r5bd5b286d2594b808a230b6b888d1d08",
+    "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+  },
+  {
+    "method": "GC_TestPresentationShape",
+    "args": [
+      [
+        "string",
+        "AOFixture0"
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "US"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "ra05d79ae84aa4e6eb197de4992280f62",
+    "returned": "enabled=1 audience=1"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "fixed-reset"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r4c9ea74fc1f94b43800d02d0bf382da5",
+    "returned": "CLIENT-REPORTED RESET"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "fixed-visible"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r5f90063478b14af59174917c40d9ddbd",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "fixed-visible"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r3ad2352ff8fb42c28225740b0a8fb2bf",
+    "returned": "CLIENT-REPORTED snapshots=3 projections=3 mapTicks=386 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=3\ncachedShapes=2 cachedPoints=8 canvas=1 commands=4 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPresentationShape",
+    "args": [
+      [
+        "string",
+        "AOFixture0"
+      ],
+      [
+        "bool",
+        true
+      ],
+      [
+        "string",
+        "USSR"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rd810a9132d214075862df062cc13ae3f",
+    "returned": "enabled=1 audience=1"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "fixed-hidden"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re9c09498378d43deb88af0936ff5fc22",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "extend"
+      ],
+      [
+        "string",
+        "ClientSetup"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        30
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r334f81316a5f46f9a52aad8b40444aae",
+    "returned": "ClientSetup: added 30 seconds.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x400000000000057F {}\",\"Name\":\"ClientSetup\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Hard\",\"State\":\"Active\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":593.5360717773438,\"Enabled\":true,\"Valid\":true},{\"Key\":\"0x4000000000000580 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "fixed-hidden"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r2b7920c956f74678a1348dd9efa429d7",
+    "returned": "CLIENT-REPORTED snapshots=4 projections=4 mapTicks=705 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=4\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "fixed-extension"
+      ],
+      [
+        "string",
+        "presentation-setup"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0a84b2d1bade4cb6a2e4a0c74c7a3101",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "fixed-extension"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r21fbbe3f680d47c89da9c3cf00d1ba9f",
+    "returned": "CLIENT-REPORTED active=1 frozen=0 alive=1 offset=<1190.62,39,2723.66> faction=US timer=9:47 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "steady-reset"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r26e0703e34a64825bcaa4190f70fe2e9",
+    "returned": "CLIENT-REPORTED RESET"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "steady-report"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r685ab47b68ca4708b34cb04eaa5af2bb",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "steady-report"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rceee4651336e47caa380b7a09b6bc057",
+    "returned": "CLIENT-REPORTED snapshots=0 projections=0 mapTicks=334 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=1 commands=2 framed=1 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "peer-close-map"
+      ],
+      [
+        "string",
+        "presentation-map-close"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r6302640bc14645dbb06ef7b0d08b2222",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "end"
+      ],
+      [
+        "string",
+        "ClientSetup"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rc4eb43dde17d4867af52a7d0a3174640",
+    "returned": "ClientSetup: end applied.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x400000000000057F {}\",\"Name\":\"ClientSetup\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Hard\",\"State\":\"Ended\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000580 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Active\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":true,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestAOMovePlayer",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "vector",
+        [
+          60,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r623023aa8c164d21907bcd9f3742b556",
+    "returned": "arranged=1 destination=<1250.15,39,2725.61>"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "remote-warning"
+      ],
+      [
+        "string",
+        "ao-snapshot"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r2b38aa052472444daae7d232a5b77d3f",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "remote-release"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rfc92c3afd1bb49cd877a1488ffb5fb6c",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "remote-warning"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0b4f929dd7c4421ca450eac14984b55b",
+    "returned": "CLIENT-REPORTED phase=1 player=2 controlled=SCR_ChimeraCharacter<0x00000286B74DCCF0> @\"ENTITY:4611686018427388445\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1250.152100 39.000137 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1250.15,39.0001,2725.61> offset=<1250.15,39.0001,2725.61> vehicle=NULL HUD=59.840"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "remote-release"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "re499efb2d62e40e5b59cc0b5c0b1b94a",
+    "returned": "CLIENT-REPORTED snapshots=1 projections=0 mapTicks=680 setupStates=1 aoWarnings=1 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "warn-reset"
+      ],
+      [
+        "string",
+        "presentation-reset"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rc21333c8245541e6a0081cafe7b5f668",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "warn-reset"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r53d972900b5b48a2b31fac67b009c2db",
+    "returned": "CLIENT-REPORTED RESET"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "warn-steady"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r68669e52a0904837bcc7188c0994ea37",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "warn-time"
+      ],
+      [
+        "string",
+        "ao-snapshot"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0d5bccffa822497fad3c80731f21639c",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "warn-steady"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rf9053620fe4643ddbf77cfd23f153836",
+    "returned": "CLIENT-REPORTED snapshots=0 projections=0 mapTicks=0 setupStates=0 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=1 setup=0 combat=0 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "warn-time"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r36800c4dd3fb4bc997d7787ff7f4747e",
+    "returned": "CLIENT-REPORTED phase=1 player=2 controlled=SCR_ChimeraCharacter<0x00000286B74DCCF0> @\"ENTITY:4611686018427388445\" ('SCR_ChimeraCharacter','Assets/Characters/Basebody/Basebody_Male_01.xob') at <1250.152100 39.000137 2725.607910> @\"{6058AB54781A0C52}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_AMG.et\" alive=1 position=<1250.15,39.0001,2725.61> offset=<1250.15,39.0001,2725.61> vehicle=NULL HUD=48.134"
+  },
+  {
+    "method": "GC_TestAOMovePlayer",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r2129e008db4f418b988c772a209e86c2",
+    "returned": "arranged=1 destination=<1190.15,39,2725.61>"
+  },
+  {
+    "method": "GC_TestAOConfigure",
+    "args": [
+      [
+        "int",
+        0
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "bool",
+        false
+      ],
+      [
+        "float",
+        60
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        50
+      ],
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r28d74e2d642147f3841f78e27ec7f872",
+    "returned": "behavior=1 polygon=1 enabled=1 permitsOrigin=1"
+  },
+  {
+    "method": "GC_TestChatVehicleSpawn",
+    "args": [],
+    "state": "invoked",
+    "receipt": "r13f677c1582744d1b595a9d01e394bd5",
+    "returned": "spawned index=0 rpl=-2147476936"
+  },
+  {
+    "method": "GC_TestChatVehicleEnter",
+    "args": [
+      [
+        "int",
+        1
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "int",
+        0
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r4ead89c81c2c4b75b98681749ca71d45",
+    "returned": "DISPATCHED inspect actual vehicle membership on both peers"
+  },
+  {
+    "method": "GC_TestChatVehicleEnter",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "int",
+        1
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r47766d67ac234e599c09029bf4b81500",
+    "returned": "DISPATCHED inspect actual vehicle membership on both peers"
+  },
+  {
+    "method": "GC_TestAOServerPlayer",
+    "args": [
+      [
+        "int",
+        1
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r42087d1ec0994432a06f9cd4414178e2",
+    "returned": "player=1 alive=1 position=<1199.52,39.8157,2735.69> vehicle=Vehicle<0x000001EE4CFFE298> @\"ENTITY:4611686018427389323\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1200.175171 39.027489 2735.587891> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\"  limits=2 clocks=0"
+  },
+  {
+    "method": "GC_TestAOServerPlayer",
+    "args": [
+      [
+        "int",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r87191c5a6b4042e597084d9287d2dca2",
+    "returned": "player=2 alive=1 position=<1200.89,39.8453,2735.75> vehicle=Vehicle<0x000001EE4CFFE298> @\"ENTITY:4611686018427389323\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1200.175171 39.027489 2735.587891> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\"  limits=2 clocks=0"
+  },
+  {
+    "method": "GC_TestAOMovePlayer",
+    "args": [
+      [
+        "int",
+        1
+      ],
+      [
+        "vector",
+        [
+          60,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r2f8714e5a214453d86756be9dcbe9c1c",
+    "returned": "arranged=1 destination=<1250.15,39,2725.61>"
+  },
+  {
+    "method": "GC_TestAOServerPlayer",
+    "args": [
+      [
+        "int",
+        1
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rb8f90bd50d7044df9d28fc613e85ff3a",
+    "returned": "player=1 alive=1 position=<1199.52,39.8159,2735.7> vehicle=Vehicle<0x000001EE4CFFE298> @\"ENTITY:4611686018427389323\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1200.175171 39.027676 2735.605469> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\"  limits=2 clocks=0"
+  },
+  {
+    "method": "GC_TestAOServerPlayer",
+    "args": [
+      [
+        "int",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r5170da66c4a149d3a782229b62015c66",
+    "returned": "player=2 alive=1 position=<1200.89,39.8455,2735.77> vehicle=Vehicle<0x000001EE4CFFE298> @\"ENTITY:4611686018427389323\" ('Vehicle','Assets/Vehicles/Wheeled/M998/M998_Base.xob') at <1200.175171 39.027603 2735.605469> @\"{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et\"  limits=2 clocks=0"
+  },
+  {
+    "method": "GC_TestChatVehicleEnter",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "int",
+        -1
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r73f46bf74ff741fd8842bcf0557a2848",
+    "returned": "DISPATCHED inspect actual vehicle membership on both peers"
+  },
+  {
+    "method": "GC_TestBoundarySetup",
+    "args": [
+      [
+        "string",
+        "JipSetup"
+      ],
+      [
+        "string",
+        "US"
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "float",
+        600
+      ],
+      [
+        "vector",
+        [
+          0,
+          0,
+          0
+        ]
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r0d4e12aafcf14c16ac386c8406435eac",
+    "returned": "true"
+  },
+  {
+    "method": "GC_TestPresentationSubscriber",
+    "args": [
+      [
+        "int",
+        2
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r91bf1bec7b414c6a8a8a548e2d59b1e4",
+    "returned": "player=2 subscribed=1 revision=23 faction=US"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "jip-report"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rfdec37bc13be406eba5dbf72ab985e27",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "jip-timer"
+      ],
+      [
+        "string",
+        "presentation-setup"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r3443a5c859534885a181ec995e5baa7c",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "jip-report"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r9fb3c8213361436db949e8846f2c8419",
+    "returned": "CLIENT-REPORTED snapshots=1 projections=0 mapTicks=0 setupStates=2 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=0 setup=1 combat=1 announcement=0"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "jip-timer"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r1c72fbe177ac446fa8a46eb548b9ab45",
+    "returned": "CLIENT-REPORTED active=1 frozen=0 alive=1 offset=<1202.97,39,2741.44> faction=US timer=9:32 guidance= movementDisabled=0"
+  },
+  {
+    "method": "GC_TestBoundaryDenied",
+    "args": [
+      [
+        "string",
+        "JipSetup"
+      ],
+      [
+        "int",
+        30
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r6bcd46a7fbef47edbce9e053333691b0",
+    "returned": "Rejected: administrator access required."
+  },
+  {
+    "method": "GC_TestBoundaryRequest",
+    "args": [
+      [
+        "string",
+        "panic"
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "string",
+        ""
+      ],
+      [
+        "int",
+        0
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r4f5ab55fa2c541749fe4461cfe0e5855",
+    "returned": "Stopped all boundaries: 2 AOs disabled, 3 setups ended.\n{\"zones\":[{\"Key\":\"0x200000000000000A {}\",\"Name\":\"Setup 1\",\"Kind\":\"Setup\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 20s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x200000000000000C {}\",\"Name\":\"AO 2\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Soft\",\"State\":\"Disabled\",\"Details\":\"Grace: 20s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x400000000000057F {}\",\"Name\":\"ClientSetup\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Hard\",\"State\":\"Ended\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x4000000000000580 {}\",\"Name\":\"AOFixture0\",\"Kind\":\"AO\",\"Factions\":\"All factions\",\"Behavior\":\"Hard\",\"State\":\"Disabled\",\"Details\":\"Grace: 60s | Priority: 0 | Stay inside\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true},{\"Key\":\"0x40000000000005B9 {}\",\"Name\":\"JipSetup\",\"Kind\":\"Setup\",\"Factions\":\"US Army (US)\",\"Behavior\":\"Soft\",\"State\":\"Ended\",\"Details\":\"Return grace: 120s | Safe start: On\",\"Remaining\":0.0,\"Enabled\":false,\"Valid\":true}],\"showMap\":false,\"announcement\":\"\",\"remaining\":0.0,\"factions\":\"All factions\"}"
+  },
+  {
+    "method": "GC_TestPeerCommand",
+    "args": [
+      [
+        "int",
+        2
+      ],
+      [
+        "string",
+        "jip-stop"
+      ],
+      [
+        "string",
+        "presentation-report"
+      ],
+      [
+        "string",
+        ""
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "rd36d2762565f4ebda4bebf7331a06cb9",
+    "returned": "DISPATCHED; read GC_TestPeerReport with the same token"
+  },
+  {
+    "method": "GC_TestPeerReport",
+    "args": [
+      [
+        "string",
+        "jip-stop"
+      ]
+    ],
+    "state": "invoked",
+    "receipt": "r168b7b3428534aee9292afe4451275a3",
+    "returned": "CLIENT-REPORTED snapshots=2 projections=0 mapTicks=0 setupStates=3 aoWarnings=0 setupWarnings=0 announcements=0 rebuilds=0\ncachedShapes=1 cachedPoints=4 canvas=0 commands=0 framed=0 setup=0 combat=0 announcement=0"
+  }
+]

@@ -48,6 +48,7 @@ class GC_BoundaryAdmin
 		{
 			m_aZones.Insert(zone);
 			m_mDisplayNumbers.Set(zone, ++m_iNextDisplayNumber);
+			m_Mode.GetMapShapes().Changed();
 		}
 	}
 
@@ -56,6 +57,8 @@ class GC_BoundaryAdmin
 	{
 		m_aZones.RemoveItem(zone);
 		m_mDisplayNumbers.Remove(zone);
+		if (m_Mode && m_Mode.GetMapShapes())
+			m_Mode.GetMapShapes().Changed();
 	}
 
 	//------------------------------------------------------------------------------------------------

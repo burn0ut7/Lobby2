@@ -8,6 +8,7 @@ class GC_AOWarning
 	protected IEntity m_Character;
 	protected float m_fDeadline;
 	protected float m_fLastUpdate;
+	protected float m_fTop = -1;
 	protected static const ResourceName LAYOUT = "{8F470B543A20D941}UI/layouts/Mission/Lobby_AOWarning.layout";
 
 	//------------------------------------------------------------------------------------------------
@@ -79,7 +80,7 @@ class GC_AOWarning
 		float now = GetGame().GetWorld().GetWorldTime();
 		if (!mode || mode.GetState() != SCR_EGameModeState.GAME || !controller
 			|| controller.GetControlledEntity() != m_Character || !m_Character
-			|| !SCR_AIDamageHandling.IsAlive(m_Character) || now - m_fLastUpdate > 1500
+			|| !SCR_AIDamageHandling.IsAlive(m_Character) || now >= m_fDeadline
 			|| (m_bSetupWarning && (!lobbyPlayer || !lobbyPlayer.GC_HasSetupReturnWarning())))
 		{
 			Close();
@@ -95,7 +96,11 @@ class GC_AOWarning
 			top += 74;
 		if (lobbyPlayer && lobbyPlayer.GC_AnnouncementActive())
 			top += 38;
-		FrameSlot.SetPos(m_Card, 0, top);
+		if (top != m_fTop)
+		{
+			FrameSlot.SetPos(m_Card, 0, top);
+			m_fTop = top;
+		}
 		m_Timer.SetText(FormatTime(Math.Max(0, (m_fDeadline - now) * 0.001)));
 	}
 
@@ -108,6 +113,7 @@ class GC_AOWarning
 		m_Root = null;
 		m_Timer = null;
 		m_Card = null;
+		m_fTop = -1;
 		m_Character = null;
 	}
 }
@@ -116,21 +122,35 @@ class GC_AOWarning
 modded class GC_LobbyPlayerController
 {
 	protected ref GC_AOWarning m_GC_AOWarning;
+	protected bool m_bGC_AOSent;
+	protected IEntity m_GC_AOSentCharacter;
+	protected float m_fGC_AOSentDeadline;
+	protected string m_sGC_AOSentText;
 
 	//------------------------------------------------------------------------------------------------
 	void GC_SendAOWarning(IEntity character, float seconds, string warningText = "RETURN TO AO")
 	{
 		if (!Replication.IsServer())
 			return;
+		float deadline = -1;
+		if (seconds >= 0)
+			deadline = GetGame().GetWorld().GetWorldTime() * 0.001 + seconds;
+		if (m_bGC_AOSent && m_GC_AOSentCharacter == character && Math.AbsFloat(deadline - m_fGC_AOSentDeadline) < 0.05 && warningText == m_sGC_AOSentText)
+			return;
+		m_bGC_AOSent = true;
+		m_GC_AOSentCharacter = character;
+		m_fGC_AOSentDeadline = deadline;
+		m_sGC_AOSentText = warningText;
 		RplId characterId = RplId.Invalid();
 		if (character)
 			characterId = Replication.FindItemId(character);
-		Rpc(GC_RpcDoAOWarning, characterId, seconds, warningText);
+		ChimeraWorld world = GetGame().GetWorld();
+		Rpc(GC_RpcDoAOWarning, characterId, seconds, warningText, world.GetServerTimestamp());
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void GC_RpcDoAOWarning(RplId characterId, float seconds, string warningText)
+	protected void GC_RpcDoAOWarning(RplId characterId, float seconds, string warningText, WorldTimestamp sentAt)
 	{
 		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())
 			return;
@@ -143,6 +163,8 @@ modded class GC_LobbyPlayerController
 		}
 		if (!m_GC_AOWarning)
 			m_GC_AOWarning = new GC_AOWarning();
+		ChimeraWorld world = GetGame().GetWorld();
+		seconds = Math.Max(0, seconds - Math.Max(0, world.GetServerTimestamp().DiffSeconds(sentAt)));
 		m_GC_AOWarning.Update(character, seconds, false, warningText);
 	}
 

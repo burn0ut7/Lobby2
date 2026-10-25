@@ -86,8 +86,9 @@ class GC_BoundaryWallComponent : ScriptComponent
 		bool changed = audience.Count() != m_aAudience.Count();
 		if (!changed)
 		{
-			foreach (RplId id : audience)
-				changed = changed || !m_aAudience.Contains(id);
+			// Native player order is retained; a reorder may resend once but needs no nested membership scan.
+			foreach (int audienceIndex, RplId id : audience)
+				changed = changed || m_aAudience[audienceIndex] != id;
 		}
 		bool geometryChanged = polygon.Count() != m_aPolygon.Count();
 		if (!geometryChanged)

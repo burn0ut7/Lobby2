@@ -76,6 +76,10 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 
 		PrintFormat("GC | Phase UI Trace | game state callback: state=%1 server=%2 playerController=%3 menuManager=%4", GC_LobbyManager.GetPhaseName(GetState()), Replication.IsServer(), GetGame().GetPlayerController(), GetGame().GetMenuManager());
 		UpdateLocalPhasePresentation(null, "game-state-changed");
+		// A countdown RPC can arrive before the phase replication that permits its HUD.
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (GetState() == SCR_EGameModeState.GAME && controller)
+			controller.GC_RequestBoundaryPresentation();
 	}
 
 	//------------------------------------------------------------------------------------------------

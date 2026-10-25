@@ -1,19 +1,36 @@
-//! Active mode owns the registry. Full recipient snapshots include live and JIP changes.
+//! Authority owns geometry revisions. Clients retain their latest permitted snapshot.
 class GC_MapShapeSystem
 {
 	protected ref array<GC_MapShapeComponent> m_aShapes = {};
+	protected int m_iRevision;
+
+	//------------------------------------------------------------------------------------------------
+	void Changed()
+	{
+		m_iRevision++;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetRevision()
+	{
+		return m_iRevision;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	void Register(GC_MapShapeComponent shape)
 	{
 		if (Replication.IsServer() && !m_aShapes.Contains(shape))
+		{
 			m_aShapes.Insert(shape);
+			Changed();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
 	void Unregister(GC_MapShapeComponent shape)
 	{
 		m_aShapes.RemoveItem(shape);
+		Changed();
 	}
 
 	//------------------------------------------------------------------------------------------------

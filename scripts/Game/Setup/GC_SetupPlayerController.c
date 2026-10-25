@@ -11,6 +11,9 @@ modded class GC_LobbyPlayerController
 	protected Widget m_GC_SetupHud;
 	protected TextWidget m_GC_SetupTimer;
 	protected ref GC_AOWarning m_GC_SetupWarning;
+	protected bool m_bGC_SetupSent;
+	protected string m_sGC_SetupText;
+	protected int m_iGC_SetupDisplayed = -1;
 
 	//------------------------------------------------------------------------------------------------
 	GC_SetupZoneEntity GC_GetSetupZone()
@@ -34,7 +37,7 @@ modded class GC_LobbyPlayerController
 			|| GetControlledEntity() != m_GC_SetupCharacter || !SCR_AIDamageHandling.IsAlive(m_GC_SetupCharacter))
 			return false;
 		float now = GetGame().GetWorld().GetWorldTime();
-		return now < m_fGC_SetupDeadline && now - m_fGC_SetupUpdated < 1500;
+		return now < m_fGC_SetupDeadline;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -96,23 +99,41 @@ modded class GC_LobbyPlayerController
 		string displayText;
 		if (zone)
 			displayText = zone.GetDisplayText();
+		float now = GetGame().GetWorld().GetWorldTime();
+		float deadline = now + seconds * 1000;
+		float outsideDeadline;
+		if (outsideSeconds >= 0)
+			outsideDeadline = now + outsideSeconds * 1000;
+		if (m_bGC_SetupSent && m_GC_SetupZone == zone && m_GC_SetupCharacter == character
+			&& (!zone || Math.AbsFloat(deadline - m_fGC_SetupDeadline) < 50)
+			&& Math.AbsFloat(outsideDeadline - m_fGC_SetupOutsideDeadline) < 50
+			&& safeStart == m_bGC_SetupSafeStart && frozen == m_bGC_SetupFrozen && displayText == m_sGC_SetupText)
+			return;
+		m_bGC_SetupSent = true;
+		m_sGC_SetupText = displayText;
 		m_GC_SetupZone = zone;
 		GC_ApplySetupState(character, seconds, outsideSeconds, safeStart, frozen, displayText);
 		RplId characterId = RplId.Invalid();
 		if (character)
 			characterId = Replication.FindItemId(character);
-		Rpc(GC_RpcDoSetupState, characterId, seconds, outsideSeconds, safeStart, frozen, displayText);
+		ChimeraWorld world = GetGame().GetWorld();
+		Rpc(GC_RpcDoSetupState, characterId, seconds, outsideSeconds, safeStart, frozen, displayText, world.GetServerTimestamp());
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void GC_RpcDoSetupState(RplId characterId, float seconds, float outsideSeconds, bool safeStart, bool frozen, string displayText)
+	protected void GC_RpcDoSetupState(RplId characterId, float seconds, float outsideSeconds, bool safeStart, bool frozen, string displayText, WorldTimestamp sentAt)
 	{
 		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())
 			return;
 		IEntity character = GetControlledEntity();
 		if (!character || Replication.FindItemId(character) != characterId)
 			character = null;
+		ChimeraWorld world = GetGame().GetWorld();
+		float elapsed = Math.Max(0, world.GetServerTimestamp().DiffSeconds(sentAt));
+		seconds = Math.Max(0, seconds - elapsed);
+		if (outsideSeconds >= 0)
+			outsideSeconds = Math.Max(0, outsideSeconds - elapsed);
 		GC_ApplySetupState(character, seconds, outsideSeconds, safeStart, frozen, displayText);
 	}
 
@@ -143,6 +164,7 @@ modded class GC_LobbyPlayerController
 
 			GetGame().GetCallqueue().CallLater(GC_RefreshSetupHud, 100, true);
 		}
+		m_iGC_SetupDisplayed = -1;
 		TextWidget title = TextWidget.Cast(m_GC_SetupHud.FindAnyWidget("StagingCountdownTitle"));
 		if (title)
 			title.SetText(displayText);
@@ -167,6 +189,9 @@ modded class GC_LobbyPlayerController
 		}
 		float now = GetGame().GetWorld().GetWorldTime();
 		int remaining = Math.Ceil((m_fGC_SetupDeadline - now) * 0.001);
+		if (remaining == m_iGC_SetupDisplayed)
+			return;
+		m_iGC_SetupDisplayed = remaining;
 		int seconds = remaining % 60;
 		string secondText = seconds.ToString();
 		if (seconds < 10)
@@ -185,6 +210,39 @@ modded class GC_LobbyPlayerController
 			m_GC_SetupHud.RemoveFromHierarchy();
 		m_GC_SetupHud = null;
 		m_GC_SetupTimer = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Possession readiness requests current owner state once; no countdown heartbeat.
+	override void OnControlledEntityChanged(IEntity from, IEntity to)
+	{
+		super.OnControlledEntityChanged(from, to);
+		GC_RequestBoundaryPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_RequestBoundaryPresentation()
+	{
+		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())
+			return;
+		GC_CloseSetupHud();
+		if (m_GC_AOWarning)
+			m_GC_AOWarning.Close();
+		if (Replication.IsServer())
+			GC_RpcAskBoundaryPresentation();
+		else
+			Rpc(GC_RpcAskBoundaryPresentation);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void GC_RpcAskBoundaryPresentation()
+	{
+		if (!Replication.IsServer() || !GC_LobbyGameMode.GetGameMode())
+			return;
+		m_bGC_SetupSent = false;
+		m_bGC_AOSent = false;
+		m_bGC_AnnouncementSent = false;
 	}
 
 	//------------------------------------------------------------------------------------------------

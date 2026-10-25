@@ -12,8 +12,14 @@ class GC_MapShapeOverlay
 	protected float m_fCanvasWidth;
 	protected float m_fCanvasHeight;
 	protected ref array<ref CanvasWidgetCommand> m_aCommands = {};
-	protected float m_fLastReceive;
-	protected float m_fNextRequest;
+	protected ref array<int> m_aColors = {}, m_aFills = {};
+	protected ref array<bool> m_aInverted = {};
+	protected ref array<string> m_aNames = {};
+	protected bool m_bProjectionDirty;
+	protected bool m_bGeometryDirty;
+	protected float m_fProjectedX;
+	protected float m_fProjectedZ;
+	protected float m_fProjectedZoom;
 	protected int m_iGeneration;
 	protected bool m_bListening;
 	protected bool m_bFramed;
@@ -54,42 +60,24 @@ class GC_MapShapeOverlay
 			SCR_MapEntity.GetOnMapZoom().Insert(OnMapZoom);
 			SCR_MapEntity.GetOnMapClose().Insert(OnMapClose);
 			m_bListening = true;
+			BuildPresentation();
 		}
 
-		float now = GetGame().GetWorld().GetWorldTime();
-		if (now >= m_fNextRequest)
-		{
-			m_fNextRequest = now + 500;
-			controller.GC_RequestMapShapes(m_iGeneration);
-		}
-		// A newly created canvas is sized on a later UI layout pass. Do not wait
-		// for another snapshot or a user pan to rebuild its initially empty fill.
+		// The open map needs sizing/projection only. Geometry arrives on authority changes.
 		float width, height;
 		m_Canvas.GetScreenSize(width, height);
-		if (width > 0 && height > 0 && (width != m_fCanvasWidth || height != m_fCanvasHeight))
+		if (width > 0 && height > 0 && (m_bProjectionDirty || width != m_fCanvasWidth || height != m_fCanvasHeight))
 		{
+			m_bProjectionDirty = false;
 			Project(mapEntity);
 			FrameFirstMap(m_aFrameBounds);
-		}
-		// This timer owns discovery, snapshots and expiry, never moving-map projection.
-		if (now - m_fLastReceive > 1500 && !m_aCommands.IsEmpty())
-		{
-			foreach (Widget label : m_aLabels)
-			{
-				if (label)
-					label.RemoveFromHierarchy();
-			}
-			m_aLabels.Clear();
-			m_aCounts.Clear();
-			m_aCommands.Clear();
-			m_Canvas.SetDrawCommands(m_aCommands);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
 	void Receive(int generation, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<string> names = null, array<vector> frameBounds = null)
 	{
-		if (!m_Canvas || generation != m_iGeneration || counts.Count() != colors.Count() || counts.Count() != widths.Count() || counts.Count() != fills.Count() || counts.Count() != inverted.Count())
+		if (counts.Count() != colors.Count() || counts.Count() != widths.Count() || counts.Count() != fills.Count() || counts.Count() != inverted.Count())
 			return;
 		int total;
 		foreach (int count : counts)
@@ -100,6 +88,30 @@ class GC_MapShapeOverlay
 		}
 		if (total != points.Count())
 			return;
+
+		m_aCounts.Copy(counts);
+		m_aColors.Copy(colors);
+		m_aFills.Copy(fills);
+		m_aInverted.Copy(inverted);
+		m_aWidths.Copy(widths);
+		m_aPoints.Copy(points);
+		m_aNames.Clear();
+		if (names)
+			m_aNames.Copy(names);
+		m_aFrameBounds.Clear();
+		if (frameBounds)
+			m_aFrameBounds.Copy(frameBounds);
+		if (m_Canvas)
+			BuildPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Rebuild widgets only when data or the map root changes, never on a heartbeat.
+	protected void BuildPresentation()
+	{
+		array<int> counts = m_aCounts, colors = m_aColors, fills = m_aFills;
+		array<bool> inverted = m_aInverted;
+		array<string> names = m_aNames;
 
 		while (m_aLabels.Count() > counts.Count())
 		{
@@ -128,13 +140,6 @@ class GC_MapShapeOverlay
 			if (label)
 				TextWidget.Cast(label.FindAnyWidget("Text")).SetText(names[labelIndex]);
 		}
-		m_aCounts.Copy(counts);
-		m_aWidths.Copy(widths);
-		m_aPoints.Copy(points);
-		m_aFrameBounds.Clear();
-		if (frameBounds)
-			m_aFrameBounds.Copy(frameBounds);
-		m_fLastReceive = GetGame().GetWorld().GetWorldTime();
 		m_aCommands.Resize(counts.Count() * 2);
 		foreach (int index, int count : counts)
 		{
@@ -176,8 +181,8 @@ class GC_MapShapeOverlay
 			if (line.m_Vertices.Count() != count * 2)
 				line.m_Vertices.Resize(count * 2);
 		}
-		Project(SCR_MapEntity.GetMapInstance());
-		FrameFirstMap(m_aFrameBounds);
+		m_bProjectionDirty = true;
+		m_bGeometryDirty = true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -252,13 +257,13 @@ class GC_MapShapeOverlay
 	//------------------------------------------------------------------------------------------------
 	protected void OnMapPan(float x, float y, bool adjusted)
 	{
-		Project(SCR_MapEntity.GetMapInstance());
+		m_bProjectionDirty = true;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void OnMapZoom(float zoom)
 	{
-		Project(SCR_MapEntity.GetMapInstance());
+		m_bProjectionDirty = true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -277,14 +282,22 @@ class GC_MapShapeOverlay
 		m_Canvas.GetScreenSize(canvasWidth, canvasHeight);
 		if (canvasWidth <= 0 || canvasHeight <= 0)
 			return;
-		m_fCanvasWidth = canvasWidth;
-		m_fCanvasHeight = canvasHeight;
 
 		// Use the native inverse transform to retain fractional screen positions.
 		// WorldToScreen exposes integer outputs, which quantize slow movement.
 		float originX, originZ;
 		mapEntity.ScreenToWorld(0, 0, originX, originZ);
 		float zoom = mapEntity.GetCurrentZoom();
+		// Native map modules can emit pan/zoom callbacks even when the view is unchanged.
+		if (!m_bGeometryDirty && originX == m_fProjectedX && originZ == m_fProjectedZ && zoom == m_fProjectedZoom
+			&& canvasWidth == m_fCanvasWidth && canvasHeight == m_fCanvasHeight)
+			return;
+		m_bGeometryDirty = false;
+		m_fProjectedX = originX;
+		m_fProjectedZ = originZ;
+		m_fProjectedZoom = zoom;
+		m_fCanvasWidth = canvasWidth;
+		m_fCanvasHeight = canvasHeight;
 		int offset;
 		array<vector> labelPositions = {};
 		array<float> labelWidths = {};
@@ -358,13 +371,11 @@ class GC_MapShapeOverlay
 		m_Parent = null;
 		m_Canvas = null;
 		m_aLabels.Clear();
-		m_aCounts.Clear();
-		m_aWidths.Clear();
-		m_aPoints.Clear();
-		m_aFrameBounds.Clear();
+
 		m_fCanvasWidth = 0;
 		m_fCanvasHeight = 0;
 		m_aCommands.Clear();
-		m_fNextRequest = 0;
+		m_bProjectionDirty = false;
+		m_ReadyMapParent = null;
 	}
 }

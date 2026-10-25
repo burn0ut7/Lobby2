@@ -6,6 +6,10 @@ modded class GC_LobbyPlayerController
 	protected Widget m_GC_AnnouncementHud;
 	protected float m_fGC_AnnouncementDeadline;
 	protected float m_fGC_AnnouncementUpdated;
+	protected bool m_bGC_AnnouncementSent;
+	protected float m_fGC_AnnouncementSentDeadline;
+	protected string m_sGC_AnnouncementSentTitle;
+	protected int m_iGC_AnnouncementDisplayed = -1;
 
 	//------------------------------------------------------------------------------------------------
 	void GC_RequestBoundary(string action, string key, string title, int seconds, array<string> factions, int requestId)
@@ -68,10 +72,19 @@ modded class GC_LobbyPlayerController
 	{
 		if (!Replication.IsServer())
 			return;
+		float deadline;
+		if (seconds > 0)
+			deadline = GetGame().GetWorld().GetWorldTime() * 0.001 + seconds;
+		if (m_bGC_AnnouncementSent && Math.AbsFloat(deadline - m_fGC_AnnouncementSentDeadline) < 0.05 && title == m_sGC_AnnouncementSentTitle)
+			return;
+		m_bGC_AnnouncementSent = true;
+		m_fGC_AnnouncementSentDeadline = deadline;
+		m_sGC_AnnouncementSentTitle = title;
+		ChimeraWorld world = GetGame().GetWorld();
 		if (GetGame().GetPlayerController() == this)
-			GC_RpcDoAnnouncement(title, seconds);
+			GC_RpcDoAnnouncement(title, seconds, world.GetServerTimestamp());
 		else
-			Rpc(GC_RpcDoAnnouncement, title, seconds);
+			Rpc(GC_RpcDoAnnouncement, title, seconds, world.GetServerTimestamp());
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -80,15 +93,18 @@ modded class GC_LobbyPlayerController
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		float now = GetGame().GetWorld().GetWorldTime();
 		return mode && mode.GetState() == SCR_EGameModeState.GAME
-			&& now < m_fGC_AnnouncementDeadline && now - m_fGC_AnnouncementUpdated < 1500;
+			&& now < m_fGC_AnnouncementDeadline;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void GC_RpcDoAnnouncement(string title, float seconds)
+	protected void GC_RpcDoAnnouncement(string title, float seconds, WorldTimestamp sentAt)
 	{
 		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())
 			return;
+		ChimeraWorld world = GetGame().GetWorld();
+		seconds = Math.Max(0, seconds - Math.Max(0, world.GetServerTimestamp().DiffSeconds(sentAt)));
+		m_iGC_AnnouncementDisplayed = -1;
 		m_fGC_AnnouncementUpdated = GetGame().GetWorld().GetWorldTime();
 		m_fGC_AnnouncementDeadline = m_fGC_AnnouncementUpdated + seconds * 1000;
 		if (!GC_AnnouncementActive())
@@ -118,18 +134,27 @@ modded class GC_LobbyPlayerController
 			return;
 		}
 		int remaining = Math.Ceil((m_fGC_AnnouncementDeadline - GetGame().GetWorld().GetWorldTime()) * 0.001);
+		if (remaining != m_iGC_AnnouncementDisplayed)
+		{
+			m_iGC_AnnouncementDisplayed = remaining;
+			GC_UpdateAnnouncementText(remaining);
+		}
+		float top = 28;
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+		if (GC_LobbyPlayerController.Cast(this).GC_SetupActive() || (freeze && freeze.AffectsPlayer(GetPlayerId())))
+			top += 38;
+		FrameSlot.SetPos(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownCard"), 0, top);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_UpdateAnnouncementText(int remaining)
+	{
 		string seconds = (remaining % 60).ToString();
 		if (remaining % 60 < 10)
 			seconds = "0" + seconds;
 		TextWidget timer = TextWidget.Cast(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownTime"));
 		timer.SetText((remaining / 60).ToString() + ":" + seconds);
 		GC_CountdownHud.Fit(m_GC_AnnouncementHud, timer);
-		float top = 28;
-		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(this);
-		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
-		if (controller.GC_SetupActive() || (freeze && freeze.AffectsPlayer(GetPlayerId())))
-			top += 38;
-		FrameSlot.SetPos(m_GC_AnnouncementHud.FindAnyWidget("StagingCountdownCard"), 0, top);
 	}
 
 	//------------------------------------------------------------------------------------------------

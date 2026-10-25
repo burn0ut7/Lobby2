@@ -101,7 +101,7 @@ modded class GC_LobbyManager
 
 		array<int> targets;
 		ChimeraCharacter origin;
-		string error = GC_ResolveAdminToolTargets(requesterId, scope, selectedIds, selectedIdentities, radiusMeters, factionKey, action, context, targets, origin);
+		string error = GC_LobbyManager.Cast(this).GC_ResolveAdminToolTargets(requesterId, scope, selectedIds, selectedIdentities, radiusMeters, factionKey, action, context, targets, origin);
 		if (!error.IsEmpty())
 			return error;
 

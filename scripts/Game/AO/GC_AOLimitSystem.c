@@ -23,6 +23,8 @@ class GC_AOLimitSystem
 	protected ref array<GC_AOLimitEntity> m_aLimits = {};
 	protected ref map<int, ref GC_AOPlayerState> m_mPlayers = new map<int, ref GC_AOPlayerState>();
 	protected ref map<IEntity, ref GC_AOReturnState> m_mReturns = new map<IEntity, ref GC_AOReturnState>();
+	// Rebuilt from native possession each pass; never a second membership authority.
+	protected ref map<IEntity, ref array<int>> m_mOccupants = new map<IEntity, ref array<int>>();
 
 	//------------------------------------------------------------------------------------------------
 	void Start(GC_LobbyGameMode mode)
@@ -69,6 +71,8 @@ class GC_AOLimitSystem
 				SendWarning(playerId, state.m_Character, -1);
 			}
 		}
+		if (m_Mode && m_Mode.GetMapShapes())
+			m_Mode.GetMapShapes().Changed();
 		// Retain history: every destination is revalidated against current rules.
 		// Removing a rule must not lose the return point needed by another rule.
 		foreach (IEntity mover, GC_AOReturnState returnState : m_mReturns)
@@ -105,6 +109,7 @@ class GC_AOLimitSystem
 			SendWarning(playerId, state.m_Character, -1);
 		m_mPlayers.Clear();
 		m_mReturns.Clear();
+		m_mOccupants.Clear();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -165,8 +170,12 @@ class GC_AOLimitSystem
 	protected bool IsSafeForMover(IEntity mover, vector position, out bool constrained)
 	{
 		constrained = false;
-		foreach (int playerId, GC_AOPlayerState state : m_mPlayers)
+		array<int> occupants;
+		if (!m_mOccupants.Find(mover, occupants))
+			return true;
+		foreach (int playerId : occupants)
 		{
+			GC_AOPlayerState state = m_mPlayers.Get(playerId);
 			IEntity character = state.m_Character;
 			if (!character)
 				continue;
@@ -251,6 +260,7 @@ class GC_AOLimitSystem
 		GetGame().GetPlayerManager().GetPlayers(players);
 		map<int, ref GC_AOPlayerState> currentPlayers = new map<int, ref GC_AOPlayerState>();
 		map<IEntity, GC_AOLimitEntity> movers = new map<IEntity, GC_AOLimitEntity>();
+		m_mOccupants.Clear();
 		foreach (int playerId : players)
 		{
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
@@ -278,6 +288,13 @@ class GC_AOLimitSystem
 				&& TakesPrecedence(state.m_Selected, 0, selected, 0))
 				selected = state.m_Selected;
 			movers.Set(mover, selected);
+			array<int> occupants;
+			if (!m_mOccupants.Find(mover, occupants))
+			{
+				occupants = {};
+				m_mOccupants.Set(mover, occupants);
+			}
+			occupants.Insert(playerId);
 		}
 		foreach (int oldPlayerId, GC_AOPlayerState oldState : m_mPlayers)
 		{

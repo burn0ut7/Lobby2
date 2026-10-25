@@ -26,7 +26,7 @@ modded class GC_LobbyPlayerController
 			result = manager.GC_ExecuteAdminControlFreeze(GetPlayerId(), scope, players, identities, requestId, radiusMeters, factionKey, frozen);
 		else
 			GC_AdminActionLogger.Log(GetPlayerId(), "control-freeze", "", "rejected-inactive-mode");
-		GC_SendPlayerToolResult(requestId, result);
+		GC_LobbyPlayerController.Cast(this).GC_SendPlayerToolResult(requestId, result);
 	}
 
 	//------------------------------------------------------------------------------------------------

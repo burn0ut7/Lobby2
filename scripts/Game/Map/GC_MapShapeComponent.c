@@ -35,6 +35,7 @@ class GC_MapShapeComponent : ScriptComponent
 		if (!Replication.IsServer() || !m_System)
 			return false;
 		m_bEnabled = enabled;
+		m_System.Changed();
 		return true;
 	}
 
@@ -46,6 +47,7 @@ class GC_MapShapeComponent : ScriptComponent
 		m_aFactionKeys = {};
 		if (factions)
 			m_aFactionKeys.Copy(factions);
+		m_System.Changed();
 		return true;
 	}
 
@@ -55,6 +57,7 @@ class GC_MapShapeComponent : ScriptComponent
 		if (!Replication.IsServer() || !m_System)
 			return false;
 		m_bAutoFrameMap = enabled;
+		m_System.Changed();
 		return true;
 	}
 
@@ -68,6 +71,7 @@ class GC_MapShapeComponent : ScriptComponent
 		m_bFactionColor = factionColor;
 		m_bFillEnabled = fillEnabled;
 		m_FillColor = Color.FromInt(fillColor);
+		m_System.Changed();
 		return true;
 	}
 
@@ -77,6 +81,7 @@ class GC_MapShapeComponent : ScriptComponent
 		if (!Replication.IsServer() || !m_System)
 			return false;
 		m_bInvertFill = inverted;
+		m_System.Changed();
 		return true;
 	}
 
@@ -89,6 +94,7 @@ class GC_MapShapeComponent : ScriptComponent
 			return false;
 		m_aRuntimePoints = {};
 		m_aRuntimePoints.Copy(points);
+		m_System.Changed();
 		return true;
 	}
 

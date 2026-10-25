@@ -52,6 +52,8 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 			return false;
 		m_bFinished = true;
 		ReleasePlayers();
+		if (m_Mode && m_Mode.GetMapShapes())
+			m_Mode.GetMapShapes().Changed();
 		return true;
 	}
 
@@ -140,6 +142,8 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		m_fGraceSeconds = graceSeconds;
 		m_bSafeStart = safeStart;
 		m_bValid = Validate();
+		if (m_Mode && m_Mode.GetMapShapes())
+			m_Mode.GetMapShapes().Changed();
 		return m_bValid;
 	}
 
@@ -179,8 +183,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 			return;
 		if (!m_Mode || GC_LobbyGameMode.GetGameMode() != m_Mode || m_Mode.GetState() == SCR_EGameModeState.POSTGAME)
 		{
-			ReleasePlayers();
-			m_bFinished = true;
+			EndSetup();
 			return;
 		}
 		if (m_Mode.GetState() != SCR_EGameModeState.GAME)
@@ -190,11 +193,11 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		{
 			m_bStarted = true;
 			m_fDeadline = now + Math.Max(0, m_fDuration - m_Mode.GetElapsedTime());
+			m_Mode.GetMapShapes().Changed();
 		}
 		if (now >= m_fDeadline)
 		{
-			ReleasePlayers();
-			m_bFinished = true;
+			EndSetup();
 			PrintFormat("GC | Setup | released zone=%1", GetName());
 			return;
 		}

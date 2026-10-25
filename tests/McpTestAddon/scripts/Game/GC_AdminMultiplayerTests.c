@@ -64,6 +64,20 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "presentation-report" || action == "presentation-reset" || action == "presentation-map-open" || action == "presentation-map-close" || action == "presentation-setup")
+		{
+			string presentation;
+			if (action == "presentation-reset")
+				presentation = manager.GC_TestPresentationReset();
+			else if (action == "presentation-setup")
+				presentation = manager.GC_TestSetupSnapshot();
+			else if (action == "presentation-map-open" || action == "presentation-map-close")
+				presentation = manager.GC_TestAOMapSurface("gameplay", action == "presentation-map-open");
+			else
+				presentation = manager.GC_TestPresentationReport();
+			Rpc(GC_TestRpcPeerReport, token, presentation);
+			return;
+		}
 		if (action == "dedicated-action")
 		{
 			GC_LobbyPlayerController.Cast(this).GC_TestDedicatedAction(token, message);
@@ -424,6 +438,11 @@ modded class GC_LobbyManager
 			"ao-snapshot",
 			"ao-map",
 			"map-shape-view",
+			"presentation-report",
+			"presentation-reset",
+			"presentation-map-open",
+			"presentation-map-close",
+			"presentation-setup",
 			"dedicated-action",
 			"scope-snapshot",
 			"scope-move",
