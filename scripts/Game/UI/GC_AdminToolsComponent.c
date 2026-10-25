@@ -131,6 +131,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_HealRadius.m_OnChanged.Insert(OnHealRadiusChanged);
 		Bind("AdminClose", "Close");
 		Bind("ToolHeal", "Heal");
+		Bind("ToolFreeze", "Freeze");
+		SCR_ButtonTextComponent.GetButtonText("ToolUnfreeze", w).m_OnClicked.Insert(OnApply);
 		Bind("ToolTeleport", "Teleport");
 		Bind("ToolMessage", "Send message");
 		Bind("ToolReservations", "Slot reservations");
@@ -203,6 +205,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_bConfirmFactionTeleport = false;
 		if (name == "ToolHeal")
 			m_iTool = 0;
+		else if (name == "ToolFreeze")
+			m_iTool = 8;
 		else if (name == "ToolTeleport")
 			m_iTool = 1;
 		else if (name == "ToolMessage")
@@ -301,6 +305,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 		bool heal = m_iTool == 0;
+		bool freeze = m_iTool == 8;
+		bool playerScope = heal || freeze;
+		m_wRoot.FindAnyWidget("ToolUnfreeze").SetVisible(freeze);
+		m_wRoot.FindAnyWidget("FreezeSelectedBar").SetVisible(freeze);
 		bool teleport = m_iTool == 1;
 		bool message = m_iTool == 3;
 		bool reservations = m_iTool == 4;
@@ -321,21 +329,21 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans && !boundaries);
 		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries);
 		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries);
-		bool factionTarget = (heal && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
+		bool factionTarget = (playerScope && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
 		bool selectedMessage = message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS;
 		m_wRoot.FindAnyWidget("MessageFields").SetVisible(message);
 		m_wRoot.FindAnyWidget("MessagePlayers").SetVisible(selectedMessage);
 		m_wRoot.FindAnyWidget("MessagePlayersLabel").SetVisible(selectedMessage);
 		m_wRoot.FindAnyWidget("MessageFactionScroll").SetVisible(factionTarget || (message && m_eMessageAudience == GC_EAdminMessageAudience.FACTION));
 		m_wRoot.FindAnyWidget("TeleportScope").SetVisible(teleport);
-		m_wRoot.FindAnyWidget("ScopeFaction").SetVisible(heal);
+		m_wRoot.FindAnyWidget("ScopeFaction").SetVisible(playerScope);
 		m_wRoot.FindAnyWidget("FromPlayer").SetVisible(!m_bTeleportFaction);
 		m_wRoot.FindAnyWidget("FromLabel").SetVisible(!m_bTeleportFaction);
 		m_wRoot.FindAnyWidget("MessageSelectedBar").SetVisible(message);
-		m_wRoot.FindAnyWidget("HealScope").SetVisible(heal);
-		m_wRoot.FindAnyWidget("HealRadius").SetVisible(heal && m_eScope == GC_EAdminHealScope.NEARBY);
-		m_wRoot.FindAnyWidget("HealPlayers").SetVisible(heal && m_eScope == GC_EAdminHealScope.SELECTED);
-		m_wRoot.FindAnyWidget("HealSelectionLabel").SetVisible(heal && m_eScope == GC_EAdminHealScope.SELECTED);
+		m_wRoot.FindAnyWidget("HealScope").SetVisible(playerScope);
+		m_wRoot.FindAnyWidget("HealRadius").SetVisible(playerScope && m_eScope == GC_EAdminHealScope.NEARBY);
+		m_wRoot.FindAnyWidget("HealPlayers").SetVisible(playerScope && m_eScope == GC_EAdminHealScope.SELECTED);
+		m_wRoot.FindAnyWidget("HealSelectionLabel").SetVisible(playerScope && m_eScope == GC_EAdminHealScope.SELECTED);
 		m_wRoot.FindAnyWidget("HealSelectedBar").SetVisible(heal);
 		m_wRoot.FindAnyWidget("TeleportSelectedBar").SetVisible(teleport);
 		m_wRoot.FindAnyWidget("TeleportFields").SetVisible(teleport);
@@ -352,7 +360,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_To.GetRootWidget().SetEnabled(enabled);
 		array<int> players;
 		array<string> identities;
-		if (heal)
+		if (playerScope)
 		{
 			title = "Heal";
 			description = "Heal players or respawn them if dead. Nearby also repairs vehicles.";
@@ -381,6 +389,20 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 				enabled = enabled && !m_sTargetFaction.IsEmpty();
 			}
 		}
+		if (freeze)
+		{
+			title = "Freeze";
+			description = "Block controls and hold players still. Drivers and gunners also stop their vehicle; passengers do not.";
+			action = "Freeze players";
+			if (m_eScope == GC_EAdminHealScope.EVERYONE)
+				summary = "All currently connected players.";
+			else if (m_eScope == GC_EAdminHealScope.NEARBY)
+				summary = string.Format("Players within %1m of you when applied.", m_iHealRadius);
+			SCR_ButtonTextComponent unfreeze = SCR_ButtonTextComponent.GetButtonText("ToolUnfreeze", m_wRoot);
+			unfreeze.SetText("Unfreeze players");
+			unfreeze.SetEnabled(enabled);
+		}
+
 		if (teleport)
 		{
 			title = "Teleport";
@@ -470,6 +492,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		else
 			actionText.SetColor(Color.FromRGBA(180, 190, 190, 255));
 		SCR_ButtonTextComponent.GetButtonText("ToolHeal", m_wRoot).SetToggled(heal, false, false);
+		SCR_ButtonTextComponent.GetButtonText("ToolFreeze", m_wRoot).SetToggled(freeze, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolTeleport", m_wRoot).SetToggled(teleport, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolMessage", m_wRoot).SetToggled(message, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolModeration", m_wRoot).SetToggled(moderation, false, false);
@@ -504,7 +527,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_Controller.RequestAdminMessage(m_eMessageAudience, m_MessageText.GetText(), identities, m_iMessagePending, m_sTargetFaction);
 			return;
 		}
-		if (m_iTool == 0 && m_eScope == GC_EAdminHealScope.SELECTED && !m_Targets.GetSelection(players, identities))
+		if ((m_iTool == 0 || m_iTool == 8) && m_eScope == GC_EAdminHealScope.SELECTED && !m_Targets.GetSelection(players, identities))
 			return;
 		array<int> destinations;
 		array<string> destinationIdentities;
@@ -528,6 +551,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Refresh();
 		if (m_iTool == 0)
 			m_Controller.RequestAdminHeal(m_eScope, players, identities, m_iPending, m_iHealRadius, m_sTargetFaction);
+		else if (m_iTool == 8)
+			m_Controller.GC_RequestAdminControlFreeze(m_eScope, players, identities, m_iPending, m_iHealRadius, m_sTargetFaction, button.GetRootWidget().GetName() != "ToolUnfreeze");
 		else if (m_iTool == 1 && m_bTeleportFaction)
 			m_Controller.GC_RequestFactionTeleport(m_sTargetFaction, destinations[0], destinationIdentities[0], m_iPending);
 		else if (m_iTool == 1)

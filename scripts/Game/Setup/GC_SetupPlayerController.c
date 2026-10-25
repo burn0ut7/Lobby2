@@ -57,7 +57,7 @@ modded class GC_LobbyPlayerController
 			return false;
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
 		bool adminFreeze = freeze && freeze.AffectsPlayer(GetPlayerId());
-		return adminFreeze || (GC_SetupActive() && m_bGC_SetupSafeStart);
+		return GC_AreAdminControlsFrozen() || adminFreeze || (GC_SetupActive() && m_bGC_SetupSafeStart);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -65,6 +65,21 @@ modded class GC_LobbyPlayerController
 	{
 		if (!actions || !GC_IsCombatRestricted())
 			return;
+		if (GC_AreAdminControlsFrozen())
+		{
+			// Suppress the affected player's whole gameplay action set, including
+			// vehicle controls. Keep communication and menu recovery available.
+			int count = actions.GetActionCount();
+			for (int i; i < count; i++)
+			{
+				string action = actions.GetActionName(i);
+				if (action.StartsWith("Menu") || action.StartsWith("UI") || action.StartsWith("Chat")
+					|| action.StartsWith("VON") || action == "GC_AdminVON" || action == "GC_OpenLobby")
+					continue;
+				actions.SetActionValue(action, 0);
+			}
+			return;
+		}
 		actions.SetActionValue("CharacterFire", 0);
 		actions.SetActionValue("CharacterThrowGrenade", 0);
 		actions.SetActionValue("CharacterMelee", 0);

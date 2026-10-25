@@ -22,9 +22,22 @@ modded class SCR_CharacterControllerComponent
 		{
 			int playerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(GetOwner());
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
-			if (controller && controller.GC_IsSetupFrozen())
+			if (controller && (controller.GC_IsSetupFrozen() || controller.GC_AreAdminControlsFrozen()))
 				return true;
 		}
 		return super.SCR_GetDisableMovementControls();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool SCR_GetDisableViewControls()
+	{
+		if (GC_LobbyGameMode.GetGameMode())
+		{
+			int playerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(GetOwner());
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (controller && controller.GC_AreAdminControlsFrozen())
+				return true;
+		}
+		return super.SCR_GetDisableViewControls();
 	}
 }

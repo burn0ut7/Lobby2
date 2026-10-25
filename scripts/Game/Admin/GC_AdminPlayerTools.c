@@ -28,34 +28,32 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_ExecuteAdminHeal(int requesterId, GC_EAdminHealScope scope, array<int> selectedIds, array<string> selectedIdentities, int requestId, int radiusMeters, string factionKey = "")
+	//! Shared audience validation for Heal and control Freeze; callers authenticate first.
+	protected string GC_ResolveAdminToolTargets(int requesterId, GC_EAdminHealScope scope, array<int> selectedIds, array<string> selectedIdentities, int radiusMeters, string factionKey, string action, string context, out array<int> targets, out ChimeraCharacter origin)
 	{
-		string context = string.Format("scope=%1 radius=%2 request=%3 faction=%4", scope, radiusMeters, requestId, factionKey);
-		if (!AuthorizeAdminAction(requesterId, "heal", context))
-			return "Admin login required.";
 		if (scope < GC_EAdminHealScope.SELECTED || scope > GC_EAdminHealScope.FACTION)
 		{
-			GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-scope");
-			return "Invalid healing scope.";
+			GC_AdminActionLogger.Log(requesterId, action, context, "rejected-scope");
+			return "Invalid player scope.";
 		}
 		if (scope == GC_EAdminHealScope.NEARBY && (radiusMeters < GC_MIN_HEAL_RADIUS || radiusMeters > GC_MAX_HEAL_RADIUS))
 		{
-			GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-radius");
+			GC_AdminActionLogger.Log(requesterId, action, context, "rejected-radius");
 			return string.Format("Choose a distance from %1 to %2 metres.", GC_MIN_HEAL_RADIUS, GC_MAX_HEAL_RADIUS);
 		}
 
-		array<int> targets = {};
+		targets = {};
 		if (scope == GC_EAdminHealScope.FACTION)
 		{
 			array<string> identities;
 			if (!GC_GetFactionPlayers(factionKey, targets, identities))
 			{
-				GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-faction");
+				GC_AdminActionLogger.Log(requesterId, action, context, "rejected-faction");
 				return "The selected faction is unavailable.";
 			}
 			if (targets.IsEmpty())
 			{
-				GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-empty-faction");
+				GC_AdminActionLogger.Log(requesterId, action, context, "rejected-empty-faction");
 				return "No connected players are in that faction.";
 			}
 		}
@@ -63,16 +61,16 @@ modded class GC_LobbyManager
 		{
 			if (!selectedIds || !selectedIdentities || selectedIds.IsEmpty() || selectedIds.Count() != selectedIdentities.Count() || selectedIds.Count() > 128)
 			{
-				GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-selection");
+				GC_AdminActionLogger.Log(requesterId, action, context, "rejected-selection");
 				return "Choose at least one player.";
 			}
-			// Validate the entire selection before changing anyone's health.
+			// Validate the entire selection before changing any player.
 			foreach (int index, int playerId : selectedIds)
 			{
 				if (selectedIdentities[index].IsEmpty() || GetPlayerVoiceIdentity(playerId) != selectedIdentities[index]
 					|| !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
 				{
-					GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-stale-selection");
+					GC_AdminActionLogger.Log(requesterId, action, context, "rejected-stale-selection");
 					return "A selected player disconnected. Select players again.";
 				}
 				if (!targets.Contains(playerId))
@@ -82,16 +80,31 @@ modded class GC_LobbyManager
 		else
 			GetGame().GetPlayerManager().GetPlayers(targets);
 
-		ChimeraCharacter origin;
+		origin = null;
 		if (scope == GC_EAdminHealScope.NEARBY)
 		{
 			origin = GC_GetAdminToolCharacter(requesterId);
 			if (!origin)
 			{
-				GC_AdminActionLogger.Log(requesterId, "heal", context, "rejected-no-admin-character");
-				return "Spawn as a player to heal nearby players.";
+				GC_AdminActionLogger.Log(requesterId, action, context, "rejected-no-admin-character");
+				return "Spawn as a player to target nearby players.";
 			}
 		}
+
+		return string.Empty;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_ExecuteAdminHeal(int requesterId, GC_EAdminHealScope scope, array<int> selectedIds, array<string> selectedIdentities, int requestId, int radiusMeters, string factionKey = "")
+	{
+		string context = string.Format("scope=%1 radius=%2 request=%3 faction=%4", scope, radiusMeters, requestId, factionKey);
+		if (!AuthorizeAdminAction(requesterId, "heal", context))
+			return "Admin login required.";
+		array<int> targets;
+		ChimeraCharacter origin;
+		string error = GC_ResolveAdminToolTargets(requesterId, scope, selectedIds, selectedIdentities, radiusMeters, factionKey, "heal", context, targets, origin);
+		if (!error.IsEmpty())
+			return error;
 
 		// Snapshot the centre before respawning or repairing any target.
 		vector centre;
