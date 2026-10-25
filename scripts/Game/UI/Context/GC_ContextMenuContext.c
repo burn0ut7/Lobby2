@@ -410,6 +410,7 @@ class GC_ContextMenuActionRegistry
 			return;
 
 		s_aActions = {};
+		s_aActions.Insert(new GC_FactionInfoAction());
 		s_aActions.Insert(new GC_SlotLotteryAction(false));
 		s_aActions.Insert(new GC_SlotLotteryAction(true));
 		s_aActions.Insert(new GC_JoinGroupVoiceAction());

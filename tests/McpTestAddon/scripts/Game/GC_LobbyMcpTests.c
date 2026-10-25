@@ -496,6 +496,80 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Exercise the production right-click and action buttons, without granting roles.
+	string GC_TestFactionInfo(string action, string factionKey)
+	{
+		if (GetManager() != this)
+			return "UNAVAILABLE manager";
+
+		SCR_ConfigurableDialogUi dialog = SCR_ConfigurableDialogUi.GetCurrentDialog();
+		if (action == "snapshot")
+		{
+			if (!dialog || SCR_ConfigurableDialogUi.GetCurrentDialogTag() != "faction_info")
+				return "dialog=absent";
+			TextWidget title = TextWidget.Cast(dialog.GetRootWidget().FindAnyWidget("Title"));
+			return "title=" + title.GetText() + "\n" + dialog.GetMessageStr();
+		}
+		if (action == "close")
+		{
+			if (!dialog || SCR_ConfigurableDialogUi.GetCurrentDialogTag() != "faction_info")
+				return "UNAVAILABLE dialog";
+			SCR_InputButtonComponent close = dialog.FindButton("cancel");
+			close.OnClick(close.GetRootWidget(), 0, 0, 0);
+			return "DISPATCHED native Close button";
+		}
+		if (action == "stale")
+		{
+			GC_FactionInfoAction info = new GC_FactionInfoAction();
+			GC_ContextMenuContext stale = GC_ContextMenuContext.ForFaction("missing-faction-test");
+			info.Execute(stale);
+			return string.Format("eligible=%1 dialogUnchanged=%2", info.CanExecute(stale), dialog == SCR_ConfigurableDialogUi.GetCurrentDialog());
+		}
+
+		array<Widget> widgets = {};
+		GC_TestCollect(GetGame().GetWorkspace(), widgets);
+		foreach (Widget widget : widgets)
+		{
+			if (action == "open")
+			{
+				GC_FactionButtonComponent faction = GC_FactionButtonComponent.Cast(widget.FindHandler(GC_FactionButtonComponent));
+				if (faction && faction.GetFactionKey() == factionKey)
+				{
+					faction.OnClick(widget, 0, 0, 1);
+					return "DISPATCHED faction right-click handler";
+				}
+			}
+			else if (action == "info")
+			{
+				GC_ContextMenuActionButtonComponent button = GC_ContextMenuActionButtonComponent.Cast(widget.FindHandler(GC_ContextMenuActionButtonComponent));
+				TextWidget label = TextWidget.Cast(widget.FindAnyWidget("ContextActionLabel"));
+				if (button && label && label.GetText() == "Get info")
+					return GC_TestDispatchClick(widget);
+			}
+		}
+		return "UNAVAILABLE visible target";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestFactionInfoTargets()
+	{
+		array<int> targets;
+		GC_FactionBalancePolicy.Calculate({20, 40}, 30, targets);
+		if (targets.Count() != 2 || targets[0] != 10 || targets[1] != 20)
+			return "FAIL 20:40 slots and 30 connected players";
+		GC_FactionBalancePolicy.Calculate({20, 40}, 0, targets);
+		if (targets[0] != 0 || targets[1] != 0)
+			return "FAIL empty server";
+		GC_FactionBalancePolicy.Calculate({0, 0}, 30, targets);
+		if (targets[0] != 0 || targets[1] != 0)
+			return "FAIL no capacity";
+		GC_FactionBalancePolicy.Calculate({20}, 30, targets);
+		if (targets[0] != 30)
+			return "FAIL single faction target";
+		return "PASS proportional needed targets, empty server, no capacity and single faction";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Read-only, bounded visible UI inventory plus authoritative lobby state.
 	string GC_TestSnapshot()
 	{

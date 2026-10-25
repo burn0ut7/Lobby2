@@ -2654,26 +2654,36 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		if (!m_bEnforceFactionBalance)
 			return -1;
-		array<string> keys = {};
+		array<string> keys;
+		array<int> quotas;
+		array<int> players;
+		GetFactionBalanceTargets(keys, quotas, players);
+		if (keys.Count() < 2)
+			return -1;
+		int index = keys.Find(factionKey);
+		if (index < 0)
+			return 0;
+		return quotas[index];
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Informational targets remain available when balance enforcement is off.
+	//! Include every connected player and total capacity, including locked slots.
+	void GetFactionBalanceTargets(out array<string> keys, out array<int> targets, out array<int> players)
+	{
+		keys = {};
 		foreach (Faction faction : GetRegisteredFactions())
 		{
 			if (faction && GetFactionSlotCount(faction.GetFactionKey()) > 0)
 				keys.Insert(faction.GetFactionKey());
 		}
-		if (keys.Count() < 2)
-			return -1;
 		keys.Sort();
 		array<int> capacities = {};
 		foreach (string key : keys)
 			capacities.Insert(GetFactionSlotCount(key));
-		array<int> players = {};
+		players = {};
 		GetGame().GetPlayerManager().GetPlayers(players);
-		array<int> quotas;
-		GC_FactionBalancePolicy.Calculate(capacities, players.Count(), quotas);
-		int index = keys.Find(factionKey);
-		if (index < 0)
-			return 0;
-		return quotas[index];
+		GC_FactionBalancePolicy.Calculate(capacities, players.Count(), targets);
 	}
 
 	//------------------------------------------------------------------------------------------------
