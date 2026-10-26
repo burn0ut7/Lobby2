@@ -70,6 +70,7 @@ GC_AOLimitEntity : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
   }
   GC_MapShapeComponent "{8F470B543A20D964}" {
    m_bEnabled 1
+   m_bAutoFrameMap 1
    m_bInvertFill 1
    m_FillColor 0 0 0 0.606
   }
