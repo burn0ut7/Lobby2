@@ -3,7 +3,7 @@ class GC_AICasualtiesCondition : GC_MissionCondition
 {
 	[Attribute("", UIWidgets.ComboBox, "Faction key.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFactionChoices")})]
 	string m_sFaction;
-	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of AI lives lost.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Less than (<)", "3"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
+	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of AI lives lost.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than (<)", "3"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
 	GC_EMissionCountComparison m_eComparison;
 	[Attribute("75", UIWidgets.EditBox, "AI deaths divided by AI lives observed during GAME, including reinforcements. Empty factions never match. Deleting an AI is not a death.", params: "0 100 1")]
 	float m_fPercentage;
@@ -99,7 +99,7 @@ class GC_AreaCondition : GC_MissionCondition
 	string m_sArea;
 	[Attribute("25", UIWidgets.EditBox, "Radius in meters when the area is not a polygon.", params: "0.1 inf 1")]
 	float m_fRadius;
-	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage inside or controlling the area.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Less than (<)", "3"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
+	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage inside or controlling the area.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than (<)", "3"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
 	GC_EMissionCountComparison m_eComparison;
 	[Attribute("100", UIWidgets.EditBox, "Percentage from 0 to 100. An empty population never matches.", params: "0 100 1")]
 	float m_fPercentage;

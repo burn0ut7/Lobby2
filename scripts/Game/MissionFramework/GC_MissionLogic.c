@@ -14,7 +14,7 @@ enum GC_EMissionGroupMatch
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Condition Group")]
 class GC_ConditionGroup : GC_MissionCondition
 {
-	[Attribute("0", UIWidgets.ComboBox, "How many conditions must be true? All Same means all true or all false.", enums: {ParamEnum("All", "0"), ParamEnum("Any", "1"), ParamEnum("Greater than (>)", "7"), ParamEnum("Less than (<)", "6"), ParamEnum("Greater than or equal (>=)", "2"), ParamEnum("Less than or equal (<=)", "3"), ParamEnum("Exactly equal (==)", "4"), ParamEnum("Not equal (!=)", "8"), ParamEnum("All same", "5")})]
+	[Attribute("0", UIWidgets.ComboBox, "How many conditions must be true? All Same means all true or all false.", enums: {ParamEnum("All", "0"), ParamEnum("Any", "1"), ParamEnum("Greater than (>)", "7"), ParamEnum("Greater than or equal (>=)", "2"), ParamEnum("Less than (<)", "6"), ParamEnum("Less than or equal (<=)", "3"), ParamEnum("Exactly equal (==)", "4"), ParamEnum("Not equal (!=)", "8"), ParamEnum("All same", "5")})]
 	GC_EMissionGroupMatch m_eMatch;
 	[Attribute("1", UIWidgets.EditBox, "Number of true conditions used by the numeric comparisons.", params: "0 inf 1")]
 	int m_iNumber;

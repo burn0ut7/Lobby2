@@ -6,8 +6,10 @@ or optional Mission Flags entry. The dropdown finds those sources automatically;
 you do not need to declare the same flag twice.
 
 **Player Casualties (%)** offers factions with playable groups containing slots.
-It scans the current group sources, including inherited slot lists, and checks
-their keys against the world's faction manager. Removing the last playable group
+It scans the current group sources, including inherited slot lists. Editing or
+copying a playable group updates its available faction key without requiring a
+matching faction-manager entry first. Mission validation still requires a defined
+faction; selecting a key does not create a faction. Removing the last playable group
 or its slots removes that faction from the available choices. The current Arland
 example uses `US` and `USSR`; a mission using `RU` will show `RU`.
 
