@@ -1,0 +1,180 @@
+//! Optional probes exercise the production evaluator and scheduler, not copied logic.
+#ifdef WORKBENCH
+class GC_MissionTestCondition : GC_MissionCondition
+{
+	bool m_bMet;
+
+	//------------------------------------------------------------------------------------------------
+	override bool Validate(GC_LobbyMissionContext context, out string error)
+	{
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool IsMet(GC_LobbyMissionContext context)
+	{
+		return m_bMet;
+	}
+}
+
+class GC_MissionTestAction : GC_MissionAction
+{
+	int m_iCalls;
+
+	//------------------------------------------------------------------------------------------------
+	override bool Validate(GC_LobbyMissionContext context, out string error)
+	{
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool Execute(GC_LobbyMissionContext context)
+	{
+		m_iCalls++;
+		return true;
+	}
+}
+
+class GC_MissionTestLivingCondition : GC_LivingPlayersCondition
+{
+	//------------------------------------------------------------------------------------------------
+	void Configure(string factionKey, GC_EMissionCountComparison comparison, int number)
+	{
+		m_sFaction = factionKey;
+		m_eComparison = comparison;
+		m_iNumber = number;
+	}
+}
+
+modded class GC_LobbyManager
+{
+	protected GC_MissionSetupEntity m_GC_MissionTestSetup;
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMissionSetup(string operation)
+	{
+		if (!Replication.IsServer() || GetManager() != this)
+			return "UNAVAILABLE active authority";
+		if (operation == "spawn")
+		{
+			if (m_GC_MissionTestSetup)
+				return "ALREADY EXISTS " + m_GC_MissionTestSetup.Describe();
+			Resource prefab = Resource.Load("{6A115D5DFF7ED907}Prefabs/Logic/MissionFramework/Examples/USDefeated.et");
+			m_GC_MissionTestSetup = GC_MissionSetupEntity.Cast(GetGame().SpawnEntityPrefab(prefab, GetGame().GetWorld()));
+			if (!m_GC_MissionTestSetup)
+				return "FAILED spawn";
+			return "SPAWNED; inspect after initialization";
+		}
+		if (operation == "delete" && m_GC_MissionTestSetup)
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(m_GC_MissionTestSetup);
+			m_GC_MissionTestSetup = null;
+			return "DELETED";
+		}
+		if (!m_GC_MissionTestSetup)
+			return "ABSENT";
+		return string.Format("phase=%1 %2", GetPhaseName(GetLobbyPhase()), m_GC_MissionTestSetup.Describe());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMissionRules()
+	{
+		if (!Replication.IsServer() || GetManager() != this)
+			return "UNAVAILABLE active authority";
+		GC_LobbyMissionContext context = new GC_LobbyMissionContext(GC_LobbyGameMode.GetGameMode());
+		GC_MissionTestCondition yes = new GC_MissionTestCondition();
+		yes.m_bMet = true;
+		GC_MissionTestCondition no = new GC_MissionTestCondition();
+		GC_MissionTestAction first = new GC_MissionTestAction();
+		first.m_fDelayAfterEventStarts = 2;
+		GC_MissionTestAction second = new GC_MissionTestAction();
+		second.m_fDelayAfterEventStarts = 5;
+		GC_MissionEvent rule = new GC_MissionEvent();
+		rule.m_sName = "Scheduler fixture";
+		rule.m_aConditions = {yes, no};
+		rule.m_aActions = {first, second};
+		string error;
+		bool valid = rule.Validate(context, error);
+		bool all = !rule.IsMet(context);
+		rule.m_eMatch = GC_EMissionConditionMatch.ANY_CONDITION;
+		bool any = rule.IsMet(context);
+		array<ref GC_MissionEvent> events = {rule};
+		GC_MissionRuntime runtime = new GC_MissionRuntime();
+		bool started = runtime.Start(context, events);
+		runtime.Update(100);
+		if (GetLobbyPhase() != SCR_EGameModeState.GAME)
+		{
+			runtime.Update(200);
+			bool gated = first.m_iCalls == 0 && second.m_iCalls == 0;
+			runtime.Stop();
+			return string.Format("pregame pass=%1 valid=%2 all=%3 any=%4 gated=%5", valid && all && any && started && gated, valid, all, any, gated);
+		}
+		yes.m_bMet = false;
+		runtime.Update(101);
+		bool waits = first.m_iCalls == 0 && second.m_iCalls == 0;
+		runtime.Update(102);
+		bool firstDue = first.m_iCalls == 1 && second.m_iCalls == 0;
+		runtime.Update(105);
+		bool independent = first.m_iCalls == 1 && second.m_iCalls == 1;
+		yes.m_bMet = true;
+		runtime.Update(200);
+		bool once = first.m_iCalls == 1 && second.m_iCalls == 1;
+		runtime.Stop();
+		runtime.Start(context, events);
+		runtime.Update(300);
+		runtime.Stop();
+		runtime.Update(400);
+		bool cancelled = first.m_iCalls == 1 && second.m_iCalls == 1;
+
+		array<ref GC_MissionEvent> duplicates = {rule, rule};
+		bool duplicateRejected = !runtime.Start(context, duplicates);
+		rule.m_aConditions.Clear();
+		bool emptyRejected = !runtime.Start(context, events);
+		rule.m_aConditions.Insert(yes);
+		first.m_fDelayAfterEventStarts = -1;
+		bool delayRejected = !runtime.Start(context, events);
+		first.m_fDelayAfterEventStarts = 0;
+		GC_MissionTestLivingCondition living = new GC_MissionTestLivingCondition();
+		living.Configure("NO_SUCH_FACTION", GC_EMissionCountComparison.AT_MOST, 0);
+		bool factionRejected = !living.Validate(context, error);
+		GC_LobbyMissionContext freshContext = new GC_LobbyMissionContext(GC_LobbyGameMode.GetGameMode());
+		living.Configure("US", GC_EMissionCountComparison.AT_MOST, 0);
+		bool unpopulated = !living.IsMet(freshContext);
+		freshContext.CapturePlayers();
+		int count;
+		bool observed = freshContext.TryGetLivingPlayers("US", count);
+		living.Configure("US", GC_EMissionCountComparison.EXACTLY, count);
+		bool exact = living.IsMet(freshContext) == observed;
+		bool passed = valid && all && any && started && waits && firstDue && independent && once && cancelled
+			&& duplicateRejected && emptyRejected && delayRejected && factionRejected && unpopulated && exact;
+		string result = string.Format("pass=%1 all=%2 any=%3 waits=%4 firstDue=%5 independent=%6 once=%7 cancelled=%8",
+			passed, all, any, waits, firstDue, independent, once, cancelled);
+		return result + string.Format(" duplicate=%1 empty=%2 delay=%3 faction=%4 unpopulated=%5 exact=%6 livingUS=%7 observedUS=%8",
+			duplicateRejected, emptyRejected, delayRejected, factionRejected, unpopulated, exact, count, observed);
+	}
+}
+
+modded class GC_IsolationProbeComponent
+{
+	protected GC_MissionSetupEntity m_GC_IsolationMissionSetup;
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestMissionIsolation(string operation)
+	{
+		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode())
+			return "UNAVAILABLE unrelated authority world required";
+		if (operation == "spawn")
+		{
+			if (m_GC_IsolationMissionSetup)
+				return "ALREADY EXISTS";
+			Resource prefab = Resource.Load("{6A115D5DFF7ED907}Prefabs/Logic/MissionFramework/Examples/USDefeated.et");
+			m_GC_IsolationMissionSetup = GC_MissionSetupEntity.Cast(GetGame().SpawnEntityPrefab(prefab, GetGame().GetWorld()));
+			return string.Format("spawned=%1; inspect after initialization", m_GC_IsolationMissionSetup != null);
+		}
+		if (!m_GC_IsolationMissionSetup)
+			return "ABSENT";
+		SCR_BaseGameMode mode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
+		return string.Format("mode=%1 state=%2 setup=%3", mode.Type(), mode.GetState(), m_GC_IsolationMissionSetup.Describe());
+	}
+}
+#endif

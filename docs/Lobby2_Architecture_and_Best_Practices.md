@@ -132,6 +132,19 @@ Small related value types may share a file. Large classes should not become fold
 
 ## Module map
 
+### Mission framework
+
+`scripts/Game/MissionFramework/` is an opt-in mission-rules module. One authored
+`GC_MissionSetupEntity` owns its update callback; `GC_MissionRuntime` owns event
+validation, one-shot history, deadlines and cleanup. Definitions and conditions
+do not own scheduling. `GC_LobbyMissionContext` is its sole Lobby2 integration
+boundary: it queries native player/faction state and delegates mission completion
+to `GC_LobbyManager.EnterPostGame`. No framework state is added to the lobby
+manager, phase transport, voice, slotting or briefing systems. It is inert without
+the owning Lobby2 mode and only evaluates during GAME. See
+[authoring and exact semantics](MissionFramework.md) and
+[runtime evidence](../tests/MissionFramework.md).
+
 ### Game-mode and phase ownership
 
 - `scripts/Game/GameMode/GC_LobbyGameMode.c`

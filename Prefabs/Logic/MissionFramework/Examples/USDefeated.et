@@ -1,0 +1,22 @@
+GC_MissionSetupEntity : "{6A115D5DFF7ED902}Prefabs/Logic/MissionFramework/MissionSetup.et" {
+ ID "6A115D5DFF7ED903"
+ m_aEvents {
+  GC_MissionEvent "{6A115D5DFF7ED904}" {
+   m_sName "US defeated"
+   m_eMatch ALL_CONDITIONS
+   m_aConditions {
+    GC_LivingPlayersCondition "{6A115D5DFF7ED905}" {
+     m_sFaction "US"
+     m_eComparison AT_MOST
+     m_iNumber 0
+    }
+   }
+   m_aActions {
+    GC_EndMissionAction "{6A115D5DFF7ED906}" {
+     m_fDelayAfterEventStarts 5
+     m_sWinningFaction "USSR"
+    }
+   }
+  }
+ }
+}
