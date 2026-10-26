@@ -151,3 +151,128 @@ Native prefab-definition inspection verified the saved example separately from
 runtime state: one `GC_MissionEvent`, name `US defeated`, All conditions, faction
 `US`, At most `0`, End Mission delay `5`, and winning faction `USSR`. The example
 opens through its GUID and inherits the empty Mission Setup prefab.
+
+## Framework expansion — 2026-10-26 (in progress)
+
+Workbench PID 20124, 1.8.0.13, Lobby2 MCP Tests; installed source revision
+4ee49efc58494a12b2fde693a84d62e9. Native reloads 272be0ea6b70475faf5a566278cccbe7,
+d66350f045804acf9a787d49fc5ee301, 5e610c8ea01249d39ae2f008e5b8a327 and
+a4df96dbd6e64c3bb71ddf30a07c3eec returned reloaded. Earlier test compile failures
+(reserved variable name and too many string.Format arguments) were corrected.
+
+- Expansion suite refbf438839f34d13a287044300e37e9b: pass=1 for nested groups,
+  inversion, held timing, Run/Rearm/Disable, automatic/latched flags, random
+  boundaries, sampling without mutating authored arrays, Stop rejection,
+  cancellation of delayed follow-ups, percentage boundaries and capture reversal.
+- Pregame suite rd04c817ca99440fa940c3737ec83681c: pass=1 phase gate.
+- GAME suite r9bfad6ccd7b8485a8e010a7c24074c21: pass=1 including native player
+  observation (US casualty percentage 0), one-shot deadlines and invalid config.
+- Actual casualty end: rbbe99be0b78a43cb94814246bfb5d136 killed the sole player.
+  rb29fe38f48e84fbba1515a83d29a489e observed POSTGAME, started=1, pending=0,
+  attempted=1. Log session logs_2026-10-26_09-08-04 lines 1810–1828 shows trigger
+  10:06:03.214 and completion 10:06:08.274.
+- World actions rfdaf122b41cb445781738114ca882d4c started the armed M1025 and
+  exercised spawn/waypoint add/clear. r819a72a3e79f466f99d8c8b201fe533a dispatched
+  deferred boarding. ra2aac1a928dc41dd917f2ce9a77aec1f confirmed pass=1, two
+  occupants, fuel at 25%, health at 50%, area membership, hidden briefing with
+  preserved audience, budget arithmetic and deletion.
+- Initial world test failed because it checked boarding synchronously, used the
+  unarmed M1025 while expecting a gunner, and used briefing index 999 (max 32).
+  Corrected fixture uses the armed prefab's exact GUID, a separate deferred
+  readback, and briefing 32. Production visibility validation now enforces 1–32.
+- Environment re0e8b5fd83104ef1a6e766b74f1c3cac: native time readback matched
+  15:30 and was restored; weather Clear request dispatched. This is not evidence
+  for a transition to a different weather state.
+- Presentation r64f9c358742d455e99d7ca21e43fe242: custom component invoked once,
+  repeated only when enabled, and executed on the local-client path. Hint/chat
+  dispatched. Native hint and chat visible in Art/References/mission-framework/message.png.
+  Later reruns were for screenshot capture; their once/count assertions fail
+  because the fixture intentionally retains the script's execution history.
+- Set Flag native character DoStartObjectAction / DoPerformObjectAction:
+  rb172e1f2f1e54caea2965b9053fbc0a8 setup, rd89e269e3e5445969a81553870720699 start,
+  r2dcac196fabd478fb3c931e5f753d5c7 performed. Logs 3049–3050 show flag set and
+  interaction applied=1. The combined snapshot's boolean fields need further
+  checking; the native log confirms the mutation. A denied-faction call after
+  clearing the flag left it false (r4536cee8316b44ed97833fd3df7dba9d).
+- Teleport r1184dfbcb72a434a83187c97f75bb7d3 performed via the native action path;
+  r4763e202cd744a5ca9abf6ebdd90d0d9 measured 0.0000216531 m from destination.
+
+Additional embedded-host evidence, same log session:
+
+- Reload febeab935c734692b5053112a9493007 succeeded, including native AI hold settings.
+- Core regression r7b28041c359d4c50a52620f904b163be and vehicle regression
+  r6fd8241af58a4f7dbabc4197e5a80928 both passed.
+- Utility test r0c6d0d324e284f35aac0d33c9772e0c2 passed area positions,
+  protected selection/deletion/release, valid flag snapshots, and rejected-null
+  flag snapshots. The deliberate invalid flag logs an expected error.
+- After fixing the circular sampling attempt budget, rd386c3213893482dbfb8ee82e501bf91
+  spawned and counted all 1000 requested entities, then removed the fixtures.
+- Native Set Flag action rd708165920df46fc9a67bde96129ccab followed by
+  ra442df8bcf634661aeaff2746170b937 confirmed flag=1 and canPerform=0.
+  The previous combined snapshot reused expression temporaries; capturing the
+  values separately fixed the test's readback.
+- AI casualty test rd2e86ceca5ab46089181bb952a8ff93b spawned a native US soldier;
+  r9c878a7fc0d6439bb03cfb576f74975d observed 0% before killing it through the
+  production health action. r251faebcb36f4175987375bf52b10f98 confirmed dead=1,
+  recorded=1, after=100%.
+- Respawn test disabled the fixture's ending event, killed player 1, and verified
+  KIA with possession released (ra1c358f5c0e945cda27e071fe843fbc5).
+  rccb601b100044798bede5dcd3972535c applied a one-ticket respawn wave and consumed
+  its ticket; r3ff30236c7c2483083e1950f1d3d1b10 confirmed a new character, KIA=0,
+  possessed=1, active player state.
+
+- Turret fixture: r4b88674428be493cad8e3631306c12a3 returned seated=1,
+  dismount=1 before marking. r927f29d8b7d4469f841927f842c1343a returned dismount=0
+  after marking. rc94d3837f0954e29bbf164dd138d1022 returned dismount=1 after Stop,
+  with the previous native movement setting restored. Hold readback
+  ra6346092759548389921a7e7279c584d returned applied=1, idle=1; this alone does not
+  establish actual stopping/resuming movement.
+- Unrelated SCR_BaseGameMode after leaving Lobby2, addon still loaded:
+  r6776dc5419ae4cf79c4f71545e60ff8e returned seated=1 dismount=1.
+- Addon-free baseline, PID 21424, native loaded-addon snapshot
+  f0258f2720094dbb87adc12ae68e4c41 contained core, ArmaReforger and the independent
+  IsolationProbe only. Same fixture returned seated=1 dismount=1 at
+  rd4924160f0924c4ca894bc0671a4af68, matching the unrelated loaded-mode result.
+
+- Supply/marker test r160ddf9722cf4751af2d0ec6067e7c95: native M923A1 supply
+  container read back 37; marker hide preserved US audience and show with audience
+  replacement changed it to USSR. All assertions passed.
+- Dedicated suite GC_DedicatedMissionSuite, server PID27368 and remote peers
+  PID61176/47752, launched through MCP dedicated tool operation
+  7864c1c4ed7441b995a1acf65ba565a3. Server log
+  ArmaReforger/logs/logs_2026-10-26_11-13-54/console.log lines783–882 records
+  initial state before either client connected, both joining client reports
+  flag=1/briefingHidden=1/authority=0, both update reports
+  flag=0/briefingHidden=0/authority=0, and native test SUCCESS at11:14:40.771.
+  This proves joining snapshots and live updates for flags and briefing visibility;
+  it is not blanket multiplayer coverage for every action.
+- The first movement fixture on the user's Arland scene failed native pathfinding;
+  logs reported missing soldier/vehicle navmesh files. This is not a hold-action
+  pass. A separate MissionFrameworkArland test scene supplies shipped GM Arland
+  navigation files without changing the user's scenario.
+
+Navigation rebuild, automatic-cleanup exclusion and local debug-area rendering have not received live outcome verification. Native terrain-object deletion has not been verified across remote clients.
+Existing empty-world map/loadout and native resource warnings remain; this is not
+a clean-log run. Screenshots show native UI reuse, not a new layout. The optional
+keep-gunners-seated feature adds a scoped SCR_AICombatComponent override.
+
+### Final crew and movement checks
+
+- Custom crew variants: rceef27004a3f496d9d5917ad41b8e1cb returned pass=1,
+  crew=2, customCrew=2 and all vehicle/area/catalog/ticket assertions true.
+- The initial native movement-speed-setting approach failed: formation movement
+  continued despite wantedSpeed=IDLE. It was replaced with native movement controls.
+- Reload 314d00f25d78497c862480d6766f569b compiled the current implementation.
+- Native single-member group moved 7.58 m (rf4e03bb5bb99493cb39980b143136c23).
+  Hold raf8f6d8686414f74a32df8aeee560678 changed disabled=0 to1.
+  r30446687cadb4b61a4de3617dbe26e27 stopped within0.59m (deceleration).
+  Release r46b3ba32c9de4d1d996d880adbd2779f changed disabled=1 to0.
+  The old movement request did not resume automatically; after reassigning the
+  waypoint, r76d3b3483d49487aaee2a6d2b4f2ea40 measured17.16m of movement.
+  This confirms movement is permitted after release, not automatic order recovery.
+- Runtime Stop restored the prior control value, rbff3e332d5a7482198934d9796c0f708.
+- Holding then native player takeover and production runtime evaluation returned
+  possessed=1 disabled=0 (r053c72bbb11b40369113a02d96cc384d). This tests cleanup
+  against real possession, not a simulated player identifier.
+- Perception/fire controls are not modified in source; live combat firing while
+  held and dedicated replication of this restriction remain unverified.

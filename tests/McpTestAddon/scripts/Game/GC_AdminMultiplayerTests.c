@@ -64,6 +64,14 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "mission-framework-snapshot")
+		{
+			bool flag = manager.GC_IsMissionFlagSet("Interaction complete");
+			GC_Briefing briefing = manager.GetBriefing(32);
+			bool hidden = briefing && !briefing.IsVisible();
+			Rpc(GC_TestRpcPeerReport, token, string.Format("flag=%1 briefingHidden=%2 authority=%3", flag, hidden, Replication.IsServer()));
+			return;
+		}
 		if (action == "presentation-report" || action == "presentation-reset" || action == "presentation-map-open" || action == "presentation-map-close" || action == "presentation-setup")
 		{
 			string presentation;
@@ -435,6 +443,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"mission-framework-snapshot",
 			"ao-snapshot",
 			"ao-map",
 			"map-shape-view",

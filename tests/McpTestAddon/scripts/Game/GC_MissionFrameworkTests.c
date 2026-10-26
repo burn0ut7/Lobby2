@@ -35,14 +35,14 @@ class GC_MissionTestAction : GC_MissionAction
 	}
 }
 
-class GC_MissionTestLivingCondition : GC_LivingPlayersCondition
+class GC_MissionTestLivingCondition : GC_PlayerCasualtiesCondition
 {
 	//------------------------------------------------------------------------------------------------
-	void Configure(string factionKey, GC_EMissionCountComparison comparison, int number)
+	void Configure(string factionKey, GC_EMissionCountComparison comparison, float percentage)
 	{
 		m_sFaction = factionKey;
 		m_eComparison = comparison;
-		m_iNumber = number;
+		m_fPercentage = percentage;
 	}
 }
 
@@ -122,16 +122,16 @@ modded class GC_LobbyManager
 		living.Configure("US", GC_EMissionCountComparison.AT_MOST, 0);
 		bool unpopulated = !living.IsMet(freshContext);
 		freshContext.CapturePlayers();
-		int count;
-		bool observed = freshContext.TryGetLivingPlayers("US", count);
-		living.Configure("US", GC_EMissionCountComparison.EXACTLY, count);
+		float percentage;
+		bool observed = freshContext.TryGetPlayerCasualties("US", percentage);
+		living.Configure("US", GC_EMissionCountComparison.EXACTLY, percentage);
 		bool exact = living.IsMet(freshContext) == observed;
 		bool passed = valid && all && any && started && waits && firstDue && independent && once && cancelled
 			&& duplicateRejected && emptyRejected && delayRejected && factionRejected && unpopulated && exact;
 		string result = string.Format("pass=%1 all=%2 any=%3 waits=%4 firstDue=%5 independent=%6 once=%7 cancelled=%8",
 			passed, all, any, waits, firstDue, independent, once, cancelled);
-		return result + string.Format(" duplicate=%1 empty=%2 delay=%3 faction=%4 unpopulated=%5 exact=%6 livingUS=%7 observedUS=%8",
-			duplicateRejected, emptyRejected, delayRejected, factionRejected, unpopulated, exact, count, observed);
+		return result + string.Format(" duplicate=%1 empty=%2 delay=%3 faction=%4 unpopulated=%5 exact=%6 casualtyPercentUS=%7 observedUS=%8",
+			duplicateRejected, emptyRejected, delayRejected, factionRejected, unpopulated, exact, percentage, observed);
 	}
 }
 

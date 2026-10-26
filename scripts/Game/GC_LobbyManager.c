@@ -6,6 +6,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 {
 	[Attribute("", UIWidgets.Object, "Mission Events. Each runs its Actions once when its Conditions are met during GAME. Leave empty to use no automatic mission rules.", category: "Mission Framework")]
 	protected ref array<ref GC_MissionEvent> m_aMissionEvents;
+	[Attribute("", UIWidgets.Object, "Optional named flags for reusable conditions and interactions. Basic events can use conditions directly.", category: "Mission Framework")]
+	protected ref array<ref GC_MissionFlag> m_aMissionFlags;
+	[Attribute("0", UIWidgets.CheckBox, "Testing only: End Mission actions log their result but leave the mission running. Turn off for published missions.", category: "Mission Framework")]
+	protected bool m_bPreviewMissionEnd;
 	protected ref GC_MissionFramework m_MissionFramework;
 
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
@@ -137,7 +141,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (GetManager() == this && !m_MissionFramework)
 			{
 				m_MissionFramework = new GC_MissionFramework();
-				m_MissionFramework.Start(this, m_aMissionEvents);
+				m_MissionFramework.Start(this, m_aMissionEvents, m_aMissionFlags);
 			}
 		}
 	}

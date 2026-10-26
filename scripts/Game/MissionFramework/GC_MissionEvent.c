@@ -10,6 +10,8 @@ class GC_MissionEvent
 {
 	[Attribute("", UIWidgets.EditBox, "Unique event name, for example BLUFOR defeated. Events run once, during the mission only.")]
 	string m_sName;
+	[Attribute("0", UIWidgets.CheckBox, "Allow this event during preview, slotting and briefing as well as GAME. Casualty conditions still wait for GAME.", category: "Advanced")]
+	bool m_bAllowBeforeGame;
 	[Attribute("0", UIWidgets.ComboBox, "When should this event start?", enums: ParamEnumArray.FromEnum(GC_EMissionConditionMatch))]
 	GC_EMissionConditionMatch m_eMatch;
 	[Attribute("", UIWidgets.Object, "Conditions checked together. At least one condition is required.")]
@@ -56,14 +58,15 @@ class GC_MissionEvent
 	//------------------------------------------------------------------------------------------------
 	bool IsMet(GC_LobbyMissionContext context)
 	{
+		int matching;
 		foreach (GC_MissionCondition condition : m_aConditions)
 		{
-			bool met = condition.IsMet(context);
-			if (m_eMatch == GC_EMissionConditionMatch.ALL_CONDITIONS && !met)
-				return false;
-			if (m_eMatch == GC_EMissionConditionMatch.ANY_CONDITION && met)
-				return true;
+			// Evaluate every condition so timed conditions observe false results too.
+			if (condition.Evaluate(context))
+				matching++;
 		}
-		return m_eMatch == GC_EMissionConditionMatch.ALL_CONDITIONS;
+		if (m_eMatch == GC_EMissionConditionMatch.ALL_CONDITIONS)
+			return matching == m_aConditions.Count();
+		return matching > 0;
 	}
 }
