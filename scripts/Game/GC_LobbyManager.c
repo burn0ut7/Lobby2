@@ -43,10 +43,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("File", UIWidgets.EditBox, "Formation name used when a group formation is unavailable")]
 	protected string m_sDefaultFormation;
 
-	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog")]
+	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Mission Framework")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
 
-	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values")]
+	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values", category: "Mission Framework")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
 
 	//! Authority-only policy for slots added after an all-slot action; -1 uses authoring.
