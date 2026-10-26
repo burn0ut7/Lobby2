@@ -6,20 +6,11 @@ class GC_LobbyGameModeClass : SCR_BaseGameModeClass
 
 class GC_LobbyGameMode : SCR_BaseGameMode
 {
-	[Attribute("", UIWidgets.Object, "Mission Events. Each runs its Actions once when its Conditions are met during GAME. Leave empty to use no automatic mission rules.", category: "Mission Framework")]
-	protected ref array<ref GC_MissionEvent> m_aMissionEvents;
-	protected ref GC_MissionFramework m_MissionFramework;
 	protected bool m_bStartupLogged;
 	protected ref GC_MapPlans m_MapPlans;
 	protected ref GC_AOLimitSystem m_AOLimits;
 	protected ref GC_MapShapeSystem m_MapShapes;
 	protected ref GC_BoundaryAdmin m_BoundaryAdmin;
-
-	//------------------------------------------------------------------------------------------------
-	GC_MissionFramework GetMissionFramework()
-	{
-		return m_MissionFramework;
-	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_BoundaryAdmin GetBoundaryAdmin()
@@ -63,8 +54,6 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 
 		if (Replication.IsServer())
 		{
-			m_MissionFramework = new GC_MissionFramework();
-			m_MissionFramework.Start(this, m_aMissionEvents);
 			m_BoundaryAdmin = new GC_BoundaryAdmin();
 			m_BoundaryAdmin.Start(this);
 			m_MapShapes = new GC_MapShapeSystem();
@@ -196,8 +185,6 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyGameMode()
 	{
-		if (m_MissionFramework)
-			m_MissionFramework.Stop();
 		if (m_BoundaryAdmin && GetGame())
 			m_BoundaryAdmin.Stop();
 		if (m_MapShapes)

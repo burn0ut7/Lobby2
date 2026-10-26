@@ -1,13 +1,13 @@
 # Mission Framework validation
 
-## Current game-mode authoring
+## Current lobby-component authoring
 
 Open the optional test addon's `worlds/MissionFramework.ent`. It places
 `GameMode_USDefeated.et` as its sole game mode, named `MissionFrameworkMode`,
 with a playable US group. This tests authored world-start initialization.
 Use the generic MCP runtime interface on its `GC_LobbyManager` component:
 
-- `GC_TestMissionFramework()` reports the game-mode-owned runtime.
+- `GC_TestMissionFramework()` reports the lobby-component-owned runtime.
 - `GC_TestMissionRules()` runs the same production evaluator/scheduler tests
   before GAME and during GAME. Synthetic timestamps test scheduling decisions.
 - Select US and an available slot with the existing UI helpers. Advance phases
@@ -19,7 +19,26 @@ The former spawn/delete-setup and isolation-spawn helpers were removed along
 with the separate setup entity. Historical evidence below describes that earlier
 version and is not a claim that its authoring surface still exists.
 
-## Game-mode migration evidence — 2026-10-26
+## Lobby-component migration review — 2026-10-26
+
+Mission Events now belongs to GC_LobbyManager on the game-mode entity. The
+example overrides that existing component by its inherited ID. Initialization
+runs from the component's OnWorldPostProcess; Shutdown cancels deferred startup,
+ticks and pending actions. Context and callbacks require that exact active
+manager, so a stopped or replaced component cannot execute rules.
+
+Source checks: one attributed event array, one framework Start call, all context
+constructors updated, example component ID matches the base prefab, and
+`git diff --check` passes. The evaluator and action delay rules are unchanged.
+
+Fresh live validation is **not available**: MCP `workbench_script_status` reported
+“Configured Workbench is not running.” Compilation, component attribute
+inspection, world-start behavior, pending-action teardown, and the gameplay
+sequence above must be rerun in Workbench. Earlier receipts below validate
+previous revisions, not this component migration. Dedicated/remote/JIP coverage
+also remains outstanding.
+
+## Historical game-mode migration evidence — 2026-10-26
 
 Native reload `0c8c1c00022842678d9e6c58f2cd4cfa` succeeded in the existing
 Workbench PID 1940. Native entity inspection of the authored test world found

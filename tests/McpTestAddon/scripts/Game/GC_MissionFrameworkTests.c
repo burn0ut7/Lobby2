@@ -52,9 +52,9 @@ modded class GC_LobbyManager
 	string GC_TestMissionFramework()
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
-		if (!Replication.IsServer() || GetManager() != this || !mode || !mode.GetMissionFramework())
+		if (!Replication.IsServer() || GetManager() != this || !mode || !m_MissionFramework)
 			return "UNAVAILABLE active authority";
-		return string.Format("phase=%1 %2", GetPhaseName(GetLobbyPhase()), mode.GetMissionFramework().Describe());
+		return string.Format("phase=%1 %2", GetPhaseName(GetLobbyPhase()), m_MissionFramework.Describe());
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ modded class GC_LobbyManager
 	{
 		if (!Replication.IsServer() || GetManager() != this)
 			return "UNAVAILABLE active authority";
-		GC_LobbyMissionContext context = new GC_LobbyMissionContext(GC_LobbyGameMode.GetGameMode());
+		GC_LobbyMissionContext context = new GC_LobbyMissionContext(this);
 		GC_MissionTestCondition yes = new GC_MissionTestCondition();
 		yes.m_bMet = true;
 		GC_MissionTestCondition no = new GC_MissionTestCondition();
@@ -118,7 +118,7 @@ modded class GC_LobbyManager
 		GC_MissionTestLivingCondition living = new GC_MissionTestLivingCondition();
 		living.Configure("NO_SUCH_FACTION", GC_EMissionCountComparison.AT_MOST, 0);
 		bool factionRejected = !living.Validate(context, error);
-		GC_LobbyMissionContext freshContext = new GC_LobbyMissionContext(GC_LobbyGameMode.GetGameMode());
+		GC_LobbyMissionContext freshContext = new GC_LobbyMissionContext(this);
 		living.Configure("US", GC_EMissionCountComparison.AT_MOST, 0);
 		bool unpopulated = !living.IsMet(freshContext);
 		freshContext.CapturePlayers();

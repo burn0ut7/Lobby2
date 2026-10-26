@@ -5,7 +5,7 @@ An **Event** runs its **Actions** when its **Conditions** are met.
 ## Configure the game mode
 
 1. Select your existing **GC_LobbyGameMode** entity in World Editor.
-2. In its entity attributes, expand **Mission Framework / Mission Events**.
+2. Select its **GC_LobbyManager** component, then expand **Mission Framework / Mission Events**.
 3. Add a `GC_MissionEvent` with a unique Name, such as `US defeated`.
 4. Choose **All conditions** or **Any condition**. Add **Living Players** and set
    Faction to a native key (`US`), Comparison to **At most**, **At least**, or
@@ -23,9 +23,13 @@ as the mission's game mode, not as an additional entity beside another game mode
 
 The earlier standalone Mission Setup entity and prefab have been removed. If
 used in a locally authored mission, transfer its event definitions into the game
-mode's Mission Events array and remove that entity. No tracked production worlds
+mode's GC_LobbyManager / Mission Events array and remove that entity. No tracked production worlds
 referenced the removed prefab. This is an explicit authoring-location change,
 not a parallel compatibility executor.
+
+If you authored events directly on the game-mode entity in the previous slice,
+move that array into its existing GC_LobbyManager component. The included example
+has been migrated; there is only one authoring location and executor.
 
 ## Exact behavior
 
@@ -45,7 +49,7 @@ not a parallel compatibility executor.
   the first evaluation at or after their deadline. Actions due together follow
   event-list and action-list order.
 - Conditions are not rechecked for queued actions. Ending the match or losing the
-  owning game mode cancels pending work. Actions are attempted once; failures
+  owning lobby component cancels pending work. Actions are attempted once; failures
   are logged rather than retried.
 - The complete nonempty event list is validated before execution. Missing types,
   unknown factions, invalid comparisons/counts/delays, empty event definitions
@@ -55,7 +59,7 @@ not a parallel compatibility executor.
 
 ## Module ownership
 
-The game mode contains only the authored array, module ownership, and lifecycle
+The existing lobby component contains only the authored array, module ownership, and lifecycle
 calls. All rule behavior remains in `scripts/Game/MissionFramework/`:
 
 | File | Responsibility |

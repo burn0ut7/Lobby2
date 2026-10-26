@@ -2,32 +2,32 @@
 //! faction ownership are queried afresh; the maps are one evaluation's observations.
 class GC_LobbyMissionContext
 {
-	protected GC_LobbyGameMode m_Mode;
+	protected GC_LobbyManager m_Manager;
 	protected ref map<string, int> m_mLivingPlayers = new map<string, int>();
 	protected ref set<string> m_ObservedFactions = new set<string>();
 
 	//------------------------------------------------------------------------------------------------
-	void GC_LobbyMissionContext(GC_LobbyGameMode mode)
+	void GC_LobbyMissionContext(GC_LobbyManager manager)
 	{
-		m_Mode = mode;
+		m_Manager = manager;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	bool IsOwned()
 	{
-		return Replication.IsServer() && m_Mode && GC_LobbyGameMode.GetGameMode() == m_Mode;
+		return Replication.IsServer() && m_Manager && GC_LobbyManager.GetManager() == m_Manager;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	bool IsRunning()
 	{
-		return IsOwned() && m_Mode.GetState() == SCR_EGameModeState.GAME;
+		return IsOwned() && m_Manager.GetLobbyPhase() == SCR_EGameModeState.GAME;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	bool HasEnded()
 	{
-		return !IsOwned() || m_Mode.GetState() == SCR_EGameModeState.POSTGAME;
+		return !IsOwned() || m_Manager.GetLobbyPhase() == SCR_EGameModeState.POSTGAME;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -74,12 +74,9 @@ class GC_LobbyMissionContext
 	{
 		if (!IsRunning() || !IsKnownFaction(winningFactionKey))
 			return false;
-		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (!manager)
-			return false;
 		Faction winner = GetGame().GetFactionManager().GetFactionByKey(winningFactionKey);
 		int winnerIndex = GetGame().GetFactionManager().GetFactionIndex(winner);
 		ref SCR_GameModeEndData endData = SCR_GameModeEndData.CreateSimple(EGameOverTypes.EDITOR_FACTION_VICTORY, -1, winnerIndex);
-		return manager.EnterPostGame(endData);
+		return m_Manager.EnterPostGame(endData);
 	}
 }

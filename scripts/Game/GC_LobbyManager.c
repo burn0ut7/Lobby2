@@ -4,6 +4,10 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
+	[Attribute("", UIWidgets.Object, "Mission Events. Each runs its Actions once when its Conditions are met during GAME. Leave empty to use no automatic mission rules.", category: "Mission Framework")]
+	protected ref array<ref GC_MissionEvent> m_aMissionEvents;
+	protected ref GC_MissionFramework m_MissionFramework;
+
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
 	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
 	protected const string DEFAULT_FORMATION_NAME = "File";
@@ -128,7 +132,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		super.OnWorldPostProcess(world);
 		if (Replication.IsServer() && !SCR_Global.IsEditMode())
+		{
 			StartPhaseClock(GetLobbyPhase());
+			if (GetManager() == this && !m_MissionFramework)
+			{
+				m_MissionFramework = new GC_MissionFramework();
+				m_MissionFramework.Start(this, m_aMissionEvents);
+			}
+		}
 	}
 
 	protected bool EnsureParameterCatalog()
@@ -4783,6 +4794,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
+		if (m_MissionFramework)
+			m_MissionFramework.Stop();
 		GetGame().GetCallqueue().Remove(FinishSlotLottery);
 		m_aSlotLotteries.Clear();
 		m_mFactionReadiness.Clear();
