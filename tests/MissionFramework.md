@@ -276,3 +276,12 @@ keep-gunners-seated feature adds a scoped SCR_AICombatComponent override.
   against real possession, not a simulated player identifier.
 - Perception/fire controls are not modified in source; live combat firing while
   held and dedicated replication of this restriction remain unverified.
+### Event All / Any / None matching (2026-10-26)
+
+- Reload ca04ca10d84a4a40962c8a39eb1aba3d succeeded.
+- GC_TestMissionEventMatches, rc0a4dd3f21fa42af910c605078910fba:
+  all 12 truth-table cases passed; None triggered once after both conditions
+  became false; individual inversion prevented a match; empty conditions rejected.
+- GC_TestMissionExpansion, radaf2cfb0a4943efaa61ded7cc943e20:
+  existing group, timer, event-control, flag, random, capture and follow-up tests passed.
+- Existing serialized All=0 and Any=1 values are retained; None is appended as2.

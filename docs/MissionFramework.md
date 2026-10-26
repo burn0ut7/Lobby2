@@ -32,7 +32,7 @@ remain in the same category. No additional framework entity is needed.
 | Condition Group | All, Any, At Least, At Most, Exactly, or All Same; supports nesting |
 
 **All Same** means all true or all false. **Invert** reverses the result.
-Top-level events keep the simple **All Conditions / Any Condition** choice.
+Events offer **All / Any / None**, defaulting to All. None matches only when every condition is false, after any individual Invert setting. Events still require at least one condition.
 
 Area conditions use a named center and radius in meters. A named polyline with
 three or more points instead uses its X/Z polygon. Empty populations do not

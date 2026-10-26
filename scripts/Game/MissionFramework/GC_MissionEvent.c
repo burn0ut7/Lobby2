@@ -1,7 +1,8 @@
 enum GC_EMissionConditionMatch
 {
 	ALL_CONDITIONS,
-	ANY_CONDITION
+	ANY_CONDITION,
+	NO_CONDITIONS
 }
 
 //! Authored definition only. Execution history and pending actions belong to the runtime.
@@ -12,7 +13,7 @@ class GC_MissionEvent
 	string m_sName;
 	[Attribute("0", UIWidgets.CheckBox, "Allow this event during preview, slotting and briefing as well as GAME. Casualty conditions still wait for GAME.", category: "Advanced")]
 	bool m_bAllowBeforeGame;
-	[Attribute("0", UIWidgets.ComboBox, "When should this event start?", enums: ParamEnumArray.FromEnum(GC_EMissionConditionMatch))]
+	[Attribute("0", UIWidgets.ComboBox, "All: every condition is true. Any: at least one is true. None: every condition is false.", enums: {ParamEnum("All", "0"), ParamEnum("Any", "1"), ParamEnum("None", "2")})]
 	GC_EMissionConditionMatch m_eMatch;
 	[Attribute("", UIWidgets.Object, "Conditions checked together. At least one condition is required.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
@@ -27,9 +28,9 @@ class GC_MissionEvent
 			error = "Each event needs a name, at least one condition and at least one action.";
 			return false;
 		}
-		if (m_eMatch < GC_EMissionConditionMatch.ALL_CONDITIONS || m_eMatch > GC_EMissionConditionMatch.ANY_CONDITION)
+		if (m_eMatch < GC_EMissionConditionMatch.ALL_CONDITIONS || m_eMatch > GC_EMissionConditionMatch.NO_CONDITIONS)
 		{
-			error = "Choose All conditions or Any condition.";
+			error = "Choose All, Any, or None.";
 			return false;
 		}
 		foreach (GC_MissionCondition condition : m_aConditions)
@@ -67,6 +68,8 @@ class GC_MissionEvent
 		}
 		if (m_eMatch == GC_EMissionConditionMatch.ALL_CONDITIONS)
 			return matching == m_aConditions.Count();
+		if (m_eMatch == GC_EMissionConditionMatch.NO_CONDITIONS)
+			return matching == 0;
 		return matching > 0;
 	}
 }

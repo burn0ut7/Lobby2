@@ -15,6 +15,56 @@ class GC_MissionTestFollowup : GC_MissionTestAction
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestMissionEventMatches()
+	{
+		if (!Replication.IsServer() || GetManager() != this || GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
+			return "UNAVAILABLE active authority";
+		GC_LobbyMissionContext context = new GC_LobbyMissionContext(this);
+		GC_MissionTestCondition first = new GC_MissionTestCondition();
+		GC_MissionTestCondition second = new GC_MissionTestCondition();
+		GC_MissionTestAction action = new GC_MissionTestAction();
+		GC_MissionEvent rule = new GC_MissionEvent();
+		rule.m_sName = "Event match test";
+		rule.m_bAllowBeforeGame = true;
+		rule.m_aConditions = {first, second};
+		rule.m_aActions = {action};
+		// Input rows: false/false, true/false, false/true, true/true.
+		array<bool> expectedAll = {false, false, false, true};
+		array<bool> expectedAny = {false, true, true, true};
+		array<bool> expectedNone = {true, false, false, false};
+		bool truthTable = true;
+		for (int row; row < 4; row++)
+		{
+			first.m_bMet = row == 1 || row == 3;
+			second.m_bMet = row == 2 || row == 3;
+			rule.m_eMatch = GC_EMissionConditionMatch.ALL_CONDITIONS;
+			truthTable = (rule.IsMet(context) == expectedAll[row]) && truthTable;
+			rule.m_eMatch = GC_EMissionConditionMatch.ANY_CONDITION;
+			truthTable = (rule.IsMet(context) == expectedAny[row]) && truthTable;
+			rule.m_eMatch = GC_EMissionConditionMatch.NO_CONDITIONS;
+			truthTable = (rule.IsMet(context) == expectedNone[row]) && truthTable;
+		}
+		GC_MissionRuntime runtime = new GC_MissionRuntime();
+		array<ref GC_MissionEvent> events = {rule};
+		bool started = runtime.Start(context, events);
+		runtime.Update(1);
+		bool scheduled = action.m_iCalls == 0;
+		first.m_bMet = false;
+		second.m_bMet = false;
+		runtime.Update(2);
+		runtime.Update(3);
+		scheduled = scheduled && action.m_iCalls == 1;
+		runtime.Stop();
+		second.m_bInvert = true;
+		bool inverted = !rule.IsMet(context);
+		rule.m_aConditions.Clear();
+		string error;
+		bool emptyRejected = !rule.Validate(context, error);
+		return string.Format("pass=%1 truthTable=%2 started=%3 once=%4 inversion=%5 emptyRejected=%6",
+			truthTable && started && scheduled && inverted && emptyRejected, truthTable, started, scheduled, inverted, emptyRejected);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestMissionExpansion()
 	{
 		if (!Replication.IsServer() || GetManager() != this || GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
