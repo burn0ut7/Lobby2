@@ -107,7 +107,7 @@ enum GC_EMissionNumberOperation
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Change Respawn Tickets")]
 class GC_ChangeRespawnTicketsAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Faction whose mission respawn budget changes. Each faction starts with zero tickets.")]
+	[Attribute("", UIWidgets.ComboBox, "Faction whose mission respawn budget changes. Each faction starts with zero tickets.", enums: {ParamEnum("(None)", "", "rst-choices:1:GC_MissionFactionChoices")})]
 	string m_sFaction;
 	[Attribute("1", UIWidgets.ComboBox, "How to change the ticket count. Division rounds down; tickets never go below zero. Changes exceeding 100000 tickets are rejected.", enums: ParamEnumArray.FromEnum(GC_EMissionNumberOperation))]
 	GC_EMissionNumberOperation m_eOperation;

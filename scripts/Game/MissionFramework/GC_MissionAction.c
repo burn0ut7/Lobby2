@@ -21,7 +21,7 @@ class GC_MissionAction
 [BaseContainerProps(), BaseContainerCustomStringTitleField("End Mission")]
 class GC_EndMissionAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Winning faction key. Ends the mission with a faction victory through Lobby2's normal completion path.")]
+	[Attribute("", UIWidgets.ComboBox, "Winning faction key. Ends the mission with a faction victory through Lobby2's normal completion path.", enums: {ParamEnum("(None)", "", "rst-choices:1:GC_MissionFactionChoices")})]
 	protected string m_sWinningFaction;
 	[Attribute(SCR_Enum.GetDefault(EGameOverTypes.EDITOR_FACTION_VICTORY), UIWidgets.ComboBox, "Mission outcome associated with this faction.", enums: ParamEnumArray.FromEnum(EGameOverTypes))]
 	EGameOverTypes m_eEnding;

@@ -1,0 +1,26 @@
+# Mission framework dropdowns
+
+**Flag Is Set** and interaction **Required Flag** offer existing mission flags.
+Create a flag on its Set Flag action, random flag action, flag pool, interaction,
+or optional Mission Flags entry. The dropdown finds those sources automatically;
+you do not need to declare the same flag twice.
+
+Faction fields offer keys from the world's faction manager. The first slice covers
+scalar faction fields; faction arrays still use their existing editor controls.
+
+With the native editor extension enabled, choices refresh about once a second.
+Renamed or deleted sources do not rewrite conditions: their previous selection
+appears as **(not found)** until you deliberately choose another value. **(None)**
+stores an empty string; normal mission validation still decides whether it is
+allowed for that field.
+
+This prototype requires the matching Reforger MCP server and its installed editor
+adapter, with `workbench_dynamic_choices(action="enable", processId=...)` active.
+Keep the server running and enable again after restarting either process. A plain
+Workbench session does not populate these choices. The extension currently checks
+the exact Workbench 1.8.0.13 / Qt 6.8.3 binaries. See the tools repository's
+`docs/workbench-dynamic-choices.md` for setup, status and provider authoring.
+
+`GC_MissionChoices.c` owns Lobby2's source discovery; the extension owns native
+control updates. Both are editor-only. Saved field names, flag behavior, condition
+evaluation and mission authority remain unchanged.
