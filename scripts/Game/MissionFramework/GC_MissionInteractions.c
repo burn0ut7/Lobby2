@@ -5,7 +5,7 @@ class GC_MissionInteraction : ScriptedUserAction
 	string m_sTitle;
 	[Attribute("", UIWidgets.EditBox, "Allowed faction keys. Empty allows everyone.")]
 	ref array<string> m_aFactions;
-	[Attribute("", UIWidgets.ComboBox, "Optional flag that must be set before this interaction is available.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFlagChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Optional flag that must be set before this interaction is available. Choose a flag or type its name, even before creating its source.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFlagChoices")})]
 	string m_sRequiredFlag;
 
 	//------------------------------------------------------------------------------------------------

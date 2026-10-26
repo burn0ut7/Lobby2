@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("AI Casualties (%)")]
 class GC_AICasualtiesCondition : GC_MissionCondition
 {
-	[Attribute("", UIWidgets.ComboBox, "Faction key.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFactionChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Faction key. Choose a faction or type its key.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFactionChoices")})]
 	string m_sFaction;
 	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of AI lives lost.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than (<)", "3"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
 	GC_EMissionCountComparison m_eComparison;
@@ -131,7 +131,7 @@ class GC_AreaCondition : GC_MissionCondition
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Faction In Area (%)")]
 class GC_FactionInAreaCondition : GC_AreaCondition
 {
-	[Attribute("", UIWidgets.ComboBox, "Faction whose living members must reach the area.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFactionChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Faction whose living members must reach the area. Choose a faction or type its key.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFactionChoices")})]
 	string m_sFaction;
 	[Attribute("1", UIWidgets.CheckBox, "Only players. Off includes living AI.")]
 	bool m_bPlayersOnly;
