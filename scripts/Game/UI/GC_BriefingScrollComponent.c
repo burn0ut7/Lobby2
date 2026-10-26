@@ -1,4 +1,4 @@
-//! Owns briefing-region wheel input so it cannot propagate to the map beneath it.
+//! Owns briefing-region widget wheel input. Map action listeners are guarded separately.
 //! Overflow state is derived from the laid-out viewport and content sizes.
 class GC_BriefingScrollComponent : SCR_ScriptedWidgetComponent
 {
@@ -53,8 +53,7 @@ class GC_BriefingScrollComponent : SCR_ScriptedWidgetComponent
 		if (!m_wScroll)
 			return false;
 
-		// Always consume wheel input over a briefing region. Even without overflow,
-		// it must not reach and zoom the map underneath the panel.
+		// Consume widget propagation even when this region has no overflow.
 		if (!m_bOverflow || wheel == 0)
 		{
 			m_wScroll.SetSliderPos(0, 0);

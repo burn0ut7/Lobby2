@@ -66,3 +66,38 @@ alternate viewport/UI scales, separate peers/JIP and addon-free isolation were
 not tested. Runtime screenshots use a 2613x1408 game viewport inside Workbench.
 Existing world/resource/loadout/icon errors remain in the session; a GUI `name`
 parse message at map opening is unlocalized. No blanket clean-log claim is made.
+
+## Wheel ownership regression
+
+The map cursor's wheel action listeners run independently of widget consumption.
+`GC_MapCursorModule_Briefing` guards only those two listeners using the local
+controller's live drawer bounds and active Lobby2 ownership. Digital/gamepad
+zoom and inherited wheel behavior outside the drawer remain unchanged. No
+shared input state or subscriptions are retained.
+
+`GC_TestMapBriefingWheel(targetName, wheel)` in the optional test addon supplies
+synthetic pointer coordinates to the production map handlers and calls the
+existing scroll handler. Targets include `BriefingTitlesScroll`,
+`BriefingSectionScroll`, `SlideOutHandle`, and `map`; directions are -1 and 1.
+This checks handler behavior, not physical event routing.
+
+Validated 2026-10-25, Workbench 1.8.0.13, reload
+`18143574133b4cf9a90a69b5528729ce`:
+
+- Titles move 0 -> 83.437 -> 0 pixels with zoom fixed at 18.0659
+  (`r6c853ae012544ec4bc51e467e83af46f`, `rae1538502e164c63b414eadf236d8612`).
+- Visible Situation body consumes both directions with no overflow and no zoom
+  (`r79f1191c91494e45b86c015149d34ef1`, `rdd5b57354bad408eb5df52f5cbd331e6`).
+- At list bottom, scroll remains 534.844 and zoom stays fixed
+  (`rc1b77c70a0584b0688fb850b03c88cde`). Handle blocks both directions.
+- Outside the drawer both zoom directions change the target zoom; collapsed
+  drawer also allows map zoom (`r05fcae782bb34ed282f356cd4eb752b2`).
+- Native map close/reopen allows zoom (`r514ae5d4d6874e1f9b50779b3f5f4a9b`).
+
+The initial reload found a reserved test variable name; the first runtime attempt
+found missing BaseContainerProps registration on the modded cursor class. Both
+were corrected before the passing cycle. Latest-cycle errors were inspected;
+existing world/resource/loadout/icon/GUI errors remain, with no cursor exception.
+Physical wheel delivery, overflowing document-body content, and unrelated-mode
+comparison against an addon-free baseline remain unverified. The shared override
+has an explicit active-mode guard but that alone does not establish coexistence.

@@ -245,6 +245,18 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		return opacity * opacity * (3 - 2 * opacity);
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Only the visible handle and exposed content own pointer input.
+	bool ContainsPointer(int mouseX, int mouseY)
+	{
+		if (!m_wRoot || !m_wRoot.IsVisibleInHierarchy())
+			return false;
+
+		return IsPointerInside(m_wHandle, mouseX, mouseY)
+			|| (m_fProgress > 0 && IsPointerInside(m_wContent, mouseX, mouseY));
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected bool IsPointerInside(Widget widget, int mouseX, int mouseY)
 	{
 		if (!widget)

@@ -16,6 +16,16 @@ modded class GC_LobbyPlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
+	bool GC_IsPointerOverMapBriefing(int mouseX, int mouseY)
+	{
+		if (!GC_LobbyGameMode.GetGameMode() || !m_wGC_MapBriefing)
+			return false;
+
+		GC_SlideOutComponent drawer = GC_SlideOutComponent.Cast(m_wGC_MapBriefing.FindHandler(GC_SlideOutComponent));
+		return drawer && drawer.ContainsPointer(mouseX, mouseY);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void GC_CloseMapBriefing()
 	{
 		if (m_wGC_MapBriefing)
