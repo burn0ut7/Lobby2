@@ -31,12 +31,42 @@ Source checks: one attributed event array, one framework Start call, all context
 constructors updated, example component ID matches the base prefab, and
 `git diff --check` passes. The evaluator and action delay rules are unchanged.
 
-Fresh live validation is **not available**: MCP `workbench_script_status` reported
-“Configured Workbench is not running.” Compilation, component attribute
-inspection, world-start behavior, pending-action teardown, and the gameplay
-sequence above must be rerun in Workbench. Earlier receipts below validate
-previous revisions, not this component migration. Dedicated/remote/JIP coverage
-also remains outstanding.
+### Live verification — 2026-10-26, 09:08–09:10 EDT
+
+User requested opening Workbench with tests and leaving it open. PID 20124,
+Workbench 1.8.0.13, loaded Lobby2, Lobby2McpTests and Lobby2IsolationProbe.
+Reload `7efb54624f4142d79d044cb9bbcecd34` returned `reloaded`.
+
+Native inspection of MissionFrameworkMode found GC_LobbyManager at component 2
+with one inherited GC_MissionEvent in m_aMissionEvents. The entity root's full
+86-property listing had no mission-framework fields.
+
+- Authored initialization: `r6059a55e6aeb4e50acbbc68fac9c38f3` returned
+  PREGAME, stopped=0, started=0, pending=0, attempted=0.
+- Pregame evaluator: `r1617773f8a374aaa815753efda2f4095`, pass=1.
+- Production UI helpers selected US and slot 1 and advanced through briefing
+  to GAME. Possession confirmed by `r6f66eae6e9454473a470c82f64a48c11`.
+- GAME evaluator: `r2743562d5da54b4aaa4cd1578d3dc458`, all checks passed:
+  All/Any, independent deadlines, one-shot execution, cancellation, invalid
+  configuration rejection, unpopulated protection and native livingUS=1.
+- Death: `r5edca3324ea54194b6bfcfdfc7e15280`.
+- Pending: `rec65b8b786e8438687473f8795563cbc`, GAME, started=1,
+  pending=1, attempted=0.
+- Completion: `raf6d54565fbf40fb8b0b8d1ae147b336`, POSTGAME,
+  stopped=1, started=1, pending=0, attempted=1.
+- Session logs_2026-10-26_09-08-04, lines 742–761: event started
+  09:09:43.186; native EndGameMode 09:09:48.190; action applied=1
+  09:09:48.205. MCP screenshot showed the Soviet victory end screen.
+- Returned to Arland: `r1b01d757245743179ca01ce0def860a3` reported
+  PREGAME inactive with its empty event list. Play stopped afterward;
+  Workbench and test addons remain open on Arland.
+
+Embedded-host coverage only. Cancellation above tests the runtime Stop contract;
+world teardown with an action still pending, dedicated/remote/JIP behavior remain
+unverified. Existing resource, missing map/loadout-manager and end-screen widget
+messages remain; this was not a clean-log run. The invalid-configuration errors
+are expected assertions from the evaluator suite. No production changes were
+needed during verification.
 
 ## Historical game-mode migration evidence — 2026-10-26
 
