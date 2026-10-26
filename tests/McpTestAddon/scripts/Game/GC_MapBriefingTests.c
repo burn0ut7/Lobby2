@@ -64,6 +64,15 @@ modded class GC_LobbyManager
 			return slideOut.GC_TestDrawerProximity();
 		if (action == "focus")
 			slideOut.SetHandleFocused(true);
+		else if (action == "closeFocused")
+		{
+			slideOut.SetHandleFocused(true);
+			if (!slideOut.IsPinned())
+				slideOut.TogglePinned();
+			slideOut.TogglePinned();
+			// A focus event from the same click must not reopen during collapse.
+			slideOut.SetHandleFocused(true);
+		}
 		else if (action == "leave")
 			slideOut.SetHandleFocused(false);
 		else if (action == "pin")

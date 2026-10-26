@@ -42,7 +42,7 @@ Validated in embedded Workbench 1.8.0.13, Arland, 2026-10-25:
 - Proximity calculation: inside 1, near 0.73283, far 0.
 - Focus opens; Situation selection displays the existing document.
 - Pin remains open after focus leaves and renders the amber arrow.
-- Unpin preserves expansion while the actual pointer remains over content.
+- Original unpin behavior preserved hover expansion; superseded by the explicit-close fix below.
 - Earlier leave test settled collapsed with zero handle opacity.
 - Existing index scroll reaches the final Scenario entry.
 - Native map close/reopen returns a fresh collapsed drawer.
@@ -101,3 +101,25 @@ existing world/resource/loadout/icon/GUI errors remain, with no cursor exception
 Physical wheel delivery, overflowing document-body content, and unrelated-mode
 comparison against an addon-free baseline remain unverified. The shared override
 has an explicit active-mode guard but that alone does not establish coexistence.
+
+## Explicit close regression
+
+Unpinning now requests collapse regardless of hover or retained button focus.
+Hover opening is suppressed until collapse finishes and the pointer is outside
+the drawer. Focus events generated during that close are ignored; a later fresh
+hover/focus or explicit pin can reopen it. This is shared slide-out behavior,
+including the voice drawer, rather than a briefing-only exception.
+
+Validated through MCP in embedded Workbench 1.8.0.13 on 2026-10-25, reload
+`5201523775514cb897faf4e0a04e8bda`. The `closeFocused` test action invokes the
+production focus/pin/unpin handlers and another focus event in one call:
+
+- Close starts with target=0 despite focus (`r4ba48bdeada14db0b12d1b949fe4273a`).
+- Settles at progress=0, target=0, opacity=0, content disabled
+  (`r8dcbf75cb8d34470bce69b251c63d658`).
+- Fresh focus reopens fully (`r657b991867b64f5db0d08d7ee997ff31`).
+- Pin persists after focus leaves (`rdcdb7e2d9f1545d3959f948763bfec2a`).
+- Repeated explicit close settles fully hidden (`rb911ddc846424567bd91fafaa9adf8b9`).
+
+Physical mouse movement/click delivery and the voice drawer were not exercised
+in this cycle; the checks above invoke the shared production handlers.
