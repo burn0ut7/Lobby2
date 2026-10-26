@@ -27,6 +27,51 @@ FrameWidgetClass : "{6A58000000000001}UI/layouts/Common/Lobby_Slide_Out.layout" 
       HorizontalAlign 0
       VerticalAlign 0
      }
+     {
+      OverlayWidgetClass "{6A41000000000028}" {
+       Prefab "{6A41000000000028}"
+       {
+        HorizontalLayoutWidgetClass "{6A41000000000006}" {
+         Prefab "{6A41000000000006}"
+         "Fill Origin" Right
+         {
+          OverlayWidgetClass "{6A41000000000014}" {
+           Prefab "{6A41000000000014}"
+           Slot LayoutSlot "{6A41000000000015}" {
+            Padding 0 0 6 0
+           }
+          }
+          OverlayWidgetClass "{6A50000000000210}" {
+           Prefab "{6A50000000000210}"
+           Slot LayoutSlot "{6A50000000000211}" {
+            Padding 0 0 6 0
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  ButtonWidgetClass "{6A58000000000006}" {
+   Prefab "{6A58000000000006}"
+   {
+    OverlayWidgetClass "{6A58000000000015}" {
+     Prefab "{6A58000000000015}"
+     {
+      HorizontalLayoutWidgetClass "{6A58000000000017}" {
+       Prefab "{6A58000000000017}"
+       {
+        VerticalLayoutWidgetClass "{59EC7B8322F87B89}" {
+         Prefab "{59EC7B8322F87B89}"
+         "Is Enabled" 0
+         "Is Visible" 0
+        }
+       }
+      }
+     }
     }
    }
   }
