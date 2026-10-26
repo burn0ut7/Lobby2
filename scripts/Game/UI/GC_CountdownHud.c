@@ -1,7 +1,7 @@
 //! Shared geometry for the setup, admin staging and announcement countdown layout.
 class GC_CountdownHud
 {
-	static const float WIDTH = 226;
+	static const float WIDTH = 250;
 
 	//------------------------------------------------------------------------------------------------
 	//! All boundary HUD cards share a width; label and time fill the row within its margins.

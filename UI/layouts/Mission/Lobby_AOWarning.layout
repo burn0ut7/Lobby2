@@ -9,8 +9,8 @@ FrameWidgetClass {
     Anchor 0.5 0 0.5 0
     OffsetLeft 0
     OffsetTop 70
-    SizeX 226
-    OffsetRight -226
+    SizeX 250
+    OffsetRight -250
     SizeY 68
     OffsetBottom -138
     Alignment 0.5 0
@@ -33,24 +33,24 @@ FrameWidgetClass {
     ImageWidgetClass {
      Name "AOSkull"
      Slot FrameWidgetSlot {
-      OffsetLeft -4
-      OffsetTop 10
-      SizeX 45
-      OffsetRight -41
-      SizeY 48
-      OffsetBottom -58
+      OffsetLeft -16
+      OffsetTop -14
+      SizeX 90
+      OffsetRight -74
+      SizeY 96
+      OffsetBottom -82
      }
      Color 1 1 1 1
      Texture "{98B5DB89D3410108}UI/Textures/Editor/ContextMenu/ContextAction_Kill.edds"
      Image ""
-     Size 45 48
+     Size 90 96
      "Ignore Cursor" 1
     }
     TextWidgetClass {
      Name "AOTitle"
      Slot FrameWidgetSlot {
       Anchor 0 0 1 0
-      OffsetLeft 36
+      OffsetLeft 60
       OffsetTop 4
       OffsetRight 6
       SizeY 26
@@ -70,7 +70,7 @@ FrameWidgetClass {
      Name "AOTimer"
      Slot FrameWidgetSlot {
       Anchor 0 0 1 0
-      OffsetLeft 36
+      OffsetLeft 60
       OffsetTop 30
       OffsetRight 6
       SizeY 34
