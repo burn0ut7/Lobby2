@@ -7,6 +7,30 @@ space is reserved while hidden, so revealing them does not shift the marker.
 Native text filtering, ownership, platform-icon preferences, marker visibility
 restrictions, and other marker types remain with their existing owners.
 
+## Visibility icon follow-up — 2026-10-25
+
+The native private/public eye icon now shares the owner's hover opacity in
+Lobby2. Its native ownership visibility and public/private image selection are
+unchanged. Its slot remains reserved, and leaving Lobby2 restores opacity 1.
+
+Reload succeeded in the same Workbench PID276. Native callbacks and settled
+readbacks verified custom and military markers: mode/author opacity 0 when idle,
+1 on hover, then 0 on leave; description remains visible. Custom marker geometry
+at far zoom stayed icon `(1268.5,645.333)`, text `(1153.64,707.259)`, size
+`117.333 × 117.333`. At near zoom it stayed icon `(1169.5,660.333)`, text
+`(1054.64,722.259)`, with the same size. Military hover also retained identical
+icon/text coordinates and root size. These are comparisons within each zoom;
+normal map zoom/pan movement is preserved.
+
+After switching to the stock Isolation world with Lobby2 still loaded, the
+native fixture retained mode opacity 1 through hover/leave and native text/owner
+visibility. This matches the earlier addon-free baseline for text/owner; the new
+mode-opacity field was not captured in that earlier baseline. Its icon is hidden
+by native ownership in this fixture. No new addon-free project switch was made.
+Local captures `Art/References/marker-eye/idle.png`, `hover.png`, `near-idle.png`,
+`near-hover.png` and `receipts.json` record the checks. Existing physical-input,
+remote-client and alternate-scale limitations below still apply.
+
 The shared widget override queries the current game mode on each operation.
 It introduces no global state, frame updates, timers, or resource overrides.
 Placed marker types are identified by their native category, including restored

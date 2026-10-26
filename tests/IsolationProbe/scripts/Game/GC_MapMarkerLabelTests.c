@@ -40,7 +40,8 @@ modded class SCR_MapMarkerWidgetComponent
 			m_wAuthorPlatformIcon.IsVisible(), m_wAuthorPlatformIcon.GetOpacity())
 			+ string.Format(" iconXY=%1,%2 textXY=%3,%4 authorXY=%5,%6 rootSize=%7,%8",
 			iconX, iconY, textX, textY, authorX, authorY, width, height)
-			+ string.Format(" detailsVisible=%1 detailsOpacity=%2 layer=%3", m_wTypeIconRoot.IsVisible(), m_wTypeIconRoot.GetOpacity(), m_iLayerID);
+			+ string.Format(" detailsVisible=%1 detailsOpacity=%2 layer=%3 modeVisible=%4 modeOpacity=%5", m_wTypeIconRoot.IsVisible(), m_wTypeIconRoot.GetOpacity(), m_iLayerID,
+			m_wMarkerModeIcon.IsVisible(), m_wMarkerModeIcon.GetOpacity());
 	}
 }
 

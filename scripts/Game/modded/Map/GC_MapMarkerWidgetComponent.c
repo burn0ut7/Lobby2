@@ -68,6 +68,7 @@ modded class SCR_MapMarkerWidgetComponent
 			{
 				m_wMarkerAuthor.SetOpacity(1);
 				m_wAuthorPlatformIcon.SetOpacity(1);
+				m_wMarkerModeIcon.SetOpacity(1);
 				m_bGC_OwnsAuthorOpacity = false;
 			}
 
@@ -76,6 +77,7 @@ modded class SCR_MapMarkerWidgetComponent
 		}
 
 		// Reserve the native owner row without changing its platform-icon preference.
+		// Keep the visibility icon in that same hover state without collapsing its slot.
 		// Opacity keeps hover from resizing the marker's content layout.
 		super.ShowAuthor(true);
 		float opacity = 0;
@@ -84,6 +86,7 @@ modded class SCR_MapMarkerWidgetComponent
 
 		m_wMarkerAuthor.SetOpacity(opacity);
 		m_wAuthorPlatformIcon.SetOpacity(opacity);
+		m_wMarkerModeIcon.SetOpacity(opacity);
 		m_bGC_OwnsAuthorOpacity = true;
 	}
 }
