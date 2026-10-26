@@ -65,6 +65,12 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		m_fExpandedX = FrameSlot.GetPosX(m_wRoot);
 		m_fExpandedY = FrameSlot.GetPosY(m_wRoot);
 		ConfigureChildren();
+		// Child handlers finish before the parent's deferred initialization.
+		SizeLayoutWidget contentSize;
+		if (m_wContent)
+			contentSize = SizeLayoutWidget.Cast(m_wContent.GetChildren());
+		if (contentSize && contentSize.IsWidthOverride())
+			SetContentWidth(contentSize.GetWidthOverride());
 
 		if (m_eDirection == GC_ESlideOutDirection.LEFT || m_eDirection == GC_ESlideOutDirection.RIGHT)
 			m_fTravelDistance = FrameSlot.GetSizeX(m_wRoot) - m_fHandleSize;
@@ -254,6 +260,22 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 			&& mouseY >= widgetY && mouseY < widgetY + widgetHeight;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Keep a horizontal drawer flush with its edge when its content changes width.
+	void SetContentWidth(float width)
+	{
+		if (width <= 0)
+			return;
+		if (m_eDirection != GC_ESlideOutDirection.LEFT && m_eDirection != GC_ESlideOutDirection.RIGHT)
+			return;
+		if (!m_wRoot || !m_wContent)
+			return;
+
+		FrameSlot.SetSizeX(m_wRoot, width + m_fHandleSize);
+		m_fTravelDistance = width;
+		ApplyProgress();
+	}
+
 	void TogglePinned()
 	{
 		m_bPinned = !m_bPinned;
@@ -281,6 +303,8 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		m_wContent = content;
 		m_wHandle = handle;
 		m_HandleComponent = GC_SlideOutHandleComponent.Cast(handle.FindHandler(GC_SlideOutHandleComponent));
+		if (m_HandleComponent)
+			m_HandleComponent.SetSlideOut(this);
 
 		FrameSlot.SetAnchorMin(content, 0, 0);
 		FrameSlot.SetAnchorMax(content, 1, 1);
@@ -421,13 +445,6 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		SetToggleable(false);
 		m_bUseColorization = false;
 
-		Widget parent = w.GetParent();
-		while (parent && !m_SlideOut)
-		{
-			m_SlideOut = GC_SlideOutComponent.Cast(parent.FindHandler(GC_SlideOutComponent));
-			parent = parent.GetParent();
-		}
-
 		Widget handle = w;
 		if (handle)
 		{
@@ -468,6 +485,14 @@ class GC_SlideOutHandleComponent : SCR_ButtonBaseComponent
 		if (m_SlideOut)
 			m_SlideOut.SetHandleFocused(false);
 		return super.OnFocusLost(w, x, y);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! The parent binds after child attachment, when its handler is available.
+	void SetSlideOut(GC_SlideOutComponent slideOut)
+	{
+		m_SlideOut = slideOut;
+		UpdateVisuals();
 	}
 
 	void SetProximityOpacity(float opacity)

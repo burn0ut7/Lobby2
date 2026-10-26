@@ -57,11 +57,13 @@ modded class GC_LobbyPlayerController
 		GetGame().GetCallqueue().CallLater(GC_UpdateMapShapes, 16, true);
 		GC_UpdateMapShapes();
 		m_GC_MapShapes.OnMapReady(config);
+		GC_OpenMapBriefing(config);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void GC_MapClosed(MapConfiguration config)
 	{
+		GC_CloseMapBriefing();
 		GetGame().GetCallqueue().Remove(GC_UpdateMapShapes);
 		if (m_GC_MapShapes)
 			m_GC_MapShapes.Close();

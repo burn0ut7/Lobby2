@@ -665,18 +665,31 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
         m_MapFocusController.Cancel();
     }
 
-    protected void SetViewWidth(float width)
-    {
-        if (!m_wViewSize)
-            return;
+	//------------------------------------------------------------------------------------------------
+	protected void SetViewWidth(float width)
+	{
+		if (!m_wViewSize)
+			return;
 
-        m_wViewSize.SetWidthOverride(width);
+		m_wViewSize.SetWidthOverride(width);
 
-        // A FrameWidgetSlot owns the instantiated view's final dimensions, so
-        // keep it synchronized with the authored expanded width or compact width.
-        if (FrameWidget.Cast(m_wViewSize.GetParent()))
-            FrameSlot.SetSizeX(m_wViewSize, width);
-    }
+		Widget parent = m_wViewSize.GetParent();
+		while (parent)
+		{
+			GC_SlideOutComponent slideOut = GC_SlideOutComponent.Cast(parent.FindHandler(GC_SlideOutComponent));
+			if (slideOut)
+			{
+				slideOut.SetContentWidth(width);
+				break;
+			}
+			parent = parent.GetParent();
+		}
+
+		// A FrameWidgetSlot owns the instantiated view's final dimensions, so
+		// keep it synchronized with the authored expanded width or compact width.
+		if (FrameWidget.Cast(m_wViewSize.GetParent()))
+			FrameSlot.SetSizeX(m_wViewSize, width);
+	}
 
     protected void SetViewHeight(float height)
     {

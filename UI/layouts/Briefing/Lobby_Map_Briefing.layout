@@ -1,0 +1,34 @@
+FrameWidgetClass : "{6A58000000000001}UI/layouts/Common/Lobby_Slide_Out.layout" {
+ Name "MapBriefingSlideOut"
+ Slot FrameWidgetSlot "{6A58000000000002}" {
+  Anchor 1 0.5 1 0.5
+  PositionX 0
+  OffsetLeft 0
+  PositionY 0
+  OffsetTop 0
+  SizeX 949.2
+  OffsetRight -949.2
+  SizeY 820
+  OffsetBottom -820
+  Alignment 1 0.5
+ }
+ "Z Order" 10
+ {
+  OverlayWidgetClass "{6A58000000000004}" {
+   Prefab "{6A58000000000004}"
+   {
+    SizeLayoutWidgetClass : "{6A4C000000000001}UI/layouts/Briefing/Lobby_Briefing_View.layout" {
+     Name "BriefingView"
+     AllowWidthOverride 1
+     WidthOverride 893.2
+     AllowHeightOverride 1
+     HeightOverride 820
+     Slot OverlayWidgetSlot {
+      HorizontalAlign 0
+      VerticalAlign 0
+     }
+    }
+   }
+  }
+ }
+}
