@@ -100,7 +100,7 @@ class GC_MissionFlag
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Flag Is Set")]
 class GC_FlagCondition : GC_MissionCondition
 {
-	[Attribute("", UIWidgets.ComboBox, "Flag name from its source. Unset or not yet created is false. Use Invert to check that it is not set.", enums: {ParamEnum("(None)", "", "rst-choices:1:GC_MissionFlagChoices")})]
+	[Attribute("", UIWidgets.ComboBox, "Flag name from its source. Unset or not yet created is false. Use Invert to check that it is not set.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFlagChoices")})]
 	string m_sFlag;
 
 	//------------------------------------------------------------------------------------------------

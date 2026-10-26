@@ -43,7 +43,7 @@ enum GC_EMissionCountComparison
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Player Casualties (%)")]
 class GC_PlayerCasualtiesCondition : GC_MissionCondition
 {
-	[Attribute("", UIWidgets.ComboBox, "Faction key, for example US.", enums: {ParamEnum("(None)", "", "rst-choices:1:GC_MissionFactionChoices")})]
+	[Attribute("", UIWidgets.ComboBox, "Faction with playable group slots in this mission.", enums: {ParamEnum("", "", "rst-choices:1:GC_PlayableFactionChoices")})]
 	string m_sFaction;
 	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of players lost.", enums: ParamEnumArray.FromEnum(GC_EMissionCountComparison))]
 	GC_EMissionCountComparison m_eComparison;

@@ -91,4 +91,40 @@ class GC_MissionFactionChoices
 		return values;
 	}
 }
+
+//! Player conditions use authored playable groups with slots, not every faction
+//! loaded by the faction manager. Intersect with its keys so removed factions
+//! and invalid group affiliations are not offered as available choices.
+class GC_PlayableFactionChoices
+{
+	//------------------------------------------------------------------------------------------------
+	array<string> GetChoices(WorldEditorAPI api)
+	{
+		GC_MissionFactionChoices factionChoices = new GC_MissionFactionChoices();
+		array<string> knownFactions = factionChoices.GetChoices(api);
+		array<string> values = {};
+		for (int i; i < api.GetEditorEntityCount(); i++)
+		{
+			IEntitySource entity = api.GetEditorEntity(i);
+			if (!entity)
+				continue;
+			typename entityType = entity.GetClassName().ToType();
+			if (!entityType || !entityType.IsInherited(SCR_AIGroup))
+				continue;
+			bool playable;
+			entity.Get("m_bPlayable", playable);
+			if (!playable)
+				continue;
+			array<ResourceName> slots = {};
+			entity.Get("m_aUnitPrefabSlots", slots);
+			if (slots.IsEmpty())
+				continue;
+			string factionKey;
+			entity.Get("m_faction", factionKey);
+			if (!factionKey.IsEmpty() && knownFactions.Contains(factionKey))
+				values.Insert(factionKey);
+		}
+		return values;
+	}
+}
 #endif

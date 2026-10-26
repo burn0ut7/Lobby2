@@ -5,8 +5,15 @@ Create a flag on its Set Flag action, random flag action, flag pool, interaction
 or optional Mission Flags entry. The dropdown finds those sources automatically;
 you do not need to declare the same flag twice.
 
-Faction fields offer keys from the world's faction manager. The first slice covers
-scalar faction fields; faction arrays still use their existing editor controls.
+**Player Casualties (%)** offers factions with playable groups containing slots.
+It scans the current group sources, including inherited slot lists, and checks
+their keys against the world's faction manager. Removing the last playable group
+or its slots removes that faction from the available choices. The current Arland
+example uses `US` and `USSR`; a mission using `RU` will show `RU`.
+
+Other scalar faction fields offer keys from the world's faction manager, so AI
+conditions can still target factions without player slots. Faction arrays still
+use their existing editor controls.
 
 With the native editor extension enabled, choices refresh about once a second.
 Renamed or deleted sources do not rewrite conditions: their previous selection
