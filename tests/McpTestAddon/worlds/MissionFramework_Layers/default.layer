@@ -1,0 +1,19 @@
+SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
+ coords 125 1 128
+}
+SCR_FactionManager : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
+ coords 132 1 136
+}
+GC_LobbyGameMode MissionFrameworkMode : "{6A115D5DFF7ED907}Prefabs/MP/Modes/Examples/GameMode_USDefeated.et" {
+ coords 130 1 130
+}
+RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
+ coords 130 1 130
+}
+SCR_AIGroup MissionPlayers : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
+ coords 120 1 120
+ m_bPlayable 1
+ m_bSpawnImmediately 0
+ m_bDeleteWhenEmpty 0
+ m_bDeleteIfNoPlayer 0
+}

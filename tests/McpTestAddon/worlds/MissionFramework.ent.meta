@@ -1,0 +1,7 @@
+MetaFileClass {
+ Name "{6A115D5DFF7ED908}worlds/MissionFramework.ent"
+ Configurations {
+  ENTResourceClass PC {
+  }
+ }
+}

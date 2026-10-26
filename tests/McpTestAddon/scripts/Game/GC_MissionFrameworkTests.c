@@ -48,32 +48,13 @@ class GC_MissionTestLivingCondition : GC_LivingPlayersCondition
 
 modded class GC_LobbyManager
 {
-	protected GC_MissionSetupEntity m_GC_MissionTestSetup;
-
 	//------------------------------------------------------------------------------------------------
-	string GC_TestMissionSetup(string operation)
+	string GC_TestMissionFramework()
 	{
-		if (!Replication.IsServer() || GetManager() != this)
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!Replication.IsServer() || GetManager() != this || !mode || !mode.GetMissionFramework())
 			return "UNAVAILABLE active authority";
-		if (operation == "spawn")
-		{
-			if (m_GC_MissionTestSetup)
-				return "ALREADY EXISTS " + m_GC_MissionTestSetup.Describe();
-			Resource prefab = Resource.Load("{6A115D5DFF7ED907}Prefabs/Logic/MissionFramework/Examples/USDefeated.et");
-			m_GC_MissionTestSetup = GC_MissionSetupEntity.Cast(GetGame().SpawnEntityPrefab(prefab, GetGame().GetWorld()));
-			if (!m_GC_MissionTestSetup)
-				return "FAILED spawn";
-			return "SPAWNED; inspect after initialization";
-		}
-		if (operation == "delete" && m_GC_MissionTestSetup)
-		{
-			SCR_EntityHelper.DeleteEntityAndChildren(m_GC_MissionTestSetup);
-			m_GC_MissionTestSetup = null;
-			return "DELETED";
-		}
-		if (!m_GC_MissionTestSetup)
-			return "ABSENT";
-		return string.Format("phase=%1 %2", GetPhaseName(GetLobbyPhase()), m_GC_MissionTestSetup.Describe());
+		return string.Format("phase=%1 %2", GetPhaseName(GetLobbyPhase()), mode.GetMissionFramework().Describe());
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -154,27 +135,4 @@ modded class GC_LobbyManager
 	}
 }
 
-modded class GC_IsolationProbeComponent
-{
-	protected GC_MissionSetupEntity m_GC_IsolationMissionSetup;
-
-	//------------------------------------------------------------------------------------------------
-	string GC_TestMissionIsolation(string operation)
-	{
-		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode())
-			return "UNAVAILABLE unrelated authority world required";
-		if (operation == "spawn")
-		{
-			if (m_GC_IsolationMissionSetup)
-				return "ALREADY EXISTS";
-			Resource prefab = Resource.Load("{6A115D5DFF7ED907}Prefabs/Logic/MissionFramework/Examples/USDefeated.et");
-			m_GC_IsolationMissionSetup = GC_MissionSetupEntity.Cast(GetGame().SpawnEntityPrefab(prefab, GetGame().GetWorld()));
-			return string.Format("spawned=%1; inspect after initialization", m_GC_IsolationMissionSetup != null);
-		}
-		if (!m_GC_IsolationMissionSetup)
-			return "ABSENT";
-		SCR_BaseGameMode mode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
-		return string.Format("mode=%1 state=%2 setup=%3", mode.Type(), mode.GetState(), m_GC_IsolationMissionSetup.Describe());
-	}
-}
 #endif

@@ -1,5 +1,5 @@
 MetaFileClass {
- Name "{6A115D5DFF7ED902}Prefabs/Logic/MissionFramework/MissionSetup.et"
+ Name "{6A115D5DFF7ED907}Prefabs/MP/Modes/Examples/GameMode_USDefeated.et"
  Configurations {
   EntityTemplateResourceClass PC {
   }

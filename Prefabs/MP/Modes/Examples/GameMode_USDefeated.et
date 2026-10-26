@@ -1,6 +1,6 @@
-GC_MissionSetupEntity : "{6A115D5DFF7ED902}Prefabs/Logic/MissionFramework/MissionSetup.et" {
+GC_LobbyGameMode : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
  ID "6A115D5DFF7ED903"
- m_aEvents {
+ m_aMissionEvents {
   GC_MissionEvent "{6A115D5DFF7ED904}" {
    m_sName "US defeated"
    m_eMatch ALL_CONDITIONS

@@ -1,28 +1,53 @@
 # Mission Framework validation
 
-## Optional helpers
+## Current game-mode authoring
 
-The test addon adds `GC_TestMissionRules()` and `GC_TestMissionSetup(operation)`
-to `GC_LobbyManager`. On Arland the named target is `GameMode_Lobby2`.
-Use MCP runtime prepare/invoke with return type `string`.
+Open the optional test addon's `worlds/MissionFramework.ent`. It places
+`GameMode_USDefeated.et` as its sole game mode, named `MissionFrameworkMode`,
+with a playable US group. This tests authored world-start initialization.
+Use the generic MCP runtime interface on its `GC_LobbyManager` component:
 
-- Run `GC_TestMissionRules` before GAME to verify phase gating, then during GAME
-  to exercise the actual evaluator/scheduler with test-only conditions/actions.
-  It checks All/Any, independent deadlines, execution after conditions clear,
-  one-shot behavior, cancellation, duplicate names, empty conditions, negative
-  delays, unknown factions and unpopulated-faction protection. Its simulated
-  timestamps test the production scheduling algorithm, not the call-queue cadence.
-- `GC_TestMissionSetup("spawn")` instantiates the production USDefeated example
-  only in runtime; `inspect` reads its state, and `delete` removes it.
-- Select US and a slot through the existing production UI helpers, advance phases
-  through authenticated production buttons, and verify possession during GAME.
-  Use the existing `GC_TestHealKill(playerId)` fixture, then inspect KIA/possession,
-  event state, delayed native phase transition and receipt-correlated logs.
-- `GC_TestMissionIsolation("spawn"/"inspect")` on the optional
-  `IsolationProbe` / `GC_IsolationProbeComponent` tests the same production prefab
-  in a non-Lobby2 world. It must remain inactive.
+- `GC_TestMissionFramework()` reports the game-mode-owned runtime.
+- `GC_TestMissionRules()` runs the same production evaluator/scheduler tests
+  before GAME and during GAME. Synthetic timestamps test scheduling decisions.
+- Select US and an available slot with the existing UI helpers. Advance phases
+  through the authenticated production buttons; inspect possession, kill that
+  player through `GC_TestHealKill`, then observe the five-second native POSTGAME
+  transition and logs.
 
-## Recorded evidence — 2026-10-26
+The former spawn/delete-setup and isolation-spawn helpers were removed along
+with the separate setup entity. Historical evidence below describes that earlier
+version and is not a claim that its authoring surface still exists.
+
+## Game-mode migration evidence — 2026-10-26
+
+Native reload `0c8c1c00022842678d9e6c58f2cd4cfa` succeeded in the existing
+Workbench PID 1940. Native entity inspection of the authored test world found
+`m_aMissionEvents` on `MissionFrameworkMode` itself, containing the event inherited
+from `GameMode_USDefeated.et`. No separate setup entity exists in that world.
+
+- World-start initialization: `r98b68a6a9be747c8947399b0cff20f04` returned
+  PREGAME, stopped=0, started=0, pending=0, attempted=0.
+- Pregame suite: `r0682f3ee28954c9c9273c1d1acdb125f` passed.
+- Original Arland game mode with an empty event list:
+  `r038fc090c120426e864e3b80039d043c` returned `phase=PREGAME inactive`.
+- GAME suite: `r0b77742c3848455b8bd5eed52392612d` passed all checks with livingUS=1.
+- Player 1 was verified possessing slot 1, then killed using the existing damage
+  fixture under receipt `r7cff6109695846dc9a105e1c2b094194`.
+- `r6b1c6e2d93674cb795554ff6e1675245` observed GAME, started=1, pending=1,
+  attempted=0. `r959f4c5949b54359b2f1d5f61cd352de` subsequently observed POSTGAME,
+  stopped=1, started=1, pending=0, attempted=1.
+- Workbench session `logs_2026-10-25_20-20-49`, lines 8068–8087: event started
+  01:52:04.585; native EndGameMode/POSTGAME at 01:52:09.596; action applied=1
+  at 01:52:09.613. This exercises the game-mode-authored five-second delay.
+
+Embedded-host coverage only. Dedicated/remote/JIP behavior and teardown with a
+still-pending action were not separately tested in this migration. Native end
+screen warnings remain. The standalone-entity initialization and duplicate-setup
+limitations below are historical; setup entities have been removed. A new
+world-start initialization check is recorded above.
+
+## Historical standalone evidence — 2026-10-26
 
 Workbench PID 1940, version 1.8.0.13; loaded Lobby2, Lobby2McpTests and isolation
 probe. Same Workbench process/project retained. Reload operation
