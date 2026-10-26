@@ -3,7 +3,7 @@ class GC_AICasualtiesCondition : GC_MissionCondition
 {
 	[Attribute("", UIWidgets.ComboBox, "Faction key.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionFactionChoices")})]
 	string m_sFaction;
-	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of AI lives lost.", enums: ParamEnumArray.FromEnum(GC_EMissionCountComparison))]
+	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of AI lives lost.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Less than (<)", "3"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
 	GC_EMissionCountComparison m_eComparison;
 	[Attribute("75", UIWidgets.EditBox, "AI deaths divided by AI lives observed during GAME, including reinforcements. Empty factions never match. Deleting an AI is not a death.", params: "0 100 1")]
 	float m_fPercentage;
@@ -11,7 +11,7 @@ class GC_AICasualtiesCondition : GC_MissionCondition
 	override bool Validate(GC_LobbyMissionContext context, out string error)
 	{
 		context.RequireAI();
-		if (context.IsKnownFaction(m_sFaction) && m_eComparison >= 0 && m_eComparison <= 2 && m_fPercentage >= 0 && m_fPercentage <= 100)
+		if (context.IsKnownFaction(m_sFaction) && m_eComparison >= 0 && m_eComparison <= GC_EMissionCountComparison.NOT_EQUAL && m_fPercentage >= 0 && m_fPercentage <= 100)
 			return true;
 		error = "AI Casualties: choose a known faction, comparison and percentage from 0 to 100.";
 		return false;
@@ -99,7 +99,7 @@ class GC_AreaCondition : GC_MissionCondition
 	string m_sArea;
 	[Attribute("25", UIWidgets.EditBox, "Radius in meters when the area is not a polygon.", params: "0.1 inf 1")]
 	float m_fRadius;
-	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage inside or controlling the area.", enums: ParamEnumArray.FromEnum(GC_EMissionCountComparison))]
+	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage inside or controlling the area.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Less than (<)", "3"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
 	GC_EMissionCountComparison m_eComparison;
 	[Attribute("100", UIWidgets.EditBox, "Percentage from 0 to 100. An empty population never matches.", params: "0 100 1")]
 	float m_fPercentage;
@@ -107,7 +107,7 @@ class GC_AreaCondition : GC_MissionCondition
 	//------------------------------------------------------------------------------------------------
 	override bool Validate(GC_LobbyMissionContext context, out string error)
 	{
-		if (m_sArea.IsEmpty() || m_fRadius <= 0 || m_fPercentage < 0 || m_fPercentage > 100 || m_eComparison < 0 || m_eComparison > 2)
+		if (m_sArea.IsEmpty() || m_fRadius <= 0 || m_fPercentage < 0 || m_fPercentage > 100 || m_eComparison < 0 || m_eComparison > GC_EMissionCountComparison.NOT_EQUAL)
 		{
 			error = "Area condition: choose an area name, positive radius and percentage from 0 to 100.";
 			return false;

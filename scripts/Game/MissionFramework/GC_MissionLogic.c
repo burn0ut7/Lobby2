@@ -5,15 +5,18 @@ enum GC_EMissionGroupMatch
 	AT_LEAST,
 	AT_MOST,
 	EXACTLY,
-	ALL_SAME
+	ALL_SAME,
+	LESS_THAN,
+	GREATER_THAN,
+	NOT_EQUAL
 }
 
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Condition Group")]
 class GC_ConditionGroup : GC_MissionCondition
 {
-	[Attribute("0", UIWidgets.ComboBox, "How many conditions must be true? All Same means all true or all false.", enums: ParamEnumArray.FromEnum(GC_EMissionGroupMatch))]
+	[Attribute("0", UIWidgets.ComboBox, "How many conditions must be true? All Same means all true or all false.", enums: {ParamEnum("All", "0"), ParamEnum("Any", "1"), ParamEnum("Greater than (>)", "7"), ParamEnum("Less than (<)", "6"), ParamEnum("Greater than or equal (>=)", "2"), ParamEnum("Less than or equal (<=)", "3"), ParamEnum("Exactly equal (==)", "4"), ParamEnum("Not equal (!=)", "8"), ParamEnum("All same", "5")})]
 	GC_EMissionGroupMatch m_eMatch;
-	[Attribute("1", UIWidgets.EditBox, "Number used by At Least, At Most and Exactly.", params: "0 inf 1")]
+	[Attribute("1", UIWidgets.EditBox, "Number of true conditions used by the numeric comparisons.", params: "0 inf 1")]
 	int m_iNumber;
 	[Attribute("", UIWidgets.Object, "Conditions in this group. Groups can contain other groups.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
@@ -29,7 +32,7 @@ class GC_ConditionGroup : GC_MissionCondition
 	//------------------------------------------------------------------------------------------------
 	override bool Validate(GC_LobbyMissionContext context, out string error)
 	{
-		if (!m_aConditions || m_aConditions.IsEmpty() || m_eMatch < 0 || m_eMatch > 5 || m_iNumber < 0)
+		if (!m_aConditions || m_aConditions.IsEmpty() || m_eMatch < 0 || m_eMatch > GC_EMissionGroupMatch.NOT_EQUAL || m_iNumber < 0)
 		{
 			error = "Condition Group: choose a rule and add conditions.";
 			return false;
@@ -58,6 +61,9 @@ class GC_ConditionGroup : GC_MissionCondition
 			case GC_EMissionGroupMatch.AT_LEAST: return count >= m_iNumber;
 			case GC_EMissionGroupMatch.AT_MOST: return count <= m_iNumber;
 			case GC_EMissionGroupMatch.EXACTLY: return count == m_iNumber;
+			case GC_EMissionGroupMatch.LESS_THAN: return count < m_iNumber;
+			case GC_EMissionGroupMatch.GREATER_THAN: return count > m_iNumber;
+			case GC_EMissionGroupMatch.NOT_EQUAL: return count != m_iNumber;
 			case GC_EMissionGroupMatch.ALL_SAME: return count == 0 || count == m_aConditions.Count();
 		}
 		return false;

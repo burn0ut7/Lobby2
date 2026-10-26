@@ -35,9 +35,12 @@ class GC_MissionCondition
 
 enum GC_EMissionCountComparison
 {
-	AT_MOST,
-	AT_LEAST,
-	EXACTLY
+	AT_MOST = 0,
+	AT_LEAST = 1,
+	EXACTLY = 2,
+	LESS_THAN = 3,
+	GREATER_THAN = 4,
+	NOT_EQUAL = 5
 }
 
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Player Casualties (%)")]
@@ -45,7 +48,7 @@ class GC_PlayerCasualtiesCondition : GC_MissionCondition
 {
 	[Attribute("", UIWidgets.ComboBox, "Faction with playable group slots in this mission.", enums: {ParamEnum("", "", "rst-choices:1:GC_PlayableFactionChoices")})]
 	string m_sFaction;
-	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of players lost.", enums: ParamEnumArray.FromEnum(GC_EMissionCountComparison))]
+	[Attribute("1", UIWidgets.ComboBox, "Compare the percentage of players lost.", enums: {ParamEnum("Greater than (>)", "4"), ParamEnum("Less than (<)", "3"), ParamEnum("Greater than or equal (>=)", "1"), ParamEnum("Less than or equal (<=)", "0"), ParamEnum("Exactly equal (==)", "2"), ParamEnum("Not equal (!=)", "5")})]
 	GC_EMissionCountComparison m_eComparison;
 	[Attribute("75", UIWidgets.EditBox, "Percentage lost compared with the highest simultaneous living-player count during GAME. 75 means three quarters lost. Disconnects count as losses; respawns can lower the percentage. Unused factions never match.", params: "0 100 1")]
 	float m_fPercentage;
@@ -55,7 +58,7 @@ class GC_PlayerCasualtiesCondition : GC_MissionCondition
 	{
 		if (!context.IsKnownFaction(m_sFaction))
 			error = "Player Casualties: choose a known faction.";
-		else if (m_fPercentage < 0 || m_fPercentage > 100 || m_eComparison < 0 || m_eComparison > 2)
+		else if (m_fPercentage < 0 || m_fPercentage > 100 || m_eComparison < 0 || m_eComparison > GC_EMissionCountComparison.NOT_EQUAL)
 			error = "Player Casualties: choose a comparison and a percentage from 0 to 100.";
 		else
 			return true;
@@ -81,6 +84,14 @@ class GC_MissionCompare
 			return value <= threshold;
 		if (comparison == GC_EMissionCountComparison.AT_LEAST)
 			return value >= threshold;
-		return Math.AbsFloat(value - threshold) < 0.0001;
+		if (comparison == GC_EMissionCountComparison.EXACTLY)
+			return value == threshold;
+		if (comparison == GC_EMissionCountComparison.LESS_THAN)
+			return value < threshold;
+		if (comparison == GC_EMissionCountComparison.GREATER_THAN)
+			return value > threshold;
+		if (comparison == GC_EMissionCountComparison.NOT_EQUAL)
+			return value != threshold;
+		return false;
 	}
 }
