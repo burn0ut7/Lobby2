@@ -8,7 +8,7 @@ enum GC_EMissionEventOperation
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Set Flag")]
 class GC_SetFlagAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Name from Mission Flags.")]
+	[Attribute("", UIWidgets.EditBox, "Flag name. Created automatically when this action writes it; no separate declaration needed.")]
 	string m_sFlag;
 	[Attribute("1", UIWidgets.CheckBox, "On sets the flag. Off clears it.")]
 	bool m_bSet;
@@ -16,9 +16,9 @@ class GC_SetFlagAction : GC_MissionAction
 	//------------------------------------------------------------------------------------------------
 	override bool Validate(GC_LobbyMissionContext context, out string error)
 	{
-		if (context.HasFlag(m_sFlag))
+		if (!m_sFlag.IsEmpty())
 			return true;
-		error = "Set Flag: unknown flag " + m_sFlag;
+		error = "Set Flag: enter a flag name. " + m_sFlag;
 		return false;
 	}
 
@@ -32,7 +32,7 @@ class GC_SetFlagAction : GC_MissionAction
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Randomize Flag (%)")]
 class GC_RandomFlagAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Name from Mission Flags.")]
+	[Attribute("", UIWidgets.EditBox, "Flag name. Created automatically when this action writes it; no separate declaration needed.")]
 	string m_sFlag;
 	[Attribute("50", UIWidgets.EditBox, "Chance to set the flag. 0 never sets it; 100 always sets it.", params: "0 100 1")]
 	float m_fChance;
@@ -45,9 +45,9 @@ class GC_RandomFlagAction : GC_MissionAction
 			error = "Randomize Flag: chance must be from 0 to 100.";
 			return false;
 		}
-		if (!context.HasFlag(m_sFlag))
+		if (m_sFlag.IsEmpty())
 		{
-			error = "Randomize Flag: unknown flag " + m_sFlag;
+			error = "Randomize Flag: enter a flag name. " + m_sFlag;
 			return false;
 		}
 		return true;
@@ -64,7 +64,7 @@ class GC_RandomFlagAction : GC_MissionAction
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Choose Random Flags")]
 class GC_ChooseFlagsAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Pool of unique names from Mission Flags.")]
+	[Attribute("", UIWidgets.EditBox, "Pool of unique flag names. Created automatically when written; no separate declarations needed.")]
 	ref array<string> m_aFlags;
 	[Attribute("1", UIWidgets.EditBox, "Number to choose.", params: "1 inf 1")]
 	int m_iNumber;
@@ -84,9 +84,9 @@ class GC_ChooseFlagsAction : GC_MissionAction
 		set<string> unique = new set<string>();
 		foreach (string name : m_aFlags)
 		{
-			if (!context.HasFlag(name) || unique.Contains(name))
+			if (name.IsEmpty() || unique.Contains(name))
 			{
-				error = "Choose Random Flags: unknown or duplicate flag " + name;
+				error = "Choose Random Flags: empty or duplicate flag " + name;
 				return false;
 			}
 			unique.Insert(name);
@@ -101,19 +101,20 @@ class GC_ChooseFlagsAction : GC_MissionAction
 			return false;
 		array<string> pool = {};
 		pool.Copy(m_aFlags);
+		bool applied = true;
 		if (m_bClearFirst)
 		{
 			foreach (string name : pool)
-				context.SetFlag(name, false);
+				applied = context.SetFlag(name, false) && applied;
 		}
 		for (int i; i < m_iNumber; i++)
 		{
 			int index = Math.RandomInt(0, pool.Count());
-			context.SetFlag(pool[index], true);
+			applied = context.SetFlag(pool[index], true) && applied;
 			if (!m_bAllowRepeatedDraws)
 				pool.RemoveOrdered(index);
 		}
-		return true;
+		return applied;
 	}
 }
 

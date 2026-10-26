@@ -62,7 +62,7 @@ class GC_MissionInteraction : ScriptedUserAction
 
 class GC_SetFlagInteraction : GC_MissionInteraction
 {
-	[Attribute("", UIWidgets.EditBox, "Flag to set. Must be declared in Mission Flags.")]
+	[Attribute("", UIWidgets.EditBox, "Flag created and set by this interaction. No separate declaration needed.")]
 	string m_sFlag;
 	[Attribute("1", UIWidgets.CheckBox, "Hide while this flag is already set. Clearing the flag makes the interaction available again.")]
 	bool m_bSingleUse;
@@ -72,7 +72,7 @@ class GC_SetFlagInteraction : GC_MissionInteraction
 	//------------------------------------------------------------------------------------------------
 	override protected bool IsAvailable(IEntity user)
 	{
-		if (!super.IsAvailable(user))
+		if (m_sFlag.IsEmpty() || !super.IsAvailable(user))
 			return false;
 		return !m_bSingleUse || !GC_LobbyManager.GetManager().GC_IsMissionFlagSet(m_sFlag);
 	}

@@ -6,7 +6,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 {
 	[Attribute("", UIWidgets.Object, "Mission Events. Each runs its Actions once when its Conditions are met during GAME. Leave empty to use no automatic mission rules.", category: "Mission Framework")]
 	protected ref array<ref GC_MissionEvent> m_aMissionEvents;
-	[Attribute("", UIWidgets.Object, "Optional named flags for reusable conditions and interactions. Basic events can use conditions directly.", category: "Mission Framework")]
+	[Attribute("", UIWidgets.Object, "Optional initial values, random starts and automatic flag conditions. Actions and interactions create flags themselves; do not list them here unless they need these settings.", category: "Mission Framework")]
 	protected ref array<ref GC_MissionFlag> m_aMissionFlags;
 	[Attribute("0", UIWidgets.CheckBox, "Testing only: End Mission actions log their result but leave the mission running. Turn off for published missions.", category: "Mission Framework")]
 	protected bool m_bPreviewMissionEnd;

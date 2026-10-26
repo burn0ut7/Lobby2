@@ -5,15 +5,6 @@ SCR_FactionManager : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionMana
  coords 132 1 136
 }
 GC_LobbyGameMode MissionFrameworkMode : "{6A115D5DFF7ED907}Prefabs/MP/Modes/Examples/GameMode_USDefeated.et" {
- components {
-  GC_LobbyManager "{6A137A39106A4973}" {
-   m_aMissionFlags {
-    GC_MissionFlag {
-     m_sName "Interaction complete"
-    }
-   }
-  }
- }
  coords 130 1 130
 }
 GenericEntity FrameworkTestScript {

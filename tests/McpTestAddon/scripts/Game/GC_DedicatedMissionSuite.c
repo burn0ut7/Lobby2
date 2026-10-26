@@ -51,6 +51,7 @@ class GC_DedicatedMissionReplication : SCR_AutotestCaseBase
 			array<int> alreadyJoined = {};
 			GetGame().GetPlayerManager().GetPlayers(alreadyJoined);
 			AssertTrue(alreadyJoined.IsEmpty(), "Set flag before any clients join for snapshot coverage");
+			AssertTrue(!m_Manager.GC_GetMissionRuntime().HasFlag("Interaction complete"), "Flag has no central declaration");
 			GC_LobbyMissionContext context = new GC_LobbyMissionContext(m_Manager);
 			GC_SetFlagAction setFlag = new GC_SetFlagAction();
 			setFlag.m_sFlag = "Interaction complete";

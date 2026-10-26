@@ -100,15 +100,15 @@ class GC_MissionFlag
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Flag Is Set")]
 class GC_FlagCondition : GC_MissionCondition
 {
-	[Attribute("", UIWidgets.EditBox, "Name from Mission Flags. Use Invert to check that it is not set.")]
+	[Attribute("", UIWidgets.EditBox, "Flag name from its source. Unset or not yet created is false. Use Invert to check that it is not set.")]
 	string m_sFlag;
 
 	//------------------------------------------------------------------------------------------------
 	override bool Validate(GC_LobbyMissionContext context, out string error)
 	{
-		if (context.HasFlag(m_sFlag))
+		if (!m_sFlag.IsEmpty())
 			return true;
-		error = "Unknown flag: " + m_sFlag;
+		error = "Enter a flag name: " + m_sFlag;
 		return false;
 	}
 

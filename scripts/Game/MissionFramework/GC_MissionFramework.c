@@ -11,7 +11,7 @@ class GC_MissionFramework
 	void Start(GC_LobbyManager manager, array<ref GC_MissionEvent> events, array<ref GC_MissionFlag> flags)
 	{
 		Stop();
-		if (!Replication.IsServer() || !manager || GC_LobbyManager.GetManager() != manager || ((!events || events.IsEmpty()) && (!flags || flags.IsEmpty())))
+		if (!Replication.IsServer() || !manager || GC_LobbyManager.GetManager() != manager)
 			return;
 		m_Manager = manager;
 		m_aEvents = events;

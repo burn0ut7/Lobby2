@@ -285,3 +285,30 @@ keep-gunners-seated feature adds a scoped SCR_AICombatComponent override.
 - GC_TestMissionExpansion, radaf2cfb0a4943efaa61ded7cc943e20:
   existing group, timer, event-control, flag, random, capture and follow-up tests passed.
 - Existing serialized All=0 and Any=1 values are retained; None is appended as2.
+
+### Source-created flags (2026-10-26)
+
+- Reload 8700ed769dd1461eb7030ea8eda24978 passed.
+- GC_TestMissionFlagSources r84ff4fd92ddb43b7818f86dbaaf5d8cc passed:
+  future-source reads, first write, two writers sharing one snapshot entry,
+  clearing, undeclared random/pool outputs, empty-name rejection, stopped writes,
+  interaction-only empty runtime and reset on restart.
+- Regression suites rd7e443b2fef64db18a75887e1747e7af and
+  r156feacfbe5940a4be4b66dc1c8c3779 passed automatic flags, random operations,
+  timers, capture, event controls and All/Any/None matching.
+- Removed the optional Interaction complete entry from the test world.
+  A native interaction spawned during GAME created it (rfef3671036294c1db0ed315a2ab30155).
+  Source deletion preserved it (rae01aa989eca436e891ba7b77c5eaa7b), and spawning
+  another source did not reset it (rf66212abedb84878878adaf700da62a8).
+  Wrong-faction execution remained rejected with flag=false
+  (r72f176f1ff304e00a0318ba8d8c2ed07). Workbench logs3378–3390 correlate creation,
+  successful interaction and subsequent clear.
+- Dedicated server20152 / peers54584 and58704: GC_DedicatedMissionSuite asserts
+  the output has no central declaration before setting it. Both remote clients
+  reported initial flag=1/briefingHidden=1/authority=0, then flag=0/briefingHidden=0.
+  ArmaReforger/logs/logs_2026-10-26_16-00-00/console.log lines862–870 records both
+  reports and SUCCESS. Test processes stopped; prior multiplayer settings restored.
+- Name-typo detection is intentionally relaxed: future-source names read false.
+  Invert and None can match before a producer exists. No producer-discovery scan
+  or duplicate declaration system was introduced. The 4096-entry snapshot limit
+  is enforced on new writes; capacity exhaustion was source-reviewed, not stress-tested.

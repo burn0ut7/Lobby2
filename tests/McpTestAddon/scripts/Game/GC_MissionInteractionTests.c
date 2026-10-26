@@ -56,6 +56,13 @@ modded class GC_LobbyManager
 		}
 		if (!m_GC_TestInteraction)
 			return "UNAVAILABLE prepare an interaction first";
+		if (step == "delete")
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(m_GC_TestInteractionEntity);
+			m_GC_TestInteraction = null;
+			m_GC_TestInteractionEntity = null;
+			return string.Format("sourceDeleted=1 flag=%1", GC_IsMissionFlagSet("Interaction complete"));
+		}
 		if (step == "start")
 		{
 			bool allowed = m_GC_TestInteraction.CanBePerformed(player);

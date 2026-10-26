@@ -94,13 +94,18 @@ joiners. Messages can target factions or logged-in administrators.
 
 ## Flags and interactions
 
-Basic events need no flags. Add a **Mission Flag** when several rules or an
-interaction share a named state, such as **Radio destroyed**.
+Basic events need no flags. Configure the flag name on its source, such as a Set Flag action or interaction. The first write creates it automatically; other events use Flag Is Set with the same name. No separate declaration on the game mode is required. Names are case-sensitive. A name not yet written reads false. Invert therefore matches, and an event matching None also matches if all its conditions are false; neither waits for a source to appear. Readers do not create flags.
+
+The game mode's **Mission Flags** list is optional. Use it only for initial values, random starts, or automatic conditions. Existing entries still work unchanged.
 
 - Empty automatic condition: actions and interactions control the flag.
 - Assigned automatic condition: it updates the flag every evaluation.
 - **Keep Set**: an automatic flag remains set after first becoming true.
 - **Randomize Initially**: rolls its starting value using Initial Chance.
+
+Multiple sources may intentionally write the same flag. Spawning another source does not reset it, and deleting the source does not erase it. Values reset with the mission runtime. Flags created after mission start use the same server authority, live replication and joining-player snapshots as configured flags. A source can write even when the event and optional flag lists are empty.
+
+Unwritten names cannot be distinguished from future spawned sources, so spelling mistakes in references no longer reject configuration. Empty names still reject. Use matching names and the flag creation/change logs to diagnose missing results. At most 4096 distinct flags may be stored; new writes beyond that limit reject and log an error.
 
 For capture/loss messages, put **Capture Progress** in a flag's automatic
 condition. Its six optional messages are named by status. Other events check

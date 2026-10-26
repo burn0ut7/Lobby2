@@ -36,9 +36,9 @@ class GC_MissionRuntime
 	{
 		Stop();
 		m_bValidConfiguration = false;
-		if (!context || !context.IsActive() || !events || (events.IsEmpty() && (!flags || flags.IsEmpty())) || (flags && flags.Count() > 4096))
+		if (!context || !context.IsActive() || !events || (flags && flags.Count() > 4096))
 		{
-			Print("GC | Mission Framework | rejected: active authority and events or flags required", LogLevel.ERROR);
+			Print("GC | Mission Framework | rejected: invalid context, event array or flag count", LogLevel.ERROR);
 			return false;
 		}
 		m_Context = context;
@@ -240,14 +240,25 @@ class GC_MissionRuntime
 	//------------------------------------------------------------------------------------------------
 	bool SetFlag(string name, bool value)
 	{
-		if (m_bStopped || !m_Context || !m_Context.IsActive() || !HasFlag(name))
+		if (m_bStopped || !m_Context || !m_Context.IsActive() || name.IsEmpty())
 			return false;
-		if (m_mFlags.Get(name) == value)
+		bool exists = HasFlag(name);
+		if (!exists && m_mFlags.Count() >= 4096)
+		{
+			PrintFormat("GC | Mission Framework | flag rejected: name=%1 capacity=4096", name, level: LogLevel.ERROR);
+			return false;
+		}
+		if (exists && m_mFlags.Get(name) == value)
 			return true;
 		m_mFlags.Set(name, value);
-		PrintFormat("GC | Mission Framework | flag changed: name=%1 set=%2", name, value);
+		if (exists)
+			PrintFormat("GC | Mission Framework | flag changed: name=%1 set=%2", name, value);
+		else
+			PrintFormat("GC | Mission Framework | flag created: name=%1 set=%2", name, value);
 		m_Context.GetManager().GC_PublishMissionFlag(name, value);
-		m_OnFlagChanged.Invoke(name, value);
+		// An absent flag reads false; creating it false is not a value change.
+		if (exists || value)
+			m_OnFlagChanged.Invoke(name, value);
 		return true;
 	}
 

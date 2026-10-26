@@ -50,7 +50,7 @@ Flag and teleport actions use native interaction prefabs.
   evaluation; there is no synchronous recursive event execution.
 - Randomize Flag clears a failed roll; Choose Random Flags can retain old values.
 - Empty percentage populations do not match, even for At Most.
-- Named flags must be declared, so spelling errors reject configuration.
+- Flag sources create names on first write, as in TILW. Central entries are optional initial/random/automatic settings. Unwritten names read false; empty names reject.
 - Separate timing/area/flag composition replaces an independently polling trigger
   entity system. The low-level trigger query scheduling API is not reproduced.
 
