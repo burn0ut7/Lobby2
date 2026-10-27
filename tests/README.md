@@ -51,6 +51,15 @@ This is an observed limitation of this fixture, not proof that every script-only
 declaration is unsupported. Addon-only dynamic choices for nested conditions
 remain unverified.
 
+`GC_ENUM_FUNCTION_PROBE` independently enables a function-backed nested enum
+test in the same file. The attribute returns a shared `ParamEnumArray`; selecting
+the game-mode entity changes that array from `Function initial` to
+`Function updated` before inspecting the nested control. On Workbench 1.8.0.13,
+the log confirmed the update but the popup still contained only `Function initial`.
+The popup did not reflect the provider's later runtime-array mutation in this
+test; where choices are copied or retained was not established. The probe is
+disabled by default and authors no mission values.
+
 ## UI layers
 
 `GC_TestUILayers(action)` on `GC_LobbyManager` accepts `notify`, `snapshot`,

@@ -53,3 +53,47 @@ modded class GC_LobbyGameMode
 }
 #endif
 #endif
+
+#ifdef WORKBENCH
+#ifdef GC_ENUM_FUNCTION_PROBE
+//! Function-backed attribute probe, enabled only during editor research.
+modded class GC_MissionCondition
+{
+	[Attribute("", UIWidgets.EditComboBox, "Test-only function-backed enum.", enums: GetGC_ProbeChoices())]
+	string m_sGC_FunctionEnumProbe;
+
+	protected static int s_iGC_ProbeCalls;
+	protected static ref ParamEnumArray s_aGC_ProbeChoices;
+
+	//------------------------------------------------------------------------------------------------
+	static ParamEnumArray GetGC_ProbeChoices()
+	{
+		s_iGC_ProbeCalls++;
+		Print("GC_ENUM_FUNCTION_PROBE call " + s_iGC_ProbeCalls);
+		if (!s_aGC_ProbeChoices)
+			s_aGC_ProbeChoices = {new ParamEnum("Function initial", "initial", "")};
+		return s_aGC_ProbeChoices;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static void UpdateGC_ProbeChoices()
+	{
+		ParamEnumArray choices = GetGC_ProbeChoices();
+		choices.Clear();
+		choices.Insert(new ParamEnum("Function updated", "updated", ""));
+		Print("GC_ENUM_FUNCTION_PROBE shared list updated");
+	}
+}
+
+modded class GC_LobbyGameMode
+{
+	//------------------------------------------------------------------------------------------------
+	override array<ref ParamEnum> _WB_GetUserEnums(string varName, IEntitySource src)
+	{
+		if (varName == "coords")
+			GC_MissionCondition.UpdateGC_ProbeChoices();
+		return super._WB_GetUserEnums(varName, src);
+	}
+}
+#endif
+#endif
