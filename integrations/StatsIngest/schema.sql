@@ -287,3 +287,32 @@ LEFT JOIN LATERAL (
                              WHERE p.mission_id = h.mission_id AND p.phase = 'GAME')
     ORDER BY c.from_seconds DESC LIMIT 1
 ) commander ON true;
+
+
+-- Optional replay stream. A new recording ID identifies each enable/disable interval.
+-- Import order is independent of mission statistics; mission_id is a join key,
+-- not a foreign key requiring low-frequency stats to arrive first.
+CREATE TABLE IF NOT EXISTS lobby2.telemetry_batches (
+    recording_id uuid NOT NULL,
+    revision integer NOT NULL CHECK (revision >= 0),
+    checksum text NOT NULL,
+    payload jsonb NOT NULL,
+    mission_id uuid GENERATED ALWAYS AS ((payload->>'missionId')::uuid) STORED,
+    received_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (recording_id, revision),
+    CHECK (payload->>'kind' = 'telemetry'),
+    CHECK ((payload->>'schemaVersion')::integer = 1),
+    CHECK ((payload->>'recordingId')::uuid = recording_id),
+    CHECK ((payload->>'revision')::integer = revision)
+);
+CREATE INDEX IF NOT EXISTS telemetry_batches_mission ON lobby2.telemetry_batches (mission_id, recording_id, revision);
+
+-- Delivery status is not proof of valid assets, resolved references or faithful animation.
+CREATE OR REPLACE VIEW lobby2.telemetry_recordings AS
+SELECT recording_id, mission_id, max(revision) AS latest_revision,
+       bool_or((payload->>'closed')::boolean) AS closed,
+       max((payload->>'droppedRecords')::integer) AS dropped_records,
+       count(*) = max(revision)::bigint + 1 AS all_batches_received,
+       min((payload->>'fromMs')::double precision) AS from_ms,
+       max((payload->>'untilMs')::double precision) AS until_ms
+FROM lobby2.telemetry_batches GROUP BY recording_id, mission_id;

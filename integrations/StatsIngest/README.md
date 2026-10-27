@@ -119,3 +119,135 @@ FROM lobby2.session_events
 WHERE detail->>'actor' = 'player-identity' OR detail->>'target' = 'player-identity'
 ORDER BY session_id, sequence;
 ```
+
+
+## Replay telemetry contract (collector not yet implemented)
+
+The `telemetry` v1 batch contract and importer are available for development of a
+website-first replay system, with later Reforger playback. They do **not** activate
+recording in the addon. Engine capture, its disabled-by-default configuration and
+admin start/stop controls, asset conversion, viewer implementation, and a
+128-player performance benchmark remain outstanding. There is no production
+telemetry endpoint or database deployment in this change.
+
+Telemetry stays separate from aggregate statistics and session audit events.
+`missionId` is the existing session ID and joins those records. `recordingId` is a
+fresh UUID for each start/stop interval; revision starts at zero. Use the existing
+importer and credentials with a dedicated `Lobby2Telemetry` outbox. Apply
+`schema.sql`; grant SELECT/INSERT on `lobby2.telemetry_batches`. Files are named
+`<recordingId>-telemetry-<revision>.json`, published with the existing `.json.ready`
+protocol. Payloads remain after import; only acknowledged ready markers are
+removed. Size is limited to 1 MiB and 1024 records per batch. These are storage
+bounds, **not measured safe in-game write sizes**. The importer retains invalid,
+conflicting or temporarily unsuccessful batches. Serializable database conflicts
+are retried by running the importer again, using the same immutable files.
+
+`tests/telemetry_contract_test.py` generates isolated synthetic examples of every
+record type and invokes the real importer. Run it after a Release build. Add
+`--database` only with a disposable, schema-initialized database supplied through
+`LOBBY2_STATS_CONNECTION_STRING`. It never reads a live game outbox. Synthetic
+acceptance is not evidence of runtime event coverage or animation fidelity.
+
+### Time, identity and resource contract
+
+The envelope requires `world`, `gameVersion`, `assetManifestId`, `startedAt`,
+`clock: "session-world-ms"`, `coordinates: "enfusion-world-metres"`, `sampleHz`,
+`fromMs`, `untilMs`, `firstSequence`, `closed`, `stopReason`, cumulative
+`droppedRecords`, `coverage`, and `records`. `startedAt` is the session UTC Unix
+anchor in seconds. All replay timestamps are milliseconds from the **same native
+world-time origin as session events**, including recordings enabled mid-mission;
+never subtract independently rounded Unix anchors to align events.
+
+Each record has `sequence`, `timeMs`, `type` and `data`. Sequence starts at one and
+is contiguous across stored batches; discarded observations are described by gap
+records and do not consume sequence numbers. Times are nondecreasing and within
+the batch interval. Batches may arrive out of order; adjacent sequences, timeline
+ordering, fixed metadata, cumulative drop counts and terminal closure are checked
+at database insertion. An empty terminal batch is allowed. `telemetry_recordings`
+reports delivery/closure/drop status; it does not certify a decodable replay.
+
+Entity IDs are recording-local, never reused, and identify one spawned life.
+`ownership` changes the attached player identity without inventing a new body.
+Projectile IDs are similarly unique. Native entity/replication IDs alone are not
+sufficient across deletion and reuse. `sessionEventSequence` links to existing
+audit events; zero means no known link. A death's `damageSequence` refers to a
+telemetry damage record, or zero for unknown attribution. Missing IDs remain
+unknown; the viewer must not guess the killer or invent an impact.
+
+The asset manifest is supplied by the future asset pipeline and must resolve
+versioned prefab/mesh/animation/skeleton resources. It is an identifier, not a
+promise that game assets can already be loaded in a browser. Terrain, models,
+attachments and animation resources need verified viewer mappings. The importer
+stores these references; it does not download or execute them.
+
+### Tracks and playback semantics
+
+- `spawn`, `despawn`, `ownership`: entity lifetime, prefab, identity and faction.
+  Emit a baseline for every selected entity already present when recording starts.
+- `appearance`: monotonically revised faction, visual resource and native
+  `SCR_PlayerArsenalLoadout` payload. Capture changes, not every position sample.
+- `state`: root matrix, world velocity in metres/second, explicit scalar speed,
+  aim/look radians, stance, command, flags, lean, dynamic stance, movement amount,
+  weapon prefab/index and sights index. Stance follows the native 0–2 enum;
+  flags use spectator meanings ADS=1, raised=2, reloading=4, sprinting=8, freelook=16.
+  `discontinuity` prevents interpolation through teleport or initial placement.
+- `skeleton`, `pose`: ordered unique bone names linked to a visual resource;
+  native bone-local matrices in that order, plus optional held-weapon transform
+  relative to the actor. Matrices are 12 floats: basis rows 0, 1, 2, then translation
+  row 3, each XYZ, matching Enfusion's four-vector matrices. Root translation is
+  world metres; bone and weapon translations are local metres. Bone matrix
+  interpretation must be checked against the killed-from renderer and external
+  asset bind transforms. Interpolate rotations with a verified decomposition,
+  never element-by-element matrix blending. Commands/stance alone are **not** a
+  complete animation-graph save. Poses capture sampled skeletal geometry, not
+  animation internals, cloth, facial state or every intervening frame.
+- `seat`: entity-to-vehicle ID, native compartment type and seat index; empty
+  vehicle and both indices -1 mean dismounted. Record vehicle roots separately with `vehicle-state` (root matrix, world velocity, speed and discontinuity); do not invent infantry stance values for vehicles.
+- `shot`, `grenade`: launch origin, velocity, shooter, projectile and weapon
+  resources. `projectile-sample` records observed flight. Initial velocity alone
+  does not establish the complete path, ricochets, penetration or a final hit.
+- `impact`, `detonation`: engine-event position/normal and known target. Never
+  turn the last sampled projectile location into a verified impact.
+- `damage`, `death`: directional attribution and existing audit links.
+  `reportedDamage` preserves native callback semantics; optional `healthRemoved`
+  is allowed only when independently measured. They are not interchangeable.
+- `gap`: affected track, time interval, count and reason. Playback must expose
+  missing evidence and avoid interpolating across an unknown interval.
+
+`coverage` declares actors (`players` or `players-and-ai`), pose fidelity (`state`
+or `skeletal`), and booleans for shots, impacts, damage, grenades, vehicles and gear.
+Coverage is a producer declaration, not evidence checked against the game by the
+importer. Record references (including skeleton counts and appearance revisions)
+need a stateful decoder check before playback; the importer validates individual
+records and batch continuity but does not pretend to have the viewer's assets.
+
+### Remaining recorder work and performance gate
+
+Use one authority-owned optional recorder with no runtime work when disabled.
+Keep existing statistics enabled independently. Begin evaluation at 5 Hz for root
+and semantic state, distributing capture over frames and preserving actual sample
+times. Do not copy the full killed-from capture into every sample: the earlier
+measured 6–7 ms for two actors is unsuitable as a 128-player sampling strategy.
+Exact skeletal recording needs its own measured cadence and explicit coverage.
+Starting/stopping must create boundaries and baseline state, with authenticated
+server authority for administrative changes.
+
+Bound actor/projectile counts, per-frame capture work, queued bytes, encoded chunk
+size and retained disk bytes. Reserve room for gap and terminal metadata. Coalesce
+replaceable motion observations under pressure, report gaps, and stop optional
+recording on sustained overflow/storage failure without stopping statistics.
+Do not silently label a partial recording complete. Native serialization/file
+writes still run on the game thread; the existing verified outbox writes and
+reads back a whole payload synchronously. Moving database work outside the game
+does not remove that cost. No per-frame network broadcast to players is needed.
+
+Before enabling production recording, measure disabled versus enabled dedicated
+server frame-time distributions, capture/serialization/write duration, queue
+high-water marks, drops, disk growth and client/network impact at 128 players plus
+representative AI/vehicles and combat bursts. Include importer outage, disk-full,
+restart, spawn/respawn/reconnect, mid-mission enable, late/missing chunks and rapid
+start/stop. Verify player and AI shots, mounted weapons, missed shots/terrain
+impacts, grenade trajectories/detonations and damage ownership independently.
+The current player statistics hooks do not establish that full coverage.
+
+Validation on 2026-10-27: Release build passed with zero warnings/errors; 26 synthetic CLI contract cases passed. A new isolated PostgreSQL test cluster accepted schema application twice and all 41 combined contract/integration cases, including idempotent retry, conflicting content, closure and sparse out-of-order sequence/time/drop checks. Readback distinguished a closed contiguous recording from an open recording missing revisions. The test cluster was stopped. Independent source review approved this ingestion-only increment. Live Reforger compilation/capture, asset conversion, playback and 128-player overhead remain untested; the configured MCP endpoint refused connection.

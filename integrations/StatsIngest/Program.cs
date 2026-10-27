@@ -6,7 +6,7 @@ using NpgsqlTypes;
 
 if (args.Length != 2 || args[0] is not ("--once" or "--validate"))
 {
-    Console.Error.WriteLine("Usage: StatsIngest --once|--validate <Lobby2Stats outbox directory>");
+    Console.Error.WriteLine("Usage: StatsIngest --once|--validate <outbox directory>");
     return 2;
 }
 
@@ -47,14 +47,21 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
         var hasKind = root.TryGetProperty("kind", out var kind);
         var sessionEvents = hasKind && kind.GetString() == "sessionEvents";
         var history = hasKind && kind.GetString() == "missionHistory";
-        if (hasKind && !sessionEvents && !history)
+        var telemetry = hasKind && kind.GetString() == "telemetry";
+        if (hasKind && !sessionEvents && !history && !telemetry)
             throw new InvalidDataException("Unsupported batch kind.");
-        if (history) MissionHistoryContract.Validate(root);
+        if (telemetry)
+        {
+            if (bytes.Length > TelemetryContract.MaxBatchBytes)
+                throw new InvalidDataException("Telemetry batch exceeds 1 MiB.");
+            TelemetryContract.Validate(root);
+        }
+        else if (history) MissionHistoryContract.Validate(root);
         else if (sessionEvents) SessionEventContract.Validate(root);
         else BatchContract.Validate(root);
-        var mission = root.GetProperty(sessionEvents ? "sessionId" : "missionId").GetGuid();
+        var mission = root.GetProperty(telemetry ? "recordingId" : sessionEvents ? "sessionId" : "missionId").GetGuid();
         var revision = root.GetProperty("revision").GetInt32();
-        var expectedName = history ? $"{mission}-history-{revision}.json" : sessionEvents ? $"{mission}-events-{revision}.json" : $"{mission}-{revision}.json";
+        var expectedName = telemetry ? $"{mission}-telemetry-{revision}.json" : history ? $"{mission}-history-{revision}.json" : sessionEvents ? $"{mission}-events-{revision}.json" : $"{mission}-{revision}.json";
         if (revision < 0 || Path.GetFileName(path) != expectedName)
             throw new InvalidDataException("Batch identity differs from its filename.");
         var checksum = Convert.ToHexString(SHA256.HashData(bytes));
@@ -65,10 +72,13 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
         }
 
         await using var connection = await database.OpenConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var transaction = await connection.BeginTransactionAsync(telemetry
+            ? System.Data.IsolationLevel.Serializable : System.Data.IsolationLevel.ReadCommitted);
+        if (telemetry)
+            await TelemetryIngest.ValidateContinuity(connection, transaction, root);
         // Table/column names come only from this fixed contract choice, never from a payload.
-        var table = history ? "mission_history_batches" : sessionEvents ? "session_log_batches" : "mission_batches";
-        var idColumn = sessionEvents ? "session_id" : "mission_id";
+        var table = telemetry ? "telemetry_batches" : history ? "mission_history_batches" : sessionEvents ? "session_log_batches" : "mission_batches";
+        var idColumn = telemetry ? "recording_id" : sessionEvents ? "session_id" : "mission_id";
         await using (var insert = new NpgsqlCommand($"""
             INSERT INTO lobby2.{table}({idColumn}, revision, checksum, payload)
             VALUES ($1, $2, $3, $4) ON CONFLICT ({idColumn}, revision) DO NOTHING
@@ -116,7 +126,7 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
         // A crash before removal simply replays the identical idempotent insert next run.
         File.Delete(marker);
         // Session audit JSON remains permanently on the server after successful ingestion.
-        if (!sessionEvents && !history) File.Delete(path);
+        if (!sessionEvents && !history && !telemetry) File.Delete(path);
         Console.WriteLine($"STORED {mission} revision={revision}");
     }
     catch (Exception exception) when (exception is IOException or InvalidDataException or JsonException or InvalidOperationException
