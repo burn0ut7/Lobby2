@@ -1,6 +1,8 @@
 GC_LobbyPlayerController : "{225E51284CC95CFA}Prefabs/Characters/Core/DefaultPlayerControllerMP.et" {
  ID "1A9BA6BEFA06E3B1"
  components {
+  GC_StatsRadioReporterComponent "{7A115D5DFF7ED992}" {
+  }
   GC_LobbyHUDManagerComponent "{2FDC275D9EBCDB8B}" {
    InfoDisplays {
     SCR_InfoDisplay "{6A115D5DFF7ED901}" {

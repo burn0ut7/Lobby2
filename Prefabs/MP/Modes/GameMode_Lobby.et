@@ -1,6 +1,10 @@
 GC_LobbyGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
  ID "56B2B479C6B96951"
  components {
+  GC_LobbyEndScreenComponent "{56DEC646298AD219}" {
+  }
+  GC_MissionStatsComponent "{7A115D5DFF7ED991}" {
+  }
   GC_LobbyFreezeComponent "{E81E75BC287148D0}" {
   }
   GC_LobbyManager "{6A137A39106A4973}" {
@@ -21,4 +25,5 @@ GC_LobbyGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
   }
  }
  PlayerControllerPrefab "{FE3C731AAB2FB003}Prefabs/Characters/Core/LobbyPlayerController.et"
+ m_fAutoReloadTime -1
 }

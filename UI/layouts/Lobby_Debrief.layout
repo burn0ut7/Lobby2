@@ -1,0 +1,215 @@
+FrameWidgetClass {
+ Name "DebriefRoot"
+ {
+ PanelWidgetClass { Name "DebriefSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.025 0.055 0.065 1 style full "Ignore Cursor" 1 }
+ FrameWidgetClass : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" { Name "MenuBar" Slot FrameWidgetSlot { Anchor 0 0 1 0.065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+TextWidgetClass {
+ Name "DebriefHeading"
+ Slot FrameWidgetSlot { Anchor .11 .13 .89 .20 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "AFTER ACTION REPORT"
+ "Font Size" 40
+ Wrap 1
+ "Ignore Cursor" 1
+}
+HorizontalLayoutWidgetClass { Name "DebriefSelections" Slot FrameWidgetSlot { Anchor .11 .215 .89 .275 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+TextWidgetClass {
+ Name "DebriefPlayer"
+ Slot FrameWidgetSlot { Anchor .11 .29 .89 .34 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "This mission · My stats (private)"
+ "Font Size" 26
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel0"
+ Slot FrameWidgetSlot { Anchor .11 0.370 .36 0.410 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Counted play time"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue0"
+ Slot FrameWidgetSlot { Anchor .38 0.370 .58 0.410 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel1"
+ Slot FrameWidgetSlot { Anchor .11 0.420 .36 0.460 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Shots fired"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue1"
+ Slot FrameWidgetSlot { Anchor .38 0.420 .58 0.460 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel2"
+ Slot FrameWidgetSlot { Anchor .11 0.470 .36 0.510 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Grenades thrown"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue2"
+ Slot FrameWidgetSlot { Anchor .38 0.470 .58 0.510 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel3"
+ Slot FrameWidgetSlot { Anchor .11 0.520 .36 0.560 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Bandages given"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue3"
+ Slot FrameWidgetSlot { Anchor .38 0.520 .58 0.560 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel4"
+ Slot FrameWidgetSlot { Anchor .11 0.570 .36 0.610 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Player kills / deaths"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue4"
+ Slot FrameWidgetSlot { Anchor .38 0.570 .58 0.610 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel5"
+ Slot FrameWidgetSlot { Anchor .11 0.620 .36 0.660 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Travel on foot"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue5"
+ Slot FrameWidgetSlot { Anchor .38 0.620 .58 0.660 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel6"
+ Slot FrameWidgetSlot { Anchor .11 0.670 .36 0.710 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Driving / piloting"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue6"
+ Slot FrameWidgetSlot { Anchor .38 0.670 .58 0.710 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel7"
+ Slot FrameWidgetSlot { Anchor .11 0.720 .36 0.760 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Radio time (estimated)"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue7"
+ Slot FrameWidgetSlot { Anchor .38 0.720 .58 0.760 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel8"
+ Slot FrameWidgetSlot { Anchor .11 0.770 .36 0.810 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Command"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue8"
+ Slot FrameWidgetSlot { Anchor .38 0.770 .58 0.810 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "—"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "AmmoHeading"
+ Slot FrameWidgetSlot { Anchor .64 .36 .91 .41 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Ammunition used"
+ "Font Size" 28
+ Wrap 1
+ "Ignore Cursor" 1
+}
+ScrollLayoutWidgetClass {
+ Name "AmmoScroll"
+ Slot FrameWidgetSlot { Anchor .64 .43 .91 .81 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ "Scrollbar Always Visible" 0
+ {
+  SizeLayoutWidgetClass {
+   Name "AmmoSize"
+   Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 }
+   AllowHeightOverride 1
+   HeightOverride 80
+   {
+    TextWidgetClass {
+     Name "DebriefAmmo"
+     Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+     "Font Size" 23
+     Wrap 1
+     "Ignore Cursor" 1
+    }
+   }
+  }
+ }
+}
+TextWidgetClass {
+ Name "DebriefStatus"
+ Slot FrameWidgetSlot { Anchor .11 .825 .79 .865 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Finalizing mission statistics…"
+ "Font Size" 22
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "DebriefRule"
+ Slot FrameWidgetSlot { Anchor .11 .9 .78 .96 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Text "Play time counts while at least 5 players are connected."
+ "Font Size" 20
+ Wrap 1
+ "Ignore Cursor" 1
+}
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "DebriefBack" Slot FrameWidgetSlot { Anchor .85 .88 .97 .94 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ }
+}

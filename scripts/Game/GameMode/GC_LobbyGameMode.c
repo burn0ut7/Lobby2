@@ -158,6 +158,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 			menuManager.CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_SlottingMenu);
 		if (phase != SCR_EGameModeState.BRIEFING)
 			menuManager.CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_BriefingMenu);
+		if (phase != SCR_EGameModeState.POSTGAME)
+			menuManager.CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_DebriefMenu);
 
 		PrintFormat("GC | Phase UI Trace | applying authoritative presentation: source=%1 phase=%2 controller=%3 topBefore=%4", source, GC_LobbyManager.GetPhaseName(phase), localController, menuManager.GetTopMenu());
 		MenuBase openedMenu;
@@ -165,6 +167,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_PreviewMenu, 0, true);
 		else if (phase == SCR_EGameModeState.SLOTTING)
 			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
+		else if (phase == SCR_EGameModeState.POSTGAME)
+			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_DebriefMenu, 0, true);
 		else if (phase == SCR_EGameModeState.BRIEFING)
 		{
 			GC_LobbyManager lobbyManager = GC_LobbyManager.Cast(FindComponent(GC_LobbyManager));

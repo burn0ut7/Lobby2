@@ -1422,6 +1422,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
 		if (!lobbyManager || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.SLOTTING))
 			return;
+		if (lobbyManager.GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
+		{
+			GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_DebriefMenu, 0, true);
+			return;
+		}
 
 		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
 		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_BriefingMenu);
@@ -2002,6 +2007,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			oldLobbyRadio.SetPower(false);
 		StopLocalKilledFromTracking(true);
 		super.OnControlledEntityChanged(from, to);
+		GC_MissionStatsComponent stats = GC_MissionStatsComponent.GetInstance();
+		if (stats && Replication.IsServer())
+			stats.OnPlayerCharacterChanged(GetPlayerId(), to);
 		GC_LobbyManager radioManager = GC_LobbyManager.GetManager();
 		if (Replication.IsServer() && radioManager)
 			radioManager.RefreshPlayerRadio(GetPlayerId());

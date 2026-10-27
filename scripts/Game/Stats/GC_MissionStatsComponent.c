@@ -1,0 +1,620 @@
+class GC_MissionStatsComponentClass : SCR_BaseGameModeComponentClass
+{
+}
+
+//! Authority owns collection and the disk outbox. No network request runs on the game thread.
+class GC_MissionStatsComponent : SCR_BaseGameModeComponent
+{
+	protected ref GC_MissionStatsBatch m_Batch;
+	protected ref map<string, ref GC_StatsPlayer> m_mPlayers = new map<string, ref GC_StatsPlayer>();
+	protected ref map<int, ref GC_StatsCharacterTracker> m_mTrackers = new map<int, ref GC_StatsCharacterTracker>();
+	protected ref set<EntityID> m_RecordedDeaths = new set<EntityID>();
+	protected ref map<EntityID, string> m_mProjectileWeapons = new map<EntityID, string>();
+	protected ref array<EntityID> m_aProjectileOrder = {};
+	protected int m_iProjectileCursor;
+	protected GC_LobbyManager m_Manager;
+	protected float m_fLastSample;
+	protected float m_fStarted;
+	protected float m_fLastFlush;
+	protected int m_iPreviousPopulation;
+	protected int m_iDeathSequence;
+	protected bool m_bCollecting;
+	protected bool m_bWriteFailureLogged;
+	protected string m_sPendingPayload;
+	protected int m_iPendingDeathCount;
+	protected bool m_bPendingFinal;
+	protected bool m_bAwaitingFinal;
+	protected int m_iAssignmentCount;
+	protected int m_iAmmoTypeCount;
+	protected ref map<string, ref GC_StatsDebrief> m_mPersonalReports = new map<string, ref GC_StatsDebrief>();
+	protected ref map<string, ref GC_StatsDebrief> m_mFactionReports = new map<string, ref GC_StatsDebrief>();
+	static const string OUTBOX = "$profile:Lobby2Stats";
+	static const int MAX_PENDING_DEATHS = 256;
+
+	//------------------------------------------------------------------------------------------------
+	static bool CanCreditPlaytime(int currentPopulation, int previousPopulation)
+	{
+		return currentPopulation >= 5 && previousPopulation >= 5;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Diagnostic preview of the next batch, including only death events not yet persisted.
+	string GetPendingBatchPreview()
+	{
+		if (!m_Batch || !Replication.IsServer())
+			return string.Empty;
+		SyncAssignments();
+		return m_Batch.Encode();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	float GetDuration()
+	{
+		if (!m_Batch)
+			return 0;
+		if (IsCollecting())
+			return GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted;
+		return m_Batch.m_fDuration;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Small personal report, independent of drained persistent death-event batches.
+	GC_StatsDebrief GetDebrief(int playerId, string factionKey)
+	{
+		if (!Replication.IsServer() || !m_Batch || !m_Batch.m_bFinal)
+			return null;
+		if (!factionKey.IsEmpty())
+			return m_mFactionReports.Get(factionKey);
+		return m_mPersonalReports.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsFinalized()
+	{
+		return m_Batch && m_Batch.m_bFinal;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsHistoryComplete()
+	{
+		return m_Batch && m_Batch.m_bComplete;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void OnPlayerCharacterChanged(int playerId, IEntity character)
+	{
+		GC_StatsPlayer record = GetPlayer(playerId);
+		if (!record || !m_Manager)
+			return;
+		GC_StatsCharacterTracker tracker = m_mTrackers.Get(playerId);
+		if (!tracker)
+		{
+			tracker = new GC_StatsCharacterTracker();
+			tracker.Start(this, playerId, record);
+			m_mTrackers.Set(playerId, tracker);
+		}
+		tracker.Sample(character, 0, false, m_Manager);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void BuildDebriefs()
+	{
+		foreach (GC_StatsPlayer player : m_Batch.m_aPlayers)
+		{
+			GC_StatsDebrief personal = new GC_StatsDebrief();
+			personal.UsePersonalCounters(player);
+			foreach (GC_StatsAssignment assignment : player.m_aAssignments)
+			{
+				personal.AddAssignment(assignment, player.m_sIdentity, false);
+				if (assignment.m_sFaction.IsEmpty())
+					continue;
+				GC_StatsDebrief faction = m_mFactionReports.Get(assignment.m_sFaction);
+				if (!faction)
+				{
+					faction = new GC_StatsDebrief();
+					m_mFactionReports.Set(assignment.m_sFaction, faction);
+				}
+				faction.AddAssignment(assignment, player.m_sIdentity, true);
+			}
+			personal.Seal(true);
+			m_mPersonalReports.Set(player.m_sIdentity, personal);
+		}
+		foreach (string key, GC_StatsDebrief report : m_mFactionReports)
+			report.Seal(false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool AcceptsRadioReport()
+	{
+		return Replication.IsServer() && GetInstance() == this && (m_bCollecting || m_bAwaitingFinal);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Client-estimated speech is apportioned across overlapping membership intervals.
+	void CreditRadio(GC_StatsPlayer player, float seconds, float serverFrom, float serverUntil)
+	{
+		if (!AcceptsRadioReport() || !player || seconds <= 0)
+			return;
+		float from = Math.Max(0, serverFrom - m_fStarted);
+		float until = Math.Min(GetDuration(), serverUntil - m_fStarted);
+		player.SyncAssignment(until);
+		float covered;
+		foreach (GC_StatsAssignment assignment : player.m_aAssignments)
+			covered += Math.Max(0, Math.Min(until, assignment.m_fUntil) - Math.Max(from, assignment.m_fFrom));
+		if (covered <= 0)
+			return;
+		seconds = Math.Min(seconds, covered);
+		player.m_fRadioSecondsReported += seconds;
+		foreach (GC_StatsAssignment segment : player.m_aAssignments)
+		{
+			float overlap = Math.Max(0, Math.Min(until, segment.m_fUntil) - Math.Max(from, segment.m_fFrom));
+			segment.m_fRadioSecondsReported += seconds * overlap / covered;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_StatsPlayer GetRecordedPlayer(int playerId)
+	{
+		return m_mPlayers.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void MarkIncomplete()
+	{
+		if (m_Batch)
+			m_Batch.m_bComplete = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool AllocateAmmoType()
+	{
+		if (m_iAmmoTypeCount >= 8192)
+		{
+			MarkIncomplete();
+			return false;
+		}
+		m_iAmmoTypeCount++;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void UpdateAssignment(int playerId, GC_StatsPlayer player)
+	{
+		if (!IsCollecting() || !m_Manager || !player)
+			return;
+		float now = GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted;
+		GC_Slot slot = m_Manager.GetSlotByPlayerId(playerId);
+		SCR_AIGroup group = m_Manager.GetPlayerGroup(playerId);
+		Faction faction = m_Manager.GetPlayerFaction(playerId);
+		string factionKey;
+		string groupId;
+		string groupName;
+		string leader;
+		string role;
+		int slotId = -1;
+		if (faction)
+			factionKey = faction.GetFactionKey();
+		if (group)
+		{
+			groupId = group.GetGroupID().ToString();
+			groupName = GC_GroupCallsignHelper.GetDisplayName(group);
+			if (group.GetLeaderID() > 0)
+				leader = SCR_PlayerIdentityUtils.GetPlayerIdentityId(group.GetLeaderID());
+		}
+		if (slot)
+		{
+			slotId = slot.GetID();
+			role = slot.GetAuthoredPrefab();
+		}
+		player.SyncAssignment(now);
+		GC_StatsAssignment current = player.m_ActiveAssignment;
+		if (current && current.m_sFaction == factionKey && current.m_sGroup == groupId
+			&& current.m_sLeader == leader && current.m_sRole == role && current.m_iSlotId == slotId)
+			return;
+		player.m_ActiveAssignment = null;
+		if (player.m_aAssignments.Count() >= 256 || m_iAssignmentCount >= 4096)
+		{
+			MarkIncomplete();
+			return;
+		}
+		GC_StatsAssignment assignment = new GC_StatsAssignment();
+		m_iAssignmentCount++;
+		assignment.m_sFaction = factionKey;
+		assignment.m_sGroup = groupId;
+		assignment.m_sGroupName = groupName;
+		assignment.m_sLeader = leader;
+		assignment.m_sRole = role;
+		assignment.m_iSlotId = slotId;
+		assignment.m_fFrom = now;
+		assignment.m_fUntil = now;
+		assignment.m_Start = new GC_StatsCounters();
+		assignment.m_Start.Add(player);
+		player.m_aAssignments.Insert(assignment);
+		player.m_ActiveAssignment = assignment;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ObserveProjectile(BaseWeaponComponent weapon, IEntity projectile)
+	{
+		if (!IsCollecting() || !weapon || !projectile || !weapon.GetOwner())
+			return;
+		EntityPrefabData prefab = weapon.GetOwner().GetPrefabData();
+		if (!prefab)
+			return;
+		EntityID id = projectile.GetID();
+		if (m_mProjectileWeapons.Contains(id))
+			return;
+		if (m_aProjectileOrder.Count() < 4096)
+			m_aProjectileOrder.Insert(id);
+		else
+		{
+			m_mProjectileWeapons.Remove(m_aProjectileOrder[m_iProjectileCursor]);
+			m_aProjectileOrder[m_iProjectileCursor] = id;
+			m_iProjectileCursor = (m_iProjectileCursor + 1) % 4096;
+		}
+		m_mProjectileWeapons.Set(id, prefab.GetPrefabName());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GetProjectileWeapon(IEntity projectile)
+	{
+		if (!projectile)
+			return string.Empty;
+		return m_mProjectileWeapons.Get(projectile.GetID());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static GC_MissionStatsComponent GetInstance()
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!mode)
+			return null;
+		return GC_MissionStatsComponent.Cast(mode.FindComponent(GC_MissionStatsComponent));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsCollecting()
+	{
+		return m_bCollecting && Replication.IsServer() && GetInstance() == this;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_StatsPlayer GetPlayer(int playerId)
+	{
+		if (!IsCollecting() || playerId <= 0)
+			return null;
+		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		if (identity.IsEmpty())
+			return null;
+		GC_StatsPlayer player = m_mPlayers.Get(identity);
+		if (!player)
+		{
+			if (m_mPlayers.Count() >= 1024)
+			{
+				m_Batch.m_bComplete = false;
+				return null;
+			}
+			player = new GC_StatsPlayer();
+			player.m_sIdentity = identity;
+			m_mPlayers.Set(identity, player);
+			m_Batch.m_aPlayers.Insert(player);
+		}
+		player.m_sName = GetGame().GetPlayerManager().GetPlayerName(playerId);
+		return player;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnGameModeStart()
+	{
+		super.OnGameModeStart();
+		if (!Replication.IsServer() || GetInstance() != this || m_Batch)
+			return;
+		m_Manager = GC_LobbyManager.GetManager();
+		if (!m_Manager)
+			return;
+		m_Batch = new GC_MissionStatsBatch();
+		m_Batch.m_sMissionId = PersistenceIdUtils.Generate();
+		m_Batch.m_sWorld = GetGame().GetWorldFile();
+		m_Batch.m_iStartedAt = System.GetUnixTime();
+		m_fStarted = GetGame().GetWorld().GetWorldTime() * 0.001;
+		m_fLastSample = m_fStarted;
+		m_fLastFlush = m_fStarted;
+		m_bCollecting = true;
+		m_Manager.m_OnSlotPresentationChanged.Insert(OnSlotChanged);
+		Sample();
+		GetGame().GetCallqueue().CallLater(Sample, 1000, true);
+		PrintFormat("GC | Stats | started mission=%1", m_Batch.m_sMissionId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnSlotChanged(GC_Slot slot)
+	{
+		if (!IsCollecting() || !slot)
+			return;
+		GC_StatsCharacterTracker tracker = m_mTrackers.Get(slot.GetPlayerId());
+		if (tracker)
+			tracker.UpdateRole(m_Manager);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void Sample()
+	{
+		if (!IsCollecting())
+			return;
+		float now = GetGame().GetWorld().GetWorldTime() * 0.001;
+		float elapsed = Math.Max(0, now - m_fLastSample);
+		m_fLastSample = now;
+		m_Batch.m_fDuration = now - m_fStarted;
+		array<int> connected = {};
+		PlayerManager players = GetGame().GetPlayerManager();
+		players.GetPlayers(connected);
+		bool creditTime = CanCreditPlaytime(connected.Count(), m_iPreviousPopulation);
+		m_iPreviousPopulation = connected.Count();
+		foreach (int playerId : connected)
+		{
+			GC_StatsPlayer player = GetPlayer(playerId);
+			if (!player)
+				continue;
+			GC_StatsCharacterTracker tracker = m_mTrackers.Get(playerId);
+			if (!tracker || tracker.GetRecord() != player)
+			{
+				if (tracker)
+					tracker.Detach();
+				tracker = new GC_StatsCharacterTracker();
+				tracker.Start(this, playerId, player);
+				m_mTrackers.Set(playerId, tracker);
+				tracker.Sample(players.GetPlayerControlledEntity(playerId), 0, false, m_Manager);
+				continue;
+			}
+			tracker.Sample(players.GetPlayerControlledEntity(playerId), elapsed, creditTime, m_Manager);
+		}
+		for (int i = m_mTrackers.Count() - 1; i >= 0; i--)
+		{
+			int id = m_mTrackers.GetKey(i);
+			if (!connected.Contains(id))
+			{
+				m_mTrackers.GetElement(i).Detach();
+				m_mTrackers.Remove(id);
+			}
+		}
+		if (now - m_fLastFlush >= 30)
+		{
+			m_fLastFlush = now;
+			Flush();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnPlayerDisconnected(int playerId, KickCauseCode cause, int timeout)
+	{
+		super.OnPlayerDisconnected(playerId, cause, timeout);
+		GC_StatsCharacterTracker tracker = m_mTrackers.Get(playerId);
+		if (tracker)
+		{
+			GC_StatsPlayer record = tracker.GetRecord();
+			record.SyncAssignment(GetDuration());
+			record.m_ActiveAssignment = null;
+			tracker.Detach();
+		}
+		m_mTrackers.Remove(playerId);
+		// Avoid assigning a disconnected player's sample interval to a reused session ID.
+		m_iPreviousPopulation = 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnControllableDestroyed(notnull SCR_InstigatorContextData instigatorContextData)
+	{
+		super.OnControllableDestroyed(instigatorContextData);
+		if (!IsCollecting())
+			return;
+		IEntity victim = instigatorContextData.GetVictimEntity();
+		if (!victim || !ChimeraCharacter.Cast(victim) || victim.FindComponent(GC_LobbySpectatorBodyComponent)
+			|| m_RecordedDeaths.Contains(victim.GetID()))
+			return;
+		GC_StatsPlayer victimRecord = GetPlayer(instigatorContextData.GetVictimPlayerID());
+		GC_StatsPlayer killerRecord = GetPlayer(instigatorContextData.GetKillerPlayerID());
+		UpdateAssignment(instigatorContextData.GetVictimPlayerID(), victimRecord);
+		UpdateAssignment(instigatorContextData.GetKillerPlayerID(), killerRecord);
+		if (!victimRecord && !killerRecord)
+			return;
+		if (m_RecordedDeaths.Count() >= 16384)
+		{
+			MarkIncomplete();
+			return;
+		}
+		m_RecordedDeaths.Insert(victim.GetID());
+		if (victimRecord)
+			victimRecord.m_iDeaths++;
+		if (victimRecord && killerRecord && killerRecord != victimRecord)
+			killerRecord.m_iKills++;
+		if (m_Batch.m_aDeaths.Count() >= MAX_PENDING_DEATHS)
+		{
+			if (m_Batch.m_bComplete)
+				Print("GC | Stats | death queue full; history marked incomplete", LogLevel.ERROR);
+			m_Batch.m_bComplete = false;
+			return;
+		}
+		GC_StatsDeath death = new GC_StatsDeath();
+		death.m_iSequence = ++m_iDeathSequence;
+		death.m_fMissionSeconds = GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted;
+		death.m_iRelation = instigatorContextData.GetVictimKillerRelation();
+		if (victimRecord)
+		{
+			death.m_sVictim = victimRecord.m_sIdentity;
+			death.m_sVictimName = victimRecord.m_sName;
+		}
+		if (killerRecord)
+		{
+			death.m_sKiller = killerRecord.m_sIdentity;
+			death.m_sKillerName = killerRecord.m_sName;
+		}
+		IEntity killer = instigatorContextData.GetKillerEntity();
+		if (killer)
+			death.m_fDistance = vector.Distance(victim.GetOrigin(), killer.GetOrigin());
+		GC_StatsCharacterTracker tracker = m_mTrackers.Get(instigatorContextData.GetVictimPlayerID());
+		if (tracker)
+			death.m_sWeapon = tracker.GetDamageWeapon(instigatorContextData.GetKillerPlayerID(), victim);
+		m_Batch.m_aDeaths.Insert(death);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnControllableDeleted(IEntity entity)
+	{
+		if (entity)
+			m_RecordedDeaths.RemoveItem(entity.GetID());
+		super.OnControllableDeleted(entity);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! The marker is created only after payload write/readback. Consumers read marked batches only.
+	protected bool Flush()
+	{
+		if (!m_Batch)
+			return false;
+		FileIO.MakeDirectory(OUTBOX);
+		if (m_sPendingPayload.IsEmpty())
+		{
+			SyncAssignments();
+			m_sPendingPayload = m_Batch.Encode();
+			if (m_sPendingPayload.IsEmpty())
+			{
+				Print("GC | Stats | serialization failed; retaining all pending events", LogLevel.ERROR);
+				return false;
+			}
+			m_iPendingDeathCount = m_Batch.m_aDeaths.Count();
+			m_bPendingFinal = m_Batch.m_bFinal;
+		}
+		string path = string.Format("%1/%2-%3.json", OUTBOX, m_Batch.m_sMissionId, m_Batch.m_iRevision);
+		bool written = WriteVerified(path, m_sPendingPayload) && WriteReady(path + ".ready");
+		if (!written)
+		{
+			if (!m_bWriteFailureLogged)
+				PrintFormat("GC | Stats | outbox write failed path=%1; retaining pending events", path, level: LogLevel.ERROR);
+			m_bWriteFailureLogged = true;
+			return false;
+		}
+		m_bWriteFailureLogged = false;
+		m_Batch.m_iRevision++;
+		for (int i = 0; i < m_iPendingDeathCount; i++)
+			m_Batch.m_aDeaths.RemoveOrdered(0);
+		m_sPendingPayload = string.Empty;
+		if (m_Batch.m_bFinal && !m_bPendingFinal)
+			return Flush();
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool WriteReady(string path)
+	{
+		FileHandle marker = FileIO.OpenFile(path, FileMode.WRITE);
+		if (!marker)
+			return false;
+		int written = marker.Write("ready");
+		marker.Close();
+		// Once the marker is closed the uploader may consume it immediately; do not read it back.
+		return written == 5;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool WriteVerified(string path, string value)
+	{
+		FileHandle file = FileIO.OpenFile(path, FileMode.WRITE);
+		if (!file)
+			return false;
+		int written = file.Write(value);
+		file.Close();
+		if (written != value.Length())
+			return false;
+		file = FileIO.OpenFile(path, FileMode.READ);
+		if (!file)
+			return false;
+		string actual;
+		int read = file.Read(actual, value.Length());
+		file.Close();
+		return read == value.Length() && actual == value;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnGameModeEnd(SCR_GameModeEndData data)
+	{
+		super.OnGameModeEnd(data);
+		if (!IsCollecting())
+			return;
+		Sample();
+		Stop();
+		m_bAwaitingFinal = true;
+		// Give owners a bounded window to submit their last radio sample; gameplay counters are frozen.
+		GetGame().GetCallqueue().CallLater(Finalize, 2000, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void Finalize()
+	{
+		m_bAwaitingFinal = false;
+		SyncAssignments();
+		m_Batch.m_bFinal = true;
+		BuildDebriefs();
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		foreach (int playerId : players)
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			if (controller)
+				controller.GC_SendDebrief();
+		}
+		if (!Flush())
+			GetGame().GetCallqueue().CallLater(RetryFinal, 30000, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RetryFinal()
+	{
+		if (GetInstance() != this || Flush())
+			GetGame().GetCallqueue().Remove(RetryFinal);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SyncAssignments()
+	{
+		foreach (GC_StatsPlayer player : m_Batch.m_aPlayers)
+			player.SyncAssignment(m_Batch.m_fDuration);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void Stop()
+	{
+		m_bCollecting = false;
+		if (GetGame())
+			GetGame().GetCallqueue().Remove(Sample);
+		if (m_Manager)
+			m_Manager.m_OnSlotPresentationChanged.Remove(OnSlotChanged);
+		foreach (int id, GC_StatsCharacterTracker tracker : m_mTrackers)
+			tracker.Detach();
+		m_mTrackers.Clear();
+		m_Manager = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnGameEnd()
+	{
+		if (m_bAwaitingFinal)
+			Finalize();
+		else if (IsCollecting() || !m_sPendingPayload.IsEmpty())
+			Flush();
+		Stop();
+		GetGame().GetCallqueue().Remove(Finalize);
+		GetGame().GetCallqueue().Remove(RetryFinal);
+		super.OnGameEnd();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ~GC_MissionStatsComponent()
+	{
+		Stop();
+		if (GetGame())
+		{
+			GetGame().GetCallqueue().Remove(RetryFinal);
+			GetGame().GetCallqueue().Remove(Finalize);
+		}
+	}
+}

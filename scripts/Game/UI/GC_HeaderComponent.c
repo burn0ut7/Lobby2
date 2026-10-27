@@ -244,6 +244,8 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
     protected bool CanNavigateToView(int view, SCR_EGameModeState phase)
     {
+		if (view == VIEW_DEBRIEF)
+			return phase == SCR_EGameModeState.POSTGAME;
 		if (view == VIEW_PREVIEW)
 			return phase == SCR_EGameModeState.PREGAME;
 		if (view == VIEW_LOBBY)
@@ -354,6 +356,11 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             SwitchToBriefingMenu();
 		else if (view == VIEW_GAME)
 			CloseCurrentMenu();
+		else if (view == VIEW_DEBRIEF)
+		{
+			CloseCurrentMenu();
+			GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_DebriefMenu, 0, true);
+		}
     }
 
     protected void OnLobbyPhaseChanged(SCR_EGameModeState phase)

@@ -64,6 +64,22 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "stats-open")
+		{
+			OpenSlottingFromPause();
+			Rpc(GC_TestRpcPeerReport, token, "dispatched production lobby/debrief entry");
+			return;
+		}
+		if (action == "stats-read")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestDebriefRead());
+			return;
+		}
+		if (action == "stats-select")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestDebriefSelect(message));
+			return;
+		}
 		if (action == "mission-framework-snapshot")
 		{
 			bool flag = manager.GC_IsMissionFlagSet("Interaction complete");
@@ -443,6 +459,9 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"stats-open",
+			"stats-read",
+			"stats-select",
 			"mission-framework-snapshot",
 			"ao-snapshot",
 			"ao-map",
