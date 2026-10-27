@@ -72,6 +72,7 @@ internal static class BatchContract
             Text(death, "weapon", 4096);
             Integer(death, "relation", 0);
             Number(death, "distanceMetres", -1);
+            SessionEventContract.ValidateDeathCredit(death);
         }
     }
 

@@ -64,6 +64,18 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "stats-respawn")
+		{
+			SCR_RespawnComponent respawn = SCR_RespawnComponent.Cast(GetRespawnComponent());
+			if (!respawn)
+			{
+				Rpc(GC_TestRpcPeerReport, token, "UNAVAILABLE respawn component");
+				return;
+			}
+			respawn.RequestPlayerSuicide();
+			Rpc(GC_TestRpcPeerReport, token, "DISPATCHED native pause-menu respawn entry");
+			return;
+		}
 		if (action == "session-logs")
 		{
 			RequestSessionLog(ReserveAdminActionRequest(), message, "", 0);
@@ -470,6 +482,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"stats-respawn",
 			"session-logs",
 			"stats-open",
 			"stats-read",

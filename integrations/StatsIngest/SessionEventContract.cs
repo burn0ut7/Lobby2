@@ -33,7 +33,16 @@ internal static class SessionEventContract
             Number(entry, "reportedDamage", -float.MaxValue);
             Number(entry, "distanceMetres", -1);
             if (entry.GetProperty("damageType").GetInt32() < -1) Fail();
+            ValidateDeathCredit(entry);
         }
+    }
+
+    // Additive fields: older archived batches remain readable without inventing a cause.
+    internal static void ValidateDeathCredit(JsonElement entry)
+    {
+        if (entry.TryGetProperty("deathCause", out _) && Text(entry, "deathCause", 32) is not ("" or "other" or "bleeding" or "respawn")) Fail();
+        if (entry.TryGetProperty("creditSource", out _) && Text(entry, "creditSource", 32) is not ("" or "engine" or "lastPlayerDamage")) Fail();
+        if (entry.TryGetProperty("damageEventSequence", out _)) Nonnegative(entry, "damageEventSequence");
     }
 
     private static void UniqueFields(JsonElement value)

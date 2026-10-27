@@ -1,4 +1,4 @@
-//! Per-connected-player subscriptions. Historical records survive reconnects; entity bindings do not.
+//! Per-identity subscriptions. A disconnected living body retains its current-life damage history.
 class GC_StatsCharacterTracker
 {
 	protected GC_MissionStatsComponent m_Stats;
@@ -17,6 +17,14 @@ class GC_StatsCharacterTracker
 	protected string m_sDamageWeapon;
 	protected float m_fDamageImpactTime = -1;
 	protected EntityID m_DamageCharacterId;
+	protected EntityID m_LastPlayerDamageVictim;
+	protected GC_StatsPlayer m_LastAttacker;
+	protected string m_sLastPlayerWeapon;
+	protected int m_iLastPlayerRelation;
+	protected int m_iLastPlayerDamageSequence;
+	protected float m_fLastPlayerDistance = -1;
+	protected EntityID m_RespawnVictim;
+	protected EntityID m_LifeCharacterId;
 
 	//------------------------------------------------------------------------------------------------
 	void Start(GC_MissionStatsComponent stats, int playerId, GC_StatsPlayer record)
@@ -30,6 +38,27 @@ class GC_StatsCharacterTracker
 	GC_StatsPlayer GetRecord()
 	{
 		return m_Record;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetPlayerId()
+	{
+		return m_iPlayerId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool TracksLife(IEntity victim)
+	{
+		return victim && victim.GetID() == m_LifeCharacterId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Disconnect(float until)
+	{
+		m_Record.SyncAssignment(until);
+		m_Record.m_ActiveAssignment = null;
+		m_iPlayerId = 0;
+		m_MovementEntity = null;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -63,6 +92,9 @@ class GC_StatsCharacterTracker
 		if (!player || player.FindComponent(GC_LobbySpectatorBodyComponent))
 			return;
 		m_Character = player;
+		m_LifeCharacterId = player.GetID();
+		if (m_LastPlayerDamageVictim != player.GetID())
+			m_LastAttacker = null;
 		m_Events = EventHandlerManagerComponent.Cast(player.FindComponent(EventHandlerManagerComponent));
 		if (m_Events)
 		{
@@ -128,7 +160,12 @@ class GC_StatsCharacterTracker
 		if (m_Role && creditTime)
 			m_Role.m_fSeconds += elapsed;
 		if (m_Character != character)
+		{
+			// Losing possession during reconnect does not end a living character's life.
+			if (!character && m_Character && SCR_AIDamageHandling.IsAlive(m_Character))
+				return;
 			Attach(character);
+		}
 		if (!m_Character || !SCR_AIDamageHandling.IsAlive(m_Character))
 		{
 			m_MovementEntity = null;
@@ -182,7 +219,7 @@ class GC_StatsCharacterTracker
 	//------------------------------------------------------------------------------------------------
 	protected void OnShot(int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
-		if (!m_Stats || !m_Stats.IsCollecting() || playerId != m_iPlayerId)
+		if (!m_Stats || !m_Stats.IsCollecting() || m_iPlayerId <= 0 || playerId != m_iPlayerId)
 			return;
 		m_Stats.UpdateAssignment(m_iPlayerId, m_Record);
 		m_Record.m_iShots++;
@@ -196,7 +233,7 @@ class GC_StatsCharacterTracker
 	//------------------------------------------------------------------------------------------------
 	protected void OnGrenade(int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
-		if (!m_Stats || !m_Stats.IsCollecting() || playerId != m_iPlayerId)
+		if (!m_Stats || !m_Stats.IsCollecting() || m_iPlayerId <= 0 || playerId != m_iPlayerId)
 			return;
 		m_Stats.UpdateAssignment(m_iPlayerId, m_Record);
 		m_Record.m_iGrenades++;
@@ -210,7 +247,7 @@ class GC_StatsCharacterTracker
 	//------------------------------------------------------------------------------------------------
 	protected void OnItemUsed(IEntity item, bool completed, ItemUseParameters parameters)
 	{
-		if (!m_Stats || !m_Stats.IsCollecting() || !item || !completed)
+		if (!m_Stats || !m_Stats.IsCollecting() || m_iPlayerId <= 0 || !item || !completed)
 			return;
 		SCR_ConsumableItemComponent consumable = SCR_ConsumableItemComponent.Cast(item.FindComponent(SCR_ConsumableItemComponent));
 		if (!consumable || consumable.GetConsumableType() != SCR_EConsumableType.BANDAGE)
@@ -281,6 +318,7 @@ class GC_StatsCharacterTracker
 			&& context.impactVelocity.LengthSq() < 0.0001)
 			return;
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		int damageSequence;
 		if (logs)
 		{
 			int actorId;
@@ -295,8 +333,12 @@ class GC_StatsCharacterTracker
 			if (context.damageSource && !context.damageSource.FindComponent(BaseWeaponComponent) && context.damageSource.GetPrefabData())
 				entry.m_sProjectile = context.damageSource.GetPrefabData().GetPrefabName();
 			logs.Record(entry);
+			damageSequence = entry.m_iSequence;
 		}
-		if (context.damageType == EDamageType.BLEEDING)
+		// Native bleed-out Kill() emits a source-less TRUE damage notification with
+		// the retained instigator. Keep that event, but do not call it a new hit.
+		if (context.damageType == EDamageType.BLEEDING
+			|| (context.damageType == EDamageType.TRUE && m_Character && GetDeathCause(m_Character) != "other"))
 			return;
 		m_iDamageInstigator = 0;
 		if (context.instigator)
@@ -305,6 +347,56 @@ class GC_StatsCharacterTracker
 		m_fDamageImpactTime = GetGame().GetWorld().GetWorldTime();
 		if (m_Character)
 			m_DamageCharacterId = m_Character.GetID();
+		// Snapshot historical credit from native ownership/relations at the damaging hit.
+		// Self damage, bleeding ticks and healing cannot erase the last other player.
+		if (m_Character && context.damageValue > 0 && m_iDamageInstigator > 0 && m_iDamageInstigator != m_iPlayerId
+			&& context.instigator.GetInstigatorType() != InstigatorType.INSTIGATOR_GM)
+		{
+			GC_StatsPlayer attackerRecord = m_Stats.GetPlayer(m_iDamageInstigator);
+			IEntity attacker = context.instigator.GetInstigatorEntity();
+			if (!attackerRecord || attackerRecord == m_Record || attacker == m_Character)
+				return;
+			m_LastAttacker = attackerRecord;
+			m_LastPlayerDamageVictim = m_Character.GetID();
+			m_sLastPlayerWeapon = m_sDamageWeapon;
+			m_iLastPlayerDamageSequence = damageSequence;
+			SCR_InstigatorContextData relation = new SCR_InstigatorContextData(m_iPlayerId, m_Character, attacker, context.instigator);
+			m_iLastPlayerRelation = relation.GetVictimKillerRelation();
+			m_fLastPlayerDistance = -1;
+			if (attacker)
+				m_fLastPlayerDistance = vector.Distance(attacker.GetOrigin(), m_Character.GetOrigin());
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void MarkRespawn(IEntity victim)
+	{
+		if (victim)
+			m_RespawnVictim = victim.GetID();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GetDeathCause(IEntity victim)
+	{
+		if (victim && victim.GetID() == m_RespawnVictim)
+			return "respawn";
+		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(victim.FindComponent(SCR_CharacterDamageManagerComponent));
+		if (damage && damage.GetBloodHitZone() && damage.GetBloodHitZone().GetDamageState() == ECharacterBloodState.DESTROYED)
+			return "bleeding";
+		return "other";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_StatsPlayer ApplyDelayedCredit(IEntity victim, GC_StatsDeath death)
+	{
+		if (!victim || victim.GetID() != m_LastPlayerDamageVictim || !m_LastAttacker)
+			return null;
+		death.m_sWeapon = m_sLastPlayerWeapon;
+		death.m_iRelation = m_iLastPlayerRelation;
+		death.m_fDistance = m_fLastPlayerDistance;
+		death.m_iDamageEventSequence = m_iLastPlayerDamageSequence;
+		death.m_sCreditSource = "lastPlayerDamage";
+		return m_LastAttacker;
 	}
 
 	//------------------------------------------------------------------------------------------------

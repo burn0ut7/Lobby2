@@ -16,6 +16,39 @@ modded class GC_AdminLogsComponent
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	//! Arrange low blood above the fatal threshold; the stock bleeding effect must cause death.
+	string GC_TestLogBleed(int targetId)
+	{
+		if (!Replication.IsServer() || !SCR_Global.IsAdmin(GetGame().GetPlayerController().GetPlayerId()))
+			return "UNAVAILABLE authority/admin";
+		ChimeraCharacter target = ChimeraCharacter.Cast(GetGame().GetPlayerManager().GetPlayerControlledEntity(targetId));
+		return GC_TestApplyBleed(target);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestLogBleedSlot(int slotId)
+	{
+		if (!Replication.IsServer() || !SCR_Global.IsAdmin(GetGame().GetPlayerController().GetPlayerId()))
+			return "UNAVAILABLE authority/admin";
+		GC_Slot slot = GetSlot(slotId);
+		if (!slot)
+			return "UNAVAILABLE slot";
+		return GC_TestApplyBleed(ChimeraCharacter.Cast(slot.GetEntity()));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string GC_TestApplyBleed(ChimeraCharacter target)
+	{
+		if (!target || target.FindComponent(GC_LobbySpectatorBodyComponent) || target.GetCharacterController().IsDead())
+			return "UNAVAILABLE living character";
+		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(target.GetDamageManager());
+		HitZone blood = damage.GetBloodHitZone();
+		blood.SetHealthScaled(blood.GetDamageStateThreshold(ECharacterBloodState.DESTROYED) + 0.005);
+		damage.AddParticularBleeding("Chest");
+		return string.Format("DISPATCHED stock bleeding; blood=%1 state=%2", blood.GetHealthScaled(), blood.GetDamageState());
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Native damage-manager fixture; production callbacks, relations and counters decide the result.
 	string GC_TestLogDamage(int targetId, float amount)
 	{

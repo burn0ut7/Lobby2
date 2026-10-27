@@ -190,6 +190,9 @@ class GC_StatsPlayer : GC_StatsCounters
 //! One death is one event shared by the victim and killer histories.
 class GC_StatsDeath
 {
+	string m_sCause = "other";
+	string m_sCreditSource;
+	int m_iDamageEventSequence;
 	int m_iSequence;
 	float m_fMissionSeconds;
 	string m_sVictim;
@@ -205,6 +208,9 @@ class GC_StatsDeath
 	{
 		context.WriteValue("sequence", m_iSequence);
 		context.WriteValue("missionSeconds", m_fMissionSeconds);
+		context.WriteValue("deathCause", m_sCause);
+		context.WriteValue("creditSource", m_sCreditSource);
+		context.WriteValue("damageEventSequence", m_iDamageEventSequence);
 		context.WriteValue("victim", m_sVictim);
 		context.WriteValue("killer", m_sKiller);
 		context.WriteValue("victimName", m_sVictimName);

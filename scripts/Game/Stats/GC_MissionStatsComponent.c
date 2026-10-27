@@ -7,7 +7,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 {
 	protected ref GC_MissionStatsBatch m_Batch;
 	protected ref map<string, ref GC_StatsPlayer> m_mPlayers = new map<string, ref GC_StatsPlayer>();
-	protected ref map<int, ref GC_StatsCharacterTracker> m_mTrackers = new map<int, ref GC_StatsCharacterTracker>();
+	protected ref map<string, ref GC_StatsCharacterTracker> m_mTrackers = new map<string, ref GC_StatsCharacterTracker>();
 	protected ref set<EntityID> m_RecordedDeaths = new set<EntityID>();
 	protected ref map<EntityID, string> m_mProjectileWeapons = new map<EntityID, string>();
 	protected ref array<EntityID> m_aProjectileOrder = {};
@@ -86,13 +86,13 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		GC_StatsPlayer record = GetPlayer(playerId);
 		if (!record || !m_Manager)
 			return;
-		GC_StatsCharacterTracker tracker = m_mTrackers.Get(playerId);
+		GC_StatsCharacterTracker tracker = m_mTrackers.Get(record.m_sIdentity);
 		if (!tracker)
 		{
 			tracker = new GC_StatsCharacterTracker();
-			tracker.Start(this, playerId, record);
-			m_mTrackers.Set(playerId, tracker);
+			m_mTrackers.Set(record.m_sIdentity, tracker);
 		}
+		tracker.Start(this, playerId, record);
 		tracker.Sample(character, 0, false, m_Manager);
 	}
 
@@ -180,7 +180,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	void UpdateAssignment(int playerId, GC_StatsPlayer player)
 	{
-		if (!IsCollecting() || !m_Manager || !player)
+		if (!IsCollecting() || !m_Manager || !player || playerId <= 0
+			|| !GetGame().GetPlayerManager().IsPlayerConnected(playerId)
+			|| SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId) != player.m_sIdentity)
 			return;
 		float now = GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted;
 		GC_Slot slot = m_Manager.GetSlotByPlayerId(playerId);
@@ -337,7 +339,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	{
 		if (!IsCollecting() || !slot)
 			return;
-		GC_StatsCharacterTracker tracker = m_mTrackers.Get(slot.GetPlayerId());
+		GC_StatsCharacterTracker tracker = m_mTrackers.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(slot.GetPlayerId()));
 		if (tracker)
 			tracker.UpdateRole(m_Manager);
 	}
@@ -361,14 +363,18 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			GC_StatsPlayer player = GetPlayer(playerId);
 			if (!player)
 				continue;
-			GC_StatsCharacterTracker tracker = m_mTrackers.Get(playerId);
-			if (!tracker || tracker.GetRecord() != player)
+			GC_StatsCharacterTracker tracker = m_mTrackers.Get(player.m_sIdentity);
+			if (!tracker)
 			{
-				if (tracker)
-					tracker.Detach();
 				tracker = new GC_StatsCharacterTracker();
 				tracker.Start(this, playerId, player);
-				m_mTrackers.Set(playerId, tracker);
+				m_mTrackers.Set(player.m_sIdentity, tracker);
+				tracker.Sample(players.GetPlayerControlledEntity(playerId), 0, false, m_Manager);
+				continue;
+			}
+			if (tracker.GetPlayerId() != playerId)
+			{
+				tracker.Start(this, playerId, player);
 				tracker.Sample(players.GetPlayerControlledEntity(playerId), 0, false, m_Manager);
 				continue;
 			}
@@ -376,12 +382,10 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		}
 		for (int i = m_mTrackers.Count() - 1; i >= 0; i--)
 		{
-			int id = m_mTrackers.GetKey(i);
-			if (!connected.Contains(id))
-			{
-				m_mTrackers.GetElement(i).Detach();
-				m_mTrackers.Remove(id);
-			}
+			GC_StatsCharacterTracker tracked = m_mTrackers.GetElement(i);
+			int id = tracked.GetPlayerId();
+			if (id > 0 && (!connected.Contains(id) || SCR_PlayerIdentityUtils.GetPlayerIdentityId(id) != m_mTrackers.GetKey(i)))
+				tracked.Disconnect(GetDuration());
 		}
 		if (now - m_fLastFlush >= 30)
 		{
@@ -394,17 +398,22 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	override void OnPlayerDisconnected(int playerId, KickCauseCode cause, int timeout)
 	{
 		super.OnPlayerDisconnected(playerId, cause, timeout);
-		GC_StatsCharacterTracker tracker = m_mTrackers.Get(playerId);
-		if (tracker)
+		foreach (string identity, GC_StatsCharacterTracker tracker : m_mTrackers)
 		{
-			GC_StatsPlayer record = tracker.GetRecord();
-			record.SyncAssignment(GetDuration());
-			record.m_ActiveAssignment = null;
-			tracker.Detach();
+			if (tracker.GetPlayerId() == playerId)
+				tracker.Disconnect(GetDuration());
 		}
-		m_mTrackers.Remove(playerId);
 		// Avoid assigning a disconnected player's sample interval to a reused session ID.
 		m_iPreviousPopulation = 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Called only by the owning respawn component on authority, immediately before ForceDeath.
+	void MarkRespawn(int playerId, IEntity victim)
+	{
+		GC_StatsCharacterTracker tracker = m_mTrackers.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId));
+		if (IsCollecting() && tracker)
+			tracker.MarkRespawn(victim);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -418,9 +427,38 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			|| m_RecordedDeaths.Contains(victim.GetID()))
 			return;
 		GC_StatsPlayer victimRecord = GetPlayer(instigatorContextData.GetVictimPlayerID());
+		GC_StatsCharacterTracker tracker;
+		foreach (string identity, GC_StatsCharacterTracker candidate : m_mTrackers)
+		{
+			if (candidate.TracksLife(victim))
+			{
+				tracker = candidate;
+				victimRecord = candidate.GetRecord();
+				break;
+			}
+		}
 		GC_StatsPlayer killerRecord = GetPlayer(instigatorContextData.GetKillerPlayerID());
 		UpdateAssignment(instigatorContextData.GetVictimPlayerID(), victimRecord);
 		UpdateAssignment(instigatorContextData.GetKillerPlayerID(), killerRecord);
+		GC_StatsDeath death = new GC_StatsDeath();
+		death.m_iRelation = instigatorContextData.GetVictimKillerRelation();
+		IEntity killer = instigatorContextData.GetKillerEntity();
+		if (killer)
+			death.m_fDistance = vector.Distance(victim.GetOrigin(), killer.GetOrigin());
+		if (tracker)
+		{
+			death.m_sWeapon = tracker.GetDamageWeapon(instigatorContextData.GetKillerPlayerID(), victim);
+			death.m_sCause = tracker.GetDeathCause(victim);
+			if (death.m_sCause == "respawn" || death.m_sCause == "bleeding")
+			{
+				GC_StatsPlayer attacker = tracker.ApplyDelayedCredit(victim, death);
+				if (attacker)
+					killerRecord = attacker;
+			}
+		}
+		if (killerRecord && killerRecord != victimRecord && death.m_sCreditSource.IsEmpty())
+			death.m_sCreditSource = "engine";
+		bool teamKill = (death.m_iRelation & SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER) != 0;
 		if (!victimRecord && !killerRecord)
 			return;
 		if (m_RecordedDeaths.Count() >= 16384)
@@ -430,17 +468,27 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		}
 		m_RecordedDeaths.Insert(victim.GetID());
 		if (victimRecord)
+		{
 			victimRecord.m_iDeaths++;
+			if (!victimRecord.m_ActiveAssignment && !victimRecord.m_aAssignments.IsEmpty())
+				victimRecord.m_aAssignments[victimRecord.m_aAssignments.Count() - 1].m_iDeaths++;
+		}
 		if (victimRecord && killerRecord && killerRecord != victimRecord)
 		{
 			killerRecord.m_iKills++;
-			if (instigatorContextData.HasAnyVictimKillerRelation(SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER))
+			if (teamKill)
 				killerRecord.m_iTeamKills++;
+			// A disconnected attacker has no open interval to receive later counter differences.
+			if (!killerRecord.m_ActiveAssignment && !killerRecord.m_aAssignments.IsEmpty())
+			{
+				GC_StatsAssignment lastAssignment = killerRecord.m_aAssignments[killerRecord.m_aAssignments.Count() - 1];
+				lastAssignment.m_iKills++;
+				if (teamKill)
+					lastAssignment.m_iTeamKills++;
+			}
 		}
-		GC_StatsDeath death = new GC_StatsDeath();
 		death.m_iSequence = ++m_iDeathSequence;
 		death.m_fMissionSeconds = GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted;
-		death.m_iRelation = instigatorContextData.GetVictimKillerRelation();
 		if (victimRecord)
 		{
 			death.m_sVictim = victimRecord.m_sIdentity;
@@ -451,12 +499,6 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			death.m_sKiller = killerRecord.m_sIdentity;
 			death.m_sKillerName = killerRecord.m_sName;
 		}
-		IEntity killer = instigatorContextData.GetKillerEntity();
-		if (killer)
-			death.m_fDistance = vector.Distance(victim.GetOrigin(), killer.GetOrigin());
-		GC_StatsCharacterTracker tracker = m_mTrackers.Get(instigatorContextData.GetVictimPlayerID());
-		if (tracker)
-			death.m_sWeapon = tracker.GetDamageWeapon(instigatorContextData.GetKillerPlayerID(), victim);
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		if (logs)
 		{
@@ -464,7 +506,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			if (killerRecord && killerRecord != victimRecord)
 			{
 				type = "kill";
-				if (victimRecord && instigatorContextData.HasAnyVictimKillerRelation(SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER))
+				if (victimRecord && teamKill)
 					type = "teamKill";
 			}
 			GC_SessionEvent entry = logs.CreateEvent(type, instigatorContextData.GetKillerPlayerID(), instigatorContextData.GetVictimPlayerID());
@@ -474,6 +516,15 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			entry.m_sTargetName = death.m_sVictimName;
 			entry.m_sWeapon = death.m_sWeapon;
 			entry.m_fDistance = death.m_fDistance;
+			entry.m_sDeathCause = death.m_sCause;
+			entry.m_sCreditSource = death.m_sCreditSource;
+			entry.m_iDamageEventSequence = death.m_iDamageEventSequence;
+			if (death.m_sCause == "respawn")
+				entry.m_sDetail = "Respawn selected";
+			else if (death.m_sCause == "bleeding")
+				entry.m_sDetail = "Bled to death";
+			if (death.m_sCreditSource == "lastPlayerDamage")
+				entry.m_sDetail += " | last damaging player credited";
 			logs.Record(entry);
 		}
 		if (m_Batch.m_aDeaths.Count() >= MAX_PENDING_DEATHS)
@@ -490,7 +541,18 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	override void OnControllableDeleted(IEntity entity)
 	{
 		if (entity)
+		{
 			m_RecordedDeaths.RemoveItem(entity.GetID());
+			for (int i = m_mTrackers.Count() - 1; i >= 0; i--)
+			{
+				GC_StatsCharacterTracker tracker = m_mTrackers.GetElement(i);
+				if (tracker.TracksLife(entity))
+				{
+					tracker.Detach();
+					m_mTrackers.Remove(m_mTrackers.GetKey(i));
+				}
+			}
+		}
 		super.OnControllableDeleted(entity);
 	}
 
@@ -586,7 +648,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			GetGame().GetCallqueue().Remove(Sample);
 		if (m_Manager)
 			m_Manager.m_OnSlotPresentationChanged.Remove(OnSlotChanged);
-		foreach (int id, GC_StatsCharacterTracker tracker : m_mTrackers)
+		foreach (string identity, GC_StatsCharacterTracker tracker : m_mTrackers)
 			tracker.Detach();
 		m_mTrackers.Clear();
 		m_Manager = null;
