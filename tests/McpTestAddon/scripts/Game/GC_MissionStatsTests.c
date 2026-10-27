@@ -57,7 +57,7 @@ modded class GC_LobbyManager
 			return "unavailable: debrief not open";
 		string result = TextWidget.Cast(root.FindAnyWidget("DebriefPlayer")).GetText();
 		result += "\nstatus=" + TextWidget.Cast(root.FindAnyWidget("DebriefStatus")).GetText();
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < 15; i++)
 			result += "\n" + TextWidget.Cast(root.FindAnyWidget("StatLabel" + i)).GetText() + "=" + TextWidget.Cast(root.FindAnyWidget("StatValue" + i)).GetText();
 		return result + "\nammo=" + TextWidget.Cast(root.FindAnyWidget("DebriefAmmo")).GetText();
 	}
@@ -133,9 +133,9 @@ modded class GC_LobbyPlayerController
 					return string.Format("FAIL: selection %1 not rendered synchronously", key);
 				array<string> values = {};
 				cached.m_sSummary.Split("\n", values, false);
-				if (values.Count() == 9)
+				if (values.Count() == 15)
 				{
-					for (int row = 0; row < 9; row++)
+					for (int row = 0; row < 15; row++)
 					{
 						if (TextWidget.Cast(root.FindAnyWidget("StatValue" + row)).GetText() != values[row])
 							return "FAIL: cached counter mismatch";

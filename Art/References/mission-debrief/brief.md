@@ -8,7 +8,7 @@ Journey: native POSTGAME -> read own final mission summary -> Back; DEBRIEF head
 |---|---|---|---|
 | Existing header | Mission context and familiar navigation | Lobby2 header | Reuse |
 | Title and player line | Identify personal, one-mission scope | Debrief menu | Keep |
-| Nine label/value rows | Read participation, combat, aid, movement, radio and command | Server final counters | Keep |
+| Fifteen label/value rows in a native scroll area | Read participation, combat, aid, movement, radio and command | Server final counters | Keep |
 | Personal/faction selectors | Choose private personal report or public faction aggregate | Owner-authenticated report request | Keep |
 | Ammunition list | See which ammunition types were expended | Server projectile events grouped by type | Keep, scroll when long |
 | Five-player note | Explain counted time | Fixed eligibility policy | Keep |
@@ -30,3 +30,5 @@ Version 2 critique: selectors make report ownership explicit; ammo has its own r
 Runtime comparison, 2026-10-27: `runtime-host-populated.png` shows 30 actual shots with 25 ball/5 tracer; `runtime-peer-private.png` shows the separate client's zero-shot personal report; `runtime-peer-faction.png` shows the same client's faction aggregate with two participants. The native controls preserve the dark teal/amber theme, two-column totals/ammunition structure and explicit private/faction selection. The active concept's USSR/US labels become translated Soviet Army/US Army buttons. Native button widths fit their labels instead of stretching across the screen. No stock end-screen overlays this report. Empty data and Back/reopen were exercised.
 
 Long-report comparison: `runtime-long-partial.png` and `runtime-long-bottom.png` use explicitly labelled synthetic values to exercise 40 ammunition types with long labels and a partial-history warning. The display bounds the list to 32 types, keeps the remaining eight in history, and allows scrolling to the final notice. The first implementation measured text before wrapping and clipped the bottom; forcing the native layout update before measurement corrected the first-render case. Independent review accepted the corrected captures. Mouse hit testing, keyboard focus traversal and gamepad navigation remain unverified.
+
+Combat breakdown extension: keep concept-v2 composition and typography, with separate player kills, AI kills, player team kills, total deaths, deaths by players, deaths by AI and other deaths. The left summary now scrolls to retain readable row spacing; the right ammunition area stays independent. Actual MCP captures `runtime-combat-top.png` and `runtime-combat-bottom.png` show the top and bottom. Geometry and native scrolling were checked; mouse-wheel/scrollbar hit testing and keyboard/gamepad navigation remain unverified. See `tests/CombatStats.md` for state and cache evidence.

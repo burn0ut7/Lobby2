@@ -25,7 +25,7 @@ internal static class SessionEventContract
             if (sequence <= previous || time < previousTime) Fail();
             previous = sequence;
             previousTime = time;
-            if (Text(entry, "type", 32) is not ("shot" or "grenade" or "damage" or "kill" or "teamKill"
+            if (Text(entry, "type", 32) is not ("shot" or "grenade" or "damage" or "kill" or "aiKill" or "teamKill"
                 or "death" or "admin" or "joined" or "left" or "session")) Fail();
             foreach (var name in new[] { "actor", "target" }) Text(entry, name, 256);
             foreach (var name in new[] { "actorName", "targetName" }) Text(entry, name, 1024);
@@ -40,6 +40,10 @@ internal static class SessionEventContract
     // Additive fields: older archived batches remain readable without inventing a cause.
     internal static void ValidateDeathCredit(JsonElement entry)
     {
+        foreach (var name in new[] { "actorKind", "targetKind", "victimKind", "killerKind" })
+            if (entry.TryGetProperty(name, out _) && Text(entry, name, 16) is not ("" or "player" or "ai" or "other")) Fail();
+        foreach (var name in new[] { "actorPrefab", "targetPrefab", "victimPrefab", "killerPrefab" })
+            if (entry.TryGetProperty(name, out _)) Text(entry, name, 4096);
         if (entry.TryGetProperty("deathCause", out _) && Text(entry, "deathCause", 32) is not ("" or "other" or "bleeding" or "respawn")) Fail();
         if (entry.TryGetProperty("creditSource", out _) && Text(entry, "creditSource", 32) is not ("" or "engine" or "lastPlayerDamage")) Fail();
         if (entry.TryGetProperty("damageEventSequence", out _)) Nonnegative(entry, "damageEventSequence");

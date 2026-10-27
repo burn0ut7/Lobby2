@@ -32,7 +32,14 @@ class GC_StatsDebrief
 		m_sSummary += "\n" + m_Counters.m_iShots.ToString();
 		m_sSummary += "\n" + m_Counters.m_iGrenades.ToString();
 		m_sSummary += "\n" + m_Counters.m_iBandagesOthers.ToString();
-		m_sSummary += string.Format("\n%1 / %2 / %3", m_Counters.m_iKills, m_Counters.m_iDeaths, m_Counters.m_iTeamKills);
+		m_sSummary += "\n" + m_Counters.m_iKills.ToString();
+		m_sSummary += "\n" + m_Counters.m_iAIKills.ToString();
+		m_sSummary += "\n" + m_Counters.m_iTeamKills.ToString();
+		m_sSummary += "\n" + m_Counters.m_iDeaths.ToString();
+		m_sSummary += "\n" + m_Counters.m_iDeathsByPlayers.ToString();
+		m_sSummary += "\n" + m_Counters.m_iDeathsByAI.ToString();
+		int otherDeaths = m_Counters.m_iDeaths - m_Counters.m_iDeathsByPlayers - m_Counters.m_iDeathsByAI;
+		m_sSummary += "\n" + otherDeaths.ToString();
 		m_sSummary += string.Format("\n%1 m", Math.Round(m_Counters.m_fWalkMetres));
 		m_sSummary += string.Format("\n%1 m / %2 m", Math.Round(m_Counters.m_fDriveMetres), Math.Round(m_Counters.m_fPilotMetres));
 		m_sSummary += "\n" + FormatTime(m_Counters.m_fRadioSecondsReported);

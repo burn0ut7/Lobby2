@@ -205,7 +205,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			GC_SessionEvent entry = m_aRecent[(start - offset + count) % count];
 			if (before > 0 && entry.m_iSequence >= before)
 				continue;
-			bool death = entry.m_sType == "kill" || entry.m_sType == "teamKill" || entry.m_sType == "death";
+			bool death = entry.m_sType == "kill" || entry.m_sType == "aiKill" || entry.m_sType == "teamKill" || entry.m_sType == "death";
 			if (!type.IsEmpty() && entry.m_sType != type && !(type == "death" && death))
 				continue;
 			string search = entry.m_sActor + " " + entry.m_sActorName + " " + entry.m_sTarget + " " + entry.m_sTargetName;

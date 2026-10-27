@@ -20,6 +20,7 @@ class GC_StatsCharacterTracker
 	protected EntityID m_LastPlayerDamageVictim;
 	protected GC_StatsPlayer m_LastAttacker;
 	protected string m_sLastPlayerWeapon;
+	protected string m_sLastPlayerPrefab;
 	protected int m_iLastPlayerRelation;
 	protected int m_iLastPlayerDamageSequence;
 	protected float m_fLastPlayerDistance = -1;
@@ -327,6 +328,21 @@ class GC_StatsCharacterTracker
 			GC_SessionEvent entry = logs.CreateEvent("damage", actorId, m_iPlayerId);
 			entry.m_sTarget = m_Record.m_sIdentity;
 			entry.m_sTargetName = m_Record.m_sName;
+			entry.m_sTargetKind = "player";
+			if (context.instigator && context.instigator.GetInstigatorType() == InstigatorType.INSTIGATOR_AI)
+			{
+				entry.m_sActorKind = "ai";
+				entry.m_sActorName = "AI";
+				IEntity ai = context.instigator.GetInstigatorEntity();
+				if (ai)
+				{
+					entry.m_sActor = "ai:" + ai.GetID().ToString();
+					if (ai.GetPrefabData())
+						entry.m_sActorPrefab = ai.GetPrefabData().GetPrefabName();
+				}
+			}
+			else if (actorId > 0)
+				entry.m_sActorKind = "player";
 			entry.m_fDamage = context.damageValue;
 			entry.m_iDamageType = context.damageType;
 			entry.m_sWeapon = m_Stats.GetProjectileWeapon(context.damageSource);
@@ -357,6 +373,9 @@ class GC_StatsCharacterTracker
 			if (!attackerRecord || attackerRecord == m_Record || attacker == m_Character)
 				return;
 			m_LastAttacker = attackerRecord;
+			m_sLastPlayerPrefab = string.Empty;
+			if (attacker && attacker.GetPrefabData())
+				m_sLastPlayerPrefab = attacker.GetPrefabData().GetPrefabName();
 			m_LastPlayerDamageVictim = m_Character.GetID();
 			m_sLastPlayerWeapon = m_sDamageWeapon;
 			m_iLastPlayerDamageSequence = damageSequence;
@@ -392,6 +411,7 @@ class GC_StatsCharacterTracker
 		if (!victim || victim.GetID() != m_LastPlayerDamageVictim || !m_LastAttacker)
 			return null;
 		death.m_sWeapon = m_sLastPlayerWeapon;
+		death.m_sKillerPrefab = m_sLastPlayerPrefab;
 		death.m_iRelation = m_iLastPlayerRelation;
 		death.m_fDistance = m_fLastPlayerDistance;
 		death.m_iDamageEventSequence = m_iLastPlayerDamageSequence;

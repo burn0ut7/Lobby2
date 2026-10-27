@@ -456,7 +456,20 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 					killerRecord = attacker;
 			}
 		}
-		if (killerRecord && killerRecord != victimRecord && death.m_sCreditSource.IsEmpty())
+		// A disconnected player's tracked body remains a player victim, not an AI kill.
+		if (victimRecord || instigatorContextData.GetVictimPlayerID() > 0)
+			death.m_sVictimKind = "player";
+		else if (instigatorContextData.GetVictimCharacterControlType() == SCR_ECharacterControlType.AI)
+			death.m_sVictimKind = "ai";
+		if (killerRecord)
+			death.m_sKillerKind = "player";
+		else if (instigatorContextData.GetKillerCharacterControlType() == SCR_ECharacterControlType.AI)
+			death.m_sKillerKind = "ai";
+		if (victim.GetPrefabData())
+			death.m_sVictimPrefab = victim.GetPrefabData().GetPrefabName();
+		if (killer && killer.GetPrefabData() && death.m_sCreditSource != "lastPlayerDamage")
+			death.m_sKillerPrefab = killer.GetPrefabData().GetPrefabName();
+		if (death.m_sCreditSource.IsEmpty() && ((killerRecord && killerRecord != victimRecord) || death.m_sKillerKind == "ai"))
 			death.m_sCreditSource = "engine";
 		bool teamKill = (death.m_iRelation & SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER) != 0;
 		if (!victimRecord && !killerRecord)
@@ -469,22 +482,21 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		m_RecordedDeaths.Insert(victim.GetID());
 		if (victimRecord)
 		{
-			victimRecord.m_iDeaths++;
+			bool byPlayer = killerRecord && killerRecord != victimRecord;
+			bool byAI = death.m_sKillerKind == "ai";
+			victimRecord.RecordDeath(byPlayer, byAI);
 			if (!victimRecord.m_ActiveAssignment && !victimRecord.m_aAssignments.IsEmpty())
-				victimRecord.m_aAssignments[victimRecord.m_aAssignments.Count() - 1].m_iDeaths++;
+				victimRecord.m_aAssignments[victimRecord.m_aAssignments.Count() - 1].RecordDeath(byPlayer, byAI);
 		}
-		if (victimRecord && killerRecord && killerRecord != victimRecord)
+		if (killerRecord && killerRecord != victimRecord && death.m_sVictimKind != "other")
 		{
-			killerRecord.m_iKills++;
-			if (teamKill)
-				killerRecord.m_iTeamKills++;
+			bool aiVictim = death.m_sVictimKind == "ai";
+			killerRecord.RecordKill(aiVictim, teamKill);
 			// A disconnected attacker has no open interval to receive later counter differences.
 			if (!killerRecord.m_ActiveAssignment && !killerRecord.m_aAssignments.IsEmpty())
 			{
 				GC_StatsAssignment lastAssignment = killerRecord.m_aAssignments[killerRecord.m_aAssignments.Count() - 1];
-				lastAssignment.m_iKills++;
-				if (teamKill)
-					lastAssignment.m_iTeamKills++;
+				lastAssignment.RecordKill(aiVictim, teamKill);
 			}
 		}
 		death.m_iSequence = ++m_iDeathSequence;
@@ -499,6 +511,17 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			death.m_sKiller = killerRecord.m_sIdentity;
 			death.m_sKillerName = killerRecord.m_sName;
 		}
+		if (death.m_sVictimKind == "ai")
+		{
+			death.m_sVictim = "ai:" + victim.GetID().ToString();
+			death.m_sVictimName = "AI";
+		}
+		if (death.m_sKillerKind == "ai")
+		{
+			death.m_sKillerName = "AI";
+			if (killer)
+				death.m_sKiller = "ai:" + killer.GetID().ToString();
+		}
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		if (logs)
 		{
@@ -508,12 +531,18 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 				type = "kill";
 				if (victimRecord && teamKill)
 					type = "teamKill";
+				else if (death.m_sVictimKind == "ai")
+					type = "aiKill";
 			}
 			GC_SessionEvent entry = logs.CreateEvent(type, instigatorContextData.GetKillerPlayerID(), instigatorContextData.GetVictimPlayerID());
 			entry.m_sActor = death.m_sKiller;
 			entry.m_sActorName = death.m_sKillerName;
 			entry.m_sTarget = death.m_sVictim;
 			entry.m_sTargetName = death.m_sVictimName;
+			entry.m_sActorKind = death.m_sKillerKind;
+			entry.m_sTargetKind = death.m_sVictimKind;
+			entry.m_sActorPrefab = death.m_sKillerPrefab;
+			entry.m_sTargetPrefab = death.m_sVictimPrefab;
 			entry.m_sWeapon = death.m_sWeapon;
 			entry.m_fDistance = death.m_fDistance;
 			entry.m_sDeathCause = death.m_sCause;

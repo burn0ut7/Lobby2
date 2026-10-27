@@ -29,6 +29,9 @@ class GC_StatsCounters
 	int m_iGrenades;
 	int m_iBandagesOthers;
 	int m_iKills;
+	int m_iAIKills;
+	int m_iDeathsByPlayers;
+	int m_iDeathsByAI;
 	int m_iTeamKills;
 	int m_iDeaths;
 	int m_iCommanderMissions;
@@ -46,6 +49,9 @@ class GC_StatsCounters
 		context.WriteValue("grenades", m_iGrenades);
 		context.WriteValue("bandagesOthers", m_iBandagesOthers);
 		context.WriteValue("kills", m_iKills);
+		context.WriteValue("aiKills", m_iAIKills);
+		context.WriteValue("deathsByPlayers", m_iDeathsByPlayers);
+		context.WriteValue("deathsByAI", m_iDeathsByAI);
 		context.WriteValue("teamKills", m_iTeamKills);
 		context.WriteValue("deaths", m_iDeaths);
 		context.WriteValue("commanderMissions", m_iCommanderMissions);
@@ -64,6 +70,9 @@ class GC_StatsCounters
 		m_iGrenades += other.m_iGrenades * sign;
 		m_iBandagesOthers += other.m_iBandagesOthers * sign;
 		m_iKills += other.m_iKills * sign;
+		m_iAIKills += other.m_iAIKills * sign;
+		m_iDeathsByPlayers += other.m_iDeathsByPlayers * sign;
+		m_iDeathsByAI += other.m_iDeathsByAI * sign;
 		m_iTeamKills += other.m_iTeamKills * sign;
 		m_iDeaths += other.m_iDeaths * sign;
 	}
@@ -80,8 +89,34 @@ class GC_StatsCounters
 		m_iGrenades = total.m_iGrenades - start.m_iGrenades;
 		m_iBandagesOthers = total.m_iBandagesOthers - start.m_iBandagesOthers;
 		m_iKills = total.m_iKills - start.m_iKills;
+		m_iAIKills = total.m_iAIKills - start.m_iAIKills;
+		m_iDeathsByPlayers = total.m_iDeathsByPlayers - start.m_iDeathsByPlayers;
+		m_iDeathsByAI = total.m_iDeathsByAI - start.m_iDeathsByAI;
 		m_iTeamKills = total.m_iTeamKills - start.m_iTeamKills;
 		m_iDeaths = total.m_iDeaths - start.m_iDeaths;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RecordKill(bool ai, bool teamKill)
+	{
+		if (ai)
+			m_iAIKills++;
+		else
+		{
+			m_iKills++;
+			if (teamKill)
+				m_iTeamKills++;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RecordDeath(bool byPlayer, bool byAI)
+	{
+		m_iDeaths++;
+		if (byPlayer)
+			m_iDeathsByPlayers++;
+		else if (byAI)
+			m_iDeathsByAI++;
 	}
 }
 
@@ -190,6 +225,10 @@ class GC_StatsPlayer : GC_StatsCounters
 //! One death is one event shared by the victim and killer histories.
 class GC_StatsDeath
 {
+	string m_sVictimKind = "other";
+	string m_sKillerKind = "other";
+	string m_sVictimPrefab;
+	string m_sKillerPrefab;
 	string m_sCause = "other";
 	string m_sCreditSource;
 	int m_iDamageEventSequence;
@@ -207,6 +246,10 @@ class GC_StatsDeath
 	void Write(SaveContext context)
 	{
 		context.WriteValue("sequence", m_iSequence);
+		context.WriteValue("victimKind", m_sVictimKind);
+		context.WriteValue("killerKind", m_sKillerKind);
+		context.WriteValue("victimPrefab", m_sVictimPrefab);
+		context.WriteValue("killerPrefab", m_sKillerPrefab);
 		context.WriteValue("missionSeconds", m_fMissionSeconds);
 		context.WriteValue("deathCause", m_sCause);
 		context.WriteValue("creditSource", m_sCreditSource);

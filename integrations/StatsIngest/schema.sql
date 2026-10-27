@@ -41,7 +41,12 @@ SELECT player_id, count(*) AS missions,
        sum((stats->>'leaderMissions')::integer) AS squad_leader_missions,
        sum((stats->>'radioSecondsClientReported')::double precision) AS radio_seconds_client_reported,
        sum((stats->>'teamKills')::bigint) AS team_kills,
-       count(*) FILTER (WHERE stats ? 'teamKills') AS team_kill_record_count
+       count(*) FILTER (WHERE stats ? 'teamKills') AS team_kill_record_count,
+       sum((stats->>'aiKills')::bigint) AS ai_kills,
+       sum((stats->>'deathsByPlayers')::bigint) AS deaths_by_players,
+       sum((stats->>'deathsByAI')::bigint) AS deaths_by_ai,
+       sum((stats->>'deaths')::bigint - (stats->>'deathsByPlayers')::bigint - (stats->>'deathsByAI')::bigint) AS other_deaths,
+       count(*) FILTER (WHERE stats ? 'aiKills') AS combat_breakdown_record_count
 FROM lobby2.mission_players WHERE finalized AND complete GROUP BY player_id;
 
 CREATE OR REPLACE VIEW lobby2.deaths AS
@@ -79,7 +84,12 @@ SELECT mission_id, faction_id, count(DISTINCT player_id) AS participants,
        sum((stats->>'pilotMetres')::double precision) AS pilot_metres,
        sum((stats->>'radioSecondsClientReported')::double precision) AS radio_seconds_client_reported,
        sum((stats->>'teamKills')::bigint) AS team_kills,
-       count(*) FILTER (WHERE stats ? 'teamKills') AS team_kill_record_count
+       count(*) FILTER (WHERE stats ? 'teamKills') AS team_kill_record_count,
+       sum((stats->>'aiKills')::bigint) AS ai_kills,
+       sum((stats->>'deathsByPlayers')::bigint) AS deaths_by_players,
+       sum((stats->>'deathsByAI')::bigint) AS deaths_by_ai,
+       sum((stats->>'deaths')::bigint - (stats->>'deathsByPlayers')::bigint - (stats->>'deathsByAI')::bigint) AS other_deaths,
+       count(*) FILTER (WHERE stats ? 'aiKills') AS combat_breakdown_record_count
 FROM lobby2.memberships WHERE finalized AND complete AND faction_id <> ''
 GROUP BY mission_id, faction_id;
 

@@ -14,7 +14,7 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	protected float m_fRequestedAt = -1000;
 	protected ref array<int> m_aBack = {};
 	protected ref array<string> m_aDisplayed = {};
-	protected ref array<string> m_aTypes = {"", "shot", "grenade", "damage", "kill", "teamKill", "death", "admin", "joined", "left", "session"};
+	protected ref array<string> m_aTypes = {"", "shot", "grenade", "damage", "kill", "teamKill", "death", "admin", "joined", "left", "session", "aiKill"};
 
 	//------------------------------------------------------------------------------------------------
 	override void HandlerAttached(Widget w)
@@ -25,7 +25,7 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 		m_SearchEvents = SCR_EventHandlerComponent.Cast(m_Search.FindHandler(SCR_EventHandlerComponent));
 		m_SearchEvents.GetOnChange().Insert(OnSearch);
 		m_Type = SCR_ComboBoxComponent.Cast(w.FindAnyWidget("LogType").FindHandler(SCR_ComboBoxComponent));
-		array<string> labels = {"All events", "Shots", "Grenades", "Damage", "Kills", "Team kills", "Deaths (all)", "Admin", "Joined", "Left", "Session"};
+		array<string> labels = {"All events", "Shots", "Grenades", "Damage", "Player kills", "Team kills", "Deaths (all)", "Admin", "Joined", "Left", "Session", "AI kills"};
 		foreach (string label : labels)
 			m_Type.AddItem(label);
 		m_Type.SetCurrentItem(0, false, false, false);
@@ -216,6 +216,8 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 				eventLabel.SetText("Team kill");
 				eventLabel.SetColor(Color.FromRGBA(255, 90, 80, 255));
 			}
+			else if (rows[i + 2] == "aiKill")
+				TextWidget.Cast(row.FindAnyWidget("LogEvent")).SetText("AI kill");
 		}
 	}
 

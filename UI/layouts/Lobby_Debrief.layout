@@ -20,9 +20,24 @@ TextWidgetClass {
  Wrap 1
  "Ignore Cursor" 1
 }
+ScrollLayoutWidgetClass {
+ Name "StatsScroll"
+ Slot FrameWidgetSlot { Anchor .11 .37 .60 .81 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ "Scrollbar Always Visible" 1
+ {
+  SizeLayoutWidgetClass {
+   Name "StatsSize"
+   Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 }
+   AllowHeightOverride 1
+   HeightOverride 720
+   {
+    FrameWidgetClass {
+     Name "StatsRows"
+     Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+     {
 TextWidgetClass {
  Name "StatLabel0"
- Slot FrameWidgetSlot { Anchor .11 0.370 .36 0.410 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -40 }
  Text "Counted play time"
  "Font Size" 24
  Wrap 1
@@ -30,15 +45,15 @@ TextWidgetClass {
 }
 TextWidgetClass {
  Name "StatValue0"
- Slot FrameWidgetSlot { Anchor .38 0.370 .58 0.410 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -40 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel1"
- Slot FrameWidgetSlot { Anchor .11 0.420 .36 0.460 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 48 OffsetRight 0 OffsetBottom -88 }
  Text "Shots fired"
  "Font Size" 24
  Wrap 1
@@ -46,15 +61,15 @@ TextWidgetClass {
 }
 TextWidgetClass {
  Name "StatValue1"
- Slot FrameWidgetSlot { Anchor .38 0.420 .58 0.460 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 48 OffsetRight 0 OffsetBottom -88 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel2"
- Slot FrameWidgetSlot { Anchor .11 0.470 .36 0.510 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 96 OffsetRight 0 OffsetBottom -136 }
  Text "Grenades thrown"
  "Font Size" 24
  Wrap 1
@@ -62,15 +77,15 @@ TextWidgetClass {
 }
 TextWidgetClass {
  Name "StatValue2"
- Slot FrameWidgetSlot { Anchor .38 0.470 .58 0.510 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 96 OffsetRight 0 OffsetBottom -136 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel3"
- Slot FrameWidgetSlot { Anchor .11 0.520 .36 0.560 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 144 OffsetRight 0 OffsetBottom -184 }
  Text "Bandages given"
  "Font Size" 24
  Wrap 1
@@ -78,91 +93,193 @@ TextWidgetClass {
 }
 TextWidgetClass {
  Name "StatValue3"
- Slot FrameWidgetSlot { Anchor .38 0.520 .58 0.560 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 144 OffsetRight 0 OffsetBottom -184 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel4"
- Slot FrameWidgetSlot { Anchor .11 0.570 .36 0.610 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "Kills / deaths / team kills"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 192 OffsetRight 0 OffsetBottom -232 }
+ Text "Player kills"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatValue4"
- Slot FrameWidgetSlot { Anchor .38 0.570 .58 0.610 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 192 OffsetRight 0 OffsetBottom -232 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel5"
- Slot FrameWidgetSlot { Anchor .11 0.620 .36 0.660 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "Travel on foot"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 240 OffsetRight 0 OffsetBottom -280 }
+ Text "AI kills"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatValue5"
- Slot FrameWidgetSlot { Anchor .38 0.620 .58 0.660 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 240 OffsetRight 0 OffsetBottom -280 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel6"
- Slot FrameWidgetSlot { Anchor .11 0.670 .36 0.710 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "Driving / piloting"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 288 OffsetRight 0 OffsetBottom -328 }
+ Text "Team kills (players)"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatValue6"
- Slot FrameWidgetSlot { Anchor .38 0.670 .58 0.710 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 288 OffsetRight 0 OffsetBottom -328 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel7"
- Slot FrameWidgetSlot { Anchor .11 0.720 .36 0.760 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "Radio time (estimated)"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 336 OffsetRight 0 OffsetBottom -376 }
+ Text "Deaths (all)"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatValue7"
- Slot FrameWidgetSlot { Anchor .38 0.720 .58 0.760 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 336 OffsetRight 0 OffsetBottom -376 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatLabel8"
- Slot FrameWidgetSlot { Anchor .11 0.770 .36 0.810 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "Command"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 384 OffsetRight 0 OffsetBottom -424 }
+ Text "Deaths by players"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
 }
 TextWidgetClass {
  Name "StatValue8"
- Slot FrameWidgetSlot { Anchor .38 0.770 .58 0.810 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "—"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 384 OffsetRight 0 OffsetBottom -424 }
+ Text "-"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel9"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 432 OffsetRight 0 OffsetBottom -472 }
+ Text "Deaths by AI"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue9"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 432 OffsetRight 0 OffsetBottom -472 }
+ Text "-"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel10"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 480 OffsetRight 0 OffsetBottom -520 }
+ Text "Other deaths"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue10"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 480 OffsetRight 0 OffsetBottom -520 }
+ Text "-"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel11"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 528 OffsetRight 0 OffsetBottom -568 }
+ Text "Travel on foot"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue11"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 528 OffsetRight 0 OffsetBottom -568 }
+ Text "-"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel12"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 576 OffsetRight 0 OffsetBottom -616 }
+ Text "Driving / piloting"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue12"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 576 OffsetRight 0 OffsetBottom -616 }
+ Text "-"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel13"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 624 OffsetRight 0 OffsetBottom -664 }
+ Text "Radio time (estimated)"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue13"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 624 OffsetRight 0 OffsetBottom -664 }
+ Text "-"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatLabel14"
+ Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 672 OffsetRight 0 OffsetBottom -712 }
+ Text "Command"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "StatValue14"
+ Slot FrameWidgetSlot { Anchor 0.6 0 0.96 0 OffsetLeft 0 OffsetTop 672 OffsetRight 0 OffsetBottom -712 }
+ Text "-"
+ "Font Size" 24
+ Wrap 1
+ "Ignore Cursor" 1
+}
+     }
+    }
+   }
+  }
+ }
 }
 TextWidgetClass {
  Name "AmmoHeading"

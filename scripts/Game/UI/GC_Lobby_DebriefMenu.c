@@ -45,7 +45,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		array<string> values = {};
 		summary.Split("\n", values, false);
 		TextWidget status = TextWidget.Cast(GetRootWidget().FindAnyWidget("DebriefStatus"));
-		if (values.Count() != 9)
+		if (values.Count() != 15)
 		{
 			status.SetText(summary);
 			return;
@@ -97,9 +97,9 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 			lastLabel = "Participants";
 		}
 		TextWidget.Cast(GetRootWidget().FindAnyWidget("DebriefPlayer")).SetText(title);
-		TextWidget.Cast(GetRootWidget().FindAnyWidget("StatLabel8")).SetText(lastLabel);
+		TextWidget.Cast(GetRootWidget().FindAnyWidget("StatLabel14")).SetText(lastLabel);
 		TextWidget.Cast(GetRootWidget().FindAnyWidget("DebriefStatus")).SetText("Loading mission statistics…");
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < 15; i++)
 			TextWidget.Cast(GetRootWidget().FindAnyWidget("StatValue" + i)).SetText("—");
 		TextWidget.Cast(GetRootWidget().FindAnyWidget("DebriefAmmo")).SetText(string.Empty);
 		m_Controller.GC_RequestDebrief(m_sFaction);

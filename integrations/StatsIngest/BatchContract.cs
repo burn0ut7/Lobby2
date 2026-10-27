@@ -122,6 +122,14 @@ internal static class BatchContract
         Integer(value, "leaderMissions", 0, 1);
         if ((version >= 2 || value.TryGetProperty("teamKills", out _))
             && Integer(value, "teamKills", 0) > Integer(value, "kills", 0)) Fail();
+        if (value.TryGetProperty("aiKills", out _) || value.TryGetProperty("deathsByPlayers", out _)
+            || value.TryGetProperty("deathsByAI", out _))
+        {
+            Integer(value, "aiKills", 0);
+            var byPlayers = Integer(value, "deathsByPlayers", 0);
+            var byAI = Integer(value, "deathsByAI", 0);
+            if ((long)byPlayers + byAI > Integer(value, "deaths", 0)) Fail();
+        }
     }
 
     private static void Fail() => throw new InvalidDataException("Invalid stats batch contract.");
