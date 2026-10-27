@@ -1,5 +1,13 @@
 # Mission statistics validation
 
+## Grenade ammunition follow-up — 2026-10-27
+
+All six marked grenade-mission batches passed the existing importer `--validate` on copies in `%TEMP%/Lobby2GrenadeValidation` (exit 0). Workbench remains open with the test addon loaded and Play stopped.
+
+The grenade callback now records ammunition through the same bounded aggregation as shots, while keeping throws out of the shot counter. Native reload `faac0d8c2a17464e88bb0afccf6469de` passed. In mission `01a17bea-80e3-8ddf-8400-000000125c10`, native throw input `r13ba332d59cb473e96d28044e4ec7511` produced one RGD5 throw, zero shots, and one ammunition entry with the grenade prefab as projectile and weapon (magazine empty): snapshot `r78139c203d3740158336273cc321d7dc`. Final revision 5 retains that entry. Personal report `r837201881eab4dc4914282938c5e3f6a` and faction report `r0dc48486756943d4b566f617a94c1aaa` both display `Grenade RGD5: 1`; capture `Art/References/mission-debrief/runtime-grenade-faction.png` verifies the existing layout. Earlier input during the native 120-second setup restriction produced no throws; fire input is not the grenade throw action. Smoke and other grenade variants were not individually exercised.
+
+The preceding user-driven M151A2/M2 session also recorded 18 turret rounds (15 M33 ball, three M10 tracer) with weapon `{69A9BC585134D555}Prefabs/Weapons/HeavyWeapons/HMG_M2HB_pintle_M151A2.et`, box magazine and both projectile types in mission `01a17be8-ec30-8b3f-8400-00000011cb4e`: final snapshot `re0fd3f41a0894a6b87962d10145fd50a`, debrief read `r08b9378afe3449debe7b55ade22ecf68`. This verifies that mounted weapon, not every vehicle/modded turret. Installed `SCR_DataCollectorShootingModule.c` lines 22–52 and 78–86 use the same character events and explicitly account for turret occupants (catalogue revision `af6068cb44aa4c0db613213faa82a050`). No new turret subscription was added.
+
 Validation evidence, 2026-10-27. Engine 1.8.0.13; Lobby2McpTests development project; production Arland example. Reforger MCP receipts below refer to the Workbench log session `logs_2026-10-26_23-43-59`. Test helpers remain in the optional addon. Runtime screenshots are under `Art/References/mission-debrief/` alongside active concept-v2.
 
 ## Observed results

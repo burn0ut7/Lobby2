@@ -197,6 +197,7 @@ class GC_StatsCharacterTracker
 			return;
 		m_Stats.UpdateAssignment(m_iPlayerId, m_Record);
 		m_Record.m_iGrenades++;
+		RecordAmmo(weapon, projectile);
 		m_Stats.ObserveProjectile(weapon, projectile);
 	}
 
