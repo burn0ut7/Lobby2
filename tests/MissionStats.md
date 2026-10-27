@@ -1,5 +1,18 @@
 # Mission statistics validation
 
+## Client debrief cache — 2026-10-27
+
+Finalization now sends the owner's personal report plus all registered faction summaries in one burst. The owning controller caches them across selection changes and menu reopening; cache misses request the set once. No personal report for another identity is sent. Existing server pacing remains for repeated requests, while tab changes use local data. Leaving POSTGAME or shutting down Lobby2 presentation clears the cache.
+
+Native reload `a2243bd1291a4c8cb57a908ef98eaa83` passed. A test-helper sibling-method reference failed an earlier reload and was corrected to use the manager's public fixture entry; production code compiled. Test counters observe actual server requests and owner deliveries. In two-player mission `01a17bf4-4e09-85d5-8400-000000135aed`:
+
+- Before finalization, host cache/request/delivery counts were zero (`rd8aa0fb636ad4a1c866e1aaccc1f8692`). Finalization populated three views from one request and three deliveries (`rf2be0df54b4f44f0a583d26b80a42fc3`).
+- Twelve consecutive selections across USSR, empty US, and private reports checked all nine displayed values or the empty message synchronously inside each handler. Host counts remained one request/three deliveries (`r9882b79a637d41a6a6625994d7d33db2`). The separate connected client passed the same cycle; deliveries stayed three (`r2618db649148469dbcbad273f16b6b04`, `r54e2c349a99f44afa980ac0e9ba7749d`).
+- Host Back/reopen retained the cache and immediately restored the personal report without another request or delivery (`redbf308dace24042a402fc6775de2bde`, `r5618798b62104927b1fc04a98b42809a`, `rf0b0e1f20fd447d793e9b2430f5362d9`). Private command values differed: host CO/squad leader; client None (`rcc302cb024f74dc0bf8dbe0297978911`).
+- Explicit cache invalidation yielded zero cached/requested state (`ra45fa0b6490945d09a62e268e22dafa7`). Selecting USSR then refetched all three reports with one additional request; subsequent 12-selection cycling added none (`rac2aaa7d397c4270a0513a98b9904a74`, `r079d6639c18d403f9bf06ee09c4d0688`). This exercises the same cache-miss path used by a fresh controller, not a late-join connection test.
+
+`Art/References/mission-debrief/runtime-cached-peer-faction.png` shows the actual remote client's faction report with two participants. The existing layout/concept is unchanged. Handler assertions establish synchronous widget updates without network round trips; no GPU-frame latency measurement, loss simulation, or mouse/gamepad timing claim is made. Workbench log session remains `logs_2026-10-26_23-43-59`; client session is `logs_2026-10-27_02-02-23`.
+
 ## Grenade ammunition follow-up — 2026-10-27
 
 All six marked grenade-mission batches passed the existing importer `--validate` on copies in `%TEMP%/Lobby2GrenadeValidation` (exit 0). Workbench remains open with the test addon loaded and Play stopped.

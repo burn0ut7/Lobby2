@@ -75,6 +75,11 @@ modded class GC_LobbyPlayerController
 			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestDebriefRead());
 			return;
 		}
+		if (action == "stats-cache")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestDebriefCache(message));
+			return;
+		}
 		if (action == "stats-select")
 		{
 			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestDebriefSelect(message));
@@ -462,6 +467,7 @@ modded class GC_LobbyManager
 			"stats-open",
 			"stats-read",
 			"stats-select",
+			"stats-cache",
 			"mission-framework-snapshot",
 			"ao-snapshot",
 			"ao-map",

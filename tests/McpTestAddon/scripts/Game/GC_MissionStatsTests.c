@@ -63,6 +63,15 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
+	string GC_TestDebriefCache(string action)
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (!controller)
+			return "unavailable: local controller";
+		return controller.GC_TestDebriefCache(action);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestDebriefSelect(string factionKey)
 	{
 		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
@@ -76,6 +85,69 @@ modded class GC_LobbyManager
 			return "unavailable: button";
 		button.OnClick(target, 0, 0, 0);
 		return "dispatched production selection";
+	}
+}
+
+//! Test-only counters observe actual requests and deliveries, not timing assumptions.
+modded class GC_LobbyPlayerController
+{
+	protected int m_iGC_TestDebriefRequests;
+	protected int m_iGC_TestDebriefDeliveries;
+
+	//------------------------------------------------------------------------------------------------
+	override protected void GC_RpcAsk_Debrief()
+	{
+		m_iGC_TestDebriefRequests++;
+		super.GC_RpcAsk_Debrief();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected void GC_RpcDo_Debrief(string factionKey, string summary, string ammunition, bool complete)
+	{
+		m_iGC_TestDebriefDeliveries++;
+		super.GC_RpcDo_Debrief(factionKey, summary, ammunition, complete);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestDebriefCache(string action)
+	{
+		if (action == "clear")
+			GC_ClearDebriefCache();
+		else if (action == "cycle")
+		{
+			GC_LobbyManager manager = GC_LobbyManager.GetManager();
+			if (!manager || m_mGC_DebriefCache.Count() < 3)
+				return "unavailable: three cached views";
+			array<string> keys = {"USSR", "US", ""};
+			for (int i = 0; i < 12; i++)
+			{
+				string key = keys[i % keys.Count()];
+				GC_StatsCachedReport cached = m_mGC_DebriefCache.Get(key);
+				if (!cached)
+					return "FAIL: fixture faction absent";
+				manager.GC_TestDebriefSelect(key);
+				Widget root = GetGame().GetMenuManager().GetTopMenu().GetRootWidget();
+				string status = TextWidget.Cast(root.FindAnyWidget("DebriefStatus")).GetText();
+				string ammo = TextWidget.Cast(root.FindAnyWidget("DebriefAmmo")).GetText();
+				if (status == "Loading mission statistics…" || ammo != cached.m_sAmmunition)
+					return string.Format("FAIL: selection %1 not rendered synchronously", key);
+				array<string> values = {};
+				cached.m_sSummary.Split("\n", values, false);
+				if (values.Count() == 9)
+				{
+					for (int row = 0; row < 9; row++)
+					{
+						if (TextWidget.Cast(root.FindAnyWidget("StatValue" + row)).GetText() != values[row])
+							return "FAIL: cached counter mismatch";
+					}
+				}
+				else if (status != cached.m_sSummary)
+					return "FAIL: cached empty report mismatch";
+			}
+		}
+		else if (action != "snapshot")
+			return "unavailable: expected snapshot, cycle or clear";
+		return string.Format("cached=%1 requested=%2 serverRequests=%3 deliveries=%4", m_mGC_DebriefCache.Count(), m_bGC_DebriefRequested, m_iGC_TestDebriefRequests, m_iGC_TestDebriefDeliveries);
 	}
 }
 
