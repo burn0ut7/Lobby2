@@ -1,0 +1,31 @@
+LIVE TELEMETRY CAPTURE — 27 October 2026
+
+Implemented optional server recording, disabled by default, using existing mission IDs and session event links. State targets 5 Hz; optional native skeletal poses target 1 Hz. No new client RPCs or direct database calls occur in the game. Authenticated server start/stop, bounded queues, explicit overflow/storage stops and closure are implemented. See integrations/StatsIngest/README.md for operation and limits.
+
+ACTUAL CAPTURES
+1. Recording 01a17f6b-5200-87ad-8400-000000026d78
+123.702 seconds; 1,284 records in 124 batches; 5,187,725 raw bytes; no dropped records. Player, AI and occupied vehicle (3 actor lives). Contains 896 character states, 180 skeletal poses, 187 vehicle states, gear, seat changes, 4 damage and 2 deaths. Vehicle mount/dismount and root motion were observed. Firing was correctly suppressed by the authored safe-start timer during this run. This was the earlier one-second write interval.
+
+2. Recording 01a17f7a-ead7-8f28-8400-0000000ee80d
+123.856 seconds; 1,130 records in 47 batches; 5,182,895 raw bytes (4.94 MiB). Offline per-batch gzip: 1,190,451 bytes; gzip is not performed in the game. PostgreSQL compressed JSONB payload size: 2,681,946 bytes, excluding table/index overhead. Zero dropped records; sequence/revision continuity and timestamps verified.
+917 character states; 184 skeletal poses; 6 appearance records; 10 shots; 1 grenade launch; 3 native damage reports; 2 deaths. Stance values 0/1/2, ADS, lean and speed up to 3.80 m/s changed with test actions. Median state interval 202.906 ms. Rifle ammunition decreased 29→19; grenade inventory decreased 3→2. Launches include prefab, origin, velocity and audit sequence. Damage was exercised through native fixture damage, not a verified bullet-hit chain. The player later died after leaving the mission AO; the attempted vehicle actions after that death are NOT counted as vehicle verification for this second run.
+
+Both complete captures are stored in local PostgreSQL lobby2 on port 55432. Raw profile outboxes remain unchanged. The external Import.cmd now includes Lobby2Telemetry alongside stats, session logs and mission history.
+
+PERFORMANCE
+One embedded player; same stationary scene, 150 complete native ProfileData observations per mode. These are rolling averages, not individual-frame measurements; small differences are not controlled causal benchmarks.
+                        Disabled     State-only     Skeletal
+Mean frame ms           4.742        4.748          4.743
+Mean simulation ms      1.133        1.156          1.220
+State-only 20.05 s: 55,372 bytes; recorder capture 39 ms total, write 35 ms, maximum write 8 ms.
+Skeletal 20.06 s: 571,815 bytes; capture 70 ms, write 49 ms, maximum write 9 ms.
+Second action capture: capture 587 ms total, maximum step 2 ms; synchronous writes 383 ms total, peak 10 ms. These timers exclude event-callback work and are millisecond-resolution observations, not total process profiling. No 128-player or remote-client performance claim is established.
+
+REGRESSION AND DIAGNOSTICS
+Verified denied unauthenticated start/stop and duplicate-start rejection, with central audit records and no recorder replacement. Immediate native death before the first sampling step now produces player spawn + death with historical identity. Fresh recording 01a17f82-c971-81a4-8400-000000187fbf has matching batch/first-event time 3909.981445 ms; real importer validation and insertion both returned success; PostgreSQL contains its batch.
+Earlier diagnostic 01a17f7f-1ef5-8605-8400-000000116303 exposed timestamp precision mismatch and released ownership; its rejected batch remains preserved. It is NOT a successful or usable complete recording. The corrected same-tick regression supersedes it. One intermediate test also triggered a native ADS camera exception by equipping a grenade while holding ADS; Play was stopped and the action order corrected. No telemetry camera/render override was added.
+
+LIMITS
+This is useful playback source data, not a working viewer or full animation-graph save. Bone geometry is sampled at 1 Hz; short transitions may be missed. Exact projectile impacts/flight, grenade detonations and AI firing are not captured. Damage-to-shot/death correlation remains unknown when native evidence supplies no link. Assets still need a separate browser mapping/conversion pipeline. Disk writes are synchronous, retention requires operator policy, and a 128-player benchmark is still required before broad deployment.
+
+Independent review approved the documented slice. Final Workbench remains open with the test addon; recording is stopped.

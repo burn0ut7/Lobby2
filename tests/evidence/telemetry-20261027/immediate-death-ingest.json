@@ -1,0 +1,51 @@
+{
+  "recordingId": "01a17f82-c971-81a4-8400-000000187fbf",
+  "nativeFromMs": 3909.981445,
+  "nativeFirstTimeMs": 3909.981445,
+  "firstRecords": [
+    {
+      "sequence": 1,
+      "timeMs": 3909.981445,
+      "type": "spawn",
+      "data": {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "timeMs": 3909.981445,
+      "type": "death",
+      "data": {
+        "entity": "entity-1",
+        "killer": "",
+        "damageSequence": 0,
+        "sessionEventSequence": 8,
+        "cause": "other"
+      }
+    }
+  ],
+  "validationExit": 0,
+  "validationOutput": "VALID 01a17f82-c971-81a4-8400-000000187fbf revision=0\n",
+  "ingestExit": 0,
+  "ingestOutput": "STORED 01a17f82-c971-81a4-8400-000000187fbf revision=0\n",
+  "databaseBatches": "1",
+  "originalReadyIntact": true
+}

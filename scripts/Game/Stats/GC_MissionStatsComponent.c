@@ -574,6 +574,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 					type = "aiKill";
 			}
 			GC_SessionEvent entry = logs.CreateEvent(type, instigatorContextData.GetKillerPlayerID(), instigatorContextData.GetVictimPlayerID());
+			entry.m_sTargetEntity = victim.GetID().ToString();
+			if (killer && death.m_sCreditSource != "lastPlayerDamage")
+				entry.m_sActorEntity = killer.GetID().ToString();
 			entry.m_sActor = death.m_sKiller;
 			entry.m_sActorName = death.m_sKillerName;
 			entry.m_sTarget = death.m_sVictim;
@@ -593,7 +596,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 				entry.m_sDetail = "Bled to death";
 			if (death.m_sCreditSource == "lastPlayerDamage")
 				entry.m_sDetail += " | last damaging player credited";
-			logs.Record(entry);
+			logs.RecordDeath(entry, victim, killer);
 		}
 		if (m_Batch.m_aDeaths.Count() >= MAX_PENDING_DEATHS)
 		{

@@ -1,0 +1,1 @@
+Independent reviewer /root/telemetry_capture_review approved the documented telemetry slice after validating same-tick timestamp precision, historical player identity, real importer acceptance and corrected coverage/performance documentation. Unsupported coverage and scale limitations are retained in Report.txt.

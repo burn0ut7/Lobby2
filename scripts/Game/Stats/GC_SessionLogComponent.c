@@ -6,6 +6,7 @@ class GC_SessionLogComponentClass : SCR_BaseGameModeComponentClass
 class GC_SessionLogComponent : SCR_BaseGameModeComponent
 {
 	protected ref GC_MissionHistory m_History;
+	protected ref GC_TelemetryRecorder m_Telemetry;
 	protected string m_sSessionId;
 	protected int m_iStartedAt;
 	protected float m_fStarted;
@@ -38,6 +39,54 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	string GetSessionId()
 	{
 		return m_sSessionId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	float GetSessionMilliseconds()
+	{
+		return Math.Max(0, GetGame().GetWorld().GetWorldTime() - m_fStarted * 1000);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetSessionStartedAt()
+	{
+		return m_iStartedAt;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GetTelemetryReport()
+	{
+		if (m_Telemetry)
+			return m_Telemetry.Report();
+		return "Telemetry disabled; no recording created.";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Authority entry point; callers must supply the authenticated requesting player.
+	bool SetTelemetry(int requester, bool enabled, bool skeletal)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!manager || !manager.AuthorizeAdminAction(requester, "telemetry", enabled.ToString()))
+			return false;
+		if (GetInstance() != this || m_bClosed || m_sSessionId.IsEmpty())
+		{
+			GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "rejected-inactive-session");
+			return false;
+		}
+		if (enabled)
+		{
+			if (m_Telemetry && !m_Telemetry.IsSealed())
+			{
+				GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "rejected-unsealed-recording");
+				return false;
+			}
+			m_Telemetry = new GC_TelemetryRecorder();
+			m_Telemetry.Start(this, skeletal);
+		}
+		else if (m_Telemetry)
+			m_Telemetry.Stop("disabled");
+		GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "accepted");
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -132,6 +181,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		if (context.damageSource && !context.damageSource.FindComponent(BaseWeaponComponent) && context.damageSource.GetPrefabData())
 			entry.m_sProjectile = context.damageSource.GetPrefabData().GetPrefabName();
 		Record(entry);
+		if (m_Telemetry && entry.m_iSequence > 0)
+			m_Telemetry.RecordDamage(context, victim, entry);
 		return entry.m_iSequence;
 	}
 
@@ -161,6 +212,14 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void RecordDeath(GC_SessionEvent entry, IEntity victim, IEntity killer)
+	{
+		Record(entry);
+		if (m_Telemetry && entry.m_iSequence > 0)
+			m_Telemetry.RecordDeath(entry, victim, killer);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void RecordShot(string type, int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
 		GC_SessionEvent entry = CreateEvent(type, playerId, 0);
@@ -175,6 +234,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 				entry.m_sMagazine = magazine.GetOwner().GetPrefabData().GetPrefabName();
 		}
 		Record(entry);
+		if (m_Telemetry && entry.m_iSequence > 0)
+			m_Telemetry.RecordShot(type, playerId, weapon, projectile, entry.m_iSequence);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -362,6 +423,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	override void OnGameEnd()
 	{
+		if (m_Telemetry)
+			m_Telemetry.Close();
 		GetGame().GetCallqueue().Remove(Tick);
 		if (m_History)
 			m_History.Close();

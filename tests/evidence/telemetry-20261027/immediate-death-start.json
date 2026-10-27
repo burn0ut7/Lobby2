@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"state\":\"invoked\",\"processId\":28572,\"receipt\":\"r986a1f97472a406a9d2b2ad90996e91a\",\"returnType\":\"string\",\"returned\":\"recording=01a17f7f-1ef5-8605-8400-000000116303 running=1 sealed=0 records=2 batches=0 bytes=0 dropped=0 actors=1 steps=0 captureMs=0 maxCaptureMs=0 writeMs=0 maxWriteMs=0 stop=\",\"elapsedMs\":24,\"adapter\":{\"protocol\":2,\"state\":\"invoked\",\"token\":\"r986a1f97472a406a9d2b2ad90996e91a\",\"world\":\"$Lobby2:worlds/examples/arland/Arland_Lobby.ent\",\"entityName\":\"GameMode_Lobby2\",\"adapterBuild\":\"1BE38E78D224A0A371E7C89D6F5FDA9E6D9EA7FD622492522F86D4E4E3AC0C70\",\"profileDirectory\":\"C:/Users/Gray/Documents/My Games/ArmaReforgerWorkbench/profile/\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestTelemetryImmediateDeath\",\"error\":\"\",\"errorLine\":0,\"entityId\":\"\",\"entityType\":\"\",\"position\":[0.0,0.0,0.0],\"angles\":[0.0,0.0,0.0],\"total\":0,\"nextOffset\":-1,\"resultJson\":\"{\\u0022called\\u0022:true,\\u0022value\\u0022:\\u0022recording=01a17f7f-1ef5-8605-8400-000000116303 running=1 sealed=0 records=2 batches=0 bytes=0 dropped=0 actors=1 steps=0 captureMs=0 maxCaptureMs=0 writeMs=0 maxWriteMs=0 stop=\\u0022}\"},\"scope\":\"Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.\"}"
+      }
+    ]
+  },
+  "id": 1,
+  "jsonrpc": "2.0"
+}

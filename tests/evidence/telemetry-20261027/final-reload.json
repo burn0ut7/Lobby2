@@ -1,0 +1,22 @@
+{
+  "state": "reloaded",
+  "processId": 28572,
+  "runReload": true,
+  "plugin": null,
+  "pluginAction": null,
+  "uiAction": null,
+  "requestedWorld": null,
+  "loadedWorld": null,
+  "expectedThread": 57880,
+  "actualThread": 57880,
+  "completed": 2,
+  "nativeResult": 1,
+  "queued": 1,
+  "elapsedMs": 2706,
+  "foregroundBefore": 52103312,
+  "foregroundAfter": 52103312,
+  "foregrounds": {
+    "52103312": 30212
+  },
+  "allocationsReleased": true
+}

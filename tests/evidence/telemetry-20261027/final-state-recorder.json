@@ -1,0 +1,12 @@
+{
+  "state": "invoked",
+  "processId": 28572,
+  "receipt": "rfba61420f1c64cd8ac0f1dba5a58f6fa",
+  "returnType": "string",
+  "returned": "recording=01a17f79-4295-8532-8400-0000000c3f9b running=0 sealed=1 records=102 batches=5 bytes=55372 dropped=0 actors=1 steps=4198 captureMs=39 maxCaptureMs=1 writeMs=35 maxWriteMs=8 stop=disabled",
+  "elapsedMs": 6,
+  "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+  "method": "GetTelemetryReport",
+  "arguments": null,
+  "unix": 1793140037.0237877
+}

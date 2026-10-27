@@ -1,0 +1,38 @@
+[
+  {
+    "state": "invoked",
+    "processId": 28572,
+    "receipt": "rf38bb2de0f3b4fe5a9560d61d098370a",
+    "returnType": "bool",
+    "returned": false,
+    "elapsedMs": 5,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+  },
+  {
+    "state": "invoked",
+    "processId": 28572,
+    "receipt": "r87ee57defc094c86be659026438f3b88",
+    "returnType": "bool",
+    "returned": false,
+    "elapsedMs": 4,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+  },
+  {
+    "state": "invoked",
+    "processId": 28572,
+    "receipt": "rf8c6292654ea44b7ad4b91edd0936a8f",
+    "returnType": "bool",
+    "returned": true,
+    "elapsedMs": 5,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+  },
+  {
+    "state": "invoked",
+    "processId": 28572,
+    "receipt": "r82a5b76c2fd344c18f218647c118dd73",
+    "returnType": "string",
+    "returned": "recording=01a17f7f-1ef5-8605-8400-000000116303 running=0 sealed=1 records=66 batches=3 bytes=37076 dropped=0 actors=1 steps=2504 captureMs=27 maxCaptureMs=1 writeMs=23 maxWriteMs=8 stop=disabled",
+    "elapsedMs": 4,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+  }
+]

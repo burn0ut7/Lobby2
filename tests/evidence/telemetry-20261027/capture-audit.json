@@ -1,0 +1,2047 @@
+[
+  {
+    "recordingId": "01a17f6b-5200-87ad-8400-000000026d78",
+    "missionId": "01a17f69-93da-83c1-8400-00000000c76d",
+    "seconds": 123.7023984375,
+    "batches": 124,
+    "rawBytes": 5187725,
+    "gzipBytesPerBatch": 1647132,
+    "bytesPerSecond": 41937.14160377474,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 3,
+      "state": 896,
+      "seat": 4,
+      "appearance": 5,
+      "skeleton": 2,
+      "pose": 180,
+      "damage": 4,
+      "death": 2,
+      "vehicle-state": 187,
+      "ownership": 1
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "skeletal",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      },
+      {
+        "entity": "entity-2",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1200.625,
+          39.000003,
+          2749.947753
+        ]
+      },
+      {
+        "entity": "entity-3",
+        "kind": "vehicle",
+        "prefab": "{4A71F755A4513227}Prefabs/Vehicles/Wheeled/M998/M1025.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "transform": [
+          0.99955,
+          -0.02998,
+          -6.9e-05,
+          0.029973,
+          0.999264,
+          0.023924,
+          -0.000647,
+          -0.023915,
+          0.999713,
+          1207.606689,
+          39.013935,
+          2759.940673
+        ]
+      }
+    ],
+    "stances": [
+      0,
+      1
+    ],
+    "flags": [
+      0,
+      2,
+      3,
+      18
+    ],
+    "leanRange": [
+      -0.699999,
+      0.699999
+    ],
+    "maxSpeedMps": 3.801269,
+    "medianStateIntervalMs": 202.4882809999981,
+    "maxStateIntervalMs": 245.65625,
+    "bonesPerSkeleton": [
+      231,
+      231
+    ],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-2",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-1",
+        "vehicle": "entity-3",
+        "seatIndex": 0,
+        "compartmentType": 0
+      },
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-0.json",
+        "bytes": 38659,
+        "sha256": "78a440f903ecb413af515b6abf6931db769949eec8f5365dc22f5577ef59463b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-1.json",
+        "bytes": 28792,
+        "sha256": "a1774c1c2f93816644347f6826340f471ebdced73c751dd6465df91f6eb9bbcc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-2.json",
+        "bytes": 28686,
+        "sha256": "c4c2b2675e9d87b0d686ccbfe40a29f0f2163e2400b7b833f17240df67d18fbb"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-3.json",
+        "bytes": 28884,
+        "sha256": "9c112c3ddd7a43f1d335d409fa1ef0aa8c2081b44a4a7a8afbff79a940eabe97"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-4.json",
+        "bytes": 28817,
+        "sha256": "736ea6d61278600e8e7f509163c1799b89fe753041f44e0dcfaf2661d04ce544"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-5.json",
+        "bytes": 28577,
+        "sha256": "60f0187d93a3a405c64b0ec786948bd4939485e7f5b558495d3bcd0079429ef5"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-6.json",
+        "bytes": 28811,
+        "sha256": "aaaf5bb77e540f24185bf55f6dedefaa81698aacd3ba5b387d5cf91575a7b72c"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-7.json",
+        "bytes": 28760,
+        "sha256": "c83527117da2b6a25153141a8ba9f2d01eaf88e38ce64314dc4e7bc1f56d61f8"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-8.json",
+        "bytes": 28242,
+        "sha256": "454b6835ba8ec4d3fc08dfe61040067049de31ff6a0f26fa2c05b775e8e2cd20"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-9.json",
+        "bytes": 28595,
+        "sha256": "8ee26346b5051878d9a0728fff926bdb35a6b91dd160570f942b37b5ba9f7eea"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-10.json",
+        "bytes": 28329,
+        "sha256": "9ff6825d98716cd70767a9c66feb3c2d77b9be2a1655e425772f0d08f4f7ab28"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-11.json",
+        "bytes": 28579,
+        "sha256": "f2c8e03a8a6935238dbbd0b3ac6c10dca05f232dda520af437f4f1e52afb1391"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-12.json",
+        "bytes": 28612,
+        "sha256": "933c28d77e28b5528b6505ae707020acaf9914c34bb1e57fe8848fc857b3283a"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-13.json",
+        "bytes": 28585,
+        "sha256": "8ef21cbf60e7057705251290d24c07c2702eaacab4d6f2e93306232d549e222e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-14.json",
+        "bytes": 28567,
+        "sha256": "900cba41c28bb31289a133ee7d36486224ca7174881c594f1de0fd22d14b0e03"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-15.json",
+        "bytes": 28544,
+        "sha256": "1afff41cb2f4abcbf3a0521ef702bd2a61c0a16bbfcbb1f30adba97f81d33bfe"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-16.json",
+        "bytes": 28572,
+        "sha256": "bbb826019e5996438307d0f9877de42691d2fa1d887a5e35454637f3c6e09ca2"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-17.json",
+        "bytes": 28087,
+        "sha256": "7748873c1b1c3fb3830f54af8e1b328de467f3c02562f0c20d745f41ee601c57"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-18.json",
+        "bytes": 28582,
+        "sha256": "5dc0c21624184392776fe4a6998ffc05de6afaeccc60bc6816702f77c5dc0867"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-19.json",
+        "bytes": 28558,
+        "sha256": "e6215aa0f6ab6e64a90ed84b2fc6d712a9459eecb49bbee644589036e16cbb96"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-20.json",
+        "bytes": 28592,
+        "sha256": "da85f8556e5c1cd2decd086e024ea1b296f8918241e8a58008f0f829cc041606"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-21.json",
+        "bytes": 28513,
+        "sha256": "3233e8c5cb7400930d31e1b4d3cda3ee1e6447d32b58c0a29955eb7bf32baddc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-22.json",
+        "bytes": 28557,
+        "sha256": "b539169a4d3a96375ab15a78f991615fec59cc4bfd3ec53108b05310750fe07e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-23.json",
+        "bytes": 28601,
+        "sha256": "0ce3483ffba5b0a5e9bf73453eb458fd75d47cf8bdb1fa829ba3f396589a5d5e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-24.json",
+        "bytes": 28315,
+        "sha256": "434909ef357efc3acd9187e78b5830b890abdcb10ed1696d0f1724e234927546"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-25.json",
+        "bytes": 28592,
+        "sha256": "7cffa2767671e8f83ba5372ec837765acaf6bd4c727f74ceb001325ce0776e28"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-26.json",
+        "bytes": 28762,
+        "sha256": "23ef6c6776cdd368864fa7094786ec338d4ea535e336e7034447bf5d42760a6c"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-27.json",
+        "bytes": 28714,
+        "sha256": "1edde11a470902adcc90089feac302ee80a9c3aee717cf35a935fbb7f6c031cf"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-28.json",
+        "bytes": 28707,
+        "sha256": "a7675d56230ce2953d731c2deacc005ba2a4bfb38e82ded6e49985d036e62198"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-29.json",
+        "bytes": 28753,
+        "sha256": "1f22008aed4df513dd50ae589666056df7898e2dd393dbd918ff856d59d30966"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-30.json",
+        "bytes": 28733,
+        "sha256": "b578e90426140abf040c740cadefa2f5185e1883d1f4de0685dccda1cd16818e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-31.json",
+        "bytes": 28712,
+        "sha256": "3c3c886a73b583bb374d178b0ce2e71bead20ab08294e3dfb5a06b4de77617ad"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-32.json",
+        "bytes": 28710,
+        "sha256": "168c74ee687fe935700c07590eb85d6661da9ada97c801cb478ccabb6b3b78b7"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-33.json",
+        "bytes": 28707,
+        "sha256": "594fc66ba0dd1856d3b62d35d118524efd2e0eb66a183d5ef9a32856d01aa483"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-34.json",
+        "bytes": 28687,
+        "sha256": "997fd265a95a85942b83ff12151f4021b06d6aff032b1455db3b62a061327d4d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-35.json",
+        "bytes": 28707,
+        "sha256": "d4c37d45f46190bfabccf99f7e56d8ef31118367d6a64f3ccc780e861d09db8f"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-36.json",
+        "bytes": 28711,
+        "sha256": "1ec07b6eb58b95d98a5ec49c7d01e7da95afada16b0842a5745f6dab6a2bddfc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-37.json",
+        "bytes": 28701,
+        "sha256": "a8b7fa814c57b8827e0b9634c177c1f4e6f48fb25920b04b09c3392fe76aa940"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-38.json",
+        "bytes": 28233,
+        "sha256": "8ebf493a12505d7dcd6686109aa189a5d4ba445ff4d8c2189a9163e5e33b768e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-39.json",
+        "bytes": 28693,
+        "sha256": "231a41dd5815807366952ff17dbbdca568b5c2ef2cf404c04e3baa349f13c5f4"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-40.json",
+        "bytes": 28699,
+        "sha256": "4572a0c4a3b4ec64619dd7bcb519c623a8b440ba4123cb086002229f019a21a6"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-41.json",
+        "bytes": 28706,
+        "sha256": "74b1dc1642031f2f742046da5fce6b3ad59452a1b7b866979dd69ec5c6b537ec"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-42.json",
+        "bytes": 28706,
+        "sha256": "555bfe69879b5b0635bc5a2fb57cdbb0c33e9b6e32ac8fd6032b884a1ebdbad7"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-43.json",
+        "bytes": 28697,
+        "sha256": "d391aa7b20d8c56c564a173b9d61b0b4f01b7048510115a5117d2598e0a6209b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-44.json",
+        "bytes": 28684,
+        "sha256": "0afe0ad70738b5cba4cf04e2b6596de46e128b82e8bb288e7a10250178433037"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-45.json",
+        "bytes": 28692,
+        "sha256": "a908c357a96740e78a0f407610b9786de9141dee9b4845996ac9ebfd77a91629"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-46.json",
+        "bytes": 28425,
+        "sha256": "907b2a6680993201f4017e401a04fea5f29a3b17238701b6d0c9801ddc846c3e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-47.json",
+        "bytes": 28549,
+        "sha256": "a2c18035b9678af1f004e2e006573e4e5da0e3c67b0c32fbebb2d1123c851d4d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-48.json",
+        "bytes": 28602,
+        "sha256": "2fe0896467b046c06bcff813fd2eaa4f9bef7b6e1e7d10f51fcbbedd0bee312b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-49.json",
+        "bytes": 28603,
+        "sha256": "831e978ade1d80de7ed64d8de7f551010ba3ea395c4547eabb5bc75c9f654dad"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-50.json",
+        "bytes": 28743,
+        "sha256": "b70a3eed24cdf33b4b9c7e02da89a70843354d0442d6fca0c403da69e0ddf0b6"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-51.json",
+        "bytes": 28773,
+        "sha256": "a88ca8b9406c00d4ca75722268e9cdb2144c8071b5bfb4e92e2d3e1651904012"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-52.json",
+        "bytes": 28752,
+        "sha256": "973b9721671ef773de7ce514ea5bf729e8442eed1678cbfb1a52df5f246bda0c"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-53.json",
+        "bytes": 28283,
+        "sha256": "1a125f6d473066c18389e582ed34edd442dd78c4e22b8b121567549985e164fc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-54.json",
+        "bytes": 28782,
+        "sha256": "265be50dbf0a38a5483331506045db561e6138edcc2ef248ae784d38197cf81e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-55.json",
+        "bytes": 28772,
+        "sha256": "be4d87a335435a45b408bb08c4cad3b13dec54613ead519ccb9c6ea97ac3ed98"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-56.json",
+        "bytes": 28745,
+        "sha256": "41f1c231abc56e3d411696501978db369fe78ac78fb0c6f5392ca7cee7f43516"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-57.json",
+        "bytes": 28687,
+        "sha256": "0149cb73b7a8e02985313f59c2cdfc2d49d4535b8358459fd7bbfe72c8214fa0"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-58.json",
+        "bytes": 28619,
+        "sha256": "2d3497584c8a7fca73667dc408418799d32c66109207a6da632a390d0e62dc0a"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-59.json",
+        "bytes": 28614,
+        "sha256": "ebda3c818e790908d5f50fd88469e5a7d645283e59e986fda7a00bcefdefdc4d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-60.json",
+        "bytes": 28621,
+        "sha256": "ce2fa0067f8b3b35579893b56919a9a939341d4c920d80acc0da54001b3e3362"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-61.json",
+        "bytes": 28625,
+        "sha256": "882167871142884883ff2ebc15f0e6630fe46bfd425b6f9cde72b3e8a9ce2549"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-62.json",
+        "bytes": 28627,
+        "sha256": "061b1049725d36f249e8bcfee2a6f02f1b49949c899fe7e97fab2d58c6e42c08"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-63.json",
+        "bytes": 28700,
+        "sha256": "3975cfa7df11d208f9b27561305bad56811faeca993482890e6e0fb4fe097d99"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-64.json",
+        "bytes": 28693,
+        "sha256": "5e0f7f320457415aa11f0da15c42380f27ae346da5308671df5c84ff03a3ced4"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-65.json",
+        "bytes": 65872,
+        "sha256": "50c4183167bba7e5edbb88c4cb71d5374fb4226583595376d024cb8df82335fc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-66.json",
+        "bytes": 56799,
+        "sha256": "8afdfc66bc26c6630f061a766f7050cd8321a071b14d7c10e7607d5883fb4ce9"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-67.json",
+        "bytes": 56494,
+        "sha256": "1f8f88dc8c0b2c002783ee1d09b3de9433c67acf0e1e8c1b1ead18b15eed9d97"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-68.json",
+        "bytes": 56445,
+        "sha256": "e269519244294feac1bc9daecb5749a2c7c8460c93a66415711891512bdd6b78"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-69.json",
+        "bytes": 56500,
+        "sha256": "db7ad43dcd3f051984d557d50f535fa6caa488f85c75228a58013923f89097cc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-70.json",
+        "bytes": 56185,
+        "sha256": "1d1f190b3d3b6f0df068ceeb11b719445564cd1a35442e007c21ffe703029e44"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-71.json",
+        "bytes": 55740,
+        "sha256": "c0c957ad73ef3912a51b0cb9e6c5b93373dfee16be496fe79f3c6fb64f95133a"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-72.json",
+        "bytes": 56415,
+        "sha256": "097ff578142d52c59de26b38c38ada54e351e3ab8a1325b53707f3e093c16813"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-73.json",
+        "bytes": 56476,
+        "sha256": "379752c2cc5fac4aa79426e187ff510e1cf26cdde3a984ea6f310f8759e66138"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-74.json",
+        "bytes": 56903,
+        "sha256": "a8200fc0da38fed3a90aff70564dda3169b5c3e2c05ddf48a36ce06cb211e0be"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-75.json",
+        "bytes": 61109,
+        "sha256": "2bc6619fa1ce3ceca32bb2d00a66c7384ab8e4c62593186863111739df0d9acc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-76.json",
+        "bytes": 56313,
+        "sha256": "b77d6497c255a5fa98747266622e3f565a2d1c4ffbe7474a2fc1ade243ed7af8"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-77.json",
+        "bytes": 56292,
+        "sha256": "0b52e33bea3d0c957cc46508dc48182a813b5c9b61edce08013e6c62f6a073f9"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-78.json",
+        "bytes": 56301,
+        "sha256": "9a6f5f0766934eb68df40f631d450157526f8f1859d1b99f08a463c5bbdd8c44"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-79.json",
+        "bytes": 56319,
+        "sha256": "dc528781864facb5b450b8b43e89bcc500f96165194b9ba78cc189ed8e801124"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-80.json",
+        "bytes": 56312,
+        "sha256": "d262caa04eda2bc1d78453ec3e252ece56c1fccd0c961365f24b9d29ef19f4d3"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-81.json",
+        "bytes": 56325,
+        "sha256": "5e11e1e7db8bf0568a5f115de902c2eec6c667cb8d7b58d9bd025d939bbf2aae"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-82.json",
+        "bytes": 56313,
+        "sha256": "19fe9fd5638c73276df79cadd2a4104b75576cfd646ac0e6b68f6ebb4a49b1b9"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-83.json",
+        "bytes": 56312,
+        "sha256": "9b7a34ac6f8552f29e7e0d0dfd0fa9f377560ddfa3c7d6a9afb4c9d105860609"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-84.json",
+        "bytes": 56297,
+        "sha256": "db08ddde688d1843f1e1803c7d6c9cead99e6a5732cb28cc2a49191f5e8853fc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-85.json",
+        "bytes": 62290,
+        "sha256": "860717047b00542250818b013d2c12f81f795644872785f161e8a7f37e9d4e65"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-86.json",
+        "bytes": 57798,
+        "sha256": "5e9539378f55efeb99063040edad416137ce2d2114801e5f6a932625bd2025f4"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-87.json",
+        "bytes": 57834,
+        "sha256": "32abf9142674cd1aba12a5df8cdac35a58d5fb8decfb7b566b29d90b97363c24"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-88.json",
+        "bytes": 57831,
+        "sha256": "39d6ba727ca9618dec2d301b82e4ce918d69ec51c865b3e55d48d89f38eec14f"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-89.json",
+        "bytes": 57829,
+        "sha256": "d0f847f04f20288c591b6b50bad5094956f5dbded14ad0d5d8c2a670a1ee39a2"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-90.json",
+        "bytes": 31377,
+        "sha256": "f50e390e67e444f04938f31fbd7f09362f7b8db25194359e64cb2d1b5b4cbce5"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-91.json",
+        "bytes": 57280,
+        "sha256": "5217755c72400a4e746bdcb5c3ee4e3502a37e180804aa36f6fa3bd63371dbf9"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-92.json",
+        "bytes": 57829,
+        "sha256": "bbf5c15c4e0c45e41509da475e64d9a9a44f759a1ce73aee21b73ddbe954a04f"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-93.json",
+        "bytes": 31654,
+        "sha256": "bc3be68dfe8506153dfd7b4dd0c31536476f3790fac7aa0ff46c3a3684116ea2"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-94.json",
+        "bytes": 57996,
+        "sha256": "8bdb4d83707a0663beace70971c04d42c330b0a77769727931e4e2bf7a634835"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-95.json",
+        "bytes": 58003,
+        "sha256": "f6d3b624aacc2325da5bed98b2651ba3198bf709c41971703a14cd41cc48b1dd"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-96.json",
+        "bytes": 57998,
+        "sha256": "840e12046e6180433051425da4e633f074c5a3eef4154e7d61490f715475fe95"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-97.json",
+        "bytes": 57990,
+        "sha256": "1fe354d6785a3a524715d7fea52f66cd2279e54e1504ffd1b03c8023148ec247"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-98.json",
+        "bytes": 58215,
+        "sha256": "a248b0777cc7f8252a5f3a53b13d5144b0d892162723f5f3d073fe05e3875902"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-99.json",
+        "bytes": 57556,
+        "sha256": "9b4d19d0fb9524a8acbe2eb6218402600ebf82c133b64cddbe466515709a6e30"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-100.json",
+        "bytes": 57830,
+        "sha256": "7a56bca6bca23690fb24350a7ffad12305888dc2f60edd5143865be732215ca5"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-101.json",
+        "bytes": 58075,
+        "sha256": "c627e4eb3b870dcd6a83c0893615f2fe091cc4ca4a2abf0d883cebb91c0d2a96"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-102.json",
+        "bytes": 58094,
+        "sha256": "7b2236730e73d9d7a2d35e47687a929e679f6d888e057989f5a9621bf805fc80"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-103.json",
+        "bytes": 58061,
+        "sha256": "c7daed0b73b759e11ab431bb478c29fd4efd8d683b4db368c96d9537ab366a40"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-104.json",
+        "bytes": 58034,
+        "sha256": "1ada2b83c48b226eebc7808e1cd0fa7915cb0d7359cbbde7873ff45822eb4cec"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-105.json",
+        "bytes": 58191,
+        "sha256": "fc0740d7966b03cdd71bc558af75d8d27db72aa6cea3bd3b110118210f5e361d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-106.json",
+        "bytes": 61415,
+        "sha256": "c702dba3575e397268ab8bf8bbc2815a170d499873e0c41a346c25ccdd3fa36b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-107.json",
+        "bytes": 57412,
+        "sha256": "7e5a302c78b6393260aecd0f5dddee956fe61f22f2a7f7bd5d2e172471d19ff0"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-108.json",
+        "bytes": 57413,
+        "sha256": "7903d110ed3e78d97dfb99ba07638242c3434786eaef0ed6cadb6a8453bbcd77"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-109.json",
+        "bytes": 57408,
+        "sha256": "7eab7a8e5aa513318d11f5eb232bd38547b5a63705bb3f313492b56658ba29c0"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-110.json",
+        "bytes": 56655,
+        "sha256": "56a7baff74c357dcd25358aa410dabde9ed0fab5f97285b73c7b13a23498dc94"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-111.json",
+        "bytes": 57421,
+        "sha256": "89c9839d575e991508299730dc94f6751e83416adc905e81b49b6f3805374cad"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-112.json",
+        "bytes": 57431,
+        "sha256": "6ae5b79cfc07b2cf68d2d3dd503e0f91cccf298564edb4f8d06ceace3094faaf"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-113.json",
+        "bytes": 57422,
+        "sha256": "aa14a908bf672abc8aaa2d5c92df0627d14e57d9082c8f22d09420fc86ae3de9"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-114.json",
+        "bytes": 57426,
+        "sha256": "8173304a2dcb7c4f301ffea98bbd53693e9bbc866e50af1473ae9443a8ccbed0"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-115.json",
+        "bytes": 57441,
+        "sha256": "2aa6e0ef0fb8221d9f0bd22268227a34abc2201f7607311b4569f6103f0a3368"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-116.json",
+        "bytes": 57420,
+        "sha256": "39371a6d418b373129914c8ef5a95d92825bbcad7a052876947f56165f8013ee"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-117.json",
+        "bytes": 57422,
+        "sha256": "f51ff3f74c71a0b9c6e962fbe7223a5b4b4b8bf09d111f123a0ee55b0f98c315"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-118.json",
+        "bytes": 57422,
+        "sha256": "6c3edaedf7b3dac5bbfd337bfdfa13a11b5c178b4a2a52ee309ef267eb3bd741"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-119.json",
+        "bytes": 57427,
+        "sha256": "a47c8d5d275ac5dab9c4b3c359c05a14be72a2a2c8e32b74f4aa0ee3ec94878a"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-120.json",
+        "bytes": 57430,
+        "sha256": "5694b0314795a5d164047c3913a5c39630bb144959b1e54ce023b6ef68b49ca8"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-121.json",
+        "bytes": 57432,
+        "sha256": "6ce85ec7f1d7a90d94688544d80c1c869da1f206ac33b717acf1890ee64c8daf"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-122.json",
+        "bytes": 57422,
+        "sha256": "a8e6f2868adda64b03370cadd1f8976e288ab864b461a0ab5ab97d13ff2fc4b6"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f6b-5200-87ad-8400-000000026d78-telemetry-123.json",
+        "bytes": 27882,
+        "sha256": "893d1e06b7e6e11614e8c18e9b92db542362658fb1044a4704661bed19e577c7"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f75-0788-881d-8400-00000007a6eb",
+    "missionId": "01a17f73-66e3-897c-8400-000000051168",
+    "seconds": 20.1270234375,
+    "batches": 5,
+    "rawBytes": 55917,
+    "gzipBytesPerBatch": 5861,
+    "bytesPerSecond": 2778.2051416414265,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "state": 100,
+      "seat": 1,
+      "appearance": 1
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "state",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0
+    ],
+    "flags": [
+      2
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 202.296875,
+    "maxStateIntervalMs": 207.875,
+    "bonesPerSkeleton": [],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-0788-881d-8400-00000007a6eb-telemetry-0.json",
+        "bytes": 17768,
+        "sha256": "c220b1db1351133711065eb466a5b479688f57515895e746cf8dea1f069d353d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-0788-881d-8400-00000007a6eb-telemetry-1.json",
+        "bytes": 12486,
+        "sha256": "38b900648119e4d221aaa1a1890d23e109c7d05f499fa0ba80b9a11d1436a2d8"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-0788-881d-8400-00000007a6eb-telemetry-2.json",
+        "bytes": 12491,
+        "sha256": "af5749c5628616d6fadb68d4d4138146239b440c2c1525d2f5b1ca5c94465019"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-0788-881d-8400-00000007a6eb-telemetry-3.json",
+        "bytes": 12013,
+        "sha256": "527a0c60194e414728c059e1dacf012bc3a9fba9d957cb236e50a126e182956b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-0788-881d-8400-00000007a6eb-telemetry-4.json",
+        "bytes": 1159,
+        "sha256": "e439e92d0ed7de887c2322797be2ad14fa2ecf6bbdfbb61e47c8b69388fcb5c5"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f75-5cb9-8733-8400-00000008f3c0",
+    "missionId": "01a17f73-66e3-897c-8400-000000051168",
+    "seconds": 20.056984375,
+    "batches": 6,
+    "rawBytes": 570458,
+    "gzipBytesPerBatch": 88990,
+    "bytesPerSecond": 28441.86291090931,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "state": 99,
+      "seat": 1,
+      "appearance": 1,
+      "skeleton": 1,
+      "pose": 20
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "skeletal",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0
+    ],
+    "flags": [
+      2
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 202.7148440000019,
+    "maxStateIntervalMs": 205.21875,
+    "bonesPerSkeleton": [
+      231
+    ],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-5cb9-8733-8400-00000008f3c0-telemetry-0.json",
+        "bytes": 120107,
+        "sha256": "5b44bf488a405be48c80af9fbff04331d8059a05453ed2c6a17bbcd66b3d8b3d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-5cb9-8733-8400-00000008f3c0-telemetry-1.json",
+        "bytes": 111579,
+        "sha256": "00fc189550e6b41c4fca85bff846ca1497ec3a41308d98cdca31b8788ab8b970"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-5cb9-8733-8400-00000008f3c0-telemetry-2.json",
+        "bytes": 111756,
+        "sha256": "0162d0c531c2066446cae9b305d1d2eff7165743aa7b09230c526d88da8d921b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-5cb9-8733-8400-00000008f3c0-telemetry-3.json",
+        "bytes": 112846,
+        "sha256": "8b9ab6edc54cd5269207aa908705ffb606be202d8e94fe8233b8d145f019870e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-5cb9-8733-8400-00000008f3c0-telemetry-4.json",
+        "bytes": 112069,
+        "sha256": "bf81bda9fddd6892030253016b96c982284ca60f53be188afb4249a6950968f8"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-5cb9-8733-8400-00000008f3c0-telemetry-5.json",
+        "bytes": 2101,
+        "sha256": "ffff0fc6532f9232afb4d295725db04d7a97a679c3e87d6bdc6886a6ae637f97"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f75-d53c-8a87-8400-000000090f11",
+    "missionId": "01a17f73-66e3-897c-8400-000000051168",
+    "seconds": 25.820796875,
+    "batches": 7,
+    "rawBytes": 741528,
+    "gzipBytesPerBatch": 124554,
+    "bytesPerSecond": 28718.246132750308,
+    "closed": true,
+    "stopReason": "mission-end",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "state": 128,
+      "seat": 1,
+      "appearance": 1,
+      "skeleton": 1,
+      "pose": 26,
+      "shot": 10
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "skeletal",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0,
+      2
+    ],
+    "flags": [
+      2,
+      3
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 202.609375,
+    "maxStateIntervalMs": 285.625,
+    "bonesPerSkeleton": [
+      231
+    ],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": {
+      "sequence": 10,
+      "timeMs": 159896.15625,
+      "type": "shot",
+      "data": {
+        "entity": "entity-1",
+        "projectileId": "projectile-1",
+        "weaponPrefab": "{EB404DC9E1BCB750}Prefabs/Weapons/Rifles/AK74/Rifle_AK74N_1P29.et",
+        "projectilePrefab": "{1D9DDE1632F33A9E}Prefabs/Weapons/Ammo/Ammo_545x39_Ball_7N6.et",
+        "origin": [
+          1197.835083,
+          40.445796,
+          2738.90747
+        ],
+        "velocity": [
+          0.322227,
+          -0.010295,
+          890.726379
+        ],
+        "sessionEventSequence": 12
+      }
+    },
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-d53c-8a87-8400-000000090f11-telemetry-0.json",
+        "bytes": 124026,
+        "sha256": "4cd82dc82b8683346cd595c9fb689a12d9c2bb3d1ca3d14c3643660908d6614a"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-d53c-8a87-8400-000000090f11-telemetry-1.json",
+        "bytes": 112099,
+        "sha256": "4a59ca75d4605eb7a7a6b429243d3a9ab5e2c45c4874c93a41d75da339fb1761"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-d53c-8a87-8400-000000090f11-telemetry-2.json",
+        "bytes": 112161,
+        "sha256": "46db70dd620c4960b696e3dda0e99de4a7e17927f74e9e74ff0f422e9f0ef4ae"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-d53c-8a87-8400-000000090f11-telemetry-3.json",
+        "bytes": 112152,
+        "sha256": "720f7ff4c7b2c9724b6b40412a788ebee3362cd7aa35509034180b0402f3f90f"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-d53c-8a87-8400-000000090f11-telemetry-4.json",
+        "bytes": 112156,
+        "sha256": "64e4299b37c2505fb62db5fe4b9c62bd6212e1ab91e3b305868ee7e9affd93f2"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-d53c-8a87-8400-000000090f11-telemetry-5.json",
+        "bytes": 111197,
+        "sha256": "1c9f9c471e8403f727339edd535d7af427d36482485d01446b6a65c3271fe28b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f75-d53c-8a87-8400-000000090f11-telemetry-6.json",
+        "bytes": 57737,
+        "sha256": "38b556baad6488f08f23c0e85ae32f88d9524f3b2897970282c1af6cb1529e0d"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f79-4295-8532-8400-0000000c3f9b",
+    "missionId": "01a17f78-0693-88ac-8400-0000000adb00",
+    "seconds": 20.0538125,
+    "batches": 5,
+    "rawBytes": 55372,
+    "gzipBytesPerBatch": 5638,
+    "bytesPerSecond": 2761.1707250179984,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "state": 99,
+      "seat": 1,
+      "appearance": 1
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "state",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0
+    ],
+    "flags": [
+      0
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 202.6992184999981,
+    "maxStateIntervalMs": 205.34375,
+    "bonesPerSkeleton": [],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-4295-8532-8400-0000000c3f9b-telemetry-0.json",
+        "bytes": 17765,
+        "sha256": "76d24ba0c3a223cb2ae02bcecf4d09c22a41121f5c6d0ac2bdcf19950ed270a0"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-4295-8532-8400-0000000c3f9b-telemetry-1.json",
+        "bytes": 12470,
+        "sha256": "46e5b23115616450c31564842a402a582d5b432d8d81e592c5f50058f6d60e51"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-4295-8532-8400-0000000c3f9b-telemetry-2.json",
+        "bytes": 12457,
+        "sha256": "227d39c0572ecfafe3230a78b3c4a4c3397f4d93c5bb819009efff2588f5cc01"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-4295-8532-8400-0000000c3f9b-telemetry-3.json",
+        "bytes": 11996,
+        "sha256": "a8621a58ca325ba7e83b0c1aa56af20b8e8857a71ac6cfc959095bb412ffc77c"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-4295-8532-8400-0000000c3f9b-telemetry-4.json",
+        "bytes": 684,
+        "sha256": "60ad24bcb766f642c10d5df3b3012dcd697b6694732909e98a21fc4724747700"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f79-985c-8441-8400-0000000d6c23",
+    "missionId": "01a17f78-0693-88ac-8400-0000000adb00",
+    "seconds": 20.0598671875,
+    "batches": 6,
+    "rawBytes": 571815,
+    "gzipBytesPerBatch": 97921,
+    "bytesPerSecond": 28505.423024750522,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "state": 100,
+      "seat": 1,
+      "appearance": 1,
+      "skeleton": 1,
+      "pose": 20
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "skeletal",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0
+    ],
+    "flags": [
+      0
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 202.484375,
+    "maxStateIntervalMs": 204.75,
+    "bonesPerSkeleton": [
+      231
+    ],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-985c-8441-8400-0000000d6c23-telemetry-0.json",
+        "bytes": 120455,
+        "sha256": "9d235167356e64caeed0931e6abfe2547594c8871ddd2c304329d1ce13dce1ca"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-985c-8441-8400-0000000d6c23-telemetry-1.json",
+        "bytes": 112267,
+        "sha256": "561e9b88e8cac16f519828cba80c178aa7a489615bb365a83a51882d95b21d0e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-985c-8441-8400-0000000d6c23-telemetry-2.json",
+        "bytes": 112285,
+        "sha256": "3b76f90bb4e4f5f2a582abd64833f33839c79d5ea2f1c9bd88c37aea3f37f2a1"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-985c-8441-8400-0000000d6c23-telemetry-3.json",
+        "bytes": 112015,
+        "sha256": "f1f1ffb214d5935904df295540b8b10620eed00bc30d7aa14beb1d4f4d698bdb"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-985c-8441-8400-0000000d6c23-telemetry-4.json",
+        "bytes": 112215,
+        "sha256": "3c1ec639e5fa815b3ece65351cd22d8e41cc960c9b57e4233326f5eaa8c54bf8"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f79-985c-8441-8400-0000000d6c23-telemetry-5.json",
+        "bytes": 2578,
+        "sha256": "ba9bb0aebf5f4631a12ceb710d18c5e55451c5501498f70467ce5213894b4d82"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f7a-ead7-8f28-8400-0000000ee80d",
+    "missionId": "01a17f78-0693-88ac-8400-0000000adb00",
+    "seconds": 123.8555625,
+    "batches": 47,
+    "rawBytes": 5182895,
+    "gzipBytesPerBatch": 1190451,
+    "bytesPerSecond": 41846.28364995718,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 2,
+      "state": 917,
+      "seat": 2,
+      "appearance": 6,
+      "skeleton": 2,
+      "pose": 184,
+      "shot": 10,
+      "grenade": 1,
+      "damage": 3,
+      "death": 2,
+      "ownership": 1
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "skeletal",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      },
+      {
+        "entity": "entity-2",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1200.625,
+          38.981662,
+          2761.169921
+        ]
+      }
+    ],
+    "stances": [
+      0,
+      1,
+      2
+    ],
+    "flags": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "leanRange": [
+      -0.6,
+      0.0
+    ],
+    "maxSpeedMps": 3.801269,
+    "medianStateIntervalMs": 202.90625,
+    "maxStateIntervalMs": 219.828125,
+    "bonesPerSkeleton": [
+      231,
+      231
+    ],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-2",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": {
+      "sequence": 130,
+      "timeMs": 210195.046875,
+      "type": "shot",
+      "data": {
+        "entity": "entity-1",
+        "projectileId": "projectile-1",
+        "weaponPrefab": "{EB404DC9E1BCB750}Prefabs/Weapons/Rifles/AK74/Rifle_AK74N_1P29.et",
+        "projectilePrefab": "{1D9DDE1632F33A9E}Prefabs/Weapons/Ammo/Ammo_545x39_Ball_7N6.et",
+        "origin": [
+          1197.631958,
+          40.049365,
+          2750.375488
+        ],
+        "velocity": [
+          0.011074,
+          0.203805,
+          890.818725
+        ],
+        "sessionEventSequence": 12
+      }
+    },
+    "grenades": [
+      {
+        "sequence": 295,
+        "timeMs": 236346.140625,
+        "type": "grenade",
+        "data": {
+          "entity": "entity-1",
+          "projectileId": "projectile-11",
+          "weaponPrefab": "{645C73791ECA1698}Prefabs/Weapons/Grenades/Grenade_RGD5.et",
+          "projectilePrefab": "{645C73791ECA1698}Prefabs/Weapons/Grenades/Grenade_RGD5.et",
+          "origin": [
+            1197.755737,
+            40.954143,
+            2749.820068
+          ],
+          "velocity": [
+            -0.254088,
+            12.330054,
+            27.347856
+          ],
+          "sessionEventSequence": 22
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-0.json",
+        "bytes": 120722,
+        "sha256": "8a7da32495d28552b0572c58b8e5369e8dd937210a26e717c8abe27609a5dc3e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-1.json",
+        "bytes": 112229,
+        "sha256": "a00d6622a46aa2130212dc9ff90bf3e2dd4d888abd7ec1ff642b5f488e83c22c"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-2.json",
+        "bytes": 112487,
+        "sha256": "0182362519f429bbfd8b6a614c283c97d820c69feed84812f618768aeaf7f168"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-3.json",
+        "bytes": 112512,
+        "sha256": "1865cbe2235249c4401275b862b3fd2a7f2cc4a12dbcb06c9d86c96a395acde7"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-4.json",
+        "bytes": 112539,
+        "sha256": "82926183ac57f2f0b4ed6c42211021c9065c901e4e48305836e7866decec608f"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-5.json",
+        "bytes": 116908,
+        "sha256": "2b6ae8a7b18830b2902cb4b86ed6a54129ab35b8f1c5f07c11351caf0f248561"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-6.json",
+        "bytes": 112746,
+        "sha256": "89d099fe89a955277ec20c6a6ff6f90f63697c18d391b204d22ecbf790666a76"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-7.json",
+        "bytes": 112450,
+        "sha256": "6f743fc0b79179340f9c1707e06cfd87df2fd03d991c35dd80586cd566cd3ebb"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-8.json",
+        "bytes": 112184,
+        "sha256": "b2c91917999cc4a976dd83b6dd5064eb38c7e542e8e5181acde6e02dce585a8f"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-9.json",
+        "bytes": 112597,
+        "sha256": "07c98af033ca0f45c0740facf3aaec13dc362e83df525525132adfbbab03511d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-10.json",
+        "bytes": 112109,
+        "sha256": "e1475f42e40b7f4fa65fd0a18a99e968a8c23ae0a7e30904c52c16664edb2b4f"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-11.json",
+        "bytes": 116901,
+        "sha256": "90ee15c9be5622fcd6a86a089b8dd2a94f540fe5f5d2f12103f8656feb69f54c"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-12.json",
+        "bytes": 117065,
+        "sha256": "f376659be6bb198fca14eef768e8726a228c948eccde5d5916af2079389c2e25"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-13.json",
+        "bytes": 113792,
+        "sha256": "89bb86829111310a258aaa0f44864c3a3a41cafb424c384ec854a48451538b44"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-14.json",
+        "bytes": 113301,
+        "sha256": "aa87bf59b8d6e9ce24e45bf5f463c2ec19d0c206335f53e56947e41feb794d61"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-15.json",
+        "bytes": 122687,
+        "sha256": "dbd8857d8c2783afe4f02f9a334a09ee204b57d7614650099d055292d42b957d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-16.json",
+        "bytes": 112543,
+        "sha256": "60e93ca7d342a1a3fb931f71044b1c827cfa35ef8b7ac6f33190e30a06197756"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-17.json",
+        "bytes": 112412,
+        "sha256": "27e0d5dd55ef3ba60a65d8ab2dc900ee350f3be09bcfcb2c5dcd0d00f1d93f4a"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-18.json",
+        "bytes": 111932,
+        "sha256": "fd0e8bc8b8032359b328ccc733b168c54659347d3acaa2c12625b156e3637531"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-19.json",
+        "bytes": 113075,
+        "sha256": "35df22aa22c5e4c7645efcbe211555c4f1f5b2bc2c20ded3a0a89e6e78e2b402"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-20.json",
+        "bytes": 116981,
+        "sha256": "cdff40a4fb12e4d36b6f8934985bddc09bccbe3f7e8d500926ee647972f0eecb"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-21.json",
+        "bytes": 111084,
+        "sha256": "e52fb09ba4ec13ee5b2f69fcd47b53adb188b108017e4dea71a0bc2e5cef6a3d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-22.json",
+        "bytes": 115820,
+        "sha256": "e9718e54d018f8ed0d5f74088b38e384f341c0cdf8f06b11d0472553b88e3f9e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-23.json",
+        "bytes": 111031,
+        "sha256": "56c233f5494bce9ef95656919673e0aa5ef211bdcf86421f9321e603e3bb5d34"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-24.json",
+        "bytes": 111030,
+        "sha256": "c0ae11bd9bd0e21a82269f46303f4918a82b8c4b585a69d9ee493d454f360072"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-25.json",
+        "bytes": 111023,
+        "sha256": "c863dc854ad67eff7f331251cfc7e88f271b926b44d399dea13e0fa2cce5f115"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-26.json",
+        "bytes": 111038,
+        "sha256": "19c5717294b908581354f2bceb92f6a7f13564792a9af3b7f813d0e37afc9efa"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-27.json",
+        "bytes": 111029,
+        "sha256": "48599c8a3d9d6861e18f2a10495be35fadcc35a0b259ad3d1ceca97ae2557752"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-28.json",
+        "bytes": 111033,
+        "sha256": "f325c0614b3e99f744287aff5cb6013b7bf61cda50863f72ab88e08f2a636090"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-29.json",
+        "bytes": 111037,
+        "sha256": "d065989d55cffaa6dea8cd408925f42ca125ea1dd17617ccd61ee1dc6ae23966"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-30.json",
+        "bytes": 111042,
+        "sha256": "ec54dd014985a842d3b0e0e501984db53b0f20cd9c6cd0cfe5e65344e2d38357"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-31.json",
+        "bytes": 111033,
+        "sha256": "e622966e145752968a26bdb5edc6d57c38fdc4d2162a49b5216550a9b8805e2c"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-32.json",
+        "bytes": 111032,
+        "sha256": "46e5c6b00bca008c4d20daa741ee777f15e6ab1f4085036c1133101d7de0e3e6"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-33.json",
+        "bytes": 111040,
+        "sha256": "02bebf4c0fb683491dd71cc73723272054a7fdb042666a9ea70c9b8f9554997e"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-34.json",
+        "bytes": 111020,
+        "sha256": "fc045f5f4707175ffc9069af5330a247a9c92584df8d19f8975020efdc4b35e9"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-35.json",
+        "bytes": 111031,
+        "sha256": "22d312f69167b2ab2ffef2f57a8aa0bf3628809d00f7401d416c1cd09fddadae"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-36.json",
+        "bytes": 111032,
+        "sha256": "9add2048bb3f89ae8035fac644750dc5afb05d16f44f1a010f6f8de70b5f8295"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-37.json",
+        "bytes": 111028,
+        "sha256": "dbf915c8ec8d825339dcc06dd4e544be66c97209fba1eb16e890d62083603b98"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-38.json",
+        "bytes": 111030,
+        "sha256": "4b55a65cd9cbd7f6b127e1d23de5d8ca6e127095971dba77b4036ef9fdbbd579"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-39.json",
+        "bytes": 111026,
+        "sha256": "2a771ddfd950c1a757bce7b38fba16026ddba39d7420dc212d000aeaf7393fcc"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-40.json",
+        "bytes": 111038,
+        "sha256": "cebfebe8b878a71de8e42c4905f46c804f6df4923181d40f47294eaa9053b21d"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-41.json",
+        "bytes": 111062,
+        "sha256": "6902c67869d6f017555c4110b2242bfad76411dde5ada12b5e11697044d185a0"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-42.json",
+        "bytes": 111058,
+        "sha256": "02fb4d400a07aa1f227daab798e4f1f0ece9ae9ee04ef3ba08d18c16d953cab6"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-43.json",
+        "bytes": 111046,
+        "sha256": "2f917cfac4541836e7a9af7ce76b1acbffb7e9843e8349a9c2724a890504f444"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-44.json",
+        "bytes": 111042,
+        "sha256": "8981185b4bfd085be8569e014e80cca86493b8cb7d9bd5e2bd6205b17194f264"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-45.json",
+        "bytes": 111039,
+        "sha256": "bc9bdf670933201fa79a17ecbb7bd8fa4d98efaeca5e64f6c256b621cfccec34"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7a-ead7-8f28-8400-0000000ee80d-telemetry-46.json",
+        "bytes": 1999,
+        "sha256": "8fa8f0086f4e34c48cf94dbf264a209229605bb10216af3b86c7ecbee6371a34"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f7f-1ef5-8605-8400-000000116303",
+    "missionId": "01a17f7e-e6d6-81e3-8400-0000000fb8c6",
+    "seconds": 12.2921015625,
+    "batches": 3,
+    "rawBytes": 37076,
+    "gzipBytesPerBatch": 5595,
+    "bytesPerSecond": 3016.245823505821,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "death": 1,
+      "state": 61,
+      "seat": 1,
+      "appearance": 2
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "state",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "ai",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0
+    ],
+    "flags": [
+      0
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 202.32519500000126,
+    "maxStateIntervalMs": 205.69531300000017,
+    "bonesPerSkeleton": [],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7f-1ef5-8605-8400-000000116303-telemetry-0.json",
+        "bytes": 16506,
+        "sha256": "61282d9b607d7e1e02fa70aa79d8d1b4b3509d74de4dda926db4cc5aedab84eb"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7f-1ef5-8605-8400-000000116303-telemetry-1.json",
+        "bytes": 15334,
+        "sha256": "1b091e687e5eb5580bbebb98f746b9cb345b9c07f772301a4fc5522aa8a9b2b4"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f7f-1ef5-8605-8400-000000116303-telemetry-2.json",
+        "bytes": 5236,
+        "sha256": "189a08599b6b81a5b75020edb50bde80991f8b3b7521ddd3576d71861a0955e7"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f81-bc6e-8e9e-8400-000000154167",
+    "missionId": "01a17f81-ac69-8dbd-8400-000000133997",
+    "seconds": 1.68210888671875,
+    "batches": 1,
+    "rawBytes": 10014,
+    "gzipBytesPerBatch": 2326,
+    "bytesPerSecond": 5953.241243219441,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "death": 1,
+      "state": 9,
+      "seat": 1,
+      "ownership": 1,
+      "appearance": 1
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "state",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0
+    ],
+    "flags": [
+      0
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 201.48242200000004,
+    "maxStateIntervalMs": 204.17968700000074,
+    "bonesPerSkeleton": [],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f81-bc6e-8e9e-8400-000000154167-telemetry-0.json",
+        "bytes": 10014,
+        "sha256": "9042ef4465c742fc69941aa52a2fc05919502ba980edeab1746b3fe17bedea82"
+      }
+    ]
+  },
+  {
+    "recordingId": "01a17f82-c971-81a4-8400-000000187fbf",
+    "missionId": "01a17f82-b954-84a3-8400-000000169800",
+    "seconds": 1.693053222,
+    "batches": 1,
+    "rawBytes": 10011,
+    "gzipBytesPerBatch": 2328,
+    "bytesPerSecond": 5912.98600062556,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 1,
+      "death": 1,
+      "state": 9,
+      "seat": 1,
+      "ownership": 1,
+      "appearance": 1
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "state",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "00000000-0000-0000-0000-000000000000",
+        "faction": "USSR",
+        "transform": [
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          -0.0,
+          0.0,
+          0.0,
+          1.0,
+          1197.625,
+          39.0,
+          2738.455078
+        ]
+      }
+    ],
+    "stances": [
+      0
+    ],
+    "flags": [
+      0
+    ],
+    "leanRange": [
+      0.0,
+      0.0
+    ],
+    "maxSpeedMps": 0.0,
+    "medianStateIntervalMs": 201.20556600000054,
+    "maxStateIntervalMs": 205.0053709999993,
+    "bonesPerSkeleton": [],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\Lobby2Telemetry\\01a17f82-c971-81a4-8400-000000187fbf-telemetry-0.json",
+        "bytes": 10011,
+        "sha256": "8ffed8d3d2c258341f30421dd43017eda43e0294c08e0ab9bbb0525b14e98a0e"
+      }
+    ]
+  }
+]

@@ -70,7 +70,7 @@ Schema v3 records all connected time during native GAME as `playSeconds`, includ
 
 Eligibility is a historical query policy, not a collection filter. `population_intervals` exposes the saved counts; `eligible_play_seconds(mission_id, assignments, minimum_players)` intersects connected intervals with periods meeting the threshold (default 5). `player_totals` and `faction_totals` expose raw `play_seconds` separately from default-five `eligible_play_seconds`. Versions 1/2 retain only the old filtered time: raw time is NULL for those records, and `raw_playtime_record_count` identifies coverage in mixed histories. Their eligibility cannot be recalculated. Historical role seconds likewise have population-filtered semantics before v3.
 
-Movement is sampled displacement, not an exact travelled path. Passengers do not receive driver/pilot distance. Teleport-sized jumps are discarded. Radio time is a client-reported estimate, bounded by elapsed server time; reports arrive about every ten seconds, with a two-second grace period at mission end. Speech spanning membership changes is apportioned by interval overlap, so faction/squad radio attribution is approximate. Disconnecting can lose the last unsent radio report. CPR and replay telemetry are deferred.
+Movement is sampled displacement, not an exact travelled path. Passengers do not receive driver/pilot distance. Teleport-sized jumps are discarded. Radio time is a client-reported estimate, bounded by elapsed server time; reports arrive about every ten seconds, with a two-second grace period at mission end. Speech spanning membership changes is apportioned by interval overlap, so faction/squad radio attribution is approximate. Disconnecting can lose the last unsent radio report. CPR remains deferred. Replay telemetry uses the optional recorder described below.
 
 Shots are projectile-shot callbacks, with projectile, magazine and weapon resource names retained. Hand-thrown grenades have a separate counter and also contribute their grenade prefab/type to the ammunition breakdown; they do not increment shots. Mounted turret projectile callbacks use the same collection path. The session log additionally records individual shot and damage timestamps; trajectories, hit locations and accuracy remain out of scope. Player kills count other human players, including friendly fire; schema v2 also counts team kills separately as a subset, using the engine friendly-player relationship. Earlier v1 records have unknown team-kill counts (SQL NULL); death events retain the engine relationship code for later filtering. Unknown weapon attribution is empty, and unknown distance is -1. CO and squad-leader counts are one per mission if the role was observed; role selections record slots used during GAME, preserving the prefab role name and slot ID. Slot labels currently derive from the role prefab in Lobby2.
 
@@ -121,14 +121,51 @@ ORDER BY session_id, sequence;
 ```
 
 
-## Replay telemetry contract (collector not yet implemented)
+## Optional replay telemetry
 
-The `telemetry` v1 batch contract and importer are available for development of a
-website-first replay system, with later Reforger playback. They do **not** activate
-recording in the addon. Engine capture, its disabled-by-default configuration and
-admin start/stop controls, asset conversion, viewer implementation, and a
-128-player performance benchmark remain outstanding. There is no production
-telemetry endpoint or database deployment in this change.
+Recording is disabled by default. On the active server `GC_SessionLogComponent`,
+`SetTelemetry(requesterPlayerId, enabled, skeletal)` checks the current authenticated
+admin through the production authority gate. `GetTelemetryReport()` reports identity,
+closure/drop status and sampling/write time. These server-side methods can be called
+through generic MCP runtime invocation in embedded Play. This slice adds no player
+menu or remote-client start/stop RPC.
+
+State mode targets 5 Hz: world transform, velocity/speed, stance, aim/look, lean,
+dynamic stance, ADS/raised/reload/sprint/freelook flags, weapon and sight selection.
+Skeletal mode adds native local bone matrices and held-weapon relative transform
+at 1 Hz. This is sampled geometry, not animation-graph serialization or frame-perfect
+playback. Gear, faction and ownership are checked every five seconds; changes shorter
+than that interval may be missed.
+
+Discovery selects connected players. Characters involved in recorded damage/death
+and occupied vehicles are also tracked. It does not survey every AI. Player shot and
+grenade launches use the existing statistics callbacks while statistics collect.
+AI firing, projectile flight, exact impacts and grenade detonation remain unsupported.
+Damage is the engine's reported value, not inferred health removed. Unknown attribution
+remains empty/zero. Header `actors: players` describes discovery; AI can appear through
+combat events.
+
+Sampling visits at most 16 actors per frame and yields after an actor when elapsed
+work reaches 2 ms or queued text reaches 64 KiB. One actor can exceed that budget;
+sample rates are targets. Writes occur at five seconds or 96 KiB queued text.
+Publication is synchronous and timed separately. No additional client RPCs or
+database requests are introduced in the game.
+
+Limits: 256 actor lives, 4096 recent projectile identities, 8192 damage links,
+512 queued records, 128 KiB encoded text, approximately 64 MiB per recording.
+Overflow/storage errors stop recording explicitly. Failed publication retains its
+pending payload in memory; shutdown makes a bounded retry and can leave an unsealed
+recording. A new recording requires the previous one to be sealed. Files remain on
+disk: operators must manage retention/free space. This is not a global disk quota.
+A 128-player benchmark remains outstanding; small embedded-host tests cannot certify
+that load, especially with skeletal capture enabled.
+
+The local proof deployment is outside both repositories at
+`C:\Users\Gray\Documents\Lobby2Data`. Its `Import.cmd` snapshots all four ready
+outboxes and imports copies, preserving original game files. Credentials remain in
+the deployment's restricted configuration directory. Asset conversion and both
+playback viewers remain separate work. `native-resources:<recordingId>` denotes an
+unresolved native resource capture, not an available browser asset manifest.
 
 Telemetry stays separate from aggregate statistics and session audit events.
 `missionId` is the existing session ID and joins those records. `recordingId` is a
@@ -159,8 +196,11 @@ world-time origin as session events**, including recordings enabled mid-mission;
 never subtract independently rounded Unix anchors to align events.
 
 Each record has `sequence`, `timeMs`, `type` and `data`. Sequence starts at one and
-is contiguous across stored batches; discarded observations are described by gap
-records and do not consume sequence numbers. Times are nondecreasing and within
+is contiguous across stored batches. The contract supports explicit gap records;
+this collector stops on overflow and reports the rejected observation in
+`droppedRecords` instead. Dropped observations do not consume sequence numbers.
+Sampling rates are targets: intervals over one second set `discontinuity`, without
+inventing missing frames. Times are nondecreasing and within
 the batch interval. Batches may arrive out of order; adjacent sequences, timeline
 ordering, fixed metadata, cumulative drop counts and terminal closure are checked
 at database insertion. An empty terminal batch is allowed. `telemetry_recordings`

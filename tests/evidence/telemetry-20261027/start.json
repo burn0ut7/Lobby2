@@ -1,0 +1,9 @@
+{
+  "state": "invoked",
+  "processId": 28572,
+  "receipt": "rc9cf7a20431a41cba11c7adf53119983",
+  "returnType": "bool",
+  "returned": true,
+  "elapsedMs": 5,
+  "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call."
+}
