@@ -35,6 +35,22 @@ Most helpers require `WORKBENCH` and run only in embedded Play.
 `GC_AdminMultiplayerTests.c` also compiles in test-addon peers. It grants no roles
 or permissions and runs nothing automatically. Never include it in production.
 
+## Script enum research fixture
+
+`GC_EditorEnumProbe.c` is disabled unless both `WORKBENCH` and
+`GC_EDITOR_ENUM_PROBE` are defined. It adds temporary direct-component, nested
+condition, and entity dropdowns and logs `_WB_GetUserEnums` callbacks. Enable
+only for editor research, reload, and inspect GameMode_Lobby2 and its lobby
+component. Disable and reload afterward; do not save probe values to a mission.
+
+Workbench 1.8.0.13 produced the two supplied entity choices without a native
+helper. Direct-component and nested-condition probes produced no populated
+popup with either ComboBox or EditComboBox. The component-class callback logged
+structural fields but not the probe names; its instance callback did not log.
+This is an observed limitation of this fixture, not proof that every script-only
+declaration is unsupported. Addon-only dynamic choices for nested conditions
+remain unverified.
+
 ## UI layers
 
 `GC_TestUILayers(action)` on `GC_LobbyManager` accepts `notify`, `snapshot`,

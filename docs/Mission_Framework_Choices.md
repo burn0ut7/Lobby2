@@ -1,5 +1,15 @@
 # Mission framework dropdowns
 
+The dynamic lists described below are a development prototype, not an addon-only
+shipping feature. Lobby2 must ship without an executable helper or separate
+installation; the executable packaging experiment was removed. Script-only
+choices worked on an entity probe, but have not been verified for these nested
+conditions. See `tests/README.md` for the scoped test results.
+
+All seven marked flag/faction string fields also accept typed text, including
+names that do not yet exist. This text-entry behavior works without the native
+extension; ordinary mission validation still applies.
+
 **Flag Is Set** and interaction **Required Flag** offer existing mission flags.
 Create a flag on its Set Flag action, random flag action, flag pool, interaction,
 or optional Mission Flags entry. The dropdown finds those sources automatically;
