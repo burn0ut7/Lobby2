@@ -191,6 +191,8 @@ class GC_StatsPlayer : GC_StatsCounters
 	{
 		if (!m_ActiveAssignment)
 			return;
+		// Connected membership intervals own raw time, independent of eligibility policy.
+		m_fPlaySeconds += Math.Max(0, until - m_ActiveAssignment.m_fUntil);
 		m_ActiveAssignment.SetDifference(this, m_ActiveAssignment.m_Start);
 		m_ActiveAssignment.m_fUntil = Math.Max(m_ActiveAssignment.m_fUntil, until);
 	}
@@ -264,6 +266,20 @@ class GC_StatsDeath
 	}
 }
 
+//! Population changes share the mission-relative clock with membership intervals.
+class GC_StatsPopulation
+{
+	float m_fFrom;
+	int m_iPlayers;
+
+	//------------------------------------------------------------------------------------------------
+	void Write(SaveContext context)
+	{
+		context.WriteValue("fromSeconds", m_fFrom);
+		context.WriteValue("players", m_iPlayers);
+	}
+}
+
 //! Cumulative player snapshots plus append-only death events. Never add snapshots together.
 class GC_MissionStatsBatch
 {
@@ -276,6 +292,7 @@ class GC_MissionStatsBatch
 	float m_fDuration;
 	ref array<ref GC_StatsPlayer> m_aPlayers = {};
 	ref array<ref GC_StatsDeath> m_aDeaths = {};
+	ref array<ref GC_StatsPopulation> m_aPopulation = {};
 
 	//------------------------------------------------------------------------------------------------
 	//! Local serialization context avoids backend JsonApiStruct payload limits.
@@ -294,7 +311,7 @@ class GC_MissionStatsBatch
 	//------------------------------------------------------------------------------------------------
 	void Write(SaveContext context)
 	{
-		context.WriteValue("schemaVersion", 2);
+		context.WriteValue("schemaVersion", 3);
 		context.WriteValue("missionId", m_sMissionId);
 		context.WriteValue("world", m_sWorld);
 		context.WriteValue("startedAt", m_iStartedAt);
@@ -302,7 +319,16 @@ class GC_MissionStatsBatch
 		context.WriteValue("final", m_bFinal);
 		context.WriteValue("complete", m_bComplete);
 		context.WriteValue("durationSeconds", m_fDuration);
-		context.WriteValue("minimumPlayersForPlaytime", 5);
+		context.WriteValue("playtimeBasis", "connectedDuringGame");
+		int populationCount = m_aPopulation.Count();
+		context.StartArray("population", populationCount);
+		foreach (GC_StatsPopulation population : m_aPopulation)
+		{
+			context.StartObject();
+			population.Write(context);
+			context.EndObject();
+		}
+		context.EndArray();
 		int playersCount = m_aPlayers.Count();
 		context.StartArray("players", playersCount);
 		foreach (GC_StatsPlayer player : m_aPlayers)

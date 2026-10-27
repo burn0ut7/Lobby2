@@ -6,15 +6,29 @@ internal static class BatchContract
     public static void Validate(JsonElement root)
     {
         Object(root);
-        var version = Integer(root, "schemaVersion", 1, 2);
+        var version = Integer(root, "schemaVersion", 1, 3);
         if (!Guid.TryParse(Text(root, "missionId", 36), out _)) Fail();
         Text(root, "world", 4096);
         Integer(root, "startedAt", 0);
         Integer(root, "revision", 0);
         root.GetProperty("final").GetBoolean();
         root.GetProperty("complete").GetBoolean();
-        Number(root, "durationSeconds", 0);
-        Integer(root, "minimumPlayersForPlaytime", 5, 5);
+        var duration = Number(root, "durationSeconds", 0);
+        if (version < 3) Integer(root, "minimumPlayersForPlaytime", 5, 5);
+        else
+        {
+            if (Text(root, "playtimeBasis", 32) != "connectedDuringGame") Fail();
+            double previous = -1;
+            foreach (var point in Array(root, "population", 4096))
+            {
+                Object(point);
+                var from = Number(point, "fromSeconds", 0);
+                if ((previous < 0 && from != 0) || from < previous || from > duration + 0.01) Fail();
+                Integer(point, "players", 0);
+                previous = from;
+            }
+            if (previous < 0) Fail();
+        }
         var identities = new HashSet<string>(StringComparer.Ordinal);
         foreach (var player in Array(root, "players", 1024))
         {
@@ -24,6 +38,7 @@ internal static class BatchContract
             Text(player, "name", 1024);
             Counters(player, version);
             double previousEnd = 0;
+            double recordedSeconds = 0;
             foreach (var assignment in Array(player, "assignments", 256))
             {
                 Object(assignment);
@@ -37,6 +52,9 @@ internal static class BatchContract
                 var from = Number(assignment, "fromSeconds", 0);
                 var until = Number(assignment, "untilSeconds", 0);
                 if (until < from || from < previousEnd) Fail();
+                if (version >= 3 && (until > duration + 0.01
+                    || Math.Abs(Number(assignment, "playSeconds", 0) - (until - from)) > 0.1)) Fail();
+                recordedSeconds += until - from;
                 previousEnd = until;
                 var ammunition = new HashSet<(string, string, string)>();
                 foreach (var ammo in Array(assignment, "ammo", 128))
@@ -49,6 +67,7 @@ internal static class BatchContract
                     Integer(ammo, "rounds", 1);
                 }
             }
+            if (version >= 3 && Math.Abs(Number(player, "playSeconds", 0) - recordedSeconds) > 0.1) Fail();
             var roles = new HashSet<(int, string)>();
             foreach (var role in Array(player, "roles", 4096))
             {

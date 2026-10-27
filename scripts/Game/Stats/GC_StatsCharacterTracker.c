@@ -153,12 +153,10 @@ class GC_StatsCharacterTracker
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Sample(IEntity character, float elapsed, bool creditTime, GC_LobbyManager manager)
+	void Sample(IEntity character, float elapsed, GC_LobbyManager manager)
 	{
-		if (creditTime)
-			m_Record.m_fPlaySeconds += elapsed;
 		UpdateRole(manager);
-		if (m_Role && creditTime)
+		if (m_Role)
 			m_Role.m_fSeconds += elapsed;
 		if (m_Character != character)
 		{

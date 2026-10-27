@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS lobby2.mission_batches (
     payload jsonb NOT NULL,
     received_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (mission_id, revision),
-    CONSTRAINT mission_batches_schema_version CHECK ((payload->>'schemaVersion')::integer IN (1, 2)),
+    CONSTRAINT mission_batches_schema_version CHECK ((payload->>'schemaVersion')::integer IN (1, 2, 3)),
     CHECK ((payload->>'missionId')::uuid = mission_id),
     CHECK ((payload->>'revision')::integer = revision)
 );
@@ -23,12 +23,35 @@ SELECT mission_id, revision, (payload->>'final')::boolean AS finalized,
        ((payload->>'complete')::boolean AND
         (SELECT count(*) FROM lobby2.mission_batches b WHERE b.mission_id = missions.mission_id) = revision::bigint + 1)
        AS complete, player->>'identity' AS player_id,
-       player->>'name' AS player_name, player AS stats
+       player->>'name' AS player_name, player AS stats,
+       (payload->>'schemaVersion')::integer AS schema_version
 FROM lobby2.missions CROSS JOIN LATERAL jsonb_array_elements(payload->'players') AS player;
+
+-- Change points become half-open intervals; duplicate-time changes have zero duration.
+CREATE OR REPLACE VIEW lobby2.population_intervals AS
+SELECT mission_id, (point->>'fromSeconds')::double precision AS from_seconds,
+       lead((point->>'fromSeconds')::double precision, 1, (payload->>'durationSeconds')::double precision)
+           OVER (PARTITION BY mission_id ORDER BY ordinal) AS until_seconds,
+       (point->>'players')::integer AS players
+FROM lobby2.missions CROSS JOIN LATERAL jsonb_array_elements(payload->'population')
+     WITH ORDINALITY AS changes(point, ordinal);
+
+-- Policy is a query parameter. Missing raw history is NULL, never fabricated time.
+CREATE OR REPLACE FUNCTION lobby2.eligible_play_seconds(mission uuid, intervals jsonb, minimum_players integer DEFAULT 5)
+RETURNS double precision LANGUAGE sql STABLE AS $$
+    SELECT CASE WHEN (m.payload->>'schemaVersion')::integer >= 3 AND minimum_players >= 0 THEN
+        COALESCE((SELECT sum(GREATEST(0::double precision,
+            LEAST(p.until_seconds, (a->>'untilSeconds')::double precision)
+            - GREATEST(p.from_seconds, (a->>'fromSeconds')::double precision)))
+        FROM lobby2.population_intervals p CROSS JOIN LATERAL jsonb_array_elements(intervals) a
+        WHERE p.mission_id = mission AND p.players >= minimum_players), 0::double precision)
+        END
+    FROM lobby2.missions m WHERE m.mission_id = mission
+$$;
 
 CREATE OR REPLACE VIEW lobby2.player_totals AS
 SELECT player_id, count(*) AS missions,
-       sum((stats->>'playSeconds')::double precision) AS play_seconds,
+       sum(CASE WHEN schema_version >= 3 THEN (stats->>'playSeconds')::double precision END) AS play_seconds,
        sum((stats->>'shots')::bigint) AS shots,
        sum((stats->>'grenades')::bigint) AS grenades,
        sum((stats->>'bandagesOthers')::bigint) AS bandages_others,
@@ -46,7 +69,10 @@ SELECT player_id, count(*) AS missions,
        sum((stats->>'deathsByPlayers')::bigint) AS deaths_by_players,
        sum((stats->>'deathsByAI')::bigint) AS deaths_by_ai,
        sum((stats->>'deaths')::bigint - (stats->>'deathsByPlayers')::bigint - (stats->>'deathsByAI')::bigint) AS other_deaths,
-       count(*) FILTER (WHERE stats ? 'aiKills') AS combat_breakdown_record_count
+       count(*) FILTER (WHERE stats ? 'aiKills') AS combat_breakdown_record_count,
+       count(*) FILTER (WHERE schema_version >= 3) AS raw_playtime_record_count,
+       sum(CASE WHEN schema_version >= 3 THEN lobby2.eligible_play_seconds(mission_id, stats->'assignments', 5)
+           ELSE (stats->>'playSeconds')::double precision END) AS eligible_play_seconds
 FROM lobby2.mission_players WHERE finalized AND complete GROUP BY player_id;
 
 CREATE OR REPLACE VIEW lobby2.deaths AS
@@ -68,12 +94,12 @@ SELECT mission_id, player_id, player_name, finalized, complete,
        assignment->>'role' AS role_id, (assignment->>'slotId')::integer AS slot_id,
        (assignment->>'fromSeconds')::double precision AS from_seconds,
        (assignment->>'untilSeconds')::double precision AS until_seconds,
-       assignment AS stats
+       assignment AS stats, schema_version
 FROM lobby2.mission_players CROSS JOIN LATERAL jsonb_array_elements(stats->'assignments') AS assignment;
 
 CREATE OR REPLACE VIEW lobby2.faction_totals AS
 SELECT mission_id, faction_id, count(DISTINCT player_id) AS participants,
-       sum((stats->>'playSeconds')::double precision) AS play_seconds,
+       sum(CASE WHEN schema_version >= 3 THEN (stats->>'playSeconds')::double precision END) AS play_seconds,
        sum((stats->>'shots')::bigint) AS shots,
        sum((stats->>'grenades')::bigint) AS grenades,
        sum((stats->>'bandagesOthers')::bigint) AS bandages_others,
@@ -89,7 +115,10 @@ SELECT mission_id, faction_id, count(DISTINCT player_id) AS participants,
        sum((stats->>'deathsByPlayers')::bigint) AS deaths_by_players,
        sum((stats->>'deathsByAI')::bigint) AS deaths_by_ai,
        sum((stats->>'deaths')::bigint - (stats->>'deathsByPlayers')::bigint - (stats->>'deathsByAI')::bigint) AS other_deaths,
-       count(*) FILTER (WHERE stats ? 'aiKills') AS combat_breakdown_record_count
+       count(*) FILTER (WHERE stats ? 'aiKills') AS combat_breakdown_record_count,
+       count(*) FILTER (WHERE schema_version >= 3) AS raw_playtime_record_count,
+       sum(CASE WHEN schema_version >= 3 THEN lobby2.eligible_play_seconds(mission_id, jsonb_build_array(stats), 5)
+           ELSE (stats->>'playSeconds')::double precision END) AS eligible_play_seconds
 FROM lobby2.memberships WHERE finalized AND complete AND faction_id <> ''
 GROUP BY mission_id, faction_id;
 
@@ -127,7 +156,7 @@ BEGIN
       EXECUTE format('ALTER TABLE lobby2.mission_batches DROP CONSTRAINT %I', constraint_name);
     END LOOP;
     ALTER TABLE lobby2.mission_batches ADD CONSTRAINT mission_batches_schema_version
-      CHECK ((payload->>'schemaVersion')::integer IN (1, 2));
+      CHECK ((payload->>'schemaVersion')::integer IN (1, 2, 3));
 END $$;
 
 CREATE TABLE IF NOT EXISTS lobby2.session_log_batches (

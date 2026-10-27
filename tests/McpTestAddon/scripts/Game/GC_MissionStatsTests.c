@@ -4,13 +4,9 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	string GC_TestStatsContract()
 	{
-		if (GC_MissionStatsComponent.CanCreditPlaytime(4, 5)
-			|| GC_MissionStatsComponent.CanCreditPlaytime(5, 4)
-			|| !GC_MissionStatsComponent.CanCreditPlaytime(5, 5)
-			|| !GC_MissionStatsComponent.CanCreditPlaytime(6, 5))
-			return "FAIL: five-player threshold";
 		GC_MissionStatsBatch batch = new GC_MissionStatsBatch();
-		batch.m_sMissionId = "contract-fixture";
+		batch.m_sMissionId = PersistenceIdUtils.Generate();
+		batch.m_aPopulation.Insert(new GC_StatsPopulation());
 		GC_StatsPlayer player = new GC_StatsPlayer();
 		player.m_sIdentity = "fixture-player";
 		player.m_sName = "Quote \" slash \\ Unicode é";
@@ -32,9 +28,35 @@ modded class GC_LobbyManager
 			return "FAIL: serialization retained stale counters";
 		JsonLoadContext read = new JsonLoadContext();
 		int version;
-		if (!read.LoadFromString(first) || !read.ReadValue("schemaVersion", version) || version != 2)
+		if (!read.LoadFromString(first) || !read.ReadValue("schemaVersion", version) || version != 3)
 			return "FAIL: invalid batch JSON";
 		return first;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestPlaytimeIntervals()
+	{
+		GC_StatsPlayer player = new GC_StatsPlayer();
+		GC_StatsAssignment first = new GC_StatsAssignment();
+		first.m_Start = new GC_StatsCounters();
+		player.m_aAssignments.Insert(first);
+		player.m_ActiveAssignment = first;
+		player.SyncAssignment(10);
+		player.SyncAssignment(10);
+		player.SyncAssignment(5);
+		player.m_ActiveAssignment = null;
+		player.SyncAssignment(20);
+		GC_StatsAssignment second = new GC_StatsAssignment();
+		second.m_fFrom = 20;
+		second.m_fUntil = 20;
+		second.m_Start = new GC_StatsCounters();
+		second.m_Start.Add(player);
+		player.m_aAssignments.Insert(second);
+		player.m_ActiveAssignment = second;
+		player.SyncAssignment(25);
+		if (player.m_fPlaySeconds != 15 || first.m_fPlaySeconds != 10 || second.m_fPlaySeconds != 5)
+			return "FAIL: repeated sync or disconnected gap changed raw time";
+		return "PASS: 15 seconds connected, 10-second gap excluded; repeated and older sync idempotent";
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -155,6 +177,32 @@ modded class GC_LobbyPlayerController
 modded class GC_MissionStatsComponent
 {
 	//------------------------------------------------------------------------------------------------
+	//! Exercise deletion then disconnect in one call, before the sampler can repair tracking.
+	string GC_TestPlaytimeDeletionOrder()
+	{
+		if (!IsCollecting())
+			return "unavailable: active collection required";
+		GC_StatsPlayer player = new GC_StatsPlayer();
+		GC_StatsAssignment assignment = new GC_StatsAssignment();
+		assignment.m_Start = new GC_StatsCounters();
+		player.m_ActiveAssignment = assignment;
+		player.m_aAssignments.Insert(assignment);
+		GC_StatsCharacterTracker tracker = new GC_StatsCharacterTracker();
+		tracker.Start(this, 2147483647, player);
+		tracker.GC_TestSetLife(GetOwner());
+		m_mTrackers.Set("deletion-order-fixture", tracker);
+		OnControllableDeleted(GetOwner());
+		bool retained = m_mTrackers.Contains("deletion-order-fixture");
+		OnPlayerDisconnected(2147483647, null, 0);
+		float closedTime = player.m_fPlaySeconds;
+		player.SyncAssignment(GetDuration() + 10);
+		m_mTrackers.Remove("deletion-order-fixture");
+		if (!retained || player.m_ActiveAssignment || player.m_fPlaySeconds != closedTime)
+			return "FAIL: body deletion lost disconnect ownership";
+		return "PASS: deletion retains connection; immediate disconnect closes time before next sample";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestStatsRadioIntervals()
 	{
 		if (!IsCollecting() || GetDuration() < 12)
@@ -187,6 +235,10 @@ modded class GC_MissionStatsComponent
 			return "unavailable: active authority required";
 		GC_MissionStatsBatch fixture = new GC_MissionStatsBatch();
 		fixture.m_sMissionId = PersistenceIdUtils.Generate();
+		fixture.m_fDuration = 1920;
+		GC_StatsPopulation population = new GC_StatsPopulation();
+		population.m_iPlayers = 128;
+		fixture.m_aPopulation.Insert(population);
 		for (int i = 0; i < 128; i++)
 		{
 			GC_StatsPlayer player = new GC_StatsPlayer();
@@ -201,6 +253,8 @@ modded class GC_MissionStatsComponent
 				assignment.m_sRole = "fixture-role";
 				assignment.m_fFrom = j * 60;
 				assignment.m_fUntil = (j + 1) * 60;
+				assignment.m_fPlaySeconds = 60;
+				player.m_fPlaySeconds += 60;
 				for (int k = 0; k < 2; k++)
 				{
 					GC_StatsAmmo ammo = new GC_StatsAmmo();
@@ -225,5 +279,14 @@ modded class GC_MissionStatsComponent
 		start = System.GetTickCount();
 		bool saved = GC_StatsOutbox.WriteVerified("$profile:Lobby2StatsTest/load.json", payload);
 		return string.Format("players=128 assignments=4096 ammoRows=8192 bytes=%1 encodeMs=%2 writeReadMs=%3 verified=%4", payload.Length(), encodeMs, System.GetTickCount(start), saved);
+	}
+}
+
+modded class GC_StatsCharacterTracker
+{
+	//------------------------------------------------------------------------------------------------
+	void GC_TestSetLife(IEntity entity)
+	{
+		m_LifeCharacterId = entity.GetID();
 	}
 }

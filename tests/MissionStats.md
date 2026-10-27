@@ -64,3 +64,17 @@ Early JsonApiStruct serialization returned `{}` at its native buffer limit. The 
 Peer startup initially failed because its saved addon search path omitted core. After correcting that path, compilation exposed Workbench-only test helper references; these were removed from cross-client helpers. A stale host build then failed checksum validation. Reloading matching scripts allowed connection; checksum enforcement was not disabled.
 
 Validation limits: five actual connected-client population transitions were not exercised. The current MCP peer configuration cannot add peer-array entries; only one saved peer is available. Mouse hit testing, gamepad navigation and actual radio capture are not established by handler invocations. Performance measurements are from this local editor, not a dedicated-server load test. Independent final review approved the work with these declared limits after verifying the saved fatal-event batch and its checksum.
+
+## Raw playtime revision — 2026-10-27
+
+Schema v3 replaces population-gated collection with connected GAME membership time. Debrief uses **Play time**; lobby/disconnected gaps remain excluded and connected spectators included. Population change points permit later threshold queries. Versions 1/2 retain their original filtered totals, with unknown raw time.
+
+Validation in Workbench 1.8.0.13, Lobby2 MCP Tests / Arland:
+- Script reload succeeded (`89936b840d36408fa6770b9c2de532b2`).
+- Single-player mission `01a17c61-cede-8b7e-8400-0000002b5629` finalized at 19.5426 seconds with matching raw player/membership time and zero default-five eligible seconds. UI readback (`r99676f0bfd094fee9b026caf88229bf2`) displayed Play time = 0m 19s; screenshot: `Art/References/mission-debrief/runtime-raw-playtime.png`.
+- `GC_TestPlaytimeIntervals` passed: 15 connected seconds across a 10-second disconnected gap; repeated/older synchronization does not double count (`rc5536fdfc6fc49b3a68ab7bd759f890d`).
+- `GC_TestPlaytimeDeletionOrder` passed (`r1a8a9036749d4ec490015adea5b95654`): the production deletion callback retains a connected tracker, then immediate disconnect closes its interval before another sample. This is an isolated callback-order fixture, not a real network disconnect.
+- Release importer build passed without warnings/errors. PostgreSQL 17.11 accepted old-schema → v3 → repeated-v3 migration. Engine output and synthetic policy/legacy batches imported successfully. A fixture with intervals [0,40),[60,100) and population 4→5 at20→4 at70 produced raw80, eligible4=80, eligible5=30, eligible6=0. Legacy raw time is NULL with coverage count0.
+- Empty, unordered and out-of-duration population history, and mismatched raw totals were rejected and retained. Test artifacts: `%TEMP%/Lobby2Playtime-mkdj2v9y`.
+
+No five-client population transition, real network disconnect/reconnect, dedicated server timing or long-duration precision benchmark was run for this revision. Callback fixtures and SQL interval checks cover those calculations, not transport behavior. Existing snapshot/capacity bounds still mark incomplete histories and exclude them from public lifetime totals.

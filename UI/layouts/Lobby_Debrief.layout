@@ -39,7 +39,7 @@ ScrollLayoutWidgetClass {
 TextWidgetClass {
  Name "StatLabel0"
  Slot FrameWidgetSlot { Anchor 0 0 0.57 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -40 }
- Text "Counted play time"
+ Text "Play time"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1
@@ -323,7 +323,7 @@ TextWidgetClass {
 TextWidgetClass {
  Name "DebriefRule"
  Slot FrameWidgetSlot { Anchor .11 .9 .78 .96 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "Play time counts while at least 5 players are connected."
+ Text "Time connected during the mission. Eligibility is calculated separately."
  "Font Size" 20
  Wrap 1
  "Ignore Cursor" 1

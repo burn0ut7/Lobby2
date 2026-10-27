@@ -16,7 +16,6 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	protected float m_fLastSample;
 	protected float m_fStarted;
 	protected float m_fLastFlush;
-	protected int m_iPreviousPopulation;
 	protected int m_iDeathSequence;
 	protected bool m_bCollecting;
 	protected bool m_bWriteFailureLogged;
@@ -32,17 +31,12 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	static const int MAX_PENDING_DEATHS = 256;
 
 	//------------------------------------------------------------------------------------------------
-	static bool CanCreditPlaytime(int currentPopulation, int previousPopulation)
-	{
-		return currentPopulation >= 5 && previousPopulation >= 5;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	//! Diagnostic preview of the next batch, including only death events not yet persisted.
 	string GetPendingBatchPreview()
 	{
 		if (!m_Batch || !Replication.IsServer())
 			return string.Empty;
+		m_Batch.m_fDuration = GetDuration();
 		SyncAssignments();
 		return m_Batch.Encode();
 	}
@@ -93,7 +87,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			m_mTrackers.Set(record.m_sIdentity, tracker);
 		}
 		tracker.Start(this, playerId, record);
-		tracker.Sample(character, 0, false, m_Manager);
+		tracker.Sample(character, 0, m_Manager);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -356,8 +350,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		array<int> connected = {};
 		PlayerManager players = GetGame().GetPlayerManager();
 		players.GetPlayers(connected);
-		bool creditTime = CanCreditPlaytime(connected.Count(), m_iPreviousPopulation);
-		m_iPreviousPopulation = connected.Count();
+		RecordPopulation(connected.Count());
 		foreach (int playerId : connected)
 		{
 			GC_StatsPlayer player = GetPlayer(playerId);
@@ -369,16 +362,16 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 				tracker = new GC_StatsCharacterTracker();
 				tracker.Start(this, playerId, player);
 				m_mTrackers.Set(player.m_sIdentity, tracker);
-				tracker.Sample(players.GetPlayerControlledEntity(playerId), 0, false, m_Manager);
+				tracker.Sample(players.GetPlayerControlledEntity(playerId), 0, m_Manager);
 				continue;
 			}
 			if (tracker.GetPlayerId() != playerId)
 			{
 				tracker.Start(this, playerId, player);
-				tracker.Sample(players.GetPlayerControlledEntity(playerId), 0, false, m_Manager);
+				tracker.Sample(players.GetPlayerControlledEntity(playerId), 0, m_Manager);
 				continue;
 			}
-			tracker.Sample(players.GetPlayerControlledEntity(playerId), elapsed, creditTime, m_Manager);
+			tracker.Sample(players.GetPlayerControlledEntity(playerId), elapsed, m_Manager);
 		}
 		for (int i = m_mTrackers.Count() - 1; i >= 0; i--)
 		{
@@ -395,6 +388,46 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Store only changes, not one row per tick. Bounds protect the cumulative outbox.
+	protected void RecordPopulation(int count)
+	{
+		int size = m_Batch.m_aPopulation.Count();
+		if (size > 0 && m_Batch.m_aPopulation[size - 1].m_iPlayers == count)
+			return;
+		if (size >= 4096)
+		{
+			MarkIncomplete();
+			return;
+		}
+		GC_StatsPopulation point = new GC_StatsPopulation();
+		if (size > 0)
+			point.m_fFrom = GetDuration();
+		point.m_iPlayers = count;
+		m_Batch.m_aPopulation.Insert(point);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnPlayerConnected(int playerId)
+	{
+		super.OnPlayerConnected(playerId);
+		if (!IsCollecting())
+			return;
+		array<int> connected = {};
+		GetGame().GetPlayerManager().GetPlayers(connected);
+		if (!connected.Contains(playerId))
+			connected.Insert(playerId);
+		RecordPopulation(connected.Count());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnPlayerRegistered(int playerId)
+	{
+		super.OnPlayerRegistered(playerId);
+		if (IsCollecting())
+			OnPlayerCharacterChanged(playerId, GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId));
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override void OnPlayerDisconnected(int playerId, KickCauseCode cause, int timeout)
 	{
 		super.OnPlayerDisconnected(playerId, cause, timeout);
@@ -403,8 +436,13 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			if (tracker.GetPlayerId() == playerId)
 				tracker.Disconnect(GetDuration());
 		}
-		// Avoid assigning a disconnected player's sample interval to a reused session ID.
-		m_iPreviousPopulation = 0;
+		if (IsCollecting())
+		{
+			array<int> connected = {};
+			GetGame().GetPlayerManager().GetPlayers(connected);
+			connected.RemoveItem(playerId);
+			RecordPopulation(connected.Count());
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -578,7 +616,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 				if (tracker.TracksLife(entity))
 				{
 					tracker.Detach();
-					m_mTrackers.Remove(m_mTrackers.GetKey(i));
+					// Connected membership outlives a body, including deletion before disconnect.
+					if (tracker.GetPlayerId() <= 0)
+						m_mTrackers.Remove(m_mTrackers.GetKey(i));
 				}
 			}
 		}
@@ -594,6 +634,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		FileIO.MakeDirectory(OUTBOX);
 		if (m_sPendingPayload.IsEmpty())
 		{
+			m_Batch.m_fDuration = GetDuration();
 			SyncAssignments();
 			m_sPendingPayload = m_Batch.Encode();
 			if (m_sPendingPayload.IsEmpty())
@@ -686,6 +727,8 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	override void OnGameEnd()
 	{
+		if (IsCollecting())
+			Sample();
 		if (m_bAwaitingFinal)
 			Finalize();
 		else if (IsCollecting() || !m_sPendingPayload.IsEmpty())
