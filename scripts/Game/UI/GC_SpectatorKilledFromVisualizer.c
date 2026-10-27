@@ -23,6 +23,8 @@ class GC_SpectatorKilledFromVisualizer
 	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
 	protected ref GC_KilledFromSnapshot m_Snapshot;
+	protected ref Color m_KillerFactionColor;
+	protected ref Color m_VictimFactionColor;
 	protected IEntity m_KillerPreviewEntity;
 	protected IEntity m_VictimPreviewEntity;
 	protected IEntity m_KillerVehiclePreviewEntity;
@@ -54,10 +56,8 @@ class GC_SpectatorKilledFromVisualizer
 			Print("GC | Killed From | event=visualizer-start result=rejected reason=marker-layout", LogLevel.ERROR);
 			return false;
 		}
-		ConfigureMarker(m_wKillerMarker, "KILLED YOU", Color.FromRGBA(235, 45, 70, 255));
-		ConfigureMarker(m_wVictimMarker, "YOU", Color.FromRGBA(65, 170, 255, 255));
 		m_Snapshot = snapshot;
-		UpdateKillerMarkerText();
+		UpdateMarkerPresentation();
 		if (snapshot)
 			PrintFormat("GC | Killed From | event=visualizer-start result=ready enabled=%1 snapshot={%2}", enabled, snapshot.GetDebugReport());
 		else
@@ -73,7 +73,7 @@ class GC_SpectatorKilledFromVisualizer
 		else
 			PrintFormat("GC | Killed From | event=visualizer-snapshot enabled=%1 killerPreview=%2 victimPreview=%3 snapshot=none", m_bEnabled, m_KillerPreviewEntity != null, m_VictimPreviewEntity != null);
 		m_Snapshot = snapshot;
-		UpdateKillerMarkerText();
+		UpdateMarkerPresentation();
 		m_bVisibilityReported = false;
 		DestroyPreview();
 		ClearLine();
@@ -573,13 +573,13 @@ class GC_SpectatorKilledFromVisualizer
 		if (outlineWorld)
 		{
 			if (m_KillerPreviewEntity)
-				outlineWorld.OutlineEntity(m_KillerPreviewEntity, Color.FromRGBA(235, 45, 70, 255), 1.0, 0.2, true, 2);
+				outlineWorld.OutlineEntity(m_KillerPreviewEntity, m_KillerFactionColor, 1.0, 0.2, true, 2);
 			if (m_KillerVehiclePreviewEntity)
-				outlineWorld.OutlineEntity(m_KillerVehiclePreviewEntity, Color.FromRGBA(235, 45, 70, 255), 1.0, 0.2, true, 2);
+				outlineWorld.OutlineEntity(m_KillerVehiclePreviewEntity, m_KillerFactionColor, 1.0, 0.2, true, 2);
 			if (m_VictimPreviewEntity)
-				outlineWorld.OutlineEntity(m_VictimPreviewEntity, Color.FromRGBA(65, 170, 255, 255), 1.0, 0.2, true, 2);
+				outlineWorld.OutlineEntity(m_VictimPreviewEntity, m_VictimFactionColor, 1.0, 0.2, true, 2);
 			if (m_VictimVehiclePreviewEntity)
-				outlineWorld.OutlineEntity(m_VictimVehiclePreviewEntity, Color.FromRGBA(65, 170, 255, 255), 1.0, 0.2, true, 2);
+				outlineWorld.OutlineEntity(m_VictimVehiclePreviewEntity, m_VictimFactionColor, 1.0, 0.2, true, 2);
 		}
 
 		bool traceVisible;
@@ -685,10 +685,16 @@ class GC_SpectatorKilledFromVisualizer
 		marker.SetVisible(false);
 	}
 
-	protected void UpdateKillerMarkerText()
+	//------------------------------------------------------------------------------------------------
+	protected void UpdateMarkerPresentation()
 	{
-		if (!m_wKillerMarker)
-			return;
+		m_KillerFactionColor = Color.FromInt(Color.WHITE);
+		m_VictimFactionColor = Color.FromInt(Color.WHITE);
+		if (m_Snapshot)
+		{
+			m_KillerFactionColor = Color.FromInt(m_Snapshot.GetKillerFactionColor());
+			m_VictimFactionColor = Color.FromInt(m_Snapshot.GetVictimFactionColor());
+		}
 
 		string markerText = "KILLED YOU";
 		if (m_Snapshot && !m_Snapshot.GetKillerDisplayName().IsEmpty())
@@ -699,10 +705,8 @@ class GC_SpectatorKilledFromVisualizer
 			markerText = killerDisplayName + " KILLED YOU";
 		}
 
-		TextWidget label = TextWidget.Cast(m_wKillerMarker.FindAnyWidget("LobbySpectatorKilledFromMarkerText"));
-		if (label)
-			label.SetText(markerText);
-		SizeMarkerLabel(m_wKillerMarker);
+		ConfigureMarker(m_wKillerMarker, markerText, m_KillerFactionColor);
+		ConfigureMarker(m_wVictimMarker, "YOU", m_VictimFactionColor);
 	}
 
 	protected void SizeMarkerLabel(Widget marker)

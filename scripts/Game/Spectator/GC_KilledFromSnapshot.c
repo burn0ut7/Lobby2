@@ -172,6 +172,8 @@ class GC_KilledFromSnapshot
 	static const int FLAG_WEAPON_ADS = 4;
 
 	protected ResourceName m_sKillerPrefab;
+	protected int m_iKillerFactionColor = Color.WHITE;
+	protected int m_iVictimFactionColor = Color.WHITE;
 	protected string m_sKillerDisplayName;
 	protected bool m_bKillerDisplayNameLocalized;
 	protected vector m_vKillerPosition;
@@ -308,6 +310,7 @@ class GC_KilledFromSnapshot
 
 	protected void CaptureKiller(IEntity killer)
 	{
+		m_iKillerFactionColor = CaptureFactionColor(killer);
 		m_sKillerDisplayName = string.Empty;
 		m_bKillerDisplayNameLocalized = false;
 		PlayerManager playerManager = GetGame().GetPlayerManager();
@@ -513,6 +516,7 @@ class GC_KilledFromSnapshot
 	//! Capture at impact, before possession loss and the later death presentation.
 	void CaptureVictimVisual(IEntity victim)
 	{
+		m_iVictimFactionColor = CaptureFactionColor(victim);
 		m_iVictimFlags = 0;
 		m_VictimVehicle = null;
 		m_VictimWeapon = null;
@@ -535,6 +539,33 @@ class GC_KilledFromSnapshot
 		CaptureCharacterState(victimCharacter, "victim", m_iVictimStance, m_fVictimDynamicStance, m_fVictimLean, m_vVictimAimingAngles, m_iVictimFlags);
 		m_VictimWeapon = new GC_KilledFromWeaponState();
 		m_VictimWeapon.Capture(victimCharacter);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Preserve affiliation at impact, including AI and characters later deleted.
+	//! White denotes an actor without an affiliated faction.
+	protected int CaptureFactionColor(IEntity entity)
+	{
+		if (!entity)
+			return Color.WHITE;
+
+		FactionAffiliationComponent affiliation = FactionAffiliationComponent.Cast(entity.FindComponent(FactionAffiliationComponent));
+		if (!affiliation || !affiliation.GetAffiliatedFaction())
+			return Color.WHITE;
+
+		return affiliation.GetAffiliatedFaction().GetFactionColor().PackToInt();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetKillerFactionColor()
+	{
+		return m_iKillerFactionColor;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetVictimFactionColor()
+	{
+		return m_iVictimFactionColor;
 	}
 
 	protected void CaptureVisual(IEntity entity, string role, out string loadout, out ResourceName visualObjectName, out vector rootTransform[4], out array<ref GC_KilledFromBonePose> bonePose)

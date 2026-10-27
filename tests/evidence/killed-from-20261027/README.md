@@ -106,3 +106,9 @@ diff changes; `git diff --check` passed. Existing compact getters and public eng
 RPC, serialized-field and reflection names were preserved. The live gear mutation
 coverage is removal of authored headgear; arbitrary newly added/modded equipment
 has not been exhaustively exercised.
+
+## Faction color follow-up
+
+Killer and victim outlines and marker accents now use each actor's native affiliated faction color captured with its pose at impact. Unaffiliated actors use white; role labels remain distinct for same-faction kills. Two packed integers are carried by the existing death snapshot, with no new stream or per-frame faction queries.
+
+Source diff and readability checks passed. Live compile, serialization round-trip, and visual checks for this follow-up remain unverified: the configured shared Reforger MCP HTTP endpoint refused the connection on 2026-10-27, and no Reforger tools were exposed in the session. Earlier screenshots and runtime evidence above predate this color change.
