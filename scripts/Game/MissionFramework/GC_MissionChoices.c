@@ -7,20 +7,30 @@ class GC_MissionFlagChoices
 	array<string> GetChoices(WorldEditorAPI api)
 	{
 		array<string> values = {};
+		set<IEntitySource> visited = new set<IEntitySource>();
 		for (int i; i < api.GetEditorEntityCount(); i++)
-		{
-			IEntitySource entity = api.GetEditorEntity(i);
-			if (!entity)
-				continue;
-			for (int j; j < entity.GetComponentCount(); j++)
-			{
-				IEntityComponentSource component = entity.GetComponent(j);
-				typename componentType = component.GetClassName().ToType();
-				if (componentType && (componentType.IsInherited(GC_LobbyManager) || componentType.IsInherited(ActionsManagerComponent)))
-					Collect(component, values);
-			}
-		}
+			CollectEntity(api.GetEditorEntity(i), values, visited);
 		return values;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CollectEntity(IEntitySource entity, array<string> values, set<IEntitySource> visited)
+	{
+		if (!entity || visited.Contains(entity))
+			return;
+		visited.Insert(entity);
+		typename entityType = entity.GetClassName().ToType();
+		if (entityType && entityType.IsInherited(GC_MissionAuthoringEntity))
+			Collect(entity, values);
+		for (int j; j < entity.GetComponentCount(); j++)
+		{
+			IEntityComponentSource component = entity.GetComponent(j);
+			typename componentType = component.GetClassName().ToType();
+			if (componentType && (componentType.IsInherited(GC_LobbyManager) || componentType.IsInherited(ActionsManagerComponent)))
+				Collect(component, values);
+		}
+		for (int child; child < entity.GetNumChildren(); child++)
+			CollectEntity(IEntitySource.Cast(entity.GetChild(child)), values, visited);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -32,11 +42,12 @@ class GC_MissionFlagChoices
 		if (!sourceType)
 			return;
 		string name;
-		if (sourceType.IsInherited(GC_MissionFlag))
+		if (sourceType.IsInherited(GC_MissionFlag) || sourceType.IsInherited(GC_MissionFlagEntity))
 			source.Get("m_sName", name);
-		else if (sourceType.IsInherited(GC_SetFlagAction) || sourceType.IsInherited(GC_RandomFlagAction) || sourceType.IsInherited(GC_SetFlagInteraction))
+		else if (sourceType.IsInherited(GC_SetFlagAction) || sourceType.IsInherited(GC_RandomFlagAction) || sourceType.IsInherited(GC_SetFlagInteraction)
+			|| sourceType.IsInherited(GC_SetFlagActionEntity) || sourceType.IsInherited(GC_RandomFlagActionEntity))
 			source.Get("m_sFlag", name);
-		else if (sourceType.IsInherited(GC_ChooseFlagsAction))
+		else if (sourceType.IsInherited(GC_ChooseFlagsAction) || sourceType.IsInherited(GC_ChooseFlagsActionEntity))
 		{
 			array<string> names = {};
 			source.Get("m_aFlags", names);

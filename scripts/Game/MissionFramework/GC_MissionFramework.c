@@ -14,10 +14,18 @@ class GC_MissionFramework
 		if (!Replication.IsServer() || !manager || GC_LobbyManager.GetManager() != manager)
 			return;
 		m_Manager = manager;
-		m_aEvents = events;
-		if (!m_aEvents)
-			m_aEvents = {};
-		m_aFlags = flags;
+		m_aEvents = {};
+		if (events)
+		{
+			foreach (GC_MissionEvent definition : events)
+				m_aEvents.Insert(definition);
+		}
+		m_aFlags = {};
+		if (flags)
+		{
+			foreach (GC_MissionFlag flag : flags)
+				m_aFlags.Insert(flag);
+		}
 		// Other world entities, including the faction manager, initialize first.
 		GetGame().GetCallqueue().CallLater(Initialize, 0);
 	}
@@ -31,6 +39,13 @@ class GC_MissionFramework
 			return;
 		}
 		GC_LobbyMissionContext context = new GC_LobbyMissionContext(m_Manager);
+		string authoringError;
+		if (!GC_MissionAuthoringEntity.Collect(m_Manager.GetOwner().GetWorld(), m_aEvents, m_aFlags, authoringError))
+		{
+			PrintFormat("GC | Mission Framework | invalid entity configuration: %1", authoringError, level: LogLevel.ERROR);
+			Stop();
+			return;
+		}
 		m_Runtime = new GC_MissionRuntime();
 		if (m_Runtime.Start(context, m_aEvents, m_aFlags))
 			GetGame().GetCallqueue().CallLater(Tick, 250, true);

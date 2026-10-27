@@ -1,0 +1,15 @@
+GC_MissionEventEntity {
+ ID "8B21B36EA883413A"
+ m_sName "Objective completed"
+ {
+  GC_FlagConditionEntity FlagIsSet {
+   ID "B49F02D7FC164B15"
+   m_sFlag "Objective complete"
+  }
+  GC_SetFlagActionEntity SetFlag {
+   ID "8E5DFCC458204912"
+   m_sFlag "Next objective available"
+   m_bSet 1
+  }
+ }
+}
