@@ -124,18 +124,29 @@ ORDER BY session_id, sequence;
 ## Optional replay telemetry
 
 Recording is disabled by default. On the active server `GC_SessionLogComponent`,
-`SetTelemetry(requesterPlayerId, enabled, skeletal)` checks the current authenticated
+`SetTelemetry(requesterPlayerId, enabled, quotaMiB = 1024)` checks the current authenticated
 admin through the production authority gate. `GetTelemetryReport()` reports identity,
 closure/drop status and sampling/write time. These server-side methods can be called
 through generic MCP runtime invocation in embedded Play. This slice adds no player
 menu or remote-client start/stop RPC.
 
-State mode targets 5 Hz: world transform, velocity/speed, stance, aim/look, lean,
-dynamic stance, ADS/raised/reload/sprint/freelook flags, weapon and sight selection.
-Skeletal mode adds native local bone matrices and held-weapon relative transform
-at 1 Hz. This is sampled geometry, not animation-graph serialization or frame-perfect
-playback. Gear, faction and ownership are checked every five seconds; changes shorter
-than that interval may be missed.
+Schema 2 targets 5 Hz with compact animation inputs: position, Euler angles in
+native degrees, velocity, stance, aim/look, lean, dynamic stance and
+ADS/raised/reload/sprint/freelook flags. No bones, skeleton definitions, weapon
+matrices or ragdolls are recorded. The viewer selects/blends compatible animations;
+these inputs do not reproduce exact original animation frames. Positions, angles,
+velocity and animation scalars are serialized to three decimal places. States are compared before JSON allocation: position/velocity/angular vectors
+use a 0.001 magnitude threshold and lean/stance-height/movement scalars use 0.001,
+relative to the last emitted state. Discrete flags/commands/stance remain exact.
+Sub-threshold changes accumulate; a five-second heartbeat refreshes all values. Each emitted state is a
+full snapshot, not a delta dependency chain. Equipment selection is a change event;
+speed is derived from velocity. Gear, faction and ownership are checked every five
+seconds; changes shorter than that interval may be missed.
+
+Death records include final position/orientation, terminate sampling of that life,
+and leave a marker or standard death pose in playback. Respawn gets a new ID.
+A maximum of 256 active actors is separate from 256 bounded retired identity
+entries, so successive lives no longer consume permanent sampling slots.
 
 Discovery selects connected players. Characters involved in recorded damage/death
 and occupied vehicles are also tracked. It does not survey every AI. Player shot and
@@ -145,20 +156,24 @@ Damage is the engine's reported value, not inferred health removed. Unknown attr
 remains empty/zero. Header `actors: players` describes discovery; AI can appear through
 combat events.
 
-Sampling visits at most 16 actors per frame and yields after an actor when elapsed
-work reaches 2 ms or queued text reaches 64 KiB. One actor can exceed that budget;
-sample rates are targets. Writes occur at five seconds or 96 KiB queued text.
-Publication is synchronous and timed separately. No additional client RPCs or
-database requests are introduced in the game.
+Sampling waits at the next due actor in its ordered cursor rather than scanning
+all actors every frame, and yields after an actor when elapsed work
+reaches 2 ms or queued text reaches 64 KiB. There is no 16-actor ceiling. Discovery
+visits up to eight connected players per callback. One actor can exceed the soft
+budget; sample rates remain targets. Writes occur at five seconds, 64 KiB or
+384 queued records. Publication is synchronous and timed separately. No additional
+client RPCs or database requests are introduced in the game.
 
-Limits: 256 actor lives, 4096 recent projectile identities, 8192 damage links,
-512 queued records, 128 KiB encoded text, approximately 64 MiB per recording.
-Overflow/storage errors stop recording explicitly. Failed publication retains its
+Limits: 256 active actors, 4096 recent projectile identities, 8192 damage links,
+512 queued records and 128 KiB encoded text. The authenticated start operation
+accepts a recording quota of 64–8192 MiB (default 1024 MiB). Files already rotate as
+bounded revision batches; the aggregate quota stops the recording explicitly rather
+than silently dropping old history. It is not a global disk quota or retention
+policy. Overflow/storage errors remain explicit. Failed publication retains its
 pending payload in memory; shutdown makes a bounded retry and can leave an unsealed
-recording. A new recording requires the previous one to be sealed. Files remain on
-disk: operators must manage retention/free space. This is not a global disk quota.
-A 128-player benchmark remains outstanding; small embedded-host tests cannot certify
-that load, especially with skeletal capture enabled.
+recording. A new recording requires the previous one to be sealed. Operators must
+manage total disk retention/free space. Actual 128-player multiplayer capacity must
+still be measured; removing bones does not establish a server/client benchmark.
 
 The local proof deployment is outside both repositories at
 `C:\Users\Gray\Documents\Lobby2Data`. Its `Import.cmd` snapshots all four ready
@@ -226,23 +241,23 @@ stores these references; it does not download or execute them.
   Emit a baseline for every selected entity already present when recording starts.
 - `appearance`: monotonically revised faction, visual resource and native
   `SCR_PlayerArsenalLoadout` payload. Capture changes, not every position sample.
-- `state`: root matrix, world velocity in metres/second, explicit scalar speed,
-  aim/look radians, stance, command, flags, lean, dynamic stance, movement amount,
-  weapon prefab/index and sights index. Stance follows the native 0–2 enum;
-  flags use spectator meanings ADS=1, raised=2, reloading=4, sprinting=8, freelook=16.
-  `discontinuity` prevents interpolation through teleport or initial placement.
-- `skeleton`, `pose`: ordered unique bone names linked to a visual resource;
-  native bone-local matrices in that order, plus optional held-weapon transform
-  relative to the actor. Matrices are 12 floats: basis rows 0, 1, 2, then translation
-  row 3, each XYZ, matching Enfusion's four-vector matrices. Root translation is
-  world metres; bone and weapon translations are local metres. Bone matrix
-  interpretation must be checked against the killed-from renderer and external
-  asset bind transforms. Interpolate rotations with a verified decomposition,
-  never element-by-element matrix blending. Commands/stance alone are **not** a
-  complete animation-graph save. Poses capture sampled skeletal geometry, not
-  animation internals, cloth, facial state or every intervening frame.
+- `state`: `position`, `anglesDegrees`, world `velocity`, aim/look radians,
+  stance, command, flags, lean, dynamic stance and movement amount. Stance follows
+  native 0–2; flags are ADS=1, raised=2, reloading=4, sprinting=8, freelook=16.
+  `previousSampleMs` is the last actual observation before this state. Hold the
+  preceding state until that time, then interpolate to `timeMs`; do not interpolate
+  across the entire silence between changed records. `discontinuity` prohibits
+  interpolation on first capture, teleports and observation gaps over one second.
+  Five-second heartbeats carry the same complete fields. Resolve Euler wrapping
+  using shortest-arc rotations; do not linearly blend wrapped angle values.
+- `equipment`: changed weapon prefab, native inventory weapon index and sights
+  index, separate from animation states. `-1` indices and empty prefab mean none.
+- Schema 1 remains readable for existing archived captures (matrix/speed and
+  optional skeleton/pose records). Schema 2 rejects bones and redundant speed/root
+  matrix fields. Apply `migrations/002_compact_telemetry.sql` to existing databases
+  before deploying the new importer. Fresh databases use `schema.sql`.
 - `seat`: entity-to-vehicle ID, native compartment type and seat index; empty
-  vehicle and both indices -1 mean dismounted. Record vehicle roots separately with `vehicle-state` (root matrix, world velocity, speed and discontinuity); do not invent infantry stance values for vehicles.
+  vehicle and both indices -1 mean dismounted. Record vehicle roots separately with `vehicle-state` (position, anglesDegrees, world velocity, previousSampleMs and discontinuity); do not invent infantry stance values for vehicles.
 - `shot`, `grenade`: launch origin, velocity, shooter, projectile and weapon
   resources. `projectile-sample` records observed flight. Initial velocity alone
   does not establish the complete path, ricochets, penetration or a final hit.
@@ -254,8 +269,8 @@ stores these references; it does not download or execute them.
 - `gap`: affected track, time interval, count and reason. Playback must expose
   missing evidence and avoid interpolating across an unknown interval.
 
-`coverage` declares actors (`players` or `players-and-ai`), pose fidelity (`state`
-or `skeletal`), and booleans for shots, impacts, damage, grenades, vehicles and gear.
+`coverage` declares actors (`players` or `players-and-ai`), pose fidelity (`inferred`
+for schema 2; `state` or `skeletal` for archived schema 1), and booleans for shots, impacts, damage, grenades, vehicles and gear.
 Coverage is a producer declaration, not evidence checked against the game by the
 importer. Record references (including skeleton counts and appearance revisions)
 need a stateful decoder check before playback; the importer validates individual
@@ -268,13 +283,13 @@ Keep existing statistics enabled independently. Begin evaluation at 5 Hz for roo
 and semantic state, distributing capture over frames and preserving actual sample
 times. Do not copy the full killed-from capture into every sample: the earlier
 measured 6–7 ms for two actors is unsuitable as a 128-player sampling strategy.
-Exact skeletal recording needs its own measured cadence and explicit coverage.
+Exact skeletal/ragdoll playback is deliberately outside this recorder.
 Starting/stopping must create boundaries and baseline state, with authenticated
 server authority for administrative changes.
 
 Bound actor/projectile counts, per-frame capture work, queued bytes, encoded chunk
-size and retained disk bytes. Reserve room for gap and terminal metadata. Coalesce
-replaceable motion observations under pressure, report gaps, and stop optional
+size and retained disk bytes. Reserve room for gap and terminal metadata. Do not silently discard
+replaceable motion observations under pressure; report gaps or stop optional
 recording on sustained overflow/storage failure without stopping statistics.
 Do not silently label a partial recording complete. Native serialization/file
 writes still run on the game thread; the existing verified outbox writes and

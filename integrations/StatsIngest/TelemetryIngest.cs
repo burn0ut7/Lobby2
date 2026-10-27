@@ -24,7 +24,7 @@ internal static class TelemetryIngest
         {
             using var stored = JsonDocument.Parse(reader.GetString(0));
             var other = stored.RootElement;
-            foreach (var name in new[] { "missionId", "startedAt", "world", "gameVersion", "assetManifestId", "clock", "coordinates", "sampleHz", "coverage" })
+            foreach (var name in new[] { "schemaVersion", "missionId", "startedAt", "world", "gameVersion", "assetManifestId", "clock", "coordinates", "sampleHz", "coverage" })
                 if (!JsonElement.DeepEquals(incoming.GetProperty(name), other.GetProperty(name)))
                     throw new InvalidDataException("Telemetry recording metadata changed.");
             var otherRevision = other.GetProperty("revision").GetInt32();

@@ -4,7 +4,7 @@ class GC_TelemetryActor
 	protected GC_TelemetryRecorder m_Recorder;
 	protected IEntity m_Entity;
 	protected string m_sId;
-	protected string m_sNativeId;
+	protected EntityID m_NativeId;
 	protected string m_sIdentity;
 	protected string m_sLoadout;
 	protected string m_sFaction;
@@ -13,12 +13,17 @@ class GC_TelemetryActor
 	protected int m_iCompartment = -2;
 	protected int m_iAppearanceRevision;
 	protected float m_fLastSample = -1000;
-	protected float m_fLastPose = -1000;
 	protected float m_fLastAppearance = -5000;
 	protected bool m_bEnded;
-	protected bool m_bSkeleton;
-	protected ref array<string> m_aBoneNames = {};
-	protected ref array<TNodeId> m_aBoneIds = {};
+	protected ref GC_SpectatorSample m_LastState;
+	protected vector m_vWrittenPosition;
+	protected vector m_vWrittenAngles;
+	protected vector m_vWrittenVelocity;
+	protected bool m_bWrittenDiscontinuity;
+	protected string m_sWeapon;
+	protected int m_iWeapon = -2;
+	protected int m_iSights = -2;
+	protected float m_fLastWritten = -5000;
 	protected vector m_vLastPosition;
 
 	//------------------------------------------------------------------------------------------------
@@ -34,9 +39,9 @@ class GC_TelemetryActor
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GetNativeId()
+	EntityID GetNativeId()
 	{
-		return m_sNativeId;
+		return m_NativeId;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -45,7 +50,7 @@ class GC_TelemetryActor
 		m_Recorder = recorder;
 		m_Entity = entity;
 		m_sId = id;
-		m_sNativeId = entity.GetID().ToString();
+		m_NativeId = entity.GetID();
 		if (wasPlayer)
 			m_sIdentity = identity;
 		int playerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(entity);
@@ -65,9 +70,8 @@ class GC_TelemetryActor
 		context.WriteValue("prefab", prefab);
 		context.WriteValue("playerIdentity", m_sIdentity);
 		context.WriteValue("faction", FactionKey());
-		vector transform[4];
-		entity.GetWorldTransform(transform);
-		context.WriteValue("transform", GC_TelemetryRecorder.FlattenMatrix(transform));
+		GC_TelemetryRecorder.WriteVector(context, "position", entity.GetOrigin());
+		GC_TelemetryRecorder.WriteVector(context, "anglesDegrees", entity.GetAngles());
 		recorder.CommitRecord(context);
 	}
 
@@ -81,7 +85,29 @@ class GC_TelemetryActor
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Sample()
+	bool IsDue(float now)
+	{
+		return m_bEnded || now - m_fLastSample >= 200;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool HasEnded()
+	{
+		return m_bEnded;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Finish()
+	{
+		Sample(true);
+		m_bEnded = true;
+		m_LastState = null;
+		m_sLoadout = string.Empty;
+		m_sWeapon = string.Empty;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Sample(bool finalState = false)
 	{
 		if (m_bEnded)
 			return;
@@ -94,77 +120,139 @@ class GC_TelemetryActor
 			m_bEnded = true;
 			return;
 		}
-		float now = m_Recorder.Now();
-		if (now - m_fLastSample < 200)
+		ChimeraCharacter observed = ChimeraCharacter.Cast(m_Entity);
+		if (!finalState && observed && observed.GetCharacterController() && observed.GetCharacterController().IsDead())
+		{
+			// An uncredited AI death may not enter the player statistics stream.
+			Finish();
+			JsonSaveContext ended = m_Recorder.BeginRecord("despawn");
+			ended.WriteValue("entity", m_sId);
+			ended.WriteValue("reason", "dead");
+			m_Recorder.CommitRecord(ended);
 			return;
-		vector transform[4];
-		m_Entity.GetWorldTransform(transform);
-		vector velocity;
-		if (m_Entity.GetPhysics())
-			velocity = m_Entity.GetPhysics().GetVelocity();
-		bool discontinuity = m_fLastSample < 0 || now - m_fLastSample > 1000 || vector.DistanceSq(m_vLastPosition, transform[3]) > 10000;
-		m_vLastPosition = transform[3];
-		m_fLastSample = now;
+		}
+		float now = m_Recorder.Now();
+		if (!finalState && now - m_fLastSample < 200)
+			return;
 		ChimeraCharacter character = ChimeraCharacter.Cast(m_Entity);
-		string type = "vehicle-state";
-		if (character)
-			type = "state";
-		JsonSaveContext context = m_Recorder.BeginRecord(type);
-		context.WriteValue("entity", m_sId);
-		context.WriteValue("transform", GC_TelemetryRecorder.FlattenMatrix(transform));
-		GC_TelemetryRecorder.WriteVector(context, "velocity", velocity);
-		context.WriteValue("speedMps", velocity.Length());
-		context.WriteValue("discontinuity", discontinuity);
+		GC_SpectatorSample sample;
 		if (character)
 		{
-			GC_SpectatorSample sample = new GC_SpectatorSample();
+			sample = new GC_SpectatorSample();
 			if (!sample.CaptureCharacter(character))
 				return;
 			CharacterControllerComponent controller = character.GetCharacterController();
 			if (controller.IsWeaponADS() || controller.GetInputContext().IsWeaponADS())
 				sample.m_iFlags |= GC_SpectatorSample.FLAG_ADS;
-			GC_TelemetryRecorder.WriteVector(context, "aimRadians", sample.m_vAimAngles);
-			GC_TelemetryRecorder.WriteVector(context, "lookRadians", sample.m_vLookAngles);
-			context.WriteValue("stance", sample.m_iStance);
-			context.WriteValue("command", sample.m_iCommand);
-			context.WriteValue("flags", sample.m_iFlags);
-			context.WriteValue("lean", sample.m_fLean);
-			context.WriteValue("dynamicStance", sample.m_fDynamicStance);
-			context.WriteValue("movement", sample.m_fMovement);
-			CharacterWeaponManagerComponent manager = CharacterWeaponManagerComponent.Cast(character.FindComponent(CharacterWeaponManagerComponent));
-			string weaponPrefab;
-			int weaponIndex = -1;
-			int sightsIndex = -1;
-			if (manager)
-			{
-				BaseWeaponComponent weapon = manager.GetCurrentWeapon();
-				if (weapon && weapon.GetOwner() && weapon.GetOwner().GetPrefabData())
-				{
-					weaponPrefab = weapon.GetOwner().GetPrefabData().GetPrefabName();
-					array<IEntity> weapons = {};
-					manager.GetWeaponsList(weapons);
-					weaponIndex = weapons.Find(weapon.GetOwner());
-					sightsIndex = manager.GetCurrentSightsIndex();
-				}
-			}
-			context.WriteValue("weaponPrefab", weaponPrefab);
-			context.WriteValue("weaponIndex", weaponIndex);
-			context.WriteValue("sightsIndex", sightsIndex);
 		}
-		m_Recorder.CommitRecord(context);
+		float previousSample = Math.Max(0, m_fLastSample);
+		vector position = m_Entity.GetOrigin();
+		vector angles = m_Entity.GetAngles();
+		vector velocity;
+		if (m_Entity.GetPhysics())
+			velocity = m_Entity.GetPhysics().GetVelocity();
+		bool discontinuity = m_fLastSample < 0 || now - m_fLastSample > 1000 || vector.DistanceSq(m_vLastPosition, position) > 10000;
+		// Advance only after a successful observation, not a failed capture attempt.
+		m_vLastPosition = position;
+		m_fLastSample = now;
+		bool changed = finalState || now - m_fLastWritten >= 5000 || discontinuity != m_bWrittenDiscontinuity;
+		changed = changed || vector.DistanceSq(position, m_vWrittenPosition) >= 0.000001;
+		changed = changed || vector.DistanceSq(angles, m_vWrittenAngles) >= 0.000001;
+		changed = changed || vector.DistanceSq(velocity, m_vWrittenVelocity) >= 0.000001;
+		if (sample)
+			changed = changed || AnimationChanged(sample);
+		if (changed)
+		{
+			// Compare numeric inputs before allocating/serializing JSON at 128 actors.
+			JsonSaveContext context = new JsonSaveContext();
+			context.SetMaxDecimalPlaces(3);
+			context.WriteValue("entity", m_sId);
+			GC_TelemetryRecorder.WriteVector(context, "position", position);
+			GC_TelemetryRecorder.WriteVector(context, "anglesDegrees", angles);
+			GC_TelemetryRecorder.WriteVector(context, "velocity", velocity);
+			context.WriteValue("discontinuity", discontinuity);
+			string type = "vehicle-state";
+			if (sample)
+			{
+				type = "state";
+				GC_TelemetryRecorder.WriteVector(context, "aimRadians", sample.m_vAimAngles);
+				GC_TelemetryRecorder.WriteVector(context, "lookRadians", sample.m_vLookAngles);
+				context.WriteValue("stance", sample.m_iStance);
+				context.WriteValue("command", sample.m_iCommand);
+				context.WriteValue("flags", sample.m_iFlags);
+				context.WriteValue("lean", sample.m_fLean);
+				context.WriteValue("dynamicStance", sample.m_fDynamicStance);
+				context.WriteValue("movement", sample.m_fMovement);
+			}
+			string state = context.SaveToString();
+			// Hold the preceding state until this observation window, then interpolate.
+			JsonSaveContext window = new JsonSaveContext();
+			window.SetMaxDecimalPlaces(6);
+			window.WriteValue("previousSampleMs", previousSample);
+			string timing = window.SaveToString();
+			m_Recorder.CommitData(type, state.Substring(0, state.Length() - 1) + "," + timing.Substring(1, timing.Length() - 1));
+			m_LastState = sample;
+			m_vWrittenPosition = position;
+			m_vWrittenAngles = angles;
+			m_vWrittenVelocity = velocity;
+			m_bWrittenDiscontinuity = discontinuity;
+			m_fLastWritten = now;
+		}
 		if (!character)
 			return;
+		SampleEquipment(character);
 		SampleSeat(character);
 		if (now - m_fLastAppearance >= 5000)
 		{
 			m_fLastAppearance = now;
-			SampleAppearance();
+			SampleAppearance(finalState);
 		}
-		if (m_Recorder.CapturesSkeleton() && now - m_fLastPose >= 1000)
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool AnimationChanged(GC_SpectatorSample sample)
+	{
+		if (!m_LastState)
+			return true;
+		return sample.m_iStance != m_LastState.m_iStance || sample.m_iCommand != m_LastState.m_iCommand
+			|| sample.m_iFlags != m_LastState.m_iFlags
+			|| vector.DistanceSq(sample.m_vAimAngles, m_LastState.m_vAimAngles) >= 0.000001
+			|| vector.DistanceSq(sample.m_vLookAngles, m_LastState.m_vLookAngles) >= 0.000001
+			|| Math.AbsFloat(sample.m_fLean - m_LastState.m_fLean) >= 0.001
+			|| Math.AbsFloat(sample.m_fDynamicStance - m_LastState.m_fDynamicStance) >= 0.001
+			|| Math.AbsFloat(sample.m_fMovement - m_LastState.m_fMovement) >= 0.001;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SampleEquipment(ChimeraCharacter character)
+	{
+		CharacterWeaponManagerComponent manager = CharacterWeaponManagerComponent.Cast(character.FindComponent(CharacterWeaponManagerComponent));
+		string weaponPrefab;
+		int weaponIndex = -1;
+		int sightsIndex = -1;
+		if (manager)
 		{
-			m_fLastPose = now;
-			SamplePose();
+			BaseWeaponComponent weapon = manager.GetCurrentWeapon();
+			if (weapon && weapon.GetOwner() && weapon.GetOwner().GetPrefabData())
+			{
+				weaponPrefab = weapon.GetOwner().GetPrefabData().GetPrefabName();
+				array<IEntity> weapons = {};
+				manager.GetWeaponsList(weapons);
+				weaponIndex = weapons.Find(weapon.GetOwner());
+				sightsIndex = manager.GetCurrentSightsIndex();
+			}
 		}
+		if (weaponPrefab == m_sWeapon && weaponIndex == m_iWeapon && sightsIndex == m_iSights)
+			return;
+		JsonSaveContext equipment = m_Recorder.BeginRecord("equipment");
+		equipment.WriteValue("entity", m_sId);
+		equipment.WriteValue("weaponPrefab", weaponPrefab);
+		equipment.WriteValue("weaponIndex", weaponIndex);
+		equipment.WriteValue("sightsIndex", sightsIndex);
+		m_Recorder.CommitRecord(equipment);
+		m_sWeapon = weaponPrefab;
+		m_iWeapon = weaponIndex;
+		m_iSights = sightsIndex;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -208,7 +296,7 @@ class GC_TelemetryActor
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void SampleAppearance()
+	protected void SampleAppearance(bool finalState)
 	{
 		if (!m_Entity.GetVObject())
 			return;
@@ -216,7 +304,7 @@ class GC_TelemetryActor
 		string identity;
 		if (playerId > 0)
 			identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
-		if (identity != m_sIdentity)
+		if (!finalState && identity != m_sIdentity)
 		{
 			m_sIdentity = identity;
 			JsonSaveContext owner = m_Recorder.BeginRecord("ownership");
@@ -250,57 +338,4 @@ class GC_TelemetryActor
 		m_Recorder.CommitRecord(context);
 	}
 
-	//------------------------------------------------------------------------------------------------
-	protected void SamplePose()
-	{
-		Animation animation = m_Entity.GetAnimation();
-		if (!animation || !m_Entity.GetVObject())
-			return;
-		if (!m_bSkeleton)
-		{
-			m_aBoneNames.Clear();
-			m_aBoneIds.Clear();
-			array<string> names = {};
-			animation.GetBoneNames(names);
-			foreach (string name : names)
-			{
-				TNodeId bone = animation.GetBoneIndex(name);
-				vector matrix[4];
-				if (!animation.GetBoneLocalMatrix(bone, matrix))
-					continue;
-				m_aBoneNames.Insert(name);
-				m_aBoneIds.Insert(bone);
-			}
-			if (m_aBoneNames.IsEmpty() || m_aBoneNames.Count() > 512)
-				return;
-			JsonSaveContext skeleton = m_Recorder.BeginRecord("skeleton");
-			skeleton.WriteValue("skeletonId", m_sId);
-			skeleton.WriteValue("visualResource", m_Entity.GetVObject().GetResourceName());
-			skeleton.WriteValue("bones", m_aBoneNames);
-			m_bSkeleton = m_Recorder.CommitRecord(skeleton) > 0;
-			if (!m_bSkeleton)
-				return;
-		}
-		array<ref array<float>> matrices = {};
-		foreach (TNodeId id : m_aBoneIds)
-		{
-			vector local[4];
-			if (!animation.GetBoneLocalMatrix(id, local))
-				return;
-			matrices.Insert(GC_TelemetryRecorder.FlattenMatrix(local));
-		}
-		JsonSaveContext context = m_Recorder.BeginRecord("pose");
-		context.WriteValue("entity", m_sId);
-		context.WriteValue("skeletonId", m_sId);
-		context.WriteValue("localMatrices", matrices);
-		GC_KilledFromWeaponState weapon = new GC_KilledFromWeaponState();
-		weapon.Capture(m_Entity);
-		if (weapon.IsValid())
-		{
-			vector relative[4];
-			weapon.GetActorRelativeTransform(relative);
-			context.WriteValue("weaponRelativeTransform", GC_TelemetryRecorder.FlattenMatrix(relative));
-		}
-		m_Recorder.CommitRecord(context);
-	}
 }

@@ -12,7 +12,11 @@ class GC_TelemetryRecorder
 	protected int m_iRevision;
 	protected int m_iRecordCount;
 	protected int m_iDropped;
-	protected int m_iBytes;
+	protected float m_fBytes;
+	protected float m_fByteLimit;
+	protected int m_iActorSequence;
+	protected int m_iRetiredCursor;
+	protected ref array<ref GC_TelemetryActor> m_aRetired = {};
 	protected int m_iCursor;
 	protected int m_iSteps;
 	protected int m_iCaptureMs;
@@ -23,7 +27,6 @@ class GC_TelemetryRecorder
 	protected float m_fLastDiscovery = -1000;
 	protected float m_fLastFlush;
 	protected bool m_bRunning;
-	protected bool m_bSkeletal;
 	protected bool m_bSealed;
 	protected bool m_bPendingClosed;
 	protected ref array<int> m_aPlayers = {};
@@ -37,13 +40,12 @@ class GC_TelemetryRecorder
 	protected ref map<int, int> m_mDamageSequences = new map<int, int>();
 	static const string OUTBOX = "$profile:Lobby2Telemetry";
 	static const int MAX_QUEUED_BYTES = 131072;
-	static const int MAX_RECORDING_BYTES = 67108864;
 
 	//------------------------------------------------------------------------------------------------
-	void Start(GC_SessionLogComponent logs, bool skeletal)
+	void Start(GC_SessionLogComponent logs, int quotaMiB)
 	{
 		m_Logs = logs;
-		m_bSkeletal = skeletal;
+		m_fByteLimit = quotaMiB * 1048576.0;
 		m_sRecordingId = PersistenceIdUtils.Generate();
 		m_fFrom = logs.GetSessionMilliseconds();
 		m_fLastFlush = m_fFrom;
@@ -65,12 +67,6 @@ class GC_TelemetryRecorder
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool CapturesSkeleton()
-	{
-		return m_bSkeletal;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	float Now()
 	{
 		return m_Logs.GetSessionMilliseconds();
@@ -79,8 +75,9 @@ class GC_TelemetryRecorder
 	//------------------------------------------------------------------------------------------------
 	string Report()
 	{
-		return string.Format("recording=%1 running=%2 sealed=%3 records=%4 batches=%5 bytes=%6 dropped=%7 actors=%8", m_sRecordingId, m_bRunning, m_bSealed, m_iSequence, m_iRevision, m_iBytes, m_iDropped, m_aActors.Count())
-			+ string.Format(" steps=%1 captureMs=%2 maxCaptureMs=%3 writeMs=%4 maxWriteMs=%5 stop=%6", m_iSteps, m_iCaptureMs, m_iMaxCaptureMs, m_iWriteMs, m_iMaxWriteMs, m_sStopReason);
+		return string.Format("recording=%1 running=%2 sealed=%3 records=%4 batches=%5 bytes=%6 dropped=%7 actors=%8", m_sRecordingId, m_bRunning, m_bSealed, m_iSequence, m_iRevision, m_fBytes, m_iDropped, m_aActors.Count())
+			+ string.Format(" steps=%1 captureMs=%2 maxCaptureMs=%3 writeMs=%4 maxWriteMs=%5 stop=%6", m_iSteps, m_iCaptureMs, m_iMaxCaptureMs, m_iWriteMs, m_iMaxWriteMs, m_sStopReason)
+			+ " quotaMiB=" + (m_fByteLimit / 1048576.0);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -123,7 +120,32 @@ class GC_TelemetryRecorder
 			return 0;
 		context.EndObject();
 		string record = context.SaveToString();
-		if (!context.IsValid() || record.Length() < 2 || m_sRecords.Length() + record.Length() + 1 > MAX_QUEUED_BYTES || m_iRecordCount >= 512)
+		if (!context.IsValid())
+		{
+			Stop("overflow");
+			return 0;
+		}
+		return CommitEncoded(record);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int CommitData(string type, string data)
+	{
+		JsonSaveContext header = new JsonSaveContext();
+		header.SetMaxDecimalPlaces(6);
+		header.WriteValue("sequence", m_iSequence + 1);
+		header.WriteValue("timeMs", Now());
+		header.WriteValue("type", type);
+		string encoded = header.SaveToString();
+		return CommitEncoded(encoded.Substring(0, encoded.Length() - 1) + ",\"data\":" + data + "}");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected int CommitEncoded(string record)
+	{
+		if (!m_bRunning)
+			return 0;
+		if (record.Length() < 2 || m_sRecords.Length() + record.Length() + 1 > MAX_QUEUED_BYTES || m_iRecordCount >= 512)
 		{
 			m_iDropped++;
 			Stop("overflow");
@@ -144,25 +166,16 @@ class GC_TelemetryRecorder
 	}
 
 	//------------------------------------------------------------------------------------------------
-	static array<float> FlattenMatrix(vector matrix[4])
-	{
-		array<float> values = {};
-		for (int row; row < 4; row++)
-		{
-			for (int axis; axis < 3; axis++)
-				values.Insert(matrix[row][axis]);
-		}
-		return values;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	GC_TelemetryActor Track(IEntity entity, bool wasPlayer = false, string identity = "")
+	GC_TelemetryActor Track(IEntity entity, bool wasPlayer = false, string identity = "", bool deathEvent = false)
 	{
 		if (!m_bRunning || !entity || !entity.GetPrefabData() || (!ChimeraCharacter.Cast(entity) && !Vehicle.Cast(entity)) || entity.FindComponent(GC_LobbySpectatorBodyComponent))
 			return null;
 		GC_TelemetryActor actor = m_mActors.Get(entity.GetID());
 		if (actor && actor.GetEntity() == entity)
 			return actor;
+		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
+		if (!deathEvent && character && character.GetCharacterController() && character.GetCharacterController().IsDead())
+			return null;
 		if (m_aActors.Count() >= 256)
 		{
 			m_iDropped++;
@@ -172,7 +185,7 @@ class GC_TelemetryRecorder
 		actor = new GC_TelemetryActor();
 		m_aActors.Insert(actor);
 		m_mActors.Set(entity.GetID(), actor);
-		actor.Start(this, entity, "entity-" + m_aActors.Count(), wasPlayer, identity);
+		actor.Start(this, entity, "entity-" + (++m_iActorSequence), wasPlayer, identity);
 		return actor;
 	}
 
@@ -275,9 +288,10 @@ class GC_TelemetryRecorder
 	{
 		if (!m_bRunning || (entry.m_sType != "death" && entry.m_sType != "kill" && entry.m_sType != "teamKill" && entry.m_sType != "aiKill"))
 			return;
-		GC_TelemetryActor victimActor = Track(victim, entry.m_sTargetKind == "player", entry.m_sTarget);
-		if (!victimActor)
+		GC_TelemetryActor victimActor = Track(victim, entry.m_sTargetKind == "player", entry.m_sTarget, true);
+		if (!victimActor || victimActor.HasEnded())
 			return;
+		victimActor.Finish();
 		string victimId = victimActor.GetId();
 		string killerId;
 		// Delayed statistical credit does not establish the current killer body.
@@ -294,6 +308,8 @@ class GC_TelemetryRecorder
 		if (cause.IsEmpty())
 			cause = "unknown";
 		context.WriteValue("cause", cause);
+		WriteVector(context, "position", victim.GetOrigin());
+		WriteVector(context, "anglesDegrees", victim.GetAngles());
 		CommitRecord(context);
 	}
 
@@ -314,14 +330,38 @@ class GC_TelemetryRecorder
 			GetGame().GetPlayerManager().GetPlayers(m_aPlayers);
 			m_iPlayerCursor = 0;
 		}
-		if (m_bRunning && m_iPlayerCursor < m_aPlayers.Count())
+		for (int discovered; m_bRunning && discovered < 8 && m_iPlayerCursor < m_aPlayers.Count(); discovered++)
 			Track(GetGame().GetPlayerManager().GetPlayerControlledEntity(m_aPlayers[m_iPlayerCursor++]));
 		int count = m_aActors.Count();
-		for (int step; m_bRunning && step < Math.Min(count, 16); step++)
+		for (int step; m_bRunning && step < count; step++)
 		{
 			if (m_iCursor >= count)
 				m_iCursor = 0;
-			m_aActors[m_iCursor++].Sample();
+			GC_TelemetryActor actor = m_aActors[m_iCursor];
+			// Successful observations are ordered by this cursor. Wait for the
+			// next due actor instead of scanning every actor on every frame.
+			if (!actor.IsDue(now))
+				break;
+			actor.Sample();
+			if (actor.HasEnded())
+			{
+				// Bounded tombstones preserve late death/damage attribution without
+				// sampling corpses or admitting them again during player discovery.
+				if (m_aRetired.Count() < 256)
+					m_aRetired.Insert(actor);
+				else
+				{
+					GC_TelemetryActor old = m_aRetired[m_iRetiredCursor];
+					if (m_mActors.Get(old.GetNativeId()) == old)
+						m_mActors.Remove(old.GetNativeId());
+					m_aRetired[m_iRetiredCursor] = actor;
+					m_iRetiredCursor = (m_iRetiredCursor + 1) % 256;
+				}
+				m_aActors.Remove(m_iCursor);
+				count--;
+			}
+			else
+				m_iCursor++;
 			if (System.GetTickCount(started) >= 2 || m_sRecords.Length() >= 65536)
 				break;
 		}
@@ -329,7 +369,7 @@ class GC_TelemetryRecorder
 		m_iSteps++;
 		m_iCaptureMs += elapsed;
 		m_iMaxCaptureMs = Math.Max(m_iMaxCaptureMs, elapsed);
-		if (!m_bRunning || m_sRecords.Length() >= 98304 || now - m_fLastFlush >= 5000)
+		if (!m_bRunning || m_sRecords.Length() >= 65536 || m_iRecordCount >= 384 || now - m_fLastFlush >= 5000)
 			Flush();
 	}
 
@@ -344,7 +384,7 @@ class GC_TelemetryRecorder
 			// Match record timestamp precision, including a start and event in one tick.
 			context.SetMaxDecimalPlaces(6);
 			context.WriteValue("kind", "telemetry");
-			context.WriteValue("schemaVersion", 1);
+			context.WriteValue("schemaVersion", 2);
 			context.WriteValue("missionId", m_Logs.GetSessionId());
 			context.WriteValue("recordingId", m_sRecordingId);
 			context.WriteValue("revision", m_iRevision);
@@ -365,10 +405,7 @@ class GC_TelemetryRecorder
 			context.WriteValue("droppedRecords", m_iDropped);
 			context.StartObject("coverage");
 			context.WriteValue("actors", "players");
-			string pose = "state";
-			if (m_bSkeletal)
-				pose = "skeletal";
-			context.WriteValue("pose", pose);
+			context.WriteValue("pose", "inferred");
 			bool captured = true;
 			bool unsupported = false;
 			context.WriteValue("shots", captured);
@@ -396,7 +433,7 @@ class GC_TelemetryRecorder
 			Print("GC | Telemetry | publication failed; retained pending payload; " + Report(), LogLevel.ERROR);
 			return;
 		}
-		m_iBytes += m_sPending.Length();
+		m_fBytes += m_sPending.Length();
 		m_iRevision++;
 		m_sPending = string.Empty;
 		m_sRecords = string.Empty;
@@ -410,7 +447,7 @@ class GC_TelemetryRecorder
 			GetGame().GetCallqueue().Remove(Tick);
 			Print("GC | Telemetry | " + Report());
 		}
-		else if (m_iBytes >= MAX_RECORDING_BYTES)
+		else if (m_fBytes >= m_fByteLimit)
 			Stop("overflow");
 	}
 	//------------------------------------------------------------------------------------------------

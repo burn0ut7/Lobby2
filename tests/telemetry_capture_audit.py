@@ -4,6 +4,7 @@ import collections
 import gzip
 import hashlib
 import json
+import math
 import statistics
 from pathlib import Path
 
@@ -27,7 +28,7 @@ def audit(paths):
     damage = [r["data"] for r in records if r["type"] == "damage"]
     deaths = [r["data"] for r in records if r["type"] == "death"]
     return {
-        "recordingId": first["recordingId"], "missionId": first["missionId"],
+        "schemaVersion": first["schemaVersion"], "recordingId": first["recordingId"], "missionId": first["missionId"],
         "seconds": duration, "batches": len(batches), "rawBytes": raw,
         "gzipBytesPerBatch": sum(len(gzip.compress(p.read_bytes(), mtime=0)) for _, p in batches),
         "bytesPerSecond": raw / duration if duration else None,
@@ -40,9 +41,11 @@ def audit(paths):
         "stances": sorted({r["data"]["stance"] for r in states}),
         "flags": sorted({r["data"]["flags"] for r in states}),
         "leanRange": [min((r["data"]["lean"] for r in states), default=0), max((r["data"]["lean"] for r in states), default=0)],
-        "maxSpeedMps": max((r["data"]["speedMps"] for r in states), default=0),
+        "maxSpeedMps": max((math.sqrt(sum(v * v for v in r["data"]["velocity"])) for r in states), default=0),
         "medianStateIntervalMs": statistics.median(intervals) if intervals else None,
         "maxStateIntervalMs": max(intervals, default=None),
+        "maxObservationWindowMs": max((r["timeMs"] - r["data"]["previousSampleMs"] for r in states if "previousSampleMs" in r["data"] and not r["data"]["discontinuity"]), default=None),
+        "statesAfterDeath": sum(r["sequence"] > death["sequence"] and r["data"]["entity"] == death["data"]["entity"] for r in records if r["type"] in ("state", "vehicle-state", "pose") for death in records if death["type"] == "death"),
         "bonesPerSkeleton": [len(r["data"]["bones"]) for r in records if r["type"] == "skeleton"],
         "seatChanges": [r["data"] for r in records if r["type"] == "seat"],
         "linkedProjectileDamageCount": sum(d["projectileId"] in shot_ids for d in damage),

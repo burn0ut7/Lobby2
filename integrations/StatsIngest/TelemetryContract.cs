@@ -10,7 +10,8 @@ internal static class TelemetryContract
     public static void Validate(JsonElement root)
     {
         UniqueFields(root);
-        if (Text(root, "kind", 32) != "telemetry" || Integer(root, "schemaVersion", 1, 1) != 1) Fail();
+        var version = Integer(root, "schemaVersion", 1, 2);
+        if (Text(root, "kind", 32) != "telemetry") Fail();
         root.GetProperty("missionId").GetGuid();
         root.GetProperty("recordingId").GetGuid();
         var revision = Integer(root, "revision", 0);
@@ -32,7 +33,8 @@ internal static class TelemetryContract
         var coverage = root.GetProperty("coverage");
         UniqueFields(coverage);
         if (Text(coverage, "actors", 32) is not ("players" or "players-and-ai")) Fail();
-        if (Text(coverage, "pose", 32) is not ("state" or "skeletal")) Fail();
+        var pose = Text(coverage, "pose", 32);
+        if (version == 2 ? pose != "inferred" : pose is not ("state" or "skeletal")) Fail();
         foreach (var name in new[] { "shots", "impacts", "damage", "grenades", "vehicles", "gear" })
             coverage.GetProperty(name).GetBoolean();
 
@@ -49,11 +51,13 @@ internal static class TelemetryContract
             var type = Text(record, "type", 32);
             var data = record.GetProperty("data");
             UniqueFields(data);
-            ValidateRecord(type, data);
+            ValidateRecord(type, data, version);
+            if (version == 2 && type is "state" or "vehicle-state")
+                Number(data, "previousSampleMs", 0, previousTime);
         }
     }
 
-    private static void ValidateRecord(string type, JsonElement data)
+    private static void ValidateRecord(string type, JsonElement data, int version)
     {
         switch (type)
         {
@@ -63,7 +67,7 @@ internal static class TelemetryContract
                 Text(data, "prefab", 4096, false);
                 Text(data, "playerIdentity", 256);
                 Text(data, "faction", 256);
-                Matrix(data, "transform");
+                RootTransform(data, version);
                 break;
             case "despawn":
                 Entity(data);
@@ -84,9 +88,10 @@ internal static class TelemetryContract
                 break;
             case "state":
                 Entity(data);
-                Matrix(data, "transform");
+                RootTransform(data, version);
                 Vector(data, "velocity");
-                Number(data, "speedMps", 0, 2000);
+                if (version == 1) Number(data, "speedMps", 0, 2000);
+                else if (data.TryGetProperty("speedMps", out _)) Fail();
                 Vector(data, "aimRadians");
                 Vector(data, "lookRadians");
                 Integer(data, "stance", 0, 2);
@@ -95,16 +100,16 @@ internal static class TelemetryContract
                 Number(data, "lean", -1, 1);
                 Number(data, "dynamicStance", 0, 1);
                 Number(data, "movement", 0, 3);
-                Text(data, "weaponPrefab", 4096);
-                Integer(data, "weaponIndex", -1);
-                Integer(data, "sightsIndex", -1);
+                if (version == 1) Equipment(data);
+                else if (data.TryGetProperty("weaponPrefab", out _) || data.TryGetProperty("weaponIndex", out _) || data.TryGetProperty("sightsIndex", out _)) Fail();
                 data.GetProperty("discontinuity").GetBoolean();
                 break;
             case "vehicle-state":
                 Entity(data);
-                Matrix(data, "transform");
+                RootTransform(data, version);
                 Vector(data, "velocity");
-                Number(data, "speedMps", 0, 2000);
+                if (version == 1) Number(data, "speedMps", 0, 2000);
+                else if (data.TryGetProperty("speedMps", out _)) Fail();
                 data.GetProperty("discontinuity").GetBoolean();
                 break;
             case "seat":
@@ -114,7 +119,13 @@ internal static class TelemetryContract
                 var compartment = Integer(data, "compartmentType", -1);
                 if ((vehicle == "") != (seat == -1 && compartment == -1) || (vehicle != "" && (seat < 0 || compartment < 0))) Fail();
                 break;
+            case "equipment":
+                if (version != 2) Fail();
+                Entity(data);
+                Equipment(data);
+                break;
             case "skeleton":
+                if (version != 1) Fail();
                 Text(data, "skeletonId", 128, false);
                 Text(data, "visualResource", 4096, false);
                 var bones = data.GetProperty("bones");
@@ -127,6 +138,7 @@ internal static class TelemetryContract
                 }
                 break;
             case "pose":
+                if (version != 1) Fail();
                 Entity(data);
                 Text(data, "skeletonId", 128, false);
                 // Same order as the skeleton record; native local matrices,
@@ -172,6 +184,7 @@ internal static class TelemetryContract
                 break;
             case "death":
                 Entity(data);
+                if (version == 2) RootTransform(data, version);
                 Text(data, "killer", 128);
                 Integer(data, "damageSequence", 0);
                 Integer(data, "sessionEventSequence", 0);
@@ -188,6 +201,24 @@ internal static class TelemetryContract
                 Fail();
                 break;
         }
+    }
+
+    private static void RootTransform(JsonElement data, int version)
+    {
+        if (version == 1) Matrix(data, "transform");
+        else
+        {
+            if (data.TryGetProperty("transform", out _)) Fail();
+            Vector(data, "position");
+            Vector(data, "anglesDegrees");
+        }
+    }
+
+    private static void Equipment(JsonElement data)
+    {
+        Text(data, "weaponPrefab", 4096);
+        Integer(data, "weaponIndex", -1);
+        Integer(data, "sightsIndex", -1);
     }
 
     private static void Entity(JsonElement value) => Text(value, "entity", 128, false);

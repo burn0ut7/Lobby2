@@ -76,7 +76,36 @@ with tempfile.TemporaryDirectory(prefix="Lobby2TelemetryContract-") as temp:
         count += 1
 
     check("all-record-types", valid=True)
-    check("future-version", lambda b: b.update(schemaVersion=2))
+
+    def compact(b):
+        b["schemaVersion"] = 2
+        b["coverage"]["pose"] = "inferred"
+        b["records"] = [x for x in b["records"] if x["type"] not in ("pose", "skeleton")]
+        for i, record in enumerate(b["records"]):
+            record["sequence"] = i + 1
+            data = record["data"]
+            if record["type"] in ("spawn", "state", "vehicle-state", "death"):
+                data.pop("transform", None)
+                data["position"] = [1200, 41, 2700]
+                data["anglesDegrees"] = [0, 90, 0]
+            if record["type"] in ("state", "vehicle-state"):
+                for key in ("speedMps", "weaponPrefab", "weaponIndex", "sightsIndex"):
+                    data.pop(key, None)
+                data["previousSampleMs"] = max(0, record["timeMs"] - 10)
+
+    check("compact-v2", compact, valid=True)
+    def compact_change(b, change):
+        compact(b)
+        change(b)
+    check("compact-vehicle", lambda b: compact_change(b, lambda b: b["records"][3].update(type="vehicle-state")), valid=True)
+    check("compact-no-death-position", lambda b: compact_change(b, lambda b: next(r for r in b["records"] if r["type"] == "death")["data"].pop("position")))
+    check("compact-future-window", lambda b: compact_change(b, lambda b: b["records"][3]["data"].update(previousSampleMs=999)))
+    check("compact-reject-speed", lambda b: compact_change(b, lambda b: b["records"][3]["data"].update(speedMps=0)))
+    check("compact-reject-matrices", lambda b: compact_change(b, lambda b: b["records"][3]["data"].update(transform=MATRIX)))
+    check("compact-reject-bones", lambda b: compact_change(b, lambda b: b["records"][3].update(type="pose")))
+    check("compact-equipment", lambda b: compact_change(b, lambda b: b["records"][3].update(type="equipment", data=dict(entity="life-1", weaponPrefab="rifle.et", weaponIndex=0, sightsIndex=0))), valid=True)
+
+    check("future-version", lambda b: b.update(schemaVersion=3))
     check("invalid-clock", lambda b: b.update(clock="wall-time"))
     check("missing-asset-manifest", lambda b: b.pop("assetManifestId"))
     check("invalid-initial-sequence", lambda b: b.update(firstSequence=2))

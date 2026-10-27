@@ -63,12 +63,12 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Authority entry point; callers must supply the authenticated requesting player.
-	bool SetTelemetry(int requester, bool enabled, bool skeletal)
+	bool SetTelemetry(int requester, bool enabled, int quotaMiB = 1024)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || !manager.AuthorizeAdminAction(requester, "telemetry", enabled.ToString()))
 			return false;
-		if (GetInstance() != this || m_bClosed || m_sSessionId.IsEmpty())
+		if (GetInstance() != this || m_bClosed || m_sSessionId.IsEmpty() || quotaMiB < 64 || quotaMiB > 8192)
 		{
 			GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "rejected-inactive-session");
 			return false;
@@ -81,7 +81,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 				return false;
 			}
 			m_Telemetry = new GC_TelemetryRecorder();
-			m_Telemetry.Start(this, skeletal);
+			m_Telemetry.Start(this, quotaMiB);
 		}
 		else if (m_Telemetry)
 			m_Telemetry.Stop("disabled");

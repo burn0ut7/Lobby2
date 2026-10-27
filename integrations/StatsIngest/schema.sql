@@ -301,7 +301,7 @@ CREATE TABLE IF NOT EXISTS lobby2.telemetry_batches (
     received_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (recording_id, revision),
     CHECK (payload->>'kind' = 'telemetry'),
-    CHECK ((payload->>'schemaVersion')::integer = 1),
+    CONSTRAINT telemetry_schema_version CHECK ((payload->>'schemaVersion')::integer IN (1, 2)),
     CHECK ((payload->>'recordingId')::uuid = recording_id),
     CHECK ((payload->>'revision')::integer = revision)
 );

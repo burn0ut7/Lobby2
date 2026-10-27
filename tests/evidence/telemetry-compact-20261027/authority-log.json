@@ -1,0 +1,90 @@
+{
+  "source": "workbench",
+  "session": "logs_2026-10-27_18-08-27",
+  "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-27_18-08-27\\console.log",
+  "revision": "999122:5AABAD9FF5937BA83445F38605D4702279A49BD1DED0F6C8C9148951522292D2",
+  "header": "Log C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-27_18-08-27\\console.log started at 2026-10-27 18:08:27 (2026-10-27 22:08:27 UTC)",
+  "scope": "latest",
+  "fromLine": 7563,
+  "toLine": 8048,
+  "totalLines": 8048,
+  "cycle": {
+    "startLine": 7563,
+    "time": "19:14:04.397",
+    "kind": "reload",
+    "completionLine": 7621
+  },
+  "severityCounts": {
+    "error": 14,
+    "warning": 59,
+    "info": 413
+  },
+  "categoryCounts": {
+    "SCRIPT": 274,
+    "PROFILING": 40,
+    "RESOURCES": 15,
+    "ENGINE": 10,
+    "GUI": 25,
+    "INIT": 9,
+    "DEFAULT": 6,
+    "WORLD": 58,
+    "ENTITY": 21,
+    "PATHFINDING": 8,
+    "TERRAIN": 6,
+    "RENDER": 4,
+    "PLATFORM": 3,
+    "NETWORK": 7
+  },
+  "matchedLines": 6,
+  "entries": [
+    {
+      "line": 7946,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:14:43.243 SCRIPT       : GC | Admin Action | player=-1 identity= action=telemetry target=true outcome=rejected-not-logged-in",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 7949,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:14:43.889 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=telemetry target=true outcome=rejected-inactive-session",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 7952,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:14:44.549 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=telemetry target=true outcome=accepted",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 7955,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:14:45.192 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=telemetry target=true outcome=rejected-unsealed-recording",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 8043,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:16:25.026 SCRIPT       : GC | Admin Action | player=1 identity=00000000-0000-0000-0000-000000000000 action=telemetry target=false outcome=accepted",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 8045,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:16:25.033 SCRIPT       : GC | Telemetry | recording=01a17fa5-08c4-874c-8400-000000211753 running=0 sealed=1 records=4714 batches=55 bytes=3.29505e+06 dropped=0 actors=1 steps=17904 captureMs=1836 maxCaptureMs=2 writeMs=381 maxWriteMs=8 stop=disabled quotaMiB=1024",
+      "textTruncated": false,
+      "continuation": false
+    }
+  ],
+  "truncated": false
+}
