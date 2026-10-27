@@ -9,6 +9,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	protected SCR_EventHandlerComponent m_SearchEvents;
 	protected Widget m_Menu;
 	protected bool m_bMultiple;
+	protected bool m_bAllowAll;
 	protected ref array<int> m_aSelected = {};
 	protected ref array<string> m_aIdentities = {};
 	protected ref map<SCR_ButtonBaseComponent, int> m_mRows = new map<SCR_ButtonBaseComponent, int>();
@@ -44,8 +45,24 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Optional unfiltered choice for read-only tools; action pickers still require a player.
+	void SetAllowAll(bool allowAll)
+	{
+		m_bAllowAll = allowAll;
+		UpdateLabel();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void SelectPlayer(int playerId, bool toggle = false)
 	{
+		if (playerId == 0 && m_bAllowAll)
+		{
+			m_aSelected.Clear();
+			m_aIdentities.Clear();
+			UpdateLabel();
+			m_OnChanged.Invoke();
+			return;
+		}
 		if (!m_Manager || playerId <= 0)
 			return;
 		UUID identity = m_Manager.GetPlayerVoiceIdentity(playerId);
@@ -94,6 +111,8 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		string label = "Choose players...";
 		if (!m_bMultiple)
 			label = "Choose player...";
+		if (m_bAllowAll)
+			label = "All players";
 		if (m_aSelected.Count() == 1)
 			label = GetGame().GetPlayerManager().GetPlayerName(m_aSelected[0]);
 		else if (m_aSelected.Count() > 1)
@@ -204,6 +223,20 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		ReadRoster(players, names);
 		string query = m_Search.GetText();
 		int shown;
+		if (m_bAllowAll)
+		{
+			Widget allRow = GetGame().GetWorkspace().CreateWidgets("{7C41F8A018B24C11}UI/layouts/Admin/Lobby_AdminPlayerRow.layout", m_Menu.FindAnyWidget("PickerRows"));
+			allRow.SetName("AdminPlayer_0");
+			SCR_ButtonTextComponent allButton = SCR_ButtonTextComponent.Cast(allRow.FindHandler(SCR_ButtonTextComponent));
+			allButton.SetText("All players");
+			TextWidget.Cast(allRow.FindAnyWidget("PlayerDetail")).SetText("Show every player's events");
+			allRow.FindAnyWidget("PlayerCheckBox").SetVisible(false);
+			allRow.FindAnyWidget("PlayerCheckFill").SetVisible(false);
+			allRow.FindAnyWidget("PlayerCheck").SetVisible(false);
+			allButton.SetToggled(m_aSelected.IsEmpty(), false, false);
+			allButton.m_OnClicked.Insert(OnSelect);
+			m_mRows.Set(allButton, 0);
+		}
 		// Four stable relevance buckets avoid rebuilding or querying the server per key.
 		for (int rank; rank < 4; rank++)
 		{
@@ -246,6 +279,12 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		int playerId;
 		if (!m_mRows.Find(button, playerId))
 			return;
+		if (playerId == 0 && m_bAllowAll)
+		{
+			SelectPlayer(0);
+			CloseRoster();
+			return;
+		}
 		string identity;
 		if (!m_mRowIdentities.Find(button, identity) || identity.IsEmpty()
 			|| m_Manager.GetPlayerVoiceIdentity(playerId) != identity)

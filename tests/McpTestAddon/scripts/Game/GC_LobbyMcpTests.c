@@ -60,7 +60,7 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	string GC_TestAdminRosterLoad(string pickerName, string action, string query, float value)
 	{
-		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer")
+		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer" && pickerName != "LogPlayers")
 			return "REJECTED picker";
 		Widget root = GC_TestMenuRoot();
 		if (!root || root.GetName() != "AdminToolsPanel")
@@ -162,7 +162,7 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	string GC_TestAdminPicker(string pickerName, string action, string value)
 	{
-		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer")
+		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer" && pickerName != "LogPlayers")
 			return "REJECTED picker";
 		Widget root = GC_TestMenuRoot();
 		if (!root)
@@ -230,7 +230,7 @@ modded class GC_LobbyManager
 			result += string.Format("%1 visible=%2 text=%3\n", name, GC_TestVisible(text), text.GetText());
 		}
 		result += string.Format("apply-enabled=%1\n", root.FindAnyWidget("ToolApply").IsEnabled());
-		array<string> pickers = {"HealPlayers", "FromPlayer", "ToPlayer"};
+		array<string> pickers = {"HealPlayers", "FromPlayer", "ToPlayer", "LogPlayers"};
 		foreach (string pickerName : pickers)
 		{
 			Widget field = root.FindAnyWidget(pickerName);

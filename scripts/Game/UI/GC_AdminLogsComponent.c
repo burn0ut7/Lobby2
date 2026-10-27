@@ -2,12 +2,14 @@
 class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 {
 	protected GC_LobbyPlayerController m_Controller;
+	protected GC_AdminPlayerPicker m_Players;
 	protected EditBoxWidget m_Search;
 	protected SCR_EventHandlerComponent m_SearchEvents;
 	protected SCR_ComboBoxComponent m_Type;
 	protected TextWidget m_Status;
 	protected bool m_bActive;
 	protected bool m_bLive = true;
+	protected bool m_bUpdatingFilter;
 	protected int m_iRequest;
 	protected int m_iBefore;
 	protected int m_iNext;
@@ -21,6 +23,9 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	{
 		super.HandlerAttached(w);
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		m_Players = GC_AdminPlayerPicker.Cast(w.FindAnyWidget("LogPlayers").FindHandler(GC_AdminPlayerPicker));
+		m_Players.SetAllowAll(true);
+		m_Players.m_OnChanged.Insert(OnPlayerChanged);
 		m_Search = EditBoxWidget.Cast(w.FindAnyWidget("LogSearch"));
 		m_SearchEvents = SCR_EventHandlerComponent.Cast(m_Search.FindHandler(SCR_EventHandlerComponent));
 		m_SearchEvents.GetOnChange().Insert(OnSearch);
@@ -60,9 +65,16 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 			Latest();
 		else
 		{
+			m_Players.CloseRoster();
 			m_iRequest = -1;
 			ClearRows();
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ClosePlayerList()
+	{
+		m_Players.CloseRoster();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -85,6 +97,7 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	{
 		if (!HasAccess())
 		{
+			m_Players.CloseRoster();
 			ClearRows();
 			m_Status.SetText("Admin access required.");
 			return;
@@ -118,12 +131,39 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 			return;
 		m_iRequest = m_Controller.ReserveAdminActionRequest();
 		m_fRequestedAt = now;
-		m_Controller.RequestSessionLog(m_iRequest, m_Search.GetText(), m_aTypes[selection], m_iBefore);
+		array<int> players;
+		array<string> identities;
+		string playerFilter = m_Search.GetText();
+		if (m_Players.GetSelection(players, identities))
+			playerFilter = identities[0];
+		m_Controller.RequestSessionLog(m_iRequest, playerFilter, m_aTypes[selection], m_iBefore);
 		SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetToggled(m_bLive, false, false);
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void OnPlayerChanged()
+	{
+		if (m_bUpdatingFilter)
+			return;
+		m_bUpdatingFilter = true;
+		m_Search.SetText("");
+		m_bUpdatingFilter = false;
+		FiltersChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void OnSearch(Widget widget)
+	{
+		if (m_bUpdatingFilter)
+			return;
+		m_bUpdatingFilter = true;
+		m_Players.SelectPlayer(0);
+		m_bUpdatingFilter = false;
+		FiltersChanged();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void FiltersChanged()
 	{
 		m_iRequest = -1;
 		m_Status.SetText("Loading...");
@@ -134,14 +174,17 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	protected void OnType(SCR_SelectionWidgetComponent combo, int index)
 	{
-		OnSearch(null);
+		FiltersChanged();
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void OnOpenType(SCR_ButtonBaseComponent button)
 	{
 		if (m_bActive && HasAccess())
+		{
+			m_Players.CloseRoster();
 			m_Type.OpenList();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -230,6 +273,8 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 		GetGame().GetCallqueue().Remove(Load);
 		if (m_Controller)
 			m_Controller.m_OnSessionLogRows.Remove(OnRows);
+		if (m_Players)
+			m_Players.m_OnChanged.Remove(OnPlayerChanged);
 		if (m_SearchEvents)
 			m_SearchEvents.GetOnChange().Remove(OnSearch);
 		if (m_Type)

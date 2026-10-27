@@ -35,3 +35,16 @@ Acceptance: current-session admin viewer with actor/victim and event filters, in
 - Coverage limits: no verified ballistic hit in this slice, dedicated-server load benchmark, long-name UI stress test, or keyboard/gamepad navigation. Native melee damage, distinct fatal/team-kill callbacks, shot/grenade events, peer denial, and PostgreSQL persistence were exercised separately. Existing scenario/resource warnings are not attributed to this feature; no new log-panel/debrief exception remained in the final UI run.
 
 Independent fresh review approved after the final source fixes and archived-batch inspection. Play and the separate test client were stopped; original peer parameters were restored, with Workbench and test addons kept open.
+
+## Player dropdown — 2026-10-27
+
+Logs now reuse `GC_AdminPlayerPicker` with searchable current roster, identity-bound selection and an opt-in All players row. Existing name/ID search remains available for disconnected participants. Choosing a roster player clears text search; typing text clears roster selection. Filter changes reset pagination and reject stale responses. The popup closes on tool switch, menu close and access loss. Action pickers do not enable the All players option.
+
+Workbench 1.8.0.13 / embedded Arland validation:
+- Reload `48675ea1b12f4591bbdaaf1f24807d2b` succeeded. Initial testing exposed recursive text/selection notifications; `m_bUpdatingFilter` now guards reciprocal edits. The sequence below passed after recompilation, with no exceptions inside its receipt spans.
+- Actual picker click selected player1 (`rd110f0005776494fb4f93dfb97ef3bf4`); displayed rows contained that player's joined/admin events, excluding the unowned session event (`r46c8f1a55b2e46da9f70a7cca2038e6e`). All players restored all three rows (`r01b6082dad0049baad6f3617841706d2`).
+- Case-insensitive search buRn matched Burn0ut7. An unmatched roster query retained the All players reset. Manual unmatched text returned No matching events (`rcfd9fb46e0f34123b054dad3c7bf3252`). Selecting again cleared manual text and restored matching rows (`r292f1ab7246c44ce871828e909031c57`).
+- Switching to Heal closed the logs roster (`re297cb418ae747f1a8f3e0f122156dc0`); Heal retained its normal roster without an All players row. Closing the admin menu with the logs roster open left zero visible popups and no admin panel (`r1aa6ed36e0cf416b9609d96f129747b9`, `r23fc1cbcb7bd4a058e39a9d18a8eb2e6`).
+- MCP screenshots: `Art/References/admin-logs/runtime-player-search.png`, `runtime-player-selected.png`. Existing layout/concept retained with two filter rows to preserve past-player lookup.
+
+This revision used the authenticated embedded host and production button/search handlers. Physical mouse/keyboard/gamepad navigation, full roster load and separate-client replication were not retested. Server authorization and log query contracts are unchanged.

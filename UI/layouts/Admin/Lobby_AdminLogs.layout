@@ -1,8 +1,10 @@
 FrameWidgetClass { Name "LogFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminLogsComponent {} } {
-PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 0.38 0.075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.03 0.045 0.05 1 style full "Ignore Cursor" 1 }
-EditBoxWidgetClass { Name "LogSearch" Slot FrameWidgetSlot { Anchor 0 0 0.38 0.075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 22 "Use placeholder text" 1 "Placeholder text" "Player name or ID..." components { SCR_EventHandlerComponent {} } }SizeLayoutWidgetClass {
+FrameWidgetClass : "{7C41F8A018B24B01}UI/layouts/Admin/Lobby_AdminPlayerPicker.layout" { Name "LogPlayers" Slot FrameWidgetSlot { Anchor 0 0 0.48 0.10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0.5 0 1 0.10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.03 0.045 0.05 1 style full "Ignore Cursor" 1 }
+EditBoxWidgetClass { Name "LogSearch" Slot FrameWidgetSlot { Anchor 0.5 0 1 0.10 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 } "Font Size" 20 "Use placeholder text" 1 "Placeholder text" "Search name or ID (including past players)..." components { SCR_EventHandlerComponent {} } }
+SizeLayoutWidgetClass {
      Name "LogType"
-     Slot FrameWidgetSlot { Anchor 0.4 0 0.68 0.075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 0.12 0.48 0.195 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
      AllowHeightOverride 1
      HeightOverride 46
      "Is Visible" 1
@@ -81,14 +83,14 @@ EditBoxWidgetClass { Name "LogSearch" Slot FrameWidgetSlot { Anchor 0 0 0.38 0.0
       }
      }
     }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogLive" Slot FrameWidgetSlot { Anchor 0.7 0 0.84 0.075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogRefresh" Slot FrameWidgetSlot { Anchor 0.86 0 1 0.075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogLive" Slot FrameWidgetSlot { Anchor 0.5 0.12 0.73 0.195 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogRefresh" Slot FrameWidgetSlot { Anchor 0.75 0.12 1 0.195 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogNewer" Slot FrameWidgetSlot { Anchor 0.75 0.92 0.87 0.99 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogOlder" Slot FrameWidgetSlot { Anchor 0.89 0.92 1 0.99 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-TextWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.12 0.14 0.16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "TIME" "Font Size" 18 "Ignore Cursor" 1 }
-TextWidgetClass { Slot FrameWidgetSlot { Anchor 0.14 0.12 0.28 0.16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "EVENT" "Font Size" 18 "Ignore Cursor" 1 }
-TextWidgetClass { Slot FrameWidgetSlot { Anchor 0.28 0.12 0.6 0.16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "PEOPLE" "Font Size" 18 "Ignore Cursor" 1 }
-TextWidgetClass { Slot FrameWidgetSlot { Anchor 0.6 0.12 1 0.16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "DETAILS" "Font Size" 18 "Ignore Cursor" 1 }
-ScrollLayoutWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.17 1 0.89 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Scrollbar Always Visible" 1 { VerticalLayoutWidgetClass { Name "LogRows" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } } }
+TextWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.23 0.14 0.27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "TIME" "Font Size" 18 "Ignore Cursor" 1 }
+TextWidgetClass { Slot FrameWidgetSlot { Anchor 0.14 0.23 0.28 0.27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "EVENT" "Font Size" 18 "Ignore Cursor" 1 }
+TextWidgetClass { Slot FrameWidgetSlot { Anchor 0.28 0.23 0.6 0.27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "PEOPLE" "Font Size" 18 "Ignore Cursor" 1 }
+TextWidgetClass { Slot FrameWidgetSlot { Anchor 0.6 0.23 1 0.27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "DETAILS" "Font Size" 18 "Ignore Cursor" 1 }
+ScrollLayoutWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.28 1 0.89 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Scrollbar Always Visible" 1 { VerticalLayoutWidgetClass { Name "LogRows" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } } }
 TextWidgetClass { Name "LogStatus" Slot FrameWidgetSlot { Anchor 0 0.92 0.72 0.99 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Loading..." "Font Size" 19 "Ignore Cursor" 1 Wrap 1 }
 } }

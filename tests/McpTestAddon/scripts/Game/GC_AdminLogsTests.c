@@ -7,9 +7,19 @@ modded class GC_AdminLogsComponent
 		if (!HasAccess() || eventIndex < 0 || eventIndex >= m_aTypes.Count())
 			return "UNAVAILABLE access or filter";
 		m_Search.SetText(query);
+		OnSearch(m_Search);
 		m_Type.SetCurrentItem(eventIndex, false, false, false);
 		OnType(m_Type, eventIndex);
 		return "DISPATCHED filter through production change handler";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestRead()
+	{
+		string result = m_Status.GetText() + " | search=" + m_Search.GetText();
+		foreach (string value : m_aDisplayed)
+			result += "\n" + value;
+		return result;
 	}
 }
 
@@ -81,6 +91,8 @@ modded class GC_LobbyManager
 		if (!root || !root.IsVisible())
 			return "UNAVAILABLE logs panel";
 		GC_AdminLogsComponent panel = GC_AdminLogsComponent.Cast(root.FindHandler(GC_AdminLogsComponent));
+		if (eventIndex == -1)
+			return panel.GC_TestRead();
 		return panel.GC_TestFilter(query, eventIndex);
 	}
 }

@@ -295,6 +295,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	void HidePlayerLists()
 	{
+		m_Logs.ClosePlayerList();
 		m_MessagePlayers.CloseRoster();
 		m_Targets.CloseRoster();
 		m_From.CloseRoster();
