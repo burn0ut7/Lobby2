@@ -75,7 +75,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected ref GC_SpectatorSample m_NetworkSample;
 	protected ref GC_SpectatorPose m_NetworkPose;
 	protected float m_fNetworkFromLean;
+	protected vector m_vNetworkFromOpticScales;
 	protected float m_fNetworkStreamAge;
+	protected float m_fNetworkSightWaitAge;
 	protected float m_fNetworkInterpolationDuration = 0.033333;
 	protected int m_iNetworkLastSequence = -1;
 	protected float m_fNetworkInterpolationElapsed;
@@ -401,6 +403,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_bMirrorADSTransitionActive = false;
 		m_bNetworkSnapshotReceived = false;
 		m_NetworkSample = null;
+		m_fNetworkSightWaitAge = 0;
 		m_iNetworkLastSequence = -1;
 		m_fNetworkInterpolationElapsed = 0;
 		m_bNetworkIsADS = false;
@@ -527,6 +530,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	IEntity GetTarget()
 	{
 		return m_Target;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Only this active optic is updated after the network camera has been applied.
+	bool OwnsNetworkPIPSight(SCR_2DPIPSightsComponent sights)
+	{
+		return m_eMode == GC_ESpectatorCameraMode.NETWORK && m_bNetworkIsADS
+			&& m_MirrorPIPSights == sights && IsEligibleTarget(m_Target);
 	}
 
 	override protected void EOnPostFrame(IEntity owner, float timeSlice)
@@ -704,10 +715,15 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			if (interval <= 0)
 				return;
 			m_fNetworkFromLean = Math.Lerp(m_fNetworkFromLean, m_NetworkSample.m_fLean, previousBlend);
+			m_vNetworkFromOpticScales = vector.Lerp(m_vNetworkFromOpticScales,
+				Vector(m_NetworkSample.m_fOpticReticleScale, m_NetworkSample.m_fOpticEdgeScale, 0), previousBlend);
 			m_fNetworkInterpolationDuration = Math.Clamp(interval, 0.001, 0.25);
 		}
 		else
+		{
 			m_fNetworkFromLean = sample.m_fLean;
+			m_vNetworkFromOpticScales = Vector(sample.m_fOpticReticleScale, sample.m_fOpticEdgeScale, 0);
+		}
 		m_NetworkSample = sample;
 		m_fNetworkStreamAge = 0;
 		int sequence = sample.m_iSequence;
@@ -802,14 +818,45 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		UpdateNetworkSightPresentation();
 		vector cameraTransform[4];
 		BuildNetworkTransform(blend, cameraTransform);
+		if (m_bNetworkIsADS)
+		{
+			BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(m_Target.FindComponent(BaseWeaponManagerComponent));
+			vector sightTransform[4], modelCamera[4], targetTransform[4], worldCamera[4];
+			float sightFOV;
+			if (!weaponManager || !m_NetworkSightsWeapon || weaponManager.GetCurrentWeapon() != m_NetworkSightsWeapon
+				|| weaponManager.GetCurrentSightsIndex() != m_iNetworkSightsIndex
+				|| !weaponManager.GetCurrentSightsCameraTransform(sightTransform, sightFOV))
+			{
+				// Equipment replication can arrive after its camera sample. Wait for
+				// that selected sight without applying its offset to a different optic.
+				m_fNetworkSightWaitAge += timeSlice;
+				if (m_fNetworkSightWaitAge > 2.0)
+				{
+					Print("GC | Spectator Camera | network ADS sight transform unavailable", LogLevel.WARNING);
+					SetFreeMode();
+				}
+				return;
+			}
+			// Both the lens and the eye now follow this proxy's animation frame.
+			// Only the owner's relative eye offset/rotation is interpolated.
+			Math3D.MatrixMultiply4(sightTransform, cameraTransform, modelCamera);
+			m_Target.GetWorldTransform(targetTransform);
+			Math3D.MatrixMultiply4(targetTransform, modelCamera, worldCamera);
+			Math3D.MatrixCopy(worldCamera, cameraTransform);
+			cameraTransform[3] = worldCamera[3] - targetTransform[3];
+		}
+		m_fNetworkSightWaitAge = 0;
 
 		float renderedFOV = Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend);
 		float renderedPIPFOV = Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend);
 		float renderedSightFOV = Math.Lerp(m_fNetworkFromSightFOV, m_fNetworkToSightFOV, blend);
 		SetVerticalFOV(renderedFOV);
-		// Network snapshots use world-aligned axes relative to the translation-only
+		// The resolved view uses world-aligned axes relative to the translation-only
 		// attachment helper at the observed character's origin.
 		SetLocalTransform(cameraTransform);
+		// Commit this frame's view before the optic reads it. The manual camera's
+		// component update ran before this network presentation update.
+		ApplyTransform(timeSlice);
 		if (m_bNetworkDiagnosticsPending)
 		{
 			vector targetWorldTransform[4];
@@ -822,7 +869,9 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		}
 
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
-			m_MirrorPIPSights.GC_UpdateSpectatorPIP(timeSlice, renderedPIPFOV, renderedSightFOV);
+			m_MirrorPIPSights.GC_UpdateSpectatorPIP(timeSlice, renderedPIPFOV,
+				Math.Lerp(m_vNetworkFromOpticScales[0], m_NetworkSample.m_fOpticReticleScale, blend),
+				Math.Lerp(m_vNetworkFromOpticScales[1], m_NetworkSample.m_fOpticEdgeScale, blend));
 	}
 
 	protected void UpdateNetworkSightPresentation()

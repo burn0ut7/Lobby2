@@ -1746,8 +1746,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		vector snapshotForward = cameraTransform[2];
 		vector snapshotUp = cameraTransform[1];
 		// X is main-camera FOV, Y is optional PiP FOV and Z is the selected
-		// sight's actual FOV. Every camera transform uses world-aligned axes
-		// relative to the character origin.
+		// sight's actual FOV. ADS uses the camera relative to the animated sight;
+		// other views use world-aligned axes relative to the character origin.
 		vector lensState = Vector(currentCamera.GetVerticalFOV(), -1, -1);
 		bool isADS;
 		int sightState;
@@ -1775,15 +1775,31 @@ class GC_LobbyPlayerController : SCR_PlayerController
 				SCR_2DPIPSightsComponent pipSights = SCR_2DPIPSightsComponent.Cast(sights);
 				CameraBase overlayCamera = cameraManager.GetOverlayCamera();
 				if (pipSights && overlayCamera && overlayCamera == pipSights.GetPIPCamera())
+				{
 					lensState[1] = overlayCamera.GetVerticalFOV();
+					pipSights.GC_GetSpectatorOpticScales(sample.m_fOpticReticleScale, sample.m_fOpticEdgeScale);
+				}
 			}
 
 			sightState = (sightsIndex + 1) * NETWORK_CAMERA_SIGHT_STATE_SCALE + zoomIndex + 1;
+
+			// Preserve the owner's eye-to-sight relationship. Sampling eye motion
+			// relative to the root mixes it with a separately animated remote weapon.
+			vector sightTransform[4], characterTransform[4], localCamera[4], relativeCamera[4];
+			float sightFOV;
+			if (!weaponManager.GetCurrentSightsCameraTransform(sightTransform, sightFOV))
+				return;
+			controlledEntity.GetWorldTransform(characterTransform);
+			Math3D.MatrixInvMultiply4(characterTransform, cameraTransform, localCamera);
+			Math3D.MatrixInvMultiply4(sightTransform, localCamera, relativeCamera);
+			snapshotPosition = relativeCamera[3];
+			snapshotForward = relativeCamera[2];
+			snapshotUp = relativeCamera[1];
 		}
 		m_iNetworkCameraSequence++;
 		bool diagnosticStateChanged = !m_bNetworkCameraDiagnosticsInitialized || m_bNetworkCameraDiagnosticsADS != isADS || m_iNetworkCameraDiagnosticsSightState != sightState;
 		if (diagnosticStateChanged || isADS && m_iNetworkCameraSequence % GC_SpectatorCameraDiagnostics.SAMPLE_INTERVAL == 0)
-			GC_SpectatorCameraDiagnostics.LogSnapshot("owner", m_iNetworkCameraSequence, controlledEntity, cameraTransform, snapshotPosition, lensState[0], lensState[1], lensState[2], isADS, sightState);
+			GC_SpectatorCameraDiagnostics.LogSnapshot("owner", m_iNetworkCameraSequence, controlledEntity, cameraTransform, cameraTransform[3] - controlledEntity.GetOrigin(), lensState[0], lensState[1], lensState[2], isADS, sightState);
 
 		m_bNetworkCameraDiagnosticsInitialized = true;
 		m_bNetworkCameraDiagnosticsADS = isADS;

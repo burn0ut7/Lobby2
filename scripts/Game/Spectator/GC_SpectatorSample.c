@@ -5,7 +5,7 @@
 //! never an authority update to another player's character.
 class GC_SpectatorSample
 {
-	int m_iVersion = 1;
+	int m_iVersion = 2;
 	int m_iSequence;
 	float m_fSampleTime;
 	int m_iStance;
@@ -21,12 +21,16 @@ class GC_SpectatorSample
 	float m_fLean;
 	float m_fDynamicStance;
 	float m_fMovement;
+	//! ADS camera basis/offset are sight-local; otherwise world-aligned from root.
+	//! Version 2 changes this frame and adds the two stock optic scales.
 	vector m_vCameraOffset;
 	vector m_vCameraForward;
 	vector m_vCameraUp;
 	vector m_vLensState;
+	float m_fOpticReticleScale = 1;
+	float m_fOpticEdgeScale = 1;
 
-	static const int VERSION = 1;
+	static const int VERSION = 2;
 	static const int FLAG_ADS = 1;
 	static const int FLAG_RAISED = 2;
 	static const int FLAG_RELOADING = 4;
@@ -36,8 +40,8 @@ class GC_SpectatorSample
 	//------------------------------------------------------------------------------------------------
 	static bool SnapCompare(SSnapSerializerBase lhs, SSnapSerializerBase rhs, ScriptCtx ctx)
 	{
-		// Ten scalar values and ten vectors, in Extract/Inject order.
-		return lhs.CompareSnapshots(rhs, 10 * 4 + 10 * 12);
+		// Twelve scalar values and ten vectors, in Extract/Inject order.
+		return lhs.CompareSnapshots(rhs, 12 * 4 + 10 * 12);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -82,6 +86,8 @@ class GC_SpectatorSample
 		if (!snapshot.CompareVector(instance.m_vCameraUp))
 			return false;
 		if (!snapshot.CompareVector(instance.m_vLensState))
+			return false;
+		if (!snapshot.CompareFloat(instance.m_fOpticReticleScale) || !snapshot.CompareFloat(instance.m_fOpticEdgeScale))
 			return false;
 		return true;
 	}
@@ -135,6 +141,8 @@ class GC_SpectatorSample
 			return false;
 		if (!(m_fMovement >= 0 && m_fMovement <= 3) || m_iSightState < 0)
 			return false;
+		if (!(m_fOpticReticleScale >= 0 && m_fOpticReticleScale < 100) || !(m_fOpticEdgeScale >= 0 && m_fOpticEdgeScale < 100))
+			return false;
 		if (!IsBoundedVector(m_vPosition, 1e7) || !IsBoundedVector(m_vVelocity, 1000) || !IsBoundedVector(m_vAimAngles, 100) || !IsBoundedVector(m_vLookAngles, 100))
 			return false;
 		if (!IsBasis(m_vForward, m_vUp) || !IsBasis(m_vCameraForward, m_vCameraUp) || !IsBoundedVector(m_vCameraOffset, 100))
@@ -186,6 +194,8 @@ class GC_SpectatorSample
 		snapshot.SerializeVector(instance.m_vCameraForward);
 		snapshot.SerializeVector(instance.m_vCameraUp);
 		snapshot.SerializeVector(instance.m_vLensState);
+		snapshot.SerializeFloat(instance.m_fOpticReticleScale);
+		snapshot.SerializeFloat(instance.m_fOpticEdgeScale);
 		return true;
 	}
 
@@ -212,6 +222,8 @@ class GC_SpectatorSample
 		snapshot.SerializeVector(instance.m_vCameraForward);
 		snapshot.SerializeVector(instance.m_vCameraUp);
 		snapshot.SerializeVector(instance.m_vLensState);
+		snapshot.SerializeFloat(instance.m_fOpticReticleScale);
+		snapshot.SerializeFloat(instance.m_fOpticEdgeScale);
 		return true;
 	}
 
@@ -238,6 +250,8 @@ class GC_SpectatorSample
 		snapshot.EncodeVector(packet); // m_vCameraForward
 		snapshot.EncodeVector(packet); // m_vCameraUp
 		snapshot.EncodeVector(packet); // m_vLensState
+		snapshot.EncodeFloat(packet); // m_fOpticReticleScale
+		snapshot.EncodeFloat(packet); // m_fOpticEdgeScale
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -263,6 +277,8 @@ class GC_SpectatorSample
 		snapshot.DecodeVector(packet); // m_vCameraForward
 		snapshot.DecodeVector(packet); // m_vCameraUp
 		snapshot.DecodeVector(packet); // m_vLensState
+		snapshot.DecodeFloat(packet); // m_fOpticReticleScale
+		snapshot.DecodeFloat(packet); // m_fOpticEdgeScale
 		return true;
 	}
 }

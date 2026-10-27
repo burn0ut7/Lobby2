@@ -9,13 +9,20 @@ and bounded sample values. A two-second silence returns to free camera.
 The sample contains world position, orientation and velocity; stance and dynamic
 stance; movement and animation command; signed lean; aim/look angles; raised,
 ADS, reload, sprint and freelook flags; camera offset/basis; and sight/zoom/FOV
-state. Units are documented on the class. The serializer snapshot is 160 bytes
+state. Version 2 adds stock reticle/edge scales and stores the ADS camera relative
+to the selected animated sight. Units are documented on the class. The serializer snapshot is 168 bytes
 before transport encoding/envelopes. Sampling retains the prefab setting,
 default 30 Hz, and stops when the last subscriber leaves.
 
 Live presentation follows the native replicated character root, with the owner's
-world-aligned camera offset and basis interpolated over the measured sample
-interval. `GC_SpectatorPose` applies stance, lean, ADS and lowered-weapon graph
+camera offset and basis interpolated over the measured sample interval. During
+ADS that offset is resolved against the proxy's current selected sight, so eye
+and weapon use the same animation frame. Other views use world-aligned offsets
+from the root. Sight changes reset interpolation; an unavailable selected sight
+waits up to two seconds for the selected sight index. The packet does not identify
+the weapon entity, so this cannot prove owner/proxy equipment identity during
+replication lag.
+`GC_SpectatorPose` applies stance, lean, ADS and lowered-weapon graph
 values and the first-person layer. Other character motion continues through
 native replication. It does not replay actions, teleport the target, change
 possession, or write character input. Leaving restores native pose values and
@@ -46,6 +53,11 @@ Commands:
 - `move|1`: forward input for at most three seconds; `move|0` stops it.
 - `pitch|degrees`, `turn|degreesPerSecond`: bounded look controls.
 - `dynamic|0.5`: native adjusted-stance request.
+- `zeroing|0..3`, `sight|index`, `weapon|index`: native owning-player selection.
+- `optic|0`: scope update counts, FOV, scales and zeroing.
+- `measure|0`, `measurement|offset`: 120 bounded camera/profile observations,
+  retrieved in 1500-character pages after completion. Profile values are rolling
+  engine averages, not individual frame timings or percentile measurements.
 
 Held actions expire after 20 seconds and affect only the opted-in owning player
 in active Lobby2. Movement has its own shorter limit. The fixture uses the normal
@@ -105,3 +117,83 @@ logged presentation unavailable; selection after initialization succeeded. A
 successful selection does not promise support for every custom animation graph.
 Dedicated-server, adverse-network, vehicle, arbitrary modded-weapon, and
 addon-free unrelated-mode comparisons are not established by this fixture run.
+
+## Scope and camera correction, 2026-10-27
+
+The prior spectator had competing stock and network scope updates. A live probe
+counted 416 stock / 417 network writes; the last stock write replaced an owner
+PiP FOV near 8.4 degrees with roughly 25 degrees. Only the observed optic's
+`UpdateCamera` and `UpdateScopeMaterial` now defer to the network presentation.
+The inherited ADS callback still updates zeroing, the distant observer, settings
+and HDR. The scope camera uses its stock mount. Stock-computed reticle and edge
+scales are transmitted because recalculating with a manual camera uses a
+different focus-FOV reference.
+
+Owner/spectator readbacks matched: PiP FOV 8.42927, reticle 0.948292, edge 1;
+receipts `rd8db57f8c7e34a659eb80d2b975cd5ff` and
+`r59fd3db0580b4ea0b4d6c00f8decb266`. Zeroing advanced on both from -0.10 to
+-0.24 degrees (`ra7e4a7f330e94a01a9e6eda5ecc74adb`,
+`r1c047ca9e9ab4529a3712ba2994f45b1`). Parallax/vignette and owner post-processing
+are not pixel-identical; spectator parallax remains centered.
+
+The user confirmed the scope was substantially improved but reported remaining
+eye/camera movement. `camera-relative-player*.csv` recorded the camera-to-sight
+position before sight-relative composition. `aligned-player*.csv` records it
+afterward, 120 observations per client:
+
+| Peak-to-peak camera-to-sight position | X mm | Y mm | Z mm |
+| --- | ---: | ---: | ---: |
+| Owner before | 0.240 | 0.046 | 0.043 |
+| Spectator before | 1.589 | 0.833 | 1.990 |
+| Owner after | 0.244 | 0.027 | 0.00004 |
+| Spectator after | 0.244 | 0.027 | 0.488 |
+
+These are short stationary ADS observations, not a guarantee of zero jitter in
+all network conditions. Rendered-camera position application error was zero in
+these observations. Crouched left-lean ADS remained in network mode with matching
+camera positions (`r4f50f4b303b1413295cdb8883097e7a2`,
+`red5546f3554a4bae95aae09b429b1337`); ADS-off retained mode 5 and removed PiP
+(`r705f3e505cf54bb68fb4d1d1f2429b01`). Version-2 validity contract passed
+`r496697d8d9a943d4b15fd111804252c4`.
+
+After leaving Lobby2, the loaded-addon `Isolation.ent` stock game mode and player
+controller were verified (`rd597d1e186274d60ab3fd2eaf949244b`). Optional
+`GC_IsolationProbeComponent.ScopeInput` spawns a stock Senior Rifleman, holds ADS
+for at most 20 seconds, observes the scope and requests native zeroing. Stock
+PiP was enabled, FOV 8.4096, reticle 0.94608, edge 1, with zeroPitch -0.10 then
+-0.24 (`r81ca111a221b47dca587bcfb9b9a64d5`,
+`r696afb99d35044e1a15e2df03b6b9b9d`). The project remained loaded. A fresh
+addon-free PiP comparison was not run; the current MCP project-open operation
+refuses an already running Workbench and provides no same-process addon switch.
+
+Live weapon selection switched from rifle to grenade and back while retaining
+network mode (`r7d0cd460758048fb937b51f67e80d9de`,
+`r73adeb67e56e4814837bbbe591aaf8f5`). Selecting the rifle's iron sight removed
+PiP, used a 51-degree view and retained network mode; MCP screenshot confirmed
+the view through the irons below the mounted optic
+(`r4033f822e73d491bac92b62f42cb7c57`). Magnified sight was then restored.
+Unsubscribe stopped owner publication and the spectator expired to free mode
+(`r15387f96f67947ca88ea574d52a9ab86`, `r3efcdfcf3fe94c749df2d4cd1036ca26`);
+the Senior Rifleman was reselected for handoff.
+
+### Performance scope
+
+Payload rises by 8 bytes, or 240 bytes/second at 30 Hz per active feed before
+transport envelopes. The ADS reference-frame change adds no bytes. Sampling
+frequency, server routing and subscription lifecycle are unchanged; owner work
+adds two scalar reads and bounded matrix operations per published sample.
+Spectator rendering removes the competing stock lens calculation and adds
+bounded matrix composition per frame. No extra camera/render target is created.
+
+The paired `off-ads` / `on-ads` runs used the same owner aiming through PiP with
+the spectator detached/attached. Server rolling simulation averages were
+1.72 / 1.61 ms; owner 2.42 / 1.66 ms. Owner FPS was 95.4 / 87.1, while enabling
+the spectator also enabled its PiP render on the same GPU. These noisy,
+co-resident short runs do not isolate incremental script cost or prove negligible
+impact on another machine. Final aligned observations were owner 74.6 FPS and
+spectator 80.3 FPS with simulation averages 2.31 / 2.21 ms. No dedicated-server,
+many-spectator load or adverse-network benchmark was performed.
+
+Evidence is in `tests/evidence/spectator-20261027`. Workbench hung during one
+world reopen after successful compilation; the user authorized recovery. The
+same project was reopened and subsequent live checks ran in the new process.
