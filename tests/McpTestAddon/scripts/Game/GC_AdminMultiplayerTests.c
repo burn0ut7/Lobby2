@@ -64,6 +64,18 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "network-spectator")
+		{
+			array<string> parts = {};
+			message.Split("|", parts, false);
+			if (parts.Count() != 2)
+			{
+				Rpc(GC_TestRpcPeerReport, token, "REJECTED expected action|value");
+				return;
+			}
+			Rpc(GC_TestRpcPeerReport, token, GC_LobbyPlayerController.Cast(this).GC_TestNetworkSpectator(parts[0], parts[1]));
+			return;
+		}
 		if (action == "stats-respawn")
 		{
 			SCR_RespawnComponent respawn = SCR_RespawnComponent.Cast(GetRespawnComponent());
@@ -488,6 +500,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"network-spectator",
 			"stats-respawn",
 			"session-logs",
 			"audit-open",

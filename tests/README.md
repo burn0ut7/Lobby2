@@ -1513,3 +1513,8 @@ Final clarified lifecycle verified in fresh Play with an authored opt-in: initia
 The shape canvas can initially be zero-sized even when the native map reports open. Projection now waits for usable dimensions and rebuilds once on size change through the existing update loop, also refreshing at native map-open completion. The current snapshot bounds are retained until readiness so framing does not wait for another poll. Existing network polling and closed-map cleanup are unchanged.
 
 Optional GC_MapOpeningTests observes opening/projection without changing it. Embedded Arland checks passed through preview, briefing, first GAME opening and stationary GAME reopen with manual zoom preserved. The stationary reopen produced a complete fill 21.1 ms after attachment, before the next ~500 ms snapshot. This is simulation projection timing, not GPU presentation; the full reported 1–2 seconds was not reproduced. Remote transport/latency and alternate resolutions remain untested. Local logs, screenshot and limitations are in Art/References/ao-map/opening-delay/.
+
+## Network spectator animation
+
+See [NetworkSpectator.md](NetworkSpectator.md) for the versioned sample contract,
+opt-in owner-input fixture, live host/peer checks, and playback boundaries.

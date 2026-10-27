@@ -72,7 +72,11 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected TimeAndWeatherManagerEntity m_SpectatorNightModeWeather;
 	protected LightEntity m_SpectatorFillLight;
 	protected bool m_bNetworkSnapshotReceived;
-	protected CharacterAnimationComponent m_NetworkAnimation;
+	protected ref GC_SpectatorSample m_NetworkSample;
+	protected ref GC_SpectatorPose m_NetworkPose;
+	protected float m_fNetworkFromLean;
+	protected float m_fNetworkStreamAge;
+	protected float m_fNetworkInterpolationDuration = 0.033333;
 	protected int m_iNetworkLastSequence = -1;
 	protected float m_fNetworkInterpolationElapsed;
 	protected float m_fNetworkSnapshotRate = 30.0;
@@ -248,9 +252,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		else if (mode == GC_ESpectatorCameraMode.NETWORK)
 		{
 			GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-			m_NetworkAnimation = CharacterAnimationComponent.Cast(target.FindComponent(CharacterAnimationComponent));
-			if (!localController || !attachComponent || !m_NetworkAnimation || m_iTargetPlayerId <= 0)
+			m_NetworkPose = new GC_SpectatorPose();
+			if (!localController || !attachComponent || m_iTargetPlayerId <= 0 || !m_NetworkPose.Attach(ChimeraCharacter.Cast(target)))
 			{
+				Print("GC | Spectator Camera | network presentation unavailable for target", LogLevel.WARNING);
 				SetFreeMode();
 				return false;
 			}
@@ -263,15 +268,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				return false;
 			}
 
-			// Diagnostic experiment: evaluate the observed proxy through the engine's
-			// first-person animation layer while retaining the real replicated weapon.
-			m_NetworkAnimation.SetAnimationLayerFPP();
 			m_bNetworkSnapshotReceived = false;
 			m_iNetworkLastSequence = -1;
 			m_fNetworkInterpolationElapsed = 0;
 			m_bNetworkDiagnosticsInitialized = false;
 			m_bNetworkDiagnosticsPending = false;
 			m_fNetworkSnapshotRate = localController.GetNetworkCameraUpdateRate();
+			m_fNetworkInterpolationDuration = 1.0 / m_fNetworkSnapshotRate;
+			m_fNetworkStreamAge = 0;
 			m_fNetworkPreviousFOV = GetVerticalFOV();
 			m_bNetworkFOVOverrideActive = true;
 			localController.RequestNetworkCameraStream(m_iTargetPlayerId);
@@ -366,10 +370,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		}
 
 		RestoreNetworkSightPresentation();
-		if (m_NetworkAnimation)
+		if (m_NetworkPose)
 		{
-			m_NetworkAnimation.SetAnimationLayerTPP();
-			m_NetworkAnimation = null;
+			m_NetworkPose.Detach();
+			m_NetworkPose = null;
 		}
 
 		if (m_bMirrorFOVOverrideActive)
@@ -396,6 +400,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_bMirrorHasPresentation = false;
 		m_bMirrorADSTransitionActive = false;
 		m_bNetworkSnapshotReceived = false;
+		m_NetworkSample = null;
 		m_iNetworkLastSequence = -1;
 		m_fNetworkInterpolationElapsed = 0;
 		m_bNetworkIsADS = false;
@@ -684,10 +689,34 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		SetTransform(cameraTransform);
 	}
 
-	void ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
+	void ReceiveNetworkCameraTransform(int targetPlayerId, RplId characterId, GC_SpectatorSample sample)
 	{
-		if (m_eMode != GC_ESpectatorCameraMode.NETWORK || targetPlayerId != m_iTargetPlayerId || sequence <= m_iNetworkLastSequence)
+		if (m_eMode != GC_ESpectatorCameraMode.NETWORK || targetPlayerId != m_iTargetPlayerId || !sample || !sample.IsValid() || sample.m_iSequence <= m_iNetworkLastSequence)
 			return;
+		RplComponent characterReplication = RplComponent.Cast(Replication.FindItem(characterId));
+		if (!characterReplication || characterReplication.GetEntity() != m_Target)
+			return;
+
+		float previousBlend = GetNetworkInterpolationBlend();
+		if (m_NetworkSample)
+		{
+			float interval = (sample.m_fSampleTime - m_NetworkSample.m_fSampleTime) * 0.001;
+			if (interval <= 0)
+				return;
+			m_fNetworkFromLean = Math.Lerp(m_fNetworkFromLean, m_NetworkSample.m_fLean, previousBlend);
+			m_fNetworkInterpolationDuration = Math.Clamp(interval, 0.001, 0.25);
+		}
+		else
+			m_fNetworkFromLean = sample.m_fLean;
+		m_NetworkSample = sample;
+		m_fNetworkStreamAge = 0;
+		int sequence = sample.m_iSequence;
+		vector position = sample.m_vCameraOffset;
+		vector forward = sample.m_vCameraForward;
+		vector up = sample.m_vCameraUp;
+		vector lensState = sample.m_vLensState;
+		bool isADS = (sample.m_iFlags & GC_SpectatorSample.FLAG_ADS) != 0;
+		int sightState = sample.m_iSightState;
 
 		m_iNetworkLastSequence = sequence;
 		int previousSightsIndex = m_iNetworkSightsIndex;
@@ -727,7 +756,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		}
 		else
 		{
-			float blend = GetNetworkInterpolationBlend();
+			float blend = previousBlend;
 			vector currentTransform[4];
 			BuildNetworkTransform(blend, currentTransform);
 			m_vNetworkFromPosition = currentTransform[3];
@@ -755,11 +784,21 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	protected void UpdateNetworkTransform(float timeSlice)
 	{
+		m_fNetworkStreamAge += timeSlice;
+		if (m_fNetworkStreamAge > 2.0)
+		{
+			Print("GC | Spectator Camera | network stream expired", LogLevel.WARNING);
+			SetFreeMode();
+			return;
+		}
 		if (!m_bNetworkSnapshotReceived)
 			return;
 
 		m_fNetworkInterpolationElapsed += timeSlice;
 		float blend = GetNetworkInterpolationBlend();
+		m_NetworkPose.Apply(m_NetworkSample.m_iStance,
+			Math.Lerp(m_fNetworkFromLean, m_NetworkSample.m_fLean, blend),
+			m_bNetworkIsADS, (m_NetworkSample.m_iFlags & GC_SpectatorSample.FLAG_RAISED) != 0);
 		UpdateNetworkSightPresentation();
 		vector cameraTransform[4];
 		BuildNetworkTransform(blend, cameraTransform);
@@ -896,7 +935,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	protected float GetNetworkInterpolationBlend()
 	{
-		return Math.Clamp(m_fNetworkInterpolationElapsed * m_fNetworkSnapshotRate, 0.0, 1.0);
+		return Math.Clamp(m_fNetworkInterpolationElapsed / m_fNetworkInterpolationDuration, 0.0, 1.0);
 	}
 
 	protected void BuildNetworkTransform(float blend, out vector cameraTransform[4])

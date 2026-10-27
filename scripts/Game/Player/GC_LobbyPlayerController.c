@@ -1638,6 +1638,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
 	protected void RpcAsk_SetNetworkCameraTarget(int targetPlayerId)
 	{
+		if (!GC_LobbyGameMode.GetGameMode())
+			return;
+
 		if (targetPlayerId == m_iServerNetworkCameraTargetPlayerId)
 			return;
 
@@ -1730,6 +1733,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!controlledEntity)
 			return;
 
+		GC_SpectatorSample sample = new GC_SpectatorSample();
+		if (!sample.CaptureCharacter(ChimeraCharacter.Cast(controlledEntity)))
+			return;
+		RplComponent characterReplication = RplComponent.Cast(controlledEntity.FindComponent(RplComponent));
+		if (!characterReplication)
+			return;
+
 		vector cameraTransform[4];
 		currentCamera.GetWorldTransform(cameraTransform);
 		vector snapshotPosition = cameraTransform[3] - controlledEntity.GetWorldTransformAxis(3);
@@ -1778,13 +1788,24 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		m_bNetworkCameraDiagnosticsInitialized = true;
 		m_bNetworkCameraDiagnosticsADS = isADS;
 		m_iNetworkCameraDiagnosticsSightState = sightState;
-		Rpc(RpcAsk_PublishNetworkCameraTransform, m_iNetworkCameraSequence, snapshotPosition, snapshotForward, snapshotUp, lensState, isADS, sightState);
+		sample.m_iSequence = m_iNetworkCameraSequence;
+		sample.m_vCameraOffset = snapshotPosition;
+		sample.m_vCameraForward = snapshotForward;
+		sample.m_vCameraUp = snapshotUp;
+		sample.m_vLensState = lensState;
+		sample.m_iSightState = sightState;
+		if (isADS)
+			sample.m_iFlags |= GC_SpectatorSample.FLAG_ADS;
+		Rpc(RpcAsk_PublishNetworkCameraTransform, characterReplication.Id(), sample);
 	}
 
 	[RplRpc(RplChannel.Unreliable, RplRcver.Server)]
-	protected void RpcAsk_PublishNetworkCameraTransform(int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
+	protected void RpcAsk_PublishNetworkCameraTransform(RplId characterId, GC_SpectatorSample sample)
 	{
-		if (!GC_LobbyGameMode.GetGameMode() || m_eLobbyPlayerState != GC_ELobbyPlayerState.PLAYING)
+		if (!GC_LobbyGameMode.GetGameMode() || m_eLobbyPlayerState != GC_ELobbyPlayerState.PLAYING || !sample || !sample.IsValid())
+			return;
+		RplComponent characterReplication = RplComponent.Cast(Replication.FindItem(characterId));
+		if (!characterReplication || characterReplication.GetEntity() != GetControlledEntity())
 			return;
 
 		PlayerManager playerManager = GetGame().GetPlayerManager();
@@ -1799,22 +1820,22 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			if (!spectatorController || spectatorController.m_iServerNetworkCameraTargetPlayerId != GetPlayerId() || spectatorController.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
 				continue;
 
-			spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), sequence, position, forward, up, lensState, isADS, sightState);
+			spectatorController.ServerSendNetworkCameraTransform(GetPlayerId(), characterId, sample);
 		}
 	}
 
-	protected void ServerSendNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
+	protected void ServerSendNetworkCameraTransform(int targetPlayerId, RplId characterId, GC_SpectatorSample sample)
 	{
-		Rpc(RpcDo_ReceiveNetworkCameraTransform, targetPlayerId, sequence, position, forward, up, lensState, isADS, sightState);
+		Rpc(RpcDo_ReceiveNetworkCameraTransform, targetPlayerId, characterId, sample);
 	}
 
 	[RplRpc(RplChannel.Unreliable, RplRcver.Owner)]
-	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, int sequence, vector position, vector forward, vector up, vector lensState, bool isADS, int sightState)
+	protected void RpcDo_ReceiveNetworkCameraTransform(int targetPlayerId, RplId characterId, GC_SpectatorSample sample)
 	{
 		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this || !m_SpectatorCamera)
 			return;
 
-		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, sequence, position, forward, up, lensState, isADS, sightState);
+		m_SpectatorCamera.ReceiveNetworkCameraTransform(targetPlayerId, characterId, sample);
 	}
 
 	bool SetLobbySpectator(IEntity entity, bool activateCamera)
