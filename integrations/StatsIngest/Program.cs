@@ -44,14 +44,17 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
         var payload = new UTF8Encoding(false, true).GetString(bytes);
         using var json = JsonDocument.Parse(payload);
         var root = json.RootElement;
-        var sessionEvents = root.TryGetProperty("kind", out var kind);
-        if (sessionEvents && kind.GetString() != "sessionEvents")
+        var hasKind = root.TryGetProperty("kind", out var kind);
+        var sessionEvents = hasKind && kind.GetString() == "sessionEvents";
+        var history = hasKind && kind.GetString() == "missionHistory";
+        if (hasKind && !sessionEvents && !history)
             throw new InvalidDataException("Unsupported batch kind.");
-        if (sessionEvents) SessionEventContract.Validate(root);
+        if (history) MissionHistoryContract.Validate(root);
+        else if (sessionEvents) SessionEventContract.Validate(root);
         else BatchContract.Validate(root);
         var mission = root.GetProperty(sessionEvents ? "sessionId" : "missionId").GetGuid();
         var revision = root.GetProperty("revision").GetInt32();
-        var expectedName = sessionEvents ? $"{mission}-events-{revision}.json" : $"{mission}-{revision}.json";
+        var expectedName = history ? $"{mission}-history-{revision}.json" : sessionEvents ? $"{mission}-events-{revision}.json" : $"{mission}-{revision}.json";
         if (revision < 0 || Path.GetFileName(path) != expectedName)
             throw new InvalidDataException("Batch identity differs from its filename.");
         var checksum = Convert.ToHexString(SHA256.HashData(bytes));
@@ -64,7 +67,7 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
         await using var connection = await database.OpenConnectionAsync();
         await using var transaction = await connection.BeginTransactionAsync();
         // Table/column names come only from this fixed contract choice, never from a payload.
-        var table = sessionEvents ? "session_log_batches" : "mission_batches";
+        var table = history ? "mission_history_batches" : sessionEvents ? "session_log_batches" : "mission_batches";
         var idColumn = sessionEvents ? "session_id" : "mission_id";
         await using (var insert = new NpgsqlCommand($"""
             INSERT INTO lobby2.{table}({idColumn}, revision, checksum, payload)
@@ -113,7 +116,7 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
         // A crash before removal simply replays the identical idempotent insert next run.
         File.Delete(marker);
         // Session audit JSON remains permanently on the server after successful ingestion.
-        if (!sessionEvents) File.Delete(path);
+        if (!sessionEvents && !history) File.Delete(path);
         Console.WriteLine($"STORED {mission} revision={revision}");
     }
     catch (Exception exception) when (exception is IOException or InvalidDataException or JsonException or InvalidOperationException

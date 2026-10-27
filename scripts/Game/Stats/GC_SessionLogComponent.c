@@ -5,6 +5,7 @@ class GC_SessionLogComponentClass : SCR_BaseGameModeComponentClass
 //! Bounded current-session view plus permanent, append-only server batches.
 class GC_SessionLogComponent : SCR_BaseGameModeComponent
 {
+	protected ref GC_MissionHistory m_History;
 	protected string m_sSessionId;
 	protected int m_iStartedAt;
 	protected float m_fStarted;
@@ -48,6 +49,12 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		m_sSessionId = PersistenceIdUtils.Generate();
 		m_iStartedAt = System.GetUnixTime();
 		m_fStarted = world.GetWorldTime() * 0.001;
+		m_History = new GC_MissionHistory();
+		if (!m_History.Start(m_sSessionId))
+		{
+			Print("GC | Mission history | unavailable: cannot read/create profile server identity", LogLevel.ERROR);
+			m_History = null;
+		}
 		FileIO.MakeDirectory(OUTBOX);
 		GC_SessionEvent entry = CreateEvent("session", 0, 0);
 		entry.m_sDetail = "Session opened";
@@ -175,6 +182,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	{
 		if (GetInstance() != this || !Replication.IsServer() || m_bClosed)
 			return;
+		if (m_History)
+			m_History.Tick();
 		// Bounded catch-up for bursts; callbacks themselves never perform disk I/O.
 		for (int batch; batch < 4 && (!m_aQueued.IsEmpty() || !m_sPendingPayload.IsEmpty()); batch++)
 		{
@@ -336,9 +345,26 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void RecordPhase()
+	{
+		if (Replication.IsServer() && GetInstance() == this && m_History)
+			m_History.RecordPhase();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnGameModeEnd(SCR_GameModeEndData data)
+	{
+		super.OnGameModeEnd(data);
+		if (Replication.IsServer() && GetInstance() == this && m_History)
+			m_History.EndMission(data);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override void OnGameEnd()
 	{
 		GetGame().GetCallqueue().Remove(Tick);
+		if (m_History)
+			m_History.Close();
 		if (Replication.IsServer() && !m_sSessionId.IsEmpty() && !m_bClosed)
 		{
 			m_bClosed = true;

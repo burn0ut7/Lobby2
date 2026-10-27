@@ -187,3 +187,103 @@ SELECT session_id, max(revision) AS latest_revision,
        max((payload->>'droppedRecords')::integer) AS dropped_records,
        count(*) = max(revision)::bigint + 1 AS all_batches_received
 FROM lobby2.session_log_batches GROUP BY session_id;
+
+-- Mission-instance metadata shares mission_id with player batches and session_id with events.
+-- Separate cumulative revisions also preserve sessions which never reached GAME.
+CREATE TABLE IF NOT EXISTS lobby2.mission_history_batches (
+    mission_id uuid NOT NULL,
+    revision integer NOT NULL CHECK (revision >= 0),
+    checksum text NOT NULL,
+    payload jsonb NOT NULL,
+    received_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (mission_id, revision),
+    CHECK (payload->>'kind' = 'missionHistory'),
+    CHECK ((payload->>'schemaVersion')::integer = 1),
+    CHECK ((payload->>'missionId')::uuid = mission_id),
+    CHECK ((payload->>'revision')::integer = revision)
+);
+
+CREATE OR REPLACE VIEW lobby2.mission_history AS
+SELECT DISTINCT ON (mission_id) mission_id, revision,
+       payload->>'serverId' AS server_id, payload->>'serverName' AS server_name,
+       payload->>'hostKind' AS host_kind, payload->>'missionName' AS mission_name,
+       payload->>'author' AS author, payload->>'description' AS description,
+       payload->>'world' AS world, payload->>'scenarioPath' AS scenario_path,
+       to_timestamp((payload->>'startedAt')::bigint) AS started_at,
+       to_timestamp(NULLIF((payload->>'endedAt')::bigint, 0)) AS ended_at,
+       payload->>'status' AS status, payload->>'outcome' AS outcome,
+       (payload->>'endReason')::integer AS end_reason,
+       payload->'winningFactions' AS winning_factions,
+       (payload->>'closed')::boolean AS closed,
+       ((payload->>'complete')::boolean AND
+        (SELECT count(*) FROM lobby2.mission_history_batches b WHERE b.mission_id = h.mission_id) = revision::bigint + 1) AS complete,
+       payload, received_at
+FROM lobby2.mission_history_batches h
+ORDER BY mission_id, revision DESC;
+
+CREATE OR REPLACE VIEW lobby2.mission_performance AS
+SELECT mission_id, server_id, host_kind, phase.key AS scope,
+       (phase.value->>'samples')::integer AS samples,
+       CASE WHEN (phase.value->>'samples')::integer > 0 THEN (phase.value->>'meanSampleFps')::double precision END AS mean_sample_fps,
+       CASE WHEN (phase.value->>'samples')::integer > 0 THEN (phase.value->>'minimumSampleFps')::double precision END AS minimum_sample_fps,
+       CASE WHEN (phase.value->>'samples')::integer > 0 THEN (phase.value->>'maximumSampleFps')::double precision END AS maximum_sample_fps,
+       (phase.value->>'samplesBelow15Fps')::integer AS samples_below_15_fps,
+       (phase.value->>'peakSampledPlayers')::integer AS peak_sampled_players,
+       (phase.value->>'peakSampledActiveAI')::integer AS peak_sampled_active_ai,
+       (phase.value->>'largestSampleGapSeconds')::double precision AS largest_sample_gap_seconds
+FROM lobby2.mission_history
+CROSS JOIN LATERAL jsonb_each(jsonb_build_object('session', payload->'sessionPerformance', 'game', payload->'gamePerformance')) phase;
+
+CREATE OR REPLACE VIEW lobby2.mission_phases AS
+SELECT mission_id, phase->>'phase' AS phase,
+       (phase->>'sessionSeconds')::double precision AS session_seconds,
+       to_timestamp((phase->>'at')::bigint) AS at
+FROM lobby2.mission_history CROSS JOIN LATERAL jsonb_array_elements(payload->'phases') phase;
+
+CREATE OR REPLACE VIEW lobby2.mission_commanders AS
+SELECT mission_id, commander->>'faction' AS faction,
+       commander->>'factionName' AS faction_name, commander->>'identity' AS player_id,
+       commander->>'name' AS player_name,
+       (commander->>'fromSeconds')::double precision AS from_seconds,
+       (commander->>'untilSeconds')::double precision AS until_seconds
+FROM lobby2.mission_history CROSS JOIN LATERAL jsonb_array_elements(payload->'commanders') commander;
+
+-- Join events include lobby-only visitors; GAME player snapshots also include connected spectators.
+-- Use identity rather than a temporary network player ID. Reconnects do not create new people.
+CREATE OR REPLACE VIEW lobby2.mission_attendance AS
+WITH events AS (
+    SELECT session_id AS mission_id, detail->>'actor' AS player_id,
+           (array_agg(detail->>'actorName' ORDER BY sequence DESC))[1] AS player_name,
+           count(*) FILTER (WHERE detail->>'type' = 'joined') AS recorded_joins,
+           min((detail->>'sessionSeconds')::double precision) FILTER (WHERE detail->>'type' = 'joined') AS first_join_seconds,
+           max((detail->>'sessionSeconds')::double precision) FILTER (WHERE detail->>'type' = 'left') AS last_leave_seconds
+    FROM lobby2.session_events
+    WHERE detail->>'type' IN ('joined','left') AND detail->>'actor' <> ''
+    GROUP BY session_id, detail->>'actor'
+)
+SELECT COALESCE(e.mission_id, p.mission_id) AS mission_id,
+       COALESCE(e.player_id, p.player_id) AS player_id,
+       COALESCE(p.player_name, e.player_name) AS player_name,
+       COALESCE(e.recorded_joins, 0) AS recorded_joins, e.first_join_seconds, e.last_leave_seconds,
+       p.player_id IS NOT NULL AS connected_during_game,
+       CASE WHEN p.schema_version >= 3 THEN (p.stats->>'playSeconds')::double precision END AS play_seconds,
+       EXISTS (SELECT 1 FROM jsonb_array_elements(p.stats->'assignments') a WHERE a->>'role' <> '') AS slotted_during_game
+FROM events e FULL JOIN lobby2.mission_players p USING (mission_id, player_id);
+
+
+CREATE OR REPLACE VIEW lobby2.mission_results AS
+SELECT h.mission_id, f.value->>'key' AS faction, f.value->>'name' AS faction_name,
+       h.outcome, h.end_reason,
+       CASE WHEN h.outcome = 'victory' THEN h.winning_factions ? (f.value->>'key') END AS is_winner,
+       commander.player_id AS last_game_commander_id,
+       commander.player_name AS last_game_commander_name
+FROM lobby2.mission_history h
+CROSS JOIN LATERAL jsonb_array_elements(h.payload->'factions') AS f(value)
+LEFT JOIN LATERAL (
+    SELECT c.player_id, c.player_name
+    FROM lobby2.mission_commanders c
+    WHERE c.mission_id = h.mission_id AND c.faction = (f.value->>'key')
+      AND c.until_seconds > (SELECT min(session_seconds) FROM lobby2.mission_phases p
+                             WHERE p.mission_id = h.mission_id AND p.phase = 'GAME')
+    ORDER BY c.from_seconds DESC LIMIT 1
+) commander ON true;

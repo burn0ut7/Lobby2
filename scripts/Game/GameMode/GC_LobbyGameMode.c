@@ -70,6 +70,9 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	override protected void OnGameStateChanged()
 	{
 		super.OnGameStateChanged();
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
+			logs.RecordPhase();
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.Cast(FindComponent(GC_LobbyFreezeComponent));
 		if (freeze)
 			freeze.OnPhaseChanged();

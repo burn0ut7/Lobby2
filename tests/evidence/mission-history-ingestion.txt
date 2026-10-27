@@ -1,0 +1,29 @@
+Mission history ingestion evidence (2026-10-27)
+
+Input: mission 01a17de5-2c8f-8862-8400-000000460207 copied from profile Lobby2History (5 revisions), Lobby2Stats (1), and Lobby2SessionLogs (6) to %TEMP%\Lobby2HistoryIngestionChecks. Importer was only pointed at those copies. Latest history file was stable at 1,680 bytes across a 2-second check and had its ready marker. No profile originals were passed to the importer.
+
+Validation/import commands and outcomes:
+- `dotnet <StatsIngest.dll> --validate <copy-dir>` for history, stats, and session logs: exit 0 for all; VALID revisions history 0–4, stats 0, events 0–5.
+- `dotnet <StatsIngest.dll> --once <latest-history-only-dir>`: exit 0, STORED revision 4. SQL query `SELECT mission_id,complete FROM lobby2.mission_history WHERE mission_id='<mission>'`: `complete=f`.
+- `--once` on copied history, stats, session-log directories: each exit 0; stored history 0–4, stats 0, events 0–5. Final history row: revision 4, closed=true, complete=true.
+- Recreated `ready` markers for the retained copied history JSON and ran `--once` again: exit 0. Counts before/after were unchanged: history batches 5; mission batches 1; session-log batches 6; mission_history 1; attendance 1; results 2; commanders 1; performance 2.
+- Changed copied revision-0 `serverName` to `ingestion-conflict` under the same filename and restored its ready marker. `--once` exit 1; output `RETAINED ... InvalidDataException`; copied JSON and marker remained present.
+- Four isolated copied history fixtures passed to `--validate`: negative FPS, winner outside resultFactions, missing factions property, commander untilSeconds before fromSeconds. All rejected with exit 1 (InvalidDataException for three, KeyNotFoundException for missing property).
+
+Queried rows (identity fields omitted; no player IDs/names recorded):
+- mission_history: revision 4, host=workbench, world=$Lobby2:worlds/examples/arland/Arland_Lobby.ent, status=completed, outcome=victory, started=2026-10-27 11:05:33-04, ended=2026-10-27 11:06:35-04, closed=true, complete=true.
+- mission_attendance: 1 row; joins=1, first_join=0, last_leave=NULL, connected_during_game=true, play_seconds=6.2846527099609375, slotted_during_game=true.
+- mission_results: US victory/end_reason=1002/is_winner=false; USSR victory/end_reason=1002/is_winner=true.
+- mission_commanders: USSR; from=11.830863952636719, until=61.1369743347168.
+- mission_performance: game samples=1, mean/min/max FPS=276.9937438964844, below15=0, peak_players=1, peak_AI=14, gap=0; session samples=7, mean=230.67703247070312, min=18.203590393066406, max=283.1200866699219, below15=0, peak_players=1, peak_AI=14, gap=10.828936576843262.
+
+SQL queries used `psql.exe` with `host=127.0.0.1 port=55439 user=historytest dbname=postgres`; mission-table row queries filtered by the mission_id above.
+Additional stopped-session checks (2026-10-27)
+
+Copied exact mission-prefixed files (never originals) from all three profile outboxes to separate `%TEMP%\Lobby2HistoryIngestionChecks\<mission>` directories. `dotnet <StatsIngest.dll> --validate <copy-dir>` returned exit 0 for every directory: stopped-in-game history revisions 0–3, stats 0–1, events 0–5; lobby-only history revisions 0–1, stats directory empty, events 0–1. `--once` returned exit 0 for all six directories; all present batches were STORED.
+
+SQL observations:
+- The two added history rows are revision 3 and 1 respectively; both status=interrupted, outcome=unknown, closed=true, complete=true. All three checked missions have the same `server_id`: `01a17ddf-a453-8e07-8400-00000044d8c3`.
+- Stopped during GAME (`01a17de6-afa5-8527-8400-00000048b843`): game performance samples=6, mean/min/max FPS=296.35333251953125/274.437255859375/314.5267333984375, below15=0, peak players=1, peak AI=14, largest gap=10.01144027709961; session samples=8, mean/min/max=260.6808776855469/18.153465270996094/314.5267333984375, below15=0, peak players=1, peak AI=14, gap=10.92875862121582. Attendance: 1 row, joins=1, first_join=0, last_leave=NULL, connected_during_game=true, play_seconds=53.42548370361328, slotted_during_game=true. Player-stat batches=2; results=2; commanders=1.
+- Lobby-only (`01a17de8-3267-8588-8400-0000004a7b6a`): game performance samples=0 (FPS values NULL); session samples=2, mean/min/max=149.4732666015625/18.83685874938965/280.10968017578125, below15=0, peak players=1, peak AI=14, gap=10.923856735229492. Attendance: 1 row, joins=1, first_join=0, last_leave=NULL, connected_during_game=false, play_seconds=NULL, slotted_during_game=false. Player-stat batch count=0; results=2; commanders=0. Player identity fields were omitted from evidence.
+- Retained commander row for the stopped-during-GAME session: USSR, from_seconds=12.934609413146973, until_seconds=71.95970153808594; identity fields omitted.

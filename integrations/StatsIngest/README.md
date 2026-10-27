@@ -1,5 +1,39 @@
 # Mission history ingestion
 
+## Mission instances and performance
+
+`$profile:Lobby2History` contains cumulative mission-instance batches, including sessions that never reach GAME. They share `missionId` with player statistics and session logs. Records include the native mission name/author/description/scenario/world, persistent server identity and name, phase timestamps, faction names, commander identity intervals, and native outcome/end reason. GC website metadata tags are not collected. Missing native header/configuration values remain empty (notably in Workbench).
+
+The server samples host FPS, connected player count and active AI count every ten seconds. Separate session and GAME summaries contain sample count, mean/min/max sampled FPS, samples below 15 FPS, sampled peak population/AI, and largest sampling gap. The session summary stops at mission completion; postgame waiting is excluded. FPS is the engine's last-ten-frame average: this is not client FPS, a frame-time trace, a percentile, or a time-weighted average. Sampled peaks can miss short spikes. `hostKind` distinguishes Workbench, listen and dedicated hosts.
+
+History snapshots publish every 30 seconds, at completion, and at normal session shutdown. All history JSON stays on the server after import; only its ready marker is removed. Back up `server-id.txt` with the profile, keep it stable across restarts, and provision a separate profile identity for each server. An unreadable identity stops mission-history collection with an explicit error. Database/network work runs only in the external importer. A process crash can lose the unflushed interval and leave `closed=false`; do not present it as a confirmed completed archive. Normal shutdown before a result records `interrupted`. Native defeat/unknown endings retain their raw faction context without guessing a winner.
+
+Reapply `schema.sql` with the migration account. Add SELECT/INSERT on `lobby2.mission_history_batches` to the importer's existing grants. Schedule the same importer against all three outbox folders, with one owner per folder:
+
+```powershell
+dotnet stats-ingest/StatsIngest.dll --validate 'C:\server-profile\Lobby2History'
+dotnet stats-ingest/StatsIngest.dll --once 'C:\server-profile\Lobby2History'
+```
+
+Website/Discord readers should have SELECT on the required views, never write access to ingestion tables. The new views are `mission_history`, `mission_performance`, `mission_phases`, `mission_commanders`, `mission_results`, and `mission_attendance`. `mission_results` links each faction to its last observed GAME commander, retaining that person after death/disconnect; `mission_commanders` retains all observed command intervals (sampled once per second). `mission_attendance` includes recorded lobby joiners and GAME player records, deduplicated by persistent identity. `connected_during_game` includes spectators; `slotted_during_game` means a recorded role assignment, not proof of alive participation. Player totals keep the existing post-processing eligibility policy.
+
+```sql
+SELECT h.mission_id, h.mission_name, h.started_at, h.outcome,
+       a.player_id, a.player_name, a.play_seconds, a.slotted_during_game
+FROM lobby2.mission_history h
+JOIN lobby2.mission_attendance a USING (mission_id)
+WHERE a.player_id = 'player-identity'
+ORDER BY h.started_at DESC;
+
+SELECT h.mission_id, h.mission_name, p.*
+FROM lobby2.mission_history h
+JOIN lobby2.mission_performance p USING (mission_id)
+WHERE h.status = 'completed' AND h.closed AND h.complete
+  AND p.scope = 'game' AND p.host_kind = 'dedicated';
+```
+
+Imports can arrive in any order. Mission history completeness covers its own revision stream; inspect `session_log_status` and the player snapshot's completeness separately before treating attendance/events/player totals as complete. A result is not proof that all three streams arrived. No new database credentials or production service deployment are bundled with the addon.
+
 Lobby2 writes cumulative player snapshots and append-only death events every 30 seconds to `$profile:Lobby2Stats`. A `.json.ready` marker publishes a verified payload. A separate process imports batches into PostgreSQL; database/network work never runs on the game thread.
 
 PostgreSQL is the chosen history store: relational joins support players, missions and membership intervals; JSONB preserves the versioned source record. Website and Discord services should query these views through their own service accounts. Neither service should connect to the game server's runtime. Future replay files can use `missionId` and mission-relative seconds as their join keys and remain separate from these low-frequency records.
