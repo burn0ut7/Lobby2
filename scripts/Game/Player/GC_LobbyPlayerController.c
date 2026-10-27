@@ -63,8 +63,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Client-local killed-from presentation preference. Defaults to disabled.
 	protected bool m_bSpectatorKilledFromEnabled = false;
 	protected ref GC_KilledFromSnapshot m_KilledFromSnapshot;
-	protected string m_sPendingKilledFromLoadout;
-	protected ref GC_KilledFromDamageTracker m_LocalKilledFromTracker;
+	protected string m_sPendingKilledFromSnapshot;
+	protected int m_iKilledFromSendSequence;
+	protected int m_iKilledFromReceiveSequence;
+	protected int m_iKilledFromNextPart;
+	protected int m_iKilledFromPartCount;
+	protected ref GC_KilledFromDamageTracker m_KilledFromTracker;
+	protected int m_iKilledFromLife;
 	protected PauseMenuUI m_PauseMenu;
 	protected Widget m_wPauseAdminButton;
 	protected SCR_ButtonTextComponent m_PauseAdminButton;
@@ -153,7 +158,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_LobbyInputManager.RemoveActionListener("GC_AdminVON", EActionTrigger.DOWN, LobbyAdminDown);
 			m_LobbyInputManager.RemoveActionListener("GC_AdminVON", EActionTrigger.UP, LobbyAdminUp);
 		}
-		StopLocalKilledFromTracking(false);
+		StopKilledFromTracking(false);
+		GetGame().GetCallqueue().Remove(PublishKilledFromDeath);
 		StopServerNetworkCameraStream();
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
@@ -213,7 +219,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 		ApplyLobbyRadio();
 		gameMode.UpdateLocalPhasePresentation(this, "controller-init");
-		StartLocalKilledFromTracking(GetControlledEntity());
+		StartKilledFromTracking(GetControlledEntity());
 	}
 
 	//! Apply on channel replication, possession, or native radio registration.
@@ -1913,95 +1919,85 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		Rpc(RpcDo_LeaveLobbySpectatorMode, false);
 	}
 
-	//! Authority-to-owner publication of the latest fatal damage snapshot.
+	//------------------------------------------------------------------------------------------------
+	//! Wait until the current native damage event has notified its subscribers.
+	//! The terminal capture covers deletion without a preceding damage event.
+	void SendKilledFromDeath(IEntity victim, IEntity killer)
+	{
+		if (!Replication.IsServer() || !GC_LobbyGameMode.GetGameMode())
+			return;
+		GC_KilledFromSnapshot terminal = new GC_KilledFromSnapshot();
+		terminal.CaptureDeathFallback(victim, killer);
+		GetGame().GetCallqueue().CallLater(PublishKilledFromDeath, 0, false, terminal, m_iKilledFromLife);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PublishKilledFromDeath(GC_KilledFromSnapshot terminal, int life)
+	{
+		if (!Replication.IsServer() || !GC_LobbyGameMode.GetGameMode() || life != m_iKilledFromLife)
+			return;
+		GC_KilledFromSnapshot impact = m_KilledFromSnapshot;
+		if (m_KilledFromTracker)
+			impact = m_KilledFromTracker.GetSnapshot();
+		if (impact)
+			SendKilledFromSnapshot(impact);
+		else
+			SendKilledFromSnapshot(terminal);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Authority-to-owner publication of one complete captured event.
 	void SendKilledFromSnapshot(GC_KilledFromSnapshot snapshot)
 	{
-		if (!Replication.IsServer() || !snapshot)
+		if (!Replication.IsServer() || !GC_LobbyGameMode.GetGameMode() || !snapshot)
 		{
 			PrintFormat("GC | Killed From | event=snapshot-send result=rejected server=%1 player=%2 snapshot=%3", Replication.IsServer(), GetPlayerId(), snapshot, level: LogLevel.WARNING);
 			return;
 		}
 
-		ResourceName killerVehiclePrefab;
-		vector killerVehiclePosition;
-		vector killerVehicleAngles;
-		ECompartmentType killerCompartmentType;
-		int killerCompartmentIndex = -1;
-		GC_KilledFromVehicleState killerVehicle = snapshot.GetKillerVehicle();
-		if (killerVehicle && killerVehicle.IsValid())
+		string data = GC_KilledFromSnapshot.Serialize(snapshot);
+		if (data.IsEmpty())
+			return;
+		m_iKilledFromSendSequence++;
+		int partCount = (data.Length() + 4095) / 4096;
+		for (int part; part < partCount; part++)
 		{
-			killerVehiclePrefab = killerVehicle.GetPrefab();
-			killerVehiclePosition = killerVehicle.GetPosition();
-			killerVehicleAngles = killerVehicle.GetAngles();
-			killerCompartmentType = killerVehicle.GetCompartmentType();
-			killerCompartmentIndex = killerVehicle.GetCompartmentIndex();
+			int offset = part * 4096;
+			Rpc(RpcDo_SetKilledFromSnapshotPart, m_iKilledFromSendSequence, part, partCount, data.Substring(offset, Math.Min(4096, data.Length() - offset)));
 		}
-		PrintFormat("GC | Killed From | event=snapshot-send result=rpc-owner player=%1 snapshot={%2}", GetPlayerId(), snapshot.GetDebugReport());
-		Rpc(RpcDo_SetKilledFromLoadout, snapshot.GetKillerLoadout());
-		Rpc(RpcDo_SetKilledFromSnapshot, snapshot.GetKillerPrefab(), snapshot.GetKillerPosition(), snapshot.GetKillerAngles(), snapshot.GetLineOrigin(), snapshot.GetHitPosition(), snapshot.GetStance(), snapshot.GetDynamicStance(), snapshot.GetFlags());
-		Rpc(RpcDo_SetKilledFromIdentity, snapshot.GetKillerDisplayName(), snapshot.IsKillerDisplayNameLocalized());
-		if (killerVehiclePrefab != ResourceName.Empty)
-			Rpc(RpcDo_SetKilledFromVehicle, killerVehiclePrefab, killerVehiclePosition, killerVehicleAngles, killerCompartmentType, killerCompartmentIndex);
+		PrintFormat("GC | Killed From | event=snapshot-send player=%1 sequence=%2 bytes=%3 parts=%4", GetPlayerId(), m_iKilledFromSendSequence, data.Length(), partCount);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_SetKilledFromLoadout(string killerLoadout)
+	protected void RpcDo_SetKilledFromSnapshotPart(int sequence, int part, int partCount, string data)
 	{
-		m_sPendingKilledFromLoadout = killerLoadout;
-		PrintFormat("GC | Killed From | event=loadout-receive player=%1 bytes=%2", GetPlayerId(), killerLoadout.Length());
-	}
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this)
+			return;
+		if (sequence < m_iKilledFromReceiveSequence || partCount < 1 || partCount > 128 || data.Length() > 4096)
+			return;
+		if (part == 0 && sequence > m_iKilledFromReceiveSequence)
+		{
+			m_sPendingKilledFromSnapshot = string.Empty;
+			m_iKilledFromReceiveSequence = sequence;
+			m_iKilledFromNextPart = 0;
+			m_iKilledFromPartCount = partCount;
+		}
+		if (sequence != m_iKilledFromReceiveSequence || part != m_iKilledFromNextPart || partCount != m_iKilledFromPartCount || part >= partCount)
+			return;
+		m_sPendingKilledFromSnapshot += data;
+		m_iKilledFromNextPart++;
+		if (m_iKilledFromNextPart != partCount)
+			return;
 
-	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_SetKilledFromSnapshot(ResourceName killerPrefab, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
-	{
-		GC_KilledFromSnapshot authoritativeSnapshot = new GC_KilledFromSnapshot();
-		authoritativeSnapshot.SetNetworkData(killerPrefab, m_sPendingKilledFromLoadout, killerPosition, killerAngles, lineOrigin, hitPosition, stance, dynamicStance, flags);
-		m_sPendingKilledFromLoadout = string.Empty;
-		PrintFormat("GC | Killed From | event=snapshot-receive player=%1 authoritative={%2} localTracker=%3 retainedLocal=%4", GetPlayerId(), authoritativeSnapshot.GetDebugReport(), m_LocalKilledFromTracker != null, m_KilledFromSnapshot != null);
-		if (m_LocalKilledFromTracker)
-			authoritativeSnapshot.MergeLocalDamage(m_LocalKilledFromTracker.GetSnapshot());
-		else
-			authoritativeSnapshot.MergeLocalDamage(m_KilledFromSnapshot);
+		GC_KilledFromSnapshot authoritativeSnapshot = GC_KilledFromSnapshot.Deserialize(m_sPendingKilledFromSnapshot);
+		m_sPendingKilledFromSnapshot = string.Empty;
+		if (!authoritativeSnapshot)
+		{
+			Print("GC | Killed From | event=snapshot-receive result=invalid", LogLevel.ERROR);
+			return;
+		}
 		m_KilledFromSnapshot = authoritativeSnapshot;
-		PrintFormat("GC | Killed From | event=snapshot-merge player=%1 final={%2} overlayReady=%3 enabled=%4", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport(), m_SpectatorMarkerOverlay != null, m_bSpectatorKilledFromEnabled);
-		if (m_SpectatorMarkerOverlay)
-			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
-	}
-
-	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_SetKilledFromIdentity(string killerDisplayName, bool killerDisplayNameLocalized)
-	{
-		if (!m_KilledFromSnapshot)
-		{
-			PrintFormat("GC | Killed From | event=identity-fallback-receive result=rejected reason=no-snapshot player=%1", GetPlayerId(), level: LogLevel.WARNING);
-			return;
-		}
-
-		bool hadLocalIdentity = !m_KilledFromSnapshot.GetKillerDisplayName().IsEmpty();
-		m_KilledFromSnapshot.SetNetworkKillerDisplayName(killerDisplayName, killerDisplayNameLocalized);
-		string result = "applied";
-		if (hadLocalIdentity)
-			result = "ignored-local-retained";
-		PrintFormat("GC | Killed From | event=identity-fallback-receive result=%1 player=%2 name=%3 localized=%4", result, GetPlayerId(), m_KilledFromSnapshot.GetKillerDisplayName(), m_KilledFromSnapshot.IsKillerDisplayNameLocalized());
-		if (m_SpectatorMarkerOverlay)
-			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
-	}
-
-	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_SetKilledFromVehicle(ResourceName prefab, vector position, vector angles, ECompartmentType compartmentType, int compartmentIndex)
-	{
-		if (!m_KilledFromSnapshot)
-		{
-			PrintFormat("GC | Killed From | event=vehicle-fallback-receive result=rejected reason=no-snapshot player=%1 prefab=%2", GetPlayerId(), prefab, level: LogLevel.WARNING);
-			return;
-		}
-		if (m_KilledFromSnapshot.HasKillerVehicle())
-		{
-			PrintFormat("GC | Killed From | event=vehicle-fallback-receive result=ignored reason=local-vehicle-retained player=%1 prefab=%2", GetPlayerId(), prefab);
-			return;
-		}
-		m_KilledFromSnapshot.SetNetworkKillerVehicleData(prefab, position, angles, compartmentType, compartmentIndex);
-		PrintFormat("GC | Killed From | event=vehicle-fallback-receive result=applied player=%1 snapshot={%2}", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport());
+		PrintFormat("GC | Killed From | event=snapshot-receive player=%1 sequence=%2 snapshot={%3}", GetPlayerId(), sequence, m_KilledFromSnapshot.GetDebugReport());
 		if (m_SpectatorMarkerOverlay)
 			m_SpectatorMarkerOverlay.SetKilledFromSnapshot(m_KilledFromSnapshot);
 	}
@@ -2030,7 +2026,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			SetLobbyPlayerState(GC_ELobbyPlayerState.PLAYING);
 			m_KilledFromSnapshot = null;
-			m_sPendingKilledFromLoadout = string.Empty;
+			m_sPendingKilledFromSnapshot = string.Empty;
+			m_iKilledFromNextPart = -1;
 		}
 
 		DestroySpectatorCamera();
@@ -2042,7 +2039,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		BaseRadioComponent oldLobbyRadio = GC_LobbyRadio.FindRadio(from);
 		if (oldLobbyRadio)
 			oldLobbyRadio.SetPower(false);
-		StopLocalKilledFromTracking(true);
+		StopKilledFromTracking(true);
 		super.OnControlledEntityChanged(from, to);
 		GC_MissionStatsComponent stats = GC_MissionStatsComponent.GetInstance();
 		if (stats && Replication.IsServer())
@@ -2051,6 +2048,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (Replication.IsServer() && radioManager)
 			radioManager.RefreshPlayerRadio(GetPlayerId());
 		ApplyLobbyRadio();
+		StartKilledFromTracking(to);
 
 		// Camera and menu presentation exists only on the owning client. The same
 		// controller class also exists on dedicated servers and remote proxies.
@@ -2064,23 +2062,22 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 
 		BindLobbyVoiceActivity(to);
-		StartLocalKilledFromTracking(to);
 
 		AttachEditorManager();
 		ReconcileSpectatorPresentation();
 	}
 
-	protected void StartLocalKilledFromTracking(IEntity entity)
+	protected void StartKilledFromTracking(IEntity entity)
 	{
-		if (!GC_LobbyGameMode.GetGameMode())
+		if (!GC_LobbyGameMode.GetGameMode() || GetPlayerId() <= 0)
 			return;
 
-		if (m_LocalKilledFromTracker)
+		if (m_KilledFromTracker)
 		{
 			PrintFormat("GC | Killed From | event=tracker-request result=ignored reason=already-tracking player=%1 entity=%2", GetPlayerId(), entity);
 			return;
 		}
-		if (GetGame().GetPlayerController() != this)
+		if (!Replication.IsServer())
 			return;
 		if (!entity)
 		{
@@ -2094,41 +2091,33 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 
 		m_KilledFromSnapshot = null;
-		m_sPendingKilledFromLoadout = string.Empty;
-		m_LocalKilledFromTracker = new GC_KilledFromDamageTracker();
-		if (!m_LocalKilledFromTracker.Start(entity))
+		m_sPendingKilledFromSnapshot = string.Empty;
+		m_iKilledFromNextPart = -1;
+		m_iKilledFromLife++;
+		m_KilledFromTracker = new GC_KilledFromDamageTracker();
+		if (!m_KilledFromTracker.Start(entity))
 		{
-			m_LocalKilledFromTracker = null;
+			m_KilledFromTracker = null;
 			PrintFormat("GC | Killed From | event=tracker-request result=failed player=%1 entity=%2", GetPlayerId(), entity, level: LogLevel.WARNING);
 		}
 	}
 
-	protected void StopLocalKilledFromTracking(bool retainSnapshot)
+	protected void StopKilledFromTracking(bool retainSnapshot)
 	{
-		if (!m_LocalKilledFromTracker)
+		if (!m_KilledFromTracker)
 			return;
 
 		PrintFormat("GC | Killed From | event=tracker-retain player=%1 retain=%2 existingSnapshot=%3", GetPlayerId(), retainSnapshot, m_KilledFromSnapshot != null);
 
 		if (retainSnapshot)
-		{
-			m_LocalKilledFromTracker.CaptureTerminalVictim();
-			GC_KilledFromSnapshot localDamage = m_LocalKilledFromTracker.GetSnapshot();
-			if (localDamage)
-			{
-				if (m_KilledFromSnapshot)
-					m_KilledFromSnapshot.MergeLocalDamage(localDamage);
-				else
-					m_KilledFromSnapshot = localDamage;
-			}
-		}
+			m_KilledFromSnapshot = m_KilledFromTracker.GetSnapshot();
 		if (m_KilledFromSnapshot)
 			PrintFormat("GC | Killed From | event=tracker-retain result=complete player=%1 snapshot={%2}", GetPlayerId(), m_KilledFromSnapshot.GetDebugReport());
 		else
 			PrintFormat("GC | Killed From | event=tracker-retain result=complete player=%1 snapshot=none", GetPlayerId());
 
-		m_LocalKilledFromTracker.Destroy();
-		m_LocalKilledFromTracker = null;
+		m_KilledFromTracker.Destroy();
+		m_KilledFromTracker = null;
 	}
 
 	protected void AttachEditorManager()

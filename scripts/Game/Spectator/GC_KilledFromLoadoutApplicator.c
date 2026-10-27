@@ -20,10 +20,6 @@ class GC_KilledFromLoadoutApplicator : SCR_PlayerArsenalLoadout
 			return false;
 		}
 
-		CharacterControllerComponent characterController = CharacterControllerComponent.Cast(owner.FindComponent(CharacterControllerComponent));
-		if (characterController)
-			characterController.TryEquipRightHandItem(null, EEquipItemType.EEquipTypeUnarmedDeliberate, true);
-
 		if (!ApplyEntity(owner, context, manager, role, "character"))
 			return false;
 
@@ -67,11 +63,10 @@ class GC_KilledFromLoadoutApplicator : SCR_PlayerArsenalLoadout
 
 			if (prefab != currentPrefab)
 			{
-				if (owner && !manager.TryDeleteItem(owner))
-				{
-					PrintFormat("GC | Killed From | event=preview-loadout result=failed role=%1 stage=delete path=%2 slot=%3 prefab=%4", role, path, slotId, currentPrefab, level: LogLevel.ERROR);
-					return false;
-				}
+				// These are exclusively local preview entities. Gameplay inventory
+				// deletion can acknowledge a request without deleting on a client.
+				if (owner)
+					delete owner;
 
 				Resource resource = Resource.Load(prefab);
 				if (!resource || !resource.IsValid())
@@ -115,11 +110,10 @@ class GC_KilledFromLoadoutApplicator : SCR_PlayerArsenalLoadout
 	protected static bool ApplyStorages(IEntity owner, LoadContext context, InventoryStorageManagerComponent manager, string role, string path)
 	{
 		int storageCount;
+		// The stock writer omits this member for leaf items such as optics.
+		// It is a valid end of the inventory tree, not a corrupt loadout.
 		if (!context.StartArray("storages", storageCount))
-		{
-			PrintFormat("GC | Killed From | event=preview-loadout result=failed role=%1 stage=storages-start path=%2", role, path, level: LogLevel.ERROR);
-			return false;
-		}
+			return true;
 		if (storageCount == 0)
 			return true;
 
@@ -188,8 +182,8 @@ class GC_KilledFromLoadoutApplicator : SCR_PlayerArsenalLoadout
 
 			foreach (int existingSlotId, IEntity existingEntity : existingItems)
 			{
-				if (existingEntity && !manager.TryDeleteItem(existingEntity))
-					return Fail(role, "delete-extra", path, existingSlotId);
+				if (existingEntity)
+					delete existingEntity;
 			}
 
 			if (!context.EndObject())

@@ -2,7 +2,6 @@
 class GC_KilledFromBonePose
 {
 	string m_sBoneName;
-	vector m_aTransform[4];
 	vector m_aLocalTransform[4];
 	bool m_bHasLocalTransform;
 }
@@ -59,8 +58,6 @@ class GC_KilledFromWeaponState
 		array<IEntity> weapons = {};
 		manager.GetWeaponsList(weapons);
 		m_iManagedWeaponIndex = weapons.Find(weaponEntity);
-		PrintFormat("GC | Killed From | event=weapon-capture character=%1 weapon=%2 prefab=%3 managedIndex=%4 sightsIndex=%5 world=%6 actorRelative=%7", character, weaponEntity, m_sPrefab, m_iManagedWeaponIndex, m_iSightsIndex, m_aWorldTransform, m_aActorRelativeTransform);
-		PrintFormat("GC | Killed From | event=weapon-animation-capture animation=%1 raisedTag=%2 adsTag=%3 weaponCommand=%4 aimLR=%5 aimUD=%6", m_bHasCharacterAnimation, m_bWeaponRaisedTag, m_bWeaponADSTag, m_bHasWeaponCommand, m_fAimAngleLR, m_fAimAngleUD);
 	}
 
 	bool IsValid() { return m_sPrefab != ResourceName.Empty; }
@@ -150,17 +147,6 @@ class GC_KilledFromVehicleState
 		}
 	}
 
-	void SetNetworkData(ResourceName prefab, vector position, vector angles, ECompartmentType compartmentType, int compartmentIndex)
-	{
-		m_sPrefab = prefab;
-		m_vPosition = position;
-		m_vAngles = angles;
-		m_eCompartmentType = compartmentType;
-		m_iCompartmentIndex = compartmentIndex;
-		Math3D.AnglesToMatrix(angles, m_aRootTransform);
-		m_aRootTransform[3] = position;
-	}
-
 	bool IsValid() { return m_sPrefab != ResourceName.Empty; }
 	bool HasOccupiedCompartment() { return m_iCompartmentIndex >= 0; }
 	ResourceName GetPrefab() { return m_sPrefab; }
@@ -178,7 +164,7 @@ class GC_KilledFromVehicleState
 
 //! Facts required to recreate one killed-from presentation. The authoritative
 //! serialized loadout is the sole inventory source used by the renderer; exact
-//! bone poses remain client-local presentation data.
+//! pose and inventory travel together in the one-shot owner publication.
 class GC_KilledFromSnapshot
 {
 	static const int FLAG_VALID_KILLER = 1;
@@ -200,7 +186,7 @@ class GC_KilledFromSnapshot
 	protected vector m_vVictimAimingAngles;
 	protected string m_sLineOriginMode;
 	protected int m_iFlags;
-	protected bool m_bHasLocalDamageCapture;
+	protected bool m_bHasDamageCapture;
 	protected string m_sKillerLoadout;
 	protected ResourceName m_sKillerVisualObject;
 	protected vector m_aKillerRootTransform[4];
@@ -218,9 +204,44 @@ class GC_KilledFromSnapshot
 	protected float m_fVictimDynamicStance;
 	protected int m_iVictimFlags;
 
+	static const int MAX_NETWORK_BYTES = 524288;
+
+	//------------------------------------------------------------------------------------------------
+	//! Sent once to the dead player's owner, never as a continuous pose stream.
+	static string Serialize(GC_KilledFromSnapshot snapshot)
+	{
+		JsonSaveContext context = new JsonSaveContext();
+		context.SetMaxDecimalPlaces(6);
+		context.WriteValue("version", 1);
+		if (!context.WriteValue("snapshot", snapshot))
+			return string.Empty;
+		string data = context.SaveToString();
+		if (data.Length() > MAX_NETWORK_BYTES)
+		{
+			PrintFormat("GC | Killed From | snapshot exceeds transport limit bytes=%1", data.Length(), level: LogLevel.ERROR);
+			return string.Empty;
+		}
+		return data;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static GC_KilledFromSnapshot Deserialize(string data)
+	{
+		if (data.IsEmpty() || data.Length() > MAX_NETWORK_BYTES)
+			return null;
+		JsonLoadContext context = new JsonLoadContext();
+		int version;
+		GC_KilledFromSnapshot snapshot;
+		if (!context.LoadFromString(data) || !context.ReadValue("version", version) || version != 1)
+			return null;
+		if (!context.ReadValue("snapshot", snapshot))
+			return null;
+		return snapshot;
+	}
+
 	void Capture(IEntity victim, notnull BaseDamageContext damageContext)
 	{
-		m_bHasLocalDamageCapture = true;
+		m_bHasDamageCapture = true;
 		m_vHitPosition = damageContext.hitPosition;
 		IEntity killer;
 		if (damageContext.instigator)
@@ -262,8 +283,7 @@ class GC_KilledFromSnapshot
 		CaptureVictimVisual(victim);
 	}
 
-	//! One-shot server fallback for killers that were not streamed to the owning
-	//! client. It deliberately performs no continuous damage tracking.
+	//! Terminal capture when deletion has no preceding recorded damage event.
 	void CaptureDeathFallback(IEntity victim, IEntity killer)
 	{
 		if (victim)
@@ -272,49 +292,19 @@ class GC_KilledFromSnapshot
 			m_vLineOrigin = m_vHitPosition;
 		}
 		if (killer)
-			CaptureKiller(killer);
-	}
-
-	//! Client damage facts carry the precise impact/explosive origin. Prefer its
-	//! killer pose too when that entity existed on the owning client.
-	void MergeLocalDamage(GC_KilledFromSnapshot localDamage)
-	{
-		if (!localDamage)
-			return;
-
-		if (localDamage.m_bHasLocalDamageCapture)
 		{
-			m_bHasLocalDamageCapture = true;
-			m_vLineOrigin = localDamage.m_vLineOrigin;
-			m_vHitPosition = localDamage.m_vHitPosition;
-			m_sLineOriginMode = localDamage.m_sLineOriginMode;
+			CaptureKiller(killer);
+			BaseWeaponManagerComponent weapons = BaseWeaponManagerComponent.Cast(killer.FindComponent(BaseWeaponManagerComponent));
+			vector muzzle[4];
+			if (weapons && weapons.GetCurrentMuzzleTransform(muzzle))
+			{
+				m_vLineOrigin = muzzle[3];
+				m_sLineOriginMode = "captured-muzzle";
+			}
 		}
-		m_sVictimLoadout = localDamage.m_sVictimLoadout;
-		m_sVictimPrefab = localDamage.m_sVictimPrefab;
-		m_sVictimVisualObject = localDamage.m_sVictimVisualObject;
-		Math3D.MatrixCopy(localDamage.m_aVictimRootTransform, m_aVictimRootTransform);
-		m_aVictimBonePose = localDamage.m_aVictimBonePose;
-		m_VictimWeapon = localDamage.m_VictimWeapon;
-		m_VictimVehicle = localDamage.m_VictimVehicle;
-		m_fVictimLean = localDamage.m_fVictimLean;
-		m_vVictimAimingAngles = localDamage.m_vVictimAimingAngles;
-		m_iVictimStance = localDamage.m_iVictimStance;
-		m_fVictimDynamicStance = localDamage.m_fVictimDynamicStance;
-		m_iVictimFlags = localDamage.m_iVictimFlags;
-		if (!localDamage.HasKillerPreview())
-			return;
-
-		// Authority owns the killer prefab and serialized inventory. The local
-		// damage capture only contributes render pose data that is not practical
-		// to transmit with the snapshot.
-		m_fKillerLean = localDamage.m_fKillerLean;
-		m_vKillerAimingAngles = localDamage.m_vKillerAimingAngles;
-		m_sKillerVisualObject = localDamage.m_sKillerVisualObject;
-		Math3D.MatrixCopy(localDamage.m_aKillerRootTransform, m_aKillerRootTransform);
-		m_aKillerBonePose = localDamage.m_aKillerBonePose;
-		m_KillerWeapon = localDamage.m_KillerWeapon;
-		m_KillerVehicle = localDamage.m_KillerVehicle;
+		CaptureVictimVisual(victim);
 	}
+
 
 	protected void CaptureKiller(IEntity killer)
 	{
@@ -440,6 +430,15 @@ class GC_KilledFromSnapshot
 		if (damageContext.damageType == EDamageType.EXPLOSIVE && !HasKillerVehicle())
 			return;
 
+		BaseWeaponManagerComponent shotWeaponManager = BaseWeaponManagerComponent.Cast(killer.FindComponent(BaseWeaponManagerComponent));
+		vector muzzle[4];
+		if (shotWeaponManager && shotWeaponManager.GetCurrentMuzzleTransform(muzzle))
+		{
+			m_vLineOrigin = muzzle[3];
+			m_sLineOriginMode = "captured-muzzle";
+			return;
+		}
+
 		vector trajectory = damageContext.impactVelocity;
 		m_sLineOriginMode = "impact-velocity-ray";
 		if (trajectory.LengthSq() < 0.0001)
@@ -511,9 +510,7 @@ class GC_KilledFromSnapshot
 			m_sLineOriginMode = "character-weapon-ray";
 	}
 
-	//! Refresh immediately before local possession leaves the dead character.
-	//! This preserves the terminal death location and pose even when the retained
-	//! attacker came from an earlier hit that caused unconsciousness or bleed-out.
+	//! Capture at impact, before possession loss and the later death presentation.
 	void CaptureVictimVisual(IEntity victim)
 	{
 		m_iVictimFlags = 0;
@@ -559,7 +556,6 @@ class GC_KilledFromSnapshot
 		if (loadoutCaptured)
 		{
 			loadout = loadoutContext.SaveToString();
-			PrintFormat("GC | Killed From | event=loadout-capture role=%1 result=success entity=%2 bytes=%3", role, entity, loadout.Length());
 		}
 		else
 		{
@@ -575,59 +571,16 @@ class GC_KilledFromSnapshot
 
 		array<string> boneNames = {};
 		animation.GetBoneNames(boneNames);
-		int localBoneCount;
 		foreach (string boneName : boneNames)
 		{
 			TNodeId boneIndex = animation.GetBoneIndex(boneName);
 			GC_KilledFromBonePose pose = new GC_KilledFromBonePose();
 			pose.m_sBoneName = boneName;
-			if (!animation.GetBoneMatrix(boneIndex, pose.m_aTransform))
-				continue;
 			pose.m_bHasLocalTransform = animation.GetBoneLocalMatrix(boneIndex, pose.m_aLocalTransform);
-			if (pose.m_bHasLocalTransform)
-				localBoneCount++;
+			if (!pose.m_bHasLocalTransform)
+				continue;
 			bonePose.Insert(pose);
-			if (bonePose.Count() <= 8)
-			{
-				vector localRotation[3] = {pose.m_aLocalTransform[0], pose.m_aLocalTransform[1], pose.m_aLocalTransform[2]};
-				vector localAngles;
-				float localScale = Math3D.MatrixToAnglesAndScale(localRotation, localAngles);
-				PrintFormat("GC | Killed From | event=bone-capture-sample role=%1 index=%2 name=%3 modelTranslation=%4 hasLocal=%5 localTranslation=%6 localAngles=%7 localScale=%8", role, bonePose.Count() - 1, boneName, pose.m_aTransform[3], pose.m_bHasLocalTransform, pose.m_aLocalTransform[3], localAngles, localScale);
-			}
 		}
-		PrintFormat("GC | Killed From | event=bone-capture-summary role=%1 entity=%2 boneNames=%3 modelMatrices=%4 localMatrices=%5 visualObject=%6 rootTransform=%7", role, entity, boneNames.Count(), bonePose.Count(), localBoneCount, visualObjectName, rootTransform);
-	}
-
-	void SetNetworkData(ResourceName killerPrefab, string killerLoadout, vector killerPosition, vector killerAngles, vector lineOrigin, vector hitPosition, int stance, float dynamicStance, int flags)
-	{
-		m_sKillerPrefab = killerPrefab;
-		m_sKillerLoadout = killerLoadout;
-		m_vKillerPosition = killerPosition;
-		m_vKillerAngles = killerAngles;
-		m_vLineOrigin = lineOrigin;
-		m_vHitPosition = hitPosition;
-		m_iStance = stance;
-		m_fDynamicStance = dynamicStance;
-		m_iFlags = flags;
-		Math3D.AnglesToMatrix(killerAngles, m_aKillerRootTransform);
-		m_aKillerRootTransform[3] = killerPosition;
-	}
-
-	void SetNetworkKillerDisplayName(string killerDisplayName, bool killerDisplayNameLocalized)
-	{
-		if (!m_sKillerDisplayName.IsEmpty())
-			return;
-		m_sKillerDisplayName = killerDisplayName;
-		m_bKillerDisplayNameLocalized = killerDisplayNameLocalized;
-	}
-
-	void SetNetworkKillerVehicleData(ResourceName prefab, vector position, vector angles, ECompartmentType compartmentType, int compartmentIndex)
-	{
-		if (prefab == ResourceName.Empty)
-			return;
-		m_KillerVehicle = new GC_KilledFromVehicleState();
-		m_KillerVehicle.SetNetworkData(prefab, position, angles, compartmentType, compartmentIndex);
-		m_iFlags |= FLAG_VALID_KILLER;
 	}
 
 	ResourceName GetKillerPrefab() { return m_sKillerPrefab; }
@@ -683,13 +636,13 @@ class GC_KilledFromSnapshot
 			HasKillerPreview(), m_sKillerPrefab, m_sKillerDisplayName, m_bKillerDisplayNameLocalized, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
 		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 killerAim=%5 victimAim=%6 weaponRaised=%7 ads=%8", m_iStance, m_fDynamicStance,
 			m_fKillerLean, m_fVictimLean, m_vKillerAimingAngles, m_vVictimAimingAngles, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
-		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasLocalDamageCapture, m_sLineOriginMode);
+		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasDamageCapture, m_sLineOriginMode);
 		report = report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 killerLoadoutBytes=%4 victimPrefab=%5 victimVisual=%6 victimObject=%7 victimBones=%8 victimLoadoutBytes=%9", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, m_sKillerLoadout.Length(), m_sVictimPrefab, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount, m_sVictimLoadout.Length());
 		return report + string.Format(" killerVehicle={%1} victimVehicle={%2}", killerVehicleReport, victimVehicleReport);
 	}
 }
 
-//! One owning-client adapter for the locally controlled playable entity. It
+//! One event-driven authority adapter per player victim. It
 //! retains the latest damage plus the last direct external damage source.
 class GC_KilledFromDamageTracker
 {
@@ -742,17 +695,11 @@ class GC_KilledFromDamageTracker
 		return m_Snapshot;
 	}
 
-	void CaptureTerminalVictim()
-	{
-		if (!m_Snapshot)
-			m_Snapshot = new GC_KilledFromSnapshot();
-		m_Snapshot.CaptureVictimVisual(m_Victim);
-		if (m_LastExternalSnapshot && m_LastExternalSnapshot != m_Snapshot)
-			m_LastExternalSnapshot.CaptureVictimVisual(m_Victim);
-	}
 
 	protected void OnDamage(notnull BaseDamageContext damageContext)
 	{
+		if (!GC_LobbyGameMode.GetGameMode())
+			return;
 		IEntity rawInstigatorEntity;
 		int rawInstigatorPlayerId;
 		if (damageContext.instigator)
@@ -760,18 +707,15 @@ class GC_KilledFromDamageTracker
 			rawInstigatorEntity = damageContext.instigator.GetInstigatorEntity();
 			rawInstigatorPlayerId = damageContext.instigator.GetInstigatorPlayerID();
 		}
-		PrintFormat("GC | Killed From | event=damage-raw type=%1 victim=%2 damageSource=%3 instigator=%4 instigatorPlayer=%5 hitPosition=%6 hitDirection=%7 impactVelocity=%8 retainedExternal=%9", damageContext.damageType, m_Victim, damageContext.damageSource, rawInstigatorEntity, rawInstigatorPlayerId, damageContext.hitPosition, damageContext.hitDirection, damageContext.impactVelocity, m_LastExternalSnapshot != null);
 
 		if (damageContext.damageType == EDamageType.HEALING || damageContext.damageType == EDamageType.REGENERATION)
 		{
-			PrintFormat("GC | Killed From | event=damage result=ignored reason=non-damage type=%1 victim=%2", damageContext.damageType, m_Victim);
 			return;
 		}
 
 		bool passiveDamage = damageContext.damageType == EDamageType.BLEEDING || damageContext.damageType == EDamageType.FIRE;
 		if (passiveDamage && m_Snapshot)
 		{
-			PrintFormat("GC | Killed From | event=damage result=ignored reason=passive-after-capture type=%1 victim=%2 retained={%3}", damageContext.damageType, m_Victim, GetSnapshot().GetDebugReport());
 			return;
 		}
 
@@ -781,10 +725,10 @@ class GC_KilledFromDamageTracker
 		bool emptyImpact = damageContext.hitPosition.LengthSq() < 0.0001 && damageContext.hitDirection.LengthSq() < 0.0001 && damageContext.impactVelocity.LengthSq() < 0.0001;
 		if (!passiveDamage && emptyImpact && m_LastExternalSnapshot)
 		{
-			PrintFormat("GC | Killed From | event=damage result=ignored reason=incomplete-duplicate type=%1 victim=%2 damageSource=%3 instigator=%4 instigatorPlayer=%5 retained={%6}", damageContext.damageType, m_Victim, damageContext.damageSource, rawInstigatorEntity, rawInstigatorPlayerId, m_LastExternalSnapshot.GetDebugReport(), level: LogLevel.WARNING);
 			return;
 		}
 
+		int captureStart = System.GetTickCount();
 		GC_KilledFromSnapshot snapshot = new GC_KilledFromSnapshot();
 		snapshot.Capture(m_Victim, damageContext);
 		m_Snapshot = snapshot;
@@ -799,8 +743,7 @@ class GC_KilledFromDamageTracker
 		if (!passiveDamage && (externalEntity || externalPlayer))
 			m_LastExternalSnapshot = snapshot;
 
-		PrintFormat("GC | Killed From | event=damage result=captured type=%1 victim=%2 victimPlayer=%3 damageSource=%4 instigator=%5 instigatorPlayer=%6 passive=%7 retainedAsExternal=%8 snapshot={%9}",
-			damageContext.damageType, m_Victim, victimPlayerId, damageContext.damageSource, instigatorEntity, instigatorPlayerId, passiveDamage,
-			m_LastExternalSnapshot == snapshot, snapshot.GetDebugReport());
+		PrintFormat("GC | Killed From | event=damage-capture server=%1 player=%2 type=%3 captureMs=%4 external=%5",
+			Replication.IsServer(), victimPlayerId, damageContext.damageType, System.GetTickCount(captureStart), m_LastExternalSnapshot == snapshot);
 	}
 }

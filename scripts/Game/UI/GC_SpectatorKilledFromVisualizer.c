@@ -4,13 +4,6 @@ class GC_KilledFromBoneOperation
 	vector m_aMatrix[4];
 }
 
-enum GC_EKilledFromWeaponPrototype
-{
-	LIVE_CONTROL,
-	POSE_THEN_FREEZE,
-	GAMEPLAY_SHARED_ADS_AIM
-}
-
 //! Client-only killed-from preview and line renderer. No entity created here is
 //! inserted on the server or exposed as replicated gameplay state.
 class GC_SpectatorKilledFromVisualizer
@@ -34,14 +27,10 @@ class GC_SpectatorKilledFromVisualizer
 	protected IEntity m_VictimPreviewEntity;
 	protected IEntity m_KillerVehiclePreviewEntity;
 	protected IEntity m_VictimVehiclePreviewEntity;
-	protected IEntity m_MuzzleWeapon;
-	protected vector m_vMuzzlePosition;
-	protected string m_sMuzzleMode;
-	protected bool m_bMuzzleResolved;
-	protected bool m_bVictimFrozenPreview;
+	protected int m_iPreviewFrames;
+	protected bool m_bPoseFrozen;
 	protected bool m_bEnabled;
 	protected bool m_bVisibilityReported;
-	protected bool m_bPhysicsDeactivationReported;
 	protected bool m_bLastTraceVisible;
 	protected bool m_bLastLabelVisible;
 	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
@@ -86,7 +75,6 @@ class GC_SpectatorKilledFromVisualizer
 		m_Snapshot = snapshot;
 		UpdateKillerMarkerText();
 		m_bVisibilityReported = false;
-		m_bPhysicsDeactivationReported = false;
 		DestroyPreview();
 		ClearLine();
 		if (m_bEnabled)
@@ -150,20 +138,16 @@ class GC_SpectatorKilledFromVisualizer
 
 		vector killerTransform[4];
 		m_Snapshot.GetKillerRootTransform(killerTransform);
-		if (killerVehicle && killerVehicle.IsValid())
-			m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), m_Snapshot.GetKillerLoadout(), killerTransform, m_Snapshot.GetKillerBonePose(), "killer");
-		else
-			m_KillerPreviewEntity = CreateExperimentalActorClone(m_Snapshot.GetKillerPrefab(), m_Snapshot.GetKillerLoadout(), killerTransform, m_Snapshot.GetKillerBonePose(), m_Snapshot.GetKillerWeapon(), GC_EKilledFromWeaponPrototype.LIVE_CONTROL, "killer-k0");
-
+		m_KillerPreviewEntity = CreateActorClone(m_Snapshot.GetKillerPrefab(), m_Snapshot.GetKillerLoadout(), killerTransform, m_Snapshot.GetKillerBonePose(), "killer");
 		vector victimTransform[4];
 		m_Snapshot.GetVictimRootTransform(victimTransform);
-		if (!victimVehicle || !victimVehicle.IsValid())
-			m_VictimPreviewEntity = CreateExperimentalActorClone(m_Snapshot.GetVictimPrefab(), m_Snapshot.GetVictimLoadout(), victimTransform, m_Snapshot.GetVictimBonePose(), m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.POSE_THEN_FREEZE, "victim-frozen");
-		if (m_VictimPreviewEntity)
-			m_bVictimFrozenPreview = true;
+		m_VictimPreviewEntity = CreateActorClone(m_Snapshot.GetVictimPrefab(), m_Snapshot.GetVictimLoadout(), victimTransform, m_Snapshot.GetVictimBonePose(), "victim");
+		SelectWeapon(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), "killer", true);
+		SelectWeapon(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", true);
+		m_iPreviewFrames = 0;
+		m_bPoseFrozen = false;
 		EnsureActorSeat(m_KillerPreviewEntity, m_KillerVehiclePreviewEntity, killerVehicle, "killer");
 		EnsureActorSeat(m_VictimPreviewEntity, m_VictimVehiclePreviewEntity, victimVehicle, "victim");
-		m_bPhysicsDeactivationReported = false;
 		PrintFormat("GC | Killed From | event=preview-create result=complete killer=%1 victim=%2 killerVehicle=%3 victimVehicle=%4 snapshot={%5}", m_KillerPreviewEntity, m_VictimPreviewEntity, m_KillerVehiclePreviewEntity, m_VictimVehiclePreviewEntity, m_Snapshot.GetDebugReport());
 	}
 
@@ -256,82 +240,13 @@ class GC_SpectatorKilledFromVisualizer
 		}
 	}
 
-	protected void ReportVehicleState(IEntity vehicle, GC_KilledFromVehicleState state, string role)
-	{
-		if (!vehicle || !state)
-			return;
-		array<ref GC_KilledFromTurretState> states = state.GetTurrets();
-		int turretIndex;
-		array<IEntity> hierarchy = {vehicle};
-		SCR_EntityHelper.GetHierarchyEntityList(vehicle, hierarchy);
-		foreach (IEntity hierarchyEntity : hierarchy)
-		{
-			array<Managed> components = {};
-			hierarchyEntity.FindComponents(TurretControllerComponent, components);
-			foreach (Managed component : components)
-			{
-				TurretControllerComponent controller = TurretControllerComponent.Cast(component);
-				if (!controller)
-					continue;
-				vector requestedRotation;
-				bool requestedADS;
-				if (turretIndex < states.Count())
-				{
-					requestedRotation = states[turretIndex].GetRawAimingRotation();
-					requestedADS = states[turretIndex].IsWeaponADS();
-				}
-				TurretComponent turret = controller.GetTurretComponent();
-				vector actualRotation;
-				if (turret)
-					actualRotation = turret.GetRawAimingRotation();
-				PrintFormat("GC | Killed From | event=vehicle-turret-state role=%1 index=%2 controller=%3 requestedRotation=%4 actualRotation=%5 requestedADS=%6 actualADS=%7 inputADS=%8 sightsADS=%9", role, turretIndex, controller, requestedRotation, actualRotation, requestedADS, controller.IsWeaponADS(), controller.GetWeaponADSInput(), controller.GetCurrentSightsADS());
-				turretIndex++;
-			}
-		}
-		PrintFormat("GC | Killed From | event=vehicle-state role=%1 vehicle=%2 capturedTurrets=%3 cloneTurrets=%4 compartmentType=%5 compartmentIndex=%6", role, vehicle, states.Count(), turretIndex, state.GetCompartmentType(), state.GetCompartmentIndex());
-	}
-
-	protected IEntity CreateExperimentalActorClone(ResourceName prefab, string loadout, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, GC_KilledFromWeaponState weaponState, int mode, string role)
-	{
-		IEntity preview = CreateActorClone(prefab, loadout, rootTransform, bonePose, role);
-		if (!preview)
-			return null;
-
-		IEntity weapon = SelectWeapon(preview, weaponState, role, true);
-		preview.Update();
-		CharacterAnimationComponent characterAnimation = CharacterAnimationComponent.Cast(preview.FindComponent(CharacterAnimationComponent));
-		int missingBones;
-		int failedBones;
-		int unavailableLocalBones;
-		int appliedBones;
-		bool animationDeactivated;
-		if (mode == GC_EKilledFromWeaponPrototype.LIVE_CONTROL)
-			ApplyWeaponAnimationGraph(preview, weaponState, mode, role, true);
-
-		appliedBones = ApplyBonePose(preview, bonePose, missingBones, failedBones, unavailableLocalBones);
-
-		if (mode == GC_EKilledFromWeaponPrototype.POSE_THEN_FREEZE && characterAnimation)
-		{
-			characterAnimation.Deactivate(preview);
-			animationDeactivated = true;
-		}
-		if (mode == GC_EKilledFromWeaponPrototype.LIVE_CONTROL)
-			ApplyWeaponTransform(preview, weapon, weaponState, role, true);
-		IsolatePhysicsHierarchy(weapon);
-		int deactivatedPhysics = DeactivatePhysicsHierarchy(preview);
-		PrintFormat("GC | Killed From | event=animation-treatment-create role=%1 index=%2 mode=%3 actor=%4 weapon=%5 animation=%6", role, mode, GetWeaponPrototypeName(mode), preview, weapon, characterAnimation);
-		PrintFormat("GC | Killed From | event=animation-treatment-state role=%1 index=%2 mode=%3 animationOff=%4", role, mode, GetWeaponPrototypeName(mode), animationDeactivated);
-		PrintFormat("GC | Killed From | event=animation-treatment-pose role=%1 index=%2 mode=%3 appliedBones=%4 missingBones=%5 failedBones=%6 unavailableLocal=%7 deactivatedPhysics=%8 sourceMutation=none", role, mode, GetWeaponPrototypeName(mode), appliedBones, missingBones, failedBones, unavailableLocalBones, deactivatedPhysics);
-		return preview;
-	}
-
 	//! Spawn the fully initialized character, then replace its authored inventory
 	//! with the exact recursively serialized death-time loadout. This retains the
 	//! gameplay skeleton/animation path needed for ADS while reflecting changed
 	//! clothing, headgear, weapons, optics, and attachments.
 	protected IEntity CreateActorClone(ResourceName prefab, string loadout, vector rootTransform[4], array<ref GC_KilledFromBonePose> bonePose, string role)
 	{
-		if (prefab == ResourceName.Empty || loadout.IsEmpty())
+		if (prefab == ResourceName.Empty || loadout.IsEmpty() || !bonePose || bonePose.IsEmpty())
 		{
 			PrintFormat("GC | Killed From | event=actor-clone result=skipped role=%1 reason=missing-capture prefab=%2 loadoutBytes=%3", role, prefab, loadout.Length(), level: LogLevel.WARNING);
 			return null;
@@ -378,7 +293,7 @@ class GC_SpectatorKilledFromVisualizer
 		return preview;
 	}
 
-	//! K2 treatment: precompute each source target relative to the clone's evaluated
+	//! Precompute each source target relative to the clone's evaluated
 	//! local bone matrix, then submit every delta together so parent writes cannot
 	//! contaminate child calculations.
 	protected int ApplyBonePose(IEntity entity, array<ref GC_KilledFromBonePose> bonePose, out int missingBones, out int failedBones, out int unavailableLocalBones)
@@ -397,15 +312,17 @@ class GC_SpectatorKilledFromVisualizer
 			if (!pose)
 				continue;
 			TNodeId boneIndex = animation.GetBoneIndex(pose.m_sBoneName);
-			if (boneIndex < 0)
-			{
-				missingBones++;
-				continue;
-			}
 			vector currentTransform[4];
-			if (!pose.m_bHasLocalTransform || !animation.GetBoneLocalMatrix(boneIndex, currentTransform))
+			if (!pose.m_bHasLocalTransform)
 			{
 				unavailableLocalBones++;
+				continue;
+			}
+			// TNodeId is a signed identifier, not an array index. Negative IDs
+			// include valid hand/weapon bones; let the animation API resolve it.
+			if (!animation.GetBoneLocalMatrix(boneIndex, currentTransform))
+			{
+				missingBones++;
 				continue;
 			}
 
@@ -429,28 +346,30 @@ class GC_SpectatorKilledFromVisualizer
 
 	protected IEntity SelectWeapon(IEntity actor, GC_KilledFromWeaponState state, string role, bool report)
 	{
-		if (!actor || !state || !state.IsValid())
+		if (!actor || !state)
 			return null;
+		CharacterControllerComponent controller = CharacterControllerComponent.Cast(actor.FindComponent(CharacterControllerComponent));
+		if (!state.IsValid())
+		{
+			if (controller)
+				controller.TryEquipRightHandItem(null, EEquipItemType.EEquipTypeUnarmedDeliberate, true);
+			return null;
+		}
 		CharacterWeaponManagerComponent manager = CharacterWeaponManagerComponent.Cast(actor.FindComponent(CharacterWeaponManagerComponent));
 		if (!manager)
 			return null;
 		array<IEntity> weapons = {};
 		manager.GetWeaponsList(weapons);
 		IEntity selectedWeapon;
-		foreach (IEntity candidate : weapons)
+		int managedIndex = state.GetManagedWeaponIndex();
+		if (managedIndex >= 0 && managedIndex < weapons.Count())
 		{
-			EntityPrefabData prefabData = candidate.GetPrefabData();
+			IEntity candidate = weapons[managedIndex];
+			EntityPrefabData prefabData;
+			if (candidate)
+				prefabData = candidate.GetPrefabData();
 			if (prefabData && prefabData.GetPrefabName() == state.GetPrefab())
-			{
 				selectedWeapon = candidate;
-				break;
-			}
-		}
-		if (!selectedWeapon)
-		{
-			int managedIndex = state.GetManagedWeaponIndex();
-			if (managedIndex >= 0 && managedIndex < weapons.Count())
-				selectedWeapon = weapons[managedIndex];
 		}
 		if (!selectedWeapon)
 		{
@@ -461,8 +380,8 @@ class GC_SpectatorKilledFromVisualizer
 
 		BaseWeaponComponent weaponComponent = BaseWeaponComponent.Cast(selectedWeapon.FindComponent(BaseWeaponComponent));
 		bool selected;
-		if (weaponComponent)
-			selected = manager.SelectWeapon(weaponComponent);
+		if (weaponComponent && controller)
+			selected = controller.TryEquipRightHandItem(selectedWeapon, EEquipItemType.EEquipTypeWeapon, true);
 		manager.SetVisibleCurrentWeapon(true);
 		if (report)
 			PrintFormat("GC | Killed From | event=weapon-select role=%1 result=applied weapon=%2 requestedPrefab=%3 selected=%4 requestedSights=%5 actualSights=%6", role, selectedWeapon, state.GetPrefab(), selected, state.GetSightsIndex(), manager.GetCurrentSightsIndex());
@@ -489,72 +408,59 @@ class GC_SpectatorKilledFromVisualizer
 		}
 	}
 
-	protected bool ApplyWeaponAnimationGraph(IEntity actor, GC_KilledFromWeaponState state, int mode, string role, bool report)
+	//------------------------------------------------------------------------------------------------
+	//! Inventory and the native command initialize before the frozen pose is set.
+	//! Applying offsets during spawn lets the first native animation update erase them.
+	protected void FreezeActor(IEntity actor, vector rootTransform[4], array<ref GC_KilledFromBonePose> pose, GC_KilledFromWeaponState weaponState, string role)
 	{
-		if (!actor || !state)
-			return false;
+		if (!actor)
+			return;
 		CharacterAnimationComponent animation = CharacterAnimationComponent.Cast(actor.FindComponent(CharacterAnimationComponent));
-		if (!animation)
+		if (animation)
+			animation.Deactivate(actor);
+		actor.SetWorldTransform(rootTransform);
+		CharacterWeaponManagerComponent weapons = CharacterWeaponManagerComponent.Cast(actor.FindComponent(CharacterWeaponManagerComponent));
+		IEntity weapon;
+		if (weapons && weapons.GetCurrentWeapon())
+			weapon = weapons.GetCurrentWeapon().GetOwner();
+		if (weaponState)
 		{
-			if (report)
-				PrintFormat("GC | Killed From | event=weapon-animation role=%1 mode=%2 result=no-character-animation", role, GetWeaponPrototypeName(mode), level: LogLevel.WARNING);
-			return false;
+			array<IEntity> inventoryWeapons = {};
+			if (weapons)
+				weapons.GetWeaponsList(inventoryWeapons);
+			bool correctWeapon = !weaponState.IsValid() && !weapon;
+			if (weaponState.IsValid() && weapon)
+				correctWeapon = inventoryWeapons.Find(weapon) == weaponState.GetManagedWeaponIndex() && SCR_ResourceNameUtils.GetPrefabName(weapon) == weaponState.GetPrefab();
+			if (!correctWeapon)
+			{
+				PrintFormat("GC | Killed From | event=pose-frozen role=%1 result=failed reason=weapon-not-ready", role, level: LogLevel.ERROR);
+				delete actor;
+				return;
+			}
 		}
-
-		TAnimGraphVariable adsVariable = animation.BindVariableBool("ADS");
-		TAnimGraphVariable lowVariable = animation.BindVariableBool("Low");
-		TAnimGraphVariable obstructionVariable = animation.BindVariableBool("WeaponObstruction");
-		bool ads = state.IsWeaponADSTag();
-		bool shared = true;
-		if (shared)
-		{
-			if (adsVariable != -1)
-				animation.SetSharedVariableBool(adsVariable, ads, false);
-			if (lowVariable != -1 && ads)
-				animation.SetSharedVariableBool(lowVariable, false, false);
-			if (obstructionVariable != -1 && ads)
-				animation.SetSharedVariableBool(obstructionVariable, false, false);
-		}
-		else
-		{
-			if (adsVariable != -1)
-				animation.SetVariableBool(adsVariable, ads);
-			if (lowVariable != -1 && ads)
-				animation.SetVariableBool(lowVariable, false);
-			if (obstructionVariable != -1 && ads)
-				animation.SetVariableBool(obstructionVariable, false);
-		}
-
-		TAnimGraphVariable aimXVariable = -1;
-		TAnimGraphVariable aimYVariable = -1;
-		if (state.HasWeaponCommand())
-		{
-			aimXVariable = animation.BindVariableFloat("AimX");
-			aimYVariable = animation.BindVariableFloat("AimY");
-			if (aimXVariable != -1)
-				animation.SetSharedVariableFloat(aimXVariable, state.GetAimAngleLR(), false);
-			if (aimYVariable != -1)
-				animation.SetSharedVariableFloat(aimYVariable, state.GetAimAngleUD(), false);
-			animation.SetAnimAimY(state.GetAimAngleUD());
-		}
-		actor.Update();
-		if (report)
-		{
-			PrintFormat("GC | Killed From | event=weapon-animation role=%1 mode=%2 result=applied sourceAnimation=%3 sourceRaised=%4 sourceADS=%5 sourceWeaponCommand=%6 aimLR=%7 aimUD=%8", role, GetWeaponPrototypeName(mode), state.HasCharacterAnimation(), state.IsWeaponRaisedTag(), ads, state.HasWeaponCommand(), state.GetAimAngleLR(), state.GetAimAngleUD());
-			PrintFormat("GC | Killed From | event=weapon-animation-bindings role=%1 mode=%2 adsVar=%3 lowVar=%4 obstructionVar=%5 aimXVar=%6 aimYVar=%7 readbackRaised=%8 readbackADS=%9", role, GetWeaponPrototypeName(mode), adsVariable, lowVariable, obstructionVariable, aimXVariable, aimYVariable, animation.IsWeaponRaisedTag(), animation.IsWeaponADSTag());
-		}
-		return adsVariable != -1;
+		IsolatePhysicsHierarchy(actor);
+		DeactivatePhysicsHierarchy(actor);
+		int missing;
+		int failed;
+		int unavailable;
+		int applied = ApplyBonePose(actor, pose, missing, failed, unavailable);
+		// The held item is parented to an animated bone. Restore its transform
+		// after that parent's pose has changed, otherwise it moves twice.
+		ApplyWeaponTransform(actor, weapon, weaponState, role, false);
+		PrintFormat("GC | Killed From | event=pose-frozen role=%1 applied=%2 missing=%3 failed=%4 unavailable=%5", role, applied, missing, failed, unavailable);
 	}
 
-	protected string GetWeaponPrototypeName(int mode)
+	//------------------------------------------------------------------------------------------------
+	protected void FreezePreview()
 	{
-		switch (mode)
-		{
-			case GC_EKilledFromWeaponPrototype.LIVE_CONTROL: return "K0-LIVE";
-			case GC_EKilledFromWeaponPrototype.POSE_THEN_FREEZE: return "VICTIM-POSE-ANIMOFF";
-			case GC_EKilledFromWeaponPrototype.GAMEPLAY_SHARED_ADS_AIM: return "GAMEPLAY-ADS-AIM";
-		}
-		return "UNKNOWN";
+		if (m_bPoseFrozen || !m_Snapshot)
+			return;
+		vector root[4];
+		m_Snapshot.GetKillerRootTransform(root);
+		FreezeActor(m_KillerPreviewEntity, root, m_Snapshot.GetKillerBonePose(), m_Snapshot.GetKillerWeapon(), "killer");
+		m_Snapshot.GetVictimRootTransform(root);
+		FreezeActor(m_VictimPreviewEntity, root, m_Snapshot.GetVictimBonePose(), m_Snapshot.GetVictimWeapon(), "victim");
+		m_bPoseFrozen = true;
 	}
 
 	protected int IsolatePhysicsHierarchy(IEntity entity)
@@ -600,26 +506,6 @@ class GC_SpectatorKilledFromVisualizer
 		return count;
 	}
 
-	protected void ReportPhysicsHierarchy(IEntity entity, string role)
-	{
-		if (!entity)
-			return;
-		Physics physics = entity.GetPhysics();
-		if (physics)
-		{
-			int geometryCount = physics.GetNumGeoms();
-			PrintFormat("GC | Killed From | event=clone-physics role=%1 entity=%2 bodyLayer=%3 simulation=%4 active=%5 dynamic=%6 kinematic=%7 geometries=%8", role, entity, physics.GetInteractionLayer(), physics.GetSimulationState(), physics.IsActive(), physics.IsDynamic(), physics.IsKinematic(), geometryCount);
-			for (int geometryIndex; geometryIndex < geometryCount; geometryIndex++)
-				PrintFormat("GC | Killed From | event=clone-physics-geometry role=%1 entity=%2 index=%3 name=%4 layer=%5", role, entity, geometryIndex, physics.GetGeomName(geometryIndex), physics.GetGeomInteractionLayer(geometryIndex));
-		}
-		IEntity child = entity.GetChildren();
-		while (child)
-		{
-			ReportPhysicsHierarchy(child, role);
-			child = child.GetSibling();
-		}
-	}
-
 	protected void DestroyPreview()
 	{
 		if (m_KillerPreviewEntity)
@@ -650,11 +536,20 @@ class GC_SpectatorKilledFromVisualizer
 			PrintFormat("GC | Killed From | event=preview-destroy role=victim-vehicle preview=%1", victimVehicle);
 			delete victimVehicle;
 		}
-		m_bPhysicsDeactivationReported = false;
-		m_bVictimFrozenPreview = false;
-		m_MuzzleWeapon = null;
-		m_bMuzzleResolved = false;
-		m_sMuzzleMode = string.Empty;
+		m_bPoseFrozen = false;
+		m_iPreviewFrames = 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void UpdatePose()
+	{
+		if (m_bPoseFrozen)
+			return;
+		// Allow one complete native frame after spawn before writing bone offsets.
+		m_iPreviewFrames++;
+		if (m_iPreviewFrames < 2)
+			return;
+		FreezePreview();
 	}
 
 	protected void Update()
@@ -663,43 +558,13 @@ class GC_SpectatorKilledFromVisualizer
 		if (!m_bEnabled || !m_Snapshot || !m_wCanvas || !m_Workspace || !m_World)
 			return;
 
-		// Character and inventory initialization can rebuild physics after spawn.
-		// Reassert unused layers and the verified ALL-OFF treatment every update;
-		// the configured simulation state remains unchanged.
-		IsolatePhysicsHierarchy(m_KillerPreviewEntity);
-		IsolatePhysicsHierarchy(m_VictimPreviewEntity);
-		IsolatePhysicsHierarchy(m_KillerVehiclePreviewEntity);
-		IsolatePhysicsHierarchy(m_VictimVehiclePreviewEntity);
-		array<ref GC_KilledFromBonePose> killerBonePose = m_Snapshot.GetKillerBonePose();
-		array<ref GC_KilledFromBonePose> victimBonePose = m_Snapshot.GetVictimBonePose();
-		int killerMissingBones;
-		int killerFailedBones;
-		int killerUnavailableLocalBones;
-		ApplyWeaponAnimationGraph(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), GC_EKilledFromWeaponPrototype.LIVE_CONTROL, "killer-k0", !m_bPhysicsDeactivationReported);
-		int killerAppliedBones = ApplyBonePose(m_KillerPreviewEntity, killerBonePose, killerMissingBones, killerFailedBones, killerUnavailableLocalBones);
-		int victimMissingBones;
-		int victimFailedBones;
-		int victimUnavailableLocalBones;
-		int victimAppliedBones;
-		if (!m_bVictimFrozenPreview)
-			victimAppliedBones = ApplyBonePose(m_VictimPreviewEntity, victimBonePose, victimMissingBones, victimFailedBones, victimUnavailableLocalBones);
+		UpdatePose();
+		if (!m_bPoseFrozen)
+			return;
 		ApplyVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
 		ApplyVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
-		IEntity killerWeapon = SelectWeapon(m_KillerPreviewEntity, m_Snapshot.GetKillerWeapon(), "killer-k0", !m_bPhysicsDeactivationReported);
-		ApplyWeaponTransform(m_KillerPreviewEntity, killerWeapon, m_Snapshot.GetKillerWeapon(), "killer-k0", !m_bPhysicsDeactivationReported);
-		IEntity victimWeapon;
-		if (!m_bVictimFrozenPreview)
-		{
-			victimWeapon = SelectWeapon(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
-			ApplyWeaponTransform(m_VictimPreviewEntity, victimWeapon, m_Snapshot.GetVictimWeapon(), "victim", !m_bPhysicsDeactivationReported);
-			ApplyWeaponAnimationGraph(m_VictimPreviewEntity, m_Snapshot.GetVictimWeapon(), GC_EKilledFromWeaponPrototype.GAMEPLAY_SHARED_ADS_AIM, "victim", !m_bPhysicsDeactivationReported);
-		}
-		IsolatePhysicsHierarchy(killerWeapon);
-		IsolatePhysicsHierarchy(victimWeapon);
-		int killerDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerPreviewEntity);
-		int victimDeactivatedPhysics = DeactivatePhysicsHierarchy(m_VictimPreviewEntity);
-		int killerVehicleDeactivatedPhysics = DeactivatePhysicsHierarchy(m_KillerVehiclePreviewEntity);
-		int victimVehicleDeactivatedPhysics = DeactivatePhysicsHierarchy(m_VictimVehiclePreviewEntity);
+		DeactivatePhysicsHierarchy(m_KillerVehiclePreviewEntity);
+		DeactivatePhysicsHierarchy(m_VictimVehiclePreviewEntity);
 
 		// World.OutlineEntity submits an outline for the current frame only. Keep
 		// every killed-from clone registered after animation and inventory updates
@@ -717,48 +582,9 @@ class GC_SpectatorKilledFromVisualizer
 				outlineWorld.OutlineEntity(m_VictimVehiclePreviewEntity, Color.FromRGBA(65, 170, 255, 255), 1.0, 0.2, true, 2);
 		}
 
-		if (!m_bPhysicsDeactivationReported)
-		{
-			int killerCapturedBones;
-			if (killerBonePose)
-				killerCapturedBones = killerBonePose.Count();
-			int victimCapturedBones;
-			if (victimBonePose)
-				victimCapturedBones = victimBonePose.Count();
-			PrintFormat("GC | Killed From | event=clone-bone-pose treatment=K2-LOCAL-DELTA role=killer captured=%1 applied=%2 missing=%3 failed=%4 unavailableLocal=%5", killerCapturedBones, killerAppliedBones, killerMissingBones, killerFailedBones, killerUnavailableLocalBones);
-			PrintFormat("GC | Killed From | event=clone-bone-pose treatment=K2-LOCAL-DELTA role=victim captured=%1 applied=%2 missing=%3 failed=%4 unavailableLocal=%5", victimCapturedBones, victimAppliedBones, victimMissingBones, victimFailedBones, victimUnavailableLocalBones);
-			ReportVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
-			ReportVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
-			PrintFormat("GC | Killed From | event=clone-physics-deactivation treatment=ALL-OFF killerBodies=%1 victimBodies=%2 killerVehicleBodies=%3 victimVehicleBodies=%4", killerDeactivatedPhysics, victimDeactivatedPhysics, killerVehicleDeactivatedPhysics, victimVehicleDeactivatedPhysics);
-			ReportPhysicsHierarchy(m_KillerPreviewEntity, "killer-post-deactivation");
-			ReportPhysicsHierarchy(m_VictimPreviewEntity, "victim-post-deactivation");
-			ReportPhysicsHierarchy(m_KillerVehiclePreviewEntity, "killer-vehicle-post-deactivation");
-			ReportPhysicsHierarchy(m_VictimVehiclePreviewEntity, "victim-vehicle-post-deactivation");
-			m_bPhysicsDeactivationReported = true;
-		}
-
 		bool traceVisible;
 		vector lineOrigin = m_Snapshot.GetLineOrigin();
-		string muzzleMode = "captured-fallback";
-		IEntity muzzleRoot = killerWeapon;
-		bool allowBounds = true;
-		if (m_KillerVehiclePreviewEntity)
-		{
-			muzzleRoot = m_KillerVehiclePreviewEntity;
-			allowBounds = false;
-		}
-		if (muzzleRoot != m_MuzzleWeapon)
-		{
-			m_MuzzleWeapon = muzzleRoot;
-			m_bMuzzleResolved = false;
-		}
-		if (!m_bMuzzleResolved && ResolveWeaponMuzzlePosition(muzzleRoot, m_Snapshot.GetHitPosition(), allowBounds, m_vMuzzlePosition, m_sMuzzleMode))
-			m_bMuzzleResolved = true;
-		if (m_bMuzzleResolved)
-		{
-			lineOrigin = m_vMuzzlePosition;
-			muzzleMode = "clone-" + m_sMuzzleMode;
-		}
+		string muzzleMode = "captured";
 		vector start;
 		vector end;
 		if (ProjectTraceToScreen(lineOrigin, m_Snapshot.GetHitPosition(), start, end))
@@ -839,93 +665,6 @@ class GC_SpectatorKilledFromVisualizer
 		screenStart[1] = m_Workspace.DPIUnscale(screenStart[1]);
 		screenEnd[0] = m_Workspace.DPIUnscale(screenEnd[0]);
 		screenEnd[1] = m_Workspace.DPIUnscale(screenEnd[1]);
-		return true;
-	}
-
-	protected bool ResolveWeaponMuzzlePosition(IEntity weapon, vector hitPosition, bool allowBounds, out vector muzzlePosition, out string mode)
-	{
-		if (!weapon)
-			return false;
-
-		array<IEntity> hierarchy = {weapon};
-		SCR_EntityHelper.GetHierarchyEntityList(weapon, hierarchy);
-		float bestDistanceSq = 1.0e30;
-		foreach (IEntity entity : hierarchy)
-		{
-			SCR_MuzzleEffectComponent muzzleEffect = SCR_MuzzleEffectComponent.Cast(entity.FindComponent(SCR_MuzzleEffectComponent));
-			IEntity particleEntity;
-			if (muzzleEffect)
-				particleEntity = muzzleEffect.GetParticleEntity();
-			if (particleEntity)
-			{
-				vector candidate = particleEntity.GetOrigin();
-				float distanceSq = (candidate - hitPosition).LengthSq();
-				if (distanceSq < bestDistanceSq)
-				{
-					bestDistanceSq = distanceSq;
-					muzzlePosition = candidate;
-					mode = "particle";
-				}
-			}
-
-			Animation animation = entity.GetAnimation();
-			if (!animation)
-				continue;
-			array<string> boneNames = {};
-			animation.GetBoneNames(boneNames);
-			vector entityTransform[4];
-			entity.GetWorldTransform(entityTransform);
-			foreach (string boneName : boneNames)
-			{
-				if (!boneName.Contains("muzzle") && !boneName.Contains("Muzzle") && !boneName.Contains("barrel") && !boneName.Contains("Barrel"))
-					continue;
-
-				vector boneTransform[4];
-				if (!animation.GetBoneMatrix(animation.GetBoneIndex(boneName), boneTransform))
-					continue;
-				vector boneWorldTransform[4];
-				Math3D.MatrixMultiply4(entityTransform, boneTransform, boneWorldTransform);
-				vector candidate = boneWorldTransform[3];
-				float distanceSq = (candidate - hitPosition).LengthSq();
-				if (distanceSq >= bestDistanceSq)
-					continue;
-
-				bestDistanceSq = distanceSq;
-				muzzlePosition = candidate;
-				mode = string.Format("bone-%1", boneName);
-			}
-		}
-		if (bestDistanceSq < 1.0e30)
-			return true;
-		if (!allowBounds)
-			return false;
-
-		vector mins;
-		vector maxs;
-		weapon.GetBounds(mins, maxs);
-		vector weaponTransform[4];
-		weapon.GetWorldTransform(weaponTransform);
-		for (int cornerIndex; cornerIndex < 8; cornerIndex++)
-		{
-			vector localCorner = mins;
-			if (cornerIndex % 2 == 1)
-				localCorner[0] = maxs[0];
-			if ((cornerIndex / 2) % 2 == 1)
-				localCorner[1] = maxs[1];
-			if ((cornerIndex / 4) % 2 == 1)
-				localCorner[2] = maxs[2];
-			vector candidate = weaponTransform[3]
-				+ weaponTransform[0] * localCorner[0]
-				+ weaponTransform[1] * localCorner[1]
-				+ weaponTransform[2] * localCorner[2];
-			float distanceSq = (candidate - hitPosition).LengthSq();
-			if (distanceSq >= bestDistanceSq)
-				continue;
-
-			bestDistanceSq = distanceSq;
-			muzzlePosition = candidate;
-		}
-		mode = "forward-bound";
 		return true;
 	}
 

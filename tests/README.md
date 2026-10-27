@@ -1518,3 +1518,9 @@ Optional GC_MapOpeningTests observes opening/projection without changing it. Emb
 
 See [NetworkSpectator.md](NetworkSpectator.md) for the versioned sample contract,
 opt-in owner-input fixture, live host/peer checks, and playback boundaries.
+
+## Killed From snapshots
+
+See [Killed From evidence](evidence/killed-from-20261027/README.md) for the frozen
+killer/victim pose and gear checks, two-client transport, AI/bleed-out cases,
+optional fixture commands, performance observations and remaining coverage limits.

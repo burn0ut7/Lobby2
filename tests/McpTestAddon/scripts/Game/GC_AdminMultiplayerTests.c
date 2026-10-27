@@ -64,6 +64,11 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "killed-from")
+		{
+			Rpc(GC_TestRpcPeerReport, token, GC_LobbyPlayerController.Cast(this).GC_TestKilledFromOwner(message));
+			return;
+		}
 		if (action == "network-spectator")
 		{
 			array<string> parts = {};
@@ -501,6 +506,7 @@ modded class GC_LobbyManager
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
 			"network-spectator",
+			"killed-from",
 			"stats-respawn",
 			"session-logs",
 			"audit-open",

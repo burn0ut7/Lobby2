@@ -1058,10 +1058,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 				if (playerController)
 				{
-					GC_KilledFromSnapshot killedFromSnapshot = new GC_KilledFromSnapshot();
-					killedFromSnapshot.CaptureDeathFallback(victim, instigatorContextData.GetKillerEntity());
-					PrintFormat("GC | Killed From | event=authority-fallback reason=controllable-destroyed player=%1 snapshot={%2}", playerId, killedFromSnapshot.GetDebugReport());
-					playerController.SendKilledFromSnapshot(killedFromSnapshot);
+					playerController.SendKilledFromDeath(victim, instigatorContextData.GetKillerEntity());
 				}
 				SetPlayerVoiceChannel(playerId, GC_VoiceChannelType.GLOBAL);
 				SetSpectator(playerId, true);
@@ -1111,10 +1108,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 				if (playerController)
 				{
-					GC_KilledFromSnapshot killedFromSnapshot = new GC_KilledFromSnapshot();
-					killedFromSnapshot.CaptureDeathFallback(entity, killer);
-					PrintFormat("GC | Killed From | event=authority-fallback reason=controllable-deleted player=%1 killer=%2 snapshot={%3}", playerId, killer, killedFromSnapshot.GetDebugReport());
-					playerController.SendKilledFromSnapshot(killedFromSnapshot);
+					playerController.SendKilledFromDeath(entity, killer);
 				}
 			}
 			slot.ClearEntityReference(true);
