@@ -319,36 +319,7 @@ class GC_StatsCharacterTracker
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		int damageSequence;
 		if (logs)
-		{
-			int actorId;
-			if (context.instigator)
-				actorId = context.instigator.GetInstigatorPlayerID();
-			GC_SessionEvent entry = logs.CreateEvent("damage", actorId, m_iPlayerId);
-			entry.m_sTarget = m_Record.m_sIdentity;
-			entry.m_sTargetName = m_Record.m_sName;
-			entry.m_sTargetKind = "player";
-			if (context.instigator && context.instigator.GetInstigatorType() == InstigatorType.INSTIGATOR_AI)
-			{
-				entry.m_sActorKind = "ai";
-				entry.m_sActorName = "AI";
-				IEntity ai = context.instigator.GetInstigatorEntity();
-				if (ai)
-				{
-					entry.m_sActor = "ai:" + ai.GetID().ToString();
-					if (ai.GetPrefabData())
-						entry.m_sActorPrefab = ai.GetPrefabData().GetPrefabName();
-				}
-			}
-			else if (actorId > 0)
-				entry.m_sActorKind = "player";
-			entry.m_fDamage = context.damageValue;
-			entry.m_iDamageType = context.damageType;
-			entry.m_sWeapon = m_Stats.GetProjectileWeapon(context.damageSource);
-			if (context.damageSource && !context.damageSource.FindComponent(BaseWeaponComponent) && context.damageSource.GetPrefabData())
-				entry.m_sProjectile = context.damageSource.GetPrefabData().GetPrefabName();
-			logs.Record(entry);
-			damageSequence = entry.m_iSequence;
-		}
+			damageSequence = logs.RecordDamage(context, m_Character, m_Stats, m_Record);
 		// Native bleed-out Kill() emits a source-less TRUE damage notification with
 		// the retained instigator. Keep that event, but do not call it a new hit.
 		if (context.damageType == EDamageType.BLEEDING

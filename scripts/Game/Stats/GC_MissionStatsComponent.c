@@ -8,6 +8,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	protected ref GC_MissionStatsBatch m_Batch;
 	protected ref map<string, ref GC_StatsPlayer> m_mPlayers = new map<string, ref GC_StatsPlayer>();
 	protected ref map<string, ref GC_StatsCharacterTracker> m_mTrackers = new map<string, ref GC_StatsCharacterTracker>();
+	protected ref map<EntityID, ref GC_StatsAIDamageTracker> m_mDamageObservers = new map<EntityID, ref GC_StatsAIDamageTracker>();
 	protected ref set<EntityID> m_RecordedDeaths = new set<EntityID>();
 	protected ref map<EntityID, string> m_mProjectileWeapons = new map<EntityID, string>();
 	protected ref array<EntityID> m_aProjectileOrder = {};
@@ -605,10 +606,41 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	override void OnControllableSpawned(IEntity entity)
+	{
+		super.OnControllableSpawned(entity);
+		if (!Replication.IsServer() || GetInstance() != this || !ChimeraCharacter.Cast(entity)
+			|| entity.FindComponent(GC_LobbySpectatorBodyComponent) || (m_Batch && !m_bCollecting)
+			|| m_mDamageObservers.Contains(entity.GetID()))
+			return;
+		GC_StatsAIDamageTracker observer = new GC_StatsAIDamageTracker();
+		observer.Start(this, entity);
+		m_mDamageObservers.Set(entity.GetID(), observer);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Native possession and retained player lives take precedence over AI classification.
+	bool IsPlayerCharacter(IEntity entity)
+	{
+		if (GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(entity) > 0)
+			return true;
+		foreach (string identity, GC_StatsCharacterTracker tracker : m_mTrackers)
+		{
+			if (tracker.TracksLife(entity))
+				return true;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override void OnControllableDeleted(IEntity entity)
 	{
 		if (entity)
 		{
+			GC_StatsAIDamageTracker observer = m_mDamageObservers.Get(entity.GetID());
+			if (observer)
+				observer.Detach();
+			m_mDamageObservers.Remove(entity.GetID());
 			m_RecordedDeaths.RemoveItem(entity.GetID());
 			for (int i = m_mTrackers.Count() - 1; i >= 0; i--)
 			{
@@ -721,6 +753,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		foreach (string identity, GC_StatsCharacterTracker tracker : m_mTrackers)
 			tracker.Detach();
 		m_mTrackers.Clear();
+		foreach (EntityID entityId, GC_StatsAIDamageTracker observer : m_mDamageObservers)
+			observer.Detach();
+		m_mDamageObservers.Clear();
 		m_Manager = null;
 	}
 

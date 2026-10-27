@@ -12,6 +12,10 @@ class GC_SessionEvent
 	string m_sTargetKind;
 	string m_sActorPrefab;
 	string m_sTargetPrefab;
+	string m_sActorEntity;
+	string m_sTargetEntity;
+	ref array<float> m_aActorPosition = {};
+	ref array<float> m_aTargetPosition = {};
 	string m_sWeapon;
 	string m_sProjectile;
 	string m_sMagazine;
@@ -37,6 +41,10 @@ class GC_SessionEvent
 		context.WriteValue("targetKind", m_sTargetKind);
 		context.WriteValue("actorPrefab", m_sActorPrefab);
 		context.WriteValue("targetPrefab", m_sTargetPrefab);
+		context.WriteValue("actorEntity", m_sActorEntity);
+		context.WriteValue("targetEntity", m_sTargetEntity);
+		context.WriteValue("actorPosition", m_aActorPosition);
+		context.WriteValue("targetPosition", m_aTargetPosition);
 		context.WriteValue("weapon", m_sWeapon);
 		context.WriteValue("projectile", m_sProjectile);
 		context.WriteValue("magazine", m_sMagazine);

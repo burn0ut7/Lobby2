@@ -75,6 +75,60 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Snapshot event-time identity and world origins before entities can move or disappear.
+	int RecordDamage(BaseDamageContext context, IEntity victim, GC_MissionStatsComponent stats, GC_StatsPlayer player = null)
+	{
+		int actorId;
+		IEntity actor;
+		if (context.instigator)
+		{
+			actorId = context.instigator.GetInstigatorPlayerID();
+			actor = context.instigator.GetInstigatorEntity();
+		}
+		GC_SessionEvent entry = CreateEvent("damage", actorId, 0);
+		entry.m_sTargetKind = "ai";
+		entry.m_sTargetName = "AI";
+		entry.m_sTarget = "ai:" + victim.GetID().ToString();
+		if (player)
+		{
+			entry.m_sTargetKind = "player";
+			entry.m_sTargetName = player.m_sName;
+			entry.m_sTarget = player.m_sIdentity;
+		}
+		entry.m_sTargetEntity = victim.GetID().ToString();
+		vector targetPosition = victim.GetOrigin();
+		entry.m_aTargetPosition = {targetPosition[0], targetPosition[1], targetPosition[2]};
+		if (victim.GetPrefabData())
+			entry.m_sTargetPrefab = victim.GetPrefabData().GetPrefabName();
+		entry.m_sActorKind = "other";
+		if (context.instigator && context.instigator.GetInstigatorType() == InstigatorType.INSTIGATOR_AI)
+		{
+			entry.m_sActorKind = "ai";
+			entry.m_sActorName = "AI";
+			if (actor)
+				entry.m_sActor = "ai:" + actor.GetID().ToString();
+		}
+		else if (actorId > 0)
+			entry.m_sActorKind = "player";
+		if (actor)
+		{
+			entry.m_sActorEntity = actor.GetID().ToString();
+			vector actorPosition = actor.GetOrigin();
+			entry.m_aActorPosition = {actorPosition[0], actorPosition[1], actorPosition[2]};
+			entry.m_fDistance = vector.Distance(actorPosition, targetPosition);
+			if (actor.GetPrefabData())
+				entry.m_sActorPrefab = actor.GetPrefabData().GetPrefabName();
+		}
+		entry.m_fDamage = context.damageValue;
+		entry.m_iDamageType = context.damageType;
+		entry.m_sWeapon = stats.GetProjectileWeapon(context.damageSource);
+		if (context.damageSource && !context.damageSource.FindComponent(BaseWeaponComponent) && context.damageSource.GetPrefabData())
+			entry.m_sProjectile = context.damageSource.GetPrefabData().GetPrefabName();
+		Record(entry);
+		return entry.m_iSequence;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Every accepted callback gets its own sequence, even within the same engine tick.
 	void Record(GC_SessionEvent entry)
 	{

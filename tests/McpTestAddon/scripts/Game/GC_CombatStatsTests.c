@@ -11,7 +11,7 @@ modded class GC_LobbyManager
 		if (!Replication.IsServer() || !controller || !SCR_Global.IsAdmin(controller.GetPlayerId()))
 			return "UNAVAILABLE authority/admin";
 		ChimeraCharacter player = ChimeraCharacter.Cast(controller.GetControlledEntity());
-		if (!player || player.FindComponent(GC_LobbySpectatorBodyComponent))
+		if (!player)
 			return "UNAVAILABLE living player";
 		if (action == "spawn")
 		{
@@ -26,15 +26,27 @@ modded class GC_LobbyManager
 				return "FAIL native spawn";
 			return "SPAWNED " + m_GC_TestCombatAI.GetID().ToString();
 		}
+		if (action == "hurt-authored")
+		{
+			m_GC_TestCombatAI = ChimeraCharacter.Cast(GC_MissionStatsComponent.GetInstance().GC_TestFindAuthoredAI());
+			action = "hurt-ai";
+		}
 		if (!m_GC_TestCombatAI || m_GC_TestCombatAI.GetCharacterController().IsDead())
 			return "UNAVAILABLE living AI";
+		if (action == "delete-ai")
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(m_GC_TestCombatAI);
+			return "DISPATCHED native deletion";
+		}
 		ChimeraCharacter target = player;
 		ChimeraCharacter actor = m_GC_TestCombatAI;
 		float amount = 100;
-		if (action == "kill-ai")
+		if (action == "kill-ai" || action == "hurt-ai" || action == "hurt-ai-twice")
 		{
 			target = m_GC_TestCombatAI;
 			actor = player;
+			if (action != "kill-ai")
+				amount = 1;
 		}
 		else if (action == "hurt-player")
 			amount = 2;
@@ -49,6 +61,8 @@ modded class GC_LobbyManager
 			context.damageSource = weapon.GetOwner();
 		context.damageEffect = new SCR_MeleeDamageEffect();
 		damage.HandleDamage(context);
+		if (action == "hurt-ai-twice")
+			damage.HandleDamage(context);
 		return "DISPATCHED native damage; inspect counters and events";
 	}
 
@@ -63,6 +77,37 @@ modded class GC_LobbyManager
 			return "UNAVAILABLE stats scroll";
 		scroll.SetSliderPos(0, Math.Clamp(position, 0, 1));
 		return "DISPATCHED native scroll";
+	}
+}
+
+modded class GC_StatsAIDamageTracker
+{
+	//------------------------------------------------------------------------------------------------
+	IEntity GC_TestCharacter()
+	{
+		return m_Character;
+	}
+}
+
+modded class GC_MissionStatsComponent
+{
+	//------------------------------------------------------------------------------------------------
+	IEntity GC_TestFindAuthoredAI()
+	{
+		foreach (EntityID entityId, GC_StatsAIDamageTracker observer : m_mDamageObservers)
+		{
+			IEntity character = observer.GC_TestCharacter();
+			if (character && character.GetPrefabData()
+				&& character.GetPrefabData().GetPrefabName() == "{1CA3D30464EE4674}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Spotter.et")
+				return character;
+		}
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestDamageObservers()
+	{
+		return string.Format("collecting=%1 observers=%2", IsCollecting(), m_mDamageObservers.Count());
 	}
 }
 #endif

@@ -34,6 +34,15 @@ internal static class SessionEventContract
             Number(entry, "distanceMetres", -1);
             if (entry.GetProperty("damageType").GetInt32() < -1) Fail();
             ValidateDeathCredit(entry);
+            foreach (var name in new[] { "actorEntity", "targetEntity" })
+                if (entry.TryGetProperty(name, out _)) Text(entry, name, 256);
+            foreach (var name in new[] { "actorPosition", "targetPosition" })
+            {
+                if (!entry.TryGetProperty(name, out var position)) continue;
+                if (position.GetArrayLength() is not (0 or 3)) Fail();
+                foreach (var coordinate in position.EnumerateArray())
+                    if (!double.IsFinite(coordinate.GetDouble()) || Math.Abs(coordinate.GetDouble()) > float.MaxValue) Fail();
+            }
         }
     }
 
