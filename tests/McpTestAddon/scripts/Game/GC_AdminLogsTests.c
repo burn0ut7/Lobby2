@@ -16,7 +16,9 @@ modded class GC_AdminLogsComponent
 	//------------------------------------------------------------------------------------------------
 	string GC_TestRead()
 	{
-		string result = m_Status.GetText() + " | search=" + m_Search.GetText();
+		string result = m_Page.GetText() + " | " + m_Status.GetText() + " | search=" + m_Search.GetText()
+			+ " | previous=" + m_wRoot.FindAnyWidget("LogNewer").IsEnabled()
+			+ " | next=" + m_wRoot.FindAnyWidget("LogOlder").IsEnabled();
 		foreach (string value : m_aDisplayed)
 			result += "\n" + value;
 		return result;
@@ -25,6 +27,23 @@ modded class GC_AdminLogsComponent
 
 modded class GC_LobbyManager
 {
+	//------------------------------------------------------------------------------------------------
+	//! Explicit pagination fixture records, through the authority's production recorder.
+	string GC_TestLogPageSeed()
+	{
+		int playerId = GetGame().GetPlayerController().GetPlayerId();
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (!Replication.IsServer() || !SCR_Global.IsAdmin(playerId) || !logs)
+			return "UNAVAILABLE authority/admin";
+		for (int i; i < 40; i++)
+		{
+			GC_SessionEvent entry = logs.CreateEvent("session", playerId, 0);
+			entry.m_sDetail = string.Format("Pagination fixture %1", i + 1);
+			logs.Record(entry);
+		}
+		return "RECORDED 40 explicit pagination fixtures";
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_TestLogTimeFormat()
 	{

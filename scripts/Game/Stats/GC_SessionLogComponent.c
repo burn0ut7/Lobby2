@@ -289,6 +289,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		if (count == MAX_RECENT)
 			start = (m_iRingCursor + count - 1) % count;
 		int matched;
+		bool hasMore;
 		for (int offset; offset < count; offset++)
 		{
 			GC_SessionEvent entry = m_aRecent[(start - offset + count) % count];
@@ -302,7 +303,10 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (!query.IsEmpty() && !search.Contains(query))
 				continue;
 			if (matched == 20)
+			{
+				hasMore = true;
 				break;
+			}
 			rows.Insert(entry.m_iSequence.ToString());
 			rows.Insert(FormatEventTime(entry.m_fSeconds));
 			rows.Insert(entry.m_sType);
@@ -321,7 +325,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			next = entry.m_iSequence;
 			matched++;
 		}
-		if (matched < 20)
+		if (!hasMore)
 			next = 0;
 		if (matched == 0)
 			status = "No matching events.";

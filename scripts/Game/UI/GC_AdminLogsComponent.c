@@ -7,6 +7,8 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	protected SCR_EventHandlerComponent m_SearchEvents;
 	protected SCR_ComboBoxComponent m_Type;
 	protected TextWidget m_Status;
+	protected TextWidget m_Page;
+	protected bool m_bPageLoading = true;
 	protected bool m_bActive;
 	protected bool m_bLive = true;
 	protected bool m_bUpdatingFilter;
@@ -39,8 +41,10 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 		m_Status = TextWidget.Cast(w.FindAnyWidget("LogStatus"));
 		Bind("LogLive", "Live");
 		Bind("LogRefresh", "Refresh");
-		Bind("LogNewer", "Newer");
-		Bind("LogOlder", "Older");
+		m_Page = TextWidget.Cast(w.FindAnyWidget("LogPage"));
+		Bind("LogNewer", "Previous");
+		Bind("LogOlder", "Next");
+		BeginPageLoad();
 		if (m_Controller)
 			m_Controller.m_OnSessionLogRows.Insert(OnRows);
 		GetGame().GetCallqueue().CallLater(Poll, 2000, true);
@@ -113,9 +117,20 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	protected void Latest()
 	{
+		BeginPageLoad();
 		m_iBefore = 0;
 		m_aBack.Clear();
 		Load();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void BeginPageLoad()
+	{
+		m_bPageLoading = true;
+		m_iRequest = -1;
+		m_Status.SetText("Loading...");
+		m_wRoot.FindAnyWidget("LogOlder").SetEnabled(false);
+		m_wRoot.FindAnyWidget("LogNewer").SetEnabled(false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -169,8 +184,7 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	protected void FiltersChanged()
 	{
-		m_iRequest = -1;
-		m_Status.SetText("Loading...");
+		BeginPageLoad();
 		GetGame().GetCallqueue().Remove(Latest);
 		GetGame().GetCallqueue().CallLater(Latest, 350);
 	}
@@ -214,8 +228,8 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 			Latest();
 			return;
 		}
-		m_bLive = false;
-		SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetText("Paused");
+		if (m_bPageLoading)
+			return;
 		if (name == "LogOlder" && m_iNext > 0)
 		{
 			m_aBack.Insert(m_iBefore);
@@ -226,6 +240,11 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 			m_iBefore = m_aBack[m_aBack.Count() - 1];
 			m_aBack.Remove(m_aBack.Count() - 1);
 		}
+		else
+			return;
+		m_bLive = false;
+		SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetText("Paused");
+		BeginPageLoad();
 		Load();
 	}
 
@@ -239,6 +258,8 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 			m_Status.SetText(status);
 			return;
 		}
+		m_bPageLoading = false;
+		m_Page.SetText(string.Format("Page %1", m_aBack.Count() + 1));
 		m_iNext = next;
 		m_Status.SetText(status);
 		m_wRoot.FindAnyWidget("LogOlder").SetEnabled(next > 0);

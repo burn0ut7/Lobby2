@@ -50,7 +50,7 @@ References: [PostgreSQL JSON types](https://www.postgresql.org/docs/current/data
 
 ## Admin session logs
 
-Admin Tools → Logs shows the current mission only. Search matches actor or victim name or identity, including disconnected players. The event filter separates team kills; “Deaths (all)” also includes kills and team kills. Live refreshes every two seconds; Paused holds the current page. Older/Newer browse 20 records at a time. The in-memory window holds the most recent 4096 records and explicitly directs admins to the server archive for earlier events.
+Admin Tools → Logs shows the current mission only. Search matches actor or victim name or identity, including disconnected players. The event filter separates team kills; “Deaths (all)” also includes kills and team kills. Live refreshes every two seconds; Paused holds the current page. Previous/Next browse 20 records at a time, with the current page number between them. Page 1 contains the latest matching events; changing filters, Refresh, or resuming Live returns to Page 1. The in-memory window holds the most recent 4096 records and explicitly directs admins to the server archive for earlier events.
 
 Every request checks current server-side admin authorization. Repeated denied log-view requests are audited at most once per controller every five seconds; no log rows are sent to the denied requester. Filters are limited to 128 characters. Oversized audit details are explicitly truncated to fit the historical contract; the existing console audit output remains unchanged.
 
