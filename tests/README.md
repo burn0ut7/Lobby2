@@ -37,6 +37,36 @@ or permissions and runs nothing automatically. Never include it in production.
 
 ## Script enum research fixture
 
+### Entity-based dropdown prototype
+
+`GC_MissionChoicesProbeEntity` is a separate, inert test entity under
+`GameScripted/Lobby2 Tests`. Its Flag, Playable Faction, and Faction fields use
+the native entity `_WB_GetUserEnums` hook and the production source-discovery
+providers. There is no executable helper or MCP adapter call in this code.
+Select another entity and return to refresh the lists after authoring changes.
+This is an authoring prototype, not a gameplay condition or event replacement.
+
+Workbench 1.8.0.13 live checks with native dynamic choices disabled:
+
+- Flag source rename replaced the old option; adding and deleting a temporary
+  flag added and removed its option.
+- Changing the custom playable group's faction replaced the old key. Disabling
+  that group's Playable setting removed its unique faction; restoring it restored
+  the source. Tests restored the original flag and group settings.
+- Native selection stored the selected strings. Save/reopen preserved Flag,
+  Playable Faction, and Faction values. The faction-manager list showed US/USSR.
+
+The local Arland test world contains `GC_DropdownPrototype` for inspection; that
+world edit is not part of the committed prototype. Delete this entity to revert
+the local authoring experiment. Removing the test script afterward and reloading
+removes the type. Existing mission events and conditions require no migration.
+Keep test entities out of production worlds that do not load the test addon.
+
+No packed-archive or Workshop download test has been completed. The prototype
+uses ordinary addon script files, but successful loose-source loading is not
+proof of Workshop delivery. Automatic refresh while a field remains selected,
+keyboard text entry on this new entity, and gameplay integration are unverified.
+
 `GC_EditorEnumProbe.c` is disabled unless both `WORKBENCH` and
 `GC_EDITOR_ENUM_PROBE` are defined. It adds temporary direct-component, nested
 condition, and entity dropdowns and logs `_WB_GetUserEnums` callbacks. Enable
