@@ -13,10 +13,10 @@ modded class GC_LobbyManager
 		sample.m_vLensState = "60 -1 -1";
 		if (!sample.IsValid())
 			return "FAIL valid sample";
-		sample.m_iVersion = 1;
+		sample.m_iVersion = 2;
 		if (sample.IsValid())
 			return "FAIL version accepted";
-		sample.m_iVersion = 2;
+		sample.m_iVersion = 3;
 		sample.m_fLean = 2;
 		if (sample.IsValid())
 			return "FAIL lean accepted";
@@ -72,15 +72,25 @@ modded class GC_LobbyPlayerController
 		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this)
 			return "UNAVAILABLE owning Lobby2 player";
 
+		if (action == "performance")
+		{
+			ProfileData profile = System.GetProfileData();
+			return string.Format("fps=%1 frameMs=%2 simMs=%3 renderMs=%4 gpuMs=%5 sequence=%6 publishing=%7",
+				profile.FPS, profile.FrameTimeMs, profile.SimulationTimeMs, profile.RenderTimeMs,
+				profile.GPUTimeMs, m_iNetworkCameraSequence, m_bPublishNetworkCamera);
+		}
+
 		if (action == "measure")
 		{
 			if (m_iGC_CameraProbeRemaining > 0)
 				return "UNAVAILABLE probe active";
 			m_iGC_CameraProbeRemaining = 120;
-			m_sGC_CameraProbe = "frame,fps,frameMs,simMs,renderMs,gpuMs,renderErrorMm,sightX,sightY,sightZ,mainFOV,pipFOV\n";
+			m_sGC_CameraProbe = "frame,fps,frameMs,simMs,renderMs,gpuMs,renderErrorMm,sightX,sightY,sightZ,mainFOV,pipFOV"
+				+ ",cameraFX,cameraFY,cameraFZ,cameraUX,cameraUY,cameraUZ,renderFX,renderFY,renderFZ,renderUX,renderUY,renderUZ,pipFX,pipFY,pipFZ,sightFX,sightFY,sightFZ,cameraX,cameraY,cameraZ,timeMs\n";
 			GetGame().GetCallqueue().CallLater(GC_TestCameraProbeSample, 16);
 			return "STARTED 120 observations at minimum 16ms intervals";
 		}
+
 		if (action == "measurement")
 		{
 			int offset = Math.Clamp(value.ToInt(), 0, m_sGC_CameraProbe.Length());
@@ -237,11 +247,19 @@ modded class GC_LobbyPlayerController
 				Math3D.MatrixInvMultiply4(actual, sightWorld, relative);
 			}
 			float pipFOV = -1;
+			vector pipTransform[4];
 			if (manager.GetOverlayCamera())
+			{
 				pipFOV = manager.GetOverlayCamera().GetVerticalFOV();
+				manager.GetOverlayCamera().GetWorldCameraTransform(pipTransform);
+			}
 			ProfileData profile = System.GetProfileData();
 			m_sGC_CameraProbe += string.Format("%1,%2,%3,%4,%5,%6,", GetGame().GetWorld().GetFrameNumber(), profile.FPS, profile.FrameTimeMs, profile.SimulationTimeMs, profile.RenderTimeMs, profile.GPUTimeMs);
-			m_sGC_CameraProbe += string.Format("%1,%2,%3,%4,%5,%6\n", vector.Distance(actual[3], rendered[3]) * 1000, relative[3][0], relative[3][1], relative[3][2], camera.GetVerticalFOV(), pipFOV);
+			m_sGC_CameraProbe += string.Format("%1,%2,%3,%4,%5,%6,", vector.Distance(actual[3], rendered[3]) * 1000, relative[3][0], relative[3][1], relative[3][2], camera.GetVerticalFOV(), pipFOV);
+			m_sGC_CameraProbe += string.Format("%1,%2,%3,%4,%5,%6,", actual[2][0], actual[2][1], actual[2][2], actual[1][0], actual[1][1], actual[1][2]);
+			m_sGC_CameraProbe += string.Format("%1,%2,%3,%4,%5,%6,", rendered[2][0], rendered[2][1], rendered[2][2], rendered[1][0], rendered[1][1], rendered[1][2]);
+			m_sGC_CameraProbe += string.Format("%1,%2,%3,%4,%5,%6,", pipTransform[2][0], pipTransform[2][1], pipTransform[2][2], relative[2][0], relative[2][1], relative[2][2]);
+			m_sGC_CameraProbe += string.Format("%1,%2,%3,%4\n", actual[3][0], actual[3][1], actual[3][2], GetGame().GetWorld().GetWorldTime());
 		}
 		m_iGC_CameraProbeRemaining--;
 		if (m_iGC_CameraProbeRemaining > 0)

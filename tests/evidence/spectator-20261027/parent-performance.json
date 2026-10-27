@@ -1,0 +1,146 @@
+[
+  {
+    "phase": "on",
+    "player": 1,
+    "receipt": "rcfe1c63563504eff9cffb06ee047be20",
+    "result": "CLIENT-REPORTED fps=119.57 frameMs=8.36329 simMs=1.90163 renderMs=2.55863 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "on",
+    "player": 2,
+    "receipt": "r0ee1b732ad0b407994393d6d43511715",
+    "result": "CLIENT-REPORTED fps=85.4861 frameMs=11.6978 simMs=2.0985 renderMs=2.90808 gpuMs=6.97092 sequence=2343 publishing=1"
+  },
+  {
+    "phase": "on",
+    "player": 3,
+    "receipt": "rab21d15aec014461a66be41ffbe06759",
+    "result": "CLIENT-REPORTED fps=78.0491 frameMs=12.8125 simMs=2.31443 renderMs=3.10249 gpuMs=7.67781 sequence=0 publishing=0"
+  },
+  {
+    "phase": "on",
+    "player": 1,
+    "receipt": "r7a75cd96d3364a5fa1164b5501dd1175",
+    "result": "CLIENT-REPORTED fps=122.552 frameMs=8.15977 simMs=1.71236 renderMs=2.4028 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "on",
+    "player": 2,
+    "receipt": "rcbc2044059484c888cfa947040f0c2eb",
+    "result": "CLIENT-REPORTED fps=74.4611 frameMs=13.4298 simMs=1.82302 renderMs=2.72142 gpuMs=8.4671 sequence=2445 publishing=1"
+  },
+  {
+    "phase": "on",
+    "player": 3,
+    "receipt": "r9ad1091dae4e4d69bf37bd25b5ff5305",
+    "result": "CLIENT-REPORTED fps=92.8156 frameMs=10.774 simMs=1.69827 renderMs=2.77893 gpuMs=5.32436 sequence=0 publishing=0"
+  },
+  {
+    "phase": "on",
+    "player": 1,
+    "receipt": "rdfbdf6b974ed45d09d437ac2f462d6c4",
+    "result": "CLIENT-REPORTED fps=130.885 frameMs=7.64032 simMs=1.56688 renderMs=2.49658 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "on",
+    "player": 2,
+    "receipt": "raac9cf914f2a43108063dfe64edb6f3c",
+    "result": "CLIENT-REPORTED fps=87.0408 frameMs=11.4889 simMs=1.77277 renderMs=2.75045 gpuMs=7.08025 sequence=2545 publishing=1"
+  },
+  {
+    "phase": "on",
+    "player": 3,
+    "receipt": "r9ef5fac3653a41918b2ec821b6d97f4a",
+    "result": "CLIENT-REPORTED fps=89.2445 frameMs=11.2052 simMs=1.67156 renderMs=2.54749 gpuMs=6.25456 sequence=0 publishing=0"
+  },
+  {
+    "phase": "on",
+    "player": 1,
+    "receipt": "ra6754a3f72024da8a72cb083d882e7db",
+    "result": "CLIENT-REPORTED fps=108.33 frameMs=9.23105 simMs=2.02252 renderMs=2.96522 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "on",
+    "player": 2,
+    "receipt": "r4078b7396a4d49939ade0f116c68017a",
+    "result": "CLIENT-REPORTED fps=66.686 frameMs=14.9957 simMs=2.12413 renderMs=3.06798 gpuMs=9.73649 sequence=2645 publishing=1"
+  },
+  {
+    "phase": "on",
+    "player": 3,
+    "receipt": "r6eb483974d4c44fc8313315492f097d3",
+    "result": "CLIENT-REPORTED fps=82.758 frameMs=12.0834 simMs=2.7352 renderMs=3.9722 gpuMs=4.02114 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 1,
+    "receipt": "rbdc3a3ff0bc14451a2946ce23cbc6198",
+    "result": "CLIENT-REPORTED fps=119.283 frameMs=8.38343 simMs=2.05985 renderMs=2.7964 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 2,
+    "receipt": "r6eaf5610c188498daecb3a74459881f8",
+    "result": "CLIENT-REPORTED fps=82.9231 frameMs=12.0594 simMs=1.77707 renderMs=2.6517 gpuMs=7.75234 sequence=2715 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 3,
+    "receipt": "r073a4eee248542b6a1c1fb8913b055c2",
+    "result": "CLIENT-REPORTED fps=103.605 frameMs=9.652 simMs=2.19221 renderMs=2.62279 gpuMs=3.78635 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 1,
+    "receipt": "r5c7806817bb0405bb26111bf3896e128",
+    "result": "CLIENT-REPORTED fps=112.312 frameMs=8.90377 simMs=1.73844 renderMs=2.5985 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 2,
+    "receipt": "rdb405229eeda43188bf174cb05a128ab",
+    "result": "CLIENT-REPORTED fps=83.1064 frameMs=12.0328 simMs=1.76145 renderMs=2.89552 gpuMs=6.23751 sequence=2715 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 3,
+    "receipt": "r676eb0efc9884580ad9e41a518f0103f",
+    "result": "CLIENT-REPORTED fps=95.4097 frameMs=10.4811 simMs=1.89366 renderMs=2.40234 gpuMs=5.06149 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 1,
+    "receipt": "rb7766756875f4222b6a8e760b74a389a",
+    "result": "CLIENT-REPORTED fps=116.48 frameMs=8.5852 simMs=1.88706 renderMs=2.69795 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 2,
+    "receipt": "r8c82b2a428894dabb029648e354695a3",
+    "result": "CLIENT-REPORTED fps=72.4212 frameMs=13.8081 simMs=2.01286 renderMs=2.88634 gpuMs=8.00566 sequence=2715 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 3,
+    "receipt": "r279abc3f8700446196752fb36e313bae",
+    "result": "CLIENT-REPORTED fps=101.341 frameMs=9.86769 simMs=1.71034 renderMs=2.14938 gpuMs=5.72841 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 1,
+    "receipt": "r53937a4fd9d94b92a996371a179b3d5b",
+    "result": "CLIENT-REPORTED fps=115.561 frameMs=8.65345 simMs=2.01411 renderMs=2.73127 gpuMs=0 sequence=0 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 2,
+    "receipt": "r28f1902151ff4db6975dc06eb229bfd7",
+    "result": "CLIENT-REPORTED fps=86.1992 frameMs=11.601 simMs=1.6784 renderMs=2.81374 gpuMs=7.43344 sequence=2715 publishing=0"
+  },
+  {
+    "phase": "off",
+    "player": 3,
+    "receipt": "re9260fdca0cf46249dfcbb6523a870f4",
+    "result": "CLIENT-REPORTED fps=85.8486 frameMs=11.6484 simMs=1.70063 renderMs=2.2441 gpuMs=7.0233 sequence=0 publishing=0"
+  }
+]

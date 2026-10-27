@@ -72,6 +72,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected TimeAndWeatherManagerEntity m_SpectatorNightModeWeather;
 	protected LightEntity m_SpectatorFillLight;
 	protected bool m_bNetworkSnapshotReceived;
+	protected vector m_aNetworkLastWorldView[4];
 	protected ref GC_SpectatorSample m_NetworkSample;
 	protected ref GC_SpectatorPose m_NetworkPose;
 	protected float m_fNetworkFromLean;
@@ -255,16 +256,18 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		{
 			GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 			m_NetworkPose = new GC_SpectatorPose();
-			if (!localController || !attachComponent || m_iTargetPlayerId <= 0 || !m_NetworkPose.Attach(ChimeraCharacter.Cast(target)))
+			if (!localController || m_iTargetPlayerId <= 0 || !m_NetworkPose.Attach(ChimeraCharacter.Cast(target)))
 			{
 				Print("GC | Spectator Camera | network presentation unavailable for target", LogLevel.WARNING);
 				SetFreeMode();
 				return false;
 			}
 
-			// The stock helper follows target translation but deliberately retains
-			// world-aligned axes, isolating the camera from proxy turn animation.
-			if (!attachComponent.AttachTo(target) || !GetParent())
+			// Keep the camera in the character's native hierarchy so render-time
+			// parent motion is shared with its first-person weapon.
+			GetWorldCameraTransform(m_aNetworkLastWorldView);
+			target.AddChild(this, -1, EAddChildFlags.AUTO_TRANSFORM);
+			if (GetParent() != target)
 			{
 				SetFreeMode();
 				return false;
@@ -366,9 +369,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			if (localController)
 				localController.StopNetworkCameraStream();
 
-			SCR_AttachManualCameraComponent attachComponent = SCR_AttachManualCameraComponent.Cast(FindCameraComponent(SCR_AttachManualCameraComponent));
-			if (attachComponent)
-				attachComponent.Detach();
+			Detach();
 		}
 
 		RestoreNetworkSightPresentation();
@@ -481,6 +482,14 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 	void ~GC_SpectatorManualCamera()
 	{
+		// Native parent deletion can remove this local child before our next
+		// post-frame. Intentional destruction first enters FREE and does not recover.
+		if (m_eMode == GC_ESpectatorCameraMode.NETWORK && GC_LobbyGameMode.GetGameMode())
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			if (controller)
+				controller.GC_OnSpectatorCameraDeleted(this, m_aNetworkLastWorldView[3], m_aNetworkLastWorldView[2], m_aNetworkLastWorldView[1]);
+		}
 		RestoreSpectatorNightMode();
 		RestoreAttachedPresentation();
 	}
@@ -818,10 +827,13 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		UpdateNetworkSightPresentation();
 		vector cameraTransform[4];
 		BuildNetworkTransform(blend, cameraTransform);
+		vector targetTransform[4];
+		m_Target.GetWorldTransform(targetTransform);
+		vector localPosition = cameraTransform[3].InvMultiply3(targetTransform);
 		if (m_bNetworkIsADS)
 		{
 			BaseWeaponManagerComponent weaponManager = BaseWeaponManagerComponent.Cast(m_Target.FindComponent(BaseWeaponManagerComponent));
-			vector sightTransform[4], modelCamera[4], targetTransform[4], worldCamera[4];
+			vector sightTransform[4], modelCamera[4];
 			float sightFOV;
 			if (!weaponManager || !m_NetworkSightsWeapon || weaponManager.GetCurrentWeapon() != m_NetworkSightsWeapon
 				|| weaponManager.GetCurrentSightsIndex() != m_iNetworkSightsIndex
@@ -837,13 +849,10 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				}
 				return;
 			}
-			// Both the lens and the eye now follow this proxy's animation frame.
-			// Only the owner's relative eye offset/rotation is interpolated.
+			// Position follows this proxy's sight frame. Keep the owner's world
+			// view rotation: a remote animation must not rotate an otherwise steady eye.
 			Math3D.MatrixMultiply4(sightTransform, cameraTransform, modelCamera);
-			m_Target.GetWorldTransform(targetTransform);
-			Math3D.MatrixMultiply4(targetTransform, modelCamera, worldCamera);
-			Math3D.MatrixCopy(worldCamera, cameraTransform);
-			cameraTransform[3] = worldCamera[3] - targetTransform[3];
+			localPosition = modelCamera[3];
 		}
 		m_fNetworkSightWaitAge = 0;
 
@@ -851,20 +860,22 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		float renderedPIPFOV = Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend);
 		float renderedSightFOV = Math.Lerp(m_fNetworkFromSightFOV, m_fNetworkToSightFOV, blend);
 		SetVerticalFOV(renderedFOV);
-		// The resolved view uses world-aligned axes relative to the translation-only
-		// attachment helper at the observed character's origin.
+		// Convert only rotation into the native parent's frame. Position has
+		// remained in model space throughout, including sight-relative ADS.
+		Math3D.MatrixInvMultiply3(targetTransform, cameraTransform, cameraTransform);
+		cameraTransform[3] = localPosition;
 		SetLocalTransform(cameraTransform);
 		// Commit this frame's view before the optic reads it. The manual camera's
 		// component update ran before this network presentation update.
 		ApplyTransform(timeSlice);
+		GetWorldCameraTransform(m_aNetworkLastWorldView);
 		if (m_bNetworkDiagnosticsPending)
 		{
 			vector targetWorldTransform[4];
 			m_Target.GetWorldTransform(targetWorldTransform);
 			vector cameraWorldTransform[4];
-			Math3D.MatrixCopy(cameraTransform, cameraWorldTransform);
-			cameraWorldTransform[3] = targetWorldTransform[3] + cameraTransform[3];
-			GC_SpectatorCameraDiagnostics.LogSnapshot("spectator", m_iNetworkLastSequence, m_Target, cameraWorldTransform, cameraTransform[3], renderedFOV, renderedPIPFOV, renderedSightFOV, m_bNetworkIsADS, m_iNetworkDiagnosticsSightState);
+			Math3D.MatrixMultiply4(targetWorldTransform, cameraTransform, cameraWorldTransform);
+			GC_SpectatorCameraDiagnostics.LogSnapshot("spectator", m_iNetworkLastSequence, m_Target, cameraWorldTransform, localPosition.Multiply3(targetTransform), renderedFOV, renderedPIPFOV, renderedSightFOV, m_bNetworkIsADS, m_iNetworkDiagnosticsSightState);
 			m_bNetworkDiagnosticsPending = false;
 		}
 

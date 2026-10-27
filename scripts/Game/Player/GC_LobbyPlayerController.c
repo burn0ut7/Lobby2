@@ -42,6 +42,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected int m_iServerNetworkCameraSpectatorPlayerId = -1;
 	protected ref array<int> m_aNetworkCameraSpectators = new array<int>();
 	protected bool m_bPublishNetworkCamera;
+	protected float m_fNextNetworkCameraSampleTime;
 	protected int m_iNetworkCameraSequence;
 	protected bool m_bNetworkCameraDiagnosticsInitialized;
 	protected bool m_bNetworkCameraDiagnosticsADS;
@@ -154,7 +155,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 		StopLocalKilledFromTracking(false);
 		StopServerNetworkCameraStream();
-		GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
 		GetGame().GetCallqueue().Remove(OpenSlottingFromPause);
@@ -1706,21 +1706,22 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		m_bPublishNetworkCamera = enabled;
 		m_bNetworkCameraDiagnosticsInitialized = false;
-		GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
-		if (!enabled)
-			return;
-
-		PublishNetworkCameraTransform();
-		GetGame().GetCallqueue().CallLater(PublishNetworkCameraTransform, 1000 / GetNetworkCameraUpdateRate(), true);
+		m_fNextNetworkCameraSampleTime = 0;
 	}
 
-	protected void PublishNetworkCameraTransform()
+	//------------------------------------------------------------------------------------------------
+	//! Sample the completed native camera update in model space. Reading its world
+	//! position later loses eye-to-lens precision and can mix camera/bone frames.
+	void GC_PublishNetworkCameraTransform(IEntity cameraOwner, vector cameraModelTransform[4], vector cameraTransform[4])
 	{
-		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this || !m_bPublishNetworkCamera)
-		{
-			GetGame().GetCallqueue().Remove(PublishNetworkCameraTransform);
+		if (!m_bPublishNetworkCamera || !GC_LobbyGameMode.GetGameMode()
+			|| GetGame().GetPlayerController() != this || cameraOwner != GetControlledEntity())
 			return;
-		}
+
+		float sampleTime = GetGame().GetWorld().GetWorldTime();
+		if (sampleTime < m_fNextNetworkCameraSampleTime)
+			return;
+		m_fNextNetworkCameraSampleTime = sampleTime + 1000.0 / GetNetworkCameraUpdateRate();
 
 		CameraManager cameraManager = GetGame().GetCameraManager();
 		CameraBase currentCamera;
@@ -1740,14 +1741,17 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!characterReplication)
 			return;
 
-		vector cameraTransform[4];
-		currentCamera.GetWorldTransform(cameraTransform);
-		vector snapshotPosition = cameraTransform[3] - controlledEntity.GetWorldTransformAxis(3);
+		vector characterTransform[4];
+		controlledEntity.GetWorldTransform(characterTransform);
+		vector modelPosition = cameraModelTransform[3];
+		vector snapshotPosition = characterTransform[0] * modelPosition[0]
+			+ characterTransform[1] * modelPosition[1]
+			+ characterTransform[2] * modelPosition[2];
 		vector snapshotForward = cameraTransform[2];
 		vector snapshotUp = cameraTransform[1];
 		// X is main-camera FOV, Y is optional PiP FOV and Z is the selected
-		// sight's actual FOV. ADS uses the camera relative to the animated sight;
-		// other views use world-aligned axes relative to the character origin.
+		// sight's actual FOV. ADS position is relative to the animated sight;
+		// orientation always uses the owner's world-aligned view directions.
 		vector lensState = Vector(currentCamera.GetVerticalFOV(), -1, -1);
 		bool isADS;
 		int sightState;
@@ -1783,18 +1787,14 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 			sightState = (sightsIndex + 1) * NETWORK_CAMERA_SIGHT_STATE_SCALE + zoomIndex + 1;
 
-			// Preserve the owner's eye-to-sight relationship. Sampling eye motion
-			// relative to the root mixes it with a separately animated remote weapon.
-			vector sightTransform[4], characterTransform[4], localCamera[4], relativeCamera[4];
+			// Preserve eye-to-sight position without inheriting proxy weapon rotation.
+			// The stock ADS view removes that rotation independently of eye position.
+			vector sightTransform[4], relativeCamera[4];
 			float sightFOV;
 			if (!weaponManager.GetCurrentSightsCameraTransform(sightTransform, sightFOV))
 				return;
-			controlledEntity.GetWorldTransform(characterTransform);
-			Math3D.MatrixInvMultiply4(characterTransform, cameraTransform, localCamera);
-			Math3D.MatrixInvMultiply4(sightTransform, localCamera, relativeCamera);
+			Math3D.MatrixInvMultiply4(sightTransform, cameraModelTransform, relativeCamera);
 			snapshotPosition = relativeCamera[3];
-			snapshotForward = relativeCamera[2];
-			snapshotUp = relativeCamera[1];
 		}
 		m_iNetworkCameraSequence++;
 		bool diagnosticStateChanged = !m_bNetworkCameraDiagnosticsInitialized || m_bNetworkCameraDiagnosticsADS != isADS || m_iNetworkCameraDiagnosticsSightState != sightState;
@@ -2176,7 +2176,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		GetGame().GetCallqueue().CallLater(ReconcileSpectatorPresentation, 0);
 	}
 
-	protected void ReconcileSpectatorPresentation()
+	protected void ReconcileSpectatorPresentation(vector position = vector.Zero, vector forward = vector.Zero, vector up = vector.Zero)
 	{
 		if (!GC_LobbyGameMode.GetGameMode() || !m_bSpectatorPresentationRequested)
 		{
@@ -2193,7 +2193,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		IEntity controlledEntity = GetControlledEntity();
 		if (controlledEntity && controlledEntity.FindComponent(GC_LobbySpectatorBodyComponent))
 		{
-			CreateSpectatorCamera();
+			CreateSpectatorCamera(position, forward, up);
 			return;
 		}
 
@@ -2204,7 +2204,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 	}
 
-	protected void CreateSpectatorCamera()
+	protected void CreateSpectatorCamera(vector position = vector.Zero, vector forward = vector.Zero, vector up = vector.Zero)
 	{
 		if (m_bEditorOpen || (m_EditorManager && m_EditorManager.IsOpened()))
 			return;
@@ -2232,6 +2232,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		IEntity controlledEntity = GetControlledEntity();
 		if (controlledEntity)
 			controlledEntity.GetWorldTransform(spawnParams.Transform);
+		if (forward.LengthSq() > 0.5 && up.LengthSq() > 0.5)
+		{
+			// Initialize native movement/inertia components at the recovered view;
+			// relocating a newly activated camera can otherwise impart velocity.
+			Math3D.DirectionAndUpMatrix(forward, up, spawnParams.Transform);
+			spawnParams.Transform[3] = position;
+		}
 
 		IEntity cameraEntity = GetGame().SpawnEntityPrefabLocal(cameraResource, GetWorld(), spawnParams);
 		m_SpectatorCamera = GC_SpectatorManualCamera.Cast(cameraEntity);
@@ -2272,6 +2279,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void DestroySpectatorCamera()
 	{
+		GetGame().GetCallqueue().Remove(GC_RestoreSpectatorCameraAfterTargetLoss);
 		UnregisterSpectatorCameraActions();
 		DestroySpectatorMarkerOverlay();
 		DestroySpectatorMenu();
@@ -2285,6 +2293,28 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		camera.Terminate();
 		delete camera;
 		PrintFormat("GC | Spectator | manual camera left: player=%1", GetPlayerId());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! A native observed-character deletion also removes its local camera child.
+	//! Reuse the normal presentation lifecycle after that deletion has completed.
+	void GC_OnSpectatorCameraDeleted(GC_SpectatorManualCamera camera, vector position, vector forward, vector up)
+	{
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this
+			|| !m_bSpectatorPresentationRequested || (m_SpectatorCamera && m_SpectatorCamera != camera))
+			return;
+		m_SpectatorCamera = null;
+		UnregisterSpectatorCameraActions();
+		GetGame().GetCallqueue().Remove(GC_RestoreSpectatorCameraAfterTargetLoss);
+		GetGame().GetCallqueue().CallLater(GC_RestoreSpectatorCameraAfterTargetLoss, 0, false, position, forward, up);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_RestoreSpectatorCameraAfterTargetLoss(vector position, vector forward, vector up)
+	{
+		if (GetGame().GetPlayerController() != this || m_SpectatorCamera)
+			return;
+		ReconcileSpectatorPresentation(position, forward, up);
 	}
 
 	protected void RegisterSpectatorCameraActions()

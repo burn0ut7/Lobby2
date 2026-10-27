@@ -5,7 +5,7 @@
 //! never an authority update to another player's character.
 class GC_SpectatorSample
 {
-	int m_iVersion = 2;
+	int m_iVersion = 3;
 	int m_iSequence;
 	float m_fSampleTime;
 	int m_iStance;
@@ -21,8 +21,8 @@ class GC_SpectatorSample
 	float m_fLean;
 	float m_fDynamicStance;
 	float m_fMovement;
-	//! ADS camera basis/offset are sight-local; otherwise world-aligned from root.
-	//! Version 2 changes this frame and adds the two stock optic scales.
+	//! ADS position is sight-local; other positions are world-aligned from root.
+	//! Version 3 keeps the camera basis world-aligned in every state.
 	vector m_vCameraOffset;
 	vector m_vCameraForward;
 	vector m_vCameraUp;
@@ -30,7 +30,7 @@ class GC_SpectatorSample
 	float m_fOpticReticleScale = 1;
 	float m_fOpticEdgeScale = 1;
 
-	static const int VERSION = 2;
+	static const int VERSION = 3;
 	static const int FLAG_ADS = 1;
 	static const int FLAG_RAISED = 2;
 	static const int FLAG_RELOADING = 4;

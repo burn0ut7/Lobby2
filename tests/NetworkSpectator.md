@@ -9,13 +9,18 @@ and bounded sample values. A two-second silence returns to free camera.
 The sample contains world position, orientation and velocity; stance and dynamic
 stance; movement and animation command; signed lean; aim/look angles; raised,
 ADS, reload, sprint and freelook flags; camera offset/basis; and sight/zoom/FOV
-state. Version 2 adds stock reticle/edge scales and stores the ADS camera relative
-to the selected animated sight. Units are documented on the class. The serializer snapshot is 168 bytes
+state. Version 3 retains stock reticle/edge scales and sight-local ADS position,
+but keeps view orientation in world space. Units are documented on the class.
+The serializer snapshot is 168 bytes
 before transport encoding/envelopes. Sampling retains the prefab setting,
-default 30 Hz, and stops when the last subscriber leaves.
+default maximum 30 Hz, and stops when the last subscriber leaves. Sampling runs
+after the native owner camera update, using its model-space position and world
+basis. Frame boundaries can reduce the achieved rate below the configured cap.
 
-Live presentation follows the native replicated character root, with the owner's
-camera offset and basis interpolated over the measured sample interval. During
+Live presentation attaches directly to the native replicated character root,
+sharing its render-time parent motion with the weapon instead of using a separate
+translation helper. The owner's
+camera offset and basis are interpolated over the measured sample interval. During
 ADS that offset is resolved against the proxy's current selected sight, so eye
 and weapon use the same animation frame. Other views use world-aligned offsets
 from the root. Sight changes reset interpolation; an unavailable selected sight
@@ -55,6 +60,7 @@ Commands:
 - `dynamic|0.5`: native adjusted-stance request.
 - `zeroing|0..3`, `sight|index`, `weapon|index`: native owning-player selection.
 - `optic|0`: scope update counts, FOV, scales and zeroing.
+- `performance|0`: current rolling engine timing averages and publisher sequence.
 - `measure|0`, `measurement|offset`: 120 bounded camera/profile observations,
   retrieved in 1500-character pages after completion. Profile values are rolling
   engine averages, not individual frame timings or percentile measurements.
