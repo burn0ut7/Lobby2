@@ -1,6 +1,6 @@
-//! Explicit production-recorder boundary test with isolated, restored history storage.
+//! Explicit pagination/retention contract test; restore live storage after exercising the production recorder.
 #ifdef WORKBENCH
-modded class GC_LobbyManager
+modded class GC_SessionLogComponent
 {
 	//------------------------------------------------------------------------------------------------
 	string GC_TestAdminHistoryRollover()
@@ -8,41 +8,52 @@ modded class GC_LobbyManager
 		PlayerController controller = GetGame().GetPlayerController();
 		if (!Replication.IsServer() || !controller || !SCR_Global.IsAdmin(controller.GetPlayerId()))
 			return "UNAVAILABLE authority/admin";
-
-		ref array<string> original = m_aAdminSessionHistory;
-		ref map<int, string> originalLabels = m_mAdminSessionLabels;
-		m_mAdminSessionLabels = new map<int, string>();
-		m_aAdminSessionHistory = new array<string>();
-		for (int eventNumber = 1; eventNumber <= 258; eventNumber++)
-			RecordAdminSessionEvent(100000 + eventNumber, false, eventNumber);
-
-		string result = "PASS latest 256 retained, newest 64 reported, filter and denial correct";
-		if (m_aAdminSessionHistory.Count() != 256)
-			result = "FAIL capacity";
-		for (int index = 0; index < m_aAdminSessionHistory.Count(); index++)
+		ref array<ref GC_SessionEvent> recent = m_aRecent;
+		ref array<ref GC_SessionEvent> queued = m_aQueued;
+		int sequence = m_iSequence;
+		int cursor = m_iRingCursor;
+		m_aRecent = {};
+		m_aQueued = {};
+		m_iSequence = 0;
+		m_iRingCursor = 0;
+		for (int index; index < MAX_RECENT + 2; index++)
 		{
-			int expected = index + 3;
-			string suffix = string.Format(" / left / session %1 / cause %2", 100000 + expected, expected);
-			if (!m_aAdminSessionHistory[index].EndsWith(suffix))
-				result = string.Format("FAIL retention index=%1 expected=%2 entry=%3", index, expected, m_aAdminSessionHistory[index]);
+			GC_SessionEvent entry = CreateEvent("damage", controller.GetPlayerId(), controller.GetPlayerId());
+			entry.m_sActorName = "DamageTest";
+			entry.m_fDamage = index;
+			Record(entry);
 		}
-
-		string report = GetAdminSessionReport(controller.GetPlayerId(), "");
-		string newest;
-		for (int index = 255; index >= 192 && index < m_aAdminSessionHistory.Count(); index--)
-			newest += m_aAdminSessionHistory[index] + "\n";
-		if (newest.IsEmpty() || !report.Contains(newest) || report.Contains("session 100194 /"))
-			result = "FAIL newest-first report or 64 bound";
-		string filtered = GetAdminSessionReport(controller.GetPlayerId(), "session 100258");
-		if (!filtered.Contains("session 100258 / cause 258") || filtered.Contains("session 100257 /"))
-			result = "FAIL filtering";
-		string denied = GetAdminSessionReport(-1, "session 100258");
-		if (denied.Contains("session 100258") || denied != "A current admin login is required.")
-			result = "FAIL unauthorized report";
-
-		m_aAdminSessionHistory = original;
-		m_mAdminSessionLabels = originalLabels;
+		array<string> rows;
+		int next;
+		string status;
+		ReadPage(controller.GetPlayerId(), "DamageTest", "damage", 0, rows, next, status);
+		string result = "PASS individual damage, newest-first paging, retention and denied access";
+		if (rows.Count() != 100 || rows[0].ToInt() != MAX_RECENT + 2 || next != MAX_RECENT - 17)
+			result = "FAIL newest page";
+		ReadPage(controller.GetPlayerId(), "DamageTest", "damage", next, rows, next, status);
+		if (rows.Count() != 100 || rows[0].ToInt() != MAX_RECENT - 18)
+			result = "FAIL older page";
+		if (m_aRecent.Count() != MAX_RECENT || m_aQueued.Count() != MAX_RECENT + 2)
+			result = "FAIL retention or individual damage persistence";
+		ReadPage(-1, "DamageTest", "damage", 0, rows, next, status);
+		if (!rows.IsEmpty() || status != "Access denied.")
+			result = "FAIL authorization";
+		m_aRecent = recent;
+		m_aQueued = queued;
+		m_iSequence = sequence;
+		m_iRingCursor = cursor;
 		return result;
+	}
+}
+modded class GC_LobbyManager
+{
+	//------------------------------------------------------------------------------------------------
+	string GC_TestAdminHistoryRollover()
+	{
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (!logs)
+			return "UNAVAILABLE session log";
+		return logs.GC_TestAdminHistoryRollover();
 	}
 }
 #endif

@@ -150,6 +150,8 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
 TextWidgetClass { Name "PlanStatus" Slot FrameWidgetSlot { Anchor 0 0.25 1 0.42 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 24 Wrap 1 "Ignore Cursor" 1 }
 } }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolModeration" Slot FrameWidgetSlot { Anchor 0.018 0.35 0.2 0.415 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolLogs" Slot FrameWidgetSlot { Anchor 0.018 0.7 0.2 0.765 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 } } }
+FrameWidgetClass : "{B4C238A9F06E7D12}UI/layouts/Admin/Lobby_AdminLogs.layout" { Name "LogFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{6A5A000000000070}UI/layouts/Admin/Lobby_AdminModeration.layout" { Name "ModerationFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ToolReservations" Slot FrameWidgetSlot { Anchor 0.018 0.49 0.2 0.555 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }
 PanelWidgetClass { Name "ReservationsSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 0.49 0.023 0.555 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 1 0.5 0.04 1 style full "Ignore Cursor" 1 }

@@ -64,6 +64,12 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "session-logs")
+		{
+			RequestSessionLog(ReserveAdminActionRequest(), message, "", 0);
+			Rpc(GC_TestRpcPeerReport, token, "dispatched production session-log request admin=" + SCR_Global.IsAdmin(GetPlayerId()).ToString());
+			return;
+		}
 		if (action == "stats-open")
 		{
 			OpenSlottingFromPause();
@@ -464,6 +470,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"session-logs",
 			"stats-open",
 			"stats-read",
 			"stats-select",

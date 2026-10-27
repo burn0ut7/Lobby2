@@ -5,6 +5,8 @@ GC_LobbyGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
   }
   GC_MissionStatsComponent "{7A115D5DFF7ED991}" {
   }
+  GC_SessionLogComponent "{7A115D5DFF7ED992}" {
+  }
   GC_LobbyFreezeComponent "{E81E75BC287148D0}" {
   }
   GC_LobbyManager "{6A137A39106A4973}" {

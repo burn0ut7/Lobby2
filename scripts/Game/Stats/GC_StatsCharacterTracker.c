@@ -186,6 +186,9 @@ class GC_StatsCharacterTracker
 			return;
 		m_Stats.UpdateAssignment(m_iPlayerId, m_Record);
 		m_Record.m_iShots++;
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
+			logs.RecordShot("shot", playerId, weapon, projectile);
 		RecordAmmo(weapon, projectile);
 		m_Stats.ObserveProjectile(weapon, projectile);
 	}
@@ -197,6 +200,9 @@ class GC_StatsCharacterTracker
 			return;
 		m_Stats.UpdateAssignment(m_iPlayerId, m_Record);
 		m_Record.m_iGrenades++;
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
+			logs.RecordShot("grenade", playerId, weapon, projectile);
 		RecordAmmo(weapon, projectile);
 		m_Stats.ObserveProjectile(weapon, projectile);
 	}
@@ -264,7 +270,7 @@ class GC_StatsCharacterTracker
 	protected void OnDamage(notnull BaseDamageContext context)
 	{
 		if (!m_Stats || !m_Stats.IsCollecting() || context.damageType == EDamageType.HEALING
-			|| context.damageType == EDamageType.REGENERATION || context.damageType == EDamageType.BLEEDING)
+			|| context.damageType == EDamageType.REGENERATION)
 			return;
 		// The engine follows projectile impacts with an empty notification. It must
 		// not erase the source captured by the actual impact callback.
@@ -273,6 +279,24 @@ class GC_StatsCharacterTracker
 			&& GetGame().GetWorld().GetWorldTime() == m_fDamageImpactTime
 			&& !context.damageSource && context.hitPosition.LengthSq() < 0.0001
 			&& context.impactVelocity.LengthSq() < 0.0001)
+			return;
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
+		{
+			int actorId;
+			if (context.instigator)
+				actorId = context.instigator.GetInstigatorPlayerID();
+			GC_SessionEvent entry = logs.CreateEvent("damage", actorId, m_iPlayerId);
+			entry.m_sTarget = m_Record.m_sIdentity;
+			entry.m_sTargetName = m_Record.m_sName;
+			entry.m_fDamage = context.damageValue;
+			entry.m_iDamageType = context.damageType;
+			entry.m_sWeapon = m_Stats.GetProjectileWeapon(context.damageSource);
+			if (context.damageSource && !context.damageSource.FindComponent(BaseWeaponComponent) && context.damageSource.GetPrefabData())
+				entry.m_sProjectile = context.damageSource.GetPrefabData().GetPrefabName();
+			logs.Record(entry);
+		}
+		if (context.damageType == EDamageType.BLEEDING)
 			return;
 		m_iDamageInstigator = 0;
 		if (context.instigator)

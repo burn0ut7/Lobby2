@@ -36,7 +36,7 @@ Collection runs during native GAME. Counted play time requires at least five con
 
 Movement is sampled displacement, not an exact travelled path. Passengers do not receive driver/pilot distance. Teleport-sized jumps are discarded. Radio time is a client-reported estimate, bounded by elapsed server time; reports arrive about every ten seconds, with a two-second grace period at mission end. Speech spanning membership changes is apportioned by interval overlap, so faction/squad radio attribution is approximate. Disconnecting can lose the last unsent radio report. CPR and replay telemetry are deferred.
 
-Shots are projectile-shot callbacks, with projectile, magazine and weapon resource names retained. Hand-thrown grenades have a separate counter and also contribute their grenade prefab/type to the ammunition breakdown; they do not increment shots. Mounted turret projectile callbacks use the same collection path. These are aggregate counts, not individual shot timestamps, trajectories, hit locations or accuracy records. Player kills count other human players, including friendly fire; death events retain the engine relationship code for later filtering. Unknown weapon attribution is empty, and unknown distance is -1. CO and squad-leader counts are one per mission if the role was observed; role selections record slots used during GAME, preserving the prefab role name and slot ID. Slot labels currently derive from the role prefab in Lobby2.
+Shots are projectile-shot callbacks, with projectile, magazine and weapon resource names retained. Hand-thrown grenades have a separate counter and also contribute their grenade prefab/type to the ammunition breakdown; they do not increment shots. Mounted turret projectile callbacks use the same collection path. The session log additionally records individual shot and damage timestamps; trajectories, hit locations and accuracy remain out of scope. Player kills count other human players, including friendly fire; schema v2 also counts team kills separately as a subset, using the engine friendly-player relationship. Earlier v1 records have unknown team-kill counts (SQL NULL); death events retain the engine relationship code for later filtering. Unknown weapon attribution is empty, and unknown distance is -1. CO and squad-leader counts are one per mission if the role was observed; role selections record slots used during GAME, preserving the prefab role name and slot ID. Slot labels currently derive from the role prefab in Lobby2.
 
 Membership records query native faction/group/leader ownership, closing an interval when those values or the selected role change. Teammates are reconstructed by overlapping intervals rather than copying a roster every second. Replay data can later join these records without changing their ownership.
 
@@ -45,3 +45,29 @@ The debrief is available during POSTGAME through the lobby entry and header. Lob
 The collector bounds unique mission players to 1024, membership intervals to 4096 total/256 per player, ammunition rows to 8192 total/128 per interval, pending death events to 256, and remembered death entities to 16384. Reaching these limits marks the mission incomplete instead of publishing complete lifetime totals. Disk snapshots still run on the game thread every 30 seconds; only network/database work is external. Size and timing should be measured on the actual dedicated server before a large event.
 
 References: [PostgreSQL JSON types](https://www.postgresql.org/docs/current/datatype-json.html), [PostgreSQL Windows distributions](https://www.postgresql.org/download/windows/).
+
+## Admin session logs
+
+Admin Tools → Logs shows the current mission only. Search matches actor or victim name or identity, including disconnected players. The event filter separates team kills; “Deaths (all)” also includes kills and team kills. Live refreshes every two seconds; Paused holds the current page. Older/Newer browse 20 records at a time. The in-memory window holds the most recent 4096 records and explicitly directs admins to the server archive for earlier events.
+
+Every request checks current server-side admin authorization. Repeated denied log-view requests are audited at most once per controller every five seconds; no log rows are sent to the denied requester. Filters are limited to 128 characters. Oversized audit details are explicitly truncated to fit the historical contract; the existing console audit output remains unchanged.
+
+Every accepted damage callback is its own sequence-numbered event, even in the same engine tick. Healing/regeneration and the engine's empty duplicate impact notification are excluded; bleeding damage remains individual. `reportedDamage` is the engine context value, not a claim of final health removed. Shots and grenade throws are also individual events. Gameplay collection runs during GAME; connections and centrally logged admin actions span the session. No damage events are merged to reduce storage or network cost.
+
+The server publishes separate batches (up to 256 events each, at most four batches per second) to `$profile:Lobby2SessionLogs`. The queue retains up to 8192 records; disk failure retries the identical batch and reports unavailable storage. Overflow is explicitly counted as dropped history. Normal shutdown drains pending records and writes a closed marker; process crashes can lose unflushed records. Files are permanent: the importer removes only the `.ready` marker after commit and leaves session JSON on the server. There is no automatic deletion or retention cutoff. Back up the folder and monitor free disk space.
+
+Apply the updated `schema.sql` with a migration account; it accepts v1 and v2 stats. Grant the ingestion account SELECT/INSERT on `lobby2.session_log_batches` and `lobby2.session_events`, plus its existing mission-batch grants. Run the same importer against the session log directory:
+
+```powershell
+dotnet stats-ingest/StatsIngest.dll --validate 'C:\server-profile\Lobby2SessionLogs'
+dotnet stats-ingest/StatsIngest.dll --once 'C:\server-profile\Lobby2SessionLogs'
+```
+
+`session_events` stores one immutable JSONB row per `(session_id, sequence)`, indexed by actor, target and event type. Exact replay is idempotent; a conflicting event or batch rolls back and retains the local file. `session_log_status` exposes closure, dropped count and whether all batch revisions arrived. Session IDs match the mission stats ID; `sessionSeconds` starts at world load whereas `missionSeconds` starts at GAME. Their `startedAt` Unix timestamps provide the offset. A closed, contiguous stream with zero dropped records is the complete historical session; other streams must be presented as partial.
+
+```sql
+SELECT session_id, sequence, detail
+FROM lobby2.session_events
+WHERE detail->>'actor' = 'player-identity' OR detail->>'target' = 'player-identity'
+ORDER BY session_id, sequence;
+```

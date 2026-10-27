@@ -87,7 +87,7 @@ TextWidgetClass {
 TextWidgetClass {
  Name "StatLabel4"
  Slot FrameWidgetSlot { Anchor .11 0.570 .36 0.610 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- Text "Player kills / deaths"
+ Text "Kills / deaths / team kills"
  "Font Size" 24
  Wrap 1
  "Ignore Cursor" 1

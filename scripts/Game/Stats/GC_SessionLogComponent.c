@@ -1,0 +1,266 @@
+class GC_SessionLogComponentClass : SCR_BaseGameModeComponentClass
+{
+}
+
+//! Bounded current-session view plus permanent, append-only server batches.
+class GC_SessionLogComponent : SCR_BaseGameModeComponent
+{
+	protected string m_sSessionId;
+	protected int m_iStartedAt;
+	protected float m_fStarted;
+	protected int m_iSequence;
+	protected int m_iRevision;
+	protected int m_iDropped;
+	protected int m_iRingCursor;
+	protected int m_iPendingCount;
+	protected string m_sPendingPayload;
+	protected bool m_bWriteFailure;
+	protected bool m_bClosed;
+	protected bool m_bPendingClosed;
+	protected ref array<ref GC_SessionEvent> m_aRecent = {};
+	protected ref array<ref GC_SessionEvent> m_aQueued = {};
+	static const int MAX_RECENT = 4096;
+	static const int MAX_QUEUED = 8192;
+	static const int BATCH_SIZE = 256;
+	static const string OUTBOX = "$profile:Lobby2SessionLogs";
+
+	//------------------------------------------------------------------------------------------------
+	static GC_SessionLogComponent GetInstance()
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!mode)
+			return null;
+		return GC_SessionLogComponent.Cast(mode.FindComponent(GC_SessionLogComponent));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GetSessionId()
+	{
+		return m_sSessionId;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnWorldPostProcess(World world)
+	{
+		super.OnWorldPostProcess(world);
+		if (!Replication.IsServer() || GetInstance() != this || !m_sSessionId.IsEmpty())
+			return;
+		m_sSessionId = PersistenceIdUtils.Generate();
+		m_iStartedAt = System.GetUnixTime();
+		m_fStarted = world.GetWorldTime() * 0.001;
+		FileIO.MakeDirectory(OUTBOX);
+		GC_SessionEvent entry = CreateEvent("session", 0, 0);
+		entry.m_sDetail = "Session opened";
+		Record(entry);
+		GetGame().GetCallqueue().CallLater(Tick, 1000, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_SessionEvent CreateEvent(string type, int actorId, int targetId)
+	{
+		GC_SessionEvent entry = new GC_SessionEvent();
+		entry.m_sType = type;
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (actorId > 0)
+		{
+			entry.m_sActor = SCR_PlayerIdentityUtils.GetPlayerIdentityId(actorId);
+			entry.m_sActorName = players.GetPlayerName(actorId);
+		}
+		if (targetId > 0)
+		{
+			entry.m_sTarget = SCR_PlayerIdentityUtils.GetPlayerIdentityId(targetId);
+			entry.m_sTargetName = players.GetPlayerName(targetId);
+		}
+		return entry;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Every accepted callback gets its own sequence, even within the same engine tick.
+	void Record(GC_SessionEvent entry)
+	{
+		if (!entry || !Replication.IsServer() || GetInstance() != this || m_sSessionId.IsEmpty() || m_bClosed)
+			return;
+		entry.m_iSequence = ++m_iSequence;
+		entry.m_fSeconds = Math.Max(0, GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted);
+		if (m_aRecent.Count() < MAX_RECENT)
+			m_aRecent.Insert(entry);
+		else
+		{
+			m_aRecent[m_iRingCursor] = entry;
+			m_iRingCursor = (m_iRingCursor + 1) % MAX_RECENT;
+		}
+		if (m_aQueued.Count() < MAX_QUEUED)
+			m_aQueued.Insert(entry);
+		else
+		{
+			if (m_iDropped == 0)
+				Print("GC | Session logs | persistence queue full; history incomplete", LogLevel.ERROR);
+			m_iDropped++;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RecordShot(string type, int playerId, BaseWeaponComponent weapon, IEntity projectile)
+	{
+		GC_SessionEvent entry = CreateEvent(type, playerId, 0);
+		if (projectile && projectile.GetPrefabData())
+			entry.m_sProjectile = projectile.GetPrefabData().GetPrefabName();
+		if (weapon)
+		{
+			if (weapon.GetOwner() && weapon.GetOwner().GetPrefabData())
+				entry.m_sWeapon = weapon.GetOwner().GetPrefabData().GetPrefabName();
+			BaseMagazineComponent magazine = weapon.GetCurrentMagazine();
+			if (magazine && magazine.GetOwner() && magazine.GetOwner().GetPrefabData())
+				entry.m_sMagazine = magazine.GetOwner().GetPrefabData().GetPrefabName();
+		}
+		Record(entry);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void Tick()
+	{
+		if (GetInstance() != this || !Replication.IsServer() || m_bClosed)
+			return;
+		// Bounded catch-up for bursts; callbacks themselves never perform disk I/O.
+		for (int batch; batch < 4 && (!m_aQueued.IsEmpty() || !m_sPendingPayload.IsEmpty()); batch++)
+		{
+			if (!Flush())
+				break;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Retry the identical payload until published; new callbacks remain queued behind it.
+	protected bool Flush()
+	{
+		if (m_sPendingPayload.IsEmpty())
+		{
+			m_iPendingCount = Math.Min(BATCH_SIZE, m_aQueued.Count());
+			JsonSaveContext context = new JsonSaveContext();
+			context.WriteValue("kind", "sessionEvents");
+			context.WriteValue("schemaVersion", 1);
+			context.WriteValue("sessionId", m_sSessionId);
+			context.WriteValue("world", GetGame().GetWorldFile());
+			context.WriteValue("startedAt", m_iStartedAt);
+			context.WriteValue("revision", m_iRevision);
+			bool closed = m_bClosed && m_iPendingCount == m_aQueued.Count();
+			m_bPendingClosed = closed;
+			context.WriteValue("closed", closed);
+			context.WriteValue("droppedRecords", m_iDropped);
+			context.StartArray("events", m_iPendingCount);
+			for (int i; i < m_iPendingCount; i++)
+			{
+				context.StartObject();
+				m_aQueued[i].Write(context);
+				context.EndObject();
+			}
+			context.EndArray();
+			if (!context.IsValid())
+				return false;
+			m_sPendingPayload = context.SaveToString();
+			if (m_sPendingPayload.Length() <= 2)
+				return false;
+		}
+		string path = string.Format("%1/%2-events-%3.json", OUTBOX, m_sSessionId, m_iRevision);
+		if (!GC_StatsOutbox.WriteVerified(path, m_sPendingPayload) || !GC_StatsOutbox.WriteReady(path + ".ready"))
+		{
+			if (!m_bWriteFailure)
+				PrintFormat("GC | Session logs | write failed path=%1; pending records retained", path, level: LogLevel.ERROR);
+			m_bWriteFailure = true;
+			return false;
+		}
+		m_bWriteFailure = false;
+		m_iRevision++;
+		for (int index; index < m_iPendingCount; index++)
+			m_aQueued.RemoveOrdered(0);
+		m_sPendingPayload = string.Empty;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Server-filtered bounded page. Cursor excludes that sequence and all newer records.
+	void ReadPage(int requester, string query, string type, int before, out array<string> rows, out int next, out string status)
+	{
+		rows = {};
+		next = 0;
+		status = "Access denied.";
+		if (!Replication.IsServer() || GetInstance() != this || !SCR_Global.IsAdmin(requester))
+			return;
+		status = "Showing latest events.";
+		if (before > 0)
+			status = "Showing earlier events.";
+		if (query.Length() > 128 || type.Length() > 32 || before < 0)
+		{
+			status = "Invalid filter.";
+			return;
+		}
+		query.ToLower();
+		int count = m_aRecent.Count();
+		int start = count - 1;
+		if (count == MAX_RECENT)
+			start = (m_iRingCursor + count - 1) % count;
+		int matched;
+		for (int offset; offset < count; offset++)
+		{
+			GC_SessionEvent entry = m_aRecent[(start - offset + count) % count];
+			if (before > 0 && entry.m_iSequence >= before)
+				continue;
+			bool death = entry.m_sType == "kill" || entry.m_sType == "teamKill" || entry.m_sType == "death";
+			if (!type.IsEmpty() && entry.m_sType != type && !(type == "death" && death))
+				continue;
+			string search = entry.m_sActor + " " + entry.m_sActorName + " " + entry.m_sTarget + " " + entry.m_sTargetName;
+			search.ToLower();
+			if (!query.IsEmpty() && !search.Contains(query))
+				continue;
+			if (matched == 20)
+				break;
+			rows.Insert(entry.m_iSequence.ToString());
+			rows.Insert(string.Format("%1 s #%2", entry.m_fSeconds.ToString(-1, 2), entry.m_iSequence));
+			rows.Insert(entry.m_sType);
+			string people = entry.m_sActorName;
+			if (!entry.m_sTargetName.IsEmpty())
+				people += " > " + entry.m_sTargetName;
+			rows.Insert(people);
+			string detail = entry.m_sDetail;
+			if (!entry.m_sWeapon.IsEmpty())
+				detail += " " + FilePath.StripExtension(FilePath.StripPath(entry.m_sWeapon));
+			if (entry.m_sType == "damage")
+				detail += string.Format(" | reported damage %1", entry.m_fDamage);
+			if (entry.m_fDistance >= 0)
+				detail += string.Format(" | %1 m", Math.Round(entry.m_fDistance));
+			rows.Insert(detail);
+			next = entry.m_iSequence;
+			matched++;
+		}
+		if (matched < 20)
+			next = 0;
+		if (matched == 0)
+			status = "No matching events.";
+		if (m_iSequence > MAX_RECENT)
+			status += " Earlier events are in the server archive.";
+		if (m_iDropped > 0 || m_bWriteFailure)
+			status += " Server log storage is incomplete or delayed.";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnGameEnd()
+	{
+		GetGame().GetCallqueue().Remove(Tick);
+		if (Replication.IsServer() && !m_sSessionId.IsEmpty() && !m_bClosed)
+		{
+			m_bClosed = true;
+			// At most 32 data batches plus a seal after an already encoded retry.
+			while (Flush() && !m_bPendingClosed)
+			{
+			}
+		}
+		super.OnGameEnd();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ~GC_SessionLogComponent()
+	{
+		if (GetGame())
+			GetGame().GetCallqueue().Remove(Tick);
+	}
+}

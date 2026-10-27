@@ -260,6 +260,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	{
 		if (!projectile)
 			return string.Empty;
+		// Melee contexts carry the weapon itself instead of a projectile.
+		if (projectile.FindComponent(BaseWeaponComponent) && projectile.GetPrefabData())
+			return projectile.GetPrefabData().GetPrefabName();
 		return m_mProjectileWeapons.Get(projectile.GetID());
 	}
 
@@ -314,6 +317,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			return;
 		m_Batch = new GC_MissionStatsBatch();
 		m_Batch.m_sMissionId = PersistenceIdUtils.Generate();
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs && !logs.GetSessionId().IsEmpty())
+			m_Batch.m_sMissionId = logs.GetSessionId();
 		m_Batch.m_sWorld = GetGame().GetWorldFile();
 		m_Batch.m_iStartedAt = System.GetUnixTime();
 		m_fStarted = GetGame().GetWorld().GetWorldTime() * 0.001;
@@ -426,13 +432,10 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		if (victimRecord)
 			victimRecord.m_iDeaths++;
 		if (victimRecord && killerRecord && killerRecord != victimRecord)
-			killerRecord.m_iKills++;
-		if (m_Batch.m_aDeaths.Count() >= MAX_PENDING_DEATHS)
 		{
-			if (m_Batch.m_bComplete)
-				Print("GC | Stats | death queue full; history marked incomplete", LogLevel.ERROR);
-			m_Batch.m_bComplete = false;
-			return;
+			killerRecord.m_iKills++;
+			if (instigatorContextData.HasAnyVictimKillerRelation(SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER))
+				killerRecord.m_iTeamKills++;
 		}
 		GC_StatsDeath death = new GC_StatsDeath();
 		death.m_iSequence = ++m_iDeathSequence;
@@ -454,6 +457,32 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		GC_StatsCharacterTracker tracker = m_mTrackers.Get(instigatorContextData.GetVictimPlayerID());
 		if (tracker)
 			death.m_sWeapon = tracker.GetDamageWeapon(instigatorContextData.GetKillerPlayerID(), victim);
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
+		{
+			string type = "death";
+			if (killerRecord && killerRecord != victimRecord)
+			{
+				type = "kill";
+				if (victimRecord && instigatorContextData.HasAnyVictimKillerRelation(SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER))
+					type = "teamKill";
+			}
+			GC_SessionEvent entry = logs.CreateEvent(type, instigatorContextData.GetKillerPlayerID(), instigatorContextData.GetVictimPlayerID());
+			entry.m_sActor = death.m_sKiller;
+			entry.m_sActorName = death.m_sKillerName;
+			entry.m_sTarget = death.m_sVictim;
+			entry.m_sTargetName = death.m_sVictimName;
+			entry.m_sWeapon = death.m_sWeapon;
+			entry.m_fDistance = death.m_fDistance;
+			logs.Record(entry);
+		}
+		if (m_Batch.m_aDeaths.Count() >= MAX_PENDING_DEATHS)
+		{
+			if (m_Batch.m_bComplete)
+				Print("GC | Stats | death queue full; history marked incomplete", LogLevel.ERROR);
+			m_Batch.m_bComplete = false;
+			return;
+		}
 		m_Batch.m_aDeaths.Insert(death);
 	}
 
@@ -485,7 +514,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			m_bPendingFinal = m_Batch.m_bFinal;
 		}
 		string path = string.Format("%1/%2-%3.json", OUTBOX, m_Batch.m_sMissionId, m_Batch.m_iRevision);
-		bool written = WriteVerified(path, m_sPendingPayload) && WriteReady(path + ".ready");
+		bool written = GC_StatsOutbox.WriteVerified(path, m_sPendingPayload) && GC_StatsOutbox.WriteReady(path + ".ready");
 		if (!written)
 		{
 			if (!m_bWriteFailureLogged)
@@ -501,37 +530,6 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		if (m_Batch.m_bFinal && !m_bPendingFinal)
 			return Flush();
 		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected bool WriteReady(string path)
-	{
-		FileHandle marker = FileIO.OpenFile(path, FileMode.WRITE);
-		if (!marker)
-			return false;
-		int written = marker.Write("ready");
-		marker.Close();
-		// Once the marker is closed the uploader may consume it immediately; do not read it back.
-		return written == 5;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected bool WriteVerified(string path, string value)
-	{
-		FileHandle file = FileIO.OpenFile(path, FileMode.WRITE);
-		if (!file)
-			return false;
-		int written = file.Write(value);
-		file.Close();
-		if (written != value.Length())
-			return false;
-		file = FileIO.OpenFile(path, FileMode.READ);
-		if (!file)
-			return false;
-		string actual;
-		int read = file.Read(actual, value.Length());
-		file.Close();
-		return read == value.Length() && actual == value;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	protected GC_AdminPlayerPicker m_From;
 	protected GC_AdminPlayerPicker m_To;
 	protected GC_AdminModerationComponent m_Moderation;
+	protected GC_AdminLogsComponent m_Logs;
 	protected int m_iTool;
 	protected GC_EAdminHealScope m_eScope;
 	protected int m_iPending = -1;
@@ -111,6 +112,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		super.HandlerAttached(w);
 		m_Manager = GC_LobbyManager.GetManager();
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		m_Logs = GC_AdminLogsComponent.Cast(w.FindAnyWidget("LogFields").FindHandler(GC_AdminLogsComponent));
 		m_Moderation = GC_AdminModerationComponent.Cast(w.FindAnyWidget("ModerationFields").FindHandler(GC_AdminModerationComponent));
 		m_Targets = GC_AdminPlayerPicker.Cast(w.FindAnyWidget("HealPlayers").FindHandler(GC_AdminPlayerPicker));
 		m_From = GC_AdminPlayerPicker.Cast(w.FindAnyWidget("FromPlayer").FindHandler(GC_AdminPlayerPicker));
@@ -132,6 +134,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("AdminClose", "Close");
 		Bind("ToolHeal", "Heal");
 		Bind("ToolFreeze", "Freeze");
+		Bind("ToolLogs", "Logs");
 		SCR_ButtonTextComponent.GetButtonText("ToolUnfreeze", w).m_OnClicked.Insert(OnApply);
 		Bind("ToolTeleport", "Teleport");
 		Bind("ToolMessage", "Send message");
@@ -207,6 +210,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_iTool = 0;
 		else if (name == "ToolFreeze")
 			m_iTool = 8;
+		else if (name == "ToolLogs")
+			m_iTool = 9;
 		else if (name == "ToolTeleport")
 			m_iTool = 1;
 		else if (name == "ToolMessage")
@@ -305,6 +310,9 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 		bool heal = m_iTool == 0;
+		bool logs = m_iTool == 9;
+		m_Logs.SetActive(logs);
+		SCR_ButtonTextComponent.GetButtonText("ToolLogs", m_wRoot).SetToggled(logs, false, false);
 		bool freeze = m_iTool == 8;
 		bool playerScope = heal || freeze;
 		m_wRoot.FindAnyWidget("ToolUnfreeze").SetVisible(freeze);
@@ -326,9 +334,9 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		SCR_ButtonTextComponent.GetButtonText("ToolReservations", m_wRoot).SetToggled(reservations, false, false);
 		bool moderation = m_iTool == 5;
 		m_wRoot.FindAnyWidget("ModerationFields").SetVisible(moderation);
-		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans && !boundaries);
-		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries);
-		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries);
+		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
+		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
+		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
 		bool factionTarget = (playerScope && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
 		bool selectedMessage = message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS;
 		m_wRoot.FindAnyWidget("MessageFields").SetVisible(message);
@@ -480,6 +488,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		{
 			title = string.Empty;
 			description = string.Empty;
+		}
+		if (logs)
+		{
+			title = "Logs";
+			description = "Current mission";
 		}
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolTitle")).SetText(title);
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolDescription")).SetText(description);

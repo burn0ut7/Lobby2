@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS lobby2.mission_batches (
     payload jsonb NOT NULL,
     received_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (mission_id, revision),
-    CHECK ((payload->>'schemaVersion')::integer = 1),
+    CONSTRAINT mission_batches_schema_version CHECK ((payload->>'schemaVersion')::integer IN (1, 2)),
     CHECK ((payload->>'missionId')::uuid = mission_id),
     CHECK ((payload->>'revision')::integer = revision)
 );
@@ -39,7 +39,9 @@ SELECT player_id, count(*) AS missions,
        sum((stats->>'pilotMetres')::double precision) AS pilot_metres,
        sum((stats->>'commanderMissions')::integer) AS commander_missions,
        sum((stats->>'leaderMissions')::integer) AS squad_leader_missions,
-       sum((stats->>'radioSecondsClientReported')::double precision) AS radio_seconds_client_reported
+       sum((stats->>'radioSecondsClientReported')::double precision) AS radio_seconds_client_reported,
+       sum((stats->>'teamKills')::bigint) AS team_kills,
+       count(*) FILTER (WHERE stats ? 'teamKills') AS team_kill_record_count
 FROM lobby2.mission_players WHERE finalized AND complete GROUP BY player_id;
 
 CREATE OR REPLACE VIEW lobby2.deaths AS
@@ -75,7 +77,9 @@ SELECT mission_id, faction_id, count(DISTINCT player_id) AS participants,
        sum((stats->>'walkMetres')::double precision) AS walk_metres,
        sum((stats->>'driveMetres')::double precision) AS drive_metres,
        sum((stats->>'pilotMetres')::double precision) AS pilot_metres,
-       sum((stats->>'radioSecondsClientReported')::double precision) AS radio_seconds_client_reported
+       sum((stats->>'radioSecondsClientReported')::double precision) AS radio_seconds_client_reported,
+       sum((stats->>'teamKills')::bigint) AS team_kills,
+       count(*) FILTER (WHERE stats ? 'teamKills') AS team_kill_record_count
 FROM lobby2.memberships WHERE finalized AND complete AND faction_id <> ''
 GROUP BY mission_id, faction_id;
 
@@ -101,3 +105,46 @@ FROM lobby2.memberships a JOIN lobby2.memberships b
  AND a.player_id <> b.player_id AND a.group_id <> ''
  AND a.from_seconds < b.until_seconds AND b.from_seconds < a.until_seconds
 WHERE a.finalized AND a.complete AND b.finalized AND b.complete;
+
+-- Upgrade the schema-version check in databases initialized before team-kill counters.
+DO $$
+DECLARE constraint_name text;
+BEGIN
+    FOR constraint_name IN SELECT conname FROM pg_constraint
+      WHERE conrelid = 'lobby2.mission_batches'::regclass AND contype = 'c'
+        AND pg_get_constraintdef(oid) LIKE '%schemaVersion%'
+    LOOP
+      EXECUTE format('ALTER TABLE lobby2.mission_batches DROP CONSTRAINT %I', constraint_name);
+    END LOOP;
+    ALTER TABLE lobby2.mission_batches ADD CONSTRAINT mission_batches_schema_version
+      CHECK ((payload->>'schemaVersion')::integer IN (1, 2));
+END $$;
+
+CREATE TABLE IF NOT EXISTS lobby2.session_log_batches (
+    session_id uuid NOT NULL,
+    revision integer NOT NULL CHECK (revision >= 0),
+    checksum text NOT NULL,
+    payload jsonb NOT NULL,
+    received_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (session_id, revision),
+    CHECK (payload->>'kind' = 'sessionEvents'),
+    CHECK ((payload->>'schemaVersion')::integer = 1),
+    CHECK ((payload->>'sessionId')::uuid = session_id),
+    CHECK ((payload->>'revision')::integer = revision)
+);
+CREATE TABLE IF NOT EXISTS lobby2.session_events (
+    session_id uuid NOT NULL,
+    sequence integer NOT NULL CHECK (sequence > 0),
+    detail jsonb NOT NULL,
+    PRIMARY KEY (session_id, sequence),
+    CHECK ((detail->>'sequence')::integer = sequence)
+);
+CREATE INDEX IF NOT EXISTS session_events_actor ON lobby2.session_events ((detail->>'actor'), session_id, sequence);
+CREATE INDEX IF NOT EXISTS session_events_target ON lobby2.session_events ((detail->>'target'), session_id, sequence);
+CREATE INDEX IF NOT EXISTS session_events_type ON lobby2.session_events ((detail->>'type'), session_id, sequence);
+CREATE OR REPLACE VIEW lobby2.session_log_status AS
+SELECT session_id, max(revision) AS latest_revision,
+       bool_or((payload->>'closed')::boolean) AS closed,
+       max((payload->>'droppedRecords')::integer) AS dropped_records,
+       count(*) = max(revision)::bigint + 1 AS all_batches_received
+FROM lobby2.session_log_batches GROUP BY session_id;

@@ -6,7 +6,7 @@ internal static class BatchContract
     public static void Validate(JsonElement root)
     {
         Object(root);
-        Integer(root, "schemaVersion", 1, 1);
+        var version = Integer(root, "schemaVersion", 1, 2);
         if (!Guid.TryParse(Text(root, "missionId", 36), out _)) Fail();
         Text(root, "world", 4096);
         Integer(root, "startedAt", 0);
@@ -22,12 +22,12 @@ internal static class BatchContract
             var identity = Text(player, "identity", 256);
             if (identity.Length == 0 || !identities.Add(identity)) Fail();
             Text(player, "name", 1024);
-            Counters(player);
+            Counters(player, version);
             double previousEnd = 0;
             foreach (var assignment in Array(player, "assignments", 256))
             {
                 Object(assignment);
-                Counters(assignment);
+                Counters(assignment, version);
                 Text(assignment, "faction", 128);
                 Text(assignment, "groupId", 256);
                 Text(assignment, "groupName", 1024);
@@ -111,7 +111,7 @@ internal static class BatchContract
         return number;
     }
 
-    private static void Counters(JsonElement value)
+    private static void Counters(JsonElement value, int version)
     {
         foreach (var name in new[] { "playSeconds", "walkMetres", "driveMetres", "pilotMetres", "radioSecondsClientReported" })
             Number(value, name, 0);
@@ -119,6 +119,8 @@ internal static class BatchContract
             Integer(value, name, 0);
         Integer(value, "commanderMissions", 0, 1);
         Integer(value, "leaderMissions", 0, 1);
+        if ((version >= 2 || value.TryGetProperty("teamKills", out _))
+            && Integer(value, "teamKills", 0) > Integer(value, "kills", 0)) Fail();
     }
 
     private static void Fail() => throw new InvalidDataException("Invalid stats batch contract.");

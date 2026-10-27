@@ -29,6 +29,7 @@ class GC_StatsCounters
 	int m_iGrenades;
 	int m_iBandagesOthers;
 	int m_iKills;
+	int m_iTeamKills;
 	int m_iDeaths;
 	int m_iCommanderMissions;
 	int m_iLeaderMissions;
@@ -45,6 +46,7 @@ class GC_StatsCounters
 		context.WriteValue("grenades", m_iGrenades);
 		context.WriteValue("bandagesOthers", m_iBandagesOthers);
 		context.WriteValue("kills", m_iKills);
+		context.WriteValue("teamKills", m_iTeamKills);
 		context.WriteValue("deaths", m_iDeaths);
 		context.WriteValue("commanderMissions", m_iCommanderMissions);
 		context.WriteValue("leaderMissions", m_iLeaderMissions);
@@ -62,6 +64,7 @@ class GC_StatsCounters
 		m_iGrenades += other.m_iGrenades * sign;
 		m_iBandagesOthers += other.m_iBandagesOthers * sign;
 		m_iKills += other.m_iKills * sign;
+		m_iTeamKills += other.m_iTeamKills * sign;
 		m_iDeaths += other.m_iDeaths * sign;
 	}
 
@@ -77,6 +80,7 @@ class GC_StatsCounters
 		m_iGrenades = total.m_iGrenades - start.m_iGrenades;
 		m_iBandagesOthers = total.m_iBandagesOthers - start.m_iBandagesOthers;
 		m_iKills = total.m_iKills - start.m_iKills;
+		m_iTeamKills = total.m_iTeamKills - start.m_iTeamKills;
 		m_iDeaths = total.m_iDeaths - start.m_iDeaths;
 	}
 }
@@ -241,7 +245,7 @@ class GC_MissionStatsBatch
 	//------------------------------------------------------------------------------------------------
 	void Write(SaveContext context)
 	{
-		context.WriteValue("schemaVersion", 1);
+		context.WriteValue("schemaVersion", 2);
 		context.WriteValue("missionId", m_sMissionId);
 		context.WriteValue("world", m_sWorld);
 		context.WriteValue("startedAt", m_iStartedAt);

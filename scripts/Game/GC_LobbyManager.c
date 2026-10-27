@@ -79,9 +79,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! Mission-local permission exceptions, never faction ownership.
 	protected ref array<string> m_aFactionUnlockedIdentities = {};
 	ref ScriptInvoker<int> m_OnFactionRulesChanged = new ScriptInvoker<int>();
-	protected ref array<string> m_aAdminSessionHistory = {};
 	protected ref array<ref GC_AdminSessionPlayer> m_aModerationHistory = {};
-	protected ref map<int, string> m_mAdminSessionLabels = new map<int, string>();
     //! Narrow presentation events. Payloads identify the changed authoritative
     //! record; consumers re-query base-game state and update only affected widgets.
     ref ScriptInvoker<int> m_OnRegistryReset = new ScriptInvoker<int>();
@@ -2707,26 +2705,25 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		if (connected)
 			GC_RefreshModerationPlayer(playerId);
-		string label;
-		if (connected)
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
 		{
-			label = string.Format("%1 / %2 / session %3", GetGame().GetPlayerManager().GetPlayerName(playerId), SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId), playerId);
-			label.Replace("\n", " ");
-			label.Replace("\r", " ");
-			m_mAdminSessionLabels.Set(playerId, label);
+			string type = "left";
+			if (connected)
+				type = "joined";
+			GC_SessionEvent entry = logs.CreateEvent(type, playerId, 0);
+			foreach (GC_AdminSessionPlayer record : m_aModerationHistory)
+			{
+				if (record.m_iPlayerId == playerId)
+				{
+					entry.m_sActor = record.m_sIdentity;
+					entry.m_sActorName = record.m_sName;
+				}
+			}
+			if (!connected)
+				entry.m_sDetail = "Disconnect cause " + cause.ToString();
+			logs.Record(entry);
 		}
-		else
-		{
-			if (!m_mAdminSessionLabels.Find(playerId, label))
-				label = string.Format("session %1", playerId);
-			m_mAdminSessionLabels.Remove(playerId);
-		}
-		string eventName = "left";
-		if (connected)
-			eventName = "joined";
-		m_aAdminSessionHistory.Insert(string.Format("%1 / %2 / %3 / cause %4", System.GetUnixTime(), eventName, label, cause));
-		if (m_aAdminSessionHistory.Count() > 256)
-			m_aAdminSessionHistory.RemoveOrdered(0);
 		NotifyModerationChanged();
 	}
 
@@ -2796,32 +2793,25 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	string GetAdminSessionReport(int requesterId, string search)
 	{
-		if (!AuthorizeAdminAction(requesterId, "admin-session-report", search))
+		string context = string.Format("search length=%1", search.Length());
+		if (!AuthorizeAdminAction(requesterId, "admin-session-report", context))
 			return "A current admin login is required.";
-		if (search.Length() > 64)
+		if (search.Length() > 128)
 		{
-			GC_AdminActionLogger.Log(requesterId, "admin-session-report", "search-length=" + search.Length().ToString(), "rejected-search-length");
-			return "Search is limited to 64 characters.";
+			GC_AdminActionLogger.Log(requesterId, "admin-session-report", context, "rejected: filter too long");
+			return "Search must be at most 128 characters.";
 		}
-		array<int> players = {};
-		GetGame().GetPlayerManager().GetPlayers(players);
-		float uptimeSeconds = System.GetTickCount() * 0.001;
-		string report = string.Format("Server FPS (last 10 frames): %1\nServer uptime: %2 seconds\nPlayers online: %3 / Slots: %4\nSession history (last 256 events; newest 64 matches):\n", System.GetFPS(), uptimeSeconds, players.Count(), GetSlots().Count());
-		search.ToLower();
-		int count;
-		for (int index = m_aAdminSessionHistory.Count() - 1; index >= 0 && count < 64; index--)
-		{
-			string entry = m_aAdminSessionHistory[index];
-			string lower = entry;
-			lower.ToLower();
-			if (!search.IsEmpty() && !lower.Contains(search))
-				continue;
-			report += entry + "\n";
-			count++;
-		}
-		if (count == 0)
-			report += "No matching session events.";
-		GC_AdminActionLogger.Log(requesterId, "admin-session-report", search, string.Format("returned matches=%1", count));
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (!logs)
+			return "Session logs unavailable.";
+		array<string> rows;
+		int next;
+		string status;
+		logs.ReadPage(requesterId, search, "", 0, rows, next, status);
+		string report = status;
+		for (int index; index < rows.Count(); index += 5)
+			report += string.Format("\n%1 / %2 / %3 / %4", rows[index + 1], rows[index + 2], rows[index + 3], rows[index + 4]);
+		GC_AdminActionLogger.Log(requesterId, "admin-session-report", search, "returned current page");
 		return report;
 	}
 
@@ -4809,9 +4799,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GetGame().GetCallqueue().Remove(ExpirePriorityVoice);
 		m_mPriorityVoiceExpiry.Clear();
 		m_mAdminMessageTimes.Clear();
-		m_aAdminSessionHistory.Clear();
 		m_aModerationHistory.Clear();
-		m_mAdminSessionLabels.Clear();
 		GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (localController)
 			localController.ShutdownLobbyPresentation();

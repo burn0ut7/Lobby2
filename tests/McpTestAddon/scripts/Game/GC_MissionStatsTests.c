@@ -32,7 +32,7 @@ modded class GC_LobbyManager
 			return "FAIL: serialization retained stale counters";
 		JsonLoadContext read = new JsonLoadContext();
 		int version;
-		if (!read.LoadFromString(first) || !read.ReadValue("schemaVersion", version) || version != 1)
+		if (!read.LoadFromString(first) || !read.ReadValue("schemaVersion", version) || version != 2)
 			return "FAIL: invalid batch JSON";
 		return first;
 	}
@@ -223,7 +223,7 @@ modded class GC_MissionStatsComponent
 			return "FAIL: load fixture did not serialize expected large payload";
 		FileIO.MakeDirectory("$profile:Lobby2StatsTest");
 		start = System.GetTickCount();
-		bool saved = WriteVerified("$profile:Lobby2StatsTest/load.json", payload);
+		bool saved = GC_StatsOutbox.WriteVerified("$profile:Lobby2StatsTest/load.json", payload);
 		return string.Format("players=128 assignments=4096 ammoRows=8192 bytes=%1 encodeMs=%2 writeReadMs=%3 verified=%4", payload.Length(), encodeMs, System.GetTickCount(start), saved);
 	}
 }
