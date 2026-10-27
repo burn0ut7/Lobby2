@@ -26,6 +26,20 @@ modded class GC_AdminLogsComponent
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestLogTimeFormat()
+	{
+		array<float> values = {0, 0.007, 62.125, 59.9996, 3600, 3661.125, 360000.125};
+		array<string> expected = {"00:00:000", "00:00:007", "01:02:125", "01:00:000", "01:00:00:000", "01:01:01:125", "100:00:00:125"};
+		foreach (int index, float value : values)
+		{
+			string actual = GC_SessionLogComponent.FormatEventTime(value);
+			if (actual != expected[index])
+				return string.Format("FAIL: %1 -> %2; expected %3", value, actual, expected[index]);
+		}
+		return "PASS: zero padding, millisecond precision, minute rollover and optional hours";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Arrange low blood above the fatal threshold; the stock bleeding effect must cause death.
 	string GC_TestLogBleed(int targetId)
 	{

@@ -48,3 +48,7 @@ Workbench 1.8.0.13 / embedded Arland validation:
 - MCP screenshots: `Art/References/admin-logs/runtime-player-search.png`, `runtime-player-selected.png`. Existing layout/concept retained with two filter rows to preserve past-player lookup.
 
 This revision used the authenticated embedded host and production button/search handlers. Physical mouse/keyboard/gamepad navigation, full roster load and separate-client replication were not retested. Server authorization and log query contracts are unchanged.
+
+## Clock timestamps — 2026-10-27
+
+Visible log times now use MM:SS:mmm, adding HH: only for nonzero hours. The seconds suffix and displayed sequence suffix are removed; sequence IDs remain internal to paging and persistence. `GC_TestLogTimeFormat` passed zero/millisecond padding, minute rounding rollover, one hour and 100-hour cases (`rc3e136882df94234aef9043c7171c8c2`). Reload `765f08ce91f84f0eaeaf1d1bfba712ae` succeeded. Live readback (`rb9243107995b4b9c981d57d4a8addf6a`) and `Art/References/admin-logs/runtime-clock-time.png` show 00:04:422 and 00:00:000 without s or # suffixes. This changes presentation only; historical timestamps retain their original precision.

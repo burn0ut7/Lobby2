@@ -178,6 +178,41 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Display elapsed mission time, rounded to milliseconds; hours appear only when needed.
+	static string FormatEventTime(float seconds)
+	{
+		seconds = Math.Max(0, seconds);
+		int wholeSeconds = Math.Floor(seconds);
+		int milliseconds = Math.Round((seconds - wholeSeconds) * 1000);
+		if (milliseconds == 1000)
+		{
+			wholeSeconds++;
+			milliseconds = 0;
+		}
+		int hours = wholeSeconds / 3600;
+		int minutes = (wholeSeconds / 60) % 60;
+		int remainder = wholeSeconds % 60;
+		string minuteText = minutes.ToString();
+		string secondText = remainder.ToString();
+		string millisecondText = milliseconds.ToString();
+		if (minutes < 10)
+			minuteText = "0" + minuteText;
+		if (remainder < 10)
+			secondText = "0" + secondText;
+		if (milliseconds < 100)
+			millisecondText = "0" + millisecondText;
+		if (milliseconds < 10)
+			millisecondText = "0" + millisecondText;
+		string result = minuteText + ":" + secondText + ":" + millisecondText;
+		if (hours == 0)
+			return result;
+		string hourText = hours.ToString();
+		if (hours < 10)
+			hourText = "0" + hourText;
+		return hourText + ":" + result;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Server-filtered bounded page. Cursor excludes that sequence and all newer records.
 	void ReadPage(int requester, string query, string type, int before, out array<string> rows, out int next, out string status)
 	{
@@ -215,7 +250,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (matched == 20)
 				break;
 			rows.Insert(entry.m_iSequence.ToString());
-			rows.Insert(string.Format("%1 s #%2", entry.m_fSeconds.ToString(-1, 2), entry.m_iSequence));
+			rows.Insert(FormatEventTime(entry.m_fSeconds));
 			rows.Insert(entry.m_sType);
 			string people = entry.m_sActorName;
 			if (!entry.m_sTargetName.IsEmpty())
