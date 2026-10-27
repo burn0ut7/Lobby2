@@ -26,7 +26,7 @@ internal static class SessionEventContract
             previous = sequence;
             previousTime = time;
             if (Text(entry, "type", 32) is not ("shot" or "grenade" or "damage" or "kill" or "aiKill" or "teamKill"
-                or "death" or "admin" or "joined" or "left" or "session")) Fail();
+                or "death" or "admin" or "joined" or "left" or "session" or "slot")) Fail();
             foreach (var name in new[] { "actor", "target" }) Text(entry, name, 256);
             foreach (var name in new[] { "actorName", "targetName" }) Text(entry, name, 1024);
             foreach (var name in new[] { "weapon", "projectile", "magazine", "detail" }) Text(entry, name, 4096);

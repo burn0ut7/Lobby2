@@ -5,6 +5,9 @@ class GC_AdminToolsMenu : ChimeraMenuBase
 	override void OnMenuOpen()
 	{
 		super.OnMenuOpen();
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (controller)
+			controller.GC_RequestAdminViewOpen(false);
 		GetGame().GetInputManager().AddActionListener("MenuBack", EActionTrigger.DOWN, OnBack);
 	}
 

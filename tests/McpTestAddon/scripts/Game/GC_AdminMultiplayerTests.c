@@ -82,6 +82,12 @@ modded class GC_LobbyPlayerController
 			Rpc(GC_TestRpcPeerReport, token, "dispatched production session-log request admin=" + SCR_Global.IsAdmin(GetPlayerId()).ToString());
 			return;
 		}
+		if (action == "audit-open")
+		{
+			GC_RequestAdminViewOpen(false);
+			Rpc(GC_TestRpcPeerReport, token, "dispatched production view request admin=" + SCR_Global.IsAdmin(GetPlayerId()).ToString());
+			return;
+		}
 		if (action == "stats-open")
 		{
 			OpenSlottingFromPause();
@@ -484,6 +490,7 @@ modded class GC_LobbyManager
 		array<string> allowedActions = {
 			"stats-respawn",
 			"session-logs",
+			"audit-open",
 			"stats-open",
 			"stats-read",
 			"stats-select",

@@ -12,7 +12,10 @@ class GC_AdminActionLogger
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		if (Replication.IsServer() && logs)
 		{
-			GC_SessionEvent entry = logs.CreateEvent("admin", playerId, 0);
+			string type = "admin";
+			if (action == "slot-self-select")
+				type = "slot";
+			GC_SessionEvent entry = logs.CreateEvent(type, playerId, 0);
 			entry.m_sDetail = Clean(action) + " | " + Clean(target) + " | " + Clean(outcome);
 			// Match the historical event contract even when another action supplies a long context.
 			if (entry.m_sDetail.Length() > 4096)

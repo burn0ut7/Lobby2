@@ -4575,8 +4575,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		bool applied = ApplyPlayerSlotAssignment(playerId, targetSlot, true, false);
 		string outcome = "rejected-assignment";
 		if (applied)
-			outcome = "applied";
-		GC_AdminActionLogger.Log(playerId, "slot-self-select", string.Format("slot=%1", slotId), outcome);
+		{
+			outcome = "selected";
+			if (!GetSlotByPlayerId(playerId))
+				outcome = "released";
+		}
+		string role = FilePath.StripExtension(FilePath.StripPath(targetSlot.GetAuthoredPrefab()));
+		GC_AdminActionLogger.Log(playerId, "slot-self-select", string.Format("slot=%1 role=%2", slotId, role), outcome);
 		return applied;
 	}
 
