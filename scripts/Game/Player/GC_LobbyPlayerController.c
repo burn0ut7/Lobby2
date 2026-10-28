@@ -1934,6 +1934,14 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Called by the accepted authority-side Respawn handler before ForceDeath.
+	void MarkKilledFromRespawn(IEntity victim)
+	{
+		if (Replication.IsServer() && GC_LobbyGameMode.GetGameMode() && m_KilledFromTracker)
+			m_KilledFromTracker.MarkRespawn(victim);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Wait until the current native damage event has notified its subscribers.
 	//! The terminal capture covers deletion without a preceding damage event.
 	void SendKilledFromDeath(IEntity victim, IEntity killer)

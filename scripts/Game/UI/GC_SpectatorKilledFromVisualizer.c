@@ -176,6 +176,7 @@ class GC_SpectatorKilledFromVisualizer
 		if (aiControl)
 			aiControl.DeactivateAI();
 		int isolatedPhysics = IsolatePhysicsHierarchy(preview);
+		DeactivatePhysicsHierarchy(preview);
 		vector readback[4];
 		preview.GetWorldTransform(readback);
 		PrintFormat("GC | Killed From | event=vehicle-clone result=spawned role=%1 preview=%2 prefab=%3 isolatedPhysics=%4 turrets=%5 requested=%6 readback=%7 sourceMutation=none", role, preview, state.GetPrefab(), isolatedPhysics, state.GetTurrets().Count(), rootTransform, readback);
@@ -202,9 +203,9 @@ class GC_SpectatorKilledFromVisualizer
 			return false;
 		}
 		BaseCompartmentSlot targetCompartment = compartments[compartmentIndex];
-		if (access.GetVehicleCompartmentManagerOwner() == vehicle && access.GetCompartment() == targetCompartment)
+		if (access.GetCompartment() == targetCompartment)
 			return true;
-		bool entered = access.GetInVehicle(vehicle, targetCompartment, true, 0, ECloseDoorAfterActions.CLOSE_DOOR, false);
+		bool entered = access.GetInVehicle(vehicle, targetCompartment, true, -1, ECloseDoorAfterActions.INVALID, false);
 		PrintFormat("GC | Killed From | event=vehicle-seat role=%1 result=%2 actor=%3 vehicle=%4 type=%5 index=%6 target=%7 actualVehicle=%8 actualCompartment=%9", role, entered, actor, vehicle, state.GetCompartmentType(), compartmentIndex, targetCompartment, access.GetVehicleCompartmentManagerOwner(), access.GetCompartment());
 		return entered;
 	}
@@ -213,6 +214,9 @@ class GC_SpectatorKilledFromVisualizer
 	{
 		if (!vehicle || !state)
 			return;
+		vector rootTransform[4];
+		state.GetRootTransform(rootTransform);
+		vehicle.SetWorldTransform(rootTransform);
 		array<TurretControllerComponent> controllers = {};
 		array<IEntity> hierarchy = {vehicle};
 		SCR_EntityHelper.GetHierarchyEntityList(vehicle, hierarchy);
@@ -234,6 +238,9 @@ class GC_SpectatorKilledFromVisualizer
 			vector rawRotation = states[index].GetRawAimingRotation();
 			bool ads = states[index].IsWeaponADS();
 			controllers[index].SetAimingAngles(rawRotation[0], rawRotation[1]);
+			TurretComponent turret = controllers[index].GetTurretComponent();
+			if (turret)
+				turret.SetAimingRotation(rawRotation);
 			controllers[index].SetWeaponADSInput(ads);
 			controllers[index].SetWeaponADS(ads);
 			controllers[index].SetCurrentSightsADS(ads);
@@ -460,6 +467,19 @@ class GC_SpectatorKilledFromVisualizer
 		FreezeActor(m_KillerPreviewEntity, root, m_Snapshot.GetKillerBonePose(), m_Snapshot.GetKillerWeapon(), "killer");
 		m_Snapshot.GetVictimRootTransform(root);
 		FreezeActor(m_VictimPreviewEntity, root, m_Snapshot.GetVictimBonePose(), m_Snapshot.GetVictimWeapon(), "victim");
+		// Local reconstructions must not appear as live editor/spectator targets.
+		array<IEntity> previews = {m_KillerPreviewEntity, m_VictimPreviewEntity, m_KillerVehiclePreviewEntity, m_VictimVehiclePreviewEntity};
+		foreach (IEntity preview : previews)
+		{
+			if (!preview)
+				continue;
+			SCR_EditableEntityComponent editable = SCR_EditableEntityComponent.GetEditableEntity(preview);
+			if (editable)
+			{
+				editable.SetEntityFlag(EEditableEntityFlag.LOCAL, true);
+				editable.RemoveParentEntity();
+			}
+		}
 		m_bPoseFrozen = true;
 	}
 
@@ -549,6 +569,23 @@ class GC_SpectatorKilledFromVisualizer
 		m_iPreviewFrames++;
 		if (m_iPreviewFrames < 2)
 			return;
+		// Teleporting into a compartment is still a native character command.
+		// Deactivating animation before it completes cancels the seat attachment.
+		bool waitingForSeat;
+		array<IEntity> actors = {m_KillerPreviewEntity, m_VictimPreviewEntity};
+		array<ref GC_KilledFromVehicleState> vehicles = {m_Snapshot.GetKillerVehicle(), m_Snapshot.GetVictimVehicle()};
+		for (int index; index < actors.Count(); index++)
+		{
+			if (!actors[index] || !vehicles[index] || !vehicles[index].HasOccupiedCompartment())
+				continue;
+			ChimeraCharacter character = ChimeraCharacter.Cast(actors[index]);
+			if (character && !character.GetCompartmentAccessComponent().GetCompartment())
+				waitingForSeat = true;
+		}
+		if (waitingForSeat && m_iPreviewFrames < 120)
+			return;
+		if (waitingForSeat)
+			Print("GC | Killed From | event=vehicle-seat result=failed reason=attachment-timeout", LogLevel.ERROR);
 		FreezePreview();
 	}
 
@@ -587,7 +624,7 @@ class GC_SpectatorKilledFromVisualizer
 		string muzzleMode = "captured";
 		vector start;
 		vector end;
-		if (ProjectTraceToScreen(lineOrigin, m_Snapshot.GetHitPosition(), start, end))
+		if (m_Snapshot.HasShotLine() && ProjectTraceToScreen(lineOrigin, m_Snapshot.GetHitPosition(), start, end))
 		{
 			traceVisible = true;
 			LineDrawCommand line = new LineDrawCommand();
@@ -656,15 +693,12 @@ class GC_SpectatorKilledFromVisualizer
 			worldEnd = worldEnd + (worldStart - worldEnd) * endBlend;
 		}
 
-		screenStart = m_Workspace.ProjWorldToScreen(worldStart, m_World);
-		screenEnd = m_Workspace.ProjWorldToScreen(worldEnd, m_World);
+		// Canvas vertices use render-target pixels; FrameSlot markers use reference units.
+		screenStart = m_Workspace.ProjWorldToScreenNative(worldStart, m_World);
+		screenEnd = m_Workspace.ProjWorldToScreenNative(worldEnd, m_World);
 		if (screenStart[2] <= 0.0 || screenEnd[2] <= 0.0)
 			return false;
 
-		screenStart[0] = m_Workspace.DPIUnscale(screenStart[0]);
-		screenStart[1] = m_Workspace.DPIUnscale(screenStart[1]);
-		screenEnd[0] = m_Workspace.DPIUnscale(screenEnd[0]);
-		screenEnd[1] = m_Workspace.DPIUnscale(screenEnd[1]);
 		return true;
 	}
 
@@ -706,7 +740,10 @@ class GC_SpectatorKilledFromVisualizer
 		}
 
 		ConfigureMarker(m_wKillerMarker, markerText, m_KillerFactionColor);
-		ConfigureMarker(m_wVictimMarker, "YOU", m_VictimFactionColor);
+		string victimText = "YOU";
+		if (m_Snapshot && m_Snapshot.IsSelfInflicted())
+			victimText = "YOU — SELF-INFLICTED";
+		ConfigureMarker(m_wVictimMarker, victimText, m_VictimFactionColor);
 	}
 
 	protected void SizeMarkerLabel(Widget marker)
@@ -746,8 +783,8 @@ class GC_SpectatorKilledFromVisualizer
 			return false;
 
 		FrameSlot.SetPos(marker,
-			m_Workspace.DPIUnscale(screenPosition[0]) - MARKER_WIDTH * 0.5,
-			m_Workspace.DPIUnscale(screenPosition[1]) - MARKER_HEIGHT);
+			screenPosition[0] - MARKER_WIDTH * 0.5,
+			screenPosition[1] - MARKER_HEIGHT);
 		return true;
 	}
 

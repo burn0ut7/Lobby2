@@ -87,7 +87,9 @@ class GC_KilledFromTurretState
 			return;
 		TurretComponent turret = controller.GetTurretComponent();
 		if (turret)
-			m_vRawAimingRotation = turret.GetRawAimingRotation();
+			// Raw weapon-space input can be zero while the turret is rotated.
+			// Keep the serialized field contract, but store evaluated aim in radians.
+			m_vRawAimingRotation = turret.GetAimingRotation() * Math.DEG2RAD;
 		m_bWeaponADS = controller.IsWeaponADS() || controller.GetWeaponADSInput() || controller.GetCurrentSightsADS();
 	}
 
@@ -189,6 +191,8 @@ class GC_KilledFromSnapshot
 	protected string m_sLineOriginMode;
 	protected int m_iFlags;
 	protected bool m_bHasDamageCapture;
+	protected bool m_bSelfInflicted;
+	protected bool m_bHasShotLine;
 	protected string m_sKillerLoadout;
 	protected ResourceName m_sKillerVisualObject;
 	protected vector m_aKillerRootTransform[4];
@@ -262,10 +266,12 @@ class GC_KilledFromSnapshot
 		}
 
 		IEntity damageSource = damageContext.damageSource;
-		if (killer)
+		m_bSelfInflicted = killer && killer == victim;
+		if (killer && !m_bSelfInflicted)
 		{
 			CaptureKiller(killer);
-			CaptureProjectileLineOrigin(killer, damageContext);
+			if (damageContext.damageType == EDamageType.KINETIC)
+				CaptureProjectileLineOrigin(killer, damageContext);
 		}
 		else if (victim)
 		{
@@ -293,16 +299,10 @@ class GC_KilledFromSnapshot
 			m_vHitPosition = victim.GetOrigin();
 			m_vLineOrigin = m_vHitPosition;
 		}
-		if (killer)
+		m_bSelfInflicted = killer && killer == victim;
+		if (killer && !m_bSelfInflicted)
 		{
 			CaptureKiller(killer);
-			BaseWeaponManagerComponent weapons = BaseWeaponManagerComponent.Cast(killer.FindComponent(BaseWeaponManagerComponent));
-			vector muzzle[4];
-			if (weapons && weapons.GetCurrentMuzzleTransform(muzzle))
-			{
-				m_vLineOrigin = muzzle[3];
-				m_sLineOriginMode = "captured-muzzle";
-			}
 		}
 		CaptureVictimVisual(victim);
 	}
@@ -409,9 +409,8 @@ class GC_KilledFromSnapshot
 			if (access)
 			{
 				occupiedCompartment = access.GetCompartment();
-				IEntity compartmentOwner = access.GetVehicleCompartmentManagerOwner();
-				if (occupiedCompartment && compartmentOwner)
-					return compartmentOwner;
+				if (occupiedCompartment)
+					return occupiedCompartment.GetVehicle();
 			}
 		}
 
@@ -430,13 +429,22 @@ class GC_KilledFromSnapshot
 	//! at the character entity's ground-level origin.
 	protected void CaptureProjectileLineOrigin(IEntity killer, notnull BaseDamageContext damageContext)
 	{
-		if (damageContext.damageType == EDamageType.EXPLOSIVE && !HasKillerVehicle())
-			return;
-
 		BaseWeaponManagerComponent shotWeaponManager = BaseWeaponManagerComponent.Cast(killer.FindComponent(BaseWeaponManagerComponent));
+		// A seated gunner's character manager still owns their personal rifle.
+		// Resolve the occupied weapon station rather than any turret on the vehicle.
+		BaseCompartmentSlot occupiedCompartment;
+		IEntity vehicle = ResolveVehicle(killer, occupiedCompartment);
+		if (occupiedCompartment)
+		{
+			shotWeaponManager = null;
+			IEntity station = occupiedCompartment.GetOwner();
+			if (station)
+				shotWeaponManager = BaseWeaponManagerComponent.Cast(station.FindComponent(BaseWeaponManagerComponent));
+		}
 		vector muzzle[4];
 		if (shotWeaponManager && shotWeaponManager.GetCurrentMuzzleTransform(muzzle))
 		{
+			m_bHasShotLine = true;
 			m_vLineOrigin = muzzle[3];
 			m_sLineOriginMode = "captured-muzzle";
 			return;
@@ -456,6 +464,7 @@ class GC_KilledFromSnapshot
 		}
 
 		trajectory.Normalize();
+		m_bHasShotLine = true;
 		array<vector> shotAnchors = {killer.GetOrigin()};
 		CharacterWeaponManagerComponent characterWeaponManager = CharacterWeaponManagerComponent.Cast(killer.FindComponent(CharacterWeaponManagerComponent));
 		if (characterWeaponManager)
@@ -469,8 +478,6 @@ class GC_KilledFromSnapshot
 			}
 		}
 
-		BaseCompartmentSlot occupiedCompartment;
-		IEntity vehicle = ResolveVehicle(killer, occupiedCompartment);
 		if (vehicle)
 		{
 			shotAnchors.Insert(vehicle.GetOrigin());
@@ -615,6 +622,8 @@ class GC_KilledFromSnapshot
 	}
 
 	ResourceName GetKillerPrefab() { return m_sKillerPrefab; }
+	bool IsSelfInflicted() { return m_bSelfInflicted; }
+	bool HasShotLine() { return m_bHasShotLine; }
 	string GetKillerDisplayName() { return m_sKillerDisplayName; }
 	bool IsKillerDisplayNameLocalized() { return m_bKillerDisplayNameLocalized; }
 	ResourceName GetVictimPrefab() { return m_sVictimPrefab; }
@@ -667,7 +676,7 @@ class GC_KilledFromSnapshot
 			HasKillerPreview(), m_sKillerPrefab, m_sKillerDisplayName, m_bKillerDisplayNameLocalized, m_vKillerPosition, m_vKillerAngles, m_vLineOrigin, m_vHitPosition);
 		report = report + string.Format(" stance=%1 dynamicStance=%2 killerLean=%3 victimLean=%4 killerAim=%5 victimAim=%6 weaponRaised=%7 ads=%8", m_iStance, m_fDynamicStance,
 			m_fKillerLean, m_fVictimLean, m_vKillerAimingAngles, m_vVictimAimingAngles, (m_iFlags & FLAG_WEAPON_RAISED) != 0, (m_iFlags & FLAG_WEAPON_ADS) != 0);
-		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3", m_iFlags, m_bHasDamageCapture, m_sLineOriginMode);
+		report = report + string.Format(" flags=%1 localDamage=%2 lineOriginMode=%3 selfInflicted=%4 shotLine=%5", m_iFlags, m_bHasDamageCapture, m_sLineOriginMode, m_bSelfInflicted, m_bHasShotLine);
 		report = report + string.Format(" killerVisual=%1 killerObject=%2 killerBones=%3 killerLoadoutBytes=%4 victimPrefab=%5 victimVisual=%6 victimObject=%7 victimBones=%8 victimLoadoutBytes=%9", HasKillerVisual(), m_sKillerVisualObject, killerBoneCount, m_sKillerLoadout.Length(), m_sVictimPrefab, HasVictimVisual(), m_sVictimVisualObject, victimBoneCount, m_sVictimLoadout.Length());
 		return report + string.Format(" killerVehicle={%1} victimVehicle={%2}", killerVehicleReport, victimVehicleReport);
 	}
@@ -681,6 +690,7 @@ class GC_KilledFromDamageTracker
 	protected SCR_DamageManagerComponent m_DamageManager;
 	protected ref GC_KilledFromSnapshot m_Snapshot;
 	protected ref GC_KilledFromSnapshot m_LastExternalSnapshot;
+	protected bool m_bRespawnDeath;
 
 	bool Start(IEntity victim)
 	{
@@ -726,10 +736,22 @@ class GC_KilledFromDamageTracker
 		return m_Snapshot;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Capture the accepted self-death before ForceDeath changes the body pose.
+	void MarkRespawn(IEntity victim)
+	{
+		if (victim != m_Victim)
+			return;
+		m_bRespawnDeath = true;
+		m_LastExternalSnapshot = null;
+		m_Snapshot = new GC_KilledFromSnapshot();
+		m_Snapshot.CaptureDeathFallback(victim, victim);
+	}
+
 
 	protected void OnDamage(notnull BaseDamageContext damageContext)
 	{
-		if (!GC_LobbyGameMode.GetGameMode())
+		if (!GC_LobbyGameMode.GetGameMode() || m_bRespawnDeath)
 			return;
 		IEntity rawInstigatorEntity;
 		int rawInstigatorPlayerId;
@@ -753,8 +775,10 @@ class GC_KilledFromDamageTracker
 		// Some projectiles emit a second direct callback with the same external
 		// instigator but no impact facts. It must not overwrite the complete shot
 		// retained milliseconds earlier.
+		int victimPlayerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(m_Victim);
+		bool selfAttributed = rawInstigatorEntity == m_Victim || (rawInstigatorPlayerId > 0 && rawInstigatorPlayerId == victimPlayerId);
 		bool emptyImpact = damageContext.hitPosition.LengthSq() < 0.0001 && damageContext.hitDirection.LengthSq() < 0.0001 && damageContext.impactVelocity.LengthSq() < 0.0001;
-		if (!passiveDamage && emptyImpact && m_LastExternalSnapshot)
+		if (!passiveDamage && emptyImpact && m_LastExternalSnapshot && !selfAttributed)
 		{
 			return;
 		}
@@ -763,12 +787,13 @@ class GC_KilledFromDamageTracker
 		GC_KilledFromSnapshot snapshot = new GC_KilledFromSnapshot();
 		snapshot.Capture(m_Victim, damageContext);
 		m_Snapshot = snapshot;
+		if (snapshot.IsSelfInflicted())
+			m_LastExternalSnapshot = null;
 
-		// A later bleed-out, unconscious respawn, or self-attributed damage tick
-		// must not replace the player/AI/vehicle that directly caused the state.
+		// Passive bleed-out retains its direct cause. A new self-inflicted impact
+		// or accepted Respawn deliberately replaces that earlier scene.
 		IEntity instigatorEntity = rawInstigatorEntity;
 		int instigatorPlayerId = rawInstigatorPlayerId;
-		int victimPlayerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(m_Victim);
 		bool externalEntity = instigatorEntity && instigatorEntity != m_Victim;
 		bool externalPlayer = instigatorPlayerId > 0 && instigatorPlayerId != victimPlayerId;
 		if (!passiveDamage && (externalEntity || externalPlayer))

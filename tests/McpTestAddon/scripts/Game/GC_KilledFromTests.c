@@ -60,7 +60,9 @@ class GC_KilledFromPoseProbe : GC_SpectatorKilledFromVisualizer
 		GetGame().GetCallqueue().Remove(DriveSource);
 		DestroyPreview();
 		m_Snapshot = new GC_KilledFromSnapshot();
-		m_Snapshot.CaptureDeathFallback(m_Source, m_Source);
+		// Two offset copies deliberately share a pose for this comparison fixture.
+		m_Snapshot.CaptureDeathFallback(null, m_Source);
+		m_Snapshot.CaptureVictimVisual(m_Source);
 		m_Snapshot.GC_TestOffsetPreviews();
 		CreatePreview();
 		CharacterAnimationComponent.Cast(m_Source.FindComponent(CharacterAnimationComponent)).Deactivate(m_Source);

@@ -43,6 +43,9 @@ class GC_LobbyRespawnComponent : SCR_RespawnComponent
 		GC_MissionStatsComponent stats = GC_MissionStatsComponent.GetInstance();
 		if (stats)
 			stats.MarkRespawn(controller.GetPlayerId(), victim);
+		GC_LobbyPlayerController lobbyController = GC_LobbyPlayerController.Cast(controller);
+		if (lobbyController)
+			lobbyController.MarkKilledFromRespawn(victim);
 		character.ForceDeath();
 	}
 }
