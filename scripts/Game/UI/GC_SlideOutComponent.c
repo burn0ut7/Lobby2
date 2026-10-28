@@ -277,8 +277,10 @@ class GC_SlideOutComponent : SCR_ScriptedWidgetComponent
 		float widgetHeight;
 		widget.GetScreenPos(widgetX, widgetY);
 		widget.GetScreenSize(widgetWidth, widgetHeight);
-		return mouseX >= widgetX && mouseX < widgetX + widgetWidth
-			&& mouseY >= widgetY && mouseY < widgetY + widgetHeight;
+		// Widget bounds are fractional screen pixels; mouse coordinates are integers.
+		// Include the edge pixel so rounding cannot start a close/reopen loop.
+		return mouseX >= widgetX - 1 && mouseX <= widgetX + widgetWidth + 1
+			&& mouseY >= widgetY - 1 && mouseY <= widgetY + widgetHeight + 1;
 	}
 
 	//------------------------------------------------------------------------------------------------
