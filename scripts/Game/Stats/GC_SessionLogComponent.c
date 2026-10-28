@@ -355,6 +355,15 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		}
 		query.TrimInPlace();
 		query.ToLower();
+		array<string> identities = {};
+		GC_LobbyManager.GetManager().GetAdminLogSearchIdentities(query, identities);
+		bool searchType = type.StartsWith("~");
+		string eventQuery;
+		if (searchType)
+		{
+			eventQuery = type.Substring(1, type.Length() - 1);
+			eventQuery.ToLower();
+		}
 		int count = m_aRecent.Count();
 		int start = count - 1;
 		if (count == MAX_RECENT)
@@ -367,8 +376,27 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (before > 0 && entry.m_iSequence >= before)
 				continue;
 			bool death = entry.m_sType == "kill" || entry.m_sType == "aiKill" || entry.m_sType == "teamKill" || entry.m_sType == "death";
-			if (!type.IsEmpty() && entry.m_sType != type && !(type == "death" && death))
+			if (!searchType && !type.IsEmpty() && entry.m_sType != type && !(type == "death" && death))
 				continue;
+			if (searchType)
+			{
+				string eventTerms = entry.m_sType;
+				if (eventTerms == "kill")
+					eventTerms = "kill player kills deaths (all)";
+				else if (eventTerms == "teamKill")
+					eventTerms = "teamKill team kills deaths (all)";
+				else if (eventTerms == "aiKill")
+					eventTerms = "aiKill AI kills deaths (all)";
+				else if (eventTerms == "death")
+					eventTerms = "death deaths (all)";
+				else if (eventTerms == "slot")
+					eventTerms = "slot slotting";
+				else
+					eventTerms += "s";
+				eventTerms.ToLower();
+				if (!eventTerms.Contains(eventQuery))
+					continue;
+			}
 			string detail = entry.m_sDetail;
 			if (!entry.m_sWeapon.IsEmpty())
 				detail += " " + FilePath.StripExtension(FilePath.StripPath(entry.m_sWeapon));
@@ -386,7 +414,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			string search = FormatEventTime(entry.m_fSeconds) + " " + eventName + " " + entry.m_sType
 				+ " " + entry.m_sActor + " " + entry.m_sActorName + " " + entry.m_sTarget + " " + entry.m_sTargetName + " " + detail;
 			search.ToLower();
-			if (!query.IsEmpty() && !search.Contains(query))
+			if (!query.IsEmpty() && !search.Contains(query)
+				&& !identities.Contains(entry.m_sActor) && !identities.Contains(entry.m_sTarget))
 				continue;
 			if (matched == 20)
 			{

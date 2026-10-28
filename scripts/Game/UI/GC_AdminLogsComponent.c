@@ -2,9 +2,9 @@
 class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 {
 	protected GC_LobbyPlayerController m_Controller;
-	protected EditBoxWidget m_Search;
-	protected SCR_EventHandlerComponent m_SearchEvents;
-	protected SCR_ComboBoxComponent m_Type;
+	protected GC_AdminSearchFilter m_Players;
+	protected GC_AdminSearchFilter m_Type;
+	protected int m_iRosterRequest;
 	protected TextWidget m_Status;
 	protected TextWidget m_Page;
 	protected bool m_bPageLoading = true;
@@ -25,25 +25,29 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	{
 		super.HandlerAttached(w);
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-		m_Search = EditBoxWidget.Cast(w.FindAnyWidget("LogSearch"));
-		m_SearchEvents = SCR_EventHandlerComponent.Cast(m_Search.FindHandler(SCR_EventHandlerComponent));
-		m_SearchEvents.GetOnChange().Insert(OnSearch);
-		m_Type = SCR_ComboBoxComponent.Cast(w.FindAnyWidget("LogType").FindHandler(SCR_ComboBoxComponent));
+		m_Players = GC_AdminSearchFilter.Cast(w.FindAnyWidget("LogPlayers").FindHandler(GC_AdminSearchFilter));
+		m_Type = GC_AdminSearchFilter.Cast(w.FindAnyWidget("LogType").FindHandler(GC_AdminSearchFilter));
+		EditBoxWidget.Cast(m_Players.GetRootWidget().FindAnyWidget("FilterInput")).SetPlaceholderText("All players");
+		EditBoxWidget.Cast(m_Type.GetRootWidget().FindAnyWidget("FilterInput")).SetPlaceholderText("All events");
 		array<string> labels = {"All events", "Shots", "Grenades", "Damage", "Player kills", "Team kills", "Deaths (all)", "Admin", "Joined", "Left", "Session", "AI kills", "Slotting"};
-		foreach (string label : labels)
-			m_Type.AddItem(label);
-		m_Type.SetCurrentItem(0, false, false, false);
-		m_Type.m_OnChanged.Insert(OnType);
-		SCR_ButtonBaseComponent.Cast(w.FindAnyWidget("ComboButton").FindHandler(SCR_ButtonBaseComponent)).m_OnClicked.Insert(OnOpenType);
+		m_Type.SetChoices(labels, m_aTypes, m_aTypes);
+		m_Players.SetChoices({"All players"}, {""}, {""});
+		m_Players.m_OnFilterChanged.Insert(FiltersChanged);
+		m_Type.m_OnFilterChanged.Insert(FiltersChanged);
+		m_Players.m_OnOpened.Insert(OnOpenFilter);
+		m_Type.m_OnOpened.Insert(OnOpenFilter);
 		m_Status = TextWidget.Cast(w.FindAnyWidget("LogStatus"));
 		Bind("LogLive", "Live");
-		Bind("LogRefresh", "Refresh");
 		m_Page = TextWidget.Cast(w.FindAnyWidget("LogPage"));
 		Bind("LogNewer", "Previous");
 		Bind("LogOlder", "Next");
 		BeginPageLoad();
 		if (m_Controller)
+		{
 			m_Controller.m_OnSessionLogRows.Insert(OnRows);
+			m_Controller.m_OnModerationRows.Insert(OnPlayers);
+			m_Controller.m_OnModerationChanged.Insert(RequestPlayers);
+		}
 		GetGame().GetCallqueue().CallLater(Poll, 2000, true);
 	}
 
@@ -66,11 +70,13 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 		{
 			if (m_Controller)
 				m_Controller.GC_RequestAdminViewOpen(true);
+			RequestPlayers();
 			Latest();
 		}
 		else
 		{
 			m_iRequest = -1;
+			m_Players.CloseList();
 			m_Type.CloseList();
 			ClearRows();
 		}
@@ -138,19 +144,13 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 			GetGame().GetCallqueue().CallLater(Load, 500);
 			return;
 		}
-		int selection = m_Type.GetCurrentIndex();
-		if (selection < 0 || selection >= m_aTypes.Count())
-			return;
+		string type = m_Type.GetFilterValue();
+		if (!m_Type.HasChoice() && !type.IsEmpty())
+			type = "~" + type;
 		m_iRequest = m_Controller.ReserveAdminActionRequest();
 		m_fRequestedAt = now;
-		m_Controller.RequestSessionLog(m_iRequest, m_Search.GetText(), m_aTypes[selection], m_iBefore);
-		SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetToggled(m_bLive, false, false);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected void OnSearch(Widget widget)
-	{
-		FiltersChanged();
+		m_Controller.RequestSessionLog(m_iRequest, m_Players.GetFilterValue(), type, m_iBefore);
+		m_wRoot.FindAnyWidget("LogLive").FindAnyWidget("Tick").SetVisible(m_bLive);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -162,18 +162,39 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void OnType(SCR_SelectionWidgetComponent combo, int index)
+	protected void OnOpenFilter(SCR_ComboBoxComponent opened)
 	{
-		FiltersChanged();
+		if (opened == m_Type)
+			m_Players.CloseList();
+		else
+			m_Type.CloseList();
+		SCR_MenuHelper.SetActiveWidgetInteractionState(true);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void OnOpenType(SCR_ButtonBaseComponent button)
+	protected void RequestPlayers()
 	{
-		if (m_bActive && HasAccess())
+		if (!m_bActive || !HasAccess())
+			return;
+		m_iRosterRequest = m_Controller.ReserveAdminActionRequest();
+		m_Controller.RequestModerationSession(m_iRosterRequest);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnPlayers(array<string> rows, int requestId)
+	{
+		if (!m_bActive || !HasAccess() || requestId != m_iRosterRequest || rows.Count() % 7 != 0)
+			return;
+		array<string> labels = {"All players"};
+		array<string> values = {""};
+		array<string> terms = {""};
+		for (int i; i < rows.Count(); i += 7)
 		{
-			m_Type.OpenList();
+			labels.Insert(rows[i + 1]);
+			values.Insert(rows[i + 2]);
+			terms.Insert(rows[i + 2] + " " + rows[i + 3]);
 		}
+		m_Players.SetChoices(labels, values, terms);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -185,18 +206,11 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 		if (name == "LogLive")
 		{
 			m_bLive = !m_bLive;
-			SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetText("Paused");
 			if (m_bLive)
 			{
-				SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetText("Live");
 				Latest();
 			}
-			SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetToggled(m_bLive, false, false);
-			return;
-		}
-		if (name == "LogRefresh")
-		{
-			Latest();
+			m_wRoot.FindAnyWidget("LogLive").FindAnyWidget("Tick").SetVisible(m_bLive);
 			return;
 		}
 		if (m_bPageLoading)
@@ -214,7 +228,7 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 		else
 			return;
 		m_bLive = false;
-		SCR_ButtonTextComponent.GetButtonText("LogLive", m_wRoot).SetText("Paused");
+		m_wRoot.FindAnyWidget("LogLive").FindAnyWidget("Tick").SetVisible(false);
 		BeginPageLoad();
 		Load();
 	}
@@ -299,11 +313,17 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 		GetGame().GetCallqueue().Remove(Latest);
 		GetGame().GetCallqueue().Remove(Load);
 		if (m_Controller)
+		{
 			m_Controller.m_OnSessionLogRows.Remove(OnRows);
-		if (m_SearchEvents)
-			m_SearchEvents.GetOnChange().Remove(OnSearch);
-		if (m_Type)
-			m_Type.m_OnChanged.Remove(OnType);
+			m_Controller.m_OnModerationRows.Remove(OnPlayers);
+			m_Controller.m_OnModerationChanged.Remove(RequestPlayers);
+		}
+		m_Players.m_OnFilterChanged.Remove(FiltersChanged);
+		m_Type.m_OnFilterChanged.Remove(FiltersChanged);
+		m_Players.m_OnOpened.Remove(OnOpenFilter);
+		m_Type.m_OnOpened.Remove(OnOpenFilter);
+		m_Players.CloseList();
+		m_Type.CloseList();
 		super.HandlerDeattached(w);
 	}
 }

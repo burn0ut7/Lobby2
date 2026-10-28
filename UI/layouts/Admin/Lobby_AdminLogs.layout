@@ -1,12 +1,7 @@
 FrameWidgetClass { Name "LogFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminLogsComponent {} } {
-PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 0.65 0.10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
-EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "LogSearch" Slot FrameWidgetSlot { Anchor 0 0 0.65 0.10 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Search all columns..." components { SCR_EventHandlerComponent {} } }
-SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
- Name "LogType"
- Slot FrameWidgetSlot { Anchor 0.67 0 1 0.10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
-}
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogLive" Slot FrameWidgetSlot { Anchor 0.5 0.12 0.73 0.195 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogRefresh" Slot FrameWidgetSlot { Anchor 0.75 0.12 1 0.195 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminSearchFilter.layout" { Name "LogPlayers" Slot FrameWidgetSlot { Anchor 0 0 .49 .10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminSearchFilter.layout" { Name "LogType" Slot FrameWidgetSlot { Anchor .51 0 1 .10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{B9A47103D2E865C0}UI/layouts/Admin/Lobby_AdminCheckbox.layout" { Name "LogLive" Slot FrameWidgetSlot { Anchor 0 0.12 .23 0.195 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogNewer" Slot FrameWidgetSlot { Anchor 0.58 0.92 0.73 0.99 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "LogOlder" Slot FrameWidgetSlot { Anchor 0.87 0.92 1 0.99 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 TextWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.23 0.10 0.27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "TIME" "Font Size" 18 "Ignore Cursor" 1 }

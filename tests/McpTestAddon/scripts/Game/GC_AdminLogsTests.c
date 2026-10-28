@@ -1,4 +1,22 @@
 #ifdef WORKBENCH
+
+modded class GC_AdminSearchFilter
+{
+	//------------------------------------------------------------------------------------------------
+	string GC_TestInteraction(string action)
+	{
+		if (action == "click")
+			m_InputEvents.OnClick(m_Input, 0, 0, 0);
+		else if (action == "back")
+			OnMenuBack();
+		Widget focus = m_Workspace.GetFocusedWidget();
+		string name;
+		if (focus)
+			name = focus.GetName();
+		return string.Format("open=%1 writing=%2 focused=%3 value=%4", m_bOpened, m_Input.IsInWriteMode(), name, GetFilterValue());
+	}
+}
+
 modded class GC_AdminLogsComponent
 {
 	//------------------------------------------------------------------------------------------------
@@ -6,8 +24,9 @@ modded class GC_AdminLogsComponent
 	{
 		if (!HasAccess() || eventIndex < 0 || eventIndex >= m_aTypes.Count())
 			return "UNAVAILABLE access or filter";
-		m_Search.SetText(query);
-		OnSearch(m_Search);
+		EditBoxWidget input = EditBoxWidget.Cast(m_Players.GetRootWidget().FindAnyWidget("FilterInput"));
+		input.SetText(query);
+		SCR_EventHandlerComponent.Cast(input.FindHandler(SCR_EventHandlerComponent)).GetOnChange().Invoke(input);
 		m_Type.OpenList();
 		array<Widget> choices = {};
 		m_Type.GetElementWidgets(choices);
@@ -19,9 +38,45 @@ modded class GC_AdminLogsComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	string GC_TestInteraction(string field, string action)
+	{
+		GC_AdminSearchFilter filter = m_Players;
+		if (field == "events")
+			filter = m_Type;
+		if (action == "blur")
+			GetGame().GetWorkspace().SetFocusedWidget(m_wRoot.FindAnyWidget("LogLive"));
+		if (action == "roster")
+			RequestPlayers();
+		return filter.GC_TestInteraction(action) + " live=" + m_bLive.ToString()
+			+ " checked=" + m_wRoot.FindAnyWidget("LogLive").FindAnyWidget("Tick").IsVisible().ToString();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestEditableFilter(string field, string query, int choice)
+	{
+		GC_AdminSearchFilter filter = m_Players;
+		if (field == "events")
+			filter = m_Type;
+		EditBoxWidget input = EditBoxWidget.Cast(filter.GetRootWidget().FindAnyWidget("FilterInput"));
+		input.SetText(query);
+		SCR_EventHandlerComponent.Cast(input.FindHandler(SCR_EventHandlerComponent)).GetOnChange().Invoke(input);
+		array<Widget> options = {};
+		filter.GetElementWidgets(options);
+		string result = "options=";
+		foreach (int index, Widget option : options)
+		{
+			if (option.IsVisible())
+				result += index.ToString() + ":" + filter.GetItemName(index) + ";";
+		}
+		if (choice >= 0 && choice < options.Count() && options[choice].IsVisible())
+			SCR_ButtonTextComponent.Cast(options[choice].FindHandler(SCR_ButtonTextComponent)).OnClick(options[choice], 0, 0, 0);
+		return result + " value=" + filter.GetFilterValue();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestRead()
 	{
-		string result = m_Page.GetText() + " | " + m_Status.GetText() + " | search=" + m_Search.GetText()
+		string result = m_Page.GetText() + " | " + m_Status.GetText() + " | search=" + m_Players.GetFilterValue()
 			+ " | previous=" + m_wRoot.FindAnyWidget("LogNewer").IsEnabled()
 			+ " | next=" + m_wRoot.FindAnyWidget("LogOlder").IsEnabled();
 		foreach (string value : m_aDisplayed)
@@ -32,6 +87,20 @@ modded class GC_AdminLogsComponent
 
 modded class GC_LobbyManager
 {
+	//------------------------------------------------------------------------------------------------
+	string GC_TestLogInteraction(string field, string action)
+	{
+		Widget root = GetGame().GetMenuManager().GetTopMenu().GetRootWidget().FindAnyWidget("LogFields");
+		return GC_AdminLogsComponent.Cast(root.FindHandler(GC_AdminLogsComponent)).GC_TestInteraction(field, action);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestLogEditable(string field, string query, int choice)
+	{
+		Widget root = GetGame().GetMenuManager().GetTopMenu().GetRootWidget().FindAnyWidget("LogFields");
+		return GC_AdminLogsComponent.Cast(root.FindHandler(GC_AdminLogsComponent)).GC_TestEditableFilter(field, query, choice);
+	}
+
 	//------------------------------------------------------------------------------------------------
 	//! Explicit pagination fixture records, through the authority's production recorder.
 	string GC_TestLogPageSeed()

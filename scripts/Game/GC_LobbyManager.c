@@ -2943,6 +2943,22 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Session history aliases for authenticated log searches; never changes player identity.
+	void GetAdminLogSearchIdentities(string query, out array<string> identities)
+	{
+		identities = {};
+		if (query.IsEmpty())
+			return;
+		foreach (GC_AdminSessionPlayer record : m_aModerationHistory)
+		{
+			string terms = record.m_sName + " " + record.m_sIdentity + " " + record.m_sSteamId;
+			terms.ToLower();
+			if (terms.Contains(query))
+				identities.Insert(record.m_sIdentity);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Admin-only presentation snapshot. Live membership is always re-queried.
 	void SendModerationSession(int requesterId, int requestId)
 	{
