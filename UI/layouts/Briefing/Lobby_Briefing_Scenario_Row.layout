@@ -41,7 +41,7 @@ SizeLayoutWidgetClass {
       SizeMode Fill
      }
      Color 0.82 0.84 0.84 1
-     Text "SCENARIO PARAMETER"
+     Text ""
      "Font Size" 21
      "Min Font Size" 18
      "Vertical Alignment" Center

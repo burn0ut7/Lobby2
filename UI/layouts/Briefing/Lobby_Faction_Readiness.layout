@@ -53,7 +53,7 @@ SizeLayoutWidgetClass {
       OffsetBottom -26
      }
      "Ignore Cursor" 1
-     Text "Faction"
+     Text ""
      "Font Size" 22
      "Horizontal Alignment" Center
      "Vertical Alignment" Center
@@ -69,7 +69,7 @@ SizeLayoutWidgetClass {
      }
      "Ignore Cursor" 1
      Color 0.588 0.588 0.588 1
-     Text "Vacant"
+     Text ""
      Wrap 0
      "Font Size" 18
      "Horizontal Alignment" Center

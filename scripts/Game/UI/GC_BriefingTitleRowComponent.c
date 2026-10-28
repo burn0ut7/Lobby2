@@ -4,10 +4,10 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
     protected static const string DEFAULT_ICON = "scenarios";
     protected static const string SCENARIO_ICON = "vegetation";
 
-    [Attribute("1", UIWidgets.EditBox, "One-based order displayed with a leading zero")]
+    [Attribute("0", UIWidgets.EditBox, "One-based order displayed with a leading zero; zero is blank until assigned")]
     protected int m_iOrder;
 
-    [Attribute("BRIEFING TITLE", UIWidgets.EditBox, "Title displayed by this briefing row")]
+    [Attribute("", UIWidgets.EditBox, "Title displayed by this briefing row")]
     protected string m_sTitle;
 
     [Attribute("0", UIWidgets.CheckBox, "Show this row as the active briefing section")]
@@ -38,7 +38,7 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
 
         SetIcon(m_sIconName);
 
-        if (m_wOrder)
+        if (m_wOrder && m_iOrder > 0)
             m_wOrder.SetText(m_iOrder.ToString(2));
 
         if (m_wTitle)

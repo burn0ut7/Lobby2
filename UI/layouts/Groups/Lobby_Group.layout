@@ -67,7 +67,7 @@ VerticalLayoutWidgetClass {
              "Ignore Cursor" 1
              Slot LayoutSlot "{6A2500010000000B}" {
              }
-             Text "Aktiv-22"
+             Text ""
              "Font Size" 28
              "Min Font Size" 18
              "Vertical Alignment" Center
@@ -82,7 +82,7 @@ VerticalLayoutWidgetClass {
              Slot LayoutSlot "{6A2500010000000E}" {
              }
              Color 0.62 0.65 0.63 1
-             Text "Rifle Squad"
+             Text ""
              "Font Size" 15
              "Min Font Size" 11
             }
@@ -104,7 +104,7 @@ VerticalLayoutWidgetClass {
              Slot LayoutSlot "{6A25000100000012}" {
               HorizontalAlign 2
              }
-             Text "1 / 4"
+             Text ""
              "Font Size" 18
              "Min Font Size" 14
              "Vertical Alignment" Center

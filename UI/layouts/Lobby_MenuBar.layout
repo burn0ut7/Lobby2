@@ -355,7 +355,7 @@ FrameWidgetClass {
      Name "TitleText"
      Slot LayoutSlot "{6A161192FD5C0B29}" {
      }
-     Text "BANGALORIOUS"
+     Text ""
      "Vertical Alignment" Center
     }
     TextWidgetClass "{6A1577A7BDB5F4A3}" {
@@ -363,7 +363,7 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A1577A7BDB5F4BA}" {
      }
      Color 0.4287 0.4287 0.4287 1
-     Text "COOPERATIVE ATTACK"
+     Text ""
      "Font Size" 12
      "Min Font Size" 12
     }
@@ -380,7 +380,7 @@ FrameWidgetClass {
    }
    "Is Visible" 0
    "Ignore Cursor" 1
-   Text "00:00"
+   Text ""
    "Font Size" 22
    "Horizontal Alignment" Right
    "Vertical Alignment" Center
@@ -407,7 +407,7 @@ FrameWidgetClass {
       HorizontalAlign 1
       VerticalAlign 1
      }
-     Text "128"
+     Text ""
     }
     ImageWidgetClass "{6A1577A6397F5800}" {
      Name "PlayerIcon"

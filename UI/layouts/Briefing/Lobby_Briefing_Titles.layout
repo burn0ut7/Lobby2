@@ -24,8 +24,8 @@ VerticalLayoutWidgetClass {
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
-       m_iOrder 1
-       m_sTitle "OVERVIEW"
+       m_iOrder 0
+       m_sTitle ""
        m_bSelected 1
       }
      }
@@ -37,8 +37,8 @@ VerticalLayoutWidgetClass {
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
-       m_iOrder 2
-       m_sTitle "SITUATION"
+       m_iOrder 0
+       m_sTitle ""
        m_bSelected 0
       }
      }
@@ -50,8 +50,8 @@ VerticalLayoutWidgetClass {
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
-       m_iOrder 3
-       m_sTitle "MISSION"
+       m_iOrder 0
+       m_sTitle ""
        m_bSelected 0
       }
      }
@@ -63,8 +63,8 @@ VerticalLayoutWidgetClass {
      }
      components {
       GC_BriefingTitleRowComponent "{6A4B000000000002}" {
-       m_iOrder 4
-       m_sTitle "OBJECTIVES"
+       m_iOrder 0
+       m_sTitle ""
        m_bSelected 0
       }
      }

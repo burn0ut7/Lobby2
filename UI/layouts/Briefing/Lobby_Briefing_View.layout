@@ -194,7 +194,7 @@ SizeLayoutWidgetClass {
               FillWeight 1
              }
              Color 0.94 0.94 0.92 1
-             Text "01  OVERVIEW"
+             Text ""
              "Font Size" 28
              "Min Font Size" 22
             }
@@ -246,7 +246,7 @@ SizeLayoutWidgetClass {
                  }
                  "Is Visible" 0
                  Color 0.82 0.84 0.84 1
-                 Text "Plain briefing content"
+                 Text ""
                  "Font Size" 24
                  "Min Font Size" 20
                  Wrap 1
@@ -258,7 +258,7 @@ SizeLayoutWidgetClass {
                   VerticalAlign 3
                  }
                  Color 0.82 0.84 0.84 1
-                 Text "Rich briefing content"
+                 Text ""
                  "Font Size" 24
                  "Min Font Size" 20
                  Wrap 1
@@ -277,7 +277,7 @@ SizeLayoutWidgetClass {
                     HorizontalAlign 3
                    }
                    Color 0.82 0.84 0.84 1
-                   Text "Content before action marker"
+                   Text ""
                    "Font Size" 24
                    "Min Font Size" 20
                    Wrap 1
@@ -295,7 +295,7 @@ SizeLayoutWidgetClass {
                     HorizontalAlign 3
                    }
                    Color 0.82 0.84 0.84 1
-                   Text "Content after action marker"
+                   Text ""
                    "Font Size" 24
                    "Min Font Size" 20
                    Wrap 1

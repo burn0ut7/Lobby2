@@ -115,7 +115,7 @@ ButtonWidgetClass {
               SizeY 42
               OffsetBottom -42
              }
-             Text "US Army"
+             Text ""
              "Font Size" 30
              "Min Font Size" 8
              "Horizontal Alignment" Center
@@ -154,7 +154,7 @@ ButtonWidgetClass {
               SizeY 30
               OffsetBottom -30
              }
-             Text "64 / 128"
+             Text ""
              "Min Font Size" 12
              "Horizontal Alignment" Center
              "Vertical Alignment" Center

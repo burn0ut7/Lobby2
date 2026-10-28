@@ -9,7 +9,7 @@ OverlayWidgetClass {
     Padding 2 0 2 0
    }
    Color 1 0.596 0.196 1
-   Text "click here"
+   Text ""
    "Font Size" 24
    "Min Font Size" 20
   }

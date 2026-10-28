@@ -51,7 +51,7 @@ ButtonWidgetClass {
        }
        "Ignore Cursor" 1
        Color 0.94 0.94 0.92 1
-       Text "OPTION"
+       Text ""
        "Font Size" 18
        "Vertical Alignment" Center
       }

@@ -8,8 +8,8 @@ ButtonWidgetClass {
   GC_BriefingTitleRowComponent "{6A4B000000000002}" {
    m_BackgroundDefault 0.018 0.027 0.031 1
    m_BackgroundHovered 0.05 0.102 0.125 1
-   m_iOrder 1
-   m_sTitle "BRIEFING TITLE"
+   m_iOrder 0
+   m_sTitle ""
    m_bSelected 0
   }
  }
@@ -105,7 +105,7 @@ ButtonWidgetClass {
               VerticalAlign 3
              }
              Color 0.862 0.862 0.862 1
-             Text "01"
+             Text ""
              "Font Size" 18
              "Min Font Size" 18
              "Horizontal Alignment" Left
@@ -121,7 +121,7 @@ ButtonWidgetClass {
             SizeMode Fill
            }
            Color 0.862 0.862 0.862 1
-           Text "BRIEFING TITLE"
+           Text ""
            "Font Size" 18
            "Min Font Size" 10
            "Vertical Alignment" Center

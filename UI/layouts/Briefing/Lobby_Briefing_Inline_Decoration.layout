@@ -9,7 +9,7 @@ OverlayWidgetClass {
     Padding 2 0 2 0
    }
    Color 0.82 0.84 0.84 1
-   Text "decorated text"
+   Text ""
    "Font Size" 24
    "Min Font Size" 20
   }

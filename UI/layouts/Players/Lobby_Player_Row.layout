@@ -108,7 +108,7 @@ ButtonWidgetClass {
             VerticalAlign 1
             SizeMode Fill
            }
-           Text "John Reforger"
+           Text ""
            "Font Size" 22
            "Min Font Size" 14
            "Vertical Alignment" Center
@@ -127,7 +127,7 @@ ButtonWidgetClass {
           SizeMode Fill
          }
          Color 0.82 0.84 0.84 1
-         Text "Aktiv-22"
+         Text ""
          "Font Size" 19
          "Min Font Size" 13
          "Horizontal Alignment" Right

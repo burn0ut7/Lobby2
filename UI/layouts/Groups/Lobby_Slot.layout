@@ -104,7 +104,7 @@ ButtonWidgetClass {
             Padding 0 0 10 0
             SizeMode Fill
            }
-           Text "Anti-Tank Specialist Assistant"
+           Text ""
            "Font Size" 24
            "Min Font Size" 14
            "Vertical Alignment" Center
