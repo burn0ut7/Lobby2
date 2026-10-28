@@ -220,6 +220,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		ApplyLobbyRadio();
 		gameMode.UpdateLocalPhasePresentation(this, "controller-init");
 		StartKilledFromTracking(GetControlledEntity());
+		UpdateLocalLifeStateAudio();
 	}
 
 	//! Apply on channel replication, possession, or native radio registration.
@@ -2023,6 +2024,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		SetLobbyPlayerState(GC_ELobbyPlayerState.SPECTATOR);
 		m_bSpectatorPresentationRequested = true;
+		UpdateLocalLifeStateAudio();
 		m_iEditorManagerAttachAttempts = 0;
 		AttachEditorManager();
 		ReconcileSpectatorPresentation();
@@ -2075,9 +2077,31 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 
 		BindLobbyVoiceActivity(to);
+		UpdateLocalLifeStateAudio();
 
 		AttachEditorManager();
 		ReconcileSpectatorPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Custom respawn/spectator flows bypass the vanilla deploy menu's audio reset.
+	protected void UpdateLocalLifeStateAudio()
+	{
+		if (!GC_LobbyGameMode.GetGameMode() || GetGame().GetPlayerController() != this
+			|| RplSession.Mode() == RplMode.Dedicated)
+			return;
+
+		ECharacterLifeState state = ECharacterLifeState.ALIVE;
+		IEntity entity = GetControlledEntity();
+		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
+		if (character && !entity.FindComponent(GC_LobbySpectatorBodyComponent))
+		{
+			CharacterControllerComponent characterController = character.GetCharacterController();
+			if (characterController)
+				state = characterController.GetLifeState();
+		}
+
+		AudioSystem.SetVariableByName("CharacterLifeState", state, "{A60F08955792B575}Sounds/_SharedData/Variables/GlobalVariables.conf");
 	}
 
 	protected void StartKilledFromTracking(IEntity entity)
