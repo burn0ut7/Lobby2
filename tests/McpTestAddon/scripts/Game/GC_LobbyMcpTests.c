@@ -128,6 +128,14 @@ modded class GC_LobbyManager
 			GetGame().GetInputManager().SetLastUsedInputDevice(EInputDeviceType.MOUSE);
 			GetGame().GetInputManager().GetMouseDeviceHandler().SetCursorPosition(x + width * 0.5, y + height * 0.5);
 		}
+		else if (action == "report-hover" || action == "report-leave")
+		{
+			GetGame().GetInputManager().SetLastUsedInputDevice(EInputDeviceType.MOUSE);
+			if (action == "report-hover")
+				WidgetManager.ReportMouse(x + width * 0.5, y + height * 0.5, root);
+			else
+				WidgetManager.ReportMouse(-1, -1, root);
+		}
 		else if (action == "focus" || action == "preview")
 		{
 			GetGame().GetInputManager().SetLastUsedInputDevice(EInputDeviceType.KEYBOARD);
