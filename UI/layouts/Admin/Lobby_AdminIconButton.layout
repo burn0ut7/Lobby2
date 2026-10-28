@@ -1,0 +1,49 @@
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+ components {
+  SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+   m_BackgroundDefault 1 1 1 0
+   m_BackgroundHovered 1 1 1 0.08
+   m_bShowBorderOnHover 0
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+   Prefab "{7C41F8A018B24C01}"
+   {
+    OverlayWidgetClass "{7C41F8A018B24C02}" {
+     Prefab "{7C41F8A018B24C02}"
+     {
+      PanelWidgetClass "{7C41F8A018B24C03}" {
+       Prefab "{7C41F8A018B24C03}"
+       Color 1 1 1 0
+       "Ignore Cursor" 1
+      }
+      PanelWidgetClass "{7C41F8A018B24C04}" {
+       Prefab "{7C41F8A018B24C04}"
+       Color 1 1 1 0.08
+       style full
+      }
+      ImageWidgetClass "{A592C710D3314B81}" {
+       Name "Icon"
+       Slot OverlayWidgetSlot { HorizontalAlign 0 VerticalAlign 1 Padding 12 0 0 0 }
+       Color 0.94 0.94 0.94 1
+       "Ignore Cursor" 1
+       Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+       Image "continue"
+       Size 24 24
+      }
+      TextWidgetClass "{7C41F8A018B24C05}" {
+       Prefab "{7C41F8A018B24C05}"
+       Name "Text"
+       Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 48 0 12 0 }
+       "Font Size" 24
+       "Vertical Alignment" Center
+       Color 0.94 0.94 0.94 1
+       "Ignore Cursor" 1
+      }
+     }
+    }
+   }
+  }
+ }
+}

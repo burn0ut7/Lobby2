@@ -131,29 +131,34 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_HealRadius.SetSliderSettings(GC_LobbyManager.GC_MIN_HEAL_RADIUS, GC_LobbyManager.GC_MAX_HEAL_RADIUS, 1, "%1 m");
 		m_HealRadius.SetValue(m_iHealRadius);
 		m_HealRadius.m_OnChanged.Insert(OnHealRadiusChanged);
-		Bind("AdminClose", "Close");
-		Bind("ToolHeal", "Heal");
-		Bind("ToolFreeze", "Freeze");
-		Bind("ToolLogs", "Logs");
+		Bind("AdminClose", "Close", "exit");
+		Bind("ToolHeal", "Heal", "plus");
+		Bind("ToolFreeze", "Freeze", "pause");
+		Bind("ToolUnstuck", "Unstuck", "respawn");
+		Bind("ToolWarn", "Warn", "warning");
+		Bind("MessageNormal", "Message", "comments");
+		Bind("ToolLogs", "Logs", "listView");
 		SCR_ButtonTextComponent.GetButtonText("ToolUnfreeze", w).m_OnClicked.Insert(OnApply);
-		Bind("ToolTeleport", "Teleport");
-		Bind("ToolMessage", "Send message");
-		Bind("ToolReservations", "Slot reservations");
-		Bind("ToolMapPlans", "Markers");
-		Bind("ToolBoundaries", "Boundaries");
+		ImageWidget.Cast(w.FindAnyWidget("ToolUnfreeze").FindAnyWidget("Icon")).LoadImageFromSet(0,
+			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "play");
+		Bind("ToolTeleport", "Teleport", "move");
+		Bind("ToolMessage", "Message", "comments");
+		Bind("ToolReservations", "Reservations", "server-locked");
+		Bind("ToolMapPlans", "Markers", "pinPlay");
+		Bind("ToolBoundaries", "Boundaries", "ruler");
 		m_Boundaries = GC_AdminBoundariesComponent.Cast(w.FindAnyWidget("BoundaryPanel").FindHandler(GC_AdminBoundariesComponent));
 		m_MapPlans = GC_AdminMapPlansComponent.Cast(w.FindAnyWidget("MapPlanPanel").FindHandler(GC_AdminMapPlansComponent));
 		m_Reservations = GC_AdminReservationsComponent.Cast(w.FindAnyWidget("ReservationPanel").FindHandler(GC_AdminReservationsComponent));
-		Bind("ToolModeration", "Kick / Ban");
-		Bind("MessageSelected", "Selected players");
-		Bind("MessageEveryone", "Everyone");
-		Bind("MessageFaction", "Faction");
-		Bind("ScopeSelected", "Selected players");
-		Bind("ScopeEveryone", "Everyone");
-		Bind("ScopeNearby", "Nearby");
-		Bind("ScopeFaction", "Faction");
-		Bind("TeleportPlayer", "Player");
-		Bind("TeleportFaction", "Faction");
+		Bind("ToolModeration", "Kick / Ban", "admin");
+		Bind("MessageSelected", "Selected players", "player");
+		Bind("MessageEveryone", "Everyone", "players");
+		Bind("MessageFaction", "Faction", "faction");
+		Bind("ScopeSelected", "Selected players", "player");
+		Bind("ScopeEveryone", "Everyone", "players");
+		Bind("ScopeNearby", "Nearby", "compass");
+		Bind("ScopeFaction", "Faction", "faction");
+		Bind("TeleportPlayer", "Player", "player");
+		Bind("TeleportFaction", "Faction", "faction");
 		m_Apply.m_OnClicked.Insert(OnApply);
 		m_Targets.m_OnChanged.Insert(OnSelection);
 		m_From.m_OnChanged.Insert(OnSelection);
@@ -180,10 +185,12 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void Bind(string name, string label)
+	protected void Bind(string name, string label, string icon)
 	{
 		SCR_ButtonTextComponent button = SCR_ButtonTextComponent.GetButtonText(name, m_wRoot);
 		button.SetText(label);
+		ImageWidget.Cast(button.GetRootWidget().FindAnyWidget("Icon")).LoadImageFromSet(0,
+			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", icon);
 		button.m_OnClicked.Insert(OnAction);
 	}
 
@@ -206,15 +213,25 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			return;
 		OnRosterOpened(null);
 		m_bConfirmFactionTeleport = false;
+		int previousTool = m_iTool;
+		GC_AdminPlayerPicker previousPicker = m_Targets;
+		if (previousTool == 1 || previousTool == 10)
+			previousPicker = m_From;
+		else if (previousTool == 3 || previousTool == 11)
+			previousPicker = m_MessagePlayers;
 		if (name == "ToolHeal")
 			m_iTool = 0;
 		else if (name == "ToolFreeze")
 			m_iTool = 8;
+		else if (name == "ToolUnstuck")
+			m_iTool = 10;
+		else if (name == "ToolWarn")
+			m_iTool = 11;
 		else if (name == "ToolLogs")
 			m_iTool = 9;
 		else if (name == "ToolTeleport")
 			m_iTool = 1;
-		else if (name == "ToolMessage")
+		else if (name == "ToolMessage" || name == "MessageNormal")
 			m_iTool = 3;
 		else if (name == "ToolReservations")
 			m_iTool = 4;
@@ -248,11 +265,24 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			RebuildFactions();
 		}
 		else if (name == "TeleportPlayer")
+		{
+			m_iTool = 1;
 			m_bTeleportFaction = false;
+		}
 		else if (name == "TeleportFaction")
 		{
+			m_iTool = 1;
 			m_bTeleportFaction = true;
 			RebuildFactions();
+		}
+		if (previousTool != m_iTool)
+		{
+			GC_AdminPlayerPicker nextPicker = m_Targets;
+			if (m_iTool == 1 || m_iTool == 10)
+				nextPicker = m_From;
+			else if (m_iTool == 3 || m_iTool == 11)
+				nextPicker = m_MessagePlayers;
+			nextPicker.CopySelectionFrom(previousPicker);
 		}
 		m_Status.SetText("");
 		Refresh();
@@ -310,7 +340,13 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 		bool heal = m_iTool == 0;
+		bool unstuck = m_iTool == 10;
+		bool warn = m_iTool == 11;
+		bool individual = unstuck || warn;
+		SCR_ButtonTextComponent.GetButtonText("ToolUnstuck", m_wRoot).SetToggled(unstuck, false, false);
+		SCR_ButtonTextComponent.GetButtonText("ToolWarn", m_wRoot).SetToggled(warn, false, false);
 		bool logs = m_iTool == 9;
+		m_wRoot.FindAnyWidget("LogsSelectedBar").SetVisible(logs);
 		m_Logs.SetActive(logs);
 		SCR_ButtonTextComponent.GetButtonText("ToolLogs", m_wRoot).SetToggled(logs, false, false);
 		bool freeze = m_iTool == 8;
@@ -319,8 +355,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_wRoot.FindAnyWidget("FreezeSelectedBar").SetVisible(freeze);
 		bool teleport = m_iTool == 1;
 		bool message = m_iTool == 3;
+		m_wRoot.FindAnyWidget("MessageMode").SetVisible(message || warn);
+		SCR_ButtonTextComponent.GetButtonText("MessageNormal", m_wRoot).SetToggled(message, false, false);
 		bool reservations = m_iTool == 4;
 		bool boundaries = m_iTool == 7;
+		m_wRoot.FindAnyWidget("BoundariesSelectedBar").SetVisible(boundaries);
 		m_Boundaries.SetActive(boundaries);
 		m_wRoot.FindAnyWidget("ToolDescription").SetVisible(!boundaries);
 		m_wRoot.FindAnyWidget("ContextDivider").SetVisible(!boundaries);
@@ -333,28 +372,51 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_wRoot.FindAnyWidget("ReservationsSelectedBar").SetVisible(reservations);
 		SCR_ButtonTextComponent.GetButtonText("ToolReservations", m_wRoot).SetToggled(reservations, false, false);
 		bool moderation = m_iTool == 5;
+		m_wRoot.FindAnyWidget("ModerationSelectedBar").SetVisible(moderation);
 		m_wRoot.FindAnyWidget("ModerationFields").SetVisible(moderation);
 		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
 		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
 		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
 		bool factionTarget = (playerScope && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
-		bool selectedMessage = message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS;
-		m_wRoot.FindAnyWidget("MessageFields").SetVisible(message);
+		bool selectedMessage = warn || (message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS);
+		m_wRoot.FindAnyWidget("MessageFields").SetVisible(message || warn);
+		m_wRoot.FindAnyWidget("MessageAudienceGroup").SetVisible(message);
+		m_wRoot.FindAnyWidget("MessageRecipientGroup").SetVisible(selectedMessage);
+		m_wRoot.FindAnyWidget("MessageFactionSpace").SetVisible(message && m_eMessageAudience == GC_EAdminMessageAudience.FACTION);
+		m_wRoot.FindAnyWidget("MessageAudienceLabel").SetVisible(message);
+		m_wRoot.FindAnyWidget("MessageSelected").SetVisible(message);
+		m_wRoot.FindAnyWidget("MessageEveryone").SetVisible(message);
+		m_wRoot.FindAnyWidget("MessageFaction").SetVisible(message);
 		m_wRoot.FindAnyWidget("MessagePlayers").SetVisible(selectedMessage);
 		m_wRoot.FindAnyWidget("MessagePlayersLabel").SetVisible(selectedMessage);
-		m_wRoot.FindAnyWidget("MessageFactionScroll").SetVisible(factionTarget || (message && m_eMessageAudience == GC_EAdminMessageAudience.FACTION));
-		m_wRoot.FindAnyWidget("TeleportScope").SetVisible(teleport);
+		Widget factionScroll = m_wRoot.FindAnyWidget("MessageFactionScroll");
+		factionScroll.SetVisible(factionTarget || (message && m_eMessageAudience == GC_EAdminMessageAudience.FACTION));
+		if (teleport)
+		{
+			FrameSlot.SetAnchorMin(factionScroll, 0.24, 0.30);
+			FrameSlot.SetAnchorMax(factionScroll, 0.94, 0.30);
+			FrameSlot.SetOffsets(factionScroll, 0, 0, 0, -88);
+		}
+		else
+		{
+			FrameSlot.SetAnchorMin(factionScroll, 0.24, 0.36);
+			FrameSlot.SetAnchorMax(factionScroll, 0.94, 0.46);
+			FrameSlot.SetOffsets(factionScroll, 0, 0, 0, 0);
+		}
+		m_wRoot.FindAnyWidget("TeleportScope").SetVisible(teleport || unstuck);
 		m_wRoot.FindAnyWidget("ScopeFaction").SetVisible(playerScope);
-		m_wRoot.FindAnyWidget("FromPlayer").SetVisible(!m_bTeleportFaction);
-		m_wRoot.FindAnyWidget("FromLabel").SetVisible(!m_bTeleportFaction);
-		m_wRoot.FindAnyWidget("MessageSelectedBar").SetVisible(message);
+		m_wRoot.FindAnyWidget("FromPlayer").SetVisible(unstuck || !m_bTeleportFaction);
+		m_wRoot.FindAnyWidget("FromLabel").SetVisible(unstuck || !m_bTeleportFaction);
+		m_wRoot.FindAnyWidget("ToPlayer").SetVisible(teleport);
+		m_wRoot.FindAnyWidget("ToLabel").SetVisible(teleport);
+		m_wRoot.FindAnyWidget("MessageSelectedBar").SetVisible(message || warn);
 		m_wRoot.FindAnyWidget("HealScope").SetVisible(playerScope);
 		m_wRoot.FindAnyWidget("HealRadius").SetVisible(playerScope && m_eScope == GC_EAdminHealScope.NEARBY);
 		m_wRoot.FindAnyWidget("HealPlayers").SetVisible(playerScope && m_eScope == GC_EAdminHealScope.SELECTED);
 		m_wRoot.FindAnyWidget("HealSelectionLabel").SetVisible(playerScope && m_eScope == GC_EAdminHealScope.SELECTED);
 		m_wRoot.FindAnyWidget("HealSelectedBar").SetVisible(heal);
-		m_wRoot.FindAnyWidget("TeleportSelectedBar").SetVisible(teleport);
-		m_wRoot.FindAnyWidget("TeleportFields").SetVisible(teleport);
+		m_wRoot.FindAnyWidget("TeleportSelectedBar").SetVisible(teleport || unstuck);
+		m_wRoot.FindAnyWidget("TeleportFields").SetVisible(teleport || unstuck);
 		string title = "Make playable";
 		string description = "Create a playable slot from this character. Its group and position are retained; its AI will be disabled.";
 		string action = "Make playable";
@@ -371,7 +433,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (playerScope)
 		{
 			title = "Heal";
-			description = "Heal players or respawn them if dead. Nearby also repairs vehicles.";
+			description = "Heals living players; respawns the dead.";
 			action = "Heal everyone";
 			summary = "Heal all connected players. Dead players respawn in their claimed slots.";
 			if (m_eScope == GC_EAdminHealScope.NEARBY)
@@ -400,10 +462,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (freeze)
 		{
 			title = "Freeze";
-			description = "Block controls and hold players still. Drivers and gunners also stop their vehicle; passengers do not.";
+			description = "Holds players and their driven vehicles.";
 			action = "Freeze players";
 			if (m_eScope == GC_EAdminHealScope.EVERYONE)
-				summary = "All currently connected players.";
+				summary = "All connected players.";
 			else if (m_eScope == GC_EAdminHealScope.NEARBY)
 				summary = string.Format("Players within %1m of you when applied.", m_iHealRadius);
 			SCR_ButtonTextComponent unfreeze = SCR_ButtonTextComponent.GetButtonText("ToolUnfreeze", m_wRoot);
@@ -414,14 +476,14 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (teleport)
 		{
 			title = "Teleport";
-			description = "Move the From player beside the To player.";
+			description = "";
 			array<int> destinations;
 			array<string> destinationIdentities;
 			bool fromSelected = m_From.GetSelection(players, identities);
 			bool toSelected = m_To.GetSelection(destinations, destinationIdentities);
 			if (m_bTeleportFaction)
 			{
-				description = "Move faction members near the destination. Dead or seated players are skipped; the destination stays in place.";
+				description = "Dead and seated players are skipped.";
 				enabled = enabled && !m_sTargetFaction.IsEmpty() && toSelected;
 				summary = string.Format("All connected players in %1 when confirmed.", GetSelectedFactionName());
 				if (toSelected)
@@ -443,8 +505,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		if (message)
 		{
-			title = "Send message";
-			description = "Show a notification with a sound for 15 seconds.";
+			title = "Message";
+			description = "";
 			action = "Send message";
 			string text = m_MessageText.GetText();
 			text.TrimInPlace();
@@ -465,19 +527,43 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			else if (m_eMessageAudience == GC_EAdminMessageAudience.FACTION)
 			{
 				enabled = enabled && !m_sTargetFaction.IsEmpty();
-				summary = "All connected players in the selected faction when sent.";
+				summary = "Current faction members.";
 			}
 			TextWidget.Cast(m_wRoot.FindAnyWidget("MessageLabel")).SetTextFormat("MESSAGE (%1 / 512)", m_MessageText.GetText().Length());
+		}
+		if (individual)
+		{
+			title = "Teleport";
+			action = "Unstuck";
+			description = "Move one player to nearby clear ground.";
+			GC_AdminPlayerPicker picker = m_From;
+			if (warn)
+				picker = m_MessagePlayers;
+			enabled = enabled && picker.GetSelection(players, identities) && players.Count() == 1;
+			if (warn)
+			{
+				title = "Message";
+				action = "Send warning";
+				description = "";
+				string reason = m_MessageText.GetText();
+				reason.TrimInPlace();
+				enabled = enabled && !reason.IsEmpty() && reason.Length() <= 256 && !reason.Contains("\n")
+					&& !reason.Contains("\r") && !reason.Contains("<") && !reason.Contains(">");
+				TextWidget.Cast(m_wRoot.FindAnyWidget("MessageLabel")).SetTextFormat("REASON (%1 / 256)", reason.Length());
+			}
+			summary = "Select one player.";
+			if (players && players.Count() == 1)
+				summary = string.Empty;
 		}
 		if (moderation)
 		{
 			title = "Kick / Ban";
-			description = "Session players, including disconnected players. Select a row or enter an Arma UID.";
+			description = "";
 		}
 		if (reservations)
 		{
 			title = "Slot reservations";
-			description = "Transfer slot assignments with team, group, role, and player details.";
+			description = "";
 		}
 		if (boundaries)
 		{
@@ -486,7 +572,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		if (mapPlans)
 		{
-			title = string.Empty;
+			title = "Markers";
 			description = string.Empty;
 		}
 		if (logs)
@@ -496,18 +582,36 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolTitle")).SetText(title);
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolDescription")).SetText(description);
+		m_wRoot.FindAnyWidget("ToolDescription").SetVisible(!description.IsEmpty());
+		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(individual || (teleport && m_bTeleportFaction)
+			|| (playerScope && m_eScope != GC_EAdminHealScope.SELECTED));
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolSummary")).SetText(summary);
 		m_Apply.SetText(action);
+		string actionIcon = "check";
+		if (heal)
+			actionIcon = "plus";
+		else if (freeze)
+			actionIcon = "pause";
+		else if (teleport)
+			actionIcon = "move";
+		else if (unstuck)
+			actionIcon = "respawn";
+		else if (message)
+			actionIcon = "comments";
+		else if (warn)
+			actionIcon = "warning";
+		ImageWidget.Cast(m_Apply.GetRootWidget().FindAnyWidget("Icon")).LoadImageFromSet(0,
+			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", actionIcon);
 		m_Apply.SetEnabled(enabled);
 		TextWidget actionText = TextWidget.Cast(m_Apply.GetRootWidget().FindAnyWidget("Text"));
 		if (enabled)
-			actionText.SetColor(Color.FromRGBA(10, 13, 13, 255));
+			actionText.SetColor(Color.FromRGBA(240, 240, 240, 255));
 		else
-			actionText.SetColor(Color.FromRGBA(180, 190, 190, 255));
+			actionText.SetColor(Color.FromRGBA(150, 150, 150, 255));
 		SCR_ButtonTextComponent.GetButtonText("ToolHeal", m_wRoot).SetToggled(heal, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolFreeze", m_wRoot).SetToggled(freeze, false, false);
-		SCR_ButtonTextComponent.GetButtonText("ToolTeleport", m_wRoot).SetToggled(teleport, false, false);
-		SCR_ButtonTextComponent.GetButtonText("ToolMessage", m_wRoot).SetToggled(message, false, false);
+		SCR_ButtonTextComponent.GetButtonText("ToolTeleport", m_wRoot).SetToggled(teleport || unstuck, false, false);
+		SCR_ButtonTextComponent.GetButtonText("ToolMessage", m_wRoot).SetToggled(message || warn, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolModeration", m_wRoot).SetToggled(moderation, false, false);
 		SCR_ButtonTextComponent.GetButtonText("MessageSelected", m_wRoot).SetToggled(m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS, false, false);
 		SCR_ButtonTextComponent.GetButtonText("MessageEveryone", m_wRoot).SetToggled(m_eMessageAudience == GC_EAdminMessageAudience.ALL_PLAYERS, false, false);
@@ -518,8 +622,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		SCR_ButtonTextComponent.GetButtonText("ScopeEveryone", m_wRoot).SetToggled(m_eScope == GC_EAdminHealScope.EVERYONE, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ScopeNearby", m_wRoot).SetToggled(m_eScope == GC_EAdminHealScope.NEARBY, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ScopeFaction", m_wRoot).SetToggled(m_eScope == GC_EAdminHealScope.FACTION, false, false);
-		SCR_ButtonTextComponent.GetButtonText("TeleportPlayer", m_wRoot).SetToggled(!m_bTeleportFaction, false, false);
-		SCR_ButtonTextComponent.GetButtonText("TeleportFaction", m_wRoot).SetToggled(m_bTeleportFaction, false, false);
+		SCR_ButtonTextComponent.GetButtonText("TeleportPlayer", m_wRoot).SetToggled(teleport && !m_bTeleportFaction, false, false);
+		SCR_ButtonTextComponent.GetButtonText("TeleportFaction", m_wRoot).SetToggled(teleport && m_bTeleportFaction, false, false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -529,6 +633,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			return;
 		array<int> players = {};
 		array<string> identities = {};
+		if (m_iTool == 10 && (!m_From.GetSelection(players, identities) || players.Count() != 1))
+			return;
+		if (m_iTool == 11 && (!m_MessagePlayers.GetSelection(players, identities) || players.Count() != 1))
+			return;
 		if (m_iTool == 3)
 		{
 			if (m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS && !m_MessagePlayers.GetSelection(players, identities))
@@ -564,6 +672,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Refresh();
 		if (m_iTool == 0)
 			m_Controller.RequestAdminHeal(m_eScope, players, identities, m_iPending, m_iHealRadius, m_sTargetFaction);
+		else if (m_iTool == 10)
+			m_Controller.GC_RequestAdminUnstuck(players[0], identities[0], m_iPending);
+		else if (m_iTool == 11)
+			m_Controller.GC_RequestAdminWarn(players[0], identities[0], m_MessageText.GetText(), m_iPending);
 		else if (m_iTool == 8)
 			m_Controller.GC_RequestAdminControlFreeze(m_eScope, players, identities, m_iPending, m_iHealRadius, m_sTargetFaction, button.GetRootWidget().GetName() != "ToolUnfreeze");
 		else if (m_iTool == 1 && m_bTeleportFaction)

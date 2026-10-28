@@ -109,6 +109,25 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Carry the same identity-bound selection between tools without silently choosing one of many.
+	void CopySelectionFrom(GC_AdminPlayerPicker source)
+	{
+		if (!source || source == this)
+			return;
+		array<int> players;
+		array<string> identities;
+		bool valid = source.GetSelection(players, identities);
+		m_aSelected.Clear();
+		m_aIdentities.Clear();
+		if (valid && (m_bMultiple || players.Count() == 1))
+		{
+			m_aSelected.Copy(players);
+			m_aIdentities.Copy(identities);
+		}
+		UpdateLabel();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void UpdateLabel()
 	{
 		string label = "Choose players...";
