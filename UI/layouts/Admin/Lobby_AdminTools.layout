@@ -201,6 +201,9 @@ TextWidgetClass { Name "PlanStatus" Slot FrameWidgetSlot { Anchor 0 0.25 1 0.42 
 } }
 ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolModeration" Slot FrameWidgetSlot { Anchor 0.018 0.36 0.2 0.41 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolLogs" Slot FrameWidgetSlot { Anchor 0.018 0.78 0.2 0.83 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 } } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolServerStatus" Slot FrameWidgetSlot { Anchor .018 .835 .2 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 } } }
+PanelWidgetClass { Name "StatusSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { Anchor .018 .835 .021 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color .95 .73 .3 1 style full "Ignore Cursor" 1 }
+FrameWidgetClass : "{D389716BFE230A42}UI/layouts/Admin/Lobby_AdminStatus.layout" { Name "StatusFields" Slot FrameWidgetSlot { Anchor .24 .18 .98 .95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{B4C238A9F06E7D12}UI/layouts/Admin/Lobby_AdminLogs.layout" { Name "LogFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{6A5A000000000070}UI/layouts/Admin/Lobby_AdminModeration.layout" { Name "ModerationFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolReservations" Slot FrameWidgetSlot { Anchor 0.018 0.565 0.2 0.615 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }

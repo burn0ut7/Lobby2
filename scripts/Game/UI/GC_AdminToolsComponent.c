@@ -12,6 +12,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	protected GC_AdminPlayerPicker m_To;
 	protected GC_AdminModerationComponent m_Moderation;
 	protected GC_AdminLogsComponent m_Logs;
+	protected GC_AdminStatusComponent m_ServerStatus;
 	protected int m_iTool;
 	protected GC_EAdminHealScope m_eScope;
 	protected int m_iPending = -1;
@@ -112,6 +113,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		super.HandlerAttached(w);
 		m_Manager = GC_LobbyManager.GetManager();
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		m_ServerStatus = GC_AdminStatusComponent.Cast(w.FindAnyWidget("StatusFields").FindHandler(GC_AdminStatusComponent));
 		m_Logs = GC_AdminLogsComponent.Cast(w.FindAnyWidget("LogFields").FindHandler(GC_AdminLogsComponent));
 		m_Moderation = GC_AdminModerationComponent.Cast(w.FindAnyWidget("ModerationFields").FindHandler(GC_AdminModerationComponent));
 		m_Targets = GC_AdminPlayerPicker.Cast(w.FindAnyWidget("HealPlayers").FindHandler(GC_AdminPlayerPicker));
@@ -138,6 +140,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("ToolWarn", "Warn", "warning");
 		Bind("MessageNormal", "Message", "comments");
 		Bind("ToolLogs", "Logs", "listView");
+		Bind("ToolServerStatus", "Status", "career_server");
 		SCR_ButtonTextComponent.GetButtonText("ToolUnfreeze", w).m_OnClicked.Insert(OnApply);
 		ImageWidget.Cast(w.FindAnyWidget("ToolUnfreeze").FindAnyWidget("Icon")).LoadImageFromSet(0,
 			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "play");
@@ -227,6 +230,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_iTool = 10;
 		else if (name == "ToolWarn")
 			m_iTool = 11;
+		else if (name == "ToolServerStatus")
+			m_iTool = 12;
 		else if (name == "ToolLogs")
 			m_iTool = 9;
 		else if (name == "ToolTeleport")
@@ -345,6 +350,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool individual = unstuck || warn;
 		SCR_ButtonTextComponent.GetButtonText("ToolUnstuck", m_wRoot).SetToggled(unstuck, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolWarn", m_wRoot).SetToggled(warn, false, false);
+		bool serverStatus = m_iTool == 12;
+		m_ServerStatus.SetActive(serverStatus);
+		m_wRoot.FindAnyWidget("StatusSelectedBar").SetVisible(serverStatus);
+		SCR_ButtonTextComponent.GetButtonText("ToolServerStatus", m_wRoot).SetToggled(serverStatus, false, false);
 		bool logs = m_iTool == 9;
 		m_wRoot.FindAnyWidget("LogsSelectedBar").SetVisible(logs);
 		m_Logs.SetActive(logs);
@@ -374,9 +383,9 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool moderation = m_iTool == 5;
 		m_wRoot.FindAnyWidget("ModerationSelectedBar").SetVisible(moderation);
 		m_wRoot.FindAnyWidget("ModerationFields").SetVisible(moderation);
-		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
-		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
-		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs);
+		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
+		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
+		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
 		bool factionTarget = (playerScope && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
 		bool selectedMessage = warn || (message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS);
 		m_wRoot.FindAnyWidget("MessageFields").SetVisible(message || warn);
@@ -579,6 +588,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		{
 			title = "Logs";
 			description = "Current mission";
+		}
+		if (serverStatus)
+		{
+			title = "Status";
+			description = "";
 		}
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolTitle")).SetText(title);
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolDescription")).SetText(description);
