@@ -137,9 +137,12 @@ Small related value types may share a file. Large classes should not become fold
 Lobby2 depends on the unmodified TilW Mission Framework addon
 (`61F0E6AB2D06B1C6`). The former custom flags, events, conditions, actions,
 authoring entities and runtime have been removed. Lobby2 retains its own phase,
-briefing, parameter, administration and statistics systems. This dependency
-change does not add a Lobby2 lifecycle adapter or migrate old rules to TilW.
-See [dependency setup](MissionFramework.md).
+briefing, parameter, administration and statistics systems. The Lobby2-owned
+adapter in `scripts/Game/Integrations/TilW` connects TilW's lobby interface to
+native phases, faction membership, spectators and mission completion. Faction
+respawn tickets are authority-only Lobby2 state; waves reuse the existing slot
+respawn operation at its saved starting position. Old rules are not migrated.
+See [integration and authoring](MissionFramework.md).
 
 ### Game-mode and phase ownership
 

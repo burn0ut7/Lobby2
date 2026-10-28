@@ -179,3 +179,6 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
   m_bDeleteIfNoPlayer 0
  }
 }
+TILW_MissionFrameworkEntity MissionFramework : "{8F846D0FD5D6EA51}Prefabs/MP/TILW_MissionFramework.et" {
+ coords 1194 39 2723
+}
