@@ -7,7 +7,7 @@ FrameWidgetClass {
   }
  }
  {
-  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+  ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
    Name "BoundaryList" Slot FrameWidgetSlot {
     Anchor 0 0 .19 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
@@ -16,8 +16,16 @@ FrameWidgetClass {
      m_bCanBeToggled 1 m_bShowBorderOnFocus 1
     }
    }
-  }
-  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "ruler" }
+   } }
+  } }
+ }
+}
+  ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
    Name "BoundaryNotice" Slot FrameWidgetSlot {
     Anchor .21 0 .52 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
@@ -26,7 +34,15 @@ FrameWidgetClass {
      m_bCanBeToggled 1 m_bShowBorderOnFocus 1
     }
    }
-  }
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "time" }
+   } }
+  } }
+ }
+}
   ButtonWidgetClass : "{B9A47103D2E865C0}UI/layouts/Admin/Lobby_AdminCheckbox.layout" {
    Name "BoundaryMap" Slot FrameWidgetSlot {
     Anchor 0 .19 .60 .255 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
@@ -37,7 +53,7 @@ FrameWidgetClass {
     }
    }
   }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
  Name "BoundaryPanic" Slot FrameWidgetSlot {
   Anchor .73 0 1 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
  }
@@ -45,6 +61,14 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
   SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
    m_bCanBeToggled 0 m_bShowBorderOnFocus 1
   }
+ }
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "cancelCircle" }
+   } }
+  } }
  }
 }
   FrameWidgetClass {
@@ -171,7 +195,7 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
       }
      }
     }
-    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
      Name "NoticeStart" Slot FrameWidgetSlot {
       Anchor .7 .3 1 .4 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
      }
@@ -180,8 +204,16 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
        m_bCanBeToggled 0 m_bShowBorderOnFocus 1
       }
      }
-    }
-    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "play" }
+   } }
+  } }
+ }
+}
+    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
      Name "NoticeStop" Slot FrameWidgetSlot {
       Anchor .7 .43 1 .53 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
      }
@@ -190,7 +222,15 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
        m_bCanBeToggled 0 m_bShowBorderOnFocus 1
       }
      }
-    }
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "cancelCircle" }
+   } }
+  } }
+ }
+}
     TextWidgetClass {
      Name "NoticeCurrent" Slot FrameWidgetSlot {
       Anchor 0 .76 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0

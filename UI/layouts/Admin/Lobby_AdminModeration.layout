@@ -104,6 +104,24 @@ PanelWidgetClass { Name "ModerationAmountBackground" Slot FrameWidgetSlot { Anch
 EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationAmount" Slot FrameWidgetSlot { Anchor 0.32 0.69 0.65 0.76 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Amount" components { SCR_EventHandlerComponent {} } }
 } }
 TextWidgetClass { Name "ModerationStatus" Slot FrameWidgetSlot { Anchor 0 0.78 1 0.86 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 20 "Ignore Cursor" 1 Wrap 1 }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ModerationKick" Slot FrameWidgetSlot { Anchor 0.72 0.91 0.85 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ModerationBan" Slot FrameWidgetSlot { Anchor 0.87 0.91 1 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ModerationKick" Slot FrameWidgetSlot { Anchor 0.72 0.91 0.85 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "kicked" }
+   } }
+  } }
+ }
+}
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ModerationBan" Slot FrameWidgetSlot { Anchor 0.87 0.91 1 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "disable" }
+   } }
+  } }
+ }
+}
 } }
