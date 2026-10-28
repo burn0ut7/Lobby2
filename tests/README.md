@@ -19,7 +19,7 @@ and loading it alone runs no tests. Do not publish the test addon.
    `tests/McpTestAddon/addon.gproj`. Workbench must already know the parent Lobby2
    project (opening its `addon.gproj` once registers it locally).
 3. Obtain the PID from `workbench_script_status`. Confirm `Lobby2`,
-   `Lobby2McpTests` and `Lobby2IsolationProbe` are loaded with `workbench_project_context`.
+   `Lobby2McpTests`, `Lobby2IsolationProbe` and `TilWMissionFramework` are loaded with `workbench_project_context`.
 4. Require `workbench_runtime_setup(action="status")` to report ready. If needed,
    install the generic development adapter through its documented setup flow.
 5. Open `$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent` using
@@ -34,61 +34,6 @@ and loading it alone runs no tests. Do not publish the test addon.
 Most helpers require `WORKBENCH` and run only in embedded Play.
 `GC_AdminMultiplayerTests.c` also compiles in test-addon peers. It grants no roles
 or permissions and runs nothing automatically. Never include it in production.
-
-## Script enum research fixture
-
-### Entity-based dropdown prototype
-
-`GC_MissionChoicesProbeEntity` is a separate, inert test entity under
-`GameScripted/Lobby2 Tests`. Its Flag, Playable Faction, and Faction fields use
-the native entity `_WB_GetUserEnums` hook and the production source-discovery
-providers. There is no executable helper or MCP adapter call in this code.
-Select another entity and return to refresh the lists after authoring changes.
-This is an authoring prototype, not a gameplay condition or event replacement.
-
-Workbench 1.8.0.13 live checks with native dynamic choices disabled:
-
-- Flag source rename replaced the old option; adding and deleting a temporary
-  flag added and removed its option.
-- Changing the custom playable group's faction replaced the old key. Disabling
-  that group's Playable setting removed its unique faction; restoring it restored
-  the source. Tests restored the original flag and group settings.
-- Native selection stored the selected strings. Save/reopen preserved Flag,
-  Playable Faction, and Faction values. The faction-manager list showed US/USSR.
-
-The local Arland test world contains `GC_DropdownPrototype` for inspection; that
-world edit is not part of the committed prototype. Delete this entity to revert
-the local authoring experiment. Removing the test script afterward and reloading
-removes the type. Existing mission events and conditions require no migration.
-Keep test entities out of production worlds that do not load the test addon.
-
-No packed-archive or Workshop download test has been completed. The prototype
-uses ordinary addon script files, but successful loose-source loading is not
-proof of Workshop delivery. Automatic refresh while a field remains selected,
-keyboard text entry on this new entity, and gameplay integration are unverified.
-
-`GC_EditorEnumProbe.c` is disabled unless both `WORKBENCH` and
-`GC_EDITOR_ENUM_PROBE` are defined. It adds temporary direct-component, nested
-condition, and entity dropdowns and logs `_WB_GetUserEnums` callbacks. Enable
-only for editor research, reload, and inspect GameMode_Lobby2 and its lobby
-component. Disable and reload afterward; do not save probe values to a mission.
-
-Workbench 1.8.0.13 produced the two supplied entity choices without a native
-helper. Direct-component and nested-condition probes produced no populated
-popup with either ComboBox or EditComboBox. The component-class callback logged
-structural fields but not the probe names; its instance callback did not log.
-This is an observed limitation of this fixture, not proof that every script-only
-declaration is unsupported. Addon-only dynamic choices for nested conditions
-remain unverified.
-
-`GC_ENUM_FUNCTION_PROBE` independently enables a function-backed nested enum
-test in the same file. The attribute returns a shared `ParamEnumArray`; selecting
-the game-mode entity changes that array from `Function initial` to
-`Function updated` before inspecting the nested control. On Workbench 1.8.0.13,
-the log confirmed the update but the popup still contained only `Function initial`.
-The popup did not reflect the provider's later runtime-array mutation in this
-test; where choices are copied or retained was not established. The probe is
-disabled by default and authors no mission values.
 
 ## UI layers
 

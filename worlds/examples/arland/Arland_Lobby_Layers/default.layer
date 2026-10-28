@@ -5,27 +5,6 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
  coords 1195.314 39 2720.544
 }
 GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
- components {
-  GC_LobbyManager "{6A137A39106A4973}" {
-   m_aMissionEvents {
-    GC_MissionEvent "{6AB4D2079F3A67E8}" {
-     m_sName "Test"
-     m_aConditions {
-      GC_FlagCondition "{6AB55D0FEB276C79}" {
-      }
-     }
-    }
-   }
-   m_aMissionFlags {
-    GC_MissionFlag "{6AB55D158DBAF44A}" {
-     m_sName "test flaggg"
-    }
-    GC_MissionFlag "{6AB55D0FE169D8A2}" {
-     m_sName "435345"
-    }
-   }
-  }
- }
  coords 1194.457 39 2723.129
 }
 ScriptedChatEntity : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
@@ -33,12 +12,6 @@ ScriptedChatEntity : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
 }
 RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
  coords 1205.665 38.911 2686.31
-}
-GC_MissionChoicesProbeEntity GC_DropdownPrototype {
- coords 0 0 0
- m_sFlag "test flaggg"
- m_sPlayableFaction "US"
- m_sFaction "US"
 }
 GenericEntity marker2 {
  components {
@@ -64,9 +37,6 @@ SCR_ChimeraCharacter : "{1CA3D30464EE4674}Prefabs/Characters/Factions/BLUFOR/US_
 }
 SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  coords 1197.622 38.853 2682.345
-}
-GC_MissionEventEntity GC_FrameworkExample : "{3C73ED97881B4CE0}Prefabs/Logic/MissionFramework/MissionEvent.et" {
- coords 1195 39 2723
 }
 GC_SetupZoneEntity : "{6A4D831C2E5079B3}Prefabs/Logic/Setup/SetupZone.et" {
  components {

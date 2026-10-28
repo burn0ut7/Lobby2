@@ -4,14 +4,6 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
-	[Attribute("", UIWidgets.Object, "Mission Events. Each runs its Actions once when its Conditions are met during GAME. Leave empty to use no automatic mission rules.", category: "Mission Framework")]
-	protected ref array<ref GC_MissionEvent> m_aMissionEvents;
-	[Attribute("", UIWidgets.Object, "Optional initial values, random starts and automatic flag conditions. Actions and interactions create flags themselves; do not list them here unless they need these settings.", category: "Mission Framework")]
-	protected ref array<ref GC_MissionFlag> m_aMissionFlags;
-	[Attribute("0", UIWidgets.CheckBox, "Testing only: End Mission actions log their result but leave the mission running. Turn off for published missions.", category: "Mission Framework")]
-	protected bool m_bPreviewMissionEnd;
-	protected ref GC_MissionFramework m_MissionFramework;
-
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
 	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
 	protected const string DEFAULT_FORMATION_NAME = "File";
@@ -47,10 +39,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("File", UIWidgets.EditBox, "Formation name used when a group formation is unavailable")]
 	protected string m_sDefaultFormation;
 
-	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Mission Framework")]
+	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Lobby2")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
 
-	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values", category: "Mission Framework")]
+	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values", category: "Lobby2")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
 
 	//! Authority-only policy for slots added after an all-slot action; -1 uses authoring.
@@ -136,11 +128,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer() && !SCR_Global.IsEditMode())
 		{
 			StartPhaseClock(GetLobbyPhase());
-			if (GetManager() == this && !m_MissionFramework)
-			{
-				m_MissionFramework = new GC_MissionFramework();
-				m_MissionFramework.Start(this, m_aMissionEvents, m_aMissionFlags);
-			}
 		}
 	}
 
@@ -4787,8 +4774,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
-		if (m_MissionFramework)
-			m_MissionFramework.Stop();
 		GetGame().GetCallqueue().Remove(FinishSlotLottery);
 		m_aSlotLotteries.Clear();
 		m_mFactionReadiness.Clear();
