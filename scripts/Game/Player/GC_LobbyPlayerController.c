@@ -1125,26 +1125,31 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void RequestAdminScopedSlotLock(GC_ESlotLockScope scope, RplId groupId, FactionKey factionKey, bool locked, int requestId = -1)
+	void RequestAdminScopedSlotLock(GC_ESlotLockScope scope, RplId groupId, FactionKey factionKey, bool locked, int requestId = -1, bool purge = false)
 	{
 		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
 		{
 			if (requestId < 0)
 				requestId = ReserveAdminPlayerToolRequest();
-			Rpc(RpcAsk_AdminScopedSlotLock, scope, groupId, factionKey, locked, requestId);
+			Rpc(RpcAsk_AdminScopedSlotLock, scope, groupId, factionKey, locked, requestId, purge);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RpcAsk_AdminScopedSlotLock(GC_ESlotLockScope scope, RplId groupId, string factionKey, bool locked, int requestId)
+	protected void RpcAsk_AdminScopedSlotLock(GC_ESlotLockScope scope, RplId groupId, string factionKey, bool locked, int requestId, bool purge)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		string outcome = "rejected-inactive-mode";
 		if (manager)
-			outcome = manager.ExecuteAdminSlotLocks(GetPlayerId(), scope, groupId, factionKey, locked);
+			outcome = manager.ExecuteAdminSlotLocks(GetPlayerId(), scope, groupId, factionKey, locked, purge);
 		else
-			GC_AdminActionLogger.Log(GetPlayerId(), "slot-scope-lock", string.Format("scope=%1 group=%2 faction=%3", scope, groupId, factionKey), outcome);
+		{
+			string action = "slot-scope-lock";
+			if (purge)
+				action = "slot-scope-purge";
+			GC_AdminActionLogger.Log(GetPlayerId(), action, string.Format("scope=%1 group=%2 faction=%3", scope, groupId, factionKey), outcome);
+		}
 		Rpc(RpcDo_AdminGroupLockResult, requestId, outcome);
 	}
 
@@ -1154,6 +1159,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	{
 		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
 			return;
+		if (outcome != "applied")
+			SCR_HintManagerComponent.ShowCustomHint(GC_AdminActionResultText.Get(outcome), "Slot actions", 8);
 		m_OnAdminGroupLockResult.Invoke(requestId, outcome);
 		m_OnAdminActionResult.Invoke(outcome);
 	}

@@ -3505,11 +3505,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Resolve the scope on authority. An invalid scoped target never means all slots.
-	string ExecuteAdminSlotLocks(int requesterId, GC_ESlotLockScope scope, RplId groupId, FactionKey factionKey, bool locked)
+	string ExecuteAdminSlotLocks(int requesterId, GC_ESlotLockScope scope, RplId groupId, FactionKey factionKey, bool locked, bool purge = false)
 	{
 		string action = "slot-group-lock";
 		if (scope == GC_ESlotLockScope.FACTION)
 			action = "slot-faction-lock";
+		if (purge)
+		{
+			action = "slot-scope-purge";
+			locked = true;
+		}
 		string target = string.Format("scope=%1 group=%2 faction=%3 locked=%4", scope, groupId, factionKey, locked);
 		if (!AuthorizeAdminAction(requesterId, action, target))
 			return "rejected-not-logged-in";
@@ -3531,7 +3536,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				if (!group || !group.GetFaction() || group.GetFaction().GetFactionKey() != factionKey)
 					continue;
 			}
-			if (!slot.CanAdminLock())
+			if (!purge && !slot.CanAdminLock())
 				continue;
 			slotIds.Insert(slot.GetID());
 		}
@@ -3546,8 +3551,36 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				if (locked)
 					m_iNewSlotLockOverride = 1;
 			}
-			ApplySlotLocks(slotIds, locked);
-			Rpc(RpcDo_ApplySlotLocks, slotIds, locked);
+			if (purge)
+			{
+				// A pending draw must not reclaim slots after this purge locks them.
+				foreach (int lotterySlotId : slotIds)
+				{
+					ref GC_SlotLottery lottery = GetLotteryForSlot(lotterySlotId);
+					if (!lottery)
+						continue;
+					ClearSlotLottery(lottery);
+					AnnounceSlotLottery(lottery, string.Format("%1 lottery cancelled because its slots were purged.", lottery.m_sLabel));
+				}
+				int failed;
+				foreach (int slotId : slotIds)
+				{
+					GC_Slot targetSlot = GetSlot(slotId);
+					if (!targetSlot || !ReleaseAdminSlotPlayer(targetSlot))
+					{
+						failed++;
+						continue;
+					}
+					targetSlot.SetAdminLocked(true);
+				}
+				if (failed > 0)
+					outcome = string.Format("failed-purge slots=%1 failed=%2", slotIds.Count(), failed);
+			}
+			else
+			{
+				ApplySlotLocks(slotIds, locked);
+				Rpc(RpcDo_ApplySlotLocks, slotIds, locked);
+			}
 		}
 		GC_AdminActionLogger.Log(requesterId, action, target, string.Format("%1 slots=%2", outcome, slotIds.Count()));
 		return outcome;

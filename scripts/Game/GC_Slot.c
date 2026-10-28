@@ -105,7 +105,7 @@ class GC_Slot
 	//------------------------------------------------------------------------------------------------
 	bool CanAdminLock()
 	{
-		return m_eState == GC_SlotState.FREE && m_iPlayerId < 0
+		return (m_eState == GC_SlotState.FREE || m_eState == GC_SlotState.KIA) && m_iPlayerId < 0
 			&& m_PlayerUUID.IsEmpty() && !m_bAwaitingInitialJoin;
 	}
 

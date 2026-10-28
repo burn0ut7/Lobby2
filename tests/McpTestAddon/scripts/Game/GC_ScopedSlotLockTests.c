@@ -47,6 +47,29 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! A dead reserved claim fixture; production purge still owns removal and locking.
+	string GC_TestScopePurgeKIA(int slotId)
+	{
+		GC_Slot slot = GetSlot(slotId);
+		if (!Replication.IsServer() || !slot || slot.HasClaim() || slot.GetEntity())
+			return "UNAVAILABLE empty unstaged fixture required";
+		slot.ReserveIdentity("00000000-0000-0000-0000-000000000098", "Purge KIA fixture");
+		slot.MarkKIA();
+		return GC_TestAdminSlotSnapshot(slotId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Exercise owner-visible rejection through the normal production RPC.
+	string GC_TestScopePurgeInvalid()
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (!controller)
+			return "UNAVAILABLE controller";
+		controller.RequestAdminScopedSlotLock(GC_ESlotLockScope.GROUP, RplId.Invalid(), string.Empty, true, -1, true);
+		return "DISPATCHED invalid target";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestScopeLockSnapshot()
 	{
 		string result;
@@ -56,24 +79,24 @@ modded class GC_LobbyManager
 			string faction;
 			if (group && group.GetFaction())
 				faction = group.GetFaction().GetFactionKey();
-			result += string.Format("slot=%1 group=%2 faction=%3 eligible=%4 locked=%5 player=%6;\n",
-				slot.GetID(), slot.GetGroupRplId(), faction, slot.CanAdminLock(), slot.IsAdminLocked(), slot.GetPlayerId());
+			result += string.Format("slot=%1 group=%2 faction=%3 eligible=%4 locked=%5 player=%6 claim=%7 state=%8;\n",
+				slot.GetID(), slot.GetGroupRplId(), faction, slot.CanAdminLock(), slot.IsAdminLocked(), slot.GetPlayerId(), slot.GetUUID(), slot.GetState());
 		}
 		return result;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestScopeLockReject(int slotId)
+	string GC_TestScopeLockReject(int slotId, bool purge = false)
 	{
 		GC_Slot slot = GetSlot(slotId);
 		if (!Replication.IsServer() || !slot || !slot.GetGroup() || !slot.GetGroup().GetFaction())
 			return "UNAVAILABLE authority/target";
 		string before = GC_TestScopeLockSnapshot();
-		string groupResult = ExecuteAdminSlotLocks(-1, GC_ESlotLockScope.GROUP, slot.GetGroupRplId(), string.Empty, !slot.IsAdminLocked());
-		string factionResult = ExecuteAdminSlotLocks(-1, GC_ESlotLockScope.FACTION, RplId.Invalid(), slot.GetGroup().GetFaction().GetFactionKey(), !slot.IsAdminLocked());
+		string groupResult = ExecuteAdminSlotLocks(-1, GC_ESlotLockScope.GROUP, slot.GetGroupRplId(), string.Empty, !slot.IsAdminLocked(), purge);
+		string factionResult = ExecuteAdminSlotLocks(-1, GC_ESlotLockScope.FACTION, RplId.Invalid(), slot.GetGroup().GetFaction().GetFactionKey(), !slot.IsAdminLocked(), purge);
 		int requester = GetGame().GetPlayerController().GetPlayerId();
-		string missingGroup = ExecuteAdminSlotLocks(requester, GC_ESlotLockScope.GROUP, RplId.Invalid(), string.Empty, true);
-		string missingFaction = ExecuteAdminSlotLocks(requester, GC_ESlotLockScope.FACTION, RplId.Invalid(), string.Empty, true);
+		string missingGroup = ExecuteAdminSlotLocks(requester, GC_ESlotLockScope.GROUP, RplId.Invalid(), string.Empty, true, purge);
+		string missingFaction = ExecuteAdminSlotLocks(requester, GC_ESlotLockScope.FACTION, RplId.Invalid(), string.Empty, true, purge);
 		return string.Format("group=%1 faction=%2 missingGroup=%3 missingFaction=%4 unchanged=%5",
 			groupResult, factionResult, missingGroup, missingFaction, before == GC_TestScopeLockSnapshot());
 	}

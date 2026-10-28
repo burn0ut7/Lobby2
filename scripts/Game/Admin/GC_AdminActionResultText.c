@@ -74,6 +74,8 @@ class GC_AdminActionResultText
 			return "This action requires a current admin login.";
 		if (outcome == "assigned-character-entry-failed")
 			return "Slot assigned, but character entry failed. Review the player's state.";
+		if (outcome.StartsWith("failed-purge"))
+			return "Purge could not finish. Some slots may already be cleared and locked. Review the remaining players and slots.";
 		if (outcome.StartsWith("failed"))
 			return "The action failed. Review the player and slot before retrying.";
 		return "Action rejected. Review the target, slot and mission phase.";

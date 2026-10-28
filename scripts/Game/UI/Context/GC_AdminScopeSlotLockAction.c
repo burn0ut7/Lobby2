@@ -2,6 +2,7 @@
 class GC_AdminScopeSlotLockAction : GC_ContextMenuAction
 {
 	protected bool m_bLocked;
+	protected bool m_bPurge;
 
 	//------------------------------------------------------------------------------------------------
 	override string GetGroupLabel(GC_ContextMenuContext context)
@@ -25,7 +26,7 @@ class GC_AdminScopeSlotLockAction : GC_ContextMenuAction
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		foreach (GC_Slot slot : manager.GetSlots())
 		{
-			if (!slot.CanAdminLock() || slot.IsAdminLocked() == m_bLocked)
+			if (!m_bPurge && (!slot.CanAdminLock() || slot.IsAdminLocked() == m_bLocked))
 				continue;
 			SCR_AIGroup group = slot.GetGroup();
 			if (!group)
@@ -42,6 +43,12 @@ class GC_AdminScopeSlotLockAction : GC_ContextMenuAction
 	//------------------------------------------------------------------------------------------------
 	override string GetLabel(GC_ContextMenuContext context)
 	{
+		if (m_bPurge)
+		{
+			if (context.GetTargetType() == GC_EContextTargetType.FACTION)
+				return "Purge faction slots";
+			return "Purge group slots";
+		}
 		string verb = "Unlock";
 		if (m_bLocked)
 			verb = "Lock";
@@ -59,14 +66,15 @@ class GC_AdminScopeSlotLockAction : GC_ContextMenuAction
 		if (!controller)
 			return;
 		if (context.GetTargetType() == GC_EContextTargetType.FACTION)
-			controller.RequestAdminScopedSlotLock(GC_ESlotLockScope.FACTION, RplId.Invalid(), context.GetFactionKey(), m_bLocked);
+			controller.RequestAdminScopedSlotLock(GC_ESlotLockScope.FACTION, RplId.Invalid(), context.GetFactionKey(), m_bLocked, -1, m_bPurge);
 		else
-			controller.RequestAdminScopedSlotLock(GC_ESlotLockScope.GROUP, Replication.FindItemId(context.GetGroup()), string.Empty, m_bLocked);
+			controller.RequestAdminScopedSlotLock(GC_ESlotLockScope.GROUP, Replication.FindItemId(context.GetGroup()), string.Empty, m_bLocked, -1, m_bPurge);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void GC_AdminScopeSlotLockAction(bool locked)
+	void GC_AdminScopeSlotLockAction(bool locked, bool purge = false)
 	{
 		m_bLocked = locked;
+		m_bPurge = purge;
 	}
 }
