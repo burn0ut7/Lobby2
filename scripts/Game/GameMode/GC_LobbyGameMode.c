@@ -52,6 +52,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		if (SCR_Global.IsEditMode())
 			return;
 
+		UpdateDayAdvancement();
 		if (Replication.IsServer())
 		{
 			m_BoundaryAdmin = new GC_BoundaryAdmin();
@@ -70,6 +71,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	override protected void OnGameStateChanged()
 	{
 		super.OnGameStateChanged();
+		UpdateDayAdvancement();
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		if (logs)
 			logs.RecordPhase();
@@ -83,6 +85,33 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (GetState() == SCR_EGameModeState.GAME && controller)
 			controller.GC_RequestBoundaryPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! The native weather manager owns time progression and its replication.
+	protected void UpdateDayAdvancement()
+	{
+		if (SCR_Global.IsEditMode() || !Replication.IsServer())
+			return;
+
+		SCR_EGameModeState phase = GetState();
+		if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING
+			&& phase != SCR_EGameModeState.BRIEFING && phase != SCR_EGameModeState.GAME)
+			return;
+
+		ChimeraWorld world = ChimeraWorld.CastFrom(GetWorld());
+		TimeAndWeatherManagerEntity weather;
+		if (world)
+			weather = world.GetTimeAndWeatherManager();
+		if (!weather)
+		{
+			Print("GC | Time | No time and weather manager; cannot apply phase clock policy", LogLevel.WARNING);
+			return;
+		}
+
+		bool advancing = phase == SCR_EGameModeState.GAME;
+		if (!weather.SetIsDayAutoAdvanced(advancing))
+			Print("GC | Time | Failed to set automatic day advancement", LogLevel.ERROR);
 	}
 
 	//------------------------------------------------------------------------------------------------
