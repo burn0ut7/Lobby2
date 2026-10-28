@@ -318,12 +318,19 @@ class GC_AdminLogsComponent : SCR_ScriptedWidgetComponent
 			m_Controller.m_OnModerationRows.Remove(OnPlayers);
 			m_Controller.m_OnModerationChanged.Remove(RequestPlayers);
 		}
-		m_Players.m_OnFilterChanged.Remove(FiltersChanged);
-		m_Type.m_OnFilterChanged.Remove(FiltersChanged);
-		m_Players.m_OnOpened.Remove(OnOpenFilter);
-		m_Type.m_OnOpened.Remove(OnOpenFilter);
-		m_Players.CloseList();
-		m_Type.CloseList();
+		// Child handlers may already be destroyed when the parent detaches.
+		if (m_Players)
+		{
+			m_Players.m_OnFilterChanged.Remove(FiltersChanged);
+			m_Players.m_OnOpened.Remove(OnOpenFilter);
+			m_Players.CloseList();
+		}
+		if (m_Type)
+		{
+			m_Type.m_OnFilterChanged.Remove(FiltersChanged);
+			m_Type.m_OnOpened.Remove(OnOpenFilter);
+			m_Type.CloseList();
+		}
 		super.HandlerDeattached(w);
 	}
 }
