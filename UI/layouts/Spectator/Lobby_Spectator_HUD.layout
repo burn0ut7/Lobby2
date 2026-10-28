@@ -167,6 +167,7 @@ FrameWidgetClass {
      {
       SizeLayoutWidgetClass "{6A58000000000022}" : "{6A38000000000001}UI/layouts/Players/Lobby_Player_List_Panel.layout" {
        Name "SpectatorPlayerListPanel"
+       components { GC_PlayerListTabsComponent "{6A38000000000003}" { m_bSpectatorFactions 1 } }
        Slot OverlayWidgetSlot "{6A58000000000023}" {
         HorizontalAlign 3
         VerticalAlign 3

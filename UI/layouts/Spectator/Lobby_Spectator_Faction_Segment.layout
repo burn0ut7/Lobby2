@@ -1,0 +1,1 @@
+PanelWidgetClass { Name "FactionSegment" Slot LayoutSlot { SizeMode Fill FillWeight 1 VerticalAlign 3 } style full "Ignore Cursor" 1 }

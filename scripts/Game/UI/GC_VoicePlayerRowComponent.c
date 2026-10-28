@@ -3,6 +3,7 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 {
     protected int m_iPlayerId = -1;
     protected bool m_bSpeaking;
+	protected bool m_bShowLifeState;
     protected GC_LobbyPlayerController m_VoiceController;
 	protected GC_LobbyManager m_SelectionManager;
 
@@ -37,6 +38,13 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
     protected SCR_AIGroup m_Group;
     protected ResourceName m_RoleInfoPrefab;
     protected ref SCR_UIInfo m_RoleInfo;
+
+	//------------------------------------------------------------------------------------------------
+	void SetShowLifeState(bool show)
+	{
+		m_bShowLifeState = show;
+		Refresh();
+	}
 
     void SetPlayer(int playerId, GC_Slot slot = null)
     {
@@ -105,7 +113,9 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         TextWidget groupCallsign = TextWidget.Cast(m_wRoot.FindAnyWidget("GroupCallsign"));
         if (groupCallsign)
         {
-            if (m_Group)
+            if (m_bShowLifeState && m_Slot && m_Slot.GetState() == GC_SlotState.KIA)
+                groupCallsign.SetText("Dead");
+            else if (m_Group)
                 groupCallsign.SetText(GC_GroupCallsignHelper.GetDisplayName(m_Group));
             else
                 groupCallsign.SetText(string.Empty);

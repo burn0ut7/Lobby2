@@ -243,6 +243,10 @@ class GC_PlayerSearchComponent : SCR_ScriptedWidgetComponent
 //! Owns the Voice Channels / Player List tab selection and presentation.
 class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 {
+	[Attribute("0")]
+	protected bool m_bSpectatorFactions;
+	protected SCR_ButtonTextComponent m_FactionListButton;
+	protected GC_SpectatorFactionListComponent m_FactionList;
 	protected SCR_ButtonBaseComponent m_VoiceChannelsButton;
 	protected SCR_ButtonBaseComponent m_PlayerListButton;
 	protected SCR_ButtonBaseComponent m_DeafenButton;
@@ -266,6 +270,8 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 	{
 		GetGame().GetCallqueue().Remove(Initialize);
 
+		if (m_FactionListButton)
+			m_FactionListButton.m_OnClicked.Remove(OnFactionTab);
 		if (m_VoiceChannelsButton)
 			m_VoiceChannelsButton.m_OnClicked.Remove(OnTabClicked);
 		if (m_PlayerListButton)
@@ -308,6 +314,15 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 
+		if (m_bSpectatorFactions)
+		{
+			m_FactionListButton = SCR_ButtonTextComponent.GetButtonText("FactionListButton", m_wRoot);
+			m_FactionListButton.SetText("FACTIONS");
+			m_FactionListButton.GetRootWidget().SetVisible(true);
+			m_FactionListButton.m_OnClicked.Insert(OnFactionTab);
+			Widget factionPanel = GetGame().GetWorkspace().CreateWidgets("{D389716BFE230B01}UI/layouts/Spectator/Lobby_Spectator_Factions.layout", m_wRoot.FindAnyWidget("PlayerListContent"));
+			m_FactionList = GC_SpectatorFactionListComponent.Cast(factionPanel.FindHandler(GC_SpectatorFactionListComponent));
+		}
 		m_bInitialized = true;
 		m_VoiceChannelsButton.m_OnClicked.Insert(OnTabClicked);
 		m_PlayerListButton.m_OnClicked.Insert(OnTabClicked);
@@ -384,8 +399,23 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		deafenedIcon.SetVisible(deafened);
 	}
 
+	//------------------------------------------------------------------------------------------------
+	protected void OnFactionTab(SCR_ButtonBaseComponent button)
+	{
+		SetPlayerListActive(false);
+		m_wVoiceChannelList.SetVisible(false);
+		SetTabVisuals("VoiceChannelsButtonBackground", "VoiceChannelsButtonLabel", "VoiceChannelsButtonAccent", false);
+		m_FactionListButton.SetToggled(true, false, false);
+		m_FactionList.SetActive(true);
+	}
+
 	protected void SetPlayerListActive(bool playerListActive)
 	{
+		if (m_FactionList)
+		{
+			m_FactionList.SetActive(false);
+			m_FactionListButton.SetToggled(false, false, false);
+		}
 		m_wVoiceChannelList.SetVisible(!playerListActive);
 		m_wPlayerList.SetVisible(playerListActive);
 

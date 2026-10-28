@@ -152,6 +152,11 @@ SizeLayoutWidgetClass {
           }
          }
         }
+        ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+         Name "FactionListButton"
+         Slot LayoutSlot { SizeMode Fill FillWeight 1 }
+         "Is Visible" 0
+        }
         SizeLayoutWidgetClass "{6A38000000000022}" {
          Name "DeafenButtonSize"
          Slot LayoutSlot "{6A38000000000023}" {

@@ -1,0 +1,1 @@
+TextWidgetClass { Name "FactionHeading" Slot LayoutSlot { HorizontalAlign 3 Padding 8 12 8 6 } "Font Size" 22 "Min Font Size" 18 "Ignore Cursor" 1 Wrap 1 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } }
