@@ -1444,7 +1444,12 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_PreviewMenu);
 		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_BriefingMenu);
-		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
+		// Becoming a spectator can cover an existing slotting menu. Close queues
+		// its removal, so do not reuse that buried instance when opening above it.
+		if (GC_Lobby_SlottingMenu.Cast(GetGame().GetMenuManager().GetTopMenu()))
+			return;
+		GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_SlottingMenu);
+		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, false);
 	}
 
 	protected void OpenBriefingFromPause()
