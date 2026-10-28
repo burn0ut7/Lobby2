@@ -447,6 +447,7 @@ TextWidgetClass { Name "ReservationStatus" Slot FrameWidgetSlot { Anchor 0 0.75 
    }
    components {
     SCR_SliderComponent "{6A5A000000000020}" {
+   m_fAnimationTime 0.05
      m_bRoundValue 1
     }
    }

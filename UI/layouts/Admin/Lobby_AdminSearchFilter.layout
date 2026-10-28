@@ -4,6 +4,7 @@ SizeLayoutWidgetClass {
  AllowHeightOverride 1
  HeightOverride 60
  components { GC_AdminSearchFilter {
+   m_fAnimationTime 0.05
   m_fMaxListHeight 300
   m_bCreateListBelow 1
   m_sListRootLayout "{6A5A000000000072}UI/layouts/Admin/Lobby_AdminComboRoot.layout"

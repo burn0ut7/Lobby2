@@ -6,10 +6,11 @@ SizeLayoutWidgetClass {
      "Is Visible" 1
      components {
        SCR_ComboBoxComponent "{6A4D000000000014}" {
+        m_fAnimationTime 0.05
         m_fMaxListHeight 240
         m_bCreateListBelow 1
         m_sListRootLayout "{6A5A000000000072}UI/layouts/Admin/Lobby_AdminComboRoot.layout"
-        m_sElementLayout "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout"
+        m_sElementLayout "{6A5A000000000010}UI/layouts/Admin/Lobby_AdminOption.layout"
        }
      }
      {
@@ -24,6 +25,7 @@ SizeLayoutWidgetClass {
         SCR_EventHandlerComponent "{6A4D000000000015}" {
         }
         SCR_ButtonBaseComponent "{6A4D000000000016}" {
+         m_fAnimationTime 0.05
         }
        }
        {

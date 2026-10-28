@@ -11,6 +11,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	protected bool m_bMultiple;
 	protected bool m_bAllowAll;
 	protected bool m_bResettingSearch;
+	protected string m_sRosterQuery;
 	protected ref array<int> m_aSelected = {};
 	protected ref array<string> m_aIdentities = {};
 	protected ref map<SCR_ButtonBaseComponent, int> m_mRows = new map<SCR_ButtonBaseComponent, int>();
@@ -190,6 +191,9 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	{
 		if (w != m_Search || m_bResettingSearch)
 			return;
+		// Committing unchanged text must not replace the row receiving the same click.
+		if (m_Menu.IsVisible() && m_Search.GetText() == m_sRosterQuery)
+			return;
 		if (!m_Menu.IsVisible())
 			OpenRoster();
 		else
@@ -242,6 +246,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		array<string> names;
 		ReadRoster(players, names);
 		string query = m_Search.GetText();
+		m_sRosterQuery = query;
 		int shown;
 		if (m_bAllowAll)
 		{

@@ -177,6 +177,28 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Inspect resolved prefab timing, including inherited buttons and open popup rows.
+	string GC_TestAdminAnimation(string widgetName)
+	{
+		Widget root = GC_TestMenuRoot();
+		if (!root || root.GetName() != "AdminToolsPanel")
+			return "UNAVAILABLE admin menu";
+		array<Widget> widgets = {};
+		GC_TestCollect(GetGame().GetWorkspace(), widgets);
+		string result;
+		foreach (Widget widget : widgets)
+		{
+			if (!GC_TestVisible(widget) || (!widgetName.IsEmpty() && widget.GetName() != widgetName))
+				continue;
+			SCR_WLibComponentBase component = SCR_WLibComponentBase.Cast(widget.FindHandler(SCR_WLibComponentBase));
+			if (!component)
+				continue;
+			result += widget.GetName() + " " + component.GC_TestAnimationTiming() + "\n";
+		}
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Exercise production hover/focus presentation without activating the action.
 	string GC_TestAdminButtonState(string widgetName, string state)
 	{
@@ -433,6 +455,15 @@ modded class GC_LobbyManager
 		}
 		if (action == "select")
 			return GC_TestDispatchClick(popup.FindAnyWidget("AdminPlayer_" + value));
+		if (action == "commit-select")
+		{
+			Widget row = popup.FindAnyWidget("AdminPlayer_" + value);
+			// Native edit commit precedes the click on the already hit-tested row.
+			SCR_EventHandlerComponent.Cast(header.FindHandler(SCR_EventHandlerComponent)).OnChange(header, true);
+			if (!row || row != popup.FindAnyWidget("AdminPlayer_" + value))
+				return "FAIL edit commit replaced the clicked row";
+			return GC_TestDispatchClick(row);
+		}
 		return "REJECTED action";
 	}
 

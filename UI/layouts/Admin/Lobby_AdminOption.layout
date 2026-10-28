@@ -6,6 +6,7 @@ ButtonWidgetClass {
  Color 1 1 1 0
  components {
   SCR_ButtonTextComponent "{6A5A00000000002B}" {
+   m_fAnimationTime 0.05
    m_bCanBeToggled 1
    m_BackgroundDefault 0 0 0 0
    m_BackgroundHovered 1 1 1 0.12

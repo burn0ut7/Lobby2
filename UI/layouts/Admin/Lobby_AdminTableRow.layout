@@ -4,6 +4,7 @@ ButtonWidgetClass {
  Color 1 1 1 0
  components {
   GC_AdminTableRowComponent "{D271A640B8000001}" {
+   m_fAnimationTime 0.05
    m_bCanBeToggled 1
    m_BackgroundDefault 0.025 0.025 0.025 0.55
    m_BackgroundHovered 1 1 1 0.12
