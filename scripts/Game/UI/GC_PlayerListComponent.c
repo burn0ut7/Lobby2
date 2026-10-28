@@ -245,7 +245,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 {
 	[Attribute("0")]
 	protected bool m_bSpectatorFactions;
-	protected SCR_ButtonTextComponent m_FactionListButton;
+	protected SCR_ButtonBaseComponent m_FactionListButton;
 	protected GC_SpectatorFactionListComponent m_FactionList;
 	protected SCR_ButtonBaseComponent m_VoiceChannelsButton;
 	protected SCR_ButtonBaseComponent m_PlayerListButton;
@@ -316,8 +316,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 
 		if (m_bSpectatorFactions)
 		{
-			m_FactionListButton = SCR_ButtonTextComponent.GetButtonText("FactionListButton", m_wRoot);
-			m_FactionListButton.SetText("FACTIONS");
+			m_FactionListButton = SCR_ButtonBaseComponent.Cast(m_wRoot.FindAnyWidget("FactionListButton").FindHandler(SCR_ButtonBaseComponent));
 			m_FactionListButton.GetRootWidget().SetVisible(true);
 			m_FactionListButton.m_OnClicked.Insert(OnFactionTab);
 			Widget factionPanel = GetGame().GetWorkspace().CreateWidgets("{D389716BFE230B01}UI/layouts/Spectator/Lobby_Spectator_Factions.layout", m_wRoot.FindAnyWidget("PlayerListContent"));
@@ -405,7 +404,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		SetPlayerListActive(false);
 		m_wVoiceChannelList.SetVisible(false);
 		SetTabVisuals("VoiceChannelsButtonBackground", "VoiceChannelsButtonLabel", "VoiceChannelsButtonAccent", false);
-		m_FactionListButton.SetToggled(true, false, false);
+		SetTabVisuals("FactionListButtonBackground", "FactionListButtonLabel", "FactionListButtonAccent", true);
 		m_FactionList.SetActive(true);
 	}
 
@@ -414,7 +413,7 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		if (m_FactionList)
 		{
 			m_FactionList.SetActive(false);
-			m_FactionListButton.SetToggled(false, false, false);
+			SetTabVisuals("FactionListButtonBackground", "FactionListButtonLabel", "FactionListButtonAccent", false);
 		}
 		m_wVoiceChannelList.SetVisible(!playerListActive);
 		m_wPlayerList.SetVisible(playerListActive);

@@ -14,7 +14,7 @@ FrameWidgetClass {
  HorizontalLayoutWidgetClass { Name "FactionCounts" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } }
  } }
  TextWidgetClass { Name "FactionEmpty" Slot LayoutSlot { HorizontalAlign 3 Padding 8 8 8 8 } Text "No players" "Font Size" 22 "Ignore Cursor" 1 }
- ScrollLayoutWidgetClass { Name "FactionRosterScroll" Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill } "Scrollbar Always Visible" 1 {
+ ScrollLayoutWidgetClass { Name "FactionRosterScroll" Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill } Color 1 1 1 0 "Scrollbar Always Visible" 1 {
  VerticalLayoutWidgetClass { Name "FactionRoster" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } }
  } }
  } }
