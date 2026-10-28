@@ -256,8 +256,6 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 			allButton.SetText("All players");
 			TextWidget.Cast(allRow.FindAnyWidget("PlayerDetail")).SetText("Show every player's events");
 			allRow.FindAnyWidget("PlayerCheckBox").SetVisible(false);
-			allRow.FindAnyWidget("PlayerCheckFill").SetVisible(false);
-			allRow.FindAnyWidget("PlayerCheck").SetVisible(false);
 			allButton.SetToggled(m_aSelected.IsEmpty(), false, false);
 			allButton.m_OnClicked.Insert(OnSelect);
 			m_mRows.Set(allButton, 0);
@@ -285,8 +283,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 				TextWidget.Cast(row.FindAnyWidget("PlayerDetail")).SetText(detail);
 				bool selected = m_aSelected.Contains(playerId);
 				row.FindAnyWidget("PlayerCheckBox").SetVisible(m_bMultiple);
-				row.FindAnyWidget("PlayerCheckFill").SetVisible(selected);
-				row.FindAnyWidget("PlayerCheck").SetVisible(selected);
+				row.FindAnyWidget("Tick").SetVisible(selected);
 				button.SetText(name);
 				button.SetToggled(selected, false, false);
 				button.m_OnClicked.Insert(OnSelect);

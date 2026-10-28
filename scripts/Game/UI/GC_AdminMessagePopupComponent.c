@@ -23,7 +23,7 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 		string heading = "Admin - ";
 		if (message.m_bWarning)
 		{
-			heading = "Warning - ";
+			heading = "Admin Warning - ";
 			title.SetColor(Color.FromRGBA(242, 186, 77, 255));
 			FrameSlot.SetOffsets(title, 54, 14, 20, -40);
 			s_wPopup.FindAnyWidget("AdminMessageBackground").SetColor(Color.FromRGBA(45, 37, 18, 235));

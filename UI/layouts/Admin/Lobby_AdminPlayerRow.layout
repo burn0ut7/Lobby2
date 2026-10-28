@@ -78,51 +78,7 @@ ButtonWidgetClass {
        "Font Size" 19
        "Vertical Alignment" Center
       }
-      SizeLayoutWidgetClass {
-       Name "PlayerCheckBox"
-       "Is Visible" 0
-       Slot OverlayWidgetSlot {
-        HorizontalAlign 0
-        VerticalAlign 1
-        Padding 12 0 0 0
-       }
-       "Ignore Cursor" 1
-       AllowWidthOverride 1
-       WidthOverride 24
-       AllowHeightOverride 1
-       HeightOverride 24
-       {
-        OverlayWidgetClass {
-         Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
-         "Ignore Cursor" 1
-         {
-          PanelWidgetClass {
-           Name "PlayerCheckFill"
-           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
-           "Ignore Cursor" 1
-           Color 0.95 0.73 0.3 1
-           style full
-          }
-          PanelWidgetClass {
-           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
-           "Ignore Cursor" 1
-           Color 0.6 0.6 0.6 1
-           style outline_2px
-          }
-          TextWidgetClass {
-           Name "PlayerCheck"
-           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
-           "Ignore Cursor" 1
-           Color 0.025 0.025 0.025 0.65
-           Text "X"
-           "Font Size" 21
-           "Horizontal Alignment" Center
-           "Vertical Alignment" Center
-          }
-         }
-        }
-       }
-      }
+      SizeLayoutWidgetClass : "{D389716BFE230A43}UI/layouts/Admin/Lobby_AdminCheckSquare.layout" { Name "PlayerCheckBox" "Is Visible" 0 }
 
      }
     }

@@ -24,53 +24,7 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
        Color 1 1 1 0.08
        style full
       }
-      SizeLayoutWidgetClass {
-       Name "CheckboxSquare"
-       Slot OverlayWidgetSlot { HorizontalAlign 0 VerticalAlign 1 Padding 12 0 0 0 }
-       AllowWidthOverride 1
-       WidthOverride 24
-       AllowHeightOverride 1
-       HeightOverride 24
-       "Ignore Cursor" 1
-       {
-        OverlayWidgetClass {
-         Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
-         "Ignore Cursor" 1
-         {
-          PanelWidgetClass {
-           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
-           Color 0 0 0 0.45
-           style full
-           "Ignore Cursor" 1
-          }
-          PanelWidgetClass {
-           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
-           Color 1 1 1 0.55
-           style outline_2px
-           "Ignore Cursor" 1
-          }
-          SizeLayoutWidgetClass {
-           Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
-           AllowWidthOverride 1
-           WidthOverride 16
-           AllowHeightOverride 1
-           HeightOverride 16
-           "Ignore Cursor" 1
-           {
-            PanelWidgetClass {
-             Name "Tick"
-             Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
-             Color 0.95 0.73 0.3 1
-             style full
-             "Is Visible" 0
-             "Ignore Cursor" 1
-            }
-           }
-          }
-         }
-        }
-       }
-      }
+      SizeLayoutWidgetClass : "{D389716BFE230A43}UI/layouts/Admin/Lobby_AdminCheckSquare.layout" { Name "CheckboxSquare" }
       TextWidgetClass "{7C41F8A018B24C05}" {
        Prefab "{7C41F8A018B24C05}"
        Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 48 0 12 0 }
