@@ -2736,9 +2736,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		record.m_iPlayerId = playerId;
 		record.m_sName = players.GetPlayerName(playerId);
 		record.m_sIdentity = identity;
+		record.m_sSteamId = string.Empty;
 		// Installed native API; obsolete but no replacement platform-ID accessor is exposed.
 		if (players.GetPlatformKind(playerId) == PlatformKind.STEAM)
-			record.m_sSteamId = GetGame().GetBackendApi().GetPlayerPlatformId(playerId);
+		{
+			// Read into a fresh destination rather than reusing the stored native result.
+			string steamId = GetGame().GetBackendApi().GetPlayerPlatformId(playerId);
+			// Reject malformed display values; never salvage an ID from concatenated text.
+			bool valid = !steamId.IsEmpty() && steamId.Length() <= 20;
+			for (int i; valid && i < steamId.Length(); i++)
+				valid = "0123456789".Contains(steamId.Substring(i, 1));
+			if (valid)
+				record.m_sSteamId = steamId;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
