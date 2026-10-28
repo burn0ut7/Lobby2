@@ -7,6 +7,8 @@ modded class GC_AdminSearchFilter
 	{
 		if (action == "click")
 			m_InputEvents.OnClick(m_Input, 0, 0, 0);
+		else if (action == "focus")
+			m_Workspace.SetFocusedWidget(m_Input);
 		else if (action == "back")
 			OnMenuBack();
 		Widget focus = m_Workspace.GetFocusedWidget();
@@ -113,6 +115,12 @@ modded class GC_LobbyManager
 		{
 			GC_SessionEvent entry = logs.CreateEvent("session", playerId, 0);
 			entry.m_sDetail = string.Format("Pagination fixture %1", i + 1);
+			if (i == 39)
+			{
+				for (int line; line < 6; line++)
+					entry.m_sDetail += " | Long detail fixture: verify wrapping and scrolling without covering the table or page controls.";
+				entry.m_sDetail += " | End of detail.";
+			}
 			logs.Record(entry);
 		}
 		return "RECORDED 40 explicit pagination fixtures";

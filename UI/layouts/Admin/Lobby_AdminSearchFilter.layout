@@ -2,37 +2,37 @@ SizeLayoutWidgetClass {
  Name "SearchFilter"
  Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  AllowHeightOverride 1
- HeightOverride 46
+ HeightOverride 60
  components { GC_AdminSearchFilter {
-  m_fMaxListHeight 260
+  m_fMaxListHeight 300
   m_bCreateListBelow 1
   m_sListRootLayout "{6A5A000000000072}UI/layouts/Admin/Lobby_AdminComboRoot.layout"
-  m_sElementLayout "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout"
+  m_sElementLayout "{7C41F8A018B24C11}UI/layouts/Admin/Lobby_AdminPlayerRow.layout"
  } }
  {
   FrameWidgetClass {
    Name "ComboButton"
    Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
    {
-    PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
+    ButtonWidgetClass : "{7C41F8A018B24C11}UI/layouts/Admin/Lobby_AdminPlayerRow.layout" {
+     Name "FilterField"
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+    }
     EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" {
      Name "FilterInput"
-     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 12 OffsetTop 6 OffsetRight 40 OffsetBottom 6 }
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 52 OffsetTop 8 OffsetRight 12 OffsetBottom 8 }
      "Use placeholder text" 1
      "Placeholder text" "All"
+     "Font Size" 25
      components { SCR_EventHandlerComponent {} }
     }
-    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-     Name "FilterArrow"
-     Slot FrameWidgetSlot { Anchor 1 0 1 1 OffsetLeft -36 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
-     components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 0 0 0 0 m_bCanBeToggled 0 } }
-     {
-      SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" HeightOverride 46 {
-       OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
-        TextWidgetClass "{7C41F8A018B24C05}" { Prefab "{7C41F8A018B24C05}" Text "v" "Font Size" 18 Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 8 0 8 0 } }
-       } }
-      } }
-     }
+    ImageWidgetClass {
+     Slot FrameWidgetSlot { Anchor 0 0.5 0 0.5 OffsetLeft 12 OffsetTop -12 OffsetRight -36 OffsetBottom -12 }
+     "Ignore Cursor" 1
+     Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+     Image "search"
+     Size 24 24
     }
    }
   }

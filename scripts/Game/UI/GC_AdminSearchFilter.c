@@ -19,10 +19,11 @@ class GC_AdminSearchFilter : SCR_ComboBoxComponent
 		m_InputEvents = SCR_EventHandlerComponent.Cast(m_Input.FindHandler(SCR_EventHandlerComponent));
 		m_InputEvents.GetOnChange().Insert(OnInput);
 		m_InputEvents.GetOnClick().Insert(OpenList);
+		m_InputEvents.GetOnFocus().Insert(OnInputFocus);
 		m_OnChanged.Insert(OnChoice);
-		SCR_ButtonTextComponent arrow = SCR_ButtonTextComponent.GetButtonText("FilterArrow", w);
-		arrow.SetText("v");
-		arrow.m_OnClicked.Insert(OnArrow);
+		SCR_ButtonTextComponent field = SCR_ButtonTextComponent.GetButtonText("FilterField", w);
+		field.GetRootWidget().FindAnyWidget("Text").SetVisible(false);
+		field.m_OnClicked.Insert(OnField);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -71,11 +72,25 @@ class GC_AdminSearchFilter : SCR_ComboBoxComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void OnArrow(SCR_ButtonBaseComponent button)
+	protected void OnField(SCR_ButtonBaseComponent button)
 	{
 		if (m_bOpened)
 			CloseList();
 		else
+			OpenList();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnInputFocus()
+	{
+		// Native combo creation temporarily moves focus; finish this event before opening.
+		GetGame().GetCallqueue().CallLater(OpenFocusedList, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OpenFocusedList()
+	{
+		if (m_Workspace.GetFocusedWidget() == m_Input)
 			OpenList();
 	}
 
@@ -111,6 +126,7 @@ class GC_AdminSearchFilter : SCR_ComboBoxComponent
 		// Native modal focus callbacks can fire while entries are being rebuilt.
 		if (m_bBuildingList)
 			return;
+		GetGame().GetCallqueue().Remove(OpenFocusedList);
 		GetGame().GetCallqueue().Remove(CheckFocus);
 		Widget focused = m_Workspace.GetFocusedWidget();
 		Widget ancestor = focused;
@@ -195,11 +211,13 @@ class GC_AdminSearchFilter : SCR_ComboBoxComponent
 	//------------------------------------------------------------------------------------------------
 	override void HandlerDeattached(Widget w)
 	{
+		GetGame().GetCallqueue().Remove(OpenFocusedList);
 		GetGame().GetCallqueue().Remove(CheckFocus);
 		if (m_InputEvents)
 		{
 			m_InputEvents.GetOnChange().Remove(OnInput);
 			m_InputEvents.GetOnClick().Remove(OpenList);
+			m_InputEvents.GetOnFocus().Remove(OnInputFocus);
 		}
 		m_OnChanged.Remove(OnChoice);
 		super.HandlerDeattached(w);
