@@ -202,6 +202,46 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
+	string GC_ExecuteAdminUnstuck(int requesterId, int targetId, string targetIdentity, int requestId)
+	{
+		string context = string.Format("player=%1 identity=%2 request=%3", targetId, targetIdentity, requestId);
+		if (!AuthorizeAdminAction(requesterId, "unstuck", context))
+			return "Admin login required.";
+		ChimeraCharacter character = GC_GetAdminToolCharacter(targetId);
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(targetId));
+		string error;
+		if (targetIdentity.IsEmpty() || GetPlayerVoiceIdentity(targetId) != targetIdentity)
+			error = "Player changed. Select again.";
+		else if (!character || !controller)
+			error = "Player needs a living character.";
+		else if (character.GetRootParent() != character)
+			error = "Player must leave the vehicle first.";
+		vector position;
+		if (error.IsEmpty())
+		{
+			BaseWorld world = character.GetWorld();
+			// Use the shipped character-sized clearance search, constrained to a local dry landing.
+			if (!SCR_EmptyPositionHelper.TryFindNearbyFloorPositionForEntity(world, character, character.GetOrigin(), position)
+				|| !SCR_Global.IsPositionWithinTerrainBounds(position)
+				|| vector.DistanceSq(position, character.GetOrigin()) > 100
+				|| position[1] < world.GetOceanHeight(position[0], position[2]))
+				error = "No clear nearby landing.";
+			else if (vector.DistanceSq(position, character.GetOrigin()) < 0.0625)
+				error = "Player already has clear space.";
+		}
+		if (error.IsEmpty() && !controller.GC_BeginAdminTeleport(requesterId, GetPlayerVoiceIdentity(requesterId), requestId,
+			character, position, context, false, "unstuck"))
+			error = "A move is already pending.";
+		if (!error.IsEmpty())
+		{
+			GC_AdminActionLogger.Log(requesterId, "unstuck", context, error, targetId, targetIdentity);
+			return error;
+		}
+		GC_AdminActionLogger.Log(requesterId, "unstuck", context, "dispatched-awaiting-position", targetId, targetIdentity);
+		return string.Empty;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_ExecuteAdminTeleport(int requesterId, int fromId, string fromIdentity, int toId, string toIdentity, int requestId)
 	{
 		string context = string.Format("from=%1 identity=%2 to=%3 identity=%4 request=%5", fromId, fromIdentity, toId, toIdentity, requestId);

@@ -8,7 +8,10 @@ modded class GC_LobbyPlayerController
 	protected int m_iGC_TeleportChecks;
 	protected RplId m_GC_TeleportCharacter;
 	protected vector m_vGC_TeleportPosition;
+	protected vector m_vGC_TeleportOrigin;
 	protected string m_sGC_TeleportContext;
+	protected string m_sGC_TeleportAction;
+	protected UUID m_GC_TeleportTargetIdentity;
 	protected bool m_bGC_TeleportFaction;
 	protected int m_iGC_FactionRequest = -1;
 	protected ref array<int> m_aGC_FactionPending = {};
@@ -95,8 +98,8 @@ modded class GC_LobbyPlayerController
 		GetGame().GetCallqueue().Remove(GC_ObserveAdminTeleport);
 		if (m_bGC_AdminTeleportPending)
 		{
-			GC_AdminActionLogger.Log(m_iGC_TeleportRequester, "teleport-result",
-				m_sGC_TeleportContext, "cancelled-controller-shutdown");
+			GC_AdminActionLogger.Log(m_iGC_TeleportRequester, m_sGC_TeleportAction + "-result",
+				m_sGC_TeleportContext, "cancelled-controller-shutdown", GetPlayerId(), m_GC_TeleportTargetIdentity);
 			m_bGC_AdminTeleportPending = false;
 		}
 		super.ShutdownLobbyPresentation();
@@ -131,7 +134,48 @@ modded class GC_LobbyPlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool GC_BeginAdminTeleport(int requesterId, UUID requesterIdentity, int requestId, IEntity character, vector position, string context, bool faction = false)
+	void GC_RequestAdminUnstuck(int targetId, string targetIdentity, int requestId)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(GC_RpcAskAdminUnstuck, targetId, targetIdentity, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_RequestAdminWarn(int targetId, string targetIdentity, string reason, int requestId)
+	{
+		if (GC_LobbyManager.GetManager() && GetGame().GetPlayerController() == this)
+			Rpc(GC_RpcAskAdminWarn, targetId, targetIdentity, reason, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void GC_RpcAskAdminWarn(int targetId, string targetIdentity, string reason, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string result = "Admin tools are unavailable in this mode.";
+		if (manager)
+			result = manager.GC_ExecuteAdminWarn(GetPlayerId(), targetId, targetIdentity, reason);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "player-warn", targetIdentity, "rejected-inactive-mode", targetId, targetIdentity);
+		GC_SendPlayerToolResult(requestId, result);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void GC_RpcAskAdminUnstuck(int targetId, string targetIdentity, int requestId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		string result = "Admin tools are unavailable in this mode.";
+		if (manager)
+			result = manager.GC_ExecuteAdminUnstuck(GetPlayerId(), targetId, targetIdentity, requestId);
+		else
+			GC_AdminActionLogger.Log(GetPlayerId(), "unstuck", targetIdentity, "rejected-inactive-mode", targetId, targetIdentity);
+		if (!result.IsEmpty())
+			GC_SendPlayerToolResult(requestId, result);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool GC_BeginAdminTeleport(int requesterId, UUID requesterIdentity, int requestId, IEntity character, vector position, string context, bool faction = false, string action = "teleport")
 	{
 		if (!Replication.IsServer() || !GC_LobbyManager.GetManager() || m_bGC_AdminTeleportPending
 			|| !SCR_Global.IsAdmin(requesterId) || GetControlledEntity() != character)
@@ -146,7 +190,10 @@ modded class GC_LobbyPlayerController
 		m_iGC_TeleportChecks = 0;
 		m_GC_TeleportCharacter = id;
 		m_vGC_TeleportPosition = position;
+		m_vGC_TeleportOrigin = character.GetOrigin();
 		m_sGC_TeleportContext = context;
+		m_sGC_TeleportAction = action;
+		m_GC_TeleportTargetIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(GetPlayerId());
 		m_bGC_TeleportFaction = faction;
 		Rpc(GC_RpcDoAdminTeleport, id, position);
 		GetGame().GetCallqueue().CallLater(GC_ObserveAdminTeleport, 500);
@@ -173,14 +220,33 @@ modded class GC_LobbyPlayerController
 		IEntity character = GetControlledEntity();
 		string outcome;
 		bool verified;
+		bool arrived;
+		if (character)
+		{
+			vector actual = character.GetOrigin();
+			arrived = vector.DistanceSq(actual, m_vGC_TeleportPosition) <= 9;
+			if (m_sGC_TeleportAction == "unstuck")
+			{
+				// A clearance trace can land beside a raised surface; physics then settles the feet.
+				vector offset = actual - m_vGC_TeleportPosition;
+				vector mins, maxs;
+				character.GetBounds(mins, maxs);
+				float settlingHeight = Math.Min(maxs[1] - mins[1], 2.0);
+				arrived = offset[0] * offset[0] + offset[2] * offset[2] <= 0.04
+					&& offset[1] <= 0.2 && offset[1] >= -settlingHeight
+					&& vector.DistanceSq(actual, m_vGC_TeleportOrigin) >= 0.0625;
+			}
+		}
 		if (!manager || !SCR_Global.IsAdmin(m_iGC_TeleportRequester)
 			|| manager.GetPlayerVoiceIdentity(m_iGC_TeleportRequester) != m_GC_TeleportRequesterIdentity)
 			outcome = "Teleport verification ended: admin session changed.";
 		else if (!character || Replication.FindItemId(character) != m_GC_TeleportCharacter)
 			outcome = "Teleport not verified: moving character changed.";
-		else if (vector.DistanceSq(character.GetOrigin(), m_vGC_TeleportPosition) <= 9)
+		else if (arrived)
 		{
 			outcome = "Player teleported to the destination.";
+			if (m_sGC_TeleportAction == "unstuck")
+				outcome = "Player moved to nearby clear ground.";
 			verified = true;
 		}
 		else if (++m_iGC_TeleportChecks >= 10)
@@ -191,7 +257,8 @@ modded class GC_LobbyPlayerController
 			return;
 		}
 		m_bGC_AdminTeleportPending = false;
-		GC_AdminActionLogger.Log(m_iGC_TeleportRequester, "teleport-result", m_sGC_TeleportContext, outcome);
+		GC_AdminActionLogger.Log(m_iGC_TeleportRequester, m_sGC_TeleportAction + "-result", m_sGC_TeleportContext, outcome,
+			GetPlayerId(), m_GC_TeleportTargetIdentity);
 		if (!manager || manager.GetPlayerVoiceIdentity(m_iGC_TeleportRequester) != m_GC_TeleportRequesterIdentity)
 			return;
 		GC_LobbyPlayerController requester = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(m_iGC_TeleportRequester));

@@ -156,8 +156,11 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	void CloseRoster()
 	{
-		m_Menu.SetVisible(false);
 		m_bResettingSearch = true;
+		m_Menu.SetVisible(false);
+		WorkspaceWidget workspace = GetGame().GetWorkspace();
+		if (workspace.GetFocusedWidget() == m_Search)
+			workspace.SetFocusedWidget(m_Field.GetRootWidget());
 		m_Search.SetText("");
 		m_bResettingSearch = false;
 	}
