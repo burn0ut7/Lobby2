@@ -127,29 +127,56 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 		while (root.GetChildren())
 			root.GetChildren().RemoveFromHierarchy();
 		string query = m_Search.GetText();
+		query.TrimInPlace();
 		query.ToLower();
 		for (int index; index < m_aRows.Count(); index += 7)
 		{
-			string search = m_aRows[index + 1] + " " + m_aRows[index + 2] + " " + m_aRows[index + 3] + " " + m_aRows[index + 4] + " " + m_aRows[index + 5];
-			search.ToLower();
-			if (!query.IsEmpty() && !search.Contains(query))
+			if (!MatchesQuery(index, query))
 				continue;
 			Widget row = GetGame().GetWorkspace().CreateWidgets("{6A5A000000000071}UI/layouts/Admin/Lobby_AdminModerationRow.layout", root);
 			SCR_ButtonBaseComponent button = SCR_ButtonBaseComponent.Cast(row.FindHandler(SCR_ButtonBaseComponent));
 			button.m_OnClicked.Insert(OnRow);
 			button.SetToggled(index == m_iSelected, false, false);
 			m_mRows.Set(button, index);
-			TextWidget.Cast(row.FindAnyWidget("PlayerName")).SetText(m_aRows[index + 1]);
-			TextWidget.Cast(row.FindAnyWidget("PlayerStatus")).SetText(m_aRows[index + 4]);
+			TextWidget.Cast(row.FindAnyWidget("Cell1")).SetText(m_aRows[index + 1]);
+			TextWidget.Cast(row.FindAnyWidget("Cell2")).SetText(m_aRows[index + 4]);
 			string steam = m_aRows[index + 3];
 			if (steam.IsEmpty())
 				steam = "Unavailable";
-			TextWidget.Cast(row.FindAnyWidget("PlayerSteam")).SetText(steam);
-			TextWidget.Cast(row.FindAnyWidget("PlayerIdentity")).SetText(m_aRows[index + 2]);
-			TextWidget.Cast(row.FindAnyWidget("PlayerReason")).SetText(m_aRows[index + 5]);
+			TextWidget.Cast(row.FindAnyWidget("Cell3")).SetText(steam);
+			TextWidget.Cast(row.FindAnyWidget("Cell4")).SetText(m_aRows[index + 2]);
+			TextWidget.Cast(row.FindAnyWidget("Cell5")).SetText(m_aRows[index + 5]);
 		}
 		m_wRoot.FindAnyWidget("ModerationEmpty").SetVisible(m_mRows.Count() == 0);
 		UpdateExpiries();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool MatchesQuery(int index, string query)
+	{
+		if (query.IsEmpty())
+			return true;
+		string search = m_aRows[index + 1] + " " + m_aRows[index + 2] + " " + m_aRows[index + 3] + " " + m_aRows[index + 4] + " " + m_aRows[index + 5] + " " + ExpiryText(m_aRows[index + 6]);
+		if (m_aRows[index + 3].IsEmpty())
+			search += " Unavailable";
+		if (ExpiryText(m_aRows[index + 6]) == "Expired")
+			search += " Ban expired (session record)";
+		search.ToLower();
+		return search.Contains(query);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string ExpiryText(string value)
+	{
+		if (value == "0")
+			return "Permanent";
+		if (value.IsEmpty())
+			return string.Empty;
+		int remaining = value.ToInt() - System.GetUnixTime();
+		if (remaining <= 0)
+			return "Expired";
+		int minutes = (remaining + 59) / 60;
+		return minutes.ToString() + " min";
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -158,23 +185,28 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 	{
 		if (!m_wRoot || !m_wRoot.IsVisible())
 			return;
+		string query = m_Search.GetText();
+		query.TrimInPlace();
+		query.ToLower();
+		if (!query.IsEmpty())
+		{
+			array<int> visible = {};
+			foreach (SCR_ButtonBaseComponent rowButton, int rowIndex : m_mRows)
+				visible.Insert(rowIndex);
+			for (int rowIndex; rowIndex < m_aRows.Count(); rowIndex += 7)
+			{
+				if (MatchesQuery(rowIndex, query) == visible.Contains(rowIndex))
+					continue;
+				RebuildRows();
+				return;
+			}
+		}
 		foreach (SCR_ButtonBaseComponent button, int index : m_mRows)
 		{
-			string expiry = m_aRows[index + 6];
-			if (expiry == "0")
-				expiry = "Permanent";
-			else if (!expiry.IsEmpty())
-			{
-				int remaining = expiry.ToInt() - System.GetUnixTime();
-				int remainingMinutes = (Math.Max(0, remaining) + 59) / 60;
-				expiry = remainingMinutes.ToString() + " min";
-				if (remaining <= 0)
-				{
-					expiry = "Expired";
-					TextWidget.Cast(button.GetRootWidget().FindAnyWidget("PlayerStatus")).SetText("Ban expired (session record)");
-				}
-			}
-			TextWidget.Cast(button.GetRootWidget().FindAnyWidget("PlayerExpiry")).SetText(expiry);
+			string expiry = ExpiryText(m_aRows[index + 6]);
+			if (expiry == "Expired")
+				TextWidget.Cast(button.GetRootWidget().FindAnyWidget("Cell2")).SetText("Ban expired (session record)");
+			TextWidget.Cast(button.GetRootWidget().FindAnyWidget("Cell6")).SetText(expiry);
 		}
 	}
 
@@ -249,6 +281,8 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 		m_wRoot.FindAnyWidget("ModerationForm").SetEnabled(!IsBusy());
 		m_Identity.SetEnabled(!IsBusy());
 		m_Amount.SetVisible(m_Expiry.GetCurrentIndex() != 0);
+		m_wRoot.FindAnyWidget("ModerationAmountLabel").SetVisible(m_Expiry.GetCurrentIndex() != 0);
+		m_wRoot.FindAnyWidget("ModerationAmountBackground").SetVisible(m_Expiry.GetCurrentIndex() != 0);
 		m_Amount.SetPlaceholderText("Amount");
 		if (m_Expiry.GetCurrentIndex() == 4)
 			m_Amount.SetPlaceholderText("YYYY-MM-DD HH:MM (UTC)");

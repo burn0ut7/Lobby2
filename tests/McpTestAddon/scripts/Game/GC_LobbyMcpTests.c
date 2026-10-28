@@ -29,8 +29,224 @@ modded class GC_AdminPlayerPicker
 	}
 }
 
+modded class GC_AdminCellTooltip
+{
+	protected Widget m_wGC_TestCell;
+
+	//------------------------------------------------------------------------------------------------
+	void GC_TestConfigure(Widget cell)
+	{
+		m_sPresetsConfig = "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf";
+		m_sPresetTag = "Cell";
+		m_wGC_TestCell = cell;
+		GetOnTooltipShowInit().Insert(GC_TestHoverContext);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Supply the hovered-cell observation for a background callback test.
+	void GC_TestHoverContext(SCR_ScriptedWidgetTooltip tooltip)
+	{
+		if (tooltip != this)
+			return;
+
+		m_wHoverWidget = m_wGC_TestCell;
+		GetOnTooltipShowInit().Remove(GC_TestHoverContext);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_TestRelease()
+	{
+		Hide(GetGame().GetWorkspace(), m_wTooltipProxy);
+		GetOnTooltipShowInit().Remove(GC_TestHoverContext);
+		m_Preset = null;
+		m_wHoverWidget = null;
+		m_wGC_TestCell = null;
+	}
+}
+
 modded class GC_LobbyManager
 {
+	//------------------------------------------------------------------------------------------------
+	string GC_TestTooltipAllocation()
+	{
+		GC_AdminCellTooltip sample = new GC_AdminCellTooltip();
+		delete sample;
+		return "ALLOCATED and deleted tooltip without Show/config/widgets";
+	}
+
+	protected ref GC_AdminCellTooltip m_GC_TestCellTooltip;
+	protected Widget m_wGC_TestTooltipProxy;
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_TestClearCellTooltip()
+	{
+		if (m_GC_TestCellTooltip)
+			m_GC_TestCellTooltip.GC_TestRelease();
+		if (m_wGC_TestTooltipProxy)
+			m_wGC_TestTooltipProxy.RemoveFromHierarchy();
+		m_wGC_TestTooltipProxy = null;
+		delete m_GC_TestCellTooltip;
+		m_GC_TestCellTooltip = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void Shutdown()
+	{
+		GC_TestClearCellTooltip();
+		super.Shutdown();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Presentation fixture only. Native hover uses the actual visible cell bounds.
+	string GC_TestAdminCell(string tableName, int cellIndex, string action, string value)
+	{
+		if (action == "hide")
+		{
+			GC_TestClearCellTooltip();
+			GetGame().GetInputManager().SetLastUsedInputDevice(EInputDeviceType.MOUSE);
+			return "HIDDEN test tooltip";
+		}
+		if (tableName != "LogRows" && tableName != "ModerationRows" && tableName != "BoundaryRows")
+			return "REJECTED table";
+		Widget root = GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE menu";
+		Widget table = root.FindAnyWidget(tableName);
+		if (!GC_TestVisible(table) || !table.GetChildren())
+			return "UNAVAILABLE rows";
+		TextWidget cell = TextWidget.Cast(table.GetChildren().FindAnyWidget("Cell" + cellIndex.ToString()));
+		if (!GC_TestVisible(cell))
+			return "UNAVAILABLE cell";
+
+		float x, y, width, height, textWidth, textHeight;
+		cell.GetScreenPos(x, y);
+		cell.GetScreenSize(width, height);
+		if (action == "text")
+			cell.SetText(value);
+		else if (action == "hover")
+		{
+			GetGame().GetInputManager().SetLastUsedInputDevice(EInputDeviceType.MOUSE);
+			GetGame().GetInputManager().GetMouseDeviceHandler().SetCursorPosition(x + width * 0.5, y + height * 0.5);
+		}
+		else if (action == "focus" || action == "preview")
+		{
+			GetGame().GetInputManager().SetLastUsedInputDevice(EInputDeviceType.KEYBOARD);
+			GetGame().GetWorkspace().SetFocusedWidget(cell);
+			if (action == "preview")
+			{
+				GC_TestClearCellTooltip();
+				m_GC_TestCellTooltip = new GC_AdminCellTooltip();
+				m_GC_TestCellTooltip.GC_TestConfigure(cell);
+				m_wGC_TestTooltipProxy = SCR_ScriptedWidgetTooltip.CreateTooltipWidget();
+				m_wGC_TestTooltipProxy.SetVisible(true);
+				m_wGC_TestTooltipProxy.SetZOrder(10000);
+				m_GC_TestCellTooltip.Show(GetGame().GetWorkspace(), m_wGC_TestTooltipProxy, x, y);
+			}
+		}
+		else if (action != "inspect")
+			return "REJECTED action";
+
+		cell.GetTextSize(textWidth, textHeight);
+		Widget hovered = WidgetManager.GetWidgetUnderCursor();
+		string hoverName;
+		if (hovered)
+			hoverName = hovered.GetName();
+		string tooltipText;
+		SCR_ScriptedWidgetTooltip tooltip = SCR_ScriptedWidgetTooltip.GetCurrentTooltip();
+		if (tooltip && tooltip.GetContent())
+		{
+			tooltipText = tooltip.GetContent().GetMessage();
+			Widget content = tooltip.GetContentRoot();
+			if (content)
+			{
+				float tx, ty, tw, th;
+				content.GetScreenPos(tx, ty);
+				content.GetScreenSize(tw, th);
+				tooltipText += string.Format(" [visible=%1 x=%2 y=%3 w=%4 h=%5]", tooltip.IsVisible(), tx, ty, tw, th);
+			}
+		}
+		return string.Format("cell=%1 width=%2 textWidth=%3 textHeight=%4 hovered=%5 text=%6 tooltip=%7", cell.GetName(), GetGame().GetWorkspace().DPIUnscale(width), textWidth, textHeight, hoverName, cell.GetText(), tooltipText);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Exercise production hover/focus presentation without activating the action.
+	string GC_TestAdminButtonState(string widgetName, string state)
+	{
+		Widget root = GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE menu";
+		Widget target = root.FindAnyWidget(widgetName);
+		if (!GC_TestVisible(target) || !target.IsEnabled())
+			return "UNAVAILABLE button";
+		SCR_ButtonBaseComponent button = SCR_ButtonBaseComponent.Cast(target.FindHandler(SCR_ButtonBaseComponent));
+		if (!button)
+			return "UNAVAILABLE native handler";
+		if (state == "hover")
+			button.OnMouseEnter(target, 0, 0);
+		else if (state == "focus")
+			button.OnFocus(target, 0, 0);
+		else if (state == "idle")
+		{
+			button.OnMouseLeave(target, null, 0, 0);
+			button.OnFocusLost(target, 0, 0);
+		}
+		else
+			return "REJECTED state";
+		return "native handler invoked: " + widgetName + " " + state;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Inspect resolved production rows; a nonnegative index selects through the native handler.
+	string GC_TestAdminTable(string tableName, int selectIndex)
+	{
+		if (tableName != "LogRows" && tableName != "ModerationRows" && tableName != "BoundaryRows")
+			return "REJECTED table";
+		Widget root = GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE menu";
+		Widget table = root.FindAnyWidget(tableName);
+		if (!GC_TestVisible(table))
+			return "UNAVAILABLE table";
+
+		string result;
+		if (selectIndex >= 0)
+		{
+			Widget target = table.GetChildren();
+			for (int index; target && index < selectIndex; index++)
+				target = target.GetSibling();
+			result = GC_TestDispatchClick(target) + "\n";
+		}
+
+		int rowCount;
+		int missingCells;
+		int selectedCount;
+		int cellCount = 4;
+		if (tableName == "BoundaryRows")
+			cellCount = 5;
+		if (tableName == "ModerationRows")
+			cellCount = 6;
+		Widget row = table.GetChildren();
+		while (row)
+		{
+			SCR_ButtonBaseComponent button = SCR_ButtonBaseComponent.Cast(row.FindHandler(SCR_ButtonBaseComponent));
+			if (!button)
+				return "FAILED native row handler";
+			if (button.IsToggled())
+				selectedCount++;
+			for (int cellIndex = 1; cellIndex <= cellCount; cellIndex++)
+			{
+				TextWidget cell = TextWidget.Cast(row.FindAnyWidget("Cell" + cellIndex.ToString()));
+				if (!cell)
+					missingCells++;
+				else if (rowCount < 3)
+					result += string.Format("row=%1 cell=%2 text=%3\n", rowCount, cellIndex, cell.GetText());
+			}
+			rowCount++;
+			row = row.GetSibling();
+		}
+		return string.Format("table=%1 rows=%2 missingCells=%3 selected=%4\n", tableName, rowCount, missingCells, selectedCount) + result;
+	}
+
 	//------------------------------------------------------------------------------------------------
 	//! Layout-only summary; does not change native player names or selected identities.
 	string GC_TestAdminLongSummary()
@@ -60,7 +276,7 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	string GC_TestAdminRosterLoad(string pickerName, string action, string query, float value)
 	{
-		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer" && pickerName != "LogPlayers")
+		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer")
 			return "REJECTED picker";
 		Widget root = GC_TestMenuRoot();
 		if (!root || root.GetName() != "AdminToolsPanel")
@@ -162,7 +378,7 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	string GC_TestAdminPicker(string pickerName, string action, string value)
 	{
-		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer" && pickerName != "LogPlayers")
+		if (pickerName != "HealPlayers" && pickerName != "FromPlayer" && pickerName != "ToPlayer")
 			return "REJECTED picker";
 		Widget root = GC_TestMenuRoot();
 		if (!root)
@@ -230,7 +446,7 @@ modded class GC_LobbyManager
 			result += string.Format("%1 visible=%2 text=%3\n", name, GC_TestVisible(text), text.GetText());
 		}
 		result += string.Format("apply-enabled=%1\n", root.FindAnyWidget("ToolApply").IsEnabled());
-		array<string> pickers = {"HealPlayers", "FromPlayer", "ToPlayer", "LogPlayers"};
+		array<string> pickers = {"HealPlayers", "FromPlayer", "ToPlayer"};
 		foreach (string pickerName : pickers)
 		{
 			Widget field = root.FindAnyWidget(pickerName);

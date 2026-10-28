@@ -8,8 +8,13 @@ modded class GC_AdminLogsComponent
 			return "UNAVAILABLE access or filter";
 		m_Search.SetText(query);
 		OnSearch(m_Search);
-		m_Type.SetCurrentItem(eventIndex, false, false, false);
-		OnType(m_Type, eventIndex);
+		m_Type.OpenList();
+		array<Widget> choices = {};
+		m_Type.GetElementWidgets(choices);
+		if (eventIndex >= choices.Count())
+			return "UNAVAILABLE native choice";
+		SCR_ButtonTextComponent choice = SCR_ButtonTextComponent.Cast(choices[eventIndex].FindHandler(SCR_ButtonTextComponent));
+		choice.OnClick(choices[eventIndex], 0, 0, 0);
 		return "DISPATCHED filter through production change handler";
 	}
 

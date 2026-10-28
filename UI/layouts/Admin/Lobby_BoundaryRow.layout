@@ -1,73 +1,91 @@
-SizeLayoutWidgetClass {
- Name "BoundaryRow" Slot LayoutSlot {
-  HorizontalAlign 3
- }
- AllowHeightOverride 1 HeightOverride 150 {
-  FrameWidgetClass {
-   Slot AlignableSlot {
-    HorizontalAlign 3 VerticalAlign 3
-   }
+ButtonWidgetClass : "{D271A640B8000000}UI/layouts/Admin/Lobby_AdminTableRow.layout" {
+ Name "BoundaryRow"
+ {
+  SizeLayoutWidgetClass "{D271A640B8000002}" {
+   Prefab "{D271A640B8000002}"
    {
-    PanelWidgetClass {
-     Slot FrameWidgetSlot {
-      Anchor 0 .98 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
-     }
-     Color .15 .18 .19 1 style full "Ignore Cursor" 1
-    }
-    TextWidgetClass {
-     Name "ZoneName" Slot FrameWidgetSlot {
-      Anchor 0 0 .72 0 OffsetLeft 6 OffsetTop 6 OffsetRight 8 SizeY 30
-     }
-     "Font Size" 26 Wrap 1 "Ignore Cursor" 1
-    }
-    TextWidgetClass {
-     Name "ZoneBody" Slot FrameWidgetSlot {
-      Anchor 0 0 .72 0 OffsetLeft 6 OffsetTop 40 OffsetRight 8 SizeY 100
-     }
-     "Font Size" 22 Wrap 1 "Ignore Cursor" 1
-    }
-    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-     Name "ZoneAction" Slot FrameWidgetSlot {
-      Anchor .77 0 1 0 OffsetLeft 0 OffsetTop 8 OffsetRight 0 SizeY 42 OffsetBottom -50
-     }
-     components {
-      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
-       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
-      }
-     }
-    }
-    FrameWidgetClass {
-     Name "ZoneTimeFields" Slot FrameWidgetSlot {
-      Anchor .77 0 1 0 OffsetLeft 0 OffsetTop 56 OffsetRight 0 SizeY 66 OffsetBottom -122
-     }
+    FrameWidgetClass "{D271A640B8000003}" {
+     Prefab "{D271A640B8000003}"
      {
-      TextWidgetClass {
-       Slot FrameWidgetSlot {
-        Anchor 0 0 1 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 SizeY 24 OffsetBottom -24
+      FrameWidgetClass "{D271A640B8000010}" {
+       Prefab "{D271A640B8000010}"
+       Slot FrameWidgetSlot { Anchor 0 0 0.16 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000011}" {
+         Prefab "{D271A640B8000011}"
+         Name "Cell1"
+        }
        }
-       Text "Time (m:ss or seconds)" "Font Size" 20 "Ignore Cursor" 1
       }
-      PanelWidgetClass {
-       Slot FrameWidgetSlot {
-        Anchor 0 0 .48 1 OffsetLeft 0 OffsetTop 26 OffsetRight 0 OffsetBottom 0
+      FrameWidgetClass "{D271A640B8000012}" {
+       Prefab "{D271A640B8000012}"
+       Slot FrameWidgetSlot { Anchor 0.16 0 0.25 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000013}" {
+         Prefab "{D271A640B8000013}"
+         Name "Cell2"
+        }
        }
-       Color .08 .1 .11 1 style full "Ignore Cursor" 1
       }
-      EditBoxWidgetClass {
-       Name "ZoneTime" Slot FrameWidgetSlot {
-        Anchor 0 0 .48 1 OffsetLeft 6 OffsetTop 26 OffsetRight 6 OffsetBottom 0
+      FrameWidgetClass "{D271A640B8000014}" {
+       Prefab "{D271A640B8000014}"
+       Slot FrameWidgetSlot { Anchor 0.25 0 0.39 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000015}" {
+         Prefab "{D271A640B8000015}"
+         Name "Cell3"
+        }
        }
-       "Font Size" 24
       }
-     }
-    }
-    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-     Name "ZoneExtend" Slot FrameWidgetSlot {
-      Anchor .89 0 1 0 OffsetLeft 0 OffsetTop 82 OffsetRight 0 SizeY 40 OffsetBottom -122
-     }
-     components {
-      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
-       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+      FrameWidgetClass "{D271A640B8000016}" {
+       Prefab "{D271A640B8000016}"
+       Slot FrameWidgetSlot { Anchor 0.39 0 0.53 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000017}" {
+         Prefab "{D271A640B8000017}"
+         Name "Cell4"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000018}" {
+       Prefab "{D271A640B8000018}"
+       Slot FrameWidgetSlot { Anchor .53 0 .62 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+      }
+      FrameWidgetClass "{D271A640B800001A}" {
+       Prefab "{D271A640B800001A}"
+       "Is Visible" 0
+      }
+      ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+       Name "ZoneAction"
+       Slot FrameWidgetSlot { Anchor 0.62 0 0.77 1 OffsetLeft 2 OffsetTop 4 OffsetRight 2 OffsetBottom 4 }
+       components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+       {
+        SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" HeightOverride 32 {
+         OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+          TextWidgetClass "{7C41F8A018B24C05}" { Prefab "{7C41F8A018B24C05}" "Font Size" 18 Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 3 0 3 0 } }
+         } }
+        } }
+       }
+      }
+      FrameWidgetClass {
+       Name "ZoneTimeFields"
+       Slot FrameWidgetSlot { Anchor .78 0 .88 1 OffsetLeft 0 OffsetTop 4 OffsetRight 0 OffsetBottom 4 }
+       {
+        PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
+        EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ZoneTime" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 6 OffsetTop 4 OffsetRight 6 OffsetBottom 4 } "Use placeholder text" 1 "Placeholder text" "m:ss"  "Font Size" 16 }
+       }
+      }
+      ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+       Name "ZoneExtend"
+       Slot FrameWidgetSlot { Anchor 0.89 0 1 1 OffsetLeft 2 OffsetTop 4 OffsetRight 2 OffsetBottom 4 }
+       components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+       {
+        SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" HeightOverride 32 {
+         OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+          TextWidgetClass "{7C41F8A018B24C05}" { Prefab "{7C41F8A018B24C05}" "Font Size" 18 Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 3 0 3 0 } }
+         } }
+        } }
+       }
       }
      }
     }

@@ -1,0 +1,11 @@
+MetaFileClass {
+ Name "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+ Configurations {
+  ResourceClass PC {}
+  ResourceClass XBOX_ONE : PC {}
+  ResourceClass XBOX_SERIES : PC {}
+  ResourceClass PS4 : PC {}
+  ResourceClass PS5 : PC {}
+  ResourceClass HEADLESS : PC {}
+ }
+}

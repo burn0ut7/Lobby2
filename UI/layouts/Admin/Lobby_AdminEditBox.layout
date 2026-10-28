@@ -1,0 +1,6 @@
+EditBoxWidgetClass {
+ FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+ "Font Size" 18
+ Color 0.94 0.94 0.94 1
+
+}

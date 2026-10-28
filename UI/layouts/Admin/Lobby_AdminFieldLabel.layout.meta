@@ -1,0 +1,11 @@
+MetaFileClass {
+ Name "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout"
+ Configurations {
+  LayoutResourceClass PC {}
+  LayoutResourceClass XBOX_ONE : PC {}
+  LayoutResourceClass XBOX_SERIES : PC {}
+  LayoutResourceClass PS4 : PC {}
+  LayoutResourceClass PS5 : PC {}
+  LayoutResourceClass HEADLESS : PC {}
+ }
+}

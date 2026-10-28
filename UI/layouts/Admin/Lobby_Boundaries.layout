@@ -8,18 +8,8 @@ FrameWidgetClass {
  }
  {
   ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-   Name "BoundaryAOs" Slot FrameWidgetSlot {
-    Anchor 0 0 .24 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
-   }
-   components {
-    SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
-     m_bCanBeToggled 1 m_bShowBorderOnFocus 1
-    }
-   }
-  }
-  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-   Name "BoundarySetups" Slot FrameWidgetSlot {
-    Anchor .25 0 .49 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+   Name "BoundaryList" Slot FrameWidgetSlot {
+    Anchor 0 0 .19 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    components {
     SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
@@ -29,7 +19,7 @@ FrameWidgetClass {
   }
   ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
    Name "BoundaryNotice" Slot FrameWidgetSlot {
-    Anchor .5 0 .82 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+    Anchor .21 0 .52 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    components {
     SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
@@ -37,9 +27,9 @@ FrameWidgetClass {
     }
    }
   }
-  ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+  ButtonWidgetClass : "{B9A47103D2E865C0}UI/layouts/Admin/Lobby_AdminCheckbox.layout" {
    Name "BoundaryMap" Slot FrameWidgetSlot {
-    Anchor .25 .095 .49 .17 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+    Anchor 0 .19 .60 .255 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    components {
     SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
@@ -49,42 +39,77 @@ FrameWidgetClass {
   }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
  Name "BoundaryPanic" Slot FrameWidgetSlot {
-  Anchor 0 .095 .24 .17 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+  Anchor .73 0 1 .075 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
  }
  components {
   SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
-   m_BackgroundDefault 0.38 0.025 0.015 1 m_BackgroundHovered 0.55 0.04 0.02 1 m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+   m_bCanBeToggled 0 m_bShowBorderOnFocus 1
   }
  }
 }
+  FrameWidgetClass {
+   Name "BoundaryFilters"
+   Slot FrameWidgetSlot { Anchor 0 .095 1 .17 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   {
+    PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 .65 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
+    EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "BoundarySearch" Slot FrameWidgetSlot { Anchor 0 0 .65 1 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Search all columns..." components { SCR_EventHandlerComponent {} } }
+    SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" { Name "BoundaryType" Slot FrameWidgetSlot { Anchor .67 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+   }
+  }
   ScrollLayoutWidgetClass {
    Name "BoundaryScroll" Slot FrameWidgetSlot {
-    Anchor 0 .20 1 .87 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+    Anchor 0 .32 1 .67 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    "Scrollbar Always Visible" 1 {
     VerticalLayoutWidgetClass {
      Name "BoundaryRows" Slot AlignableSlot {
-      HorizontalAlign 3 VerticalAlign 0 Padding 0 0 12 0
+      HorizontalAlign 3 VerticalAlign 0
      }
     }
    }
   }
   TextWidgetClass {
    Name "BoundaryEmpty" Slot FrameWidgetSlot {
-    Anchor 0 .22 .8 .3 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+    Anchor 0 .34 1 .40 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
-   Text "No zones of this type in the mission." "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+   Text "No boundaries match." "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+  }
+  FrameWidgetClass {
+   Name "BoundaryTableHeading"
+   Slot FrameWidgetSlot { Anchor 0 .27 1 .31 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   {
+    TextWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 .16 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ZONE" "Font Size" 18 "Ignore Cursor" 1 }
+    TextWidgetClass { Slot FrameWidgetSlot { Anchor .16 0 .25 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "TYPE" "Font Size" 18 "Ignore Cursor" 1 }
+    TextWidgetClass { Slot FrameWidgetSlot { Anchor .25 0 .39 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "STATUS" "Font Size" 18 "Ignore Cursor" 1 }
+    TextWidgetClass { Slot FrameWidgetSlot { Anchor .39 0 .53 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "FACTIONS" "Font Size" 18 "Ignore Cursor" 1 }
+    TextWidgetClass { Slot FrameWidgetSlot { Anchor .53 0 .62 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "MODE" "Font Size" 18 "Ignore Cursor" 1 }
+    TextWidgetClass { Slot FrameWidgetSlot { Anchor .62 0 .77 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ACTION" "Font Size" 18 "Ignore Cursor" 1 }
+    TextWidgetClass { Name "BoundaryTimeHeading" Slot FrameWidgetSlot { Anchor .78 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ADD TIME (m:ss)" "Font Size" 18 "Ignore Cursor" 1 }
+   }
+  }
+  ScrollLayoutWidgetClass {
+   Name "BoundarySelection"
+   Slot FrameWidgetSlot { Anchor 0 .70 1 .87 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   {
+    TextWidgetClass {
+     Name "BoundarySelectionDetail"
+     Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 Padding 3 0 12 0 }
+     "Font Size" 18
+     Wrap 1
+     "Ignore Cursor" 1
+    }
+   }
   }
   FrameWidgetClass {
    Name "AnnouncementFields" Slot FrameWidgetSlot {
     Anchor 0 .20 1 .88 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    {
-    TextWidgetClass {
+    TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" {
      Name "NoticeTitleLabel" Slot FrameWidgetSlot {
       Anchor 0 0 .65 .065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
      }
-     Text "Heading" "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+     Text "Heading" Wrap 1 "Ignore Cursor" 1
     }
     FrameWidgetClass {
      Slot FrameWidgetSlot {
@@ -95,21 +120,20 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
        Slot FrameWidgetSlot {
         Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
        }
-       Color 0.08 0.1 0.11 1 style full "Ignore Cursor" 1
+       Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1
       }
-      EditBoxWidgetClass {
+      EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" {
        Name "NoticeTitle" Slot FrameWidgetSlot {
-        Anchor 0.02 0.05 0.98 0.95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+        Anchor 0 0 1 1 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6
        }
-       "Font Size" 24
-      }
+       }
      }
     }
-    TextWidgetClass {
+    TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" {
      Name "NoticeMinutesLabel" Slot FrameWidgetSlot {
       Anchor .7 0 .98 .065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
      }
-     Text "Minutes" "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+     Text "Minutes" Wrap 1 "Ignore Cursor" 1
     }
     FrameWidgetClass {
      Slot FrameWidgetSlot {
@@ -120,14 +144,13 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
        Slot FrameWidgetSlot {
         Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
        }
-       Color 0.08 0.1 0.11 1 style full "Ignore Cursor" 1
+       Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1
       }
-      EditBoxWidgetClass {
+      EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" {
        Name "NoticeMinutes" Slot FrameWidgetSlot {
-        Anchor 0.02 0.05 0.98 0.95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+        Anchor 0 0 1 1 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6
        }
-       "Font Size" 24
-      }
+       }
      }
     }
     TextWidgetClass {

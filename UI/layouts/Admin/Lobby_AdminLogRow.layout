@@ -1,1 +1,63 @@
-SizeLayoutWidgetClass { Name "LogRow" Slot LayoutSlot { HorizontalAlign 3 } AllowHeightOverride 1 HeightOverride 80 { FrameWidgetClass { Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } {FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 0.14 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "LogTime" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 6 OffsetRight 5 OffsetBottom 6 } Text "" "Font Size" 22 "Ignore Cursor" 1 Wrap 1 } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.14 0 0.28 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "LogEvent" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 6 OffsetRight 5 OffsetBottom 6 } Text "" "Font Size" 22 "Ignore Cursor" 1 Wrap 1 } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.28 0 0.6 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "LogPeople" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 6 OffsetRight 5 OffsetBottom 6 } Text "" "Font Size" 22 "Ignore Cursor" 1 Wrap 1 } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.6 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "LogDetail" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 6 OffsetRight 5 OffsetBottom 6 } Text "" "Font Size" 22 "Ignore Cursor" 1 Wrap 1 } } } } } } }
+ButtonWidgetClass : "{D271A640B8000000}UI/layouts/Admin/Lobby_AdminTableRow.layout" {
+ Name "LogRow"
+ {
+  SizeLayoutWidgetClass "{D271A640B8000002}" {
+   Prefab "{D271A640B8000002}"
+   {
+    FrameWidgetClass "{D271A640B8000003}" {
+     Prefab "{D271A640B8000003}"
+     {
+      FrameWidgetClass "{D271A640B8000010}" {
+       Prefab "{D271A640B8000010}"
+       Slot FrameWidgetSlot { Anchor 0 0 0.10 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000011}" {
+         Prefab "{D271A640B8000011}"
+         Name "Cell1"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000012}" {
+       Prefab "{D271A640B8000012}"
+       Slot FrameWidgetSlot { Anchor 0.10 0 0.24 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000013}" {
+         Prefab "{D271A640B8000013}"
+         Name "Cell2"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000014}" {
+       Prefab "{D271A640B8000014}"
+       Slot FrameWidgetSlot { Anchor 0.24 0 0.46 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000015}" {
+         Prefab "{D271A640B8000015}"
+         Name "Cell3"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000016}" {
+       Prefab "{D271A640B8000016}"
+       Slot FrameWidgetSlot { Anchor 0.46 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000017}" {
+         Prefab "{D271A640B8000017}"
+         Name "Cell4"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000018}" {
+       Prefab "{D271A640B8000018}"
+       "Is Visible" 0
+      }
+      FrameWidgetClass "{D271A640B800001A}" {
+       Prefab "{D271A640B800001A}"
+       "Is Visible" 0
+      }
+     }
+    }
+   }
+  }
+ }
+}

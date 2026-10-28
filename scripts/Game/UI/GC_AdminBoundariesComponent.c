@@ -9,8 +9,12 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 	protected ref array<string> m_aSelectedFactions = {};
 	protected bool m_bAllFactions = true;
 	protected bool m_bShowMap;
+	protected string m_sSelectedZone;
 	protected bool m_bActive;
-	protected int m_iTab;
+	protected bool m_bAnnouncement;
+	protected SCR_ComboBoxComponent m_Type;
+	protected EditBoxWidget m_Search;
+	protected SCR_EventHandlerComponent m_SearchEvents;
 	protected int m_iPending = -1;
 	protected int m_iPanicPending = -1;
 	protected int m_iLastResult = -1;
@@ -24,15 +28,24 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 	{
 		super.HandlerAttached(w);
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-		Bind("BoundaryAOs", "AO limits");
-		Bind("BoundarySetups", "Setup timers");
+		Bind("BoundaryList", "Boundaries");
 		Bind("BoundaryNotice", "Announcement timer");
-		Bind("BoundaryMap", "All zones on map: Off");
+		Bind("BoundaryMap", "Show all zones on map");
 		Bind("BoundaryPanic", "Stop all boundaries");
 		Bind("NoticeStart", "Start timer");
 		Bind("NoticeStop", "Stop timer");
 		EditBoxWidget.Cast(w.FindAnyWidget("NoticeTitle")).SetText("HOLD");
 		EditBoxWidget.Cast(w.FindAnyWidget("NoticeMinutes")).SetText("5");
+		m_Type = SCR_ComboBoxComponent.Cast(w.FindAnyWidget("BoundaryType").FindHandler(SCR_ComboBoxComponent));
+		array<string> types = {"All boundaries", "AO limits", "Setup timers"};
+		foreach (string type : types)
+			m_Type.AddItem(type);
+		m_Type.SetCurrentItem(0, false, false, false);
+		m_Type.m_OnChanged.Insert(OnType);
+		SCR_ButtonBaseComponent.Cast(w.FindAnyWidget("BoundaryType").FindAnyWidget("ComboButton").FindHandler(SCR_ButtonBaseComponent)).m_OnClicked.Insert(OnOpenType);
+		m_Search = EditBoxWidget.Cast(w.FindAnyWidget("BoundarySearch"));
+		m_SearchEvents = SCR_EventHandlerComponent.Cast(m_Search.FindHandler(SCR_EventHandlerComponent));
+		m_SearchEvents.GetOnChange().Insert(OnSearch);
 		if (m_Controller)
 			m_Controller.m_GC_OnBoundaryResult.Insert(OnResult);
 		GetGame().GetCallqueue().CallLater(Poll, 1000, true);
@@ -59,6 +72,8 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		bool opening = active && !m_bActive;
 		m_bActive = active;
 		m_wRoot.SetVisible(active);
+		if (!active)
+			m_Type.CloseList();
 		if (opening)
 			Poll();
 	}
@@ -145,15 +160,11 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			Panic();
 			return;
 		}
-		if (name == "BoundaryAOs" || name == "BoundarySetups" || name == "BoundaryNotice")
+		if (name == "BoundaryList" || name == "BoundaryNotice")
 		{
 			SetStatus(string.Empty);
-			m_iTab = 0;
-			if (name == "BoundarySetups")
-				m_iTab = 1;
-			else if (name == "BoundaryNotice")
-				m_iTab = 2;
-			ClearRows();
+			m_bAnnouncement = name == "BoundaryNotice";
+			m_Type.CloseList();
 			Refresh();
 			return;
 		}
@@ -220,6 +231,7 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			row.RemoveFromHierarchy();
 		m_mRows.Clear();
 		m_mActions.Clear();
+		m_sSelectedZone = "";
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -257,19 +269,54 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void OnType(SCR_SelectionWidgetComponent combo, int index)
+	{
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnOpenType(SCR_ButtonBaseComponent button)
+	{
+		if (m_bActive && HasAccess())
+			m_Type.OpenList();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnSearch(Widget widget)
+	{
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string StateText(GC_BoundaryAdminRow zone)
+	{
+		string state = zone.State;
+		if (zone.Kind == "Setup" && zone.Enabled)
+		{
+			int remaining = Math.Ceil(zone.Remaining);
+			string seconds = (remaining % 60).ToString();
+			if (remaining % 60 < 10)
+				seconds = "0" + seconds;
+			state += " " + (remaining / 60).ToString() + ":" + seconds;
+		}
+		return state;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void Refresh()
 	{
-		m_wRoot.FindAnyWidget("BoundaryScroll").SetVisible(m_iTab != 2);
-		m_wRoot.FindAnyWidget("AnnouncementFields").SetVisible(m_iTab == 2);
-		m_wRoot.FindAnyWidget("BoundaryMap").SetVisible(m_iTab != 2);
-		SCR_ButtonTextComponent.GetButtonText("BoundaryAOs", m_wRoot).SetToggled(m_iTab == 0, false, false);
-		SCR_ButtonTextComponent.GetButtonText("BoundarySetups", m_wRoot).SetToggled(m_iTab == 1, false, false);
-		SCR_ButtonTextComponent.GetButtonText("BoundaryNotice", m_wRoot).SetToggled(m_iTab == 2, false, false);
-		string mapText = "All zones on map: Off";
-		if (m_bShowMap)
-			mapText = "All zones on map: On";
-		SCR_ButtonTextComponent.GetButtonText("BoundaryMap", m_wRoot).SetText(mapText);
-		if (m_iTab == 2)
+		m_wRoot.FindAnyWidget("BoundaryScroll").SetVisible(!m_bAnnouncement);
+		m_wRoot.FindAnyWidget("BoundaryTableHeading").SetVisible(!m_bAnnouncement);
+		m_wRoot.FindAnyWidget("BoundaryTimeHeading").SetVisible(!m_bAnnouncement && m_Type.GetCurrentIndex() != 1);
+		m_wRoot.FindAnyWidget("BoundarySelection").SetVisible(!m_bAnnouncement);
+		m_wRoot.FindAnyWidget("AnnouncementFields").SetVisible(m_bAnnouncement);
+		m_wRoot.FindAnyWidget("BoundaryMap").SetVisible(!m_bAnnouncement);
+		m_wRoot.FindAnyWidget("BoundaryFilters").SetVisible(!m_bAnnouncement);
+		SCR_ButtonTextComponent.GetButtonText("BoundaryList", m_wRoot).SetToggled(!m_bAnnouncement, false, false);
+		SCR_ButtonTextComponent.GetButtonText("BoundaryNotice", m_wRoot).SetToggled(m_bAnnouncement, false, false);
+		Widget mapToggle = m_wRoot.FindAnyWidget("BoundaryMap");
+		mapToggle.FindAnyWidget("Tick").SetVisible(m_bShowMap);
+		if (m_bAnnouncement)
 		{
 			m_wRoot.FindAnyWidget("BoundaryEmpty").SetVisible(false);
 			RebuildFactions();
@@ -284,9 +331,21 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 		array<string> currentKeys = {};
+		string query = m_Search.GetText();
+		query.TrimInPlace();
+		query.ToLower();
+		int type = m_Type.GetCurrentIndex();
 		foreach (GC_BoundaryAdminRow zone : m_aZones)
 		{
-			if ((m_iTab == 0 && zone.Kind != "AO") || (m_iTab == 1 && zone.Kind != "Setup"))
+			if ((type == 1 && zone.Kind != "AO") || (type == 2 && zone.Kind != "Setup"))
+				continue;
+			string kind = "AO limit";
+			if (zone.Kind == "Setup")
+				kind = "Setup timer";
+			string state = StateText(zone);
+			string search = zone.Name + " " + kind + " " + state + " " + zone.Factions + " " + zone.Behavior + " " + zone.Details;
+			search.ToLower();
+			if (!query.IsEmpty() && !search.Contains(query))
 				continue;
 			currentKeys.Insert(zone.Key);
 			Widget row;
@@ -296,6 +355,8 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 				if (!row)
 					continue;
 				m_mRows.Set(zone.Key, row);
+				row.SetName(zone.Key);
+				SCR_ButtonBaseComponent.Cast(row.FindHandler(SCR_ButtonBaseComponent)).m_OnClicked.Insert(OnZoneSelected);
 				EditBoxWidget.Cast(row.FindAnyWidget("ZoneTime")).SetText("5:00");
 				array<string> actions = {"ZoneAction", "ZoneExtend"};
 				foreach (string actionName : actions)
@@ -305,31 +366,12 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 					m_mActions.Set(button, zone.Key);
 				}
 			}
-			TextWidget heading = TextWidget.Cast(row.FindAnyWidget("ZoneName"));
+			TextWidget heading = TextWidget.Cast(row.FindAnyWidget("Cell1"));
 			heading.SetText(zone.Name);
-			WrapZoneText(heading, row, zone.Name);
-			float headingWidth, headingHeight;
-			heading.GetTextSize(headingWidth, headingHeight);
-			float bodyTop = Math.Max(40, headingHeight + 12);
-			FrameSlot.SetSizeY(heading, Math.Max(30, headingHeight));
-			TextWidget body = TextWidget.Cast(row.FindAnyWidget("ZoneBody"));
-			string details = "Affected factions: " + zone.Factions + "\nStatus: " + zone.State;
-			if (zone.Kind == "Setup" && zone.Enabled)
-			{
-				int remaining = Math.Ceil(zone.Remaining);
-				string seconds = (remaining % 60).ToString();
-				if (remaining % 60 < 10)
-					seconds = "0" + seconds;
-				details += " | " + (remaining / 60).ToString() + ":" + seconds + " remaining";
-			}
-			details += "\nMode: " + zone.Behavior + "\n" + zone.Details;
-			body.SetText(details);
-			WrapZoneText(body, row, details);
-			float width, height;
-			body.GetTextSize(width, height);
-			FrameSlot.SetPosY(body, bodyTop);
-			FrameSlot.SetSizeY(body, Math.Max(80, height));
-			SizeLayoutWidget.Cast(row).SetHeightOverride(Math.Max(132, height + bodyTop + 14));
+			TextWidget.Cast(row.FindAnyWidget("Cell2")).SetText(kind);
+			TextWidget.Cast(row.FindAnyWidget("Cell3")).SetText(state);
+			TextWidget.Cast(row.FindAnyWidget("Cell4")).SetText(zone.Factions);
+			TextWidget.Cast(row.FindAnyWidget("Cell5")).SetText(zone.Behavior);
 			SCR_ButtonTextComponent action = SCR_ButtonTextComponent.GetButtonText("ZoneAction", row);
 			string label = "End setup";
 			if (zone.Kind == "AO")
@@ -361,52 +403,32 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		foreach (string key : removed)
 			m_mRows.Remove(key);
 		m_wRoot.FindAnyWidget("BoundaryEmpty").SetVisible(currentKeys.IsEmpty());
+		RefreshSelection();
 	}
-
 
 	//------------------------------------------------------------------------------------------------
-	//! Native text measurement excludes automatic wrapping. Explicit line breaks
-	//! let the row reserve the full height without clipping names or faction lists.
-	protected void WrapZoneText(TextWidget text, Widget row, string value)
+	protected void OnZoneSelected(SCR_ButtonBaseComponent button)
 	{
-		GC_AdminTextWrapping.Apply(text, row, value);
-		float screenWidth, screenHeight;
-		text.GetScreenSize(screenWidth, screenHeight);
-		float available = GetGame().GetWorkspace().DPIUnscale(screenWidth) - 4;
-		if (available <= 0)
+		if (!HasAccess())
 			return;
-
-		array<string> lines = {};
-		text.GetText().Split("\n", lines, false);
-		string display;
-		text.SetTextWrapping(false);
-		foreach (int lineIndex, string line : lines)
-		{
-			if (lineIndex > 0)
-				display += "\n";
-			array<string> words = {};
-			line.Split(" ", words, false);
-			string current;
-			foreach (string word : words)
-			{
-				string candidate = word;
-				if (!current.IsEmpty())
-					candidate = current + " " + word;
-				text.SetText(candidate);
-				float width, height;
-				text.GetTextSize(width, height);
-				if (width > available && !current.IsEmpty())
-				{
-					display += current + "\n";
-					current = word;
-				}
-				else
-					current = candidate;
-			}
-			display += current;
-		}
-		text.SetText(display);
+		m_sSelectedZone = button.GetRootWidget().GetName();
+		RefreshSelection();
 	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshSelection()
+	{
+		foreach (string key, Widget row : m_mRows)
+			SCR_ButtonBaseComponent.Cast(row.FindHandler(SCR_ButtonBaseComponent)).SetToggled(key == m_sSelectedZone, false, false);
+		string detail;
+		foreach (GC_BoundaryAdminRow zone : m_aZones)
+		{
+			if (zone.Key == m_sSelectedZone && m_mRows.Contains(zone.Key))
+				detail = zone.Name + " | " + zone.State + "\n" + zone.Factions + " | " + zone.Behavior + "\n" + zone.Details;
+		}
+		TextWidget.Cast(m_wRoot.FindAnyWidget("BoundarySelectionDetail")).SetText(detail);
+	}
+
 
 	//------------------------------------------------------------------------------------------------
 	protected void RebuildFactions()
@@ -473,6 +495,10 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 	override void HandlerDeattached(Widget w)
 	{
 		GetGame().GetCallqueue().Remove(Poll);
+		if (m_Type)
+			m_Type.m_OnChanged.Remove(OnType);
+		if (m_SearchEvents)
+			m_SearchEvents.GetOnChange().Remove(OnSearch);
 		if (m_Controller)
 			m_Controller.m_GC_OnBoundaryResult.Remove(OnResult);
 		super.HandlerDeattached(w);

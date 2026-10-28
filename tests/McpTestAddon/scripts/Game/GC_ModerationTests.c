@@ -84,9 +84,9 @@ modded class GC_LobbyManager
 			Widget copiedRow = root.FindAnyWidget("ModerationRows").GetChildren();
 			if (!copiedRow)
 				return "UNAVAILABLE row";
-			string expected = "Name: " + TextWidget.Cast(copiedRow.FindAnyWidget("PlayerName")).GetText()
-				+ "\nSteam ID: " + TextWidget.Cast(copiedRow.FindAnyWidget("PlayerSteam")).GetText()
-				+ "\nArma UID: " + TextWidget.Cast(copiedRow.FindAnyWidget("PlayerIdentity")).GetText();
+			string expected = "Name: " + TextWidget.Cast(copiedRow.FindAnyWidget("Cell1")).GetText()
+				+ "\nSteam ID: " + TextWidget.Cast(copiedRow.FindAnyWidget("Cell3")).GetText()
+				+ "\nArma UID: " + TextWidget.Cast(copiedRow.FindAnyWidget("Cell4")).GetText();
 			string clipboard = System.ImportFromClipboard();
 			int rawLength = clipboard.Length();
 			clipboard.Replace("\r", "");
@@ -100,8 +100,8 @@ modded class GC_LobbyManager
 			if (!fixtureRow)
 				return "UNAVAILABLE row";
 			return "reason=" + EditBoxWidget.Cast(root.FindAnyWidget("ModerationReason")).GetText()
-				+ " expiry=" + TextWidget.Cast(fixtureRow.FindAnyWidget("PlayerExpiry")).GetText()
-				+ " status=" + TextWidget.Cast(fixtureRow.FindAnyWidget("PlayerStatus")).GetText();
+				+ " expiry=" + TextWidget.Cast(fixtureRow.FindAnyWidget("Cell6")).GetText()
+				+ " status=" + TextWidget.Cast(fixtureRow.FindAnyWidget("Cell2")).GetText();
 		}
 		if (operation == "field")
 		{

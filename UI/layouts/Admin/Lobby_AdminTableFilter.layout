@@ -1,0 +1,81 @@
+SizeLayoutWidgetClass {
+     Name "TableFilter"
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     AllowHeightOverride 1
+     HeightOverride 46
+     "Is Visible" 1
+     components {
+       SCR_ComboBoxComponent "{6A4D000000000014}" {
+        m_fMaxListHeight 240
+        m_bCreateListBelow 1
+        m_sListRootLayout "{6A5A000000000072}UI/layouts/Admin/Lobby_AdminComboRoot.layout"
+        m_sElementLayout "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout"
+       }
+     }
+     {
+      ButtonWidgetClass {
+       Name "ComboButton"
+       Slot AlignableSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 1 1 1 0
+       components {
+        SCR_EventHandlerComponent "{6A4D000000000015}" {
+        }
+        SCR_ButtonBaseComponent "{6A4D000000000016}" {
+        }
+       }
+       {
+        OverlayWidgetClass {
+         Slot ButtonWidgetSlot {
+          HorizontalAlign 3
+          VerticalAlign 3
+         }
+         {
+          OverlayWidgetClass {
+           Name "OverlayText"
+           Slot OverlayWidgetSlot {
+            HorizontalAlign 3
+            VerticalAlign 3
+           }
+           {
+            PanelWidgetClass {
+             Name "Background"
+             Slot OverlayWidgetSlot {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 0.025 0.025 0.025 0.9
+             style full
+            }
+            TextWidgetClass {
+             Name "Content"
+             Slot OverlayWidgetSlot {
+              HorizontalAlign 3
+              VerticalAlign 1
+              Padding 12 0 44 0
+             }
+             Color 0.94 0.94 0.94 1
+             Text "SELECT"
+             "Font Size" 18
+            }
+           }
+          }
+          TextWidgetClass {
+           Slot OverlayWidgetSlot {
+            HorizontalAlign 2
+            VerticalAlign 1
+            Padding 0 0 14 0
+           }
+           "Ignore Cursor" 1
+           Color 0.72 0.72 0.72 1
+           Text "v"
+           "Font Size" 18
+          }
+         }
+        }
+       }
+      }
+     }
+    }

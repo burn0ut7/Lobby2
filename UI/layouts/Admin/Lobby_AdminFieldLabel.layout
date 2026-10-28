@@ -1,0 +1,6 @@
+TextWidgetClass {
+ FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+ "Font Size" 16
+ Color 0.72 0.72 0.72 1
+ "Ignore Cursor" 1
+}

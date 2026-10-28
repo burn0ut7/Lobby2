@@ -1,0 +1,43 @@
+OverlayWidgetClass : "{EA7C065080FA4B5A}UI/layouts/Menus/Tooltips/Tooltip_Base.layout" {
+ Name "AdminCellTooltip"
+ "Ignore Cursor" 1
+ {
+  SizeLayoutWidgetClass "{5DAA81B7ECE329F3}" {
+   Prefab "{5DAA81B7ECE329F3}"
+   AllowWidthOverride 1
+   WidthOverride 480
+   {
+    OverlayWidgetClass "{5DAA81B7ECE329F0}" {
+     Prefab "{5DAA81B7ECE329F0}"
+     {
+      SmartPanelWidgetClass "{5DAA81B7ECE329F6}" {
+       Prefab "{5DAA81B7ECE329F6}"
+       Color 0.025 0.025 0.025 0.98
+       style full
+      }
+      OverlayWidgetClass "{5DAA865F46E46EC7}" {
+       Prefab "{5DAA865F46E46EC7}"
+       Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 12 8 12 8 }
+       {
+        TextWidgetClass {
+         Name "Message"
+         Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+         Color 0.94 0.94 0.94 1
+         FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+         "Font Size" 18
+         Wrap 1
+         "Ignore Cursor" 1
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+  SmartPanelWidgetClass "{5DAA81B7ECE32841}" {
+   Prefab "{5DAA81B7ECE32841}"
+   Color 1 1 1 0.15
+   style outline
+  }
+ }
+}

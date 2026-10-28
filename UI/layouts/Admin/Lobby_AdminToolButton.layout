@@ -7,14 +7,14 @@ ButtonWidgetClass {
  components {
   SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
    m_bCanBeToggled 1
-   m_BackgroundDefault 0.005 0.009 0.012 1
-   m_BackgroundHovered 0.16 0.18 0.18 1
-   m_BackgroundSelected 0.11 0.075 0.025 1
-   m_BackgroundSelectedHovered 0.18 0.13 0.05 1
-   m_BackgroundClicked 0.18 0.13 0.05 1
-   m_bShowBorderOnFocus 0
+   m_BackgroundDefault 1 1 1 0.035
+   m_BackgroundHovered 1 1 1 0.12
+   m_BackgroundSelected 0.9 0.68 0.27 0.45
+   m_BackgroundSelectedHovered 0.9 0.68 0.27 0.55
+   m_BackgroundClicked 0.9 0.68 0.27 0.6
+   m_bShowBorderOnFocus 1
    m_bUseTextColorization 1
-   m_TextDefault 0.94 0.94 0.92 1
+   m_TextDefault 0.94 0.94 0.94 1
    m_TextToggled 1 1 1 1
   }
  }
@@ -24,7 +24,7 @@ ButtonWidgetClass {
     HorizontalAlign 3
    }
    AllowHeightOverride 1
-   HeightOverride 64
+   HeightOverride 48
    "Ignore Cursor" 1
    {
     OverlayWidgetClass "{7C41F8A018B24C02}" {
@@ -39,19 +39,20 @@ ButtonWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0.005 0.009 0.012 1
+       Color 1 1 1 0.035
        style full
       }
       PanelWidgetClass "{7C41F8A018B24C04}" {
+       Name "Border"
        Slot OverlayWidgetSlot {
         HorizontalAlign 3
         VerticalAlign 3
        }
        "Ignore Cursor" 1
-       Color 0.19 0.23 0.24 0.8
+       Color 0.8 0.8 0.8 0.6
        style outline_2px
       }
-      TextWidgetClass "{7C41F8A018B24C05}" {
+      TextWidgetClass "{7C41F8A018B24C05}" : "{E64DA8292CD7DBDD}UI/layouts/WidgetLibrary/TextWidgets/Text_InteractiveSmall.layout" {
        Name "Text"
        Slot OverlayWidgetSlot {
         HorizontalAlign 3
@@ -59,9 +60,9 @@ ButtonWidgetClass {
         Padding 12 0 12 0
        }
        "Ignore Cursor" 1
-       Color 0.94 0.94 0.92 1
+       Color 0.94 0.94 0.94 1
        Text "OPTION"
-       "Font Size" 26
+       "Font Size" 24
        "Vertical Alignment" Center
       }
      }

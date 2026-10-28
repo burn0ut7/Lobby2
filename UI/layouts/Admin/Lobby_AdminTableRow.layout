@@ -1,0 +1,183 @@
+ButtonWidgetClass {
+ Name "AdminTableRow"
+ Slot LayoutSlot { HorizontalAlign 3 }
+ Color 1 1 1 0
+ components {
+  GC_AdminTableRowComponent "{D271A640B8000001}" {
+   m_bCanBeToggled 1
+   m_BackgroundDefault 0.025 0.025 0.025 0.55
+   m_BackgroundHovered 1 1 1 0.12
+   m_BackgroundSelected 0.9 0.68 0.27 0.45
+   m_BackgroundSelectedHovered 0.9 0.68 0.27 0.55
+   m_BackgroundClicked 0.9 0.68 0.27 0.6
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{D271A640B8000002}" {
+   Slot ButtonWidgetSlot { HorizontalAlign 3 }
+   AllowHeightOverride 1
+   HeightOverride 40
+   {
+    FrameWidgetClass "{D271A640B8000003}" {
+     Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+     {
+      PanelWidgetClass {
+       Name "TableBackground"
+       Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Color 0.025 0.025 0.025 0.55
+       style full
+       "Ignore Cursor" 1
+      }
+      PanelWidgetClass {
+       Name "TableFocus"
+       Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Color 1 1 1 0.08
+       style full
+       "Ignore Cursor" 1
+      }
+      PanelWidgetClass {
+       Name "SelectionEdge"
+       Slot FrameWidgetSlot { Anchor 0 0 0 1 OffsetLeft 0 OffsetTop 0 OffsetRight -3 OffsetBottom 0 }
+       "Is Visible" 0
+       Color 0.9 0.68 0.27 1
+       style full
+       "Ignore Cursor" 1
+      }
+      FrameWidgetClass "{D271A640B8000010}" {
+       Slot FrameWidgetSlot { Anchor 0.000000 0 0.166667 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Clipping True
+       "Ignore Cursor" 1
+       {
+        TextWidgetClass "{D271A640B8000011}" {
+         Name "Cell1"
+         Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+         Color 0.94 0.94 0.94 1
+         FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+         "Font Size" 18
+         "Min Font Size" 16
+         "Vertical Alignment" Center
+         "Ignore Cursor" 0
+         Tooltip GC_AdminCellTooltip {
+          m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+          m_sPresetTag "Cell"
+         }
+         Wrap 0
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000012}" {
+       Slot FrameWidgetSlot { Anchor 0.166667 0 0.333333 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Clipping True
+       "Ignore Cursor" 1
+       {
+        TextWidgetClass "{D271A640B8000013}" {
+         Name "Cell2"
+         Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+         Color 0.94 0.94 0.94 1
+         FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+         "Font Size" 18
+         "Min Font Size" 16
+         "Vertical Alignment" Center
+         "Ignore Cursor" 0
+         Tooltip GC_AdminCellTooltip {
+          m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+          m_sPresetTag "Cell"
+         }
+         Wrap 0
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000014}" {
+       Slot FrameWidgetSlot { Anchor 0.333333 0 0.500000 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Clipping True
+       "Ignore Cursor" 1
+       {
+        TextWidgetClass "{D271A640B8000015}" {
+         Name "Cell3"
+         Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+         Color 0.94 0.94 0.94 1
+         FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+         "Font Size" 18
+         "Min Font Size" 16
+         "Vertical Alignment" Center
+         "Ignore Cursor" 0
+         Tooltip GC_AdminCellTooltip {
+          m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+          m_sPresetTag "Cell"
+         }
+         Wrap 0
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000016}" {
+       Slot FrameWidgetSlot { Anchor 0.500000 0 0.666667 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Clipping True
+       "Ignore Cursor" 1
+       {
+        TextWidgetClass "{D271A640B8000017}" {
+         Name "Cell4"
+         Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+         Color 0.94 0.94 0.94 1
+         FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+         "Font Size" 18
+         "Min Font Size" 16
+         "Vertical Alignment" Center
+         "Ignore Cursor" 0
+         Tooltip GC_AdminCellTooltip {
+          m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+          m_sPresetTag "Cell"
+         }
+         Wrap 0
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000018}" {
+       Slot FrameWidgetSlot { Anchor 0.666667 0 0.833333 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Clipping True
+       "Ignore Cursor" 1
+       {
+        TextWidgetClass "{D271A640B8000019}" {
+         Name "Cell5"
+         Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+         Color 0.94 0.94 0.94 1
+         FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+         "Font Size" 18
+         "Min Font Size" 16
+         "Vertical Alignment" Center
+         "Ignore Cursor" 0
+         Tooltip GC_AdminCellTooltip {
+          m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+          m_sPresetTag "Cell"
+         }
+         Wrap 0
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B800001A}" {
+       Slot FrameWidgetSlot { Anchor 0.833333 0 1.000000 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       Clipping True
+       "Ignore Cursor" 1
+       {
+        TextWidgetClass "{D271A640B800001B}" {
+         Name "Cell6"
+         Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+         Color 0.94 0.94 0.94 1
+         FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" }
+         "Font Size" 18
+         "Min Font Size" 16
+         "Vertical Alignment" Center
+         "Ignore Cursor" 0
+         Tooltip GC_AdminCellTooltip {
+          m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+          m_sPresetTag "Cell"
+         }
+         Wrap 0
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

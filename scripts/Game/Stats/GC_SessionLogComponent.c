@@ -353,6 +353,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			status = "Invalid filter.";
 			return;
 		}
+		query.TrimInPlace();
 		query.ToLower();
 		int count = m_aRecent.Count();
 		int start = count - 1;
@@ -368,7 +369,22 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			bool death = entry.m_sType == "kill" || entry.m_sType == "aiKill" || entry.m_sType == "teamKill" || entry.m_sType == "death";
 			if (!type.IsEmpty() && entry.m_sType != type && !(type == "death" && death))
 				continue;
-			string search = entry.m_sActor + " " + entry.m_sActorName + " " + entry.m_sTarget + " " + entry.m_sTargetName;
+			string detail = entry.m_sDetail;
+			if (!entry.m_sWeapon.IsEmpty())
+				detail += " " + FilePath.StripExtension(FilePath.StripPath(entry.m_sWeapon));
+			if (entry.m_sType == "damage")
+				detail += string.Format(" | reported damage %1", entry.m_fDamage);
+			if (entry.m_fDistance >= 0)
+				detail += string.Format(" | %1 m", Math.Round(entry.m_fDistance));
+			string eventName = entry.m_sType;
+			if (eventName == "teamKill")
+				eventName = "Team kill";
+			else if (eventName == "aiKill")
+				eventName = "AI kill";
+			else if (eventName == "slot")
+				eventName = "Slotting";
+			string search = FormatEventTime(entry.m_fSeconds) + " " + eventName + " " + entry.m_sType
+				+ " " + entry.m_sActor + " " + entry.m_sActorName + " " + entry.m_sTarget + " " + entry.m_sTargetName + " " + detail;
 			search.ToLower();
 			if (!query.IsEmpty() && !search.Contains(query))
 				continue;
@@ -384,13 +400,6 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (!entry.m_sTargetName.IsEmpty())
 				people += " > " + entry.m_sTargetName;
 			rows.Insert(people);
-			string detail = entry.m_sDetail;
-			if (!entry.m_sWeapon.IsEmpty())
-				detail += " " + FilePath.StripExtension(FilePath.StripPath(entry.m_sWeapon));
-			if (entry.m_sType == "damage")
-				detail += string.Format(" | reported damage %1", entry.m_fDamage);
-			if (entry.m_fDistance >= 0)
-				detail += string.Format(" | %1 m", Math.Round(entry.m_fDistance));
 			rows.Insert(detail);
 			next = entry.m_iSequence;
 			matched++;

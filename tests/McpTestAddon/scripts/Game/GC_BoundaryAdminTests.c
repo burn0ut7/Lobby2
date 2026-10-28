@@ -4,6 +4,20 @@ modded class GC_LobbyManager
 	protected string m_sGC_BoundaryResult;
 
 	//------------------------------------------------------------------------------------------------
+	string GC_TestBoundaryFilter(string query, int type)
+	{
+		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
+		if (!menu || !menu.GetRootWidget())
+			return "UNAVAILABLE menu";
+		Widget panel = menu.GetRootWidget().FindAnyWidget("BoundaryPanel");
+		if (!panel)
+			return "UNAVAILABLE panel";
+		GC_AdminBoundariesComponent component = GC_AdminBoundariesComponent.Cast(panel.FindHandler(GC_AdminBoundariesComponent));
+		return component.GC_TestFilter(query, type);
+	}
+
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestBoundaryRequest(string action, string entityName, string title, int seconds, string factionKeys)
 	{
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
@@ -83,7 +97,7 @@ modded class GC_LobbyManager
 		IEntity entity = GetGame().GetWorld().FindEntityByName(entityName);
 		if (!component)
 			return "UNAVAILABLE component";
-		string key;
+		string key = entityName;
 		if (entity)
 			key = entity.GetID().ToString();
 		return component.GC_TestBoundaryRow(key, action);
@@ -154,9 +168,26 @@ modded class GC_LobbyManager
 modded class GC_AdminBoundariesComponent
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestFilter(string query, int type)
+	{
+		if (!HasAccess() || !m_bActive || m_bAnnouncement || type < 0 || type > 2)
+			return "UNAVAILABLE access or filter";
+		m_Search.SetText(query);
+		OnSearch(m_Search);
+		m_Type.OpenList();
+		array<Widget> choices = {};
+		m_Type.GetElementWidgets(choices);
+		if (type >= choices.Count())
+			return "UNAVAILABLE native choice";
+		SCR_ButtonTextComponent choice = SCR_ButtonTextComponent.Cast(choices[type].FindHandler(SCR_ButtonTextComponent));
+		choice.OnClick(choices[type], 0, 0, 0);
+		return string.Format("rows=%1 type=%2 search=%3", m_mRows.Count(), type, m_Search.GetText());
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestBoundaryFactionClick(string key)
 	{
-		if (m_iTab != 2)
+		if (!m_bAnnouncement)
 			return "UNAVAILABLE announcement tab";
 		foreach (SCR_ButtonBaseComponent button, string factionKey : m_mFactions)
 		{
@@ -194,8 +225,10 @@ modded class GC_AdminBoundariesComponent
 				return "UNAVAILABLE button";
 			button.OnClick(target, 0, 0, 0);
 		}
-		return TextWidget.Cast(row.FindAnyWidget("ZoneName")).GetText() + "\n"
-			+ TextWidget.Cast(row.FindAnyWidget("ZoneBody")).GetText() + "\n"
+		return TextWidget.Cast(row.FindAnyWidget("Cell1")).GetText() + "\n"
+			+ TextWidget.Cast(row.FindAnyWidget("Cell2")).GetText() + "\n"
+			+ TextWidget.Cast(row.FindAnyWidget("Cell3")).GetText() + "\n"
+			+ TextWidget.Cast(row.FindAnyWidget("Cell4")).GetText() + "\n"
 			+ TextWidget.Cast(m_wRoot.FindAnyWidget("BoundaryStatus")).GetText();
 	}
 }

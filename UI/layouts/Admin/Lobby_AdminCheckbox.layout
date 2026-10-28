@@ -1,0 +1,72 @@
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+ components {
+  SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+   m_bCanBeToggled 0
+   m_BackgroundDefault 1 1 1 0
+   m_BackgroundHovered 1 1 1 0.08
+   m_BackgroundClicked 0.9 0.68 0.27 0.12
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+   Prefab "{7C41F8A018B24C01}"
+   {
+    OverlayWidgetClass "{7C41F8A018B24C02}" {
+     Prefab "{7C41F8A018B24C02}"
+     {
+      PanelWidgetClass "{7C41F8A018B24C03}" {
+       Prefab "{7C41F8A018B24C03}"
+       Color 1 1 1 0
+       "Ignore Cursor" 1
+      }
+      PanelWidgetClass "{7C41F8A018B24C04}" {
+       Prefab "{7C41F8A018B24C04}"
+       Color 1 1 1 0.08
+       style full
+      }
+      SizeLayoutWidgetClass {
+       Slot OverlayWidgetSlot { HorizontalAlign 0 VerticalAlign 1 Padding 12 0 0 0 }
+       AllowWidthOverride 1
+       WidthOverride 22
+       AllowHeightOverride 1
+       HeightOverride 22
+       "Ignore Cursor" 1
+       {
+        OverlayWidgetClass {
+         Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+         "Ignore Cursor" 1
+         {
+          PanelWidgetClass {
+           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+           Color 0 0 0 0.45
+           style full
+           "Ignore Cursor" 1
+          }
+          PanelWidgetClass {
+           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+           Color 1 1 1 0.55
+           style outline_2px
+           "Ignore Cursor" 1
+          }
+          PanelWidgetClass {
+           Name "Tick"
+           Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 5 5 5 5 }
+           Color 0.95 0.73 0.3 1
+           style full
+           "Is Visible" 0
+           "Ignore Cursor" 1
+          }
+         }
+        }
+       }
+      }
+      TextWidgetClass "{7C41F8A018B24C05}" {
+       Prefab "{7C41F8A018B24C05}"
+       Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 48 0 12 0 }
+      }
+     }
+    }
+   }
+  }
+ }
+}

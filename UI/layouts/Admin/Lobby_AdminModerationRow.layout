@@ -1,1 +1,76 @@
-ButtonWidgetClass { Name "ModerationRow" Slot LayoutSlot { HorizontalAlign 3 } Color 1 1 1 0 components { GC_AdminModerationRowComponent { m_bCanBeToggled 1 m_BackgroundDefault 0.025 0.032 0.034 1 m_BackgroundHovered 0.16 0.18 0.18 1 m_BackgroundSelected 0.36 0.28 0.13 1 m_BackgroundSelectedHovered 0.43 0.34 0.16 1 } } { SizeLayoutWidgetClass { Slot ButtonWidgetSlot { HorizontalAlign 3 } AllowHeightOverride 1 HeightOverride 40 { FrameWidgetClass { Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } { PanelWidgetClass { Name "Background" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.025 0.032 0.034 1 style full "Ignore Cursor" 1 } FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 0.13 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "PlayerName" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 0 OffsetRight 3 OffsetBottom 0 }  Text "" "Font Size" 18 "Ignore Cursor" 1 Wrap 0 "Vertical Alignment" Center  } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.13 0 0.25 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "PlayerStatus" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 0 OffsetRight 3 OffsetBottom 0 }  Text "" "Font Size" 18 "Ignore Cursor" 1 Wrap 0 "Vertical Alignment" Center  } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.25 0 0.43 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "PlayerSteam" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 0 OffsetRight 3 OffsetBottom 0 }  Text "" "Font Size" 18 "Ignore Cursor" 1 Wrap 0 "Vertical Alignment" Center  } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.43 0 0.73 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "PlayerIdentity" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 0 OffsetRight 3 OffsetBottom 0 }  Text "" "Font Size" 18 "Ignore Cursor" 1 Wrap 0 "Vertical Alignment" Center  } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.73 0 0.9 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "PlayerReason" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 0 OffsetRight 3 OffsetBottom 0 }  Text "" "Font Size" 18 "Ignore Cursor" 1 Wrap 0 "Vertical Alignment" Center  } } }FrameWidgetClass { Slot FrameWidgetSlot { Anchor 0.9 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Clipping True "Ignore Cursor" 1 { TextWidgetClass { Name "PlayerExpiry" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 3 OffsetTop 0 OffsetRight 3 OffsetBottom 0 }  Text "" "Font Size" 18 "Ignore Cursor" 1 Wrap 0 "Vertical Alignment" Center  } } } } } } } }
+ButtonWidgetClass : "{D271A640B8000000}UI/layouts/Admin/Lobby_AdminTableRow.layout" {
+ Name "ModerationRow"
+ components { GC_AdminModerationRowComponent {} }
+ {
+  SizeLayoutWidgetClass "{D271A640B8000002}" {
+   Prefab "{D271A640B8000002}"
+   {
+    FrameWidgetClass "{D271A640B8000003}" {
+     Prefab "{D271A640B8000003}"
+     {
+      FrameWidgetClass "{D271A640B8000010}" {
+       Prefab "{D271A640B8000010}"
+       Slot FrameWidgetSlot { Anchor 0 0 0.13 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000011}" {
+         Prefab "{D271A640B8000011}"
+         Name "Cell1"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000012}" {
+       Prefab "{D271A640B8000012}"
+       Slot FrameWidgetSlot { Anchor 0.13 0 0.25 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000013}" {
+         Prefab "{D271A640B8000013}"
+         Name "Cell2"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000014}" {
+       Prefab "{D271A640B8000014}"
+       Slot FrameWidgetSlot { Anchor 0.25 0 0.43 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000015}" {
+         Prefab "{D271A640B8000015}"
+         Name "Cell3"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000016}" {
+       Prefab "{D271A640B8000016}"
+       Slot FrameWidgetSlot { Anchor 0.43 0 0.73 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000017}" {
+         Prefab "{D271A640B8000017}"
+         Name "Cell4"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B8000018}" {
+       Prefab "{D271A640B8000018}"
+       Slot FrameWidgetSlot { Anchor 0.73 0 0.9 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B8000019}" {
+         Prefab "{D271A640B8000019}"
+         Name "Cell5"
+        }
+       }
+      }
+      FrameWidgetClass "{D271A640B800001A}" {
+       Prefab "{D271A640B800001A}"
+       Slot FrameWidgetSlot { Anchor 0.9 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       {
+        TextWidgetClass "{D271A640B800001B}" {
+         Prefab "{D271A640B800001B}"
+         Name "Cell6"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
