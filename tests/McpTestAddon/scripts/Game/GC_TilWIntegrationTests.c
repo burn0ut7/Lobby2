@@ -149,6 +149,7 @@ modded class GC_LobbyManager
 	}
 }
 
+#ifdef WORKBENCH
 modded class GC_IsolationProbeComponent
 {
 	//------------------------------------------------------------------------------------------------
@@ -166,3 +167,4 @@ modded class GC_IsolationProbeComponent
 			TILW_MissionFrameworkEntity.Exists());
 	}
 }
+#endif
