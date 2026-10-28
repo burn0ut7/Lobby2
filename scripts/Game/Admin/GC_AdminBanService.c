@@ -122,7 +122,7 @@ class GC_AdminBanService
 		}
 		GC_AdminActionLogger.Log(m_iRequester, m_sOperation,
 			string.Format("operation=%1 actorIdentity=%2 identity=%3 request=%4", m_iSequence, m_sRequesterIdentity, m_sTargetIdentity, m_iRequestId),
-			string.Format("%1 apiCode=%2 currentAdmin=%3", outcome, m_Callback.m_eLastError, requesterCurrent));
+			string.Format("%1 apiCode=%2 currentAdmin=%3", outcome, m_Callback.m_eLastError, requesterCurrent), m_iTarget, m_sTargetIdentity);
 		GC_LobbyPlayerController controller;
 		if (requesterCurrent)
 			controller = m_RequesterController;

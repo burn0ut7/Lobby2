@@ -2831,7 +2831,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				outcome = m_AdminBanService.Request(requesterId, action, targetId, expectedIdentity, reason, duration, page, requestId);
 			}
 		}
-		GC_AdminActionLogger.Log(requesterId, action, target, outcome);
+		GC_AdminActionLogger.Log(requesterId, action, target, outcome, targetId, expectedIdentity);
 		return outcome;
 	}
 

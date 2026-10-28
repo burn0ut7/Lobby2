@@ -129,23 +129,23 @@ modded class GC_LobbyManager
 			if (frozen && SCR_Global.IsAdmin(targetId))
 			{
 				skipped++;
-				GC_AdminActionLogger.Log(requesterId, action, targetContext, "skipped-admin-exempt");
+				GC_AdminActionLogger.Log(requesterId, action, targetContext, "skipped-admin-exempt", targetId, GetPlayerVoiceIdentity(targetId));
 				continue;
 			}
 			if (!controller || (origin && !character))
 			{
 				skipped++;
-				GC_AdminActionLogger.Log(requesterId, action, targetContext, "skipped-unavailable");
+				GC_AdminActionLogger.Log(requesterId, action, targetContext, "skipped-unavailable", targetId, GetPlayerVoiceIdentity(targetId));
 				continue;
 			}
 			if (!controller.GC_SetAdminControlsFrozen(requesterId, frozen))
 			{
 				skipped++;
-				GC_AdminActionLogger.Log(requesterId, action, targetContext, "rejected-admin-session");
+				GC_AdminActionLogger.Log(requesterId, action, targetContext, "rejected-admin-session", targetId, GetPlayerVoiceIdentity(targetId));
 				continue;
 			}
 			applied++;
-			GC_AdminActionLogger.Log(requesterId, action, targetContext, "input-lock-policy-applied");
+			GC_AdminActionLogger.Log(requesterId, action, targetContext, "input-lock-policy-applied", targetId, GetPlayerVoiceIdentity(targetId));
 		}
 		GC_UpdateAdminFrozenBodies();
 		string state = "disabled";

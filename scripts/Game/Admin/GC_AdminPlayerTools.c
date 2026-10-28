@@ -124,7 +124,7 @@ modded class GC_LobbyManager
 				if (origin && !corpse)
 				{
 					skipped++;
-					GC_AdminActionLogger.Log(requesterId, "heal-respawn", targetContext, "skipped-unknown-position");
+					GC_AdminActionLogger.Log(requesterId, "heal-respawn", targetContext, "skipped-unknown-position", targetId, GetPlayerVoiceIdentity(targetId));
 					continue;
 				}
 				if (origin && vector.DistanceSq(centre, corpse.GetOrigin()) > radiusMeters * radiusMeters)
@@ -137,13 +137,13 @@ modded class GC_LobbyManager
 				}
 				else
 					skipped++;
-				GC_AdminActionLogger.Log(requesterId, "heal-respawn", targetContext, respawnResult);
+				GC_AdminActionLogger.Log(requesterId, "heal-respawn", targetContext, respawnResult, targetId, GetPlayerVoiceIdentity(targetId));
 				continue;
 			}
 			if (!character)
 			{
 				skipped++;
-				GC_AdminActionLogger.Log(requesterId, "heal-player", targetContext, "skipped-no-living-character");
+				GC_AdminActionLogger.Log(requesterId, "heal-player", targetContext, "skipped-no-living-character", targetId, GetPlayerVoiceIdentity(targetId));
 				continue;
 			}
 			if (origin && vector.DistanceSq(centre, character.GetOrigin()) > radiusMeters * radiusMeters)
@@ -152,12 +152,12 @@ modded class GC_LobbyManager
 			if (restored)
 			{
 				healed++;
-				GC_AdminActionLogger.Log(requesterId, "heal-player", targetContext, "applied");
+				GC_AdminActionLogger.Log(requesterId, "heal-player", targetContext, "applied", targetId, GetPlayerVoiceIdentity(targetId));
 			}
 			else
 			{
 				skipped++;
-				GC_AdminActionLogger.Log(requesterId, "heal-player", targetContext, "health-not-fully-restored");
+				GC_AdminActionLogger.Log(requesterId, "heal-player", targetContext, "health-not-fully-restored", targetId, GetPlayerVoiceIdentity(targetId));
 			}
 		}
 		string outcome = string.Format("Healed %1 player(s). Respawned %2. Skipped %3 unavailable or unhealed player(s).", healed, respawned, skipped);
@@ -183,7 +183,7 @@ modded class GC_LobbyManager
 			result = "Player changed. Select again.";
 		else if (reason.IsEmpty() || reason.Length() > 256 || reason.Contains("\n") || reason.Contains("\r")
 			|| reason.Contains("<") || reason.Contains(">"))
-			result = "Enter a single-line reason (1â€“256 characters).";
+			result = "Enter a single-line reason (1–256 characters).";
 		else if (!GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(targetId)))
 			result = "Player is unavailable.";
 		else
@@ -266,15 +266,15 @@ modded class GC_LobbyManager
 			error = "No clear landing position near that player.";
 		if (!error.IsEmpty())
 		{
-			GC_AdminActionLogger.Log(requesterId, "teleport", context, error);
+			GC_AdminActionLogger.Log(requesterId, "teleport", context, error, fromId, fromIdentity);
 			return error;
 		}
 		if (!controller.GC_BeginAdminTeleport(requesterId, GetPlayerVoiceIdentity(requesterId), requestId, source, position, context))
 		{
-			GC_AdminActionLogger.Log(requesterId, "teleport", context, "rejected-already-pending");
+			GC_AdminActionLogger.Log(requesterId, "teleport", context, "rejected-already-pending", fromId, fromIdentity);
 			return "That player already has a teleport in progress.";
 		}
-		GC_AdminActionLogger.Log(requesterId, "teleport", context, "dispatched-awaiting-position");
+		GC_AdminActionLogger.Log(requesterId, "teleport", context, "dispatched-awaiting-position", fromId, fromIdentity);
 		return string.Empty;
 	}
 
