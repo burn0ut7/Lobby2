@@ -76,6 +76,15 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		PlayerController local = GetGame().GetPlayerController();
+		if (button == 0 && m_bShowLifeState)
+		{
+			GC_LobbyPlayerController spectator = GC_LobbyPlayerController.Cast(local);
+			if (spectator && spectator.GC_CanJumpSpectatorCamera())
+			{
+				spectator.GC_RequestSpectatorPlayerPosition(m_iPlayerId);
+				return true;
+			}
+		}
 		if ((button == 0 || button == 1) && manager && local && SCR_Global.IsAdmin(local.GetPlayerId()))
 			manager.SelectAdminPlayer(m_iPlayerId);
 		if (button == 0)
