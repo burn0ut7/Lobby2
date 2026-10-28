@@ -7,6 +7,9 @@ class GC_LobbyGameModeClass : SCR_BaseGameModeClass
 class GC_LobbyGameMode : SCR_BaseGameMode
 {
 	protected bool m_bStartupLogged;
+	protected bool m_bOwnsLobbySfxMute;
+	protected bool m_bPhaseAudioStopped;
+	protected float m_fPreviousSfxVolume;
 	protected ref GC_MapPlans m_MapPlans;
 	protected ref GC_AOLimitSystem m_AOLimits;
 	protected ref GC_MapShapeSystem m_MapShapes;
@@ -53,6 +56,11 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 			return;
 
 		UpdateDayAdvancement();
+		if (RplSession.Mode() != RplMode.Dedicated)
+		{
+			ArmaReforgerLoadingAnim.m_onExitLoadingScreen.Insert(UpdateLocalPhaseAudio);
+			UpdateLocalPhaseAudio();
+		}
 		if (Replication.IsServer())
 		{
 			m_BoundaryAdmin = new GC_BoundaryAdmin();
@@ -72,6 +80,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	{
 		super.OnGameStateChanged();
 		UpdateDayAdvancement();
+		UpdateLocalPhaseAudio();
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		if (logs)
 			logs.RecordPhase();
@@ -85,6 +94,53 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (GetState() == SCR_EGameModeState.GAME && controller)
 			controller.GC_RequestBoundaryPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Read the replicated phase locally, including initial/JIP state. Loading
+	//! owns the mix while open and resets it before its exit notification.
+	protected void UpdateLocalPhaseAudio()
+	{
+		if (m_bPhaseAudioStopped || SCR_Global.IsEditMode() || RplSession.Mode() == RplMode.Dedicated
+			|| GC_LobbyGameMode.GetGameMode() != this || ArmaReforgerLoadingAnim.IsOpen())
+			return;
+
+		SCR_EGameModeState phase = GetState();
+		bool mute = phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING
+			|| phase == SCR_EGameModeState.BRIEFING;
+		if (!mute)
+		{
+			RestoreLocalSfxVolume();
+			return;
+		}
+
+		if (!m_bOwnsLobbySfxMute)
+			m_fPreviousSfxVolume = AudioSystem.GetMasterVolume(AudioSystem.SFX);
+		if (AudioSystem.SetMasterVolume(AudioSystem.SFX, 0))
+			m_bOwnsLobbySfxMute = true;
+		else
+			Print("GC | Audio | Failed to mute lobby SFX", LogLevel.ERROR);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RestoreLocalSfxVolume()
+	{
+		if (!m_bOwnsLobbySfxMute)
+			return;
+
+		// Do not overwrite a loading screen or a later owner's volume change.
+		if (!ArmaReforgerLoadingAnim.IsOpen() && AudioSystem.GetMasterVolume(AudioSystem.SFX) == 0)
+			AudioSystem.SetMasterVolume(AudioSystem.SFX, m_fPreviousSfxVolume);
+		m_bOwnsLobbySfxMute = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Called at world shutdown as well as destruction; idempotent for teardown.
+	void StopLocalPhaseAudio()
+	{
+		m_bPhaseAudioStopped = true;
+		ArmaReforgerLoadingAnim.m_onExitLoadingScreen.Remove(UpdateLocalPhaseAudio);
+		RestoreLocalSfxVolume();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -146,6 +202,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//! same function so initial and subsequent presentation cannot diverge.
 	void UpdateLocalPhasePresentation(PlayerController localController = null, string source = "unspecified")
 	{
+		UpdateLocalPhaseAudio();
 		// A headed listen server owns local UI just like a connected client. Only
 		// a dedicated server has no local presentation.
 		if (RplSession.Mode() == RplMode.Dedicated)
@@ -226,6 +283,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyGameMode()
 	{
+		StopLocalPhaseAudio();
 		if (m_BoundaryAdmin && GetGame())
 			m_BoundaryAdmin.Stop();
 		if (m_MapShapes)

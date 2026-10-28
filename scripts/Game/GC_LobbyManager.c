@@ -4835,6 +4835,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.Cast(GetOwner());
+		if (gameMode)
+			gameMode.StopLocalPhaseAudio();
 		GetGame().GetCallqueue().Remove(FinishSlotLottery);
 		m_aSlotLotteries.Clear();
 		m_mFactionReadiness.Clear();
