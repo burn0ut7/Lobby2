@@ -27,6 +27,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		m_SearchEvents = SCR_EventHandlerComponent.Cast(m_Search.FindHandler(SCR_EventHandlerComponent));
 		m_SearchEvents.GetOnChange().Insert(OnSearchChanged);
 		m_SearchEvents.GetOnClick().Insert(OpenRoster);
+		m_SearchEvents.GetOnFocus().Insert(OpenRoster);
 		m_Field.GetRootWidget().FindAnyWidget("Text").SetVisible(false);
 		m_Field.GetRootWidget().FindAnyWidget("PlayerDetail").SetVisible(false);
 		m_Menu.SetVisible(false);
@@ -360,6 +361,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		{
 			m_SearchEvents.GetOnChange().Remove(OnSearchChanged);
 			m_SearchEvents.GetOnClick().Remove(OpenRoster);
+			m_SearchEvents.GetOnFocus().Remove(OpenRoster);
 		}
 		if (m_Menu)
 			m_Menu.RemoveFromHierarchy();

@@ -397,6 +397,16 @@ modded class GC_LobbyManager
 		GC_AdminPlayerPicker picker = GC_AdminPlayerPicker.Cast(field.FindHandler(GC_AdminPlayerPicker));
 		Widget popup = picker.GC_TestRosterWidget();
 		EditBoxWidget header = EditBoxWidget.Cast(field.FindAnyWidget("PickerSearch"));
+		if (action == "focus")
+		{
+			GetGame().GetWorkspace().SetFocusedWidget(header);
+			return "DISPATCHED native header focus";
+		}
+		if (action == "close")
+		{
+			picker.CloseRoster();
+			return "DISPATCHED close";
+		}
 		if (action == "input")
 		{
 			SCR_EventHandlerComponent.Cast(header.FindHandler(SCR_EventHandlerComponent)).OnClick(header, 0, 0, 0);
@@ -418,7 +428,7 @@ modded class GC_LobbyManager
 			if (!GC_TestVisible(search))
 				return "REJECTED hidden search";
 			search.SetText(value);
-			SCR_EventHandlerComponent.Cast(search.FindHandler(SCR_EventHandlerComponent)).GetOnChange().Invoke(search);
+			SCR_EventHandlerComponent.Cast(search.FindHandler(SCR_EventHandlerComponent)).OnChange(search, false);
 			return "DISPATCHED search=" + search.GetText();
 		}
 		if (action == "select")
