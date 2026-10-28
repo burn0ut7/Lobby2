@@ -18,6 +18,7 @@ FrameWidgetClass {
  }
  {
   PanelWidgetClass {
+   Name "AdminMessageBackground"
    "Ignore Cursor" 1
    Slot FrameWidgetSlot {
     Anchor 0 0 1 1
@@ -28,6 +29,24 @@ FrameWidgetClass {
    }
    Color 0.018 0.018 0.018 0.70
    style full
+  }
+  PanelWidgetClass {
+   Name "AdminWarningAccent"
+   "Ignore Cursor" 1
+   "Is Visible" 0
+   Slot FrameWidgetSlot { Anchor 0 0 0 1 OffsetLeft 0 OffsetTop 0 OffsetRight -4 OffsetBottom 0 }
+   Color 0.95 0.73 0.3 1
+   style full
+  }
+  ImageWidgetClass {
+   Name "AdminWarningIcon"
+   "Ignore Cursor" 1
+   "Is Visible" 0
+   Slot FrameWidgetSlot { Anchor 0 0 0 0 OffsetLeft 20 OffsetTop 14 OffsetRight -44 OffsetBottom -38 }
+   Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+   Image "warning"
+   Color 0.95 0.73 0.3 1
+   Size 24 24
   }
   TextWidgetClass {
    Name "AdminMessageTitle"

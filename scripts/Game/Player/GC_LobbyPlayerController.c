@@ -568,15 +568,15 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void DeliverAdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message, bool preserveLineBreaks = false)
+	void DeliverAdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message, bool preserveLineBreaks = false, bool warning = false)
 	{
 		if (Replication.IsServer() && GC_LobbyManager.GetManager())
-			Rpc(RpcDo_AdminMessage, messageId, senderId, senderName, audience, message, preserveLineBreaks);
+			Rpc(RpcDo_AdminMessage, messageId, senderId, senderName, audience, message, preserveLineBreaks, warning);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_AdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message, bool preserveLineBreaks)
+	protected void RpcDo_AdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message, bool preserveLineBreaks, bool warning)
 	{
 		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
 			return;
@@ -588,6 +588,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		entry.m_sSenderName = senderName;
 		entry.m_sText = message;
 		entry.m_bPreserveLineBreaks = preserveLineBreaks;
+		entry.m_bWarning = warning;
 		entry.m_eAudience = audience;
 		if (m_aAdminMessages.Count() >= 100)
 			m_aAdminMessages.RemoveOrdered(0);

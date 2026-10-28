@@ -2,6 +2,7 @@
 class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 {
 	protected static Widget s_wPopup;
+	protected static AudioHandle s_Sound = AudioHandle.Invalid;
 	protected static ref GC_AdminMessage s_CurrentMessage;
 	protected static const ResourceName LAYOUT = "{E48D67FEE0EC4C46}UI/layouts/Admin/Lobby_AdminMessage.layout";
 
@@ -19,8 +20,21 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 		s_CurrentMessage = message;
 		TextWidget title = TextWidget.Cast(s_wPopup.FindAnyWidget("AdminMessageTitle"));
 		TextWidget body = TextWidget.Cast(s_wPopup.FindAnyWidget("AdminMessageText"));
-		if (title)
-			title.SetText("Admin - " + message.m_sSenderName);
+		string heading = "Admin - ";
+		if (message.m_bWarning)
+		{
+			heading = "Warning - ";
+			title.SetColor(Color.FromRGBA(242, 186, 77, 255));
+			FrameSlot.SetOffsets(title, 54, 14, 20, -40);
+			s_wPopup.FindAnyWidget("AdminMessageBackground").SetColor(Color.FromRGBA(45, 37, 18, 235));
+		}
+		title.SetText(heading + message.m_sSenderName);
+		s_wPopup.FindAnyWidget("AdminWarningIcon").SetVisible(message.m_bWarning);
+		s_wPopup.FindAnyWidget("AdminWarningAccent").SetVisible(message.m_bWarning);
+		if (message.m_bWarning)
+			s_Sound = AudioSystem.PlaySound("{4819D5A581AF66BB}Sounds/UI/Samples/Editor/UI_E_Notification_Warning.wav");
+		else
+			s_Sound = AudioSystem.PlaySound("{06C02AFB2CA882EB}Sounds/UI/Samples/Menu/UI_Task_Created.wav");
 		if (body)
 			body.SetText(message.m_sText);
 		GetGame().GetCallqueue().CallLater(WrapLongWords, 0);
@@ -61,6 +75,9 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 	static void CloseAll()
 	{
 		s_CurrentMessage = null;
+		if (s_Sound != AudioHandle.Invalid)
+			AudioSystem.TerminateSound(s_Sound);
+		s_Sound = AudioHandle.Invalid;
 		GetGame().GetCallqueue().Remove(WrapLongWords);
 		if (s_wPopup)
 			s_wPopup.RemoveFromHierarchy();
@@ -77,7 +94,6 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 		FrameSlot.SetSize(w, Math.Min(780, GetGame().GetWorkspace().DPIUnscale(width) - 48), 110);
 		GetGame().GetCallqueue().CallLater(Expire, 15000);
 		GetGame().GetCallqueue().CallLater(FadeOut, 14000);
-		AudioSystem.PlaySound("{06C02AFB2CA882EB}Sounds/UI/Samples/Menu/UI_Task_Created.wav");
 	}
 
 	//------------------------------------------------------------------------------------------------

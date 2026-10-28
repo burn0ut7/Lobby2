@@ -3,7 +3,8 @@
 //! develop separate logging paths.
 class GC_AdminActionLogger
 {
-	static void Log(int playerId, string action, string target, string outcome)
+	//------------------------------------------------------------------------------------------------
+	static void Log(int playerId, string action, string target, string outcome, int targetId = 0, string targetIdentity = "")
 	{
 		UUID actorIdentity;
 		if (Replication.IsServer() && playerId > 0 && GetGame().GetPlayerManager().IsPlayerConnected(playerId))
@@ -15,7 +16,15 @@ class GC_AdminActionLogger
 			string type = "admin";
 			if (action == "slot-self-select")
 				type = "slot";
-			GC_SessionEvent entry = logs.CreateEvent(type, playerId, 0);
+			// A recycled player ID must never attribute an earlier action to a new account.
+			if (targetId > 0 && (!GetGame().GetPlayerManager().IsPlayerConnected(targetId)
+				|| (!targetIdentity.IsEmpty() && SCR_PlayerIdentityUtils.GetPlayerIdentityId(targetId) != targetIdentity)))
+				targetId = 0;
+			GC_SessionEvent entry = logs.CreateEvent(type, playerId, targetId);
+			if (!targetIdentity.IsEmpty())
+				entry.m_sTarget = targetIdentity;
+			if (!entry.m_sTarget.IsEmpty())
+				entry.m_sTargetKind = "player";
 			entry.m_sDetail = Clean(action) + " | " + Clean(target) + " | " + Clean(outcome);
 			// Match the historical event contract even when another action supplies a long context.
 			if (entry.m_sDetail.Length() > 4096)

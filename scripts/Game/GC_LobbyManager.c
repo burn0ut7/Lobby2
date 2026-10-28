@@ -1904,8 +1904,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Resolve announcement recipients on authority. Admin chat uses native channels.
-	string SendAdminMessage(int requesterId, GC_EAdminMessageAudience audience, string message, array<string> selectedIdentities, string factionKey = "")
+	string SendAdminMessage(int requesterId, GC_EAdminMessageAudience audience, string message, array<string> selectedIdentities, string factionKey = "", out int sentCount = 0, bool warning = false)
 	{
+		sentCount = 0;
 		message.TrimInPlace();
 		string target = string.Format("audience=%1 faction=%2 length=%3", audience, factionKey, message.Length());
 		if (!AuthorizeAdminAction(requesterId, "message-send", target))
@@ -1980,10 +1981,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(recipientId));
 			if (!controller)
 				continue;
-			controller.DeliverAdminMessage(m_iAdminMessageSequence, requesterId, senderName, audience, message);
+			controller.DeliverAdminMessage(m_iAdminMessageSequence, requesterId, senderName, audience, message, false, warning);
 			sent++;
 		}
 		outcome = string.Format("dispatched message=%1 recipients=%2 skipped=%3", m_iAdminMessageSequence, sent, recipients.Count() - sent);
+		sentCount = sent;
 		GC_AdminActionLogger.Log(requesterId, "message-send", target, outcome);
 		return outcome;
 	}

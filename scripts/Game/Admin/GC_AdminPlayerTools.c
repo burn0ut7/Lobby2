@@ -172,6 +172,36 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
+	string GC_ExecuteAdminWarn(int requesterId, int targetId, string targetIdentity, string reason)
+	{
+		if (!AuthorizeAdminAction(requesterId, "player-warn", targetIdentity))
+			return "Admin login required.";
+		reason.TrimInPlace();
+		string result;
+		if (targetIdentity.IsEmpty() || !GetGame().GetPlayerManager().IsPlayerConnected(targetId)
+			|| GetPlayerVoiceIdentity(targetId) != targetIdentity)
+			result = "Player changed. Select again.";
+		else if (reason.IsEmpty() || reason.Length() > 256 || reason.Contains("\n") || reason.Contains("\r")
+			|| reason.Contains("<") || reason.Contains(">"))
+			result = "Enter a single-line reason (1â€“256 characters).";
+		else if (!GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(targetId)))
+			result = "Player is unavailable.";
+		else
+		{
+			array<string> recipients = {targetIdentity};
+			int sent;
+			result = SendAdminMessage(requesterId, GC_EAdminMessageAudience.SELECTED_PLAYERS, reason, recipients, "", sent, true);
+			if (sent == 1)
+			{
+				RecordModerationAction(targetIdentity, "Warning dispatched", reason, 0);
+				result = "Warning dispatched.";
+			}
+		}
+		GC_AdminActionLogger.Log(requesterId, "player-warn", reason, result, targetId, targetIdentity);
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_ExecuteAdminTeleport(int requesterId, int fromId, string fromIdentity, int toId, string toIdentity, int requestId)
 	{
 		string context = string.Format("from=%1 identity=%2 to=%3 identity=%4 request=%5", fromId, fromIdentity, toId, toIdentity, requestId);

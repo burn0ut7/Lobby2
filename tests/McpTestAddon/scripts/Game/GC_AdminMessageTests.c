@@ -1,6 +1,31 @@
 #ifdef WORKBENCH
+modded class GC_AdminMessagePopupComponent
+{
+	static string GC_TestWarningState()
+	{
+		if (!s_wPopup || !s_CurrentMessage)
+			return "UNAVAILABLE popup";
+		return string.Format("warning=%1 icon=%2 accent=%3 soundValid=%4 playing=%5 title=%6", s_CurrentMessage.m_bWarning,
+			s_wPopup.FindAnyWidget("AdminWarningIcon").IsVisible(), s_wPopup.FindAnyWidget("AdminWarningAccent").IsVisible(),
+			s_Sound != AudioHandle.Invalid, AudioSystem.IsSoundPlayed(s_Sound),
+			TextWidget.Cast(s_wPopup.FindAnyWidget("AdminMessageTitle")).GetText());
+	}
+}
+
 modded class GC_LobbyManager
 {
+	string GC_TestAdminWarning(string message)
+	{
+		int playerId = GetGame().GetPlayerController().GetPlayerId();
+		return GC_ExecuteAdminWarn(playerId, playerId, GetPlayerVoiceIdentity(playerId), message)
+			+ " | " + GC_AdminMessagePopupComponent.GC_TestWarningState();
+	}
+
+	string GC_TestAdminWarningState()
+	{
+		return GC_AdminMessagePopupComponent.GC_TestWarningState();
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_TestAdminMessage(int audience, string message)
 	{
