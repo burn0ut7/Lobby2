@@ -67,6 +67,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_InputManager.AddActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
+			m_InputManager.AddActionListener("GC_ToggleSpectatorProjectileTracers", EActionTrigger.DOWN, OnToggleProjectileTracers);
+			m_InputManager.AddActionListener("GC_ToggleSpectatorKilledFrom", EActionTrigger.DOWN, OnToggleKilledFrom);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.AddActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
@@ -220,6 +222,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		{
 			m_InputManager.RemoveActionListener(UIConstants.MENU_ACTION_BACK, EActionTrigger.DOWN, OnPauseMenuRequested);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorInterface", EActionTrigger.DOWN, OnToggleSpectatorInterface);
+			m_InputManager.RemoveActionListener("GC_ToggleSpectatorProjectileTracers", EActionTrigger.DOWN, OnToggleProjectileTracers);
+			m_InputManager.RemoveActionListener("GC_ToggleSpectatorKilledFrom", EActionTrigger.DOWN, OnToggleKilledFrom);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.RemoveActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);

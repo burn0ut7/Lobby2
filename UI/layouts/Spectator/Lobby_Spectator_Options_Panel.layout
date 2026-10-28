@@ -410,6 +410,17 @@ SizeLayoutWidgetClass {
                    "Min Font Size" 15
                    "Vertical Alignment" Center
                   }
+                  ButtonWidgetClass : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
+                   Name "SpectatorProjectileTracersKeyHint"
+                   Slot LayoutSlot { VerticalAlign 1 Padding 0 0 10 0 }
+                   "Ignore Cursor" 1
+                   components {
+                    SCR_InputButtonComponent {
+                     m_sActionName "GC_ToggleSpectatorProjectileTracers"
+                     m_sLabel ""
+                    }
+                   }
+                  }
                   SizeLayoutWidgetClass "{6A5E000000000010}" {
                    Slot LayoutSlot "{6A5E000000000011}" {
                     VerticalAlign 1
@@ -524,6 +535,17 @@ SizeLayoutWidgetClass {
                    "Font Size" 19
                    "Min Font Size" 15
                    "Vertical Alignment" Center
+                  }
+                  ButtonWidgetClass : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
+                   Name "SpectatorKilledFromKeyHint"
+                   Slot LayoutSlot { VerticalAlign 1 Padding 0 0 10 0 }
+                   "Ignore Cursor" 1
+                   components {
+                    SCR_InputButtonComponent {
+                     m_sActionName "GC_ToggleSpectatorKilledFrom"
+                     m_sLabel ""
+                    }
+                   }
                   }
                   SizeLayoutWidgetClass "{6A5F00000000001F}" {
                    Slot LayoutSlot "{6A5F000000000020}" {
