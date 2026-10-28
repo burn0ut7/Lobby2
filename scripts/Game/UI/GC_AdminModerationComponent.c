@@ -2,7 +2,8 @@
 class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 {
 	protected GC_LobbyPlayerController m_Controller;
-	protected EditBoxWidget m_Search;
+	protected GC_AdminSearchFilter m_Players;
+	protected GC_AdminSearchFilter m_BanStatus;
 	protected EditBoxWidget m_Identity;
 	protected EditBoxWidget m_Reason;
 	protected EditBoxWidget m_Amount;
@@ -20,7 +21,14 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 	{
 		super.HandlerAttached(w);
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-		m_Search = EditBoxWidget.Cast(w.FindAnyWidget("ModerationSearch"));
+		m_Players = GC_AdminSearchFilter.Cast(w.FindAnyWidget("ModerationPlayers").FindHandler(GC_AdminSearchFilter));
+		m_BanStatus = GC_AdminSearchFilter.Cast(w.FindAnyWidget("ModerationBanStatus").FindHandler(GC_AdminSearchFilter));
+		EditBoxWidget.Cast(m_Players.GetRootWidget().FindAnyWidget("FilterInput")).SetPlaceholderText("All players");
+		EditBoxWidget.Cast(m_BanStatus.GetRootWidget().FindAnyWidget("FilterInput")).SetPlaceholderText("Any ban status");
+		m_Players.SetChoices({"All players"}, {""}, {""});
+		m_BanStatus.SetChoices({"Any ban status", "Banned", "Not banned"}, {"", "Banned", "Not banned"}, {"", "", ""});
+		m_Players.m_OnFilterChanged.Insert(OnFilterChanged);
+		m_BanStatus.m_OnFilterChanged.Insert(OnFilterChanged);
 		m_Identity = EditBoxWidget.Cast(w.FindAnyWidget("ModerationIdentity"));
 		m_Reason = EditBoxWidget.Cast(w.FindAnyWidget("ModerationReason"));
 		m_Amount = EditBoxWidget.Cast(w.FindAnyWidget("ModerationAmount"));
@@ -31,9 +39,9 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 			m_Expiry.AddItem(choice);
 		m_Expiry.SetCurrentItem(1, false, false, false);
 		m_Expiry.m_OnChanged.Insert(OnExpiry);
-		SCR_ButtonBaseComponent.Cast(w.FindAnyWidget("ComboButton").FindHandler(SCR_ButtonBaseComponent)).m_OnClicked.Insert(OnOpenExpiry);
+		SCR_ButtonBaseComponent.Cast(w.FindAnyWidget("ModerationExpiry").FindAnyWidget("ComboButton").FindHandler(SCR_ButtonBaseComponent)).m_OnClicked.Insert(OnOpenExpiry);
 		m_Amount.SetText("30");
-		array<EditBoxWidget> edits = {m_Search, m_Identity, m_Reason, m_Amount};
+		array<EditBoxWidget> edits = {m_Identity, m_Reason, m_Amount};
 		foreach (EditBoxWidget edit : edits)
 		{
 			SCR_EventHandlerComponent events = SCR_EventHandlerComponent.Cast(edit.FindHandler(SCR_EventHandlerComponent));
@@ -106,6 +114,17 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 		bool hadSelection = m_iSelected >= 0;
 		string selectedIdentity = m_Identity.GetText();
 		m_aRows.Copy(rows);
+		array<string> labels = {"All players"};
+		array<string> values = {""};
+		array<string> terms = {""};
+		for (int playerIndex; playerIndex < rows.Count(); playerIndex += 7)
+		{
+			labels.Insert(rows[playerIndex + 1]);
+			values.Insert(rows[playerIndex + 2]);
+			terms.Insert(rows[playerIndex + 2] + " " + rows[playerIndex + 3] + " " + rows[playerIndex + 4]
+				+ " " + rows[playerIndex + 5] + " " + ExpiryText(rows[playerIndex + 6]));
+		}
+		m_Players.SetChoices(labels, values, terms);
 		m_iSelected = -1;
 		if (hadSelection)
 		{
@@ -126,7 +145,9 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 		m_mRows.Clear();
 		while (root.GetChildren())
 			root.GetChildren().RemoveFromHierarchy();
-		string query = m_Search.GetText();
+		string query = m_Players.GetFilterValue();
+		if (m_Players.HasChoice())
+			query = "";
 		query.TrimInPlace();
 		query.ToLower();
 		for (int index; index < m_aRows.Count(); index += 7)
@@ -154,15 +175,30 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	protected bool MatchesQuery(int index, string query)
 	{
-		if (query.IsEmpty())
-			return true;
+		string player = m_Players.GetFilterValue();
+		if (m_Players.HasChoice() && !player.IsEmpty())
+		{
+			if (m_aRows[index + 2] != player)
+				return false;
+		}
+
+		// This roster reports session-observed bans, not the backend's complete ban list.
+		string expiry = m_aRows[index + 6];
+		bool banned = !expiry.IsEmpty() && (expiry == "0" || expiry.ToInt() > System.GetUnixTime());
+		string status = "Not banned";
+		if (banned)
+			status = "Banned";
+		string banFilter = m_BanStatus.GetFilterValue();
+		if (m_BanStatus.HasChoice() && !banFilter.IsEmpty() && status != banFilter)
+			return false;
 		string search = m_aRows[index + 1] + " " + m_aRows[index + 2] + " " + m_aRows[index + 3] + " " + m_aRows[index + 4] + " " + m_aRows[index + 5] + " " + ExpiryText(m_aRows[index + 6]);
 		if (m_aRows[index + 3].IsEmpty())
 			search += " Unavailable";
 		if (ExpiryText(m_aRows[index + 6]) == "Expired")
 			search += " Ban expired (session record)";
 		search.ToLower();
-		return search.Contains(query);
+		banFilter.ToLower();
+		return search.Contains(query) && (m_BanStatus.HasChoice() || search.Contains(banFilter));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -185,10 +221,12 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 	{
 		if (!m_wRoot || !m_wRoot.IsVisible())
 			return;
-		string query = m_Search.GetText();
+		string query = m_Players.GetFilterValue();
+		if (m_Players.HasChoice())
+			query = "";
 		query.TrimInPlace();
 		query.ToLower();
-		if (!query.IsEmpty())
+		if (!query.IsEmpty() || !m_BanStatus.GetFilterValue().IsEmpty() || !m_Players.GetFilterValue().IsEmpty())
 		{
 			array<int> visible = {};
 			foreach (SCR_ButtonBaseComponent rowButton, int rowIndex : m_mRows)
@@ -247,13 +285,20 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void OnFilterChanged()
+	{
+		if (IsBusy())
+			return;
+		RebuildRows();
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void OnEdit(Widget w)
 	{
 		if (IsBusy())
 			return;
-		if (w == m_Search)
-			RebuildRows();
-		else if (w == m_Identity)
+		if (w == m_Identity)
 			m_iSelected = -1;
 		Refresh();
 	}
@@ -392,6 +437,10 @@ class GC_AdminModerationComponent : SCR_ScriptedWidgetComponent
 			if (events)
 				events.GetOnChange().Remove(OnEdit);
 		}
+		if (m_Players)
+			m_Players.m_OnFilterChanged.Remove(OnFilterChanged);
+		if (m_BanStatus)
+			m_BanStatus.m_OnFilterChanged.Remove(OnFilterChanged);
 		if (m_Expiry)
 			m_Expiry.m_OnChanged.Remove(OnExpiry);
 		if (m_Controller)

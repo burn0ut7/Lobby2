@@ -1,6 +1,64 @@
 #ifdef WORKBENCH
+modded class GC_AdminModerationComponent
+{
+	//------------------------------------------------------------------------------------------------
+	string GC_TestFilters(string field, string query, int choice)
+	{
+		if (field == "fixture")
+		{
+			// Presentation only: never creates a backend ban or changes a player.
+			array<string> rows = {};
+			for (int index; index < 18; index++)
+			{
+				rows.Insert("0");
+				rows.Insert("Fixture " + index.ToString());
+				rows.Insert("fixture-uid-" + index.ToString());
+				rows.Insert("76561198000000" + index.ToString());
+				rows.Insert("Disconnected");
+				rows.Insert("Review note " + index.ToString());
+				string expiry;
+				if (index == 1)
+					expiry = "0";
+				if (index == 2)
+					expiry = (System.GetUnixTime() + 4).ToString();
+				rows.Insert(expiry);
+			}
+			OnRows(rows, m_iRosterRequest);
+		}
+		else if (field != "state")
+		{
+			GC_AdminSearchFilter filter = m_Players;
+			if (field == "status")
+				filter = m_BanStatus;
+			if (query == "FOCUS")
+				return filter.GC_TestInteraction("focus");
+			EditBoxWidget input = EditBoxWidget.Cast(filter.GetRootWidget().FindAnyWidget("FilterInput"));
+			input.SetText(query);
+			SCR_EventHandlerComponent.Cast(input.FindHandler(SCR_EventHandlerComponent)).GetOnChange().Invoke(input);
+			array<Widget> options = {};
+			filter.GetElementWidgets(options);
+			if (choice >= 0 && choice < options.Count() && options[choice].IsVisible())
+				SCR_ButtonTextComponent.Cast(options[choice].FindHandler(SCR_ButtonTextComponent)).OnClick(options[choice], 0, 0, 0);
+		}
+		string names;
+		foreach (SCR_ButtonBaseComponent button, int rowIndex : m_mRows)
+			names += m_aRows[rowIndex + 1] + ";";
+		return string.Format("rows=%1 names=%2 player=%3 status=%4", m_mRows.Count(), names, m_Players.GetFilterValue(), m_BanStatus.GetFilterValue());
+	}
+}
+
 modded class GC_LobbyManager
 {
+	//------------------------------------------------------------------------------------------------
+	string GC_TestModerationFilters(string field, string query, int choice)
+	{
+		Widget root = GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE menu";
+		Widget fields = root.FindAnyWidget("ModerationFields");
+		return GC_AdminModerationComponent.Cast(fields.FindHandler(GC_AdminModerationComponent)).GC_TestFilters(field, query, choice);
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_TestModeration(string operation, string value)
 	{

@@ -29,3 +29,23 @@ User explicitly removed confirmation. Kick/Ban now validate and submit on first 
 Actual persistent ban/unban completion still requires dedicated-server validation. This follow-up tested immediate dispatch and authority through production handlers, not successful persistent mutation. Prior real remote kick evidence above remains applicable to the unchanged server kick handler.
 
 Fresh independent review approved the immediate-action/context changes after correcting clipboard mismatch feedback to uncertainty wording. No remaining review findings in this scope. Test session stopped and production Lobby2 editor restored; shared uncommitted dependencies still prevent packaging this slice as a standalone valid commit.
+
+## Kick / Ban filter polish — 2026-10-28
+
+`GC_TestModerationFilters(field, query, choice)` exercises the production editable
+selectors. Use `players` or `status`, free text with choice `-1`, or native option
+indices (players: 0 clears; status: 0 any, 1 banned, 2 not banned). Both free-text
+fields search all table columns; selected choices combine as exact filters.
+`fixture` installs 18 presentation-only rows, including permanent and four-second
+ban expiries. It creates no backend bans. Close/reopen the admin menu to discard it.
+
+Verified embedded Workbench 1.8.0.13: typing and single-click player selection,
+reason/UID/Steam searches in both filters, combined filters, empty results and
+reset, expiry moving a row from Banned to Not banned, reopening, date entry and
+invalid-UID feedback. The table spans .15–.70 instead of .13–.49; form fields are
+grouped below it. MCP reload e19475b4084249948b7e4d4a485a301b passed with no script
+errors; four pre-existing resource/plugin diagnostics remain. Current screenshots
+and receipts are in the MCP workspace's local evidence folder
+`admin-scope-20261024/moderation-polish-results.json`; independent visual review
+approved. These filters cover the existing server-observed session roster, not a
+complete backend ban inventory. Dedicated-client coverage was not performed.

@@ -1,26 +1,26 @@
 FrameWidgetClass { Name "ModerationFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminModerationComponent {} } {
 FrameWidgetClass { Name "ModerationForm" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } {
-PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 0.065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
-EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationSearch" Slot FrameWidgetSlot { Anchor 0 0 1 0.065 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Search all columns..." components { SCR_EventHandlerComponent {} } }
-TextWidgetClass { Name "PlayerNameHeading" Slot FrameWidgetSlot { Anchor 0 0.085 0.13 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "PLAYER" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
-TextWidgetClass { Name "PlayerStatusHeading" Slot FrameWidgetSlot { Anchor 0.13 0.085 0.25 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "STATUS" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
-TextWidgetClass { Name "PlayerSteamHeading" Slot FrameWidgetSlot { Anchor 0.25 0.085 0.43 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "STEAM / PROFILE" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
-TextWidgetClass { Name "PlayerIdentityHeading" Slot FrameWidgetSlot { Anchor 0.43 0.085 0.73 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ARMA UID" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
-TextWidgetClass { Name "PlayerReasonHeading" Slot FrameWidgetSlot { Anchor 0.73 0.085 0.9 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "REASON" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
-TextWidgetClass { Name "PlayerExpiryHeading" Slot FrameWidgetSlot { Anchor 0.9 0.085 1 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "EXPIRES" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
-ScrollLayoutWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.13 1 0.49 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Scrollbar Always Visible" 1 { VerticalLayoutWidgetClass { Name "ModerationRows" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } } }
-TextWidgetClass { Name "ModerationEmpty" Slot FrameWidgetSlot { Anchor 0 0.16 1 0.2 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "No session players match this search." "Font Size" 22 "Ignore Cursor" 1 Wrap 1 }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminSearchFilter.layout" { Name "ModerationPlayers" Slot FrameWidgetSlot { Anchor 0 0 0.65 0.10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminSearchFilter.layout" { Name "ModerationBanStatus" Slot FrameWidgetSlot { Anchor 0.67 0 1 0.10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+TextWidgetClass { Name "PlayerNameHeading" Slot FrameWidgetSlot { Anchor 0 0.10 0.13 0.14 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "PLAYER" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
+TextWidgetClass { Name "PlayerStatusHeading" Slot FrameWidgetSlot { Anchor 0.13 0.10 0.25 0.14 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "STATUS" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
+TextWidgetClass { Name "PlayerSteamHeading" Slot FrameWidgetSlot { Anchor 0.25 0.10 0.43 0.14 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "STEAM / PROFILE" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
+TextWidgetClass { Name "PlayerIdentityHeading" Slot FrameWidgetSlot { Anchor 0.43 0.10 0.73 0.14 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ARMA UID" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
+TextWidgetClass { Name "PlayerReasonHeading" Slot FrameWidgetSlot { Anchor 0.73 0.10 0.9 0.14 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "REASON" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
+TextWidgetClass { Name "PlayerExpiryHeading" Slot FrameWidgetSlot { Anchor 0.9 0.10 1 0.14 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "EXPIRES" "Font Size" 18 "Ignore Cursor" 1 Wrap 1 }
+ScrollLayoutWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.15 1 0.70 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Scrollbar Always Visible" 1 { VerticalLayoutWidgetClass { Name "ModerationRows" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } } }
+TextWidgetClass { Name "ModerationEmpty" Slot FrameWidgetSlot { Anchor 0 0.18 1 0.23 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "No session players match this search." "Font Size" 22 "Ignore Cursor" 1 Wrap 1 }
 
-TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationIdentityLabel" Slot FrameWidgetSlot { Anchor 0 0.865 0.69 0.9 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ARMA UID" "Ignore Cursor" 1 Wrap 1 }
-PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.91 0.69 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
-EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationIdentity" Slot FrameWidgetSlot { Anchor 0 0.91 0.69 0.98 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" components { SCR_EventHandlerComponent {} } }
-TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationReasonLabel" Slot FrameWidgetSlot { Anchor 0 0.52 1 0.555 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "REASON / NOTE" "Ignore Cursor" 1 Wrap 1 }
-PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.56 1 0.625 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
-EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationReason" Slot FrameWidgetSlot { Anchor 0 0.56 1 0.625 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Enter a reason (1-256 characters)" components { SCR_EventHandlerComponent {} } }
-TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationExpiryLabel" Slot FrameWidgetSlot { Anchor 0 0.65 0.3 0.685 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "BAN EXPIRY" "Ignore Cursor" 1 }
+TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationIdentityLabel" Slot FrameWidgetSlot { Anchor 0 0.84 0.69 0.875 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ARMA UID" "Ignore Cursor" 1 Wrap 1 }
+PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.88 0.69 0.95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
+EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationIdentity" Slot FrameWidgetSlot { Anchor 0 0.88 0.69 0.95 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" components { SCR_EventHandlerComponent {} } }
+TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationReasonLabel" Slot FrameWidgetSlot { Anchor 0 0.72 0.50 0.755 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "REASON / NOTE" "Ignore Cursor" 1 Wrap 1 }
+PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0.76 0.50 0.825 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
+EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationReason" Slot FrameWidgetSlot { Anchor 0 0.76 0.50 0.825 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Enter a reason (1-256 characters)" components { SCR_EventHandlerComponent {} } }
+TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationExpiryLabel" Slot FrameWidgetSlot { Anchor 0.52 0.72 0.73 0.755 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "BAN DURATION" "Ignore Cursor" 1 }
 SizeLayoutWidgetClass {
      Name "ModerationExpiry"
-     Slot FrameWidgetSlot { Anchor 0 0.69 0.3 0.76 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0.52 0.76 0.73 0.825 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
      AllowHeightOverride 1
      HeightOverride 46
      "Is Visible" 1
@@ -99,12 +99,12 @@ SizeLayoutWidgetClass {
       }
      }
     }
-TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationAmountLabel" Slot FrameWidgetSlot { Anchor 0.32 0.65 0.65 0.685 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Amount" }
-PanelWidgetClass { Name "ModerationAmountBackground" Slot FrameWidgetSlot { Anchor 0.32 0.69 0.65 0.76 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
-EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationAmount" Slot FrameWidgetSlot { Anchor 0.32 0.69 0.65 0.76 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Amount" components { SCR_EventHandlerComponent {} } }
+TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "ModerationAmountLabel" Slot FrameWidgetSlot { Anchor 0.75 0.72 1 0.755 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Amount" }
+PanelWidgetClass { Name "ModerationAmountBackground" Slot FrameWidgetSlot { Anchor 0.75 0.76 1 0.825 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
+EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "ModerationAmount" Slot FrameWidgetSlot { Anchor 0.75 0.76 1 0.825 OffsetLeft 12 OffsetTop 6 OffsetRight 12 OffsetBottom 6 } "Use placeholder text" 1 "Placeholder text" "Amount" components { SCR_EventHandlerComponent {} } }
 } }
-TextWidgetClass { Name "ModerationStatus" Slot FrameWidgetSlot { Anchor 0 0.78 1 0.86 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 20 "Ignore Cursor" 1 Wrap 1 }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ModerationKick" Slot FrameWidgetSlot { Anchor 0.72 0.91 0.85 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+TextWidgetClass { Name "ModerationStatus" Slot FrameWidgetSlot { Anchor 0 0.955 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 20 "Ignore Cursor" 1 Wrap 1 }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ModerationKick" Slot FrameWidgetSlot { Anchor 0.72 0.88 0.85 0.95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
 
  {
   SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
@@ -114,7 +114,7 @@ ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.la
   } }
  }
 }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ModerationBan" Slot FrameWidgetSlot { Anchor 0.87 0.91 1 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ModerationBan" Slot FrameWidgetSlot { Anchor 0.87 0.88 1 0.95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
 
  {
   SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
