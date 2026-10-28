@@ -4,6 +4,18 @@ using System.Text.Json;
 using Npgsql;
 using NpgsqlTypes;
 
+if (args.Length == 3 && args[0] == "--binary-benchmark")
+    return TelemetryBinaryTool.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--decode-telemetry")
+{
+    if (new FileInfo(args[1]).Length > TelemetryContract.MaxBatchBytes)
+        throw new InvalidDataException("Telemetry batch exceeds 1 MiB.");
+    var decoded = TelemetryBinary.Decode(File.ReadAllBytes(args[1]));
+    using var destination = new FileStream(args[2], FileMode.CreateNew, FileAccess.Write);
+    destination.Write(decoded);
+    return 0;
+}
+
 if (args.Length != 2 || args[0] is not ("--once" or "--validate"))
 {
     Console.Error.WriteLine("Usage: StatsIngest --once|--validate <outbox directory>");
@@ -29,7 +41,7 @@ using var ownership = new FileStream(Path.Combine(directory, ".ingest.lock"), Fi
     FileAccess.ReadWrite, FileShare.None);
 await using var database = args[0] == "--once" ? NpgsqlDataSource.Create(connectionString!) : null;
 var failures = 0;
-foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
+foreach (var marker in Directory.EnumerateFiles(directory, "*.ready").Where(p => p.EndsWith(".json.ready", StringComparison.Ordinal) || p.EndsWith(".l2t.ready", StringComparison.Ordinal)))
 {
     var path = marker[..^".ready".Length];
     try
@@ -41,13 +53,16 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
             throw new InvalidDataException("Batch exceeds the 64 MiB bound or is empty.");
         // Strict UTF-8 preserves identity/name data and rejects incomplete encodings.
         var bytes = await File.ReadAllBytesAsync(path);
-        var payload = new UTF8Encoding(false, true).GetString(bytes);
+        var binary = path.EndsWith(".l2t", StringComparison.Ordinal);
+        var decoded = binary ? TelemetryBinary.Decode(bytes) : bytes;
+        var payload = new UTF8Encoding(false, true).GetString(decoded);
         using var json = JsonDocument.Parse(payload);
         var root = json.RootElement;
         var hasKind = root.TryGetProperty("kind", out var kind);
         var sessionEvents = hasKind && kind.GetString() == "sessionEvents";
         var history = hasKind && kind.GetString() == "missionHistory";
         var telemetry = hasKind && kind.GetString() == "telemetry";
+        if (binary && !telemetry) throw new InvalidDataException("Binary payload must be telemetry.");
         if (hasKind && !sessionEvents && !history && !telemetry)
             throw new InvalidDataException("Unsupported batch kind.");
         if (telemetry)
@@ -61,7 +76,8 @@ foreach (var marker in Directory.EnumerateFiles(directory, "*.json.ready"))
         else BatchContract.Validate(root);
         var mission = root.GetProperty(telemetry ? "recordingId" : sessionEvents ? "sessionId" : "missionId").GetGuid();
         var revision = root.GetProperty("revision").GetInt32();
-        var expectedName = telemetry ? $"{mission}-telemetry-{revision}.json" : history ? $"{mission}-history-{revision}.json" : sessionEvents ? $"{mission}-events-{revision}.json" : $"{mission}-{revision}.json";
+        var extension = binary ? "l2t" : "json";
+        var expectedName = telemetry ? $"{mission}-telemetry-{revision}.{extension}" : history ? $"{mission}-history-{revision}.json" : sessionEvents ? $"{mission}-events-{revision}.json" : $"{mission}-{revision}.json";
         if (revision < 0 || Path.GetFileName(path) != expectedName)
             throw new InvalidDataException("Batch identity differs from its filename.");
         var checksum = Convert.ToHexString(SHA256.HashData(bytes));

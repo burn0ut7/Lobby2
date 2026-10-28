@@ -4,6 +4,7 @@ class GC_TelemetryActor
 	protected GC_TelemetryRecorder m_Recorder;
 	protected IEntity m_Entity;
 	protected string m_sId;
+	protected int m_iId;
 	protected EntityID m_NativeId;
 	protected string m_sIdentity;
 	protected string m_sLoadout;
@@ -50,6 +51,7 @@ class GC_TelemetryActor
 		m_Recorder = recorder;
 		m_Entity = entity;
 		m_sId = id;
+		m_iId = id.Substring(7, id.Length() - 7).ToInt();
 		m_NativeId = entity.GetID();
 		if (wasPlayer)
 			m_sIdentity = identity;
@@ -163,34 +165,7 @@ class GC_TelemetryActor
 			changed = changed || AnimationChanged(sample);
 		if (changed)
 		{
-			// Compare numeric inputs before allocating/serializing JSON at 128 actors.
-			JsonSaveContext context = new JsonSaveContext();
-			context.SetMaxDecimalPlaces(3);
-			context.WriteValue("entity", m_sId);
-			GC_TelemetryRecorder.WriteVector(context, "position", position);
-			GC_TelemetryRecorder.WriteVector(context, "anglesDegrees", angles);
-			GC_TelemetryRecorder.WriteVector(context, "velocity", velocity);
-			context.WriteValue("discontinuity", discontinuity);
-			string type = "vehicle-state";
-			if (sample)
-			{
-				type = "state";
-				GC_TelemetryRecorder.WriteVector(context, "aimRadians", sample.m_vAimAngles);
-				GC_TelemetryRecorder.WriteVector(context, "lookRadians", sample.m_vLookAngles);
-				context.WriteValue("stance", sample.m_iStance);
-				context.WriteValue("command", sample.m_iCommand);
-				context.WriteValue("flags", sample.m_iFlags);
-				context.WriteValue("lean", sample.m_fLean);
-				context.WriteValue("dynamicStance", sample.m_fDynamicStance);
-				context.WriteValue("movement", sample.m_fMovement);
-			}
-			string state = context.SaveToString();
-			// Hold the preceding state until this observation window, then interpolate.
-			JsonSaveContext window = new JsonSaveContext();
-			window.SetMaxDecimalPlaces(6);
-			window.WriteValue("previousSampleMs", previousSample);
-			string timing = window.SaveToString();
-			m_Recorder.CommitData(type, state.Substring(0, state.Length() - 1) + "," + timing.Substring(1, timing.Length() - 1));
+			m_Recorder.CommitState(m_iId, position, angles, velocity, sample, discontinuity, previousSample);
 			m_LastState = sample;
 			m_vWrittenPosition = position;
 			m_vWrittenAngles = angles;

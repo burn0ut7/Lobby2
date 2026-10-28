@@ -1,0 +1,54 @@
+Binary telemetry evidence, 2026-10-28
+
+Architecture: game writes uncompressed L2TB; existing external importer validates
+and projects to PostgreSQL JSONB. PostgreSQL is the replay store. No archive
+service, compression job, cache tier, or automatic deletion was deployed.
+Existing local spool retention is unchanged. Benchmark compression files are
+experiments only. The deployed importer is C:/Users/Gray/Documents/Lobby2Data/importer.
+
+Native engine benchmark: 14 paired iterations per size, first two warmups,
+alternating order, 12 measured pairs. Same generated moving-state inputs,
+128 actor IDs; no game sampling, networking, database or rendering measured.
+JSON recreates the prior native state/window/envelope serializer; binary uses
+production Add/SaveVerified. System.GetTickCount has millisecond resolution.
+128 states: JSON encode 2-3ms, binary 0-1ms; JSON 45,550 bytes
+versus binary 12,892. Verified publication JSON 7-9ms, binary 5-7ms.
+512 states: JSON encode 24-28ms, binary 0-1ms; JSON 181,370 bytes versus binary
+49,756. Verified publication JSON 6-9ms, binary 6-8ms. This is ~72% raw state
+batch reduction, NOT a whole-mission storage guarantee. Synchronous verified
+file publication remains a measurable frame cost, not eliminated by binary.
+
+Historical native corpus: 55 chunks, 3,295,048 JSON bytes -> 2,542,274 binary bytes.
+Exact logical round trips. Brotli quality4: 133,481 JSON -> 122,724 binary bytes
+(~8% additional compressed saving). Gear-heavy mostly stationary capture.
+External .NET median whole-corpus decode+JSON projection+validation 65.13ms,
+versus JSON parse+validation 30.49ms. Binary is more costly at this external
+import boundary; the priority is removing serialization work from the game.
+Node independent decoder: 55 exact logical round trips and 14 malformed packets
+rejected. Signed zero normalized in logical comparison. See benchmark reports
+for timing scope; do not extrapolate them as a loaded web server benchmark.
+
+Fresh production binary capture: recording 01a18108-cbd0-8f84-8400-0000000353c9,
+48.45 seconds, 128 peak native actors (one player +127 fixture AI), 129 lifetimes,
+21 chunks, 1,892 records, 885,939 native binary bytes. The capture-audit rawBytes
+field measures exported JSON (1,179,667 bytes), NOT binary on-disk size.
+Captured all three stances, lean up to0.6, ADS-related flags, gear/seat/equipment,
+native damage/death and despawns. Sequences/revisions contiguous, time monotonic,
+closed, zero drops, no states after death. Mostly stationary; did not test128
+connected players, sustained firefights, fresh grenades or vehicle gameplay.
+Runtime counters: capture527ms across8877steps, max2ms; write136ms across21chunks,
+max8ms. Native actions/receipts are in actions.jsonl; file hashes in native-files.json.
+
+All21 decoded batches imported into actual PostgreSQL lobby2 telemetry_batches;
+every JSONB payload equals decoded source. Exact duplicate replay succeeded;
+changed binary bytes for an existing identity were rejected and retained, with
+unchanged row counts. See database.json. Ready markers consumed only on copies;
+live game source files untouched. Recording stopped; Workbench remains open.
+
+Validation: Release build/publish,34 existing contract cases;20 malformed binary
+cases rejected by production C# decoder plus native valid packet accepted.
+Synthetic vehicle-only, Unicode cold/header and empty-terminal round trips passed
+via real C# codec (edge-output-benchmark.json); these are not native vehicle
+coverage. Independent JS decoder also checked all21 fresh native chunks against
+C# exports. Full live capture has mixed cold/state and terminal chunk coverage.
+No new skeletal/ragdoll recording. No game-client recording or RPC traffic added.

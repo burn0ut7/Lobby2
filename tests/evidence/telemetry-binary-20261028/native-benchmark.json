@@ -1,0 +1,1066 @@
+[
+  {
+    "iteration": 0,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rd9b823b7c5204c9e8d527c5a85b19fb6",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 0,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r63c567f0c10e431db695fd2d4fe6b64f",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 1,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "ra3f877956ec348f68edbc9349a92419b",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 1,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r7962f71b7e024bbebcd9b09073ac68ee",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 2,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r50942c6180a1415c9231b387be293417",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=2 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 14,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 2,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 2,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rea49b484b12041918fc20189d78101ac",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=5 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 5,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 3,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r42d0d21e955e41f29a1de3d618651b0b",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 3,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rbed03eba88d34d3a91f00e15ad5f4cff",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=8 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 8,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 4,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "ref16b8a9d9be4105b4fe8fec838f3403",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=8 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 8,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 4,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rbf486b5931834c938a79b13cbbaa11d1",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=1 publishVerifyMs=5 bytes=12892 verified=1",
+    "elapsedMs": 10,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 1,
+      "publishVerifyMs": 5,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 5,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r94138f0f38ab408fa4ee5123eaa46687",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 5,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r1cc74a22c6da41409cd76d81a767e7f1",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=8 bytes=45550 verified=1",
+    "elapsedMs": 14,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 8,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 6,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rbc60d70c7d6e4755bee33325acd6e118",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 6,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r5561023db8b745ee8f8135d47a43dffb",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 7,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r79ee773a792946d7857dbe686c5b0c0e",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=5 bytes=12892 verified=1",
+    "elapsedMs": 10,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 5,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 7,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r3d1d90b5c8014602b3095cda237cee55",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=2 publishVerifyMs=9 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 2,
+      "publishVerifyMs": 9,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 8,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r3f29b6e7c08040378429b9defff09851",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=2 publishVerifyMs=8 bytes=45550 verified=1",
+    "elapsedMs": 14,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 2,
+      "publishVerifyMs": 8,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 8,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r58f001bf8ec142bb8d852b3ad535c84a",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 9,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r7ec9c0a444a648f8b718499ca16ef75c",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=1 publishVerifyMs=7 bytes=12892 verified=1",
+    "elapsedMs": 13,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 1,
+      "publishVerifyMs": 7,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 9,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r17ce9139082847b3b00688da58023d20",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=8 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 8,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 10,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r6c517492aad94ae286a442d78503a3ae",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 10,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r173095a49eb2422fabb3606d16aee80a",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 11,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r6295d58e1c9c49d1bb452188e0be3ba0",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=5 bytes=12892 verified=1",
+    "elapsedMs": 10,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 5,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 11,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "redff23c07b6d47f29f7a0a1a78969d66",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 12,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r64baf34345404f699f8d60c05fa9b362",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=3 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 14,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 3,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 12,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rf0ad250ee982429f9bef04479ad7fd8b",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 9,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 13,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r5aaab6d92da1422481d58ab006f7d440",
+    "returnType": "string",
+    "returned": "binary=1 count=128 encodeMs=0 publishVerifyMs=6 bytes=12892 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 128,
+      "encodeMs": 0,
+      "publishVerifyMs": 6,
+      "bytes": 12892,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 13,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r3b04d87072884b45a02fbdfa556c5742",
+    "returnType": "string",
+    "returned": "binary=0 count=128 encodeMs=2 publishVerifyMs=7 bytes=45550 verified=1",
+    "elapsedMs": 15,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 128,
+      "encodeMs": 2,
+      "publishVerifyMs": 7,
+      "bytes": 45550,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 0,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r9692cd6046434e3c88694e181fe71bdc",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=25 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 37,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 25,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 0,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r251113974cec4ef2b548fcf1050b4068",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=7 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 7,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 1,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "ra956aeef45654045b0caf73db3700ae2",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=7 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 7,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 1,
+    "warmup": true,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r258dcce271df421b8ef3fe56a355d1b1",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=25 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 38,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 25,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 2,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r223a780ceedb4325bc047e5fb1d4f50c",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=26 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 38,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 26,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 2,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rf67c3a2fe5b14645b08c2c16d39a75ba",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=1 publishVerifyMs=6 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 1,
+      "publishVerifyMs": 6,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 3,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r4e856d1e91544f3e85f53a047292fd75",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=1 publishVerifyMs=6 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 1,
+      "publishVerifyMs": 6,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 3,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rc81cf758772141c2a27cce9ba94245f5",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=28 publishVerifyMs=7 bytes=181370 verified=1",
+    "elapsedMs": 41,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 28,
+      "publishVerifyMs": 7,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 4,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r6b3c3198e64843a1ba707551557ccc99",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=28 publishVerifyMs=6 bytes=181370 verified=1",
+    "elapsedMs": 39,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 28,
+      "publishVerifyMs": 6,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 4,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r533ecc594dc6496ab0a0d8e35bd72728",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=7 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 7,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 5,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r67146483a0e14639bbca4417a31ec81f",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=7 bytes=49756 verified=1",
+    "elapsedMs": 13,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 7,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 5,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "ref566aecb5d04d9d8cab6da51700889a",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=24 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 37,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 24,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 6,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "re123ad0dd9ff415d9f77966c94dbac33",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=27 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 40,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 27,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 6,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rb829251cb8a147e2973f4b023f4051a8",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=8 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 8,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 7,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r3c504ebec90d4fc6940675af6aed08de",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=7 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 7,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 7,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r55449b507f3d4cc4920002b9b11c476f",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=25 publishVerifyMs=7 bytes=181370 verified=1",
+    "elapsedMs": 38,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 25,
+      "publishVerifyMs": 7,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 8,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r9398856ffca24ea291fd428ff9c3b63a",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=25 publishVerifyMs=7 bytes=181370 verified=1",
+    "elapsedMs": 37,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 25,
+      "publishVerifyMs": 7,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 8,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rb9af486301254e118753e39f2afbd43e",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=1 publishVerifyMs=6 bytes=49756 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 1,
+      "publishVerifyMs": 6,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 9,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rf98a7a0442e24e79a148411914e70c0f",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=1 publishVerifyMs=6 bytes=49756 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 1,
+      "publishVerifyMs": 6,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 9,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r53a50eba5abb442699167f33838404bf",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=26 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 39,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 26,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 10,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r7ad62db2a651490eaa62256a486a05eb",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=26 publishVerifyMs=9 bytes=181370 verified=1",
+    "elapsedMs": 39,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 26,
+      "publishVerifyMs": 9,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 10,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r57ee7d62eb284533a00935ac66c7a76f",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=7 bytes=49756 verified=1",
+    "elapsedMs": 11,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 7,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 11,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rc8b9a5ff1f81482ea4c8b2af183ecc9b",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=8 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 8,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 11,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "rc986215eaa8a4c56ac94b592683875c3",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=25 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 38,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 25,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 12,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r14c360806c0643fd9cf974c46d178126",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=25 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 38,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 25,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 12,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r8cae4266085541838b4d4c3efada1b6b",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=0 publishVerifyMs=7 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 0,
+      "publishVerifyMs": 7,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 13,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r26dc406b6ed140629d07107c95f8ed6f",
+    "returnType": "string",
+    "returned": "binary=1 count=512 encodeMs=1 publishVerifyMs=6 bytes=49756 verified=1",
+    "elapsedMs": 12,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 1,
+      "count": 512,
+      "encodeMs": 1,
+      "publishVerifyMs": 6,
+      "bytes": 49756,
+      "verified": 1
+    }
+  },
+  {
+    "iteration": 13,
+    "warmup": false,
+    "state": "invoked",
+    "processId": 55744,
+    "receipt": "r7af8ca814a384f6fa145df8b06c07613",
+    "returnType": "string",
+    "returned": "binary=0 count=512 encodeMs=27 publishVerifyMs=8 bytes=181370 verified=1",
+    "elapsedMs": 39,
+    "scope": "Embedded Workbench Play only. Invoked means the synchronous named call returned true; inspect logs and gameplay state for script exceptions/deferred effects. Return values use the requested compiler-checked type; void explicitly discards results. Never replay an uncertain call.",
+    "metrics": {
+      "binary": 0,
+      "count": 512,
+      "encodeMs": 27,
+      "publishVerifyMs": 8,
+      "bytes": 181370,
+      "verified": 1
+    }
+  }
+]

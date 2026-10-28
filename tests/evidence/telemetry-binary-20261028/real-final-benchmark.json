@@ -1,0 +1,352 @@
+{
+  "chunks": 55,
+  "roundTripExactLogicalData": true,
+  "jsonBytes": 3295048,
+  "binaryBytes": 2542274,
+  "gzipJsonBytes": 273570,
+  "gzipBinaryBytes": 234692,
+  "brotliJsonBytes": 133481,
+  "brotliBinaryBytes": 122724,
+  "timing": {
+    "jsonValidateEncodeMs": 50.9484,
+    "binaryValidateEncodeMs": 44.4808,
+    "jsonParseValidateMs": 30.4924,
+    "binaryDecodeValidateAndJsonProjectionMs": 65.1301,
+    "jsonBrotliMs": 11.3888,
+    "binaryBrotliMs": 10.5762,
+    "binaryBrotliDecodeMs": 1.0674
+  },
+  "scope": "External .NET median of 7 warmed whole-corpus runs, no file IO; binary decoding includes JSONB projection. Compression is chunk-local Brotli quality 4/window 22 or gzip Fastest. Not game-thread or multiplayer evidence.",
+  "files": [
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-0.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-0.l2t",
+      "rawBytes": 67767,
+      "binaryBytes": 66228
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-1.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-1.l2t",
+      "rawBytes": 70018,
+      "binaryBytes": 66933
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-10.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-10.l2t",
+      "rawBytes": 70044,
+      "binaryBytes": 66938
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-11.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-11.l2t",
+      "rawBytes": 66230,
+      "binaryBytes": 29936
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-12.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-12.l2t",
+      "rawBytes": 66524,
+      "binaryBytes": 17972
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-13.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-13.l2t",
+      "rawBytes": 27739,
+      "binaryBytes": 7796
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-14.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-14.l2t",
+      "rawBytes": 32217,
+      "binaryBytes": 8949
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-15.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-15.l2t",
+      "rawBytes": 47553,
+      "binaryBytes": 12981
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-16.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-16.l2t",
+      "rawBytes": 48327,
+      "binaryBytes": 13173
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-17.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-17.l2t",
+      "rawBytes": 47560,
+      "binaryBytes": 12981
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-18.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-18.l2t",
+      "rawBytes": 47527,
+      "binaryBytes": 12981
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-19.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-19.l2t",
+      "rawBytes": 47485,
+      "binaryBytes": 12980
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-2.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-2.l2t",
+      "rawBytes": 70058,
+      "binaryBytes": 66963
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-20.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-20.l2t",
+      "rawBytes": 47837,
+      "binaryBytes": 13076
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-21.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-21.l2t",
+      "rawBytes": 47517,
+      "binaryBytes": 12981
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-22.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-22.l2t",
+      "rawBytes": 57968,
+      "binaryBytes": 25669
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-23.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-23.l2t",
+      "rawBytes": 67729,
+      "binaryBytes": 66437
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-24.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-24.l2t",
+      "rawBytes": 70147,
+      "binaryBytes": 67031
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-25.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-25.l2t",
+      "rawBytes": 70143,
+      "binaryBytes": 67028
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-26.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-26.l2t",
+      "rawBytes": 70119,
+      "binaryBytes": 67010
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-27.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-27.l2t",
+      "rawBytes": 70099,
+      "binaryBytes": 66995
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-28.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-28.l2t",
+      "rawBytes": 70101,
+      "binaryBytes": 66996
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-29.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-29.l2t",
+      "rawBytes": 70157,
+      "binaryBytes": 67038
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-3.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-3.l2t",
+      "rawBytes": 70049,
+      "binaryBytes": 66957
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-30.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-30.l2t",
+      "rawBytes": 70156,
+      "binaryBytes": 67031
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-31.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-31.l2t",
+      "rawBytes": 70169,
+      "binaryBytes": 67040
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-32.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-32.l2t",
+      "rawBytes": 70159,
+      "binaryBytes": 67024
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-33.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-33.l2t",
+      "rawBytes": 70178,
+      "binaryBytes": 67039
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-34.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-34.l2t",
+      "rawBytes": 66496,
+      "binaryBytes": 25958
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-35.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-35.l2t",
+      "rawBytes": 66346,
+      "binaryBytes": 17877
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-36.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-36.l2t",
+      "rawBytes": 31487,
+      "binaryBytes": 8757
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-37.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-37.l2t",
+      "rawBytes": 69230,
+      "binaryBytes": 56795
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-38.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-38.l2t",
+      "rawBytes": 70161,
+      "binaryBytes": 67042
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-39.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-39.l2t",
+      "rawBytes": 70173,
+      "binaryBytes": 67051
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-4.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-4.l2t",
+      "rawBytes": 69961,
+      "binaryBytes": 66891
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-40.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-40.l2t",
+      "rawBytes": 70151,
+      "binaryBytes": 67034
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-41.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-41.l2t",
+      "rawBytes": 70195,
+      "binaryBytes": 67067
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-42.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-42.l2t",
+      "rawBytes": 70189,
+      "binaryBytes": 67063
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-43.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-43.l2t",
+      "rawBytes": 70209,
+      "binaryBytes": 67078
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-44.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-44.l2t",
+      "rawBytes": 70144,
+      "binaryBytes": 67028
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-45.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-45.l2t",
+      "rawBytes": 70206,
+      "binaryBytes": 67063
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-46.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-46.l2t",
+      "rawBytes": 70202,
+      "binaryBytes": 67059
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-47.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-47.l2t",
+      "rawBytes": 70228,
+      "binaryBytes": 67078
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-48.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-48.l2t",
+      "rawBytes": 66264,
+      "binaryBytes": 45935
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-49.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-49.l2t",
+      "rawBytes": 57639,
+      "binaryBytes": 15477
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-5.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-5.l2t",
+      "rawBytes": 70061,
+      "binaryBytes": 66966
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-50.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-50.l2t",
+      "rawBytes": 47805,
+      "binaryBytes": 12983
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-51.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-51.l2t",
+      "rawBytes": 63224,
+      "binaryBytes": 31743
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-52.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-52.l2t",
+      "rawBytes": 1048,
+      "binaryBytes": 789
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-53.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-53.l2t",
+      "rawBytes": 1048,
+      "binaryBytes": 789
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-54.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-54.l2t",
+      "rawBytes": 689,
+      "binaryBytes": 702
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-6.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-6.l2t",
+      "rawBytes": 70061,
+      "binaryBytes": 66966
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-7.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-7.l2t",
+      "rawBytes": 70069,
+      "binaryBytes": 66966
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-8.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-8.l2t",
+      "rawBytes": 70058,
+      "binaryBytes": 66956
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\VS\\reforger-script-tools\\.temp\\local\\binary-corpus\\01a17fa5-08c4-874c-8400-000000211753-telemetry-9.json",
+      "binary": "01a17fa5-08c4-874c-8400-000000211753-telemetry-9.l2t",
+      "rawBytes": 70127,
+      "binaryBytes": 66998
+    }
+  ]
+}

@@ -135,7 +135,7 @@ native degrees, velocity, stance, aim/look, lean, dynamic stance and
 ADS/raised/reload/sprint/freelook flags. No bones, skeleton definitions, weapon
 matrices or ragdolls are recorded. The viewer selects/blends compatible animations;
 these inputs do not reproduce exact original animation frames. Positions, angles,
-velocity and animation scalars are serialized to three decimal places. States are compared before JSON allocation: position/velocity/angular vectors
+velocity and animation scalars are decoded to three decimal places. States are compared before binary table allocation: position/velocity/angular vectors
 use a 0.001 magnitude threshold and lean/stance-height/movement scalars use 0.001,
 relative to the last emitted state. Discrete flags/commands/stance remain exact.
 Sub-threshold changes accumulate; a five-second heartbeat refreshes all values. Each emitted state is a
@@ -187,8 +187,9 @@ Telemetry stays separate from aggregate statistics and session audit events.
 fresh UUID for each start/stop interval; revision starts at zero. Use the existing
 importer and credentials with a dedicated `Lobby2Telemetry` outbox. Apply
 `schema.sql`; grant SELECT/INSERT on `lobby2.telemetry_batches`. Files are named
-`<recordingId>-telemetry-<revision>.json`, published with the existing `.json.ready`
-protocol. Payloads remain after import; only acknowledged ready markers are
+`<recordingId>-telemetry-<revision>.l2t`, published with a `.l2t.ready`
+marker. The importer converts binary to the existing PostgreSQL JSONB payload.
+Legacy JSON batches remain readable. Spool payloads remain after import; only acknowledged ready markers are
 removed. Size is limited to 1 MiB and 1024 records per batch. These are storage
 bounds, **not measured safe in-game write sizes**. The importer retains invalid,
 conflicting or temporarily unsuccessful batches. Serializable database conflicts
@@ -306,3 +307,56 @@ impacts, grenade trajectories/detonations and damage ownership independently.
 The current player statistics hooks do not establish that full coverage.
 
 Validation on 2026-10-27: Release build passed with zero warnings/errors; 26 synthetic CLI contract cases passed. A new isolated PostgreSQL test cluster accepted schema application twice and all 41 combined contract/integration cases, including idempotent retry, conflicting content, closure and sparse out-of-order sequence/time/drop checks. Readback distinguished a closed contiguous recording from an open recording missing revisions. The test cluster was stopped. Independent source review approved this ingestion-only increment. Live Reforger compilation/capture, asset conversion, playback and 128-player overhead remain untested; the configured MCP endpoint refused connection.
+
+### Binary recording and PostgreSQL storage
+
+The game records L2TB v1 by default. The external importer converts it to logical
+schema-2 JSONB in `lobby2.telemetry_batches`. PostgreSQL is the replay store for
+now. There is no separate archive service, compression worker, cache tier or
+automatic retention policy. Binary files are the existing local delivery spool,
+not a second playback storage system. Monitor that spool's disk use; its existing
+per-recording quota and manual cleanup policy still apply.
+
+Movement uses native bulk integer/float array writes, avoiding per-state JSON
+serialization. Metadata, gear and infrequent events retain JSON inside each batch.
+No compression or database work runs in the game. Cadence, change thresholds,
+authority, quotas and disabled-by-default behavior remain unchanged.
+
+`dotnet StatsIngest.dll --decode-telemetry capture.l2t capture.json` validates and
+exports a batch without consuming it; the output must not already exist.
+`--once OUTBOX` and `--validate OUTBOX` accept `.l2t.ready` and legacy `.json.ready`.
+Do not re-encode an already imported recording and import it again: checksums
+identify immutable delivery bytes, so that would correctly conflict.
+
+The optional `--binary-benchmark JSON_FILE_OR_DIRECTORY OUTPUT_DIRECTORY` command
+round-trips schema-2 captures and measures encoding, decoding and compression.
+Supply a directory containing only telemetry JSON. Its `.l2t.br` files are
+benchmark artifacts, not a deployed archive or ingestion format.
+`web/telemetry-binary.mjs` is an independent decoder for format verification and
+future consumers; the website can read JSON from PostgreSQL instead. The browser
+module checks framing/numeric timelines; full semantics belong to the C# importer.
+
+L2TB v1 layout (little-endian, no padding): six int32 words containing magic
+`0x4254324C`, version `1`, header UTF-8 byte length, cold-event UTF-8 byte length,
+character count and vehicle count. Then header JSON without `records`, cold JSON
+array, character integer table, character float table, vehicle integer table,
+and vehicle float table. Each table is row-major. Character integer rows are
+`sequence, numericEntityId, flags, command`; vehicle rows omit command. Character
+flags pack stance in bits 0-7, animation flags in bits 8-12, and discontinuity in
+bit 16; vehicle flags contain only discontinuity in bit 0. IDs decode as `entity-N`.
+Character float32 rows contain `timeMs, previousSampleMs, position[3],
+anglesDegrees[3], velocity[3], aimRadians[3], lookRadians[3], lean, dynamicStance,
+movement`. Vehicle float rows end after velocity. Character states cost 96 bytes;
+vehicle states cost 56 bytes, excluding shared header/cold data. Clocks decode by
+truncating to six decimals to match native JSON envelope boundaries; other floats
+round to three decimals. Records merge by sequence and undergo existing contract
+and continuity validation. Unsupported versions, invalid lengths, duplicate
+sequences, invalid flags and nonfinite numbers are rejected. Bounds remain 1 MiB
+and 1024 records per batch; native queues remain capped at 512 records.
+
+Build Release, then run `python tests/telemetry_contract_test.py` and
+`python tests/telemetry_binary_contract_test.py NATIVE_PACKET.l2t` for validation.
+`node tests/telemetry_binary_test.mjs OUTPUT_DIRECTORY/benchmark.json` checks
+independent JavaScript decoding. Audit exported JSON with the existing
+`tests/telemetry_capture_audit.py`; there is no Python binary implementation.
+See `tests/evidence/telemetry-binary-20261028/report.txt` for measured scope.

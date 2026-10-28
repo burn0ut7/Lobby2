@@ -1,0 +1,3140 @@
+[
+  {
+    "schemaVersion": 2,
+    "recordingId": "01a18108-cbd0-8f84-8400-0000000353c9",
+    "missionId": "01a18104-8c1e-8058-8400-00000001fd83",
+    "seconds": 48.45046875,
+    "batches": 21,
+    "rawBytes": 1179667,
+    "gzipBytesPerBatch": 59238,
+    "bytesPerSecond": 24347.896530928818,
+    "closed": true,
+    "stopReason": "disabled",
+    "droppedRecords": 0,
+    "contiguousRevisions": true,
+    "contiguousSequences": true,
+    "monotonicTimes": true,
+    "recordCounts": {
+      "spawn": 129,
+      "state": 1247,
+      "equipment": 129,
+      "seat": 129,
+      "appearance": 129,
+      "despawn": 127,
+      "damage": 1,
+      "death": 1
+    },
+    "coverage": {
+      "actors": "players",
+      "pose": "inferred",
+      "shots": true,
+      "impacts": false,
+      "damage": true,
+      "grenades": true,
+      "vehicles": true,
+      "gear": true
+    },
+    "spawns": [
+      {
+        "entity": "entity-1",
+        "kind": "player",
+        "prefab": "{333DA6244C7DA34C}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_SR.et",
+        "playerIdentity": "1e7013aa-2f4c-4bec-af61-da40e4c5ec02",
+        "faction": "USSR",
+        "position": [
+          1197.625,
+          39.0,
+          2738.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "entity": "entity-2",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-3",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-4",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-5",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-6",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-7",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-8",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-9",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-10",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-11",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-12",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-13",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-14",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-15",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-16",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-17",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1231.625,
+          39.0,
+          2742.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-18",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-19",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-20",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-21",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-22",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-23",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-24",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-25",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-26",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-27",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-28",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-29",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-30",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-31",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-32",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-33",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1231.625,
+          39.0,
+          2744.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-34",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-35",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-36",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-37",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-38",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-39",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-40",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-41",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-42",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-43",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-44",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-45",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-46",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-47",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-48",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-49",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1231.625,
+          39.0,
+          2746.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-50",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-51",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-52",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-53",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-54",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-55",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-56",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-57",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-58",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-59",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-60",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-61",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-62",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-63",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-64",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-65",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1231.625,
+          39.0,
+          2748.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-66",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-67",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-68",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-69",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-70",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-71",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-72",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-73",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-74",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-75",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-76",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-77",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-78",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-79",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-80",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-81",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1231.625,
+          39.0,
+          2750.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-82",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-83",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-84",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-85",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-86",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-87",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-88",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-89",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-90",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-91",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-92",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-93",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-94",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-95",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-96",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-97",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1231.625,
+          39.0,
+          2752.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-98",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-99",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-100",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-101",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-102",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-103",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-104",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-105",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-106",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-107",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-108",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-109",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-110",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-111",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-112",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-113",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1231.625,
+          39.0,
+          2754.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-114",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1201.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-115",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1203.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-116",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1205.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-117",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1207.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-118",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1209.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-119",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1211.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-120",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1213.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-121",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1215.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-122",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1217.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-123",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1219.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-124",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1221.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-125",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1223.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-126",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1225.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-127",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1227.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-128",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1229.625,
+          39.0,
+          2756.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      },
+      {
+        "entity": "entity-129",
+        "kind": "ai",
+        "prefab": "{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et",
+        "playerIdentity": "",
+        "faction": "USSR",
+        "position": [
+          1200.625,
+          39.0,
+          2738.455078
+        ],
+        "anglesDegrees": [
+          0.0,
+          0.0,
+          -0.0
+        ]
+      }
+    ],
+    "stances": [
+      0,
+      1,
+      2
+    ],
+    "flags": [
+      0,
+      2,
+      3
+    ],
+    "leanRange": [
+      0,
+      0.6
+    ],
+    "maxSpeedMps": 0.14286357128393506,
+    "medianStateIntervalMs": 5072.71875,
+    "maxStateIntervalMs": 5180.53125,
+    "maxObservationWindowMs": 315.21875,
+    "statesAfterDeath": 0,
+    "bonesPerSkeleton": [],
+    "seatChanges": [
+      {
+        "entity": "entity-1",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-2",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-3",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-4",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-5",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-6",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-7",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-8",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-9",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-10",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-11",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-12",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-13",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-14",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-15",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-16",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-17",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-18",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-19",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-20",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-21",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-22",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-23",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-24",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-25",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-26",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-27",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-28",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-29",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-30",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-31",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-32",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-33",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-34",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-35",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-36",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-37",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-38",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-39",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-40",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-41",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-42",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-43",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-44",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-45",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-46",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-47",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-48",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-49",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-50",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-51",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-52",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-53",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-54",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-55",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-56",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-57",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-58",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-59",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-60",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-61",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-62",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-63",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-64",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-65",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-66",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-67",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-68",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-69",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-70",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-71",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-72",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-73",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-74",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-75",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-76",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-77",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-78",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-79",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-80",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-81",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-82",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-83",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-84",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-85",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-86",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-87",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-88",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-89",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-90",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-91",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-92",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-93",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-94",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-95",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-96",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-97",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-98",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-99",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-100",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-101",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-102",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-103",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-104",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-105",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-106",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-107",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-108",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-109",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-110",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-111",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-112",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-113",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-114",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-115",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-116",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-117",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-118",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-119",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-120",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-121",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-122",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-123",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-124",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-125",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-126",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-127",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-128",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      },
+      {
+        "entity": "entity-129",
+        "vehicle": "",
+        "seatIndex": -1,
+        "compartmentType": -1
+      }
+    ],
+    "linkedProjectileDamageCount": 0,
+    "linkedDamageDeathCount": 0,
+    "firstLaunch": null,
+    "grenades": [],
+    "files": [
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-0.json",
+        "bytes": 67562,
+        "sha256": "45bec3b672e629ee8ea7183391652b8dd653f3f05fe33a694e4cc1267a59a193"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-1.json",
+        "bytes": 69601,
+        "sha256": "d90988fffa4c7a30c4664f456df301041491bc533ebd02241a80571e20bc6a52"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-2.json",
+        "bytes": 69629,
+        "sha256": "b1c92d1cc5ee4cbf0c81fa5c58129dfea8b6b6a11f9fb4b2c9129acc88484f46"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-3.json",
+        "bytes": 69592,
+        "sha256": "7c0bf8a10e1aeb8a64174823d9b3de5cab3e1c8d060651eb60be8ca2f2cb82b1"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-4.json",
+        "bytes": 69563,
+        "sha256": "e6c50bb0a05b4b0be870a5b689aa47fbc35aacbc5c5dee6a7db3ce730b41e748"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-5.json",
+        "bytes": 69612,
+        "sha256": "e4cd800d3385164d07d15834a75e0ca019f188f184bc1ab61673e22daf6b713b"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-6.json",
+        "bytes": 69584,
+        "sha256": "ead0e42be121102bb4588fdbb3a4c3a362df47030af779ff54be6b87372bea80"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-7.json",
+        "bytes": 69639,
+        "sha256": "1cd9c56e9b0904f3bbf5d47d49a970cd20e68dd0671340ebca0ee876c4d22cb6"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-8.json",
+        "bytes": 69660,
+        "sha256": "19f5064d676a81add3c77c9bc8d38373fb936cc3fe039b4672b7c565e33a8f09"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-9.json",
+        "bytes": 69742,
+        "sha256": "268ca7d47305b22abe42afdafe943ba25111129dd1957898fa7547ab3ac4f086"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-10.json",
+        "bytes": 69659,
+        "sha256": "cc66928e983aa767c7bd69e0f718b51f8700b4ee71402bb2c399c7d22dd763c5"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-11.json",
+        "bytes": 93324,
+        "sha256": "b1eba3f59eaad78599fb7ab51346d0ada4cd08258a66384ecedaee01fed267ba"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-12.json",
+        "bytes": 43856,
+        "sha256": "e5b4d9cd0ef5d8c9235c52abf8328dc918abe71faf8d32975a42dbb973ec9745"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-13.json",
+        "bytes": 44281,
+        "sha256": "3d56b845278549099145821e11a60f32994948802b9b7d41ea1f568961a21910"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-14.json",
+        "bytes": 43319,
+        "sha256": "7b9901faebc4067b9b3be2cd3e75e3294e19faf37f41db4242bdc2d41c75f915"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-15.json",
+        "bytes": 43668,
+        "sha256": "b3676adeae792fb3beefee9b6c1d905c993eda8ab5b5ef02fbcf85d8754324b0"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-16.json",
+        "bytes": 43713,
+        "sha256": "24cc05383b913890b83104b5c9e4006d92b1f488034b0c9931e0922d36dbc195"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-17.json",
+        "bytes": 43275,
+        "sha256": "f0ffdadcfccd7cce720031662345b0641f9d0a00c451fabdefcbeea133cdaa59"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-18.json",
+        "bytes": 58688,
+        "sha256": "e96fa0f1f490ea36fb7fbb94202eafb79844ccdbd56e866f2b116a2551b88aa5"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-19.json",
+        "bytes": 1013,
+        "sha256": "82f07a14a50bcba6b0e8fbd3ec22658a66b968db3695859174a7d10061b20452"
+      },
+      {
+        "path": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\live\\decoded\\01a18108-cbd0-8f84-8400-0000000353c9-telemetry-20.json",
+        "bytes": 687,
+        "sha256": "32834603ed1673407595d6e3997536e96bd8f23ce600442878a5a5fac6a0bdfe"
+      }
+    ]
+  }
+]

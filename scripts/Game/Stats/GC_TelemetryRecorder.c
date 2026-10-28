@@ -11,6 +11,8 @@ class GC_TelemetryRecorder
 	protected int m_iFirstSequence = 1;
 	protected int m_iRevision;
 	protected int m_iRecordCount;
+	protected int m_iColdCount;
+	protected ref GC_TelemetryBinaryBatch m_Binary = new GC_TelemetryBinaryBatch();
 	protected int m_iDropped;
 	protected float m_fBytes;
 	protected float m_fByteLimit;
@@ -129,15 +131,22 @@ class GC_TelemetryRecorder
 	}
 
 	//------------------------------------------------------------------------------------------------
-	int CommitData(string type, string data)
+	int CommitState(int entity, vector position, vector angles, vector velocity, GC_SpectatorSample sample, bool discontinuity, float previousSampleMs)
 	{
-		JsonSaveContext header = new JsonSaveContext();
-		header.SetMaxDecimalPlaces(6);
-		header.WriteValue("sequence", m_iSequence + 1);
-		header.WriteValue("timeMs", Now());
-		header.WriteValue("type", type);
-		string encoded = header.SaveToString();
-		return CommitEncoded(encoded.Substring(0, encoded.Length() - 1) + ",\"data\":" + data + "}");
+		if (!m_bRunning)
+			return 0;
+		int size = 56;
+		if (sample)
+			size = 96;
+		if (m_sRecords.Length() + m_Binary.GetNumericBytes() + size > MAX_QUEUED_BYTES || m_iRecordCount >= 512)
+		{
+			m_iDropped++;
+			Stop("overflow");
+			return 0;
+		}
+		m_Binary.Add(m_iSequence + 1, Now(), entity, position, angles, velocity, sample, discontinuity, previousSampleMs);
+		m_iRecordCount++;
+		return ++m_iSequence;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -145,15 +154,16 @@ class GC_TelemetryRecorder
 	{
 		if (!m_bRunning)
 			return 0;
-		if (record.Length() < 2 || m_sRecords.Length() + record.Length() + 1 > MAX_QUEUED_BYTES || m_iRecordCount >= 512)
+		if (record.Length() < 2 || m_sRecords.Length() + m_Binary.GetNumericBytes() + record.Length() + 1 > MAX_QUEUED_BYTES || m_iRecordCount >= 512)
 		{
 			m_iDropped++;
 			Stop("overflow");
 			return 0;
 		}
-		if (m_iRecordCount > 0)
+		if (m_iColdCount > 0)
 			m_sRecords += ",";
 		m_sRecords += record;
+		m_iColdCount++;
 		m_iRecordCount++;
 		return ++m_iSequence;
 	}
@@ -362,14 +372,14 @@ class GC_TelemetryRecorder
 			}
 			else
 				m_iCursor++;
-			if (System.GetTickCount(started) >= 2 || m_sRecords.Length() >= 65536)
+			if (System.GetTickCount(started) >= 2 || m_sRecords.Length() + m_Binary.GetNumericBytes() >= 65536)
 				break;
 		}
 		int elapsed = System.GetTickCount(started);
 		m_iSteps++;
 		m_iCaptureMs += elapsed;
 		m_iMaxCaptureMs = Math.Max(m_iMaxCaptureMs, elapsed);
-		if (!m_bRunning || m_sRecords.Length() >= 65536 || m_iRecordCount >= 384 || now - m_fLastFlush >= 5000)
+		if (!m_bRunning || m_sRecords.Length() + m_Binary.GetNumericBytes() >= 65536 || m_iRecordCount >= 384 || now - m_fLastFlush >= 5000)
 			Flush();
 	}
 
@@ -415,14 +425,11 @@ class GC_TelemetryRecorder
 			context.WriteValue("vehicles", captured);
 			context.WriteValue("gear", captured);
 			context.EndObject();
-			string header = context.SaveToString();
-			// Both parts were encoded by the native JSON serializer. Concatenate
-			// already-encoded records without reparsing a growing history each frame.
-			m_sPending = header.Substring(0, header.Length() - 1) + ",\"records\":[" + m_sRecords + "]}";
+			m_sPending = context.SaveToString();
 		}
 		int started = System.GetTickCount();
-		string path = string.Format("%1/%2-telemetry-%3.json", OUTBOX, m_sRecordingId, m_iRevision);
-		bool saved = GC_StatsOutbox.WriteVerified(path, m_sPending) && GC_StatsOutbox.WriteReady(path + ".ready");
+		string path = string.Format("%1/%2-telemetry-%3.l2t", OUTBOX, m_sRecordingId, m_iRevision);
+		bool saved = m_Binary.SaveVerified(path, m_sPending, "[" + m_sRecords + "]") && GC_StatsOutbox.WriteReady(path + ".ready");
 		int elapsed = System.GetTickCount(started);
 		m_iWriteMs += elapsed;
 		m_iMaxWriteMs = Math.Max(m_iMaxWriteMs, elapsed);
@@ -433,11 +440,13 @@ class GC_TelemetryRecorder
 			Print("GC | Telemetry | publication failed; retained pending payload; " + Report(), LogLevel.ERROR);
 			return;
 		}
-		m_fBytes += m_sPending.Length();
+		m_fBytes += 24 + m_sPending.Length() + m_sRecords.Length() + 2 + m_Binary.GetNumericBytes();
 		m_iRevision++;
 		m_sPending = string.Empty;
 		m_sRecords = string.Empty;
 		m_iRecordCount = 0;
+		m_iColdCount = 0;
+		m_Binary = new GC_TelemetryBinaryBatch();
 		m_iFirstSequence = m_iSequence + 1;
 		m_fFrom = Now();
 		m_fLastFlush = m_fFrom;

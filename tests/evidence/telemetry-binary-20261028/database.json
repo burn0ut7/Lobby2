@@ -1,0 +1,10 @@
+{
+  "recordingId": "01a18108-cbd0-8f84-8400-0000000353c9",
+  "storedBatches": 21,
+  "storedRecords": 1892,
+  "allJsonbPayloadsEqualDecoded": true,
+  "duplicateReplayAccepted": true,
+  "changedBytesRejectedAndRetained": true,
+  "rowCountsAfterConflict": "21|1892",
+  "nativeBytes": 885939
+}

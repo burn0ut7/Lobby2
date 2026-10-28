@@ -1,0 +1,28 @@
+{
+  "chunks": 1,
+  "roundTripExactLogicalData": true,
+  "jsonBytes": 181370,
+  "binaryBytes": 49756,
+  "gzipJsonBytes": 12789,
+  "gzipBinaryBytes": 8043,
+  "brotliJsonBytes": 6434,
+  "brotliBinaryBytes": 4061,
+  "timing": {
+    "jsonValidateEncodeMs": 6.7979,
+    "binaryValidateEncodeMs": 9.8433,
+    "jsonParseValidateMs": 8.168,
+    "binaryDecodeValidateAndJsonProjectionMs": 11.6035,
+    "jsonBrotliMs": 0.5454,
+    "binaryBrotliMs": 0.2605,
+    "binaryBrotliDecodeMs": 0.0305
+  },
+  "scope": "External .NET median of 7 warmed whole-corpus runs, no file IO; binary decoding includes JSONB projection. Compression is chunk-local Brotli quality 4/window 22 or gzip Fastest. Not game-thread or multiplayer evidence.",
+  "files": [
+    {
+      "source": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\profile\\TelemetryBinaryBench\\native.json",
+      "binary": "native.l2t",
+      "rawBytes": 181370,
+      "binaryBytes": 49756
+    }
+  ]
+}

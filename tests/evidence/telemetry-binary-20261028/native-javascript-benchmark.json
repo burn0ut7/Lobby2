@@ -1,0 +1,16 @@
+{
+  "chunks": 1,
+  "exactLogicalRoundTrips": 1,
+  "malformedPacketsRejected": 14,
+  "jsonParse": {
+    "medianMs": 0.5071999999999974,
+    "minMs": 0.44020000000000437,
+    "maxMs": 0.8980999999999995
+  },
+  "binaryDecode": {
+    "medianMs": 0.263300000000001,
+    "minMs": 0.18200000000000216,
+    "maxMs": 0.8438000000000017
+  },
+  "scope": "Node v24.19.0, same browser-compatible decoder; memory-only corpus, 5 warmups/15 runs. JSON baseline parses only; binary additionally checks framing and numeric timelines. Not a browser rendering or network benchmark."
+}

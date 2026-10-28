@@ -1,0 +1,40 @@
+{
+  "chunks": 3,
+  "roundTripExactLogicalData": true,
+  "jsonBytes": 2401,
+  "binaryBytes": 2103,
+  "gzipJsonBytes": 1628,
+  "gzipBinaryBytes": 1561,
+  "brotliJsonBytes": 1293,
+  "brotliBinaryBytes": 1200,
+  "timing": {
+    "jsonValidateEncodeMs": 0.0602,
+    "binaryValidateEncodeMs": 0.07,
+    "jsonParseValidateMs": 0.0546,
+    "binaryDecodeValidateAndJsonProjectionMs": 0.103,
+    "jsonBrotliMs": 0.4714,
+    "binaryBrotliMs": 0.4258,
+    "binaryBrotliDecodeMs": 0.0107
+  },
+  "scope": "External .NET median of 7 warmed whole-corpus runs, no file IO; binary decoding includes JSONB projection. Compression is chunk-local Brotli quality 4/window 22 or gzip Fastest. Not game-thread or multiplayer evidence.",
+  "files": [
+    {
+      "source": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\edge-input\\cold.json",
+      "binary": "cold.l2t",
+      "rawBytes": 870,
+      "binaryBytes": 829
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\edge-input\\empty.json",
+      "binary": "empty.l2t",
+      "rawBytes": 645,
+      "binaryBytes": 604
+    },
+    {
+      "source": "C:\\Users\\Gray\\Documents\\Lobby2Data\\benchmarks\\binary-20261028\\edge-input\\vehicle.json",
+      "binary": "vehicle.l2t",
+      "rawBytes": 886,
+      "binaryBytes": 670
+    }
+  ]
+}

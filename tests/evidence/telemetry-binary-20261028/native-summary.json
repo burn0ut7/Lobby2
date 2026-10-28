@@ -1,0 +1,66 @@
+[
+  {
+    "count": 128,
+    "binary": false,
+    "samples": 12,
+    "encodeMedianMs": 3.0,
+    "encodeRangeMs": [
+      2,
+      3
+    ],
+    "publishMedianMs": 7.5,
+    "publishRangeMs": [
+      7,
+      9
+    ],
+    "bytes": 45550
+  },
+  {
+    "count": 128,
+    "binary": true,
+    "samples": 12,
+    "encodeMedianMs": 0.0,
+    "encodeRangeMs": [
+      0,
+      1
+    ],
+    "publishMedianMs": 6.0,
+    "publishRangeMs": [
+      5,
+      7
+    ],
+    "bytes": 12892
+  },
+  {
+    "count": 512,
+    "binary": false,
+    "samples": 12,
+    "encodeMedianMs": 26.0,
+    "encodeRangeMs": [
+      24,
+      28
+    ],
+    "publishMedianMs": 8.0,
+    "publishRangeMs": [
+      6,
+      9
+    ],
+    "bytes": 181370
+  },
+  {
+    "count": 512,
+    "binary": true,
+    "samples": 12,
+    "encodeMedianMs": 0.0,
+    "encodeRangeMs": [
+      0,
+      1
+    ],
+    "publishMedianMs": 7.0,
+    "publishRangeMs": [
+      6,
+      8
+    ],
+    "bytes": 49756
+  }
+]
