@@ -374,13 +374,20 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			TextWidget.Cast(row.FindAnyWidget("Cell5")).SetText(zone.Behavior);
 			SCR_ButtonTextComponent action = SCR_ButtonTextComponent.GetButtonText("ZoneAction", row);
 			string label = "End setup";
+			string icon = "cancelCircle";
 			if (zone.Kind == "AO")
 			{
 				label = "Enable AO";
+				icon = "play";
 				if (zone.Enabled)
+				{
 					label = "Disable AO";
+					icon = "cancelCircle";
+				}
 			}
 			action.SetText(label);
+			ImageWidget.Cast(action.GetRootWidget().FindAnyWidget("Icon")).LoadImageFromSet(0,
+				"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", icon);
 			action.SetEnabled(zone.Valid && (zone.Kind == "AO" || zone.Enabled));
 			SCR_ButtonTextComponent extend = SCR_ButtonTextComponent.GetButtonText("ZoneExtend", row);
 			extend.SetText("Add time");
