@@ -17,6 +17,14 @@ FrameWidgetClass {
     OffsetBottom 0
    }
   }
+  EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" {
+   Name "PickerSearch"
+   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 52 OffsetTop 8 OffsetRight 12 OffsetBottom 8 }
+   "Use placeholder text" 1
+   "Placeholder text" "Choose players..."
+   "Font Size" 25
+   components { SCR_EventHandlerComponent "{7C41F8A018B24B04}" {} }
+  }
   ImageWidgetClass {
    Slot FrameWidgetSlot { Anchor 0 0.5 0 0.5 OffsetLeft 12 OffsetTop -12 OffsetRight -36 OffsetBottom -12 }
    "Ignore Cursor" 1

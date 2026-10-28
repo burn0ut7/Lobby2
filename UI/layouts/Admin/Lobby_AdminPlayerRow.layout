@@ -7,14 +7,14 @@ ButtonWidgetClass {
  components {
   SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
    m_bCanBeToggled 1
-   m_BackgroundDefault 0.005 0.009 0.012 1
-   m_BackgroundHovered 0.16 0.18 0.18 1
-   m_BackgroundSelected 0.11 0.075 0.025 1
-   m_BackgroundSelectedHovered 0.18 0.13 0.05 1
-   m_BackgroundClicked 0.18 0.13 0.05 1
+   m_BackgroundDefault 0 0 0 0
+   m_BackgroundHovered 1 1 1 0.12
+   m_BackgroundSelected 0.9 0.68 0.27 0.45
+   m_BackgroundSelectedHovered 0.9 0.68 0.27 0.55
+   m_BackgroundClicked 0.9 0.68 0.27 0.55
    m_bShowBorderOnFocus 0
    m_bUseTextColorization 1
-   m_TextDefault 0.94 0.94 0.92 1
+   m_TextDefault 0.94 0.94 0.94 1
    m_TextToggled 1 1 1 1
   }
  }
@@ -24,7 +24,7 @@ ButtonWidgetClass {
     HorizontalAlign 3
    }
    AllowHeightOverride 1
-   HeightOverride 64
+   HeightOverride 42
    "Ignore Cursor" 1
    {
     OverlayWidgetClass "{7C41F8A018B24C02}" {
@@ -39,7 +39,7 @@ ButtonWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0.005 0.009 0.012 1
+       Color 0 0 0 0
        style full
       }
       PanelWidgetClass "{7C41F8A018B24C04}" {
@@ -48,7 +48,7 @@ ButtonWidgetClass {
         VerticalAlign 3
        }
        "Ignore Cursor" 1
-       Color 0.19 0.23 0.24 0.8
+       Color 0.6 0.6 0.6 0
        style outline_2px
       }
       TextWidgetClass "{7C41F8A018B24C05}" {
@@ -56,23 +56,24 @@ ButtonWidgetClass {
        Slot OverlayWidgetSlot {
         HorizontalAlign 3
         VerticalAlign 3
-        Padding 52 3 12 24
+        Padding 52 3 12 3
        }
        "Ignore Cursor" 1
-       Color 0.94 0.94 0.92 1
+       Color 0.94 0.94 0.94 1
        Text "OPTION"
        "Font Size" 25
        "Vertical Alignment" Center
       }
       TextWidgetClass {
        Name "PlayerDetail"
+       "Is Visible" 0
        Slot OverlayWidgetSlot {
         HorizontalAlign 3
         VerticalAlign 3
         Padding 52 32 12 2
        }
        "Ignore Cursor" 1
-       Color 0.69 0.76 0.80 1
+       Color 0.75 0.75 0.75 1
        "Font Size" 19
        "Vertical Alignment" Center
       }
@@ -98,20 +99,20 @@ ButtonWidgetClass {
            Name "PlayerCheckFill"
            Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
            "Ignore Cursor" 1
-           Color 1 0.5 0.04 1
+           Color 0.95 0.73 0.3 1
            style full
           }
           PanelWidgetClass {
            Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
            "Ignore Cursor" 1
-           Color 0.5 0.6 0.65 1
+           Color 0.6 0.6 0.6 1
            style outline_2px
           }
           TextWidgetClass {
            Name "PlayerCheck"
            Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
            "Ignore Cursor" 1
-           Color 0.005 0.009 0.012 1
+           Color 0.025 0.025 0.025 0.65
            Text "X"
            "Font Size" 21
            "Horizontal Alignment" Center

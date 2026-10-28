@@ -10,6 +10,7 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	protected Widget m_Menu;
 	protected bool m_bMultiple;
 	protected bool m_bAllowAll;
+	protected bool m_bResettingSearch;
 	protected ref array<int> m_aSelected = {};
 	protected ref array<string> m_aIdentities = {};
 	protected ref map<SCR_ButtonBaseComponent, int> m_mRows = new map<SCR_ButtonBaseComponent, int>();
@@ -22,10 +23,12 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		m_Manager = GC_LobbyManager.GetManager();
 		m_Field = SCR_ButtonTextComponent.GetButtonText("PickerField", w);
 		m_Menu = GetGame().GetWorkspace().CreateWidgets("{7C41F8A018B24B03}UI/layouts/Admin/Lobby_AdminPlayerRoster.layout", GetGame().GetWorkspace());
-		m_Search = EditBoxWidget.Cast(m_Menu.FindAnyWidget("PickerSearch"));
-		m_Search.SetPlaceholderText("Search players...");
+		m_Search = EditBoxWidget.Cast(w.FindAnyWidget("PickerSearch"));
 		m_SearchEvents = SCR_EventHandlerComponent.Cast(m_Search.FindHandler(SCR_EventHandlerComponent));
 		m_SearchEvents.GetOnChange().Insert(OnSearchChanged);
+		m_SearchEvents.GetOnClick().Insert(OpenRoster);
+		m_Field.GetRootWidget().FindAnyWidget("Text").SetVisible(false);
+		m_Field.GetRootWidget().FindAnyWidget("PlayerDetail").SetVisible(false);
 		m_Menu.SetVisible(false);
 		UpdateLabel();
 		m_Field.m_OnClicked.Insert(OnOpen);
@@ -118,37 +121,24 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 		else if (m_aSelected.Count() > 1)
 			label = string.Format("%1 players selected", m_aSelected.Count());
 		m_Field.SetText(label);
-		string names;
-		foreach (int playerId : m_aSelected)
-		{
-			if (!names.IsEmpty())
-				names += ", ";
-			names += GetGame().GetPlayerManager().GetPlayerName(playerId);
-		}
-		if (names.IsEmpty())
-			names = "Browse all players or search by name";
-		else if (m_aSelected.Count() == 1)
-		{
-			names = "1 player selected";
-			Faction faction = m_Manager.GetPlayerFaction(m_aSelected[0]);
-			if (faction)
-				names = WidgetManager.Translate(faction.GetFactionName());
-		}
-		TextWidget.Cast(m_Field.GetRootWidget().FindAnyWidget("PlayerDetail")).SetText(names);
+		m_Search.SetPlaceholderText(label);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void OnOpen(SCR_ButtonBaseComponent button)
 	{
-		bool opening = !m_Menu.IsVisible();
-		if (!opening)
-		{
+		if (m_Menu.IsVisible())
 			CloseRoster();
-			return;
-		}
-		m_Menu.SetVisible(opening);
-		if (opening)
+		else
+			OpenRoster();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OpenRoster()
+	{
+		if (!m_Menu.IsVisible())
 		{
+			m_Menu.SetVisible(true);
 			m_OnOpened.Invoke(this);
 			WorkspaceWidget workspace = GetGame().GetWorkspace();
 			float x, y, width, height;
@@ -157,22 +147,29 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 			float available = workspace.DPIUnscale(workspace.GetHeight() * 0.91 - y - height);
 			FrameSlot.SetPos(m_Menu, workspace.DPIUnscale(x), workspace.DPIUnscale(y + height));
 			FrameSlot.SetSize(m_Menu, workspace.DPIUnscale(width), Math.Max(0, available));
-			m_Search.SetText("");
 			Rebuild();
-			GetGame().GetWorkspace().SetFocusedWidget(m_Search);
 		}
+		GetGame().GetWorkspace().SetFocusedWidget(m_Search);
+		m_Search.ActivateWriteMode();
 	}
 
 	//------------------------------------------------------------------------------------------------
 	void CloseRoster()
 	{
 		m_Menu.SetVisible(false);
+		m_bResettingSearch = true;
+		m_Search.SetText("");
+		m_bResettingSearch = false;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void OnSearchChanged(Widget w)
 	{
-		if (w == m_Search)
+		if (w != m_Search || m_bResettingSearch)
+			return;
+		if (!m_Menu.IsVisible())
+			OpenRoster();
+		else
 			Rebuild();
 	}
 
@@ -338,7 +335,10 @@ class GC_AdminPlayerPicker : SCR_ScriptedWidgetComponent
 	{
 		// The workspace popup is separately owned and survives field-child teardown.
 		if (m_SearchEvents)
+		{
 			m_SearchEvents.GetOnChange().Remove(OnSearchChanged);
+			m_SearchEvents.GetOnClick().Remove(OpenRoster);
+		}
 		if (m_Menu)
 			m_Menu.RemoveFromHierarchy();
 		m_Menu = null;

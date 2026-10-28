@@ -388,11 +388,25 @@ modded class GC_LobbyManager
 			return "UNAVAILABLE picker";
 		GC_AdminPlayerPicker picker = GC_AdminPlayerPicker.Cast(field.FindHandler(GC_AdminPlayerPicker));
 		Widget popup = picker.GC_TestRosterWidget();
+		EditBoxWidget header = EditBoxWidget.Cast(field.FindAnyWidget("PickerSearch"));
+		if (action == "input")
+		{
+			SCR_EventHandlerComponent.Cast(header.FindHandler(SCR_EventHandlerComponent)).OnClick(header, 0, 0, 0);
+			return "DISPATCHED header click";
+		}
+		if (action == "state")
+		{
+			array<int> selected;
+			array<string> identities;
+			bool valid = picker.GetSelection(selected, identities);
+			return string.Format("open=%1 headerFocused=%2 writing=%3 query=%4 selected=%5 valid=%6", popup.IsVisible(),
+				GetGame().GetWorkspace().GetFocusedWidget() == header, header.IsInWriteMode(), header.GetText(), selected.Count(), valid);
+		}
 		if (action == "open")
 			return GC_TestDispatchClick(field.FindAnyWidget("PickerField"));
 		if (action == "search")
 		{
-			EditBoxWidget search = EditBoxWidget.Cast(popup.FindAnyWidget("PickerSearch"));
+			EditBoxWidget search = EditBoxWidget.Cast(field.FindAnyWidget("PickerSearch"));
 			if (!GC_TestVisible(search))
 				return "REJECTED hidden search";
 			search.SetText(value);
