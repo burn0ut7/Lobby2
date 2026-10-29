@@ -79,6 +79,7 @@ class GC_KilledFromWeaponState
 class GC_KilledFromTurretState
 {
 	protected vector m_vRawAimingRotation;
+	protected float m_fBaseRotation;
 	protected bool m_bWeaponADS;
 
 	void Capture(TurretControllerComponent controller)
@@ -87,13 +88,17 @@ class GC_KilledFromTurretState
 			return;
 		TurretComponent turret = controller.GetTurretComponent();
 		if (turret)
+		{
+			m_fBaseRotation = turret.GetBaseRotation();
 			// Raw weapon-space input can be zero while the turret is rotated.
 			// Keep the serialized field contract, but store evaluated aim in radians.
 			m_vRawAimingRotation = turret.GetAimingRotation() * Math.DEG2RAD;
+		}
 		m_bWeaponADS = controller.IsWeaponADS() || controller.GetWeaponADSInput() || controller.GetCurrentSightsADS();
 	}
 
 	vector GetRawAimingRotation() { return m_vRawAimingRotation; }
+	float GetBaseRotation() { return m_fBaseRotation; }
 	bool IsWeaponADS() { return m_bWeaponADS; }
 }
 
@@ -683,13 +688,16 @@ class GC_KilledFromSnapshot
 }
 
 //! One event-driven authority adapter per player victim. It
-//! retains the latest damage plus the last direct external damage source.
+//! retains the latest direct damage scene across passive bleeding and Respawn.
 class GC_KilledFromDamageTracker
 {
 	protected IEntity m_Victim;
 	protected SCR_DamageManagerComponent m_DamageManager;
 	protected ref GC_KilledFromSnapshot m_Snapshot;
-	protected ref GC_KilledFromSnapshot m_LastExternalSnapshot;
+	protected IEntity m_LastInstigator;
+	protected int m_iLastInstigatorPlayerId;
+	protected EDamageType m_eLastDamageType;
+	protected int m_iLastDamageFrame = -1;
 	protected bool m_bRespawnDeath;
 
 	bool Start(IEntity victim)
@@ -726,24 +734,24 @@ class GC_KilledFromDamageTracker
 		m_Victim = null;
 		m_DamageManager = null;
 		m_Snapshot = null;
-		m_LastExternalSnapshot = null;
+		m_LastInstigator = null;
 	}
 
 	GC_KilledFromSnapshot GetSnapshot()
 	{
-		if (m_LastExternalSnapshot)
-			return m_LastExternalSnapshot;
 		return m_Snapshot;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Capture the accepted self-death before ForceDeath changes the body pose.
+	//! Keep the last damage scene on Respawn; otherwise capture the self-death.
 	void MarkRespawn(IEntity victim)
 	{
 		if (victim != m_Victim)
 			return;
 		m_bRespawnDeath = true;
-		m_LastExternalSnapshot = null;
+		if (GetSnapshot())
+			return;
+		m_LastInstigator = null;
 		m_Snapshot = new GC_KilledFromSnapshot();
 		m_Snapshot.CaptureDeathFallback(victim, victim);
 	}
@@ -766,40 +774,37 @@ class GC_KilledFromDamageTracker
 			return;
 		}
 
-		bool passiveDamage = damageContext.damageType == EDamageType.BLEEDING || damageContext.damageType == EDamageType.FIRE;
-		if (passiveDamage && m_Snapshot)
-		{
+		// Native bleed-out ends with TRUE damage after the blood zone is destroyed.
+		// That terminal notification is not a new impact or a new source.
+		SCR_CharacterDamageManagerComponent characterDamage = SCR_CharacterDamageManagerComponent.Cast(m_DamageManager);
+		if (m_Snapshot && damageContext.damageType == EDamageType.TRUE && characterDamage && characterDamage.GetBloodHitZone() && characterDamage.GetBloodHitZone().GetDamageState() == ECharacterBloodState.DESTROYED)
 			return;
-		}
 
-		// Some projectiles emit a second direct callback with the same external
-		// instigator but no impact facts. It must not overwrite the complete shot
-		// retained milliseconds earlier.
 		int victimPlayerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(m_Victim);
 		bool selfAttributed = rawInstigatorEntity == m_Victim || (rawInstigatorPlayerId > 0 && rawInstigatorPlayerId == victimPlayerId);
-		bool emptyImpact = damageContext.hitPosition.LengthSq() < 0.0001 && damageContext.hitDirection.LengthSq() < 0.0001 && damageContext.impactVelocity.LengthSq() < 0.0001;
-		if (!passiveDamage && emptyImpact && m_LastExternalSnapshot && !selfAttributed)
-		{
+		bool sameInstigator = rawInstigatorEntity == m_LastInstigator && rawInstigatorPlayerId == m_iLastInstigatorPlayerId;
+		bool unknownInstigator = !rawInstigatorEntity && rawInstigatorPlayerId <= 0;
+		bool passiveDamage = damageContext.damageType == EDamageType.BLEEDING || damageContext.damageType == EDamageType.FIRE;
+		if (m_Snapshot && (damageContext.damageType == EDamageType.BLEEDING || (damageContext.damageType == EDamageType.FIRE && (sameInstigator || unknownInstigator))))
 			return;
-		}
+
+		// Ignore only a paired, incomplete notification of this same hit.
+		// A later hit or a different source must replace the retained scene.
+		int damageFrame = GetGame().GetWorld().GetFrameNumber();
+		bool emptyImpact = damageContext.hitPosition.LengthSq() < 0.0001 && damageContext.hitDirection.LengthSq() < 0.0001 && damageContext.impactVelocity.LengthSq() < 0.0001;
+		if (!passiveDamage && emptyImpact && m_Snapshot && m_Snapshot.HasKillerPreview() && !selfAttributed && sameInstigator && damageFrame == m_iLastDamageFrame && damageContext.damageType == m_eLastDamageType)
+			return;
 
 		int captureStart = System.GetTickCount();
 		GC_KilledFromSnapshot snapshot = new GC_KilledFromSnapshot();
 		snapshot.Capture(m_Victim, damageContext);
 		m_Snapshot = snapshot;
-		if (snapshot.IsSelfInflicted())
-			m_LastExternalSnapshot = null;
-
-		// Passive bleed-out retains its direct cause. A new self-inflicted impact
-		// or accepted Respawn deliberately replaces that earlier scene.
-		IEntity instigatorEntity = rawInstigatorEntity;
-		int instigatorPlayerId = rawInstigatorPlayerId;
-		bool externalEntity = instigatorEntity && instigatorEntity != m_Victim;
-		bool externalPlayer = instigatorPlayerId > 0 && instigatorPlayerId != victimPlayerId;
-		if (!passiveDamage && (externalEntity || externalPlayer))
-			m_LastExternalSnapshot = snapshot;
+		m_LastInstigator = rawInstigatorEntity;
+		m_iLastInstigatorPlayerId = rawInstigatorPlayerId;
+		m_eLastDamageType = damageContext.damageType;
+		m_iLastDamageFrame = damageFrame;
 
 		PrintFormat("GC | Killed From | event=damage-capture server=%1 player=%2 type=%3 captureMs=%4 external=%5",
-			Replication.IsServer(), victimPlayerId, damageContext.damageType, System.GetTickCount(captureStart), m_LastExternalSnapshot == snapshot);
+			Replication.IsServer(), victimPlayerId, damageContext.damageType, System.GetTickCount(captureStart), snapshot.HasKillerPreview());
 	}
 }

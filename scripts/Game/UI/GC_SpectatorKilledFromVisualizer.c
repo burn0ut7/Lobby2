@@ -240,7 +240,10 @@ class GC_SpectatorKilledFromVisualizer
 			controllers[index].SetAimingAngles(rawRotation[0], rawRotation[1]);
 			TurretComponent turret = controllers[index].GetTurretComponent();
 			if (turret)
+			{
+				turret.SetBaseRotation(states[index].GetBaseRotation());
 				turret.SetAimingRotation(rawRotation);
+			}
 			controllers[index].SetWeaponADSInput(ads);
 			controllers[index].SetWeaponADS(ads);
 			controllers[index].SetCurrentSightsADS(ads);
@@ -565,6 +568,9 @@ class GC_SpectatorKilledFromVisualizer
 	{
 		if (m_bPoseFrozen)
 			return;
+		// Set the seat base before freezing its attached actor in world space.
+		ApplyVehicleState(m_KillerVehiclePreviewEntity, m_Snapshot.GetKillerVehicle(), "killer");
+		ApplyVehicleState(m_VictimVehiclePreviewEntity, m_Snapshot.GetVictimVehicle(), "victim");
 		// Allow one complete native frame after spawn before writing bone offsets.
 		m_iPreviewFrames++;
 		if (m_iPreviewFrames < 2)
@@ -742,7 +748,7 @@ class GC_SpectatorKilledFromVisualizer
 		ConfigureMarker(m_wKillerMarker, markerText, m_KillerFactionColor);
 		string victimText = "YOU";
 		if (m_Snapshot && m_Snapshot.IsSelfInflicted())
-			victimText = "YOU — SELF-INFLICTED";
+			victimText = "YOU KILLED YOURSELF";
 		ConfigureMarker(m_wVictimMarker, victimText, m_VictimFactionColor);
 	}
 

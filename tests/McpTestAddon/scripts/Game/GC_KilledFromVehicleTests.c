@@ -15,13 +15,15 @@ class GC_KilledFromVehicleProbe : GC_SpectatorKilledFromVisualizer
 		EntitySpawnParams params = new EntitySpawnParams();
 		params.TransformMode = ETransformMode.WORLD;
 		Math3D.AnglesToMatrix("30 0 0", params.Transform);
-		params.Transform[3] = "150 1 150";
+		vector center = "1200 0 2740";
+		center[1] = m_World.GetSurfaceY(center[0], center[2]) + 0.2;
+		params.Transform[3] = center;
 		m_SourceVehicle = GetGame().SpawnEntityPrefabLocal(Resource.Load("Prefabs/Vehicles/Wheeled/M998/M1025_armed_M2HB.et"), m_World, params);
 		if (!m_SourceVehicle)
 			return "FAIL vehicle spawn";
-		params.Transform[3] = "150 1 146";
+		params.Transform[3] = center + "0 0 -4";
 		m_SourceGunner = GetGame().SpawnEntityPrefabLocal(Resource.Load(characterPrefab), m_World, params);
-		params.Transform[3] = "160 1 165";
+		params.Transform[3] = center + "-10 0 8";
 		m_SourceVictim = GetGame().SpawnEntityPrefabLocal(Resource.Load(characterPrefab), m_World, params);
 		if (!m_SourceGunner || !m_SourceVictim)
 			return "FAIL actor spawn";
@@ -39,8 +41,9 @@ class GC_KilledFromVehicleProbe : GC_SpectatorKilledFromVisualizer
 			return "FAIL turret";
 		ChimeraCharacter gunner = ChimeraCharacter.Cast(m_SourceGunner);
 		bool entered = gunner.GetCompartmentAccessComponent().GetInVehicle(m_SourceVehicle, m_SourceTurret.GetCompartmentSlot(), true, -1, ECloseDoorAfterActions.INVALID, false);
-		m_SourceTurret.SetAimingAngles(0.45, 0.12);
-		m_SourceTurret.GetTurretComponent().SetAimingRotation("0.45 0.12 0");
+		m_SourceTurret.GetTurretComponent().SetBaseRotation(-90);
+		m_SourceTurret.SetAimingAngles(0.15, 0.12);
+		m_SourceTurret.GetTurretComponent().SetAimingRotation("0.15 0.12 0");
 		GetGame().GetCallqueue().CallLater(DriveTurret, 0, true);
 		m_Tracker = new GC_KilledFromDamageTracker();
 		m_Tracker.Start(m_SourceVictim);
@@ -52,8 +55,9 @@ class GC_KilledFromVehicleProbe : GC_SpectatorKilledFromVisualizer
 	{
 		if (!m_SourceTurret)
 			return;
-		m_SourceTurret.SetAimingAngles(0.45, 0.12);
-		m_SourceTurret.GetTurretComponent().SetAimingRotation("0.45 0.12 0");
+		m_SourceTurret.GetTurretComponent().SetBaseRotation(-90);
+		m_SourceTurret.SetAimingAngles(0.15, 0.12);
+		m_SourceTurret.GetTurretComponent().SetAimingRotation("0.15 0.12 0");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -78,8 +82,11 @@ class GC_KilledFromVehicleProbe : GC_SpectatorKilledFromVisualizer
 			context.hitDirection = vector.Zero;
 			context.impactVelocity = vector.Zero;
 		}
-		m_Tracker.GC_TestDeliverDamage(context);
-		if (kind == "respawn")
+		if (kind == "bleed")
+			context.damageType = EDamageType.BLEEDING;
+		if (kind != "respawn-empty")
+			m_Tracker.GC_TestDeliverDamage(context);
+		if (kind == "respawn" || kind == "respawn-empty")
 			m_Tracker.MarkRespawn(m_SourceVictim);
 		m_Snapshot = GC_KilledFromSnapshot.Deserialize(GC_KilledFromSnapshot.Serialize(m_Tracker.GetSnapshot()));
 		CreatePreview();
@@ -122,15 +129,81 @@ class GC_KilledFromVehicleProbe : GC_SpectatorKilledFromVisualizer
 			turret = TurretControllerComponent.Cast(seat.GetOwner().FindComponent(TurretControllerComponent));
 		if (!turret)
 			return result + " FAIL cloned gunner seat/turret";
+		vector actorExpected[4];
+		vector actorActual[4];
+		m_Snapshot.GetKillerRootTransform(actorExpected);
+		gunner.GetWorldTransform(actorActual);
+		float actorError;
+		for (int row; row < 4; row++)
+			actorError = Math.Max(actorError, vector.Distance(actorExpected[row], actorActual[row]));
+		result += " actorMatrixError=" + actorError;
 		vector muzzle[4];
 		turret.GetWeaponManager().GetCurrentMuzzleTransform(muzzle);
 		vector rotation = turret.GetTurretComponent().GetAimingRotation() * Math.DEG2RAD;
 		vector expectedRotation = m_Snapshot.GetKillerVehicle().GetTurrets()[0].GetRawAimingRotation();
+		result += string.Format(" sourceBase=%1 cloneBase=%2 capturedBase=%3", m_SourceTurret.GetTurretComponent().GetBaseRotation(), turret.GetTurretComponent().GetBaseRotation(), m_Snapshot.GetKillerVehicle().GetTurrets()[0].GetBaseRotation());
 		result += string.Format(" sourceRotation=%1 wanted=%2 raw=%3", m_SourceTurret.GetTurretComponent().GetAimingRotation(), m_SourceTurret.GetTurretComponent().GetAimingRotationWanted(), m_SourceTurret.GetTurretComponent().GetRawAimingRotation());
 		return result + string.Format(" matrixError=%1 aimError=%2 muzzleError=%3 seat=%4 aim=%5 actualMuzzle=%6 expectedMuzzle=%7 turretOrigin=%8 sourceTurretOrigin=%9", matrixError, vector.Distance(rotation, expectedRotation), vector.Distance(muzzle[3], m_Snapshot.GetLineOrigin()), seat.GetOccupant() == gunner, rotation, muzzle[3], m_Snapshot.GetLineOrigin(), turret.GetOwner().GetOrigin(), m_SourceTurret.GetOwner().GetOrigin());
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------
+	string CheckAttribution()
+	{
+		if (!m_SourceVictim || !m_SourceGunner)
+			return "UNAVAILABLE fixture";
+		GC_KilledFromDamageTracker tracker = new GC_KilledFromDamageTracker();
+		tracker.Start(m_SourceVictim);
+		BaseDamageContext context = new BaseDamageContext();
+		context.damageType = EDamageType.KINETIC;
+		context.instigator = Instigator.CreateInstigator(m_SourceGunner);
+		context.hitPosition = m_SourceVictim.GetOrigin() + "0 1.5 0";
+		tracker.GC_TestDeliverDamage(context);
+		ref GC_KilledFromSnapshot shot = tracker.GetSnapshot();
+		string guard = tracker.GC_TestGuard(context);
+		context.hitPosition = vector.Zero;
+		context.hitDirection = vector.Zero;
+		context.impactVelocity = vector.Zero;
+		tracker.GC_TestDeliverDamage(context);
+		bool duplicate = tracker.GetSnapshot() == shot;
+		context.damageType = EDamageType.BLEEDING;
+		tracker.GC_TestDeliverDamage(context);
+		bool bleeding = tracker.GetSnapshot() == shot;
+		context.damageType = EDamageType.HEALING;
+		tracker.GC_TestDeliverDamage(context);
+		bool healing = tracker.GetSnapshot() == shot;
+		tracker.MarkRespawn(m_SourceVictim);
+		bool respawn = tracker.GetSnapshot() == shot;
+		context.instigator = Instigator.CreateInstigator(m_SourceVictim);
+		context.damageType = EDamageType.KINETIC;
+		tracker.GC_TestDeliverDamage(context);
+		bool terminal = tracker.GetSnapshot() == shot;
+		tracker.Destroy();
+
+		tracker = new GC_KilledFromDamageTracker();
+		tracker.Start(m_SourceVictim);
+		tracker.GC_TestDeliverDamage(context);
+		bool self = tracker.GetSnapshot().IsSelfInflicted() && !tracker.GetSnapshot().HasKillerPreview() && !tracker.GetSnapshot().HasShotLine();
+		context.instigator = Instigator.CreateInstigator(m_SourceGunner);
+		context.hitPosition = m_SourceVictim.GetOrigin();
+		tracker.GC_TestDeliverDamage(context);
+		bool latest = !tracker.GetSnapshot().IsSelfInflicted() && tracker.GetSnapshot().HasKillerPreview();
+		context.instigator = Instigator.CreateInstigator(null);
+		context.hitPosition = vector.Zero;
+		context.hitDirection = vector.Zero;
+		context.impactVelocity = vector.Zero;
+		tracker.GC_TestDeliverDamage(context);
+		bool unknown = !tracker.GetSnapshot().HasKillerPreview();
+		tracker.Destroy();
+
+		tracker = new GC_KilledFromDamageTracker();
+		tracker.Start(m_SourceVictim);
+		tracker.MarkRespawn(m_SourceVictim);
+		bool emptyRespawn = tracker.GetSnapshot().IsSelfInflicted() && !tracker.GetSnapshot().HasShotLine();
+		tracker.Destroy();
+		return guard + string.Format(" duplicate=%1 bleeding=%2 healing=%3 respawn=%4 terminal=%5 self=%6 latest=%7 unknown=%8 emptyRespawn=%9", duplicate, bleeding, healing, respawn, terminal, self, latest, unknown, emptyRespawn);
+	}
+
 	string Publish()
 	{
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
@@ -146,8 +219,8 @@ class GC_KilledFromVehicleProbe : GC_SpectatorKilledFromVisualizer
 	//------------------------------------------------------------------------------------------------
 	void MoveSources()
 	{
-		m_SourceVehicle.SetOrigin("250 1 250");
-		m_SourceVictim.SetOrigin("260 1 265");
+		m_SourceVehicle.SetOrigin(m_SourceVehicle.GetOrigin() + "100 0 100");
+		m_SourceVictim.SetOrigin(m_SourceVictim.GetOrigin() + "100 0 100");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -171,6 +244,11 @@ class GC_KilledFromVehicleProbe : GC_SpectatorKilledFromVisualizer
 modded class GC_KilledFromDamageTracker
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestGuard(BaseDamageContext context)
+	{
+		return string.Format("guard: valid=%1 entitySame=%2 playerSame=%3 frame=%4 lastFrame=%5 type=%6 lastType=%7 victimSame=%8", m_Snapshot.HasKillerPreview(), context.instigator.GetInstigatorEntity() == m_LastInstigator, context.instigator.GetInstigatorPlayerID() == m_iLastInstigatorPlayerId, GetGame().GetWorld().GetFrameNumber(), m_iLastDamageFrame, context.damageType, m_eLastDamageType, context.instigator.GetInstigatorEntity() == m_Victim);
+	}
+
 	void GC_TestDeliverDamage(BaseDamageContext context)
 	{
 		OnDamage(context);
@@ -190,8 +268,10 @@ modded class GC_LobbyManager
 			m_GC_VehicleDeathProbe = new GC_KilledFromVehicleProbe();
 		if (action == "arrange")
 			return m_GC_VehicleDeathProbe.Arrange(m_Roster.GetSlot(1).GetResolvedPrefab());
-		if (action == "capture" || action == "self" || action == "self-empty" || action == "respawn")
+		if (action == "capture" || action == "self" || action == "self-empty" || action == "respawn" || action == "respawn-empty" || action == "bleed")
 			return m_GC_VehicleDeathProbe.Capture(action);
+		if (action == "checks")
+			return m_GC_VehicleDeathProbe.CheckAttribution();
 		if (action == "read")
 			return m_GC_VehicleDeathProbe.Read();
 		if (action == "publish")
@@ -222,7 +302,7 @@ modded class GC_LobbyPlayerController
 		m_SpectatorCamera.TrySetMode(GC_ESpectatorCameraMode.FREE);
 		vector transform[4];
 		Math3D.AnglesToMatrix("-55 -12 0", transform);
-		transform[3] = "173 7 143";
+		transform[3] = "1223 47 2733";
 		if (m_KilledFromSnapshot && m_KilledFromSnapshot.IsSelfInflicted())
 		{
 			Math3D.AnglesToMatrix("-45 -18 0", transform);
