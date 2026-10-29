@@ -56,8 +56,47 @@ modded class GC_LobbyPlayerController
 }
 
 #ifdef WORKBENCH
+modded class GC_Lobby_SpectatorMenu
+{
+	string GC_TestWorldFocusClick(string widgetName)
+	{
+		if (widgetName == "release")
+		{
+			GetGame().GetInputManager().SetActionValue("GC_SpectatorWorldClick", 0);
+			return "RELEASED";
+		}
+		float x = 200, y = 200;
+		if (widgetName != "world")
+		{
+			Widget widget = GetGame().GetWorkspace().FindAnyWidget(widgetName);
+			if (!widget || !widget.IsVisibleInHierarchy())
+				return "NO VISIBLE WIDGET";
+			float width, height;
+			widget.GetScreenPos(x, y);
+			widget.GetScreenSize(width, height);
+			x += width * 0.5;
+			y += height * 0.5;
+		}
+		GetGame().GetInputManager().GetMouseDeviceHandler().SetCursorPosition(x, y);
+		WidgetManager.ReportMouse(x, y, GetGame().GetWorkspace());
+		Widget hit = WidgetManager.GetWidgetUnderCursor();
+		string hitName = "none";
+		if (hit)
+			hitName = hit.GetName();
+		GetGame().GetInputManager().SetActionValue("GC_SpectatorWorldClick", 1);
+		return "hit=" + hitName + " focus=" + m_HealthController.GC_GetFocusedPlayer().ToString();
+	}
+}
+
 modded class GC_LobbyManager
 {
+	string GC_TestWorldFocusClick(string widgetName)
+	{
+		GC_Lobby_SpectatorMenu menu = GC_Lobby_SpectatorMenu.Cast(GetGame().GetMenuManager().GetTopMenu());
+		if (!menu)
+			return "NO SPECTATOR MENU";
+		return menu.GC_TestWorldFocusClick(widgetName);
+	}
 	//! Observe native hit routing, then separately exercise its production handler.
 	string GC_TestFocusWidget(string rowName, string cellName, bool activate)
 	{

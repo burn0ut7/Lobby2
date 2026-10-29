@@ -19,7 +19,23 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 		Bind("EventEveryone", "Everyone");
 		Bind("EventClose", "Close");
 		if (m_Controller)
+		{
 			m_Controller.m_OnGC_SpectatorEvents.Insert(OnRows);
+			m_Controller.m_OnGC_SpectatorFocus.Insert(OnFocusChanged);
+		}
+	}
+
+	protected void OnFocusChanged()
+	{
+		if (m_Controller.GC_GetFocusedPlayer() > 0)
+			return;
+		m_wRoot.FindAnyWidget("EventPlayer").SetVisible(false);
+		if (!m_bFocused)
+			return;
+		m_bFocused = false;
+		m_bEveryone = true;
+		if (m_bActive)
+			ShowTab();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -210,7 +226,10 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 		m_bActive = false;
 		GetGame().GetCallqueue().Remove(Poll);
 		if (m_Controller)
+		{
 			m_Controller.m_OnGC_SpectatorEvents.Remove(OnRows);
+			m_Controller.m_OnGC_SpectatorFocus.Remove(OnFocusChanged);
+		}
 		super.HandlerDeattached(w);
 	}
 }

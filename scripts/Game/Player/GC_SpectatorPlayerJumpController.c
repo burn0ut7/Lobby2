@@ -13,6 +13,12 @@ modded class GC_LobbyPlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void GC_CancelSpectatorPlayerJump()
+	{
+		m_GC_SpectatorJumpCamera = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void GC_RequestSpectatorPlayerPosition(int targetPlayerId)
 	{
 		if (!GC_CanJumpSpectatorCamera() || targetPlayerId <= 0)

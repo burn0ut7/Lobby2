@@ -72,7 +72,11 @@ modded class GC_LobbyPlayerController
 			m_aGC_FocusEvents.Clear();
 			m_iGC_FocusNext = 0;
 			m_bGC_FocusPagePending = false;
-			m_sGC_FocusStatus = "Loading...";
+			m_sGC_FocusStatus = "";
+			if (playerId > 0)
+				m_sGC_FocusStatus = "Loading...";
+			else
+				GC_LobbyPlayerController.Cast(this).GC_CancelSpectatorPlayerJump();
 			GC_SendFocusSettings();
 			m_OnGC_SpectatorFocus.Invoke();
 		}

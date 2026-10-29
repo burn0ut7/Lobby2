@@ -94,6 +94,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.AddActionListener("GC_ToggleSpectatorKilledFrom", EActionTrigger.DOWN, OnToggleKilledFrom);
 			m_InputManager.AddActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.AddActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
+			m_InputManager.AddActionListener("GC_SpectatorWorldClick", EActionTrigger.DOWN, ClearFocusFromWorldClick);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.AddActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -300,6 +301,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorKilledFrom", EActionTrigger.DOWN, OnToggleKilledFrom);
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.RemoveActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
+			m_InputManager.RemoveActionListener("GC_SpectatorWorldClick", EActionTrigger.DOWN, ClearFocusFromWorldClick);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.RemoveActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -502,6 +504,34 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (m_HealthController && playerId > 0)
 			m_HealthController.GC_SelectSpectatorPlayer(playerId);
 		PrintFormat("GC | Spectator Map | eye teleport selected entity=%1", target);
+	}
+
+	//! Only empty world space clears focus; UI and world markers keep ownership of their clicks.
+	protected void ClearFocusFromWorldClick()
+	{
+		if (m_bSpectatorMapOpen || !m_InputManager || !m_InputManager.IsUsingMouseAndKeyboard())
+			return;
+		if (GetGame().GetMenuManager().GetTopMenu() != this || !m_HealthController || m_HealthController.GC_GetFocusedPlayer() <= 0)
+			return;
+		int mouseX, mouseY;
+		WidgetManager.GetMousePos(mouseX, mouseY);
+		if (IsPointerOverScrollPanel(mouseX, mouseY))
+			return;
+		// The health display is deliberately cursor-transparent, but is still UI.
+		Widget health = GetRootWidget().FindAnyWidget("SpectatorSelectedHealth");
+		if (health && health.IsVisibleInHierarchy())
+		{
+			float x, y, width, height;
+			health.GetScreenPos(x, y);
+			health.GetScreenSize(width, height);
+			if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height)
+				return;
+		}
+		WidgetManager.ReportMouse(mouseX, mouseY, GetGame().GetWorkspace());
+		Widget hit = WidgetManager.GetWidgetUnderCursor();
+		if (hit && hit != GetRootWidget())
+			return;
+		m_HealthController.GC_SelectSpectatorPlayer(0);
 	}
 
 	void SetProjectileTracersEnabled(bool enabled)
