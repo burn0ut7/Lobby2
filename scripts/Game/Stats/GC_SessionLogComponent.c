@@ -312,13 +312,13 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Display elapsed mission time, rounded to milliseconds; hours appear only when needed.
-	static string FormatEventTime(float seconds)
+	//! Display elapsed mission time with optional milliseconds; hours appear only when needed.
+	static string FormatEventTime(float seconds, bool precise = true)
 	{
 		seconds = Math.Max(0, seconds);
 		int wholeSeconds = Math.Floor(seconds);
 		int milliseconds = Math.Round((seconds - wholeSeconds) * 1000);
-		if (milliseconds == 1000)
+		if (precise && milliseconds == 1000)
 		{
 			wholeSeconds++;
 			milliseconds = 0;
@@ -337,7 +337,9 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			millisecondText = "0" + millisecondText;
 		if (milliseconds < 10)
 			millisecondText = "0" + millisecondText;
-		string result = minuteText + ":" + secondText + ":" + millisecondText;
+		string result = minuteText + ":" + secondText;
+		if (precise)
+			result += ":" + millisecondText;
 		if (hours == 0)
 			return result;
 		string hourText = hours.ToString();
@@ -571,7 +573,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 				location = string.Format("X %1 / Z %2 m", Math.Round(position[0]), Math.Round(position[2]));
 			}
 			rows.Insert(entry.m_iSequence.ToString());
-			rows.Insert(FormatEventTime(entry.m_fSeconds));
+			rows.Insert(FormatEventTime(entry.m_fSeconds, false));
 			rows.Insert(eventName);
 			rows.Insert(actor + " > " + target);
 			rows.Insert(detail);

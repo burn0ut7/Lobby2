@@ -1,6 +1,6 @@
 ButtonWidgetClass {
  Name "SpectatorEventRow"
- Slot LayoutSlot { HorizontalAlign 3 Padding 0 0 0 4 }
+ Slot LayoutSlot { HorizontalAlign 3 Padding 0 0 0 2 }
  Color 1 1 1 0
  components {
   SCR_ButtonBaseComponent {
@@ -17,7 +17,7 @@ ButtonWidgetClass {
   SizeLayoutWidgetClass {
    Slot ButtonWidgetSlot { HorizontalAlign 3 }
    AllowHeightOverride 1
-   HeightOverride 76
+   HeightOverride 56
    "Ignore Cursor" 1
    {
     FrameWidgetClass {

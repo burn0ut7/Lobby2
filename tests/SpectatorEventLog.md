@@ -29,3 +29,9 @@ Local visual evidence: Art/References/spectator-events/concept-v2.png (illustrat
 Load the optional MCP test addon. Enter GAME with a selected slot. GC_TestCombatAI spawn/hurt-ai-twice/kill-player uses native damage and transitions the host into spectator. GC_TestSpectatorHotkey toggles the named action with1 then0. GC_TestEventLogSnapshot reports actual UI rows. GC_TestScroll EventScroll1 pages You. GC_TestEventLogCombat3 generates native AI-to-AI damage; use a positive damage amount large enough to trigger native callbacks. GC_TestClick activates EventEveryone, EventYou, EventClose and SpectatorEvent_SEQUENCE. GC_TestEventLogRead calls the production authority read. GC_TestPeerCommand spectator-events can request you/everyone/snapshot/open/release on a connected test peer.
 
 Final J hint resolved in live HUD with event log ON and light OFF: r6fd18d40592a4bc6bad81917a329148a. Final reload: 7cc1638a64ef47ea9e23202734c48b9d. Independent review approved after team-kill fix and combined-label capture.
+
+## Compact refinement
+
+2026-10-29: moved panel to bottom-right, reduced footprint to 33.5% viewport width and 24.5% height, tightened rows 76 to 56px while preserving font sizes. Spectator elapsed timestamps omit milliseconds; admin precision remains unchanged. Reload 7ee8ff6a397645038f9f3cfb10c8e3fa passed without script errors. Actual capture Art/References/spectator-events/runtime-compact-v4.png and snapshot r8ea69fd4efbd49a2b1a0b0d5083484da confirm compact placement and 00:01 timestamps. Native header/row handlers exercised.
+
+Independent visual/source review approved the compact refinement. Camera movement after row activation confirmed by r1db566d9cc8c44d4a0a033d9aaa4dc44; Everyone showed nine whole-second rows after native damage (r80121b1b33504b958e6f0056c9d22cb8).

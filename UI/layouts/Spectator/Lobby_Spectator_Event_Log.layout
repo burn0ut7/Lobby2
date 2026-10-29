@@ -1,38 +1,38 @@
 FrameWidgetClass {
  Name "SpectatorEventLog"
- Slot FrameWidgetSlot { Anchor 0.025 0.12 0.60 0.85 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor 0.65 0.73 0.985 0.975 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  "Z Order" 115
  "Is Visible" 0
  components { GC_SpectatorEventLogComponent {} }
  {
   PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.025 0.025 0.025 0.90 style full "Ignore Cursor" 1 }
   FrameWidgetClass {
-   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 18 OffsetTop 12 OffsetRight 18 OffsetBottom 12 }
+   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 10 OffsetTop 8 OffsetRight 10 OffsetBottom 8 }
    {
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "EventYou"
-     Slot FrameWidgetSlot { Anchor 0 0 .20 .10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 0 .20 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "EventEveryone"
-     Slot FrameWidgetSlot { Anchor .22 0 .50 .10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor .22 0 .55 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "EventClose"
-     Slot FrameWidgetSlot { Anchor .80 0 1 .10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor .80 0 1 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ScrollLayoutWidgetClass {
      Name "EventScroll"
-     Slot FrameWidgetSlot { Anchor 0 .13 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 .21 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
      "Scrollbar Always Visible" 0
      { VerticalLayoutWidgetClass { Name "EventRows" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } }
     }
     TextWidgetClass {
      Name "EventStatus"
-     Slot FrameWidgetSlot { Anchor 0 .14 1 .23 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 .23 1 .40 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
      "Font Size" 18
      Color .72 .72 .72 1
      "Ignore Cursor" 1
