@@ -2,6 +2,14 @@
 #ifdef WORKBENCH
 modded class GC_SlideOutComponent
 {
+	void GC_TestHandleFocus(bool focused)
+	{
+		if (focused)
+			GetGame().GetWorkspace().SetFocusedWidget(m_wHandle);
+		else
+			GetGame().GetWorkspace().SetFocusedWidget(null);
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_TestDrawerState()
 	{
@@ -41,7 +49,7 @@ modded class GC_LobbyManager
 		GC_SlideOutComponent slideOut = GC_SlideOutComponent.Cast(drawer.FindHandler(GC_SlideOutComponent));
 		if (!slideOut)
 			return "FAILED slide-out handler";
-		slideOut.SetHandleFocused(focus);
+		slideOut.GC_TestHandleFocus(focus);
 		return slideOut.GC_TestDrawerState();
 	}
 
@@ -63,18 +71,18 @@ modded class GC_LobbyManager
 		if (action == "proximity")
 			return slideOut.GC_TestDrawerProximity();
 		if (action == "focus")
-			slideOut.SetHandleFocused(true);
+			slideOut.GC_TestHandleFocus(true);
 		else if (action == "closeFocused")
 		{
-			slideOut.SetHandleFocused(true);
+			slideOut.GC_TestHandleFocus(true);
 			if (!slideOut.IsPinned())
 				slideOut.TogglePinned();
 			slideOut.TogglePinned();
 			// A focus event from the same click must not reopen during collapse.
-			slideOut.SetHandleFocused(true);
+			slideOut.GC_TestHandleFocus(true);
 		}
 		else if (action == "leave")
-			slideOut.SetHandleFocused(false);
+			slideOut.GC_TestHandleFocus(false);
 		else if (action == "pin")
 			slideOut.TogglePinned();
 		else if (action != "snapshot")

@@ -48,11 +48,26 @@ modded class GC_SlideOutComponent
 	//------------------------------------------------------------------------------------------------
 	string GC_TestScreenEdge(string action)
 	{
+		if (action == "focus")
+			GC_TestHandleFocus(true);
+		if (action == "away")
+		{
+			SetHovered(false);
+			GetGame().GetCallqueue().Remove(UpdatePointerHover);
+			GetGame().GetCallqueue().CallLater(UpdatePointerHover, HOVER_TICK_MS, true);
+		}
+		if (action == "focus" || action == "away" || action == "snapshot")
+			return GC_TestDrawerState();
 		if (action == "result")
 			return m_sGC_EdgeResult;
 		if (action == "open")
 		{
-			SetHandleFocused(true);
+			float handleX, handleY, handleWidth, handleHeight;
+			m_wHandle.GetScreenPos(handleX, handleY);
+			m_wHandle.GetScreenSize(handleWidth, handleHeight);
+			// Synthetic pointer geometry; does not move the OS cursor.
+			GetGame().GetCallqueue().Remove(UpdatePointerHover);
+			SetHovered(ContainsPointer(handleX + handleWidth * 0.5, handleY + handleHeight * 0.5));
 			return GC_TestDrawerState();
 		}
 		float x, y, width, height;
@@ -64,7 +79,6 @@ modded class GC_SlideOutComponent
 		if (action == "run")
 		{
 			GetGame().GetCallqueue().Remove(UpdatePointerHover);
-			m_bHandleFocused = false;
 			m_iGC_EdgeX = edgeX;
 			m_iGC_EdgeY = centerY;
 			m_iGC_EdgeTicks = 0;
@@ -86,7 +100,6 @@ modded class GC_SlideOutComponent
 		// This exercises production hit testing, not OS pointer movement.
 		GetGame().GetCallqueue().Remove(UpdatePointerHover);
 		GetGame().GetCallqueue().Remove(Animate);
-		m_bHandleFocused = false;
 		int reversals;
 		float minimum = m_fProgress;
 		float lastTarget = m_fTargetProgress;
