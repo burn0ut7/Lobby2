@@ -120,7 +120,7 @@ modded class GC_SpectatorEventLogComponent
 	//------------------------------------------------------------------------------------------------
 	string GC_TestReport()
 	{
-		string report = string.Format("active=%1 everyone=%2 pending=%3 rows=%4 personal=%5 next=%6", m_bActive, m_bEveryone, m_bPending, m_aRows.Count() / 7, m_aPersonal.Count() / 7, m_iNext);
+		string report = string.Format("active=%1 everyone=%2 rows=%3 personal=%4 next=%5", m_bActive, m_bEveryone, m_aRows.Count() / 7, m_Controller.GC_GetCachedSpectatorEvents(false).Count() / 7, m_Controller.GC_GetPersonalEventNext());
 		report += " status=" + TextWidget.Cast(m_wRoot.FindAnyWidget("EventStatus")).GetText();
 		foreach (SCR_ButtonBaseComponent button, int index : m_mRows)
 			report += "\n" + button.GetRootWidget().GetName() + " | " + TextWidget.Cast(button.GetRootWidget().FindAnyWidget("EventSummary")).GetText() + " | " + TextWidget.Cast(button.GetRootWidget().FindAnyWidget("EventInfo")).GetText();

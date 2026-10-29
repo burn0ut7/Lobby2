@@ -4,15 +4,6 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 	protected GC_LobbyPlayerController m_Controller;
 	protected bool m_bActive;
 	protected bool m_bEveryone = true;
-	protected int m_iLiveRevision = -1;
-	protected bool m_bPending;
-	protected bool m_bPersonalLoaded;
-	protected int m_iRequest = -1;
-	protected int m_iBefore;
-	protected int m_iNext;
-	protected int m_iPersonalNext;
-	protected float m_fRequestedAt;
-	protected ref array<string> m_aPersonal = {};
 	protected ref array<string> m_aRows = {};
 	protected ref map<SCR_ButtonBaseComponent, int> m_mRows = new map<SCR_ButtonBaseComponent, int>();
 	ref ScriptInvoker m_OnClose = new ScriptInvoker();
@@ -45,9 +36,6 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 			return;
 		m_bActive = active;
 		GetGame().GetCallqueue().Remove(Poll);
-		GetGame().GetCallqueue().Remove(Load);
-		m_iRequest = -1;
-		m_bPending = false;
 		if (active)
 		{
 			ShowTab();
@@ -64,76 +52,30 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	protected void ShowTab()
 	{
-		m_iRequest = -1;
-		m_bPending = false;
-		m_iBefore = 0;
-		m_iLiveRevision = -1;
-		ClearRows();
 		ScrollLayoutWidget.Cast(m_wRoot.FindAnyWidget("EventScroll")).SetSliderPos(0, 0);
 		SCR_ButtonTextComponent.GetButtonText("EventYou", m_wRoot).SetToggled(!m_bEveryone, false, false);
 		SCR_ButtonTextComponent.GetButtonText("EventEveryone", m_wRoot).SetToggled(m_bEveryone, false, false);
-		SetStatus("");
-		GetGame().GetCallqueue().Remove(Load);
-		if (!m_bEveryone && m_bPersonalLoaded)
-		{
-			m_iNext = m_iPersonalNext;
-			m_aRows.Copy(m_aPersonal);
-			AppendRows(0);
-			if (m_aRows.IsEmpty())
-				SetStatus("No events");
-			return;
-		}
-		SetStatus("Loading...");
-		GetGame().GetCallqueue().CallLater(Load, 300);
+		if (HasAccess())
+			m_Controller.GC_EnsureSpectatorEvents(m_bEveryone);
+		RefreshRows();
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Local pagination only. Everyone updates arrive from the controller cache.
 	protected void Poll()
 	{
 		if (!HasAccess())
 		{
 			SetActive(false);
-			m_aPersonal.Clear();
-			m_bPersonalLoaded = false;
 			ClearRows();
 			return;
 		}
-		if (m_bPending)
-		{
-			if (GetGame().GetWorld().GetWorldTime() - m_fRequestedAt > 5000)
-			{
-				SetStatus("Connection delayed");
-				m_bPending = false;
-				Load();
-			}
+		if (m_bEveryone || m_Controller.GC_GetPersonalEventNext() <= 0)
 			return;
-		}
-		if (m_bEveryone)
-		{
-			Load();
-			return;
-		}
-		if (m_iNext <= 0)
-			return;
-		float x;
-		float y;
+		float x, y;
 		ScrollLayoutWidget.Cast(m_wRoot.FindAnyWidget("EventScroll")).GetSliderPos(x, y);
 		if (y >= 0.9)
-		{
-			m_iBefore = m_iNext;
-			Load();
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected void Load()
-	{
-		if (!m_bActive || !HasAccess() || m_bPending)
-			return;
-		m_bPending = true;
-		m_fRequestedAt = GetGame().GetWorld().GetWorldTime();
-		m_iRequest = m_Controller.GC_ReserveSpectatorEventRequest();
-		m_Controller.GC_RequestSpectatorEvents(m_iRequest, m_bEveryone, m_iBefore, m_iLiveRevision);
+			m_Controller.GC_LoadPersonalEventPage();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -158,47 +100,32 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void OnRows(int request, array<string> rows, int next, string status, int revision, bool unchanged)
+	protected void OnRows(bool everyone)
 	{
-		if (!m_bActive || !HasAccess() || request != m_iRequest || rows.Count() % 7 != 0)
+		if (m_bActive && HasAccess() && everyone == m_bEveryone)
+			RefreshRows();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshRows()
+	{
+		if (!HasAccess())
 			return;
-		m_bPending = false;
-		if (m_bEveryone)
-			m_iLiveRevision = revision;
-		if (unchanged)
-		{
-			if (m_aRows.IsEmpty())
-				SetStatus("No events");
-			else
-				SetStatus("");
+		array<string> rows = m_Controller.GC_GetCachedSpectatorEvents(m_bEveryone);
+		SetStatus(m_Controller.GC_GetSpectatorEventStatus(m_bEveryone));
+		bool same = rows.Count() == m_aRows.Count();
+		for (int i; same && i < rows.Count(); i++)
+			same = rows[i] == m_aRows[i];
+		if (same)
 			return;
-		}
-		m_iNext = next;
-		SetStatus(status);
-		bool sameRows = rows.Count() == m_aRows.Count();
-		for (int compare; sameRows && compare < rows.Count(); compare++)
-			sameRows = rows[compare] == m_aRows[compare];
-		if (m_bEveryone && sameRows)
-			return;
-		int first;
-		if (m_bEveryone || m_iBefore == 0)
-			ClearRows();
-		else
-			first = m_aRows.Count();
-		float scrollX;
-		float scrollY;
+		float scrollX, scrollY;
 		ScrollLayoutWidget scroll = ScrollLayoutWidget.Cast(m_wRoot.FindAnyWidget("EventScroll"));
 		scroll.GetSliderPosPixels(scrollX, scrollY);
-		foreach (string value : rows)
-			m_aRows.Insert(value);
-		AppendRows(first);
+		ClearRows();
+		m_aRows.Copy(rows);
+		AppendRows(0);
 		if (!m_bEveryone)
-		{
-			m_aPersonal.Copy(m_aRows);
-			m_iPersonalNext = next;
-			m_bPersonalLoaded = true;
 			scroll.SetSliderPosPixels(scrollX, scrollY);
-		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -258,7 +185,6 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 	{
 		m_bActive = false;
 		GetGame().GetCallqueue().Remove(Poll);
-		GetGame().GetCallqueue().Remove(Load);
 		if (m_Controller)
 			m_Controller.m_OnGC_SpectatorEvents.Remove(OnRows);
 		super.HandlerDeattached(w);

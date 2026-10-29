@@ -12,9 +12,10 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	protected float m_fStarted;
 	protected int m_iSequence;
 	protected int m_iSpectatorRevision;
-	protected int m_iSpectatorIndexRevision = -1;
-	protected ref map<int, GC_SessionEvent> m_mSpectatorFatalHits = new map<int, GC_SessionEvent>();
-	protected ref set<int> m_aSpectatorCombinedHits = new set<int>();
+	protected ref GC_SpectatorEventBuffer m_SpectatorEvents = new GC_SpectatorEventBuffer(4096);
+	protected ref map<string, ref GC_SpectatorEventBuffer> m_mPersonalEvents = new map<string, ref GC_SpectatorEventBuffer>();
+	protected bool m_bSpectatorUpdateQueued;
+	ref ScriptInvoker m_OnSpectatorCombat = new ScriptInvoker();
 	protected int m_iRevision;
 	protected int m_iDropped;
 	protected int m_iRingCursor;
@@ -197,12 +198,24 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		if (!entry || !Replication.IsServer() || GetInstance() != this || m_sSessionId.IsEmpty() || m_bClosed)
 			return;
 		entry.m_iSequence = ++m_iSequence;
-		bool combatChanged = IsSpectatorCombat(entry);
-		if (m_aRecent.Count() == MAX_RECENT && IsSpectatorCombat(m_aRecent[m_iRingCursor]))
-			combatChanged = true;
-		if (combatChanged)
-			m_iSpectatorRevision = m_iSequence;
 		entry.m_fSeconds = Math.Max(0, GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted);
+		if (IsSpectatorCombat(entry))
+		{
+			m_iSpectatorRevision = entry.m_iSequence;
+			m_SpectatorEvents.Insert(entry);
+			if (entry.m_sTargetKind != "ai")
+			{
+				if (entry.m_sActorKind == "player")
+				RetainPersonalEvent(entry.m_sActor, entry);
+				if (entry.m_sTargetKind == "player" && entry.m_sTarget != entry.m_sActor)
+					RetainPersonalEvent(entry.m_sTarget, entry);
+			}
+			if (!m_bSpectatorUpdateQueued)
+			{
+				m_bSpectatorUpdateQueued = true;
+				GetGame().GetCallqueue().CallLater(PublishSpectatorCombat, 1000);
+			}
+		}
 		if (m_aRecent.Count() < MAX_RECENT)
 			m_aRecent.Insert(entry);
 		else
@@ -471,33 +484,30 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Shared across readers; unrelated shots and unchanged polls do not rebuild it.
-	protected void UpdateSpectatorIndex(int count, int start)
+	protected void RetainPersonalEvent(string identity, GC_SessionEvent entry)
 	{
-		if (m_iSpectatorIndexRevision == m_iSpectatorRevision)
+		if (identity.IsEmpty())
 			return;
-		m_iSpectatorIndexRevision = m_iSpectatorRevision;
-		// Combine same-tick fatal hits only in this view; retain canonical records unchanged.
-		map<string, GC_SessionEvent> lastHits = new map<string, GC_SessionEvent>();
-		m_mSpectatorFatalHits.Clear();
-		m_aSpectatorCombinedHits.Clear();
-		for (int scan = count - 1; scan >= 0; scan--)
+		GC_SpectatorEventBuffer history;
+		if (!m_mPersonalEvents.Find(identity, history))
 		{
-			GC_SessionEvent candidate = m_aRecent[(start - scan + count) % count];
-			if (candidate.m_sType == "damage")
-				lastHits.Set(candidate.m_sTargetEntity, candidate);
-			else if (candidate.m_sType == "kill" || candidate.m_sType == "teamKill" || candidate.m_sType == "aiKill" || candidate.m_sType == "death")
-			{
-				GC_SessionEvent hit;
-				if (candidate.m_sDeathCause != "bleeding" && candidate.m_sDeathCause != "respawn"
-					&& !candidate.m_sTargetEntity.IsEmpty() && lastHits.Find(candidate.m_sTargetEntity, hit)
-					&& candidate.m_sActor == hit.m_sActor && candidate.m_fSeconds == hit.m_fSeconds)
-				{
-					m_mSpectatorFatalHits.Set(candidate.m_iSequence, hit);
-					m_aSpectatorCombinedHits.Insert(hit.m_iSequence);
-				}
-			}
+			history = new GC_SpectatorEventBuffer(256);
+			m_mPersonalEvents.Set(identity, history);
 		}
+		history.Insert(entry);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PublishSpectatorCombat()
+	{
+		m_bSpectatorUpdateQueued = false;
+		if (Replication.IsServer() && GetInstance() == this && !m_bClosed)
+			m_OnSpectatorCombat.Invoke();
+	}
+
+	int GetSpectatorRevision()
+	{
+		return m_iSpectatorRevision;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -525,16 +535,19 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			unchanged = true;
 			return;
 		}
-		int count = m_aRecent.Count();
-		int start = count - 1;
-		if (count == MAX_RECENT)
-			start = (m_iRingCursor + count - 1) % count;
-		UpdateSpectatorIndex(count, start);
+		GC_SpectatorEventBuffer buffer = m_SpectatorEvents;
+		if (!everyone && !m_mPersonalEvents.Find(identity, buffer))
+		{
+			status = "No events";
+			return;
+		}
+		int count = buffer.Count();
+		buffer.UpdateIndex();
 		int matched;
 		for (int offset; offset < count; offset++)
 		{
-			GC_SessionEvent entry = m_aRecent[(start - offset + count) % count];
-			if ((before > 0 && entry.m_iSequence >= before) || m_aSpectatorCombinedHits.Contains(entry.m_iSequence))
+			GC_SessionEvent entry = buffer.GetNewest(offset);
+			if ((before > 0 && entry.m_iSequence >= before) || buffer.IsCombined(entry.m_iSequence))
 				continue;
 			bool damage = entry.m_sType == "damage";
 			if (!damage && entry.m_sType != "kill" && entry.m_sType != "teamKill" && entry.m_sType != "aiKill" && entry.m_sType != "death")
@@ -557,7 +570,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (entry.m_sTarget == identity)
 				target = "You";
 			GC_SessionEvent hitEntry = entry;
-			bool fatal = m_mSpectatorFatalHits.Find(entry.m_iSequence, hitEntry);
+			bool fatal = buffer.GetFatalHit(entry.m_iSequence, hitEntry);
 			if (!fatal)
 				hitEntry = entry;
 			string eventName = "Killed";
@@ -639,6 +652,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		if (m_Telemetry)
 			m_Telemetry.Close();
 		GetGame().GetCallqueue().Remove(Tick);
+		GetGame().GetCallqueue().Remove(PublishSpectatorCombat);
 		if (m_History)
 			m_History.Close();
 		if (Replication.IsServer() && !m_sSessionId.IsEmpty() && !m_bClosed)
@@ -656,6 +670,9 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	void ~GC_SessionLogComponent()
 	{
 		if (GetGame())
+		{
 			GetGame().GetCallqueue().Remove(Tick);
+			GetGame().GetCallqueue().Remove(PublishSpectatorCombat);
+		}
 	}
 }
