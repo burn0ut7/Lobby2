@@ -12,7 +12,7 @@ History comes from the existing shared 4096-event session ring, not the persiste
 
 Reforger 1.8.0.13, Workbench PID17588, Lobby2 MCP Tests, Empty_Lobby.ent / GameMode_Lobby3. Production handlers used through the optional test addon. Final script reloads succeeded; existing ArlandLobby GUID, SCR_DedicatedServerPlugin and m_aFormations resource diagnostics remain unrelated.
 
-- Alive-player server request rejected: re23d9b7a03044c84ba3e51699fb738d3 (receipt without space).
+- Alive-player server request rejected: re23d9b7a03044c84ba3e51699fb738d3.
 - Logged-out ordinary spectator was allowed in the initial pass.
 - Native damage/death produced separate hits and one combined fatal row; latest label report r17e877435fbe4c5aacee0a1838048f6e.
 - Personal scrolling loaded20 then27 rows, next0: rb259eeca91ec45588c6e3e7c622accd5.
@@ -27,4 +27,5 @@ Local visual evidence: Art/References/spectator-events/concept-v2.png (illustrat
 ## Reproduce
 
 Load the optional MCP test addon. Enter GAME with a selected slot. GC_TestCombatAI spawn/hurt-ai-twice/kill-player uses native damage and transitions the host into spectator. GC_TestSpectatorHotkey toggles the named action with1 then0. GC_TestEventLogSnapshot reports actual UI rows. GC_TestScroll EventScroll1 pages You. GC_TestEventLogCombat3 generates native AI-to-AI damage; use a positive damage amount large enough to trigger native callbacks. GC_TestClick activates EventEveryone, EventYou, EventClose and SpectatorEvent_SEQUENCE. GC_TestEventLogRead calls the production authority read. GC_TestPeerCommand spectator-events can request you/everyone/snapshot/open/release on a connected test peer.
-`nFinal J hint resolved in live HUD with event log ON and light OFF: r6fd18d40592a4bc6bad81917a329148a. Final reload: 7cc1638a64ef47ea9e23202734c48b9d. Independent review approved after team-kill fix and combined-label capture.
+
+Final J hint resolved in live HUD with event log ON and light OFF: r6fd18d40592a4bc6bad81917a329148a. Final reload: 7cc1638a64ef47ea9e23202734c48b9d. Independent review approved after team-kill fix and combined-label capture.
