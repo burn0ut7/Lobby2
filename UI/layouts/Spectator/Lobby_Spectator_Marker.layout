@@ -27,7 +27,8 @@ FrameWidgetClass : "{6A56000000000008}UI/layouts/Spectator/Lobby_Spectator_Marke
     SizeY 64
     OffsetBottom -64
    }
-   "Ignore Cursor" 1
+   "Ignore Cursor" 0
+   "no focus" 1
    Color 1 1 1 0
    {
     OverlayWidgetClass "{60DB071976551894}" {
@@ -128,6 +129,7 @@ FrameWidgetClass : "{6A56000000000008}UI/layouts/Spectator/Lobby_Spectator_Marke
   }
   ImageWidgetClass "{5EE8948EC9B919B8}" {
    Prefab "{5EE8948EC9B919B8}"
+   "Ignore Cursor" 1
    Image "LobbySpectatorPlayer"
    Size 64 64
   }

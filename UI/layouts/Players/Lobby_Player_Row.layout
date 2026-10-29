@@ -15,12 +15,14 @@ ButtonWidgetClass {
  {
   OverlayWidgetClass "{6A33000000000003}" {
    Name "PlayerRowOverlay"
+   "Ignore Cursor" 1
    Slot ButtonWidgetSlot "{6A33000000000004}" {
     HorizontalAlign 3
    }
    {
     ImageWidgetClass "{6A33000000000005}" {
      Name "Background"
+     "Ignore Cursor" 1
      Slot OverlayWidgetSlot "{6A33000000000006}" {
       HorizontalAlign 3
       VerticalAlign 3
@@ -29,6 +31,7 @@ ButtonWidgetClass {
     }
     SizeLayoutWidgetClass "{6A33000000000007}" {
      Name "RowSize"
+     "Ignore Cursor" 1
      Slot OverlayWidgetSlot "{6A33000000000008}" {
       HorizontalAlign 3
       VerticalAlign 3
@@ -38,6 +41,7 @@ ButtonWidgetClass {
      {
       HorizontalLayoutWidgetClass "{6A33000000000009}" {
        Name "HorizontalLayout"
+       "Ignore Cursor" 1
        Slot AlignableSlot "{6A3300000000000A}" {
         HorizontalAlign 3
         VerticalAlign 3
@@ -45,6 +49,7 @@ ButtonWidgetClass {
        {
         ImageWidgetClass "{6A3300000000000B}" {
          Name "FactionAccent"
+         "Ignore Cursor" 1
          Slot LayoutSlot "{6A3300000000000C}" {
          }
          Color 0.85 0.08 0.05 1
@@ -52,6 +57,7 @@ ButtonWidgetClass {
         }
         HorizontalLayoutWidgetClass "{6A3300000000000D}" {
          Name "PlayerIdentitySection"
+         "Ignore Cursor" 1
          Slot LayoutSlot "{6A3300000000000E}" {
           VerticalAlign 1
           Padding 0 0 12 0
@@ -61,6 +67,7 @@ ButtonWidgetClass {
          {
           SizeLayoutWidgetClass "{6A3300000000000F}" {
            Name "RoleIconSize"
+           "Ignore Cursor" 1
            Slot LayoutSlot "{6A33000000000010}" {
             VerticalAlign 1
             Padding 4 0 4 0
@@ -72,17 +79,20 @@ ButtonWidgetClass {
            {
             ScaleWidgetClass "{6A33000000000011}" {
              Name "RoleIconScale"
+             "Ignore Cursor" 1
              Slot AlignableSlot "{6A33000000000012}" {
              }
              "Scale Mode" "Scale to fill"
              {
               FrameWidgetClass "{6A33000000000013}" {
                Name "RoleIconFrame"
+               "Ignore Cursor" 1
                Slot AlignableSlot "{6A33000000000014}" {
                }
                {
                 ImageWidgetClass "{6A33000000000015}" {
                  Name "RoleIcon"
+                 "Ignore Cursor" 1
                  Slot FrameWidgetSlot "{6A33000000000016}" {
                   PositionX -23.5
                   OffsetLeft -23.5
@@ -104,6 +114,7 @@ ButtonWidgetClass {
           }
           TextWidgetClass "{6A33000000000017}" {
            Name "PlayerName"
+           "Ignore Cursor" 1
            Slot LayoutSlot "{6A33000000000018}" {
             VerticalAlign 1
             SizeMode Fill
@@ -121,6 +132,7 @@ ButtonWidgetClass {
         }
         TextWidgetClass "{6A3300000000001A}" {
          Name "GroupCallsign"
+         "Ignore Cursor" 1
          Slot LayoutSlot "{6A3300000000001B}" {
           VerticalAlign 1
           Padding 0 0 4 0
@@ -139,6 +151,7 @@ ButtonWidgetClass {
         }
         SizeLayoutWidgetClass "{6A3300000000001D}" {
          Name "VoiceIconSize"
+         "Ignore Cursor" 1
          Slot LayoutSlot "{6A3300000000001E}" {
           VerticalAlign 1
           Padding 0 0 6 0
@@ -150,6 +163,7 @@ ButtonWidgetClass {
          {
           OverlayWidgetClass "{6A33000000000023}" {
            Name "VoiceIconOverlay"
+           "Ignore Cursor" 1
            Slot AlignableSlot "{6A33000000000024}" {
             HorizontalAlign 3
             VerticalAlign 3
@@ -157,6 +171,7 @@ ButtonWidgetClass {
            {
             ImageWidgetClass "{6A3300000000001F}" {
              Name "VoiceIcon"
+             "Ignore Cursor" 1
              Slot OverlayWidgetSlot "{6A33000000000020}" {
               HorizontalAlign 1
               VerticalAlign 1
@@ -169,6 +184,7 @@ ButtonWidgetClass {
             }
             ImageWidgetClass "{6A33000000000021}" {
              Name "VoiceDeafenedIcon"
+             "Ignore Cursor" 1
              Slot OverlayWidgetSlot "{6A33000000000022}" {
               HorizontalAlign 1
               VerticalAlign 1

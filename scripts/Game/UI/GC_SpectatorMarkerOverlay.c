@@ -233,20 +233,21 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		return true;
 	}
 
+	override bool OnClick(Widget w, int x, int y, int button)
+	{
+		if (button != 0 || !m_Entity || !m_Entity.GetOwner())
+			return false;
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		int playerId = GC_LobbyPlayerController.GC_GetSpectatorEntityPlayer(m_Entity.GetOwner());
+		if (!controller || playerId <= 0)
+			return false;
+		controller.GC_SelectSpectatorPlayer(playerId);
+		return true;
+	}
+
 	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
-		if (!m_Entity || !m_Entity.GetOwner())
-			return false;
-		if (button == 0)
-		{
-			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-			int playerId = GC_LobbyPlayerController.GC_GetSpectatorEntityPlayer(m_Entity.GetOwner());
-			if (!controller || playerId <= 0)
-				return false;
-			controller.GC_SelectSpectatorPlayer(playerId);
-			return true;
-		}
-		if (button != 1)
+		if (button != 1 || !m_Entity || !m_Entity.GetOwner())
 			return false;
 
 		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForEntity(m_Entity.GetOwner()), GetWidget());
