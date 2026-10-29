@@ -4,7 +4,7 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	string GC_TestSpectatorHotkey(string action, float value)
 	{
-		if (action != "GC_ToggleSpectatorProjectileTracers" && action != "GC_ToggleSpectatorKilledFrom" && action != "GC_ToggleSpectatorEventLog")
+		if (action != "GC_ToggleSpectatorWorldHealth" && action != "GC_ToggleSpectatorProjectileTracers" && action != "GC_ToggleSpectatorKilledFrom" && action != "GC_ToggleSpectatorEventLog")
 			return "Invalid test action";
 		InputManager input = GetGame().GetInputManager();
 		if (value == 0 || value == 1)

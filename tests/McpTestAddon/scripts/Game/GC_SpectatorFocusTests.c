@@ -2,7 +2,6 @@ modded class GC_LobbyPlayerController
 {
 	protected int m_iGC_TestHealthPackets;
 	protected int m_iGC_TestFocusPackets;
-	protected int m_iGC_TestWorldPackets;
 
 	string GC_TestFocus(string action, int playerId)
 	{
@@ -13,20 +12,14 @@ modded class GC_LobbyPlayerController
 		else if (action == "more")
 			GC_LoadFocusedEventPage();
 		else if (action == "unauthorized")
-			Rpc(GC_RpcAsk_FocusSettings, m_iGC_FocusGeneration, playerId, true);
+			Rpc(GC_RpcAsk_FocusSettings, m_iGC_FocusGeneration, playerId);
 		string report = string.Format("state=%1 focus=%2 health=%3 world=%4 rows=%5 next=%6", GetLobbyPlayerState(), m_iGC_FocusedPlayer, GC_GetPlayerHealth(playerId), m_bGC_WorldHealth, m_aGC_FocusEvents.Count() / 7, m_iGC_FocusNext);
-		report += string.Format(" healthPackets=%1 eventPackets=%2 serverFocus=%3 serverWorld=%4 serverHealth=%5", m_iGC_TestHealthPackets, m_iGC_TestFocusPackets, m_iGC_ServerFocus, m_bGC_ServerWorldHealth, m_mGC_ServerHealth.Count());
-		report += string.Format(" worldPackets=%1 worldValues=%2 worldRequested=%3", m_iGC_TestWorldPackets, m_mGC_WorldHealth.Count(), m_aGC_RequestedHealth.Count());
+		report += string.Format(" healthPackets=%1 eventPackets=%2 serverFocus=%3 serverHealth=%4", m_iGC_TestHealthPackets, m_iGC_TestFocusPackets, m_iGC_ServerFocus, m_mGC_ServerHealth.Count());
 		if (!m_aGC_FocusEvents.IsEmpty())
 			report += " first=" + m_aGC_FocusEvents[2] + " " + m_aGC_FocusEvents[3];
 		return report;
 	}
 
-	override protected void GC_RpcDo_WorldHealth(int epoch, array<RplId> ids, array<int> values)
-	{
-		m_iGC_TestWorldPackets++;
-		super.GC_RpcDo_WorldHealth(epoch, ids, values);
-	}
 
 	override protected void GC_RpcDo_HealthChanges(int generation, array<int> changes)
 	{

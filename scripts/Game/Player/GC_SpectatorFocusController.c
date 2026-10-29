@@ -14,7 +14,6 @@ modded class GC_LobbyPlayerController
 	protected int m_iGC_ServerFocus;
 	protected string m_sGC_ServerFocusIdentity;
 	protected int m_iGC_ServerFocusGeneration;
-	protected bool m_bGC_ServerWorldHealth;
 	protected ref map<int, int> m_mGC_ServerHealth = new map<int, int>();
 	protected ref array<string> m_aGC_ServerFocusEvents = {};
 	protected int m_iGC_ServerFocusRevision = -1;
@@ -87,14 +86,13 @@ modded class GC_LobbyPlayerController
 		if (!GC_LobbyPlayerController.Cast(this).GC_CanJumpSpectatorCamera())
 			return;
 		m_bGC_WorldHealth = !m_bGC_WorldHealth;
-		GC_SendFocusSettings();
 		m_OnGC_SpectatorHealth.Invoke();
 	}
 
 
 	protected void GC_SendFocusSettings()
 	{
-		Rpc(GC_RpcAsk_FocusSettings, m_iGC_FocusGeneration, m_iGC_FocusedPlayer, m_bGC_WorldHealth);
+		Rpc(GC_RpcAsk_FocusSettings, m_iGC_FocusGeneration, m_iGC_FocusedPlayer);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -116,14 +114,13 @@ modded class GC_LobbyPlayerController
 		GetGame().GetCallqueue().Remove(GC_UpdateFocusFeed);
 		m_iGC_ServerFocus = 0;
 		m_sGC_ServerFocusIdentity = string.Empty;
-		m_bGC_ServerWorldHealth = false;
 		m_mGC_ServerHealth.Clear();
 		m_aGC_ServerFocusEvents.Clear();
 		m_iGC_ServerFocusRevision = -1;
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void GC_RpcAsk_FocusSettings(int generation, int playerId, bool worldHealth)
+	protected void GC_RpcAsk_FocusSettings(int generation, int playerId)
 	{
 		if (!Replication.IsServer() || !GC_LobbyManager.GetManager() || GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
 			return;
@@ -140,10 +137,9 @@ modded class GC_LobbyPlayerController
 			m_iGC_ServerFocusNext = 0;
 			m_aGC_ServerFocusEvents.Clear();
 		}
-		m_bGC_ServerWorldHealth = worldHealth;
 		GetGame().GetCallqueue().Remove(GC_UpdateFocusFeed);
 		GC_UpdateFocusFeed();
-		if (worldHealth || playerId > 0)
+		if (playerId > 0)
 			GetGame().GetCallqueue().CallLater(GC_UpdateFocusFeed, 1000, true);
 	}
 
