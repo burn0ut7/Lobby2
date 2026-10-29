@@ -1,7 +1,7 @@
 FrameWidgetClass {
  Name "DebriefRoot"
  {
- BlurWidgetClass { Name "DebriefBlur" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 1 1 1 1 Intensity 0.4 "Ignore Cursor" 1 }
+ BlurWidgetClass { Name "DebriefBlur" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.305 0.305 0.305 1 Intensity 0.8 "Ignore Cursor" 1 }
  PanelWidgetClass { Name "DebriefSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 0.5 style full "Ignore Cursor" 1 }
  FrameWidgetClass : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" { Name "MenuBar" Slot FrameWidgetSlot { Anchor 0 0 1 0.065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 TextWidgetClass {
