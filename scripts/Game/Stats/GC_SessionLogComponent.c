@@ -506,7 +506,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			bool damage = entry.m_sType == "damage";
 			if (!damage && entry.m_sType != "kill" && entry.m_sType != "teamKill" && entry.m_sType != "aiKill" && entry.m_sType != "death")
 				continue;
-			if (!everyone && entry.m_sActor != identity && entry.m_sTarget != identity)
+			if (!everyone && (entry.m_sTargetKind == "ai" || (entry.m_sActor != identity && entry.m_sTarget != identity)))
 				continue;
 			if (matched == 20)
 			{

@@ -49,3 +49,9 @@ Native root hover populated both tooltip lines (runtime-tooltip-v5.png). Moving 
 The panel is now 560x346 reference pixels anchored 24px from bottom/right, with 290px for five 56px rows plus 2px spacing each. Top/left padding is 8px; bottom/right is 4px. Header stays 36px high. Background opacity is 0.68 instead of 0.90. Z order 0 places the complete log below voice/player drawer 100 and spectator options 110.
 
 Reload eea83b8c84704a25941823b2066678ac succeeded without script errors; existing resource diagnostics remain. Native damage produced five personal entries. MCP captures runtime-five-v6.png, runtime-options-v6.png and runtime-voice-v6.png in Art/References/spectator-events confirm five full rows, tighter width/padding, transparency and both expanded panels over the log. Drawer opening exercised production SetHandleFocused and native animation through the optional existing test helper. Other screen sizes were not exercised in this pass; dimensions use the same native reference-pixel scaling as row heights.
+
+## AI event scope
+
+Everyone includes damage and deaths with AI targets, including AI-only combat. You excludes AI-target events even when the local player caused them, but retains AI attacks and kills against the local player. The server projection filters before pagination. Canonical AI-only deaths now pass through RecordDeath; they do not enter the player statistics death batch or alter player kill/death counters. Unknown non-player victim types retain the prior rejection.
+
+This refinement compiled in the current Arland project. Existing earlier native checks cover player-to-AI damage/kills and AI-to-AI damage. AI-only death recording and the new personal exclusion were source-reviewed; no new destructive combat test was run in the user's connected Arland session. Prior personal-history captures predate this exclusion.

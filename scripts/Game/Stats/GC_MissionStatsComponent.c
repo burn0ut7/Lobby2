@@ -511,7 +511,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		if (death.m_sCreditSource.IsEmpty() && ((killerRecord && killerRecord != victimRecord) || death.m_sKillerKind == "ai"))
 			death.m_sCreditSource = "engine";
 		bool teamKill = (death.m_iRelation & SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER) != 0;
-		if (!victimRecord && !killerRecord)
+		if (!victimRecord && !killerRecord && death.m_sVictimKind != "ai")
 			return;
 		if (m_RecordedDeaths.Count() >= 16384)
 		{
@@ -598,6 +598,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 				entry.m_sDetail += " | last damaging player credited";
 			logs.RecordDeath(entry, victim, killer);
 		}
+		// AI-only deaths belong in the session event feed, not player statistics.
+		if (!victimRecord && !killerRecord)
+			return;
 		if (m_Batch.m_aDeaths.Count() >= MAX_PENDING_DEATHS)
 		{
 			if (m_Batch.m_bComplete)
