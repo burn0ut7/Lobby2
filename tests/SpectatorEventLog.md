@@ -26,7 +26,7 @@ Local visual evidence: Art/References/spectator-events/concept-v2.png (illustrat
 
 ## Reproduce
 
-Load the optional MCP test addon. Enter GAME with a selected slot. GC_TestCombatAI spawn/hurt-ai-twice/kill-player uses native damage and transitions the host into spectator. GC_TestSpectatorHotkey toggles the named action with1 then0. GC_TestEventLogSnapshot reports actual UI rows. GC_TestScroll EventScroll1 pages You. GC_TestEventLogCombat3 generates native AI-to-AI damage; use a positive damage amount large enough to trigger native callbacks. GC_TestClick activates EventEveryone, EventYou, EventClose and SpectatorEvent_SEQUENCE. GC_TestEventLogRead calls the production authority read. GC_TestPeerCommand spectator-events can request you/everyone/snapshot/open/release on a connected test peer.
+Load the optional MCP test addon. Enter GAME with a selected slot. GC_TestCombatAI spawn/hurt-ai-twice/kill-player uses native damage and transitions the host into spectator. GC_TestSpectatorHotkey toggles the named action with1 then 0. GC_TestEventLogSnapshot reports actual UI rows. GC_TestScroll EventScroll1 pages You. GC_TestEventLogCombat3 generates native AI-to-AI damage; use a positive damage amount large enough to trigger native callbacks. GC_TestClick activates EventEveryone, EventYou, EventClose and SpectatorEvent_SEQUENCE. GC_TestEventLogRead calls the production authority read. GC_TestPeerCommand spectator-events can request you/everyone/snapshot/open/release on a connected test peer.
 
 Final J hint resolved in live HUD with event log ON and light OFF: r6fd18d40592a4bc6bad81917a329148a. Final reload: 7cc1638a64ef47ea9e23202734c48b9d. Independent review approved after team-kill fix and combined-label capture.
 
@@ -55,3 +55,20 @@ Reload eea83b8c84704a25941823b2066678ac succeeded without script errors; existin
 Everyone includes damage and deaths with AI targets, including AI-only combat. You excludes AI-target events even when the local player caused them, but retains AI attacks and kills against the local player. The server projection filters before pagination. Canonical AI-only deaths now pass through RecordDeath; they do not enter the player statistics death batch or alter player kill/death counters. Unknown non-player victim types retain the prior rejection.
 
 This refinement compiled in the current Arland project. Existing earlier native checks cover player-to-AI damage/kills and AI-to-AI damage. AI-only death recording and the new personal exclusion were source-reviewed; no new destructive combat test was run in the user's connected Arland session. Prior personal-history captures predate this exclusion.
+
+## Feed optimization and default tab
+
+Everyone is the initial tab, on the left; You is second. Button proportions, wording, font size and height are unchanged. Panel width is now 476 reference pixels (15% narrower than 560), with the same right margin, height and five-row capacity.
+
+The server remains authoritative for combat and snapshots historical names, damage, weapon, time, distance and world position. Clients receive value records over their owning controller, not replicated entity references; display, scrolling, cached personal history and camera movement remain local. Only open Everyone views poll once per second; closing/hiding removes the poll. No general broadcast to living players is introduced.
+
+Requests include the last combat revision. An unchanged authorized request returns an empty acknowledgement before scanning/formatting rows. New combat and eviction of retained combat advance the revision; unrelated entries do not. The fatal-hit index is shared by readers and rebuilt only after this revision changes. Changed responses remain bounded to 20 events; this is not a lossless archive stream. Client and server must update together because the RPC contract now includes revision/unchanged.
+
+Live validation in Arland (GameMode_Lobby2): first 3 rows revision 10, repeat 0 rows unchanged 1 (rf591999e0f7645ffb21ba97fc218af0a); additional native AI damage/death advanced revision 41 and 20 rows, repeat 0 unchanged 1 (rf72e5b5d2a35494084d07c1663995bfb). Invalid requester returned revision -1, unchanged 0, denied. AI-only fatal row appeared (rcf04451a1c1f496b8c2028e042010030), closing the earlier AI-death verification gap. Personal view was empty for AI-only combat (ra1013a52e2b24e3cbd9cdf435df4f2f7).
+
+Connected non-admin spectator peer 2 received 20 rows, revision 41 (rf4c45a836f284b7b97e903dd99a7f7b5), then 0 rows with unchanged 1 (rac389e46302a42be9e938c15593a0015), closing the previous remote transport gap. Camera jump to distant captured AI death moved the host from 1194,40,2723 to 180,6,121 (r84a145486edb46f38c0abadc2eddae1f). Actual entity absence in a remote replication bubble was not measured; independence is established by the value-only protocol/no entity lookup, not a claimed culling test. No load benchmark or live ring-wrap stress test was run.
+
+Final reload fec861642dcd46ef8c215aa0a9b2ae94 passed without script errors; existing resource diagnostics remain. runtime-default-v7.png shows Everyone initially selected before the final width reduction.
+
+Final 476px panel capture: Art/References/spectator-events/runtime-narrow-peer-v8.png, connected peer PID 36688 at 2026-10-29 21:21:33 UTC. Five full rows, default Everyone on the left, You second and right-edge alignment are visible. Named-action open/release were separated across client frames.
+Independent code and final live visual review approved; no blocking findings.

@@ -5,6 +5,26 @@ modded class GC_LobbyManager
 	protected ChimeraCharacter m_GC_EventTarget;
 
 	//------------------------------------------------------------------------------------------------
+	//! Read-only authority/cache regression; does not create combat or change player state.
+	string GC_TestEventLogCache(int requester)
+	{
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (!logs)
+			return "UNAVAILABLE";
+		array<string> rows;
+		int next, revision;
+		bool unchanged;
+		string status;
+		logs.ReadSpectatorPage(requester, true, 0, rows, next, status, revision, unchanged);
+		string report = string.Format("first rows=%1 revision=%2 unchanged=%3 status=%4", rows.Count() / 7, revision, unchanged, status);
+		int known = revision;
+		logs.ReadSpectatorPage(requester, true, 0, rows, next, status, revision, unchanged, known);
+		report += string.Format(" | repeat rows=%1 revision=%2 unchanged=%3 status=%4", rows.Count() / 7, revision, unchanged, status);
+		logs.ReadSpectatorPage(-1, true, 0, rows, next, status, revision, unchanged, known);
+		return report + string.Format(" | invalid rows=%1 revision=%2 unchanged=%3 status=%4", rows.Count() / 7, revision, unchanged, status);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Native pointer hit-testing, separate from direct handler dispatch.
 	string GC_TestEventLogPointer(string rowName, string cellName)
 	{
@@ -72,7 +92,9 @@ modded class GC_LobbyManager
 		array<string> rows;
 		int next;
 		string status;
-		logs.ReadSpectatorPage(controller.GetPlayerId(), everyone, before, rows, next, status);
+		int revision;
+		bool unchanged;
+		logs.ReadSpectatorPage(controller.GetPlayerId(), everyone, before, rows, next, status, revision, unchanged);
 		string report = string.Format("state=%1 admin=%2 rows=%3 next=%4 status=%5", controller.GetLobbyPlayerState(), SCR_Global.IsAdmin(controller.GetPlayerId()), rows.Count() / 7, next, status);
 		for (int i; i < rows.Count(); i += 7)
 			report += string.Format("\n%1 | %2 | %3 | %4 | %5 | position=%6", rows[i], rows[i + 1], rows[i + 2], rows[i + 3], rows[i + 4], rows[i + 6]);

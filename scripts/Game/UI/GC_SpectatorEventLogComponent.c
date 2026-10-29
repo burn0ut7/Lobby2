@@ -3,7 +3,8 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 {
 	protected GC_LobbyPlayerController m_Controller;
 	protected bool m_bActive;
-	protected bool m_bEveryone;
+	protected bool m_bEveryone = true;
+	protected int m_iLiveRevision = -1;
 	protected bool m_bPending;
 	protected bool m_bPersonalLoaded;
 	protected int m_iRequest = -1;
@@ -66,6 +67,7 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 		m_iRequest = -1;
 		m_bPending = false;
 		m_iBefore = 0;
+		m_iLiveRevision = -1;
 		ClearRows();
 		ScrollLayoutWidget.Cast(m_wRoot.FindAnyWidget("EventScroll")).SetSliderPos(0, 0);
 		SCR_ButtonTextComponent.GetButtonText("EventYou", m_wRoot).SetToggled(!m_bEveryone, false, false);
@@ -131,7 +133,7 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 		m_bPending = true;
 		m_fRequestedAt = GetGame().GetWorld().GetWorldTime();
 		m_iRequest = m_Controller.GC_ReserveSpectatorEventRequest();
-		m_Controller.GC_RequestSpectatorEvents(m_iRequest, m_bEveryone, m_iBefore);
+		m_Controller.GC_RequestSpectatorEvents(m_iRequest, m_bEveryone, m_iBefore, m_iLiveRevision);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -156,17 +158,27 @@ class GC_SpectatorEventLogComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void OnRows(int request, array<string> rows, int next, string status)
+	protected void OnRows(int request, array<string> rows, int next, string status, int revision, bool unchanged)
 	{
 		if (!m_bActive || !HasAccess() || request != m_iRequest || rows.Count() % 7 != 0)
 			return;
 		m_bPending = false;
+		if (m_bEveryone)
+			m_iLiveRevision = revision;
+		if (unchanged)
+		{
+			if (m_aRows.IsEmpty())
+				SetStatus("No events");
+			else
+				SetStatus("");
+			return;
+		}
 		m_iNext = next;
 		SetStatus(status);
-		bool unchanged = rows.Count() == m_aRows.Count();
-		for (int compare; unchanged && compare < rows.Count(); compare++)
-			unchanged = rows[compare] == m_aRows[compare];
-		if (m_bEveryone && unchanged)
+		bool sameRows = rows.Count() == m_aRows.Count();
+		for (int compare; sameRows && compare < rows.Count(); compare++)
+			sameRows = rows[compare] == m_aRows[compare];
+		if (m_bEveryone && sameRows)
 			return;
 		int first;
 		if (m_bEveryone || m_iBefore == 0)

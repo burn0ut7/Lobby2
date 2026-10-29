@@ -11,6 +11,10 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	protected int m_iStartedAt;
 	protected float m_fStarted;
 	protected int m_iSequence;
+	protected int m_iSpectatorRevision;
+	protected int m_iSpectatorIndexRevision = -1;
+	protected ref map<int, GC_SessionEvent> m_mSpectatorFatalHits = new map<int, GC_SessionEvent>();
+	protected ref set<int> m_aSpectatorCombinedHits = new set<int>();
 	protected int m_iRevision;
 	protected int m_iDropped;
 	protected int m_iRingCursor;
@@ -193,6 +197,11 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		if (!entry || !Replication.IsServer() || GetInstance() != this || m_sSessionId.IsEmpty() || m_bClosed)
 			return;
 		entry.m_iSequence = ++m_iSequence;
+		bool combatChanged = IsSpectatorCombat(entry);
+		if (m_aRecent.Count() == MAX_RECENT && IsSpectatorCombat(m_aRecent[m_iRingCursor]))
+			combatChanged = true;
+		if (combatChanged)
+			m_iSpectatorRevision = m_iSequence;
 		entry.m_fSeconds = Math.Max(0, GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted);
 		if (m_aRecent.Count() < MAX_RECENT)
 			m_aRecent.Insert(entry);
@@ -456,30 +465,22 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Spectator-only combat projection. Never exposes identities or administrative events.
-	void ReadSpectatorPage(int requester, bool everyone, int before, out array<string> rows, out int next, out string status)
+	protected bool IsSpectatorCombat(GC_SessionEvent entry)
 	{
-		rows = {};
-		next = 0;
-		status = "Spectator access required.";
-		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requester));
-		if (!Replication.IsServer() || GetInstance() != this || !controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
+		return entry && (entry.m_sType == "damage" || entry.m_sType == "kill" || entry.m_sType == "teamKill" || entry.m_sType == "aiKill" || entry.m_sType == "death");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Shared across readers; unrelated shots and unchanged polls do not rebuild it.
+	protected void UpdateSpectatorIndex(int count, int start)
+	{
+		if (m_iSpectatorIndexRevision == m_iSpectatorRevision)
 			return;
-		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(requester);
-		if (identity.IsEmpty() || before < 0)
-		{
-			status = "Player identity or cursor unavailable.";
-			return;
-		}
-		status = string.Empty;
-		int count = m_aRecent.Count();
-		int start = count - 1;
-		if (count == MAX_RECENT)
-			start = (m_iRingCursor + count - 1) % count;
+		m_iSpectatorIndexRevision = m_iSpectatorRevision;
 		// Combine same-tick fatal hits only in this view; retain canonical records unchanged.
 		map<string, GC_SessionEvent> lastHits = new map<string, GC_SessionEvent>();
-		map<int, GC_SessionEvent> fatalHits = new map<int, GC_SessionEvent>();
-		set<int> combinedHits = new set<int>();
+		m_mSpectatorFatalHits.Clear();
+		m_aSpectatorCombinedHits.Clear();
 		for (int scan = count - 1; scan >= 0; scan--)
 		{
 			GC_SessionEvent candidate = m_aRecent[(start - scan + count) % count];
@@ -492,16 +493,48 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 					&& !candidate.m_sTargetEntity.IsEmpty() && lastHits.Find(candidate.m_sTargetEntity, hit)
 					&& candidate.m_sActor == hit.m_sActor && candidate.m_fSeconds == hit.m_fSeconds)
 				{
-					fatalHits.Set(candidate.m_iSequence, hit);
-					combinedHits.Insert(hit.m_iSequence);
+					m_mSpectatorFatalHits.Set(candidate.m_iSequence, hit);
+					m_aSpectatorCombinedHits.Insert(hit.m_iSequence);
 				}
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Spectator-only combat projection. Never exposes identities or administrative events.
+	void ReadSpectatorPage(int requester, bool everyone, int before, out array<string> rows, out int next, out string status, out int revision, out bool unchanged, int knownRevision = -1)
+	{
+		rows = {};
+		next = 0;
+		revision = -1;
+		unchanged = false;
+		status = "Spectator access required.";
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requester));
+		if (!Replication.IsServer() || GetInstance() != this || !controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
+			return;
+		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(requester);
+		if (identity.IsEmpty() || before < 0)
+		{
+			status = "Player identity or cursor unavailable.";
+			return;
+		}
+		status = string.Empty;
+		revision = m_iSpectatorRevision;
+		if (everyone && before == 0 && knownRevision == revision)
+		{
+			unchanged = true;
+			return;
+		}
+		int count = m_aRecent.Count();
+		int start = count - 1;
+		if (count == MAX_RECENT)
+			start = (m_iRingCursor + count - 1) % count;
+		UpdateSpectatorIndex(count, start);
 		int matched;
 		for (int offset; offset < count; offset++)
 		{
 			GC_SessionEvent entry = m_aRecent[(start - offset + count) % count];
-			if ((before > 0 && entry.m_iSequence >= before) || combinedHits.Contains(entry.m_iSequence))
+			if ((before > 0 && entry.m_iSequence >= before) || m_aSpectatorCombinedHits.Contains(entry.m_iSequence))
 				continue;
 			bool damage = entry.m_sType == "damage";
 			if (!damage && entry.m_sType != "kill" && entry.m_sType != "teamKill" && entry.m_sType != "aiKill" && entry.m_sType != "death")
@@ -524,7 +557,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (entry.m_sTarget == identity)
 				target = "You";
 			GC_SessionEvent hitEntry = entry;
-			bool fatal = fatalHits.Find(entry.m_iSequence, hitEntry);
+			bool fatal = m_mSpectatorFatalHits.Find(entry.m_iSequence, hitEntry);
 			if (!fatal)
 				hitEntry = entry;
 			string eventName = "Killed";

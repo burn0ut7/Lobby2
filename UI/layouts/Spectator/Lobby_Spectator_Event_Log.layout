@@ -1,6 +1,6 @@
 FrameWidgetClass {
  Name "SpectatorEventLog"
- Slot FrameWidgetSlot { Anchor 1 1 1 1 PositionX -24 PositionY -24 SizeX 560 SizeY 346 OffsetLeft -24 OffsetTop -24 OffsetRight -536 OffsetBottom -322 Alignment 1 1 }
+ Slot FrameWidgetSlot { Anchor 1 1 1 1 PositionX -24 PositionY -24 SizeX 476 SizeY 346 OffsetLeft -24 OffsetTop -24 OffsetRight -452 OffsetBottom -322 Alignment 1 1 }
  "Z Order" 0
  "Is Visible" 0
  components { GC_SpectatorEventLogComponent {} }
@@ -10,13 +10,13 @@ FrameWidgetClass {
    Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 8 OffsetRight 4 OffsetBottom 4 }
    {
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-     Name "EventYou"
-     Slot FrameWidgetSlot { Anchor 0 0 .20 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
+     Name "EventEveryone"
+     Slot FrameWidgetSlot { Anchor 0 0 .33 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-     Name "EventEveryone"
-     Slot FrameWidgetSlot { Anchor .22 0 .55 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
+     Name "EventYou"
+     Slot FrameWidgetSlot { Anchor .35 0 .55 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
