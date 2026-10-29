@@ -1,38 +1,38 @@
 FrameWidgetClass {
  Name "SpectatorEventLog"
- Slot FrameWidgetSlot { Anchor 0.65 0.73 0.985 0.975 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- "Z Order" 115
+ Slot FrameWidgetSlot { Anchor 1 1 1 1 PositionX -24 PositionY -24 SizeX 560 SizeY 346 OffsetLeft -24 OffsetTop -24 OffsetRight -536 OffsetBottom -322 Alignment 1 1 }
+ "Z Order" 0
  "Is Visible" 0
  components { GC_SpectatorEventLogComponent {} }
  {
-  PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.025 0.025 0.025 0.90 style full "Ignore Cursor" 1 }
+  PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.025 0.025 0.025 0.68 style full "Ignore Cursor" 1 }
   FrameWidgetClass {
-   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 10 OffsetTop 8 OffsetRight 10 OffsetBottom 8 }
+   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 8 OffsetTop 8 OffsetRight 4 OffsetBottom 4 }
    {
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "EventYou"
-     Slot FrameWidgetSlot { Anchor 0 0 .20 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 0 .20 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "EventEveryone"
-     Slot FrameWidgetSlot { Anchor .22 0 .55 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor .22 0 .55 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "EventClose"
-     Slot FrameWidgetSlot { Anchor .80 0 1 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor .80 0 1 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ScrollLayoutWidgetClass {
      Name "EventScroll"
-     Slot FrameWidgetSlot { Anchor 0 .21 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 44 OffsetRight 0 OffsetBottom 0 }
      "Scrollbar Always Visible" 0
      { VerticalLayoutWidgetClass { Name "EventRows" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } }
     }
     TextWidgetClass {
      Name "EventStatus"
-     Slot FrameWidgetSlot { Anchor 0 .23 1 .40 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+     Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 8 OffsetTop 44 OffsetRight 8 OffsetBottom -78 }
      "Font Size" 18
      Color .72 .72 .72 1
      "Ignore Cursor" 1

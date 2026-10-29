@@ -43,3 +43,9 @@ The original GC_TestClick called the component directly and did not test hit rou
 Reload 1bc4e042c4a34f04bf3c39645ce4b15e succeeded after correcting an override argument-name compilation error. Existing unrelated resource diagnostics remain. Actual capture: Art/References/spectator-events/runtime-click-v5.png. GC_TestEventLogPointer(rowName, cellName) is the optional regression probe.
 
 Native root hover populated both tooltip lines (runtime-tooltip-v5.png). Moving the pointer away dismissed it (runtime-tooltip-dismissed-v5.png), using native ReportMouse and MouseDeviceHandler cursor movement via existing test helper.
+
+## Five-row refinement
+
+The panel is now 560x346 reference pixels anchored 24px from bottom/right, with 290px for five 56px rows plus 2px spacing each. Top/left padding is 8px; bottom/right is 4px. Header stays 36px high. Background opacity is 0.68 instead of 0.90. Z order 0 places the complete log below voice/player drawer 100 and spectator options 110.
+
+Reload eea83b8c84704a25941823b2066678ac succeeded without script errors; existing resource diagnostics remain. Native damage produced five personal entries. MCP captures runtime-five-v6.png, runtime-options-v6.png and runtime-voice-v6.png in Art/References/spectator-events confirm five full rows, tighter width/padding, transparency and both expanded panels over the log. Drawer opening exercised production SetHandleFocused and native animation through the optional existing test helper. Other screen sizes were not exercised in this pass; dimensions use the same native reference-pixel scaling as row heights.
