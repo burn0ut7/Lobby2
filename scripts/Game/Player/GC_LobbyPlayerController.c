@@ -2041,6 +2041,10 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
 	protected void RpcDo_LeaveLobbySpectatorMode(bool remainsSpectator)
 	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!mode || GetGame().GetPlayerController() != this)
+			return;
+
 		m_bSpectatorPresentationRequested = false;
 
 		if (remainsSpectator)
@@ -2054,6 +2058,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 
 		DestroySpectatorCamera();
+
+		// Possession has succeeded on authority. Return the owner to gameplay
+		// only in the active match; lobby and briefing remain browsable.
+		if (!remainsSpectator && mode.GetState() == SCR_EGameModeState.GAME)
+			GetGame().GetMenuManager().CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_SlottingMenu);
 	}
 
 	override void OnControlledEntityChanged(IEntity from, IEntity to)
