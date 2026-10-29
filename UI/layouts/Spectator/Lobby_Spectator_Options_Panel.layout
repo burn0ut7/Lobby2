@@ -722,6 +722,133 @@ SizeLayoutWidgetClass {
             }
            }
           }
+          SizeLayoutWidgetClass "{D378A10029020010}" {
+           Name "SpectatorWorldHealthOptionRow"
+           Slot LayoutSlot "{D378A10029020011}" {
+            HorizontalAlign 3
+            Padding 0 0 0 8
+           }
+           AllowHeightOverride 1
+           HeightOverride 62
+           {
+            ButtonWidgetClass "{D378A10029020012}" {
+             Name "SpectatorWorldHealthOptionButton"
+             Slot AlignableSlot "{D378A10029020013}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 1 1 1 0
+             components {
+              GC_SpectatorOptionButtonComponent "{D378A10029020014}" {
+               m_bShowBorderOnFocus 0
+               m_bShowBorderOnHover 1
+              }
+             }
+             {
+              OverlayWidgetClass "{D378A10029020015}" {
+               Slot ButtonWidgetSlot "{D378A10029020016}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Ignore Cursor" 1
+               {
+                PanelWidgetClass "{D378A10029020017}" {
+                 Slot OverlayWidgetSlot "{D378A10029020018}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.07 0.1 0.11 0.98
+                 style full
+                }
+                PanelWidgetClass "{D378A10029020019}" {
+                 Slot OverlayWidgetSlot "{D378A1002902001A}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.16 0.2 0.21 1
+                 style outline_2px
+                }
+                HorizontalLayoutWidgetClass "{D378A1002902001B}" {
+                 Slot OverlayWidgetSlot "{D378A1002902001C}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                  Padding 14 10 12 10
+                 }
+                 {
+                  TextWidgetClass "{D378A1002902001D}" {
+                   Slot LayoutSlot "{D378A1002902001E}" {
+                    VerticalAlign 1
+                    SizeMode Fill
+                    FillWeight 1
+                    Padding 0 0 12 0
+                   }
+                   Color 0.96 0.97 0.96 1
+                   Text "HEALTH BARS"
+                   "Font Size" 19
+                   "Min Font Size" 15
+                   "Vertical Alignment" Center
+                  }
+                  ButtonWidgetClass : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
+                   Name "SpectatorWorldHealthKeyHint"
+                   Slot LayoutSlot { VerticalAlign 1 Padding 0 0 10 0 }
+                   "Ignore Cursor" 1
+                   components {
+                    SCR_InputButtonComponent {
+                     m_sActionName "GC_ToggleSpectatorWorldHealth"
+                     m_sLabel ""
+                    }
+                   }
+                  }
+                  SizeLayoutWidgetClass "{D378A1002902001F}" {
+                   Slot LayoutSlot "{D378A10029020020}" {
+                    VerticalAlign 1
+                   }
+                   AllowWidthOverride 1
+                   WidthOverride 54
+                   AllowHeightOverride 1
+                   HeightOverride 42
+                   {
+                    OverlayWidgetClass "{D378A10029020021}" {
+                     Slot AlignableSlot "{D378A10029020022}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     {
+                      PanelWidgetClass "{D378A10029020023}" {
+                       Name "SpectatorWorldHealthOptionStateBackground"
+                       Slot OverlayWidgetSlot "{D378A10029020024}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 0.322 0.345 0.353 1
+                       style full
+                      }
+                      TextWidgetClass "{D378A10029020025}" {
+                       Name "SpectatorWorldHealthOptionState"
+                       Slot OverlayWidgetSlot "{D378A10029020026}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 1 1 1 1
+                       Text "OFF"
+                       "Font Size" 17
+                       "Min Font Size" 12
+                       "Horizontal Alignment" Center
+                       "Vertical Alignment" Center
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+
          }
         }
        }

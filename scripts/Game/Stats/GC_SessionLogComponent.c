@@ -512,7 +512,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Spectator-only combat projection. Never exposes identities or administrative events.
-	void ReadSpectatorPage(int requester, bool everyone, int before, out array<string> rows, out int next, out string status, out int revision, out bool unchanged, int knownRevision = -1)
+	void ReadSpectatorPage(int requester, bool everyone, int before, out array<string> rows, out int next, out string status, out int revision, out bool unchanged, int knownRevision = -1, int subject = 0)
 	{
 		rows = {};
 		next = 0;
@@ -536,7 +536,10 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			return;
 		}
 		GC_SpectatorEventBuffer buffer = m_SpectatorEvents;
-		if (!everyone && !m_mPersonalEvents.Find(identity, buffer))
+		string subjectIdentity = identity;
+		if (subject > 0)
+			subjectIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(subject);
+		if (!everyone && !m_mPersonalEvents.Find(subjectIdentity, buffer))
 		{
 			status = "No events";
 			return;
@@ -552,7 +555,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			bool damage = entry.m_sType == "damage";
 			if (!damage && entry.m_sType != "kill" && entry.m_sType != "teamKill" && entry.m_sType != "aiKill" && entry.m_sType != "death")
 				continue;
-			if (!everyone && (entry.m_sTargetKind == "ai" || (entry.m_sActor != identity && entry.m_sTarget != identity)))
+			if (!everyone && (entry.m_sTargetKind == "ai" || (entry.m_sActor != subjectIdentity && entry.m_sTarget != subjectIdentity)))
 				continue;
 			if (matched == 20)
 			{

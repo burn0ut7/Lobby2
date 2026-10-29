@@ -2,6 +2,7 @@ FrameWidgetClass {
  Name "LobbySpectatorHUD"
  "Z Order" 100
  {
+  FrameWidgetClass : "{D378A10029000003}UI/layouts/Spectator/Lobby_Spectator_Health.layout" { Name "SpectatorSelectedHealth" }
   FrameWidgetClass : "{D378A10029000001}UI/layouts/Spectator/Lobby_Spectator_Event_Log.layout" { Name "SpectatorEventLog" }
   FrameWidgetClass "{6A63000000000010}" : "{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout" {
    Name "Chat"

@@ -5,6 +5,16 @@ FrameWidgetClass : "{6A56000000000008}UI/layouts/Spectator/Lobby_Spectator_Marke
   }
  }
  {
+  FrameWidgetClass {
+   Name "MarkerHealth"
+   Slot FrameWidgetSlot { Anchor 0 0 0 0 PositionX -40 PositionY -48 SizeX 80 SizeY 5 OffsetLeft -40 OffsetTop -48 OffsetRight -40 OffsetBottom 43 }
+   "Ignore Cursor" 1
+   "Is Visible" 0
+   {
+    ImageWidgetClass { Name "MarkerHealthTrack" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color .04 .04 .04 .85 "Ignore Cursor" 1 }
+    ImageWidgetClass { Name "MarkerHealthFill" Slot FrameWidgetSlot { Anchor 0 0 0 0 SizeX 80 SizeY 5 OffsetLeft 0 OffsetTop 0 OffsetRight -80 OffsetBottom -5 } Color .94 .94 .94 1 "Ignore Cursor" 1 }
+   }
+  }
   ButtonWidgetClass "{61CB0492818382EF}" {
    Name "LobbySpectatorMarkerButton"
    Slot FrameWidgetSlot "{61CB0492818382D3}" {

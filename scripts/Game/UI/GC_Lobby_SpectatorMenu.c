@@ -62,6 +62,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected Widget m_wEventPanel;
 	protected GC_SlideOutComponent m_OptionsDrawer;
 	protected GC_SlideOutComponent m_PlayerDrawer;
+	protected GC_LobbyPlayerController m_HealthController;
 
 	//------------------------------------------------------------------------------------------------
 	bool IsPointerOverScrollPanel(int mouseX, int mouseY)
@@ -98,6 +99,15 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		}
 
 		Widget root = GetRootWidget();
+		m_HealthController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (m_HealthController)
+			m_HealthController.m_OnGC_SpectatorHealth.Insert(RefreshHealthOptions);
+		GC_SpectatorOptionButtonComponent.Cast(root.FindAnyWidget("SpectatorWorldHealthOptionButton").FindHandler(GC_SpectatorOptionButtonComponent)).m_OnClicked.Insert(OnToggleWorldHealth);
+		if (m_InputManager)
+		{
+			m_InputManager.AddActionListener("GC_ToggleSpectatorWorldHealth", EActionTrigger.DOWN, OnToggleWorldHealth);
+		}
+		RefreshHealthOptions();
 		Widget eventPanel = root.FindAnyWidget("SpectatorEventLog");
 		m_wEventPanel = eventPanel;
 		Widget optionsDrawer = root.FindAnyWidget("SpectatorOptionsSlideOut");
@@ -232,6 +242,13 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	override void OnMenuClose()
 	{
+		if (m_HealthController)
+			m_HealthController.m_OnGC_SpectatorHealth.Remove(RefreshHealthOptions);
+		GC_SpectatorOptionButtonComponent.Cast(GetRootWidget().FindAnyWidget("SpectatorWorldHealthOptionButton").FindHandler(GC_SpectatorOptionButtonComponent)).m_OnClicked.Remove(OnToggleWorldHealth);
+		if (m_InputManager)
+		{
+			m_InputManager.RemoveActionListener("GC_ToggleSpectatorWorldHealth", EActionTrigger.DOWN, OnToggleWorldHealth);
+		}
 		if (m_InputManager)
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorEventLog", EActionTrigger.DOWN, OnToggleEventLog);
 		if (m_EventLogButton)
@@ -481,6 +498,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			return;
 
 		CloseSpectatorMap();
+		int playerId = GC_LobbyPlayerController.GC_GetSpectatorEntityPlayer(target);
+		if (m_HealthController && playerId > 0)
+			m_HealthController.GC_SelectSpectatorPlayer(playerId);
 		PrintFormat("GC | Spectator Map | eye teleport selected entity=%1", target);
 	}
 
@@ -545,6 +565,29 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void ShowFocusedPlayer()
+	{
+		if (m_EventLog)
+			m_EventLog.ShowFocusedPlayer();
+		if (!m_bEventLogEnabled)
+			OnToggleEventLog();
+	}
+
+	protected void OnToggleWorldHealth()
+	{
+		if (m_HealthController)
+			m_HealthController.GC_ToggleWorldHealth();
+	}
+
+
+	protected void RefreshHealthOptions()
+	{
+		if (!m_HealthController)
+			return;
+		Widget root = GetRootWidget();
+		UpdateBooleanOption(TextWidget.Cast(root.FindAnyWidget("SpectatorWorldHealthOptionState")), root.FindAnyWidget("SpectatorWorldHealthOptionStateBackground"), m_HealthController.GC_AreWorldHealthBarsEnabled());
+	}
+
 	protected void OnToggleEventLog()
 	{
 		m_bEventLogEnabled = !m_bEventLogEnabled;

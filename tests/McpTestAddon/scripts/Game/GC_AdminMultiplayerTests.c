@@ -64,6 +64,14 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "spectator-focus")
+		{
+			array<string> focusParts = {};
+			message.Split("|", focusParts, false);
+			if (focusParts.Count() == 2)
+				Rpc(GC_TestRpcPeerReport, token, GC_LobbyPlayerController.Cast(this).GC_TestFocus(focusParts[0], focusParts[1].ToInt()));
+			return;
+		}
 		if (action == "spectator-events")
 		{
 			Rpc(GC_TestRpcPeerReport, token, GC_LobbyPlayerController.Cast(this).GC_TestEventLogPeer(message));
@@ -513,6 +521,7 @@ modded class GC_LobbyManager
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
 			"spectator-events",
+			"spectator-focus",
 			"phase-audio",
 			"life-audio",
 			"network-spectator",

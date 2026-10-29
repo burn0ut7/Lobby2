@@ -36,10 +36,16 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 	protected bool m_bLabelVisibilityInitialized;
 	protected float m_fCachedLabelWidth;
 	protected bool m_bLabelLayoutDirty = true;
+	protected Widget m_wHealthBar;
+	protected Widget m_wHealthFill;
+	protected int m_iHealthValue = -2;
+	protected bool m_bFocused;
 
 	override void OnInit(SCR_EditableEntityComponent entity, SCR_UIInfo info, SCR_EditableEntityBaseSlotUIComponent slot)
 	{
 		super.OnInit(entity, info, slot);
+		m_wHealthBar = GetWidget().FindAnyWidget("MarkerHealth");
+		m_wHealthFill = GetWidget().FindAnyWidget("MarkerHealthFill");
 
 		m_wSmallBackground = ImageWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerSmallBackground"));
 		m_wBackground = ImageWidget.Cast(GetWidget().FindAnyWidget("LobbySpectatorMarkerBackground"));
@@ -88,6 +94,7 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	void UpdateDistancePresentation(float distance, float maxDistance)
 	{
+		RefreshHealthBar();
 		if (!m_wIcon)
 			return;
 
@@ -120,18 +127,19 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 		if (m_wSelectedIcon)
 		{
+			bool highlighted = m_bHovered || m_bFocused;
 			float highlightOpacity = m_wSelectedIcon.GetOpacity();
-			if ((m_bHovered && highlightOpacity < 1.0) || (!m_bHovered && highlightOpacity > 0.0))
+			if ((highlighted && highlightOpacity < 1.0) || (!highlighted && highlightOpacity > 0.0))
 			{
 				float highlightStep = GetGame().GetWorld().GetTimeSlice() * 5.0;
-				if (m_bHovered)
+				if (highlighted)
 					highlightOpacity += highlightStep;
 				else
 					highlightOpacity -= highlightStep;
 
 				highlightOpacity = Math.Clamp(highlightOpacity, 0.0, 1.0);
 				m_wSelectedIcon.SetOpacity(highlightOpacity);
-				if (!m_bHovered && highlightOpacity <= 0.0)
+				if (!highlighted && highlightOpacity <= 0.0)
 					m_wSelectedIcon.SetVisible(false);
 			}
 		}
@@ -225,11 +233,60 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
 	{
-		if (button != 1 || !m_Entity || !m_Entity.GetOwner())
+		if (!m_Entity || !m_Entity.GetOwner())
+			return false;
+		if (button == 0)
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			int playerId = GC_LobbyPlayerController.GC_GetSpectatorEntityPlayer(m_Entity.GetOwner());
+			if (!controller || playerId <= 0)
+				return false;
+			controller.GC_SelectSpectatorPlayer(playerId);
+			return true;
+		}
+		if (button != 1)
 			return false;
 
 		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForEntity(m_Entity.GetOwner()), GetWidget());
 		return true;
+	}
+
+	protected void RefreshHealthBar()
+	{
+		if (!m_wHealthBar || !m_Entity)
+			return;
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		int playerId = GC_LobbyPlayerController.GC_GetSpectatorEntityPlayer(m_Entity.GetOwner());
+		m_bFocused = controller && playerId > 0 && controller.GC_GetFocusedPlayer() == playerId;
+		if (m_bFocused && m_wSelectedIcon)
+			m_wSelectedIcon.SetVisible(true);
+		bool visible = controller && controller.GC_AreWorldHealthBarsEnabled();
+		int value = -1;
+		if (visible)
+			value = controller.GC_ObserveWorldHealth(m_Entity.GetOwner());
+		m_wHealthBar.SetVisible(visible && value >= 0);
+		if (visible && value >= 0)
+		{
+			WorkspaceWidget workspace = GetGame().GetWorkspace();
+			vector markerPosition;
+			m_Entity.GetPos(markerPosition);
+			vector markerScreen = workspace.ProjWorldToScreen(markerPosition, GetGame().GetWorld());
+			vector screen = workspace.ProjWorldToScreen(m_Entity.GetOwner().GetOrigin() + "0 2.1 0", GetGame().GetWorld());
+			m_wHealthBar.SetVisible(screen[2] > 0);
+			FrameSlot.SetPos(m_wHealthBar, screen[0] - markerScreen[0] - 40, screen[1] - markerScreen[1]);
+			FrameSlot.SetSize(m_wHealthBar, 80, 5);
+		}
+		if (value == m_iHealthValue)
+			return;
+		m_iHealthValue = value;
+		if (value >= 0)
+		{
+			int percent = value % 300;
+			m_wHealthFill.SetVisible(percent > 0);
+			m_wHealthFill.SetColor(GC_SpectatorHealthComponent.HealthColor(value));
+			m_wHealthBar.FindAnyWidget("MarkerHealthTrack").SetColor(GC_SpectatorHealthComponent.HealthTrackColor(value));
+			FrameSlot.SetSize(m_wHealthFill, 80 * percent * 0.01, 5);
+		}
 	}
 
 	override void OnRefresh(SCR_EditableEntityBaseSlotUIComponent slot)

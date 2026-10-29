@@ -1,0 +1,35 @@
+# Spectator focus and health
+
+Click a player marker or a player/voice row to select them. The fixed bottom-left health panel appears and the existing event panel opens on Player. Row selection retains the existing one-shot camera jump; marker selection leaves the camera in place. Everyone and You remain available. Health bars (H, rebindable) independently enables overhead health for AI and players.
+
+Overhead bars project entity origin + 2.1 metres, not animated head bones. Green >66%, amber >33%, orange <=33%; dead is a full red track with an empty health fill. The fixed panel includes the player's name, percentage and only applicable life state. No selected-health tool or context action.
+
+The server reads native default-hit-zone health and controller life state. Each spectator receives their selected player's changed whole-percent health and bounded personal combat history. The selected history is fetched in 20-row pages, cached up to 256 rows; opening/closing the panel or reselecting the same target does not request it again. Live heads retain loaded older rows. Changing targets resets the focused history; Everyone/You caches remain independent.
+
+World health subscribes only to character replication IDs represented by the client's active markers (bounded to 1024). One batched request is sent when that set changes, and one batched owner reply when values change. AI health never goes to spectators with Health bars off. Sampling runs at one second, so changes may take about a second; initial overhead bars can take two seconds. Eligibility is checked server-side; teardown removes sampling/subscriptions and invalidates responses. No admin permission is involved.
+
+Reference: CoalitionArma/COALITION-Lobby revision aa502e34b8e743cd2a86e999b3dc56aa80b89660, Scripts/Game/Systems/UI/Spectator/Elements/COA_EntityInfoDisplay.c and UI/layouts/Menus/Spectator/Elements/EntityInfoDisplay.layout. Its native frame/track/fill technique informed ours; its extensive card and blood-percentage metric were not copied. Installed native PAK revision 3e84dd3e4386408097aaf18a7a8b6372: DamageManagerComponent.c 47–58 documents default-hit-zone health; HitZone.c 44–61 does not guarantee client synchronization, hence authoritative values. Project marker resources retain existing native editable-character hierarchy.
+
+## Validation (2026-10-29, Reforger 1.8.0.13)
+
+Current Arland Lobby world and optional test addon; host plus two real standalone clients. Runtime fixtures invoke production handlers and native damage; these are not physical mouse tests.
+
+- Reloads passed with no script errors. Existing ArlandLobby GUID and SCR_DedicatedServerPlugin resource diagnostics remain.
+- A playing owner attempted the health subscription RPC: server focus/world caches stayed empty. An unsubscribed spectator received no health packets.
+- Separate spectator received 100 -> 68 health; authoritative healing 50 -> 85 reflected in selected display. Native damage produced 5 damage, then 299 damage (killed), and Dead state on the remote viewer. Unconscious and automatic regeneration were also observed through native damage.
+- A 25-hit native fixture loaded 20 selected rows with a next cursor, then 25 with next=0. AI/player overhead bars used actual replicated entity IDs and live server values; fixed/world bars followed the same colors.
+- Further final interaction/capture evidence is recorded below.
+
+- Final native player-row click handler returned handled=true after opening Factions. Closing the event panel and reselecting the same player left healthPackets=7 and eventPackets=2 unchanged; the same cached row returned. The visible Health bars option button toggled successfully.
+- Actual MCP standalone 1920 captures: Art/References/spectator-focus/runtime-healthy-v1.png, runtime-injured-v1.png (38% amber), runtime-dead-v1.png (red corpse/world and fixed Dead panel). Workbench viewport also inspected at 2445x1386. These images are local reference artifacts, not packaged resources.
+- Independent review found a >20-event live-head gap. The server now backfills new head pages to overlap the previous newest sequence, bounded by the 256-record ring, and sends one combined catch-up reply. Regression result follows.
+
+Limitations: production callbacks were exercised through the optional test addon; physical mouse/gamepad input and other UI scales were not tested. No comparative frame-time benchmark was collected. Subscription/packet counters establish filtering and idle behavior, not bandwidth measurements. Selection outside replication range uses server-resolved health/history and no client entity dependency, but actual replica eviction was not separately forced in this pass. Mode isolation is confined to existing Lobby2-owned controller/UI classes; no shared stock class override was added.
+
+## Final burst regression
+
+Fresh reload d1e6ca37280f42c9bfc939a5b2e06eeb passed. In the new match, host selected player 2, received one native damage row (sequence10), rows=1/next=0/eventPackets=2. Then GC_TestFocusBurst(2,25) invoked 25 native hits in 179 ms (operation2d61f821bd854aa39b42913301e00c14). Next server sample produced rows=26/next=0/eventPackets=3; rendered snapshot contained every sequence10..35. Only one combined catch-up reply was needed, preserving the old row with no middle gap. A separate spectator peer also subscribed before the burst; its result is recorded with final review evidence.
+
+Remote burst result: CLIENT-REPORTED rows=26,next=0,eventPackets=2 (initial + one catch-up). A focused event click moved the camera from <2694.46,139.881,4223.13> to <1199.58,46.8021,2706>. Independent reviewer approved source, fixed gap, actual healthy/injured/dead visuals and regression evidence with no remaining actionable findings.
+
+After native death, host remained at healthPackets=13/eventPackets=4 across idle observations. Formerly playing player2 entered spectator and selected self: CLIENT-REPORTED health=300,rows=20,next=17,first=Killed Burn0ut7 > You, demonstrating pre-spectator history availability.

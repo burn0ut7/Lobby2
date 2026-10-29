@@ -10,7 +10,10 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
     override void HandlerDeattached(Widget w)
     {
         if (m_VoiceController)
+        {
             m_VoiceController.m_OnVoiceActivity.Remove(OnVoiceActivity);
+            m_VoiceController.m_OnGC_SpectatorFocus.Remove(Refresh);
+        }
         m_VoiceController = null;
         GetGame().GetCallqueue().Remove(EndVoiceActivity);
         if (m_SelectionManager)
@@ -54,10 +57,16 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             m_bSpeaking = false;
         }
         if (m_VoiceController)
+        {
             m_VoiceController.m_OnVoiceActivity.Remove(OnVoiceActivity);
+            m_VoiceController.m_OnGC_SpectatorFocus.Remove(Refresh);
+        }
         m_VoiceController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
         if (m_VoiceController)
+        {
             m_VoiceController.m_OnVoiceActivity.Insert(OnVoiceActivity);
+            m_VoiceController.m_OnGC_SpectatorFocus.Insert(Refresh);
+        }
 		if (m_SelectionManager)
 			m_SelectionManager.m_OnAdminSelectionChanged.Remove(Refresh);
 		m_SelectionManager = GC_LobbyManager.GetManager();
@@ -76,11 +85,12 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		PlayerController local = GetGame().GetPlayerController();
-		if (button == 0 && m_bShowLifeState)
+		if (button == 0)
 		{
 			GC_LobbyPlayerController spectator = GC_LobbyPlayerController.Cast(local);
 			if (spectator && spectator.GC_CanJumpSpectatorCamera())
 			{
+				spectator.GC_SelectSpectatorPlayer(m_iPlayerId);
 				spectator.GC_RequestSpectatorPlayerPosition(m_iPlayerId);
 				return true;
 			}
@@ -157,7 +167,9 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
         if (playerController)
             isLocalPlayer = playerController.GetPlayerId() == m_iPlayerId;
 
-		if (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId)
+		if (m_VoiceController && m_VoiceController.GC_CanJumpSpectatorCamera() && m_VoiceController.GC_GetFocusedPlayer() == m_iPlayerId)
+			background.SetColor(Color.FromRGBA(146, 119, 45, 150));
+		else if (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId)
 			background.SetColor(Color.FromRGBA(146, 104, 35, 180));
         else if (isLocalPlayer)
             background.SetColor(Color.FromRGBA(194, 100, 20, 20));

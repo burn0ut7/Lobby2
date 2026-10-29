@@ -1,0 +1,14 @@
+FrameWidgetClass {
+ Name "SpectatorSelectedHealth"
+ Slot FrameWidgetSlot { Anchor 0 1 0 1 PositionX 24 PositionY -24 SizeX 320 SizeY 86 OffsetLeft 24 OffsetTop -24 OffsetRight -344 OffsetBottom -62 Alignment 0 1 }
+ "Ignore Cursor" 1
+ "Z Order" 0
+ components { GC_SpectatorHealthComponent {} }
+ {
+  PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color .025 .025 .025 .68 style full "Ignore Cursor" 1 }
+  TextWidgetClass { Name "FocusName" Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 12 OffsetTop 8 OffsetRight 12 OffsetBottom -34 } "Font Size" 21 "Min Font Size" 18 "Ignore Cursor" 1 }
+  TextWidgetClass { Name "FocusHealthText" Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 12 OffsetTop 35 OffsetRight 12 OffsetBottom -59 } "Font Size" 18 Color .8 .8 .8 1 "Ignore Cursor" 1 }
+  PanelWidgetClass { Name "FocusHealthTrack" Slot FrameWidgetSlot { Anchor 0 0 0 0 PositionX 12 PositionY 68 SizeX 296 SizeY 6 OffsetLeft 12 OffsetTop 68 OffsetRight -308 OffsetBottom -74 } Color .25 .25 .25 1 style full "Ignore Cursor" 1 }
+  PanelWidgetClass { Name "FocusHealthFill" Slot FrameWidgetSlot { Anchor 0 0 0 0 PositionX 12 PositionY 68 SizeX 296 SizeY 6 OffsetLeft 12 OffsetTop 68 OffsetRight -308 OffsetBottom -74 } Color .94 .94 .94 1 style full "Ignore Cursor" 1 }
+ }
+}

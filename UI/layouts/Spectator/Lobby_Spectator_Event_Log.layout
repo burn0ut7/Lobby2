@@ -20,6 +20,12 @@ FrameWidgetClass {
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
     }
     ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+     Name "EventPlayer"
+     Slot FrameWidgetSlot { Anchor .56 0 .79 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
+     "Is Visible" 0
+     components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
+    }
+    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
      Name "EventClose"
      Slot FrameWidgetSlot { Anchor .80 0 1 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -36 }
      components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_bShowBorderOnFocus 0 m_bShowBorderOnHover 0 } }
