@@ -115,6 +115,15 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected bool m_bNetworkDiagnosticsPending;
 
 	//------------------------------------------------------------------------------------------------
+	//! Preserve stock zoom consumers: the base lookup matches exact types only.
+	override SCR_BaseManualCameraComponent FindCameraComponent(typename type)
+	{
+		if (type == SCR_ZoomManualCameraComponent)
+			return super.FindCameraComponent(GC_SpectatorZoomCameraComponent);
+		return super.FindCameraComponent(type);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Admin target selection starts from a clear view of the character. Ordinary
 	//! manual Follow still preserves the operator's existing offset and orientation.
 	bool TryFollowPlayer(IEntity target)

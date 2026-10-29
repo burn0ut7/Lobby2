@@ -59,6 +59,25 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected bool m_bEventLogEnabled;
 	protected GC_SpectatorEventLogComponent m_EventLog;
 	protected GC_SpectatorOptionButtonComponent m_EventLogButton;
+	protected Widget m_wEventPanel;
+	protected GC_SlideOutComponent m_OptionsDrawer;
+	protected GC_SlideOutComponent m_PlayerDrawer;
+
+	//------------------------------------------------------------------------------------------------
+	bool IsPointerOverScrollPanel(int mouseX, int mouseY)
+	{
+		if (m_OptionsDrawer && m_OptionsDrawer.ContainsPointer(mouseX, mouseY))
+			return true;
+		if (m_PlayerDrawer && m_PlayerDrawer.ContainsPointer(mouseX, mouseY))
+			return true;
+		if (!m_wEventPanel || !m_wEventPanel.IsVisibleInHierarchy())
+			return false;
+
+		float x, y, width, height;
+		m_wEventPanel.GetScreenPos(x, y);
+		m_wEventPanel.GetScreenSize(width, height);
+		return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+	}
 
 	override void OnMenuOpen()
 	{
@@ -80,6 +99,13 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 		Widget root = GetRootWidget();
 		Widget eventPanel = root.FindAnyWidget("SpectatorEventLog");
+		m_wEventPanel = eventPanel;
+		Widget optionsDrawer = root.FindAnyWidget("SpectatorOptionsSlideOut");
+		if (optionsDrawer)
+			m_OptionsDrawer = GC_SlideOutComponent.Cast(optionsDrawer.FindHandler(GC_SlideOutComponent));
+		Widget playerDrawer = root.FindAnyWidget("SpectatorPlayerSlideOut");
+		if (playerDrawer)
+			m_PlayerDrawer = GC_SlideOutComponent.Cast(playerDrawer.FindHandler(GC_SlideOutComponent));
 		if (eventPanel)
 			m_EventLog = GC_SpectatorEventLogComponent.Cast(eventPanel.FindHandler(GC_SpectatorEventLogComponent));
 		Widget eventButton = root.FindAnyWidget("SpectatorEventLogOptionButton");

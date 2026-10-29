@@ -1,3 +1,10 @@
 GC_SpectatorManualCamera : "{D6DE32D1C0FCC1C7}Prefabs/Editor/Camera/ManualCameraBase.et" {
  ID "82571F32D9504B54"
+ m_aComponents {
+  GC_SpectatorCursorCameraComponent "{C8290C317DA66204}" {
+   m_iPriority 98
+  }
+  GC_SpectatorZoomCameraComponent "{52CC693B212FF016}" {
+  }
+ }
 }
