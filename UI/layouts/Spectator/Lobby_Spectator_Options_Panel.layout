@@ -596,6 +596,132 @@ SizeLayoutWidgetClass {
             }
            }
           }
+          SizeLayoutWidgetClass "{D378A10029010010}" {
+           Name "SpectatorEventLogOptionRow"
+           Slot LayoutSlot "{D378A10029010011}" {
+            HorizontalAlign 3
+            Padding 0 0 0 8
+           }
+           AllowHeightOverride 1
+           HeightOverride 62
+           {
+            ButtonWidgetClass "{D378A10029010012}" {
+             Name "SpectatorEventLogOptionButton"
+             Slot AlignableSlot "{D378A10029010013}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             Color 1 1 1 0
+             components {
+              GC_SpectatorOptionButtonComponent "{D378A10029010014}" {
+               m_bShowBorderOnFocus 0
+               m_bShowBorderOnHover 1
+              }
+             }
+             {
+              OverlayWidgetClass "{D378A10029010015}" {
+               Slot ButtonWidgetSlot "{D378A10029010016}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Ignore Cursor" 1
+               {
+                PanelWidgetClass "{D378A10029010017}" {
+                 Slot OverlayWidgetSlot "{D378A10029010018}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.07 0.1 0.11 0.98
+                 style full
+                }
+                PanelWidgetClass "{D378A10029010019}" {
+                 Slot OverlayWidgetSlot "{D378A1002901001A}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                 }
+                 Color 0.16 0.2 0.21 1
+                 style outline_2px
+                }
+                HorizontalLayoutWidgetClass "{D378A1002901001B}" {
+                 Slot OverlayWidgetSlot "{D378A1002901001C}" {
+                  HorizontalAlign 3
+                  VerticalAlign 3
+                  Padding 14 10 12 10
+                 }
+                 {
+                  TextWidgetClass "{D378A1002901001D}" {
+                   Slot LayoutSlot "{D378A1002901001E}" {
+                    VerticalAlign 1
+                    SizeMode Fill
+                    FillWeight 1
+                    Padding 0 0 12 0
+                   }
+                   Color 0.96 0.97 0.96 1
+                   Text "EVENT LOG"
+                   "Font Size" 19
+                   "Min Font Size" 15
+                   "Vertical Alignment" Center
+                  }
+                  ButtonWidgetClass : "{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout" {
+                   Name "SpectatorEventLogKeyHint"
+                   Slot LayoutSlot { VerticalAlign 1 Padding 0 0 10 0 }
+                   "Ignore Cursor" 1
+                   components {
+                    SCR_InputButtonComponent {
+                     m_sActionName "GC_ToggleSpectatorEventLog"
+                     m_sLabel ""
+                    }
+                   }
+                  }
+                  SizeLayoutWidgetClass "{D378A1002901001F}" {
+                   Slot LayoutSlot "{D378A10029010020}" {
+                    VerticalAlign 1
+                   }
+                   AllowWidthOverride 1
+                   WidthOverride 54
+                   AllowHeightOverride 1
+                   HeightOverride 42
+                   {
+                    OverlayWidgetClass "{D378A10029010021}" {
+                     Slot AlignableSlot "{D378A10029010022}" {
+                      HorizontalAlign 3
+                      VerticalAlign 3
+                     }
+                     {
+                      PanelWidgetClass "{D378A10029010023}" {
+                       Name "SpectatorEventLogOptionStateBackground"
+                       Slot OverlayWidgetSlot "{D378A10029010024}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 0.322 0.345 0.353 1
+                       style full
+                      }
+                      TextWidgetClass "{D378A10029010025}" {
+                       Name "SpectatorEventLogOptionState"
+                       Slot OverlayWidgetSlot "{D378A10029010026}" {
+                        HorizontalAlign 3
+                        VerticalAlign 3
+                       }
+                       Color 1 1 1 1
+                       Text "OFF"
+                       "Font Size" 17
+                       "Min Font Size" 12
+                       "Horizontal Alignment" Center
+                       "Vertical Alignment" Center
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
          }
         }
        }

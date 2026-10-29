@@ -56,6 +56,9 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	protected Widget m_wHoveredOptionSource;
 	protected string m_sHoveredOptionDescription;
 	protected bool m_bOptionHovered;
+	protected bool m_bEventLogEnabled;
+	protected GC_SpectatorEventLogComponent m_EventLog;
+	protected GC_SpectatorOptionButtonComponent m_EventLogButton;
 
 	override void OnMenuOpen()
 	{
@@ -76,6 +79,20 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		}
 
 		Widget root = GetRootWidget();
+		Widget eventPanel = root.FindAnyWidget("SpectatorEventLog");
+		if (eventPanel)
+			m_EventLog = GC_SpectatorEventLogComponent.Cast(eventPanel.FindHandler(GC_SpectatorEventLogComponent));
+		Widget eventButton = root.FindAnyWidget("SpectatorEventLogOptionButton");
+		if (eventButton)
+		{
+			m_EventLogButton = GC_SpectatorOptionButtonComponent.Cast(eventButton.FindHandler(GC_SpectatorOptionButtonComponent));
+			m_EventLogButton.m_OnClicked.Insert(OnToggleEventLog);
+			m_EventLogButton.m_OnHoverChanged.Insert(OnEventLogHoverChanged);
+		}
+		if (m_EventLog)
+			m_EventLog.m_OnClose.Insert(OnToggleEventLog);
+		if (m_InputManager)
+			m_InputManager.AddActionListener("GC_ToggleSpectatorEventLog", EActionTrigger.DOWN, OnToggleEventLog);
 		Widget optionButton;
 		if (root)
 			optionButton = root.FindAnyWidget("SpectatorInterfaceOptionButton");
@@ -171,6 +188,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	override void OnMenuFocusLost()
 	{
+		if (m_EventLog)
+			m_EventLog.SetActive(false);
 		GetGame().GetCallqueue().Remove(OpenNativeChat);
 		super.OnMenuFocusLost();
 		if (m_ChatPanel && m_ChatPanel.IsOpen())
@@ -187,6 +206,18 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 
 	override void OnMenuClose()
 	{
+		if (m_InputManager)
+			m_InputManager.RemoveActionListener("GC_ToggleSpectatorEventLog", EActionTrigger.DOWN, OnToggleEventLog);
+		if (m_EventLogButton)
+		{
+			m_EventLogButton.m_OnClicked.Remove(OnToggleEventLog);
+			m_EventLogButton.m_OnHoverChanged.Remove(OnEventLogHoverChanged);
+		}
+		if (m_EventLog)
+		{
+			m_EventLog.m_OnClose.Remove(OnToggleEventLog);
+			m_EventLog.SetActive(false);
+		}
 		GetGame().GetCallqueue().Remove(OpenNativeChat);
 		if (m_ChatPanel && m_ChatPanel.IsOpen())
 			SCR_ChatPanelManager.GetInstance().CloseChatPanel(m_ChatPanel);
@@ -285,6 +316,8 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 	void SetInterfaceVisible(bool visible)
 	{
 		m_bInterfaceVisible = visible;
+		if (m_EventLog)
+			m_EventLog.SetActive(visible && m_bEventLogEnabled);
 		if (!visible)
 		{
 			GetGame().GetCallqueue().Remove(OpenNativeChat);
@@ -483,6 +516,37 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		GC_LobbyPlayerController playerController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		if (playerController)
 			playerController.ToggleSpectatorKilledFrom();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnToggleEventLog()
+	{
+		m_bEventLogEnabled = !m_bEventLogEnabled;
+		Widget root = GetRootWidget();
+		TextWidget state = TextWidget.Cast(root.FindAnyWidget("SpectatorEventLogOptionState"));
+		Widget background = root.FindAnyWidget("SpectatorEventLogOptionStateBackground");
+		if (state)
+		{
+			string label = "OFF";
+			if (m_bEventLogEnabled)
+				label = "ON";
+			state.SetText(label);
+		}
+		if (background)
+		{
+			Color color = Color.FromRGBA(60, 60, 60, 255);
+			if (m_bEventLogEnabled)
+				color = Color.FromRGBA(153, 119, 53, 255);
+			background.SetColor(color);
+		}
+		if (m_EventLog)
+			m_EventLog.SetActive(m_bEventLogEnabled && m_bInterfaceVisible);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnEventLogHoverChanged(bool hovered)
+	{
+		HandleOptionHover(GetRootWidget().FindAnyWidget("SpectatorEventLogOptionButton"), "Your combat history or everyone's live events.", hovered);
 	}
 
 	protected void OnTeleportToCursor()

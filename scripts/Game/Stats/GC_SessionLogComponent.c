@@ -214,6 +214,16 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	void RecordDeath(GC_SessionEvent entry, IEntity victim, IEntity killer)
 	{
+		if (victim)
+		{
+			vector position = victim.GetOrigin();
+			entry.m_aTargetPosition = {position[0], position[1], position[2]};
+		}
+		if (killer && entry.m_sCreditSource != "lastPlayerDamage")
+		{
+			vector origin = killer.GetOrigin();
+			entry.m_aActorPosition = {origin[0], origin[1], origin[2]};
+		}
 		Record(entry);
 		if (m_Telemetry && entry.m_iSequence > 0)
 			m_Telemetry.RecordDeath(entry, victim, killer);
@@ -441,6 +451,136 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			status += " Earlier events are in the server archive.";
 		if (m_iDropped > 0 || m_bWriteFailure)
 			status += " Server log storage is incomplete or delayed.";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Spectator-only combat projection. Never exposes identities or administrative events.
+	void ReadSpectatorPage(int requester, bool everyone, int before, out array<string> rows, out int next, out string status)
+	{
+		rows = {};
+		next = 0;
+		status = "Spectator access required.";
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(requester));
+		if (!Replication.IsServer() || GetInstance() != this || !controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
+			return;
+		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(requester);
+		if (identity.IsEmpty() || before < 0)
+		{
+			status = "Player identity or cursor unavailable.";
+			return;
+		}
+		status = string.Empty;
+		int count = m_aRecent.Count();
+		int start = count - 1;
+		if (count == MAX_RECENT)
+			start = (m_iRingCursor + count - 1) % count;
+		// Combine same-tick fatal hits only in this view; retain canonical records unchanged.
+		map<string, GC_SessionEvent> lastHits = new map<string, GC_SessionEvent>();
+		map<int, GC_SessionEvent> fatalHits = new map<int, GC_SessionEvent>();
+		set<int> combinedHits = new set<int>();
+		for (int scan = count - 1; scan >= 0; scan--)
+		{
+			GC_SessionEvent candidate = m_aRecent[(start - scan + count) % count];
+			if (candidate.m_sType == "damage")
+				lastHits.Set(candidate.m_sTargetEntity, candidate);
+			else if (candidate.m_sType == "kill" || candidate.m_sType == "teamKill" || candidate.m_sType == "aiKill" || candidate.m_sType == "death")
+			{
+				GC_SessionEvent hit;
+				if (candidate.m_sDeathCause != "bleeding" && candidate.m_sDeathCause != "respawn"
+					&& !candidate.m_sTargetEntity.IsEmpty() && lastHits.Find(candidate.m_sTargetEntity, hit)
+					&& candidate.m_sActor == hit.m_sActor && candidate.m_fSeconds == hit.m_fSeconds)
+				{
+					fatalHits.Set(candidate.m_iSequence, hit);
+					combinedHits.Insert(hit.m_iSequence);
+				}
+			}
+		}
+		int matched;
+		for (int offset; offset < count; offset++)
+		{
+			GC_SessionEvent entry = m_aRecent[(start - offset + count) % count];
+			if ((before > 0 && entry.m_iSequence >= before) || combinedHits.Contains(entry.m_iSequence))
+				continue;
+			bool damage = entry.m_sType == "damage";
+			if (!damage && entry.m_sType != "kill" && entry.m_sType != "teamKill" && entry.m_sType != "aiKill" && entry.m_sType != "death")
+				continue;
+			if (!everyone && entry.m_sActor != identity && entry.m_sTarget != identity)
+				continue;
+			if (matched == 20)
+			{
+				next = rows[rows.Count() - 7].ToInt();
+				break;
+			}
+			string actor = entry.m_sActorName;
+			string target = entry.m_sTargetName;
+			if (actor.IsEmpty())
+				actor = "Environment / unknown";
+			if (target.IsEmpty())
+				target = "Unknown";
+			if (entry.m_sActor == identity)
+				actor = "You";
+			if (entry.m_sTarget == identity)
+				target = "You";
+			GC_SessionEvent hitEntry = entry;
+			bool fatal = fatalHits.Find(entry.m_iSequence, hitEntry);
+			if (!fatal)
+				hitEntry = entry;
+			string eventName = "Killed";
+			string detail;
+			if (damage || fatal)
+			{
+				eventName = string.Format("%1 damage", Math.Round(hitEntry.m_fDamage * 10) * 0.1);
+				if (fatal)
+					eventName += " (killed)";
+				detail = SCR_Enum.GetEnumName(EDamageType, hitEntry.m_iDamageType);
+				detail.ToLower();
+				if (hitEntry.m_iDamageType == EDamageType.KINETIC)
+					detail = "bullet";
+			}
+			if (entry.m_sType == "teamKill")
+			{
+				if (fatal)
+					eventName.Replace("killed", "team kill");
+				else
+					eventName = "Team kill";
+			}
+			if (entry.m_sDeathCause == "bleeding")
+				eventName = "Bled out";
+			else if (entry.m_sDeathCause == "respawn")
+				eventName = "Respawn";
+			if (!entry.m_sWeapon.IsEmpty())
+			{
+				if (!detail.IsEmpty())
+					detail += " | ";
+				string weapon = FilePath.StripExtension(FilePath.StripPath(entry.m_sWeapon));
+				weapon.Replace("_", " ");
+				detail += weapon;
+			}
+			if (entry.m_fDistance >= 0)
+			{
+				if (!detail.IsEmpty())
+					detail += " | ";
+				detail += string.Format("%1 m", Math.Round(entry.m_fDistance));
+			}
+			string positionText;
+			string location = "Location unavailable";
+			if (entry.m_aTargetPosition.Count() == 3)
+			{
+				vector position = {entry.m_aTargetPosition[0], entry.m_aTargetPosition[1], entry.m_aTargetPosition[2]};
+				positionText = position.ToString(false);
+				location = string.Format("X %1 / Z %2 m", Math.Round(position[0]), Math.Round(position[2]));
+			}
+			rows.Insert(entry.m_iSequence.ToString());
+			rows.Insert(FormatEventTime(entry.m_fSeconds));
+			rows.Insert(eventName);
+			rows.Insert(actor + " > " + target);
+			rows.Insert(detail);
+			rows.Insert(location);
+			rows.Insert(positionText);
+			matched++;
+		}
+		if (matched == 0)
+			status = "No events";
 	}
 
 	//------------------------------------------------------------------------------------------------

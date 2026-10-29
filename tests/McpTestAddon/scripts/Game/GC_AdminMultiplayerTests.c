@@ -64,6 +64,11 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "spectator-events")
+		{
+			Rpc(GC_TestRpcPeerReport, token, GC_LobbyPlayerController.Cast(this).GC_TestEventLogPeer(message));
+			return;
+		}
 		if (action == "phase-audio")
 		{
 			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestPhaseAudio());
@@ -507,6 +512,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"spectator-events",
 			"phase-audio",
 			"life-audio",
 			"network-spectator",
