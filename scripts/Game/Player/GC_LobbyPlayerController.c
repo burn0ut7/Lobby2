@@ -2216,7 +2216,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		// close callback. Reconcile on the following frame against the controller's
 		// authoritative current entity and the retained spectator presentation intent.
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
-		GetGame().GetCallqueue().CallLater(ReconcileSpectatorPresentation, 0);
+		GetGame().GetCallqueue().CallLater(ReconcileSpectatorPresentation, 0, false, vector.Zero, vector.Zero, vector.Zero);
 	}
 
 	protected void ReconcileSpectatorPresentation(vector position = vector.Zero, vector forward = vector.Zero, vector up = vector.Zero)

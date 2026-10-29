@@ -1,0 +1,51 @@
+{
+  "source": "workbench",
+  "session": "logs_2026-10-29_19-03-12",
+  "path": "C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-29_19-03-12\\console.log",
+  "revision": "1424552:7F7879BC166FBEA9DC748AF45F762925F04E3F6504B9F775AD66ED0419E20B57",
+  "header": "Log C:\\Users\\Gray\\Documents\\My Games\\ArmaReforgerWorkbench\\logs\\logs_2026-10-29_19-03-12\\console.log started at 2026-10-29 19:03:12 (2026-10-29 23:03:12 UTC)",
+  "scope": "tail",
+  "fromLine": 9327,
+  "toLine": 9426,
+  "totalLines": 9426,
+  "severityCounts": {
+    "error": 1,
+    "warning": 7,
+    "info": 92
+  },
+  "categoryCounts": {
+    "GUI": 7,
+    "SCRIPT": 80,
+    "WORLD": 10,
+    "RESOURCES": 2,
+    "PLATFORM": 1
+  },
+  "matchedLines": 3,
+  "entries": [
+    {
+      "line": 9410,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:06:12.412 SCRIPT       : GC | MCP Peer Observation | token=gm-before player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=1 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=0 factionLock=0 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=1 entity=-2147477439 controlledPosition=<1194.46,39,2723.13> priority=0 muted=0 transmitting=0 eligible=1",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 9421,
+      "category": "SCRIPT",
+      "severity": "error",
+      "text": "19:06:15.702   SCRIPT    (E): Script call: Not enough parameters, expected '3' got '0' (method 'ReconcileSpectatorPresentation')",
+      "textTruncated": false,
+      "continuation": false
+    },
+    {
+      "line": 9423,
+      "category": "SCRIPT",
+      "severity": "info",
+      "text": "19:06:20.195 SCRIPT       : GC | MCP Peer Observation | token=gm-after player=1 report=player=1 admin=1 messages=0 presentation=state=0 requested=1 spectatorBody=1 bodyVisible=0 children=5 visibleChildren=0 cameraExists=0 cameraCurrent=0 rulesRevision=0 factionLock=0 balance=0 faction=USSR freezeState=configured=0 remaining=0 revision=3 active=0 areas=0 hud=visible=0 active=0 remaining=0 weapon=UNAVAILABLE current weapon/magazine combat=freeze=0 action=CharacterFire observing=0 throwingFrames=0 meleeFrames=0 grenadeSelected=0 inventoryGrenades=0 nativeThrowInputFrames=0 raised=0 canFire=0 slot=1 entity=-2147477439 controlledPosition=<1194.46,39,2723.13> priority=0 muted=0 transmitting=0 eligible=1",
+      "textTruncated": false,
+      "continuation": false
+    }
+  ],
+  "truncated": false
+}
