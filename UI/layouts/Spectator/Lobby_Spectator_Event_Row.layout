@@ -1,5 +1,6 @@
 ButtonWidgetClass {
  Name "SpectatorEventRow"
+ Tooltip GC_SpectatorEventTooltip { m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf" m_sPresetTag "Cell" }
  Slot LayoutSlot { HorizontalAlign 3 Padding 0 0 0 2 }
  Color 1 1 1 0
  components {
@@ -21,12 +22,13 @@ ButtonWidgetClass {
    "Ignore Cursor" 1
    {
     FrameWidgetClass {
+     "Ignore Cursor" 1
      Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
      {
       PanelWidgetClass { Name "Background" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } style full Color 1 1 1 0 "Ignore Cursor" 1 }
       PanelWidgetClass { Name "Border" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } style outline_1px Color 1 1 1 .12 "Ignore Cursor" 1 }
-      TextWidgetClass { Name "EventSummary" Slot FrameWidgetSlot { Anchor 0 0 1 .48 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 } "Font Size" 22 "Min Font Size" 18 "Vertical Alignment" Center "Ignore Cursor" 0 Tooltip GC_AdminCellTooltip { m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf" m_sPresetTag "Cell" } }
-      TextWidgetClass { Name "EventInfo" Slot FrameWidgetSlot { Anchor 0 .48 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 } "Font Size" 19 "Min Font Size" 16 "Vertical Alignment" Center Color .75 .75 .75 1 "Ignore Cursor" 0 Tooltip GC_AdminCellTooltip { m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf" m_sPresetTag "Cell" } }
+      TextWidgetClass { Name "EventSummary" Slot FrameWidgetSlot { Anchor 0 0 1 .48 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 } "Font Size" 22 "Min Font Size" 18 "Vertical Alignment" Center "Ignore Cursor" 1 }
+      TextWidgetClass { Name "EventInfo" Slot FrameWidgetSlot { Anchor 0 .48 1 1 OffsetLeft 8 OffsetTop 0 OffsetRight 8 OffsetBottom 0 } "Font Size" 19 "Min Font Size" 16 "Vertical Alignment" Center Color .75 .75 .75 1 "Ignore Cursor" 1 }
      }
     }
    }

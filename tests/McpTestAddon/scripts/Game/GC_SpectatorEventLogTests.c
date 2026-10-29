@@ -5,6 +5,29 @@ modded class GC_LobbyManager
 	protected ChimeraCharacter m_GC_EventTarget;
 
 	//------------------------------------------------------------------------------------------------
+	//! Native pointer hit-testing, separate from direct handler dispatch.
+	string GC_TestEventLogPointer(string rowName, string cellName)
+	{
+		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
+		if (!menu)
+			return "NO MENU";
+		Widget row = menu.GetRootWidget().FindAnyWidget(rowName);
+		if (!row)
+			return "NO ROW";
+		Widget cell = row.FindAnyWidget(cellName);
+		if (!cell)
+			return "NO CELL";
+		float x, y, width, height;
+		cell.GetScreenPos(x, y);
+		cell.GetScreenSize(width, height);
+		WidgetManager.ReportMouse(x + width * 0.5, y + height * 0.5, menu.GetRootWidget());
+		Widget hit = WidgetManager.GetWidgetUnderCursor();
+		if (!hit)
+			return "NO HIT";
+		return "hit=" + hit.GetName() + " button=" + (ButtonWidget.Cast(hit) != null).ToString();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Native damage between test AI; production damage callbacks record it.
 	string GC_TestEventLogCombat(int count)
 	{

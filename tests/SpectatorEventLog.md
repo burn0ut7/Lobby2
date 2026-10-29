@@ -35,3 +35,11 @@ Final J hint resolved in live HUD with event log ON and light OFF: r6fd18d40592a
 2026-10-29: moved panel to bottom-right, reduced footprint to 33.5% viewport width and 24.5% height, tightened rows 76 to 56px while preserving font sizes. Spectator elapsed timestamps omit milliseconds; admin precision remains unchanged. Reload 7ee8ff6a397645038f9f3cfb10c8e3fa passed without script errors. Actual capture Art/References/spectator-events/runtime-compact-v4.png and snapshot r8ea69fd4efbd49a2b1a0b0d5083484da confirm compact placement and 00:01 timestamps. Native header/row handlers exercised.
 
 Independent visual/source review approved the compact refinement. Camera movement after row activation confirmed by r1db566d9cc8c44d4a0a033d9aaa4dc44; Everyone showed nine whole-second rows after native damage (r80121b1b33504b958e6f0056c9d22cb8).
+
+## Pointer routing regression
+
+The original GC_TestClick called the component directly and did not test hit routing. Native WidgetManager.ReportMouse over EventSummary/EventInfo returned those text widgets (button=0), receipts r79081d9eec7142628405a209776baa19 and r7c8e50870b3f4a80b7179213344a8c4d. Decorative children now ignore cursor input; the root button owns the tooltip. The same probes return SpectatorEvent_11 (button=1), receipts r25c614007bf64441998c4ede138b8596 and r883fba2cbef04559889c7dda2732bfd8. Handler dispatch separately moved the camera from 135.297,4.01563,123.139 to 134.331,15.9846,97.234, receipt r439ded2d75d242be80f3cf17f1e7f66f. This validates native pointer targeting and production camera handling separately, not an automated physical mouse press/release.
+
+Reload 1bc4e042c4a34f04bf3c39645ce4b15e succeeded after correcting an override argument-name compilation error. Existing unrelated resource diagnostics remain. Actual capture: Art/References/spectator-events/runtime-click-v5.png. GC_TestEventLogPointer(rowName, cellName) is the optional regression probe.
+
+Native root hover populated both tooltip lines (runtime-tooltip-v5.png). Moving the pointer away dismissed it (runtime-tooltip-dismissed-v5.png), using native ReportMouse and MouseDeviceHandler cursor movement via existing test helper.
