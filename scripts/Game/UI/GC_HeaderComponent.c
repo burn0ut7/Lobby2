@@ -57,6 +57,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
 
         m_bInitialized = true;
+		UpdateMissionHeader(SCR_MissionHeader.Cast(GetGame().GetMissionHeader()));
 
         RegisterButton("Mission Preview Button");
         RegisterButton("Lobby Button");
@@ -98,6 +99,40 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
     }
 
 	//------------------------------------------------------------------------------------------------
+	//! Bind authored information only; editor Play can have no mission header.
+	protected void UpdateMissionHeader(SCR_MissionHeader mission)
+	{
+		TextWidget title = TextWidget.Cast(m_wRoot.FindAnyWidget("TitleText"));
+		TextWidget description = TextWidget.Cast(m_wRoot.FindAnyWidget("Description"));
+		string missionName;
+		string missionDescription;
+		if (mission)
+		{
+			missionName = mission.m_sName;
+			missionDescription = WidgetManager.Translate(mission.m_sGameMode);
+			if (!mission.m_sDescription.IsEmpty())
+			{
+				if (!missionDescription.IsEmpty())
+					missionDescription += " · ";
+				missionDescription += WidgetManager.Translate(mission.m_sDescription);
+			}
+		}
+
+		if (title)
+		{
+			if (missionName.IsEmpty())
+				title.SetText("Mission information unavailable");
+			else
+				title.SetText(missionName);
+		}
+		if (description)
+		{
+			description.SetText(missionDescription);
+			description.SetVisible(!missionDescription.IsEmpty());
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void UpdatePhaseClockSchedule()
 	{
 		GetGame().GetCallqueue().Remove(RefreshPhaseClock);
@@ -137,11 +172,16 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 	{
 		TextWidget count = TextWidget.Cast(m_wRoot.FindAnyWidget("PlayerCountText"));
 		PlayerManager players = GetGame().GetPlayerManager();
-		if (!count || !players)
+		if (!count)
 			return;
+		if (!players)
+		{
+			count.SetText(string.Empty);
+			return;
+		}
 		array<int> connected = {};
 		players.GetPlayers(connected);
-		count.SetText(connected.Count().ToString());
+		count.SetTextFormat("%1 connected", connected.Count());
 	}
 
     protected void OnPlayerRoleChanged(int playerId)

@@ -64,6 +64,16 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "phase-audio")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestPhaseAudio());
+			return;
+		}
+		if (action == "life-audio")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestLifeStateAudio(message == "seed"));
+			return;
+		}
 		if (action == "killed-from")
 		{
 			Rpc(GC_TestRpcPeerReport, token, GC_LobbyPlayerController.Cast(this).GC_TestKilledFromOwner(message));
@@ -497,6 +507,8 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"phase-audio",
+			"life-audio",
 			"network-spectator",
 			"killed-from",
 			"stats-respawn",

@@ -346,9 +346,9 @@ FrameWidgetClass {
     OffsetLeft 10
     PositionY 10
     OffsetTop 10
-    OffsetRight -110
-    OffsetBottom -40
-    SizeToContent 1
+    OffsetRight -490
+    OffsetBottom -60
+    SizeToContent 0
    }
    {
     TextWidgetClass "{6A1577A42705BE72}" {
@@ -356,16 +356,30 @@ FrameWidgetClass {
      Slot LayoutSlot "{6A161192FD5C0B29}" {
      }
      Text ""
+     "Font Size" 24
+     "Min Font Size" 20
+     "Ignore Cursor" 0
+     Tooltip GC_AdminCellTooltip {
+      m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+      m_sPresetTag "Cell"
+     }
+     Wrap 0
      "Vertical Alignment" Center
     }
     TextWidgetClass "{6A1577A7BDB5F4A3}" {
      Name "Description"
      Slot LayoutSlot "{6A1577A7BDB5F4BA}" {
      }
-     Color 0.4287 0.4287 0.4287 1
+     Color 0.7 0.7 0.7 1
      Text ""
-     "Font Size" 12
-     "Min Font Size" 12
+     "Font Size" 16
+     "Min Font Size" 16
+     "Ignore Cursor" 0
+     Tooltip GC_AdminCellTooltip {
+      m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf"
+      m_sPresetTag "Cell"
+     }
+     Wrap 0
     }
    }
   }
@@ -373,9 +387,9 @@ FrameWidgetClass {
    Name "PhaseElapsed"
    Slot FrameWidgetSlot {
     Anchor 1 0 1 0
-    OffsetLeft -340
+    OffsetLeft -420
     OffsetTop 0
-    OffsetRight 110
+    OffsetRight 230
     OffsetBottom -70
    }
    "Is Visible" 0

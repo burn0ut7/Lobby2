@@ -108,8 +108,8 @@ FrameWidgetClass {
         PositionX 20
         OffsetLeft 20
         OffsetTop 10
-        OffsetRight -120
-        OffsetBottom -40
+        OffsetRight -500
+        OffsetBottom -60
        }
       }
       HorizontalLayoutWidgetClass "{6A1577A659C82CD8}" {
