@@ -5,6 +5,8 @@ modded class GC_LobbyPlayerController
 
 	string GC_TestFocus(string action, int playerId)
 	{
+		if (action == "systems")
+			return GC_LobbyPlayerController.Cast(this).GC_TestSpectatorSystems();
 		if (action == "select")
 			GC_SelectSpectatorPlayer(playerId);
 		else if (action == "voice-move" && m_SpectatorCamera)

@@ -89,6 +89,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected int m_iLobbyVoiceSlot = -1;
 	protected bool m_bLobbyVoiceHeld;
 	protected SCR_VoNComponent m_LobbyObservedVoice;
+	protected SCR_VoNComponent m_LobbyObservedCapture;
 	ref ScriptInvokerInt m_OnVoiceActivity = new ScriptInvokerInt();
 	ref ScriptInvoker<bool, int> m_OnScenarioParameterResult = new ScriptInvoker<bool, int>();
 	protected int m_iScenarioParameterRequest;
@@ -278,18 +279,25 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected void BindLobbyVoiceActivity(IEntity body)
 	{
 		if (m_LobbyObservedVoice)
-		{
-			m_LobbyObservedVoice.m_OnCaptureVON.Remove(OnLobbyVoiceCaptured);
 			m_LobbyObservedVoice.m_OnReceivedVON.Remove(OnLobbyVoiceReceived);
-		}
+		if (m_LobbyObservedCapture)
+			m_LobbyObservedCapture.m_OnCaptureVON.Remove(OnLobbyVoiceCaptured);
 		m_LobbyObservedVoice = null;
+		m_LobbyObservedCapture = null;
 		if (body)
-			m_LobbyObservedVoice = SCR_VoNComponent.Cast(body.FindComponent(SCR_VoNComponent));
-		if (m_LobbyObservedVoice)
 		{
-			m_LobbyObservedVoice.m_OnCaptureVON.Insert(OnLobbyVoiceCaptured);
-			m_LobbyObservedVoice.m_OnReceivedVON.Insert(OnLobbyVoiceReceived);
+			m_LobbyObservedVoice = SCR_VoNComponent.Cast(body.FindComponent(SCR_VoNComponent));
+			m_LobbyObservedCapture = m_LobbyObservedVoice;
+			if (body.FindComponent(GC_LobbySpectatorBodyComponent))
+			{
+				m_LobbyObservedVoice = SCR_VoNComponent.Cast(body.FindComponent(GC_SpectatorReceiveVoNComponent));
+				m_LobbyObservedCapture = SCR_VoNComponent.Cast(body.FindComponent(GC_SpectatorTransmitVoNComponent));
+			}
 		}
+		if (m_LobbyObservedVoice)
+			m_LobbyObservedVoice.m_OnReceivedVON.Insert(OnLobbyVoiceReceived);
+		if (m_LobbyObservedCapture)
+			m_LobbyObservedCapture.m_OnCaptureVON.Insert(OnLobbyVoiceCaptured);
 	}
 
 	protected void OnLobbyVoiceCaptured(BaseTransceiver transmitter)
@@ -406,6 +414,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (slot == GC_LobbyRadio.ADMIN && !SCR_Global.IsAdmin(GetPlayerId()))
 			return;
 		SCR_VoNComponent voice = SCR_VoNComponent.Cast(body.FindComponent(SCR_VoNComponent));
+		if (body.FindComponent(GC_LobbySpectatorBodyComponent))
+			voice = SCR_VoNComponent.Cast(body.FindComponent(GC_SpectatorTransmitVoNComponent));
 		if (!voice)
 			return;
 		SCR_VONController nativeVoice = SCR_VONController.Cast(FindComponent(SCR_VONController));

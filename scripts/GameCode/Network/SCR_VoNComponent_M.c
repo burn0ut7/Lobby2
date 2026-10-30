@@ -2,6 +2,24 @@ modded class SCR_VoNComponent : VoNComponent
 {
 	protected bool m_bGC_LobbyCaptureActive;
 	protected float m_fGC_NextSpectatorReceiveLog;
+	protected float m_fGC_NextCaptureLog;
+	protected float m_fGC_NextServerVoiceLog;
+
+	//------------------------------------------------------------------------------------------------
+	override protected event void OnCapture(BaseTransceiver transmitter)
+	{
+		super.OnCapture(transmitter);
+		if (!GC_LobbyManager.GetManager())
+			return;
+		float now = GetGame().GetWorld().GetWorldTime();
+		if (now < m_fGC_NextCaptureLog)
+			return;
+		m_fGC_NextCaptureLog = now + 2000;
+		int frequency;
+		if (transmitter)
+			frequency = transmitter.GetFrequency();
+		PrintFormat("GC | Voice path | capture component=%1 radio=%2 frequency=%3", this, transmitter != null, frequency);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	//! Explicit Lobby VON boundary; never changes normal game capture or social mute.
@@ -15,7 +33,12 @@ modded class SCR_VoNComponent : VoNComponent
 		IEntity body;
 		if (controller)
 			body = controller.GetControlledEntity();
-		if (!body || body.FindComponent(VoNComponent) != this)
+		if (!body)
+			return false;
+		VoNComponent capture = VoNComponent.Cast(body.FindComponent(VoNComponent));
+		if (body.FindComponent(GC_LobbySpectatorBodyComponent))
+			capture = VoNComponent.Cast(body.FindComponent(GC_SpectatorTransmitVoNComponent));
+		if (capture != this)
 			return false;
 		if (body.FindComponent(GC_LobbySpectatorBodyComponent))
 			allowed = requested && manager.CanTransmitLobbyVoice(playerId);
@@ -43,7 +66,15 @@ modded class SCR_VoNComponent : VoNComponent
 		super.OnVoNUsed(senderId);
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (manager)
+		{
 			manager.ObserveLobbyVoiceTransmission(senderId);
+			float now = GetGame().GetWorld().GetWorldTime();
+			if (now >= m_fGC_NextServerVoiceLog)
+			{
+				m_fGC_NextServerVoiceLog = now + 2000;
+				PrintFormat("GC | Voice path | server-used talker=%1 component=%2", senderId, this);
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -53,11 +84,11 @@ modded class SCR_VoNComponent : VoNComponent
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
 		GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		float now = GetGame().GetWorld().GetWorldTime();
-		if (lobbyManager && localController && localController.GC_CanJumpSpectatorCamera() && now >= m_fGC_NextSpectatorReceiveLog)
+		if (lobbyManager && localController && now >= m_fGC_NextSpectatorReceiveLog)
 		{
 			m_fGC_NextSpectatorReceiveLog = now + 2000;
-			PrintFormat("GC | Spectator voice | received talker=%1 radio=%2 frequency=%3 quality=%4 editor=%5 %6",
-				playerId, receiver != null, frequency, quality, isSenderEditor, localController.GC_GetSpectatorVoiceDiagnostics());
+			PrintFormat("GC | Voice path | received talker=%1 radio=%2 frequency=%3 quality=%4 editor=%5 component=%6 state=%7 %8",
+				playerId, receiver != null, frequency, quality, isSenderEditor, this, localController.GetLobbyPlayerState(), localController.GC_GetSpectatorVoiceDiagnostics());
 		}
 		if (!lobbyManager || !GC_UIEventDiagnostics.ENABLED)
 			return;

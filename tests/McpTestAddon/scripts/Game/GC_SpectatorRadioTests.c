@@ -10,6 +10,35 @@ class GC_TestReceiverMessage : ScriptedRadioMessage
 
 modded class GC_LobbyPlayerController
 {
+	string GC_TestSpectatorSystems()
+	{
+		IEntity body = GetControlledEntity();
+		if (!body || !body.GetPhysics())
+			return "NO BODY PHYSICS";
+		Physics physics = body.GetPhysics();
+		int collidingGeoms;
+		for (int i; i < physics.GetNumGeoms(); i++)
+		{
+			if (physics.GetGeomInteractionLayer(i) != 0)
+				collidingGeoms++;
+		}
+		string report = string.Format("simulation=%1 active=%2 layer=%3 collidingGeoms=%4 velocity=%5", physics.GetSimulationState(),
+			physics.IsActive(), physics.GetInteractionLayer(), collidingGeoms, physics.GetVelocity());
+		array<typename> types = {SCR_CharacterStaminaComponent, CharacterSoundComponent, ChimeraAIControlComponent, SCR_EditableCharacterComponent, SCR_VoNComponent, GC_SpectatorTransmitVoNComponent, GC_SpectatorReceiveVoNComponent};
+		foreach (typename type : types)
+		{
+			GenericComponent component = GenericComponent.Cast(body.FindComponent(type));
+			if (component)
+				report += string.Format(" %1.active=%2", type, component.IsActive());
+			else
+				report += " missing=" + type.ToString();
+		}
+		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(body.FindComponent(SCR_CharacterDamageManagerComponent));
+		if (damage)
+			report += " damage=" + damage.IsDamageHandlingEnabled().ToString();
+		return report;
+	}
+
 	string GC_TestVoiceBody(string action, vector position)
 	{
 		if (action == "move" && m_SpectatorCamera)
@@ -90,7 +119,7 @@ modded class GC_LobbyManager
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 		if (!controller || !controller.GetControlledEntity())
 			return "NO BODY";
-		return "serverBody=" + controller.GetControlledEntity().GetOrigin().ToString() + " " + controller.GC_TestVoiceBody(action, position);
+		return "serverBody=" + controller.GetControlledEntity().GetOrigin().ToString() + " " + controller.GC_TestVoiceBody(action, position) + " " + controller.GC_TestSpectatorSystems();
 	}
 
 	string GC_TestMarkerContext(int target, bool pressed)

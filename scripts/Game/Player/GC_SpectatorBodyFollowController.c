@@ -69,12 +69,19 @@ modded class GC_LobbyPlayerController
 		if (!GC_LobbyPlayerController.Cast(this).GC_CanJumpSpectatorCamera() || !body || !body.FindComponent(GC_LobbySpectatorBodyComponent)
 			|| Replication.FindItemId(body) != bodyId)
 			return;
-		bool moved = SCR_Global.TeleportPlayer(GetPlayerId(), position);
+		BaseGameEntity spectatorBody = BaseGameEntity.Cast(body);
+		if (!spectatorBody)
+			return;
+		// Move only the body; the player helper also fades and resets the camera.
+		vector transform[4];
+		body.GetTransform(transform);
+		transform[3] = position;
+		spectatorBody.Teleport(transform);
 		float now = GetGame().GetWorld().GetWorldTime();
 		if (now >= m_fGC_NextBodyFollowLog)
 		{
 			m_fGC_NextBodyFollowLog = now + 5000;
-			PrintFormat("GC | Spectator voice | body-follow accepted=%1 %2", moved, GC_GetSpectatorVoiceDiagnostics());
+			PrintFormat("GC | Spectator voice | body-follow %1", GC_GetSpectatorVoiceDiagnostics());
 		}
 	}
 }

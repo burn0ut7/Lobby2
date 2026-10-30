@@ -497,7 +497,13 @@ The shared VON receive override always calls `super`; Lobby2 adds optional
 diagnostics only. It does not write the global `GC_SPEC` audio variable. The
 legacy `Character_Base.et` override has been removed: stock characters retain
 their base audio and inventory defaults, while the Lobby2 spectator prefab owns
-its radio and audio configuration. Spectator teleport uses `GC_SpectatorTeleport`
+its radio and audio configuration. Its transmitter uses the restricted spectator
+ACP; its separately registered receiver uses the direct/radio playback ACP.
+Keep the receiver last in the prefab: native incoming VoN selects the last
+registered component. Lobby capture and activity observers select their explicit
+components, and native capture is blocked only for the active Lobby2 spectator
+body. See `tests/SpectatorVoice.md` for the verified routing and limits.
+Spectator teleport uses `GC_SpectatorTeleport`
 instead of redefining the stock `ManualCameraTeleport` action. Map-marker dialog
 ordering requires both the active Lobby2 mode and the Lobby2 widget hierarchy.
 

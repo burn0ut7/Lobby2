@@ -1,6 +1,41 @@
 SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  ID "520EC961A090B1EE"
  components {
+  CharacterSoundComponent "{520EA1D2F659CF84}" {
+   Enabled 0
+  }
+  SCR_CharacterStaminaComponent "{520EA1D2F659C824}" {
+   Enabled 0
+  }
+  SCR_EditableCharacterComponent "{520EA1D2F659C85C}" {
+   Enabled 0
+  }
+  SCR_CharacterDamageManagerComponent "{55872AD7B4E959F2}" {
+   EnableDamage 0
+  }
+  ChimeraAIControlComponent "{520EA1D2DB109F34}" {
+   Enabled 0
+   components {
+    AICharacterAimingComponent "{520EA1D2DB109F0C}" {
+     Enabled 0
+    }
+    AICharacterHeadAimingComponent "{520EA1D2DB109F04}" {
+     Enabled 0
+    }
+    AICharacterMovementComponent "{520EA1D2DB109F01}" {
+     Enabled 0
+    }
+    AIPathfindingComponent "{56349A6F9C02E7A1}" {
+     Enabled 0
+    }
+    PerceptionComponent "{54A2CBC75F06064B}" {
+     Enabled 0
+    }
+    SCR_AICombatComponent "{55A2C9BE343B2EA1}" {
+     Enabled 0
+    }
+   }
+  }
   GC_SpectatorRadioStorageComponent "{D392A10030000010}" {
    Attributes SCR_ItemAttributeCollection "{D392A10030000011}" {
     ItemDisplayName UIInfo "{D392A10030000012}" {
@@ -35,7 +70,13 @@ SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base
   GC_LobbySpectatorBodyComponent "{6A1C000000000001}" {
   }
   SCR_VoNComponent "{520EA1D2F659C856}" {
+   Enabled 0
+  }
+  GC_SpectatorTransmitVoNComponent "{D392A10030000022}" {
    Filename "{B6D87652D0F9BC15}Sounds/VON/von_spectator.acp"
+  }
+  GC_SpectatorReceiveVoNComponent "{D392A10030000023}" {
+   Filename "{D392A10030000021}Sounds/VON/von_spectator_receive.acp"
   }
  }
 }

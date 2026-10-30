@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Player", description: "Makes the Lobby2 spectator body invisible on every machine")]
+[ComponentEditorProps(category: "Lobby2/Player", description: "Disables visibility and physics on the dedicated spectator body")]
 class GC_LobbySpectatorBodyComponentClass : ScriptComponentClass
 {
 }
@@ -6,7 +6,7 @@ class GC_LobbySpectatorBodyComponentClass : ScriptComponentClass
 class GC_LobbySpectatorBodyComponent : ScriptComponent
 {
 	//------------------------------------------------------------------------------------------------
-	protected void HideBody()
+	protected void ConfigureSpectatorBody()
 	{
 		if (!GC_LobbyManager.GetManager())
 			return;
@@ -19,7 +19,16 @@ class GC_LobbySpectatorBodyComponent : ScriptComponent
 			animation.PhysicsEnableGravity(false);
 		Physics physics = GetOwner().GetPhysics();
 		if (physics)
+		{
+			physics.SetVelocity(vector.Zero);
+			physics.SetAngularVelocity(vector.Zero);
+			physics.EnableGravity(false);
+			physics.ChangeSimulationState(SimulationState.NONE);
+			physics.SetActive(ActiveState.INACTIVE);
 			physics.SetInteractionLayer(0);
+			for (int i; i < physics.GetNumGeoms(); i++)
+				physics.SetGeomInteractionLayer(i, 0);
+		}
 		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(GetOwner().FindComponent(SCR_CharacterDamageManagerComponent));
 		if (damage && Replication.IsServer())
 			damage.EnableDamageHandling(false);
@@ -28,14 +37,14 @@ class GC_LobbySpectatorBodyComponent : ScriptComponent
 	//------------------------------------------------------------------------------------------------
 	override protected void EOnInit(IEntity owner)
 	{
-		GetGame().GetCallqueue().CallLater(HideBody, 0);
+		GetGame().GetCallqueue().CallLater(ConfigureSpectatorBody, 0);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override protected void OnDelete(IEntity owner)
 	{
 		if (GetGame())
-			GetGame().GetCallqueue().Remove(HideBody);
+			GetGame().GetCallqueue().Remove(ConfigureSpectatorBody);
 		super.OnDelete(owner);
 	}
 

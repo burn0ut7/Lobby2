@@ -1482,6 +1482,10 @@ Native message routing is not audible VoN verification: actual microphone recept
 
 ## Spectator voice position and marker input — 2026-10-29
 
+Later direct-body movement, separate capture/playback ACPs, disabled body systems
+and user-confirmed microphone results supersede the audio limitations below;
+see [SpectatorVoice.md](SpectatorVoice.md).
+
 The dedicated spectator body now follows the local camera when separated by more than 2 m, sampled every 250 ms. Unreliable requests validate the controlled spectator body, Lobby2 phase and terrain bounds on the server; the owner uses the native character teleport, following the stock editor's ownership pattern (`SCR_PlayersManagerEditorComponent.c:90–149`, installed game 1.8.0.13). Native movement replication carries the resulting body position. The dedicated body disables gravity, physical interaction and authoritative damage handling. Camera teardown removes the sampler. Stationary bodies need no repeated requests.
 
 World-marker context uses the spectator's named right-button release action and the native hovered widget, avoiding the child button's consumed mouse-down. Deferred popup close belongs to its originating instance. Existing player-list context handling remains unchanged. Diagnostic prefixes are `GC | Spectator context`, `GC | Spectator voice` and `GC | Spectator radio`. Body-follow logs are bounded to one per five seconds, native reception logs to one per two seconds; radio tuning logs only changed settings and report encryption equality rather than key contents. A receive line proves the native callback ran, not that the resulting sound was audible.
