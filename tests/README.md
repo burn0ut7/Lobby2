@@ -69,6 +69,55 @@ These fixtures do not establish physical mouse/gamepad navigation coverage.
 
 See `Art/References/faction-readiness/validation.md` for observed results.
 
+## Item catalogue foundation
+
+`GC_ItemCatalogueTests.c` supplies explicit Workbench-only calls on
+`GC_LobbyManager`; loading the test addon runs nothing. `GC_TestItemCatalogueStart`
+starts the production catalogue and ticks it incrementally. Inspect
+`GC_TestItemCatalogueStatus`; use `GC_TestItemCatalogueStop` to cancel and release
+it. Starting again replaces the previous instance and removes its callback.
+
+`GC_TestItemCatalogueSearch(text, category, equipmentSlot, addon, faction,
+mountType, offset)` exercises production search with an eight-item result page.
+Empty strings disable filters; mountType is an actual attachment typename.
+`GC_TestItemAttachmentFixture` creates an isolated AK-74N, 1P29 and helmet,
+exercises acceptance/rejection/unverified results and checks the mount stayed
+unchanged. `GC_TestItemInsertionFixture` creates an isolated US rifleman, checks
+rifle/helmet insertion into its slots, and verifies attachment identities and
+inventory counts remain unchanged. Each fixture deletes only its own entities.
+These are read-only production checks, not transfer/spawn permission tests.
+
+Validated 2026-10-29 in Workbench 1.8.0.13, embedded Play,
+`$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent`, with the existing test project:
+
+- Fresh Game/Workbench reload succeeded. Existing world/resource warnings remain
+  (ArlandLobby resource reference, dedicated-server plugin and `m_aFormations`).
+- 19,485 prefabs processed: 2,009 inventory items, 17,467 non-items and nine
+  unreadable resources. Discovery returned false for Lobby2IsolationProbe and
+  Lobby2McpTests. Coverage is explicitly incomplete; status lists each gap.
+- 92 head-slot candidates; 12 AK74/primary matches; seven when combined with
+  ArmaReforger contributing source and USSR catalogue membership; three
+  AttachmentOpticsDovetailAK candidates. Only two faction catalogues were observed.
+- Case-insensitive and multi-term search, eight-plus-four unique pagination,
+  no-match searches and negative-offset rejection passed.
+- Attachment fixture: optic ACCEPTED, helmet REJECTED, null UNVERIFIED, mount
+  unchanged. Insertion fixture: free weapon slot accepted the rifle, incompatible
+  and occupied slots rejected candidates; 56 slots unchanged, 46 items before/after.
+- Maximum measured catalogue tick was 38 ms on the second scan (40 ms initially).
+  This includes indivisible native discovery/load work; it is not a smooth-frame
+  guarantee or a preview benchmark. No UI or preview code is included in this slice.
+
+Source research used installed PAK revision `3e84dd3e4386408097aaf18a7a8b6372`:
+`SCR_ComponentHelper.c:40–66`, `SCR_AddonTools.c:13–45,89–94`,
+`InventoryStorageManagerComponent.c:18–21,45`, `AttachmentSlotComponent.c:14–18`,
+`SCR_InventoryStorageManagerComponent.c:155–192`, and the resolved weapon/clothing
+prefab sources. Local raw MCP receipts and query assertions are in the tooling
+checkout's `.temp/local/evidence/loadout-foundation/`. Representative receipts:
+`rb96ed533d4774ccab67c4c39a466533e` (attachments),
+`rc790ac2c08284c7589a58a02cff65931` (insertion),
+`rd9cfe5c34447486dab088bf53fe755be` (coverage). No inventory mutation, multiplayer
+admin authorization, UI or later transfer behavior is claimed as tested.
+
 ## Connected admin test fixture
 
 See [AdminReplicationScope.md](AdminReplicationScope.md) for the per-action

@@ -601,6 +601,61 @@ Before calling a slice complete:
 - For multiplayer changes, test dedicated server, listen host, owning/admin client, non-admin client, concurrent requests, and JIP where the environment permits.
 - Record any test that remains manual or unavailable; do not silently treat source inspection as runtime proof.
 
+## Item catalogue foundation
+
+`GC_ItemCatalogue` is a caller-owned, addon-agnostic metadata service in
+`scripts/Game/Loadout`. It does not attach components, register global callbacks,
+open UI, create preview entities, spawn items or change inventories. Discovery
+requires Workbench; outside Workbench its status explicitly reports unavailable.
+
+Create an instance, call `Start()` once, then `Tick()` once per frame until
+`IsFinished()`. Discovery visits one loaded addon root per tick; indexing handles
+at most four prefab resources and stops the batch after two milliseconds.
+Individual native searches/resource loads are indivisible and can exceed that
+budget. The service retains metadata, not live item entities or Resource handles.
+The owning integration must stop ticking and discard the instance on teardown.
+Recreate it after resource/addon/locale changes; it is a session snapshot, not a
+persistent cache. Treat returned entries and collections as read-only.
+
+`Search(query, offset, limit, results)` returns the total matching count from the
+currently indexed subset and fills a page of at most 100 entries. Invalid paging
+or a null query returns -1. Results append in discovery order while indexing;
+select items by their resource identity, not a row index. Text search is
+case-insensitive, combines space-separated terms, and covers localized names,
+localization keys, prefab paths/identities, category, equipment slot, contributing
+addons and observed faction keys. Structured filters combine with text:
+
+- Categories: Weapons, Clothing, Magazines, Attachments and Equipment.
+- Equipment slot: the prefab's actual `WeaponSlotType` or clothing `AreaType`
+  (for example `primary` or `LoadoutHeadCoverArea`), not a filename heuristic.
+- Source addon: any contributing addon from the native container, including
+  inherited sources. `m_sSource` separately records the first discovery root;
+  neither field asserts exclusive ownership or effective override precedence.
+- Faction: exact membership in the loaded world's observed faction ITEM
+  catalogues; `Unassigned` means absent from those catalogues, not faction-neutral.
+- Mount type: attachment-type inheritance matching a weapon's declared mount.
+  Entries expose enabled mount names and types, including nested muzzle mounts.
+
+All inventory-component prefabs are included, including base templates and
+disabled/uncatalogued variants. A result is a discovery candidate, not a promise
+that it is a finished usable item. `IsFinished()` means processing stopped;
+`HasCompleteCoverage()` and `CoverageReport()` identify false discovery results
+and unreadable resource identities. Missing data must remain visible to callers.
+
+`GC_ItemCompatibility` owns the separate read-only engine checks.
+`CheckInsertion` takes a live manager, one of its storages and an explicit valid
+slot ID; occupancy/capacity and current rules affect the result. `CheckAttachment`
+takes an existing candidate entity and attachment component. Both return
+UNVERIFIED, ACCEPTED or REJECTED, never create fixtures, and never insert or attach.
+Recheck against the live target before a future mutation; these results are not
+authorization or cached structural-fit guarantees.
+
+UI is deferred. The intended integration is the existing inventory's left-hand
+arsenal-style pane, with native inventory transfers and feedback. Do not introduce
+a separate browser screen. Preview scheduling, item transfers, saved loadouts and
+in-game administrative actions belong to later slices; future previews must be
+visible-only, bounded and spread across frames.
+
 ## Extending the architecture
 
 New behavior should generally fit one of these locations:
