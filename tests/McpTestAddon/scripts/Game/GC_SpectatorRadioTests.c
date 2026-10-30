@@ -10,6 +10,18 @@ class GC_TestReceiverMessage : ScriptedRadioMessage
 
 modded class GC_LobbyPlayerController
 {
+	string GC_TestVoiceBody(string action, vector position)
+	{
+		if (action == "move" && m_SpectatorCamera)
+		{
+			m_SpectatorCamera.SetFreeMode();
+			m_SpectatorCamera.SetOrigin(position);
+		}
+		if (action == "request" && GetControlledEntity())
+			Rpc(GC_RpcAskSpectatorBodyPosition, Replication.FindItemId(GetControlledEntity()), position);
+		return GC_GetSpectatorVoiceDiagnostics();
+	}
+
 	string GC_TestRadioListen(int target, int operation, int radioIndex)
 	{
 		array<BaseRadioComponent> radios;
@@ -73,6 +85,36 @@ modded class GC_LobbyPlayerController
 #ifdef WORKBENCH
 modded class GC_LobbyManager
 {
+	string GC_TestVoiceBody(int playerId, string action, vector position)
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		if (!controller || !controller.GetControlledEntity())
+			return "NO BODY";
+		return "serverBody=" + controller.GetControlledEntity().GetOrigin().ToString() + " " + controller.GC_TestVoiceBody(action, position);
+	}
+
+	string GC_TestMarkerContext(int target, bool pressed)
+	{
+		if (pressed)
+		{
+			Widget row = GC_TestFindFocusMarker(GetGame().GetWorkspace(), target);
+			if (!row)
+				return "NO MARKER";
+			Widget button = row.FindAnyWidget("LobbySpectatorMarkerButton");
+			if (!button)
+				return "NO BUTTON";
+			float x, y, width, height;
+			button.GetScreenPos(x, y);
+			button.GetScreenSize(width, height);
+			GetGame().GetInputManager().GetMouseDeviceHandler().SetCursorPosition(x + width * 0.5, y + height * 0.5);
+			WidgetManager.ReportMouse(x + width * 0.5, y + height * 0.5, GetGame().GetWorkspace());
+		}
+		GetGame().GetInputManager().SetActionValue("GC_SpectatorContextClick", pressed);
+		if (pressed)
+			GetGame().GetInputManager().SetActionValue("GC_SpectatorContextClick", 0);
+		return "input dispatched; inspect menu after release";
+	}
+
 	protected ref GC_TestReceiverMessage m_GC_TestRadioMessage;
 
 	string GC_TestRadioAdd(int target)

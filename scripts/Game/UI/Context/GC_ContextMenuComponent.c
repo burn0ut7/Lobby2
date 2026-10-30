@@ -99,6 +99,8 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 	override void HandlerDeattached(Widget w)
 	{
 		// The game can already be tearing down when an open popup is destroyed.
+		if (GetGame())
+			GetGame().GetCallqueue().Remove(CloseRequestedMenu);
 		InputManager inputManager = m_InputManager;
 		if (inputManager)
 		{
@@ -283,6 +285,12 @@ class GC_ContextMenuComponent : SCR_ScriptedWidgetComponent
 
 	protected void RequestClose()
 	{
-		GetGame().GetCallqueue().Call(Close);
+		GetGame().GetCallqueue().Call(CloseRequestedMenu);
+	}
+
+	protected void CloseRequestedMenu()
+	{
+		if (s_wActiveMenu == m_wRoot)
+			Close();
 	}
 }

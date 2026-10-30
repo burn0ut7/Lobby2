@@ -7,6 +7,8 @@ modded class GC_LobbyPlayerController
 	{
 		if (action == "select")
 			GC_SelectSpectatorPlayer(playerId);
+		else if (action == "voice-move" && m_SpectatorCamera)
+			m_SpectatorCamera.SetOrigin(m_SpectatorCamera.GetOrigin() + "10 5 0");
 		else if (action == "world")
 			GC_ToggleWorldHealth();
 		else if (action == "more")
@@ -38,7 +40,7 @@ modded class GC_LobbyPlayerController
 		report += string.Format(" healthPackets=%1 eventPackets=%2 serverFocus=%3 serverHealth=%4", m_iGC_TestHealthPackets, m_iGC_TestFocusPackets, m_iGC_ServerFocus, m_mGC_ServerHealth.Count());
 		if (!m_aGC_FocusEvents.IsEmpty())
 			report += " first=" + m_aGC_FocusEvents[2] + " " + m_aGC_FocusEvents[3];
-		return report;
+		return report + " voice=" + GC_GetSpectatorVoiceDiagnostics();
 	}
 
 

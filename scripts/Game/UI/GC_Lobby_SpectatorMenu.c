@@ -95,6 +95,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.AddActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.AddActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.AddActionListener("GC_SpectatorWorldClick", EActionTrigger.DOWN, ClearFocusFromWorldClick);
+			m_InputManager.AddActionListener("GC_SpectatorContextClick", EActionTrigger.UP, OpenMarkerContext);
 			m_InputManager.AddActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.AddActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -302,6 +303,7 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 			m_InputManager.RemoveActionListener("GC_ToggleSpectatorMap", EActionTrigger.DOWN, OnToggleSpectatorMap);
 			m_InputManager.RemoveActionListener("MapSelect", EActionTrigger.DOWN, OnSpectatorMapSelect);
 			m_InputManager.RemoveActionListener("GC_SpectatorWorldClick", EActionTrigger.DOWN, ClearFocusFromWorldClick);
+			m_InputManager.RemoveActionListener("GC_SpectatorContextClick", EActionTrigger.UP, OpenMarkerContext);
 			m_InputManager.RemoveActionListener("ManualCameraLight", EActionTrigger.DOWN, OnToggleNightMode);
 			m_InputManager.RemoveActionListener("GC_SpectatorTeleport", EActionTrigger.DOWN, OnTeleportToCursor);
 		}
@@ -504,6 +506,32 @@ class GC_Lobby_SpectatorMenu : EditorMenuUI
 		if (m_HealthController && playerId > 0)
 			m_HealthController.GC_SelectSpectatorPlayer(playerId);
 		PrintFormat("GC | Spectator Map | eye teleport selected entity=%1", target);
+	}
+
+	//! Native marker buttons consume mouse-down; resolve their hit on right release.
+	protected void OpenMarkerContext()
+	{
+		if (m_bSpectatorMapOpen || GetGame().GetMenuManager().GetTopMenu() != this || !GC_LobbyManager.GetManager())
+			return;
+		Widget hit = WidgetManager.GetWidgetUnderCursor();
+		while (hit)
+		{
+			GC_SpectatorCharacterEditableEntityUIComponent character = GC_SpectatorCharacterEditableEntityUIComponent.Cast(hit.FindHandler(GC_SpectatorCharacterEditableEntityUIComponent));
+			if (character && character.GetEntity())
+			{
+				bool opened = GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForEntity(character.GetEntity().GetOwner()), hit);
+				PrintFormat("GC | Spectator context | marker=%1 opened=%2", hit.GetName(), opened);
+				return;
+			}
+			GC_SpectatorGroupEditableEntityUIComponent group = GC_SpectatorGroupEditableEntityUIComponent.Cast(hit.FindHandler(GC_SpectatorGroupEditableEntityUIComponent));
+			if (group)
+			{
+				group.GC_OpenContextMenu();
+				return;
+			}
+			hit = hit.GetParent();
+		}
+		Print("GC | Spectator context | no marker under pointer");
 	}
 
 	//! Only empty world space clears focus; UI and world markers keep ownership of their clicks.

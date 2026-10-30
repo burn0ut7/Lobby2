@@ -235,22 +235,15 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 
 	override bool OnClick(Widget w, int x, int y, int button)
 	{
-		if (button != 0 || !m_Entity || !m_Entity.GetOwner())
+		if (!m_Entity || !m_Entity.GetOwner())
+			return false;
+		if (button != 0)
 			return false;
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		int playerId = GC_LobbyPlayerController.GC_GetSpectatorEntityPlayer(m_Entity.GetOwner());
 		if (!controller || playerId <= 0)
 			return false;
 		controller.GC_SelectSpectatorPlayer(playerId);
-		return true;
-	}
-
-	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
-	{
-		if (button != 1 || !m_Entity || !m_Entity.GetOwner())
-			return false;
-
-		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForEntity(m_Entity.GetOwner()), GetWidget());
 		return true;
 	}
 
@@ -511,13 +504,12 @@ class GC_SpectatorGroupEditableEntityUIComponent : SCR_GroupEditableEntityUIComp
 		return true;
 	}
 
-	override bool OnMouseButtonDown(Widget w, int x, int y, int button)
+	bool GC_OpenContextMenu()
 	{
-		if (button != 1 || !m_Group)
+		if (!m_Group)
 			return false;
 
-		GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForGroup(m_Group), GetWidget());
-		return true;
+		return GC_ContextMenuComponent.Open(GC_ContextMenuContext.ForGroup(m_Group), GetWidget());
 	}
 
 	protected void CreateMemberPopup()

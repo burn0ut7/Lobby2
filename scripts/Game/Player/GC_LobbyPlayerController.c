@@ -2319,11 +2319,13 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		CreateSpectatorMenu();
 		CreateSpectatorMarkerOverlay();
 		RegisterSpectatorCameraActions();
+		GC_LobbyPlayerController.Cast(this).GC_StartSpectatorBodyFollow();
 		PrintFormat("GC | Spectator | manual camera entered: player=%1", GetPlayerId());
 	}
 
 	protected void DestroySpectatorCamera()
 	{
+		GC_LobbyPlayerController.Cast(this).GC_StopSpectatorBodyFollow();
 		GetGame().GetCallqueue().Remove(GC_RestoreSpectatorCameraAfterTargetLoss);
 		UnregisterSpectatorCameraActions();
 		DestroySpectatorMarkerOverlay();

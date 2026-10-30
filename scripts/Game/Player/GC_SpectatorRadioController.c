@@ -32,7 +32,10 @@ modded class GC_LobbyPlayerController
 	protected void GC_RpcAsk_RadioListening(int target, string identity, int operation, RplId radioId)
 	{
 		if (!GC_CanReceivePlayerRadios())
+		{
+			PrintFormat("GC | Spectator radio | rejected player=%1 reason=not-active-spectator", GetPlayerId());
 			return;
+		}
 		if (operation == 0)
 		{
 			GC_StopRadioListening();
@@ -181,6 +184,7 @@ modded class GC_LobbyPlayerController
 			int frequency = source.GetFrequency();
 			string signature = key.Length().ToString() + ":" + key + ":" + frequency.ToString();
 			bool powered = sourceRadio.IsPowered() && !source.IsMuted() && !m_bLobbyVoiceDeafened && !heard.Contains(signature);
+			bool tuningChanged = receiverRadio.GetEncryptionKey() != key || receiverChannel.GetFrequency() != frequency || receiverRadio.IsPowered() != powered;
 			if (powered)
 				heard.Insert(signature);
 			if (receiverRadio.GetEncryptionKey() != key)
@@ -189,6 +193,9 @@ modded class GC_LobbyPlayerController
 				receiverChannel.SetFrequency(frequency);
 			if (receiverRadio.IsPowered() != powered)
 				receiverRadio.SetPower(powered);
+			if (tuningChanged)
+				PrintFormat("GC | Spectator radio | player=%1 target=%2 receiver=%3 frequency=%4 powered=%5 keyMatches=%6 sourceMuted=%7",
+					GetPlayerId(), m_iGC_ServerRadioTarget, index, frequency, powered, receiverRadio.GetEncryptionKey() == key, source.IsMuted());
 		}
 		if (changed)
 			GC_SendRadioListeningState();
@@ -215,6 +222,8 @@ modded class GC_LobbyPlayerController
 
 	protected void GC_SendRadioListeningState(string error = "")
 	{
+		PrintFormat("GC | Spectator radio | player=%1 target=%2 all=%3 radios=%4 receivers=%5 error=%6", GetPlayerId(),
+			m_iGC_ServerRadioTarget, m_bGC_ServerRadioAll, m_aGC_ServerRadioSelected.Count(), m_aGC_RadioReceivers.Count(), error);
 		Rpc(GC_RpcDo_RadioListening, m_iGC_ServerRadioTarget, m_bGC_ServerRadioAll, m_aGC_ServerRadioSelected, error);
 	}
 

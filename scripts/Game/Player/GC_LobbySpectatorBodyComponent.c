@@ -8,9 +8,21 @@ class GC_LobbySpectatorBodyComponent : ScriptComponent
 	//------------------------------------------------------------------------------------------------
 	protected void HideBody()
 	{
+		if (!GC_LobbyManager.GetManager())
+			return;
 		// Replicated character initialization restores visibility after EOnInit.
 		// The call queue also runs for remote proxies without frame callbacks.
 		GetOwner().ClearFlags(EntityFlags.VISIBLE, true);
+		// This dedicated body is a voice listener, never a physical participant.
+		CharacterAnimationComponent animation = CharacterAnimationComponent.Cast(GetOwner().FindComponent(CharacterAnimationComponent));
+		if (animation)
+			animation.PhysicsEnableGravity(false);
+		Physics physics = GetOwner().GetPhysics();
+		if (physics)
+			physics.SetInteractionLayer(0);
+		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(GetOwner().FindComponent(SCR_CharacterDamageManagerComponent));
+		if (damage && Replication.IsServer())
+			damage.EnableDamageHandling(false);
 	}
 
 	//------------------------------------------------------------------------------------------------

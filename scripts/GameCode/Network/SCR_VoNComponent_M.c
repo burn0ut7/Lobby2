@@ -1,6 +1,7 @@
 modded class SCR_VoNComponent : VoNComponent
 {
 	protected bool m_bGC_LobbyCaptureActive;
+	protected float m_fGC_NextSpectatorReceiveLog;
 
 	//------------------------------------------------------------------------------------------------
 	//! Explicit Lobby VON boundary; never changes normal game capture or social mute.
@@ -50,6 +51,14 @@ modded class SCR_VoNComponent : VoNComponent
 	{
 		super.OnReceive(playerId, isSenderEditor, receiver, frequency, quality);
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
+		GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		float now = GetGame().GetWorld().GetWorldTime();
+		if (lobbyManager && localController && localController.GC_CanJumpSpectatorCamera() && now >= m_fGC_NextSpectatorReceiveLog)
+		{
+			m_fGC_NextSpectatorReceiveLog = now + 2000;
+			PrintFormat("GC | Spectator voice | received talker=%1 radio=%2 frequency=%3 quality=%4 editor=%5 %6",
+				playerId, receiver != null, frequency, quality, isSenderEditor, localController.GC_GetSpectatorVoiceDiagnostics());
+		}
 		if (!lobbyManager || !GC_UIEventDiagnostics.ENABLED)
 			return;
 
