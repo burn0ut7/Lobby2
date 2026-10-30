@@ -235,6 +235,12 @@ modded class GC_LobbyPlayerController
 			return;
 		}
 
+		if (action == "spectator-radio")
+		{
+			Rpc(GC_TestRpcPeerReport, token, GC_LobbyPlayerController.Cast(this).GC_TestRadioCommand(message));
+			return;
+		}
+
 		if (action.StartsWith("readiness-"))
 		{
 			if (action == "readiness-tile-click")
@@ -520,6 +526,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"spectator-radio",
 			"spectator-events",
 			"spectator-focus",
 			"phase-audio",

@@ -141,6 +141,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Release owned local state before the world changes, not only on destruction.
 	void ShutdownLobbyPresentation()
 	{
+		GC_LobbyPlayerController.Cast(this).GC_StopRadioListening();
 		m_aAdminMessages.Clear();
 		if (GetGame().GetPlayerController() == this)
 		{
@@ -2067,6 +2068,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	override void OnControlledEntityChanged(IEntity from, IEntity to)
 	{
+		GC_LobbyPlayerController.Cast(this).GC_StopRadioListening();
 		StopLobbyVoice();
 		BaseRadioComponent oldLobbyRadio = GC_LobbyRadio.FindRadio(from);
 		if (oldLobbyRadio)

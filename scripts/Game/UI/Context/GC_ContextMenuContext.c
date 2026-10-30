@@ -468,5 +468,6 @@ class GC_ContextMenuActionRegistry
 			if (action && action.IsVisible(context) && action.CanExecute(context))
 				actions.Insert(action);
 		}
+		GC_SpectatorRadioAction.Collect(context, actions);
 	}
 }
