@@ -1,0 +1,28 @@
+SizeLayoutWidgetClass {
+ Name "CatalogueCell"
+ Slot GridWidgetSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 66 AllowHeightOverride 1 HeightOverride 66
+ {
+OverlayWidgetClass {
+ Name "Cell"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 }
+ {
+ImageWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.5 "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Outline"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.3 0.3 0.3 1 style pixel_outline "Ignore Cursor" 1
+}
+ItemPreviewWidgetClass {
+ Name "ItemPreview"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } "Ignore Cursor" 1
+}
+ButtonWidgetClass {
+ Name "SelectItem"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+}
+ }
+}
+ }
+}

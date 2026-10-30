@@ -1,0 +1,860 @@
+[
+  {
+    "receiptFile": "1793330012201165200-workbench_runtime_call.json",
+    "operationId": "2447c3d4e4c24e078614b18ca6276c89",
+    "processId": 41992,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793330012454073200-workbench_runtime_call.json",
+    "operationId": "4d8f1365760b4ebea750dec5cdfc5804",
+    "processId": 41992,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOpen"
+    },
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "receiptFile": "1793330021703687900-workbench_runtime_call.json",
+    "operationId": "9ed7dc47b47c4057a104f82bcdbcdf09",
+    "processId": 41992,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=LoadoutHeadCoverArea text= offset=0 total=39 visible=35 previews=0 indexed=772 finished=0"
+  },
+  {
+    "receiptFile": "1793330021995221300-workbench_runtime_call.json",
+    "operationId": "469f69e7376246a3ad3678e128991f02",
+    "processId": 41992,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=LoadoutHeadCoverArea text= offset=0 total=39 visible=35 previews=35 indexed=772 finished=0"
+  },
+  {
+    "receiptFile": "1793330022277545600-workbench_runtime_call.json",
+    "operationId": "c5fa95d5ee944208a848b2f5d06e1732",
+    "processId": 41992,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOption"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=LoadoutHeadCoverArea text= offset=0 total=41 visible=35 previews=13 indexed=820 finished=0"
+  },
+  {
+    "receiptFile": "1793330242953879500-workbench_runtime_call.json",
+    "operationId": "1c1c5015d2704bf4a81693a87fd13bb8",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793330243233475100-workbench_runtime_call.json",
+    "operationId": "ed8f76f59f9f46058f652111e8213cd8",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOpen"
+    },
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "receiptFile": "1793330289760786900-workbench_runtime_call.json",
+    "operationId": "fb7aafb6b6c045a0bcb55a4f87d85e15",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category=Weapons faction= descending=false slot= text= offset=0 total=179 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330290047427500-workbench_runtime_call.json",
+    "operationId": "719dda41a1b9449bb0c6aa36779ff274",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOption"
+    },
+    "state": "invoked",
+    "returned": "category=Weapons faction=US descending=false slot= text= offset=0 total=40 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330290372794200-workbench_runtime_call.json",
+    "operationId": "98239e5cadad4ae3bd4a77fae237e150",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793330414854533000-workbench_runtime_call.json",
+    "operationId": "936ea0ad1cde42af9c06910444a2e350",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793330415116143900-workbench_runtime_call.json",
+    "operationId": "9e852a9d2c734a00a3ad64cf061d7174",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOpen"
+    },
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "receiptFile": "1793330447325220300-workbench_runtime_call.json",
+    "operationId": "58b6041be50f45e4b09faf75dc84e997",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=1168 visible=35 previews=35 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330447604769500-workbench_runtime_call.json",
+    "operationId": "291d787591dd4e2db268a571cdd1d56d",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSlot"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=LoadoutHeadCoverArea text= offset=0 total=92 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330447916070500-workbench_runtime_call.json",
+    "operationId": "89b616dbea7145e98fcebca591b5bdbc",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=LoadoutHeadCoverArea text= offset=35 total=92 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330448232146000-workbench_runtime_call.json",
+    "operationId": "0a827fda4b1b4e2fa55f029901fbf2d4",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOption"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=true slot=LoadoutHeadCoverArea text= offset=0 total=92 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330448545839000-workbench_runtime_call.json",
+    "operationId": "cb3c1fae7ca440e085e0fc866cf9cb6c",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCataloguePage"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=true slot=LoadoutHeadCoverArea text= offset=0 total=92 visible=35 previews=35 indexed=2009 finished=1\nZSh-5 Helmet | {E49D9EE7E2B3016C}Prefabs/Characters/HeadGear/Helmet_ZSh5_01/Helmet_ZSh5_01.et\nZSh-5 Helmet | {B95A67A78A9CAA28}Prefabs/Characters/HeadGear/Helmet_ZSh5_01/Helmet_ZSh5_01_base.et\nZmijovka | {D21DCE2165F63FB3}Prefabs/Characters/HeadGear/Hat_ZmijovkaCap_01/Hat_ZmijovkaCap_01_base.et\nZmijovka - Red | {1B568A254D1E519B}Prefabs/Characters/HeadGear/Hat_ZmijovkaCap_01/Hat_ZmijovkaCap_01_red.et\nZmijovka - Green | {6D225E61B31D513A}Prefabs/Characters/HeadGear/Hat_ZmijovkaCap_01/Hat_ZmijovkaCap_01_green.et\nZmijovka - Black | {6BCAA9E5BC957693}Prefabs/Characters/HeadGear/Hat_ZmijovkaCap_01/Hat_ZmijovkaCap_01_black.et\nUshanka | {A22C976003AA5BA3}Prefabs/Characters/HeadGear/Hat_Ushanka_01/Hat_Ushanka_01_folded.et\nUshanka | {7A5128C8A77B9DAA}Prefabs/Characters/HeadGear/Hat_Ushanka_01/Hat_Ushanka_01_base.et\nUshanka | {323641C91965842E}Prefabs/Characters/HeadGear/Hat_Ushanka_01/Hat_Ushanka_01_unfolded.et\nTSh-4 Helmet | {EB2F05A3751B905A}Prefabs/Characters/HeadGear/Helmet_TSh4_01/Helmet_TSh4_01.et\nTSh-4 Helmet | {371AC9B15D44B273}Prefabs/Characters/HeadGear/Helmet_TSh4_01/Helmet_TSh4_01_base.et\nTSh-4 Helmet - Unbuttoned | {D6B1ACA46036E9CE}Prefabs/Characters/HeadGear/Helmet_TSh4_01/Helmet_TSh4_01_open.et\nSSh-68 Helmet | {BFCE7FE311985683}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_base.et\nSSh-68 Helmet | {AE74155267C3D5BB}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_cover_base.et\nSSh-68 Helmet | {A7E6D7ECD5F684D7}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01.et\nSSh-68 Helmet - Netting | {D4028ED16DEE99EE}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_camonet.et\nSSh-68 Helmet - Netting | {22963D69CA50EB9E}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_net.et\nSSh-68 Helmet - KZS | {5F8928B41FB86990}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_cover_KZS.et\nSSh-68 Helmet - KLMK | {DD35D5EBA6364E77}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_cover_KLMK.et\nSSh-68 Helmet - KLMK, Netting | {12035A212B2BE371}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_cover_KLMK_net.et\nSSh-68 Helmet - Cover | {3D74845B9D0867B0}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_cover.et\nSSh-68 Helmet - Camouflaged | {66196D85AB93D2BE}Prefabs/Characters/HeadGear/Helmet_SSh68_01/Helmet_SSh68_01_camo.et\nSPH-4 Helmet | {BE176A2D8451669E}Prefabs/Characters/HeadGear/Helmet_SPH4_01/Helmet_SPH4_01_base.et\nSPH-4 Helmet | {BD96E8EEBD78694C}Prefabs/Characters/HeadGear/Helmet_SPH4_01/Helmet_SPH4_Goose_01.et\nSPH-4 Helmet | {7B8DBD3608627755}Prefabs/Characters/HeadGear/Helmet_SPH4_01/Helmet_SPH4_USFlag_02.et\nSPH-4 Helmet | {483A80042765275F}Prefabs/Characters/HeadGear/Helmet_SPH4_01/Helmet_SPH4_01.et\nSPH-4 Helmet | {17D989D6B4A6F87B}Prefabs/Characters/HeadGear/Helmet_SPH4_01/Helmet_SPH4_USFlag_01.et\nPatrol Cap | {F545C1BE7C99954A}Prefabs/Characters/HeadGear/Hat_Patrol_US_01/Hat_Patrol_US_01.et\nPatrol Cap | {F516AD5284661632}Prefabs/Characters/HeadGear/Hat_Patrol_US_01/Hat_Patrol_US_01_base.et\nPatrol Cap - Tiger Stripe | {56915D05E3190762}Prefabs/Characters/HeadGear/Hat_Patrol_US_01/Hat_Patrol_US_01_TigerStripe.et\nPatrol Cap - Olive | {9911F55EC05D1A64}Prefabs/Characters/HeadGear/Hat_Patrol_US_01/Hat_Patrol_US_02.et\nPASGT Helmet | {FE5C49069C2499D9}Prefabs/Characters/HeadGear/Helmet_PASGT_01/Helmet_PASGT_01_cover.et\nPASGT Helmet | {B74A4FF0DD8BB116}Prefabs/Characters/HeadGear/Helmet_PASGT_01/Helmet_PASGT_01.et\nPASGT Helmet | {8A2B2A544F3ED831}Prefabs/Characters/HeadGear/Helmet_PASGT_01/Helmet_PASGT_01_base.et\nPASGT Helmet - Goggles | {E685A8D337D36204}Prefabs/Characters/HeadGear/Helmet_PASGT_01/Helmet_PASGT_01_cover_w_goggles.et"
+  },
+  {
+    "receiptFile": "1793330469794678000-workbench_runtime_call.json",
+    "operationId": "19e72b825fcb457a842786ba9d5c2ae3",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSlot"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=true slot=LoadoutBackpackArea text= offset=0 total=45 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330470125488000-workbench_runtime_call.json",
+    "operationId": "7dc71fb8b8b74c03bfbab3c2cce5fd60",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793330470367785200-workbench_runtime_call.json",
+    "operationId": "71d8a695fb1c4708a8ac2206c7b497d0",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=true slot=LoadoutBackpackArea text=zzzz-no-match offset=0 total=0 visible=0 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330470595873100-workbench_runtime_call.json",
+    "operationId": "e29a1609201f4587adea31e788c41922",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793330470885663100-workbench_runtime_call.json",
+    "operationId": "3d02ae79ff8a426e9a54eafefa4fe122",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=true slot= text= offset=0 total=1168 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330471188301200-workbench_runtime_call.json",
+    "operationId": "8f7988d95ba449aba7264f1e0c2e1599",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOption"
+    },
+    "state": "invoked",
+    "returned": "category= faction=USSR descending=true slot= text= offset=0 total=161 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330481878116700-workbench_runtime_call.json",
+    "operationId": "068ff173a45249c0bed2921c753bc712",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction=USSR descending=true slot= text= offset=0 total=161 visible=35 previews=35 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330487103379400-workbench_runtime_call.json",
+    "operationId": "dcd99c90ebd545a1aacf5841c83968af",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueDisable"
+    },
+    "state": "invoked",
+    "returned": "disabled"
+  },
+  {
+    "receiptFile": "1793330508880367700-workbench_runtime_call.json",
+    "operationId": "3d6341d3396042638cbcbcd5aaef01ee",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueClose"
+    },
+    "state": "invoked",
+    "returned": "closed"
+  },
+  {
+    "receiptFile": "1793330509119660800-workbench_runtime_call.json",
+    "operationId": "bf77c1218461446dafa24439b630d658",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "possession failed"
+  },
+  {
+    "receiptFile": "1793330509348451800-workbench_runtime_call.json",
+    "operationId": "c2991f28ec8342d1bcc4ac91a9cc3085",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "closed"
+  },
+  {
+    "receiptFile": "1793330518644549300-workbench_runtime_call.json",
+    "operationId": "4be1d427bcd643ae846a7940fae55d1d",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOpen"
+    },
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "receiptFile": "1793330641562782300-workbench_runtime_call.json",
+    "operationId": "d20c4fab62c64ef6b382c8380012a937",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793330641830203600-workbench_runtime_call.json",
+    "operationId": "c91b623db7844ae68738f1528512b62b",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOpen"
+    },
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "receiptFile": "1793330660103421900-workbench_runtime_call.json",
+    "operationId": "d5d272cfed854b1f9de40770c14810e2",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=593 visible=35 previews=35 indexed=1366 finished=0"
+  },
+  {
+    "receiptFile": "1793330776565200400-workbench_runtime_call.json",
+    "operationId": "8966dde74d6d44b490ae5a33084680d1",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=LoadoutHeadCoverArea text= offset=0 total=92 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793330864555621300-workbench_runtime_call.json",
+    "operationId": "bd48fd1cfdb0406cbd73f799c4a6e51a",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793330864840261900-workbench_runtime_call.json",
+    "operationId": "ac185b7f924540f3accbdf24a732dc52",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOpen"
+    },
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "receiptFile": "1793330870867911200-workbench_runtime_call.json",
+    "operationId": "23cef30050b544528d9d65ad3ee0f383",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueClose"
+    },
+    "state": "invoked",
+    "returned": "closed"
+  },
+  {
+    "receiptFile": "1793330871066977800-workbench_runtime_call.json",
+    "operationId": "04d32b4292574b289c57b05b0394091d",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793330871349154300-workbench_runtime_call.json",
+    "operationId": "b69f4c29ef444411ab6ca3984956ca6c",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=0 visible=0 previews=0 indexed=0 finished=0"
+  },
+  {
+    "receiptFile": "1793330871597347200-workbench_runtime_call.json",
+    "operationId": "b308285ae6f048c799d2e3f1c4d51032",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueClose"
+    },
+    "state": "invoked",
+    "returned": "closed"
+  },
+  {
+    "receiptFile": "1793330871821840800-workbench_runtime_call.json",
+    "operationId": "0b56bfe4e86347cbbd4ddba1003e7ff8",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOwnerLoss"
+    },
+    "state": "invoked",
+    "returned": "owner restored"
+  },
+  {
+    "receiptFile": "1793330872047058500-workbench_runtime_call.json",
+    "operationId": "97b9d6cd8fce4351a3616aecf10a9f68",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793330872299756100-workbench_runtime_call.json",
+    "operationId": "992b76b1944541e9a28c87da5a371d73",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "panel absent"
+  },
+  {
+    "receiptFile": "1793330896369597200-workbench_runtime_call.json",
+    "operationId": "8df0d02819964e92b0504e992116ed3c",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueCleanup"
+    },
+    "state": "invoked",
+    "returned": "restored"
+  },
+  {
+    "receiptFile": "1793330943716832100-workbench_runtime_call.json",
+    "operationId": "085bbd4c8b1e4a62a1cb8315b1087417",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "CatalogueOpenOutsideMode"
+    },
+    "state": "invoked",
+    "returned": "false"
+  },
+  {
+    "receiptFile": "1793330944070926500-workbench_runtime_call.json",
+    "operationId": "2fd2b6f79837451d8174229ef0f9dde1",
+    "processId": 29864,
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "InventorySnapshot"
+    },
+    "state": "invoked",
+    "returned": "menu=SCR_InventoryMenuUI customPanel=0\nStorageLootSlot visible=1 x=122.25 y=145.422 w=519.562 h=792.078\nOpenedStorages visible=1 x=122.25 y=937.5 w=519.562 h=0\nStorageGrid visible=1 x=1607.08 y=145.422 w=702.938 h=743.688\nplayerRender visible=1 x=654.547 y=18.0781 w=868.484 h=1319.28"
+  },
+  {
+    "receiptFile": "1793331086282750500-workbench_runtime_call.json",
+    "operationId": "645c064567d644d2b6b7b9ee269ddf83",
+    "processId": 15784,
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "InventorySnapshot"
+    },
+    "state": "invoked",
+    "returned": "menu=SCR_InventoryMenuUI customPanel=0\nStorageLootSlot visible=1 x=122.25 y=145.422 w=519.562 h=792.078\nOpenedStorages visible=1 x=122.25 y=937.5 w=519.562 h=0\nStorageGrid visible=1 x=1607.08 y=145.422 w=702.938 h=743.688\nplayerRender visible=1 x=654.547 y=18.0781 w=868.484 h=1319.28"
+  },
+  {
+    "receiptFile": "1793331446609139700-workbench_runtime_call.json",
+    "operationId": "03beabfd0b5548dd87d4980ce512a33e",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestNativeInventoryStart"
+    },
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "receiptFile": "1793331446902122800-workbench_runtime_call.json",
+    "operationId": "8830d9bafb1943629f15f0d7870324ac",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueOpen"
+    },
+    "state": "invoked",
+    "returned": "true"
+  },
+  {
+    "receiptFile": "1793331479348336300-workbench_runtime_call.json",
+    "operationId": "da5c65a20367433d9602a432308f1b55",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCataloguePrimary"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=primary text= offset=0 total=108 visible=35 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331479687550200-workbench_runtime_call.json",
+    "operationId": "a9889e1e81984d7bafc7d53473769000",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793331479971101300-workbench_runtime_call.json",
+    "operationId": "66c7e83211634615ba10c3e1e5562174",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=primary text=AK74 offset=0 total=12 visible=12 previews=12 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331533940577500-workbench_runtime_call.json",
+    "operationId": "639f65f0893246109ffb2edd455234d9",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=AK74 offset=0 total=20 visible=20 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331534200089100-workbench_runtime_call.json",
+    "operationId": "e12a3747954b427fb58735e63108e978",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793331534462768800-workbench_runtime_call.json",
+    "operationId": "c97688d97d0640bfbad0c47f5682b4ac",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=Truck offset=0 total=8 visible=8 previews=8 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331534706959700-workbench_runtime_call.json",
+    "operationId": "d845affd70384ee2985ba098de55b2a3",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category=Equipment faction= descending=false slot= text=Truck offset=0 total=0 visible=0 previews=0 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331534946917500-workbench_runtime_call.json",
+    "operationId": "1a0b95464cb0403a9dfa253897fc14f1",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793331535197192600-workbench_runtime_call.json",
+    "operationId": "12b52b1c9a4a45f28ecbc707e8b82a2e",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category=Equipment faction= descending=false slot= text=Watch offset=0 total=8 visible=8 previews=8 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331546704109700-workbench_runtime_call.json",
+    "operationId": "3b29cf0a49714989b1b7288969b3a8de",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=Watch offset=0 total=8 visible=8 previews=8 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331546977470300-workbench_runtime_call.json",
+    "operationId": "843d47332c8a45e0b92981dca7b0c897",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793331547224615500-workbench_runtime_call.json",
+    "operationId": "6d6d400bbb734862bab36b1a642a52d2",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCataloguePage"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=Truck offset=0 total=8 visible=8 previews=8 indexed=2009 finished=1\nCap | {665EEF29CC2C672A}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_base.et\nCap - Alsworth ltd. | {17674905311133D7}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_alsworth.et\nCap - ENP | {C9886336AAD9F74C}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_enp.et\nCap - Everon | {6D08415FD18F2775}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_everon.et\nCap - FK Dynamo | {3E2C2A050DE84A64}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_fkdynamo.et\nCap - Moto | {5977C0A606B65E6D}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_moto.et\nCap - Pohona | {477D52F01DC45C55}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_pohona.et\nCap - Sawmill | {554D761A11D3D7EC}Prefabs/Characters/HeadGear/Hat_TruckerCap_01/Hat_TruckerCap_01_sawmillregina.et"
+  },
+  {
+    "receiptFile": "1793331554765905800-workbench_runtime_call.json",
+    "operationId": "a1e907f6c6c34d53a41bd80ea3c7454b",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueSearch"
+    },
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "receiptFile": "1793331555031665800-workbench_runtime_call.json",
+    "operationId": "186f9a1e80dd43f89b24e63693bcc492",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueState"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=877 visible=35 previews=24 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331555307924300-workbench_runtime_call.json",
+    "operationId": "cd1e5d709e86423184493df07e36ca60",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=877 visible=35 previews=35 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331555611883400-workbench_runtime_call.json",
+    "operationId": "fe607d35395f4a2495f701d6a2d87b1a",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=877 visible=35 previews=35 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331555914142000-workbench_runtime_call.json",
+    "operationId": "070979d3bb88455eaa0e09da9a3f1afb",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=877 visible=35 previews=35 indexed=2009 finished=1"
+  },
+  {
+    "receiptFile": "1793331556225368500-workbench_runtime_call.json",
+    "operationId": "31677fb32f604d49857674f1d4e8c0cf",
+    "processId": 63944,
+    "target": {
+      "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+      "entityName": "GameMode_Lobby3",
+      "componentType": "GC_LobbyManager",
+      "method": "GC_TestCatalogueButton"
+    },
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot=LoadoutHeadCoverArea text= offset=0 total=92 visible=35 previews=0 indexed=2009 finished=1"
+  }
+]

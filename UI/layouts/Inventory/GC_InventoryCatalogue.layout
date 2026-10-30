@@ -1,0 +1,495 @@
+SizeLayoutWidgetClass {
+ Name "GCCatalogue"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 396
+ {
+OverlayWidgetClass {
+ Name "Surface"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+ImageWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.5 "Ignore Cursor" 1
+}
+VerticalLayoutWidgetClass {
+ Name "CatalogueContent"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+SizeLayoutWidgetClass {
+ Name "AdvancedBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 396 AllowHeightOverride 1 HeightOverride 32
+ {
+ButtonWidgetClass {
+ Name "Advanced"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "Text"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "#GC-Catalogue_Filters" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
+}
+ }
+}
+ }
+}
+ }
+}
+VerticalLayoutWidgetClass {
+ Name "AdvancedPanel"
+ Slot LayoutSlot { HorizontalAlign 3  } "Is Visible" 0
+ {
+SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
+ Name "Faction"
+ Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
+}
+SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
+ Name "Sort"
+ Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "SearchBounds"
+ Slot LayoutSlot { HorizontalAlign 3 Padding 4 4 4 4 } AllowHeightOverride 1 HeightOverride 36
+ {
+OverlayWidgetClass {
+ Name "SearchSurface"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass {
+ Name "SearchBackground"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.65 style full "Ignore Cursor" 1
+}
+EditBoxWidgetClass {
+ Name "CatalogueSearch"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 8 0 8 0 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 20 Color 0.94 0.94 0.94 1 "Use placeholder text" 1 "Placeholder color" 0.65 0.65 0.65 1 "Placeholder text" "#AR-Editor_ContentBrowser_SearchButton"
+}
+ }
+}
+ }
+}
+HorizontalLayoutWidgetClass {
+ Name "FilterRow"
+ Slot LayoutSlot { HorizontalAlign 3  }
+ {
+TextWidgetClass {
+ Name "FilterText"
+ Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill Padding 6 2 6 2 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "#GC-Catalogue_All" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
+}
+SizeLayoutWidgetClass {
+ Name "ClearFilterBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 32 AllowHeightOverride 1 HeightOverride 24
+ {
+ButtonWidgetClass {
+ Name "ClearFilter"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "Text"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "X" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
+}
+ }
+}
+ }
+}
+ }
+}
+ }
+}
+HorizontalLayoutWidgetClass {
+ Name "Body"
+ Slot LayoutSlot { HorizontalAlign 3  }
+ {
+VerticalLayoutWidgetClass {
+ Name "Categories"
+ Slot LayoutSlot { HorizontalAlign 3 Padding 0 0 8 0 }
+ {
+SizeLayoutWidgetClass {
+ Name "CategoryAllBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryAll"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{6F779C9C667DB882}UI/Textures/InventoryIcons/InventorySlot_carry.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryWeaponsBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryWeapons"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryHeadwearBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryHeadwear"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{0E8DECDCEBD37EFD}UI/Textures/InventoryIcons/InventorySlot_helmet.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryClothingBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryClothing"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{FB0C5ADB0235B940}UI/Textures/InventoryIcons/InventorySlot_blouse.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryBackpacksBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryBackpacks"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{044C18D7A0102172}UI/Textures/InventoryIcons/InventorySlot_backpack.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryVestsBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryVests"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{7027DDC03DC199C7}UI/Textures/InventoryIcons/InventorySlot_lbs.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryEquipmentBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryEquipment"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{0CDD0FF107787637}UI/Textures/InventoryIcons/InventorySlot_binoculars.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryMagazinesBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryMagazines"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "rearm-ammo" }
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryAttachmentsBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ {
+ButtonWidgetClass {
+ Name "CategoryAttachments"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "optics" }
+ }
+}
+ }
+}
+ }
+}
+ }
+}
+GridLayoutWidgetClass {
+ Name "Results"
+ Slot LayoutSlot { HorizontalAlign 3  }
+}
+ }
+}
+TextWidgetClass {
+ Name "Status"
+ Slot LayoutSlot { HorizontalAlign 3  } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Ignore Cursor" 1
+}
+HorizontalLayoutWidgetClass {
+ Name "Paging"
+ Slot LayoutSlot { HorizontalAlign 3  }
+ {
+SizeLayoutWidgetClass {
+ Name "PreviousBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 198 AllowHeightOverride 1 HeightOverride 32
+ {
+ButtonWidgetClass {
+ Name "Previous"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "Text"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "<" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "NextBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 198 AllowHeightOverride 1 HeightOverride 32
+ {
+ButtonWidgetClass {
+ Name "Next"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+TextWidgetClass {
+ Name "Text"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text ">" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
+}
+ }
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "DetailBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowHeightOverride 1 HeightOverride 42
+ {
+TextWidgetClass {
+ Name "Detail"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 18 "Min Font Size" 18 "Wrap" 1
+}
+ }
+}
+ }
+}
+ }
+}
+ }
+}

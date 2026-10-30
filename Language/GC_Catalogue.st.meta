@@ -1,0 +1,6 @@
+MetaFileClass {
+ Name "{DC391DA320AE2001}Language/GC_Catalogue.st"
+ Configurations {
+  StringTableResourceClass PC {}
+ }
+}

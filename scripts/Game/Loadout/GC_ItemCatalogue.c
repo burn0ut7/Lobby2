@@ -8,6 +8,7 @@ class GC_ItemCatalogueEntry
 	string m_sSource;
 	ref array<string> m_aSourceAddons = {};
 	string m_sCategory;
+	bool m_bPortable;
 	string m_sEquipmentSlot;
 	string m_sSearch;
 	string m_sFactions;
@@ -134,6 +135,16 @@ class GC_ItemCatalogue
 		SCR_ItemAttributeCollection attributes = SCR_ComponentHelper.GetInventoryItemInfo(inventory);
 		if (attributes)
 		{
+			// Match native inventory drag visibility, excluding actors/vehicles that merely own storage.
+			typename entityType = entity.GetClassName().ToType();
+			BaseContainer attributeSource = inventory.GetObject("Attributes");
+			bool visible = true;
+			attributeSource.Get("m_bVisible", visible);
+			bool enabled = true;
+			inventory.Get("Enabled", enabled);
+			entry.m_bPortable = attributes.IsDraggable() && visible && enabled;
+			if (entityType && (entityType.IsInherited(ChimeraCharacter) || entityType.IsInherited(Vehicle)))
+				entry.m_bPortable = false;
 			UIInfo info = attributes.GetUIInfo();
 			if (info && !info.GetName().IsEmpty())
 			{
@@ -162,6 +173,8 @@ class GC_ItemCatalogue
 			BaseContainer area = cloth.GetObject("AreaType");
 			if (area)
 				entry.m_sEquipmentSlot = area.GetClassName();
+			if (entry.m_sEquipmentSlot == "LoadoutWatchArea" || entry.m_sEquipmentSlot == "LoadoutBinocularsArea" || entry.m_sEquipmentSlot == "LoadoutIdentityItemArea")
+				entry.m_sCategory = "Equipment";
 		}
 		array<IEntityComponentSource> mounts = {};
 		SCR_BaseContainerTools.FindComponentSourcesOfClass(entity, AttachmentSlotComponent, true, mounts);
@@ -301,13 +314,31 @@ class GC_ItemCatalogue
 		text.ToLower();
 		text.Split(" ", terms, true);
 		int total;
+		array<string> sortedKeys = {};
+		map<string, GC_ItemCatalogueEntry> sortedEntries = new map<string, GC_ItemCatalogueEntry>();
 		for (int index; index < Count(); index++)
 		{
+			if (query.m_bPortableOnly && !Get(index).m_bPortable)
+				continue;
 			if (!Matches(index, terms, query.m_sCategory, query.m_sEquipmentSlot, query.m_sSourceAddon, query.m_sFaction, query.m_MountType))
 				continue;
-			if (total >= offset && results.Count() < limit)
+			if (query.m_bAlphabetical)
+			{
+				string key = Get(index).m_sName;
+				key.ToLower();
+				key += "\t" + Get(index).m_sPrefab;
+				sortedKeys.Insert(key);
+				sortedEntries.Insert(key, Get(index));
+			}
+			else if (total >= offset && results.Count() < limit)
 				results.Insert(Get(index));
 			total++;
+		}
+		if (query.m_bAlphabetical)
+		{
+			sortedKeys.Sort(query.m_bDescending);
+			for (int position = offset; position < total && results.Count() < limit; position++)
+				results.Insert(sortedEntries.Get(sortedKeys[position]));
 		}
 		return total;
 	}
@@ -315,6 +346,9 @@ class GC_ItemCatalogue
 
 class GC_ItemCatalogueQuery
 {
+	bool m_bPortableOnly;
+	bool m_bAlphabetical;
+	bool m_bDescending;
 	string m_sText;
 	string m_sCategory;
 	string m_sEquipmentSlot;

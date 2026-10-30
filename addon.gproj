@@ -6,4 +6,21 @@ GameProject {
   "58D0FB3206B6F859"
   "61F0E6AB2D06B1C6"
  }
+ Configurations {
+  GameProjectConfig PC {
+   WidgetManagerSettings WidgetManagerSettings {
+    StringTables {
+     StringTableDefinition {
+      StringTableSource "{DC391DA320AE2001}Language/GC_Catalogue.st"
+      Languages {
+       LanguageDefinition {
+        Code "en_us"
+        StringTableRuntime "{DC391DA320AE2002}Language/GC_Catalogue.en_us.conf"
+       }
+      }
+     }
+    }
+   }
+  }
+ }
 }

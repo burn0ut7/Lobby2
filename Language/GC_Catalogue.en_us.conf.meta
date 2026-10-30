@@ -1,0 +1,6 @@
+MetaFileClass {
+ Name "{DC391DA320AE2002}Language/GC_Catalogue.en_us.conf"
+ Configurations {
+  CONFResourceClass PC {}
+ }
+}
