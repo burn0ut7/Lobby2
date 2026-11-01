@@ -3,6 +3,34 @@
 class GC_CatalogueTransfer
 {
 	//------------------------------------------------------------------------------------------------
+	static bool Delete(IEntity item, IEntity owner, SCR_InventoryMenuUI menu)
+	{
+		if (!item || item == owner || !GC_WorkbenchItemBrowser.IsActive(owner))
+			return false;
+		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
+		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
+			return false;
+		InventoryItemComponent inventory = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+		if (!inventory || !inventory.GetParentSlot())
+			return false;
+		array<BaseInventoryStorageComponent> ownedStorages = {};
+		manager.GetStorages(ownedStorages);
+		if (!ownedStorages.Contains(inventory.GetParentSlot().GetStorage()))
+			return false;
+		GC_CatalogueTransferCallback callback = new GC_CatalogueTransferCallback();
+		callback.m_Owner = owner;
+		callback.m_Manager = manager;
+		callback.m_pItem = item;
+		callback.m_pMenu = menu;
+		callback.m_bDeleting = true;
+		manager.SetInventoryLocked(true);
+		bool accepted = manager.TryDeleteItem(item, callback);
+		if (!accepted)
+			callback.InternalFailed();
+		return accepted;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static bool FindSlot(GC_ItemCatalogueEntry entry, SCR_InventoryStorageManagerComponent manager, IEntity preview, out BaseInventoryStorageComponent target, out int slotID)
 	{
 		array<EStoragePurpose> purposes = {EStoragePurpose.PURPOSE_LOADOUT_PROXY, EStoragePurpose.PURPOSE_WEAPON_PROXY, EStoragePurpose.PURPOSE_GADGET_PROXY, EStoragePurpose.PURPOSE_EQUIPMENT_ATTACHMENT};
@@ -89,6 +117,7 @@ class GC_CatalogueTransferCallback : SCR_InvCallBack
 {
 	IEntity m_Owner;
 	SCR_InventoryStorageManagerComponent m_Manager;
+	bool m_bDeleting;
 	protected bool m_bFinished;
 
 	//------------------------------------------------------------------------------------------------
@@ -99,14 +128,14 @@ class GC_CatalogueTransferCallback : SCR_InvCallBack
 		m_bFinished = true;
 		if (m_Manager)
 			m_Manager.SetInventoryLocked(false);
-		if (m_pItem)
+		if (!m_bDeleting && m_pItem)
 		{
 			InventoryItemComponent item = InventoryItemComponent.Cast(m_pItem.FindComponent(InventoryItemComponent));
 			if (!item || !item.GetParentSlot())
 				SCR_EntityHelper.DeleteEntityAndChildren(m_pItem);
 		}
 		if (GC_WorkbenchItemBrowser.IsActive(m_Owner) && m_pMenu)
-			m_pMenu.GC_CatalogueTransferResult(false);
+			m_pMenu.GC_CatalogueTransferResult(false, m_bDeleting);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -119,8 +148,9 @@ class GC_CatalogueTransferCallback : SCR_InvCallBack
 			m_Manager.SetInventoryLocked(false);
 		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner) || !m_pMenu)
 			return;
+		m_pMenu.GC_PrepareCatalogueRefresh();
 		super.OnComplete();
-		m_pMenu.GC_CatalogueTransferResult(true);
+		m_pMenu.GC_CatalogueTransferResult(true, m_bDeleting);
 	}
 }
 #endif

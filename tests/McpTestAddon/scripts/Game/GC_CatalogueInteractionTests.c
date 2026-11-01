@@ -2,6 +2,46 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueContainerDrop(int row, bool header)
+	{
+		return SCR_InventoryMenuUI.GetInventoryMenu().GC_TestCatalogueContainerDrop(row, header);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueRejectDelete(bool disabled)
+	{
+		return SCR_InventoryMenuUI.GetInventoryMenu().GC_TestCatalogueRejectDelete(disabled);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueRightClick(int row, int equipmentRow)
+	{
+		return SCR_InventoryMenuUI.GetInventoryMenu().GC_TestCatalogueRightClick(row, equipmentRow);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueDeletionState()
+	{
+		return SCR_InventoryMenuUI.GetInventoryMenu().GC_TestCatalogueDeletionState();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueOwnedItems()
+	{
+		InventoryStorageManagerComponent manager = InventoryStorageManagerComponent.Cast(GetGame().GetPlayerController().GetControlledEntity().FindComponent(InventoryStorageManagerComponent));
+		array<IEntity> items = {};
+		manager.GetItems(items);
+		string result;
+		foreach (IEntity item : items)
+		{
+			InventoryItemComponent inventory = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+			if (inventory && inventory.GetParentSlot())
+				result += string.Format("\n%1 in %2", item.GetPrefabData().GetPrefabName(), inventory.GetParentSlot().GetStorage().GetOwner().GetPrefabData().GetPrefabName());
+		}
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestCataloguePager(bool next)
 	{
 		Widget pager = SCR_InventoryMenuUI.GetInventoryMenu().GetRootWidget().FindAnyWidget("CataloguePaging");
@@ -106,9 +146,134 @@ modded class GC_InventoryCataloguePanel
 	}
 }
 
+modded class SCR_InventoryStorageBaseUI
+{
+	//------------------------------------------------------------------------------------------------
+	Widget GC_TestContainerTarget(bool header)
+	{
+		if (header)
+			return m_widget.FindAnyWidget("titleLayout");
+		return m_wGrid;
+	}
+}
+
 modded class SCR_InventoryMenuUI
 {
 	protected IEntity m_GCTestOldHead;
+	protected IEntity m_GCTestDeletedItem;
+	protected ref array<IEntity> m_aGCTestDeletedContents = {};
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueContainerDrop(int row, bool header)
+	{
+		Widget source = m_GCCataloguePanel.GC_TestRow(row);
+		Widget target;
+		foreach (SCR_InventoryStorageBaseUI storageUI : m_aStorages)
+		{
+			if (!storageUI || !storageUI.GetCurrentNavigationStorage())
+				continue;
+			IEntity owner = storageUI.GetCurrentNavigationStorage().GetOwner();
+			if (owner.GetPrefabData().GetPrefabName().Contains("Jacket_US_BDU.et"))
+				target = storageUI.GC_TestContainerTarget(header);
+		}
+		if (!source || !target)
+			return "missing target";
+		GC_TestMouse(source);
+		Action_DragDown();
+		GC_TestMouse(target);
+		m_pFocusedSlotUI = null;
+		Action_OnDrag();
+		Action_DragUp();
+		return TextWidget.Cast(m_widget.FindAnyWidget("Status")).GetText();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueRejectDelete(bool disabled)
+	{
+		IEntity item;
+		if (disabled)
+		{
+			array<SCR_InventorySlotUI> slots = {};
+			m_pStorageListUI.GetSlots(slots);
+			foreach (SCR_InventorySlotUI slot : slots)
+			{
+				if (GridSlot.GetRow(slot.GetWidget()) == 4 && slot.GetInventoryItemComponent())
+					item = slot.GetInventoryItemComponent().GetOwner();
+			}
+			GC_WorkbenchItemBrowser.Disable();
+		}
+		else
+			item = GetGame().SpawnEntityPrefab(Resource.Load("{0D9A5DCF89AE7AA9}Prefabs/Items/Medicine/MorphineInjection_01/MorphineInjection_01.et"), GetGame().GetWorld());
+		if (!item)
+			return "missing fixture";
+		bool accepted = GC_CatalogueTransfer.Delete(item, m_Player, this);
+		string result = string.Format("accepted=%1 exists=%2 contained=%3", accepted, item != null, m_InventoryManager.Contains(item));
+		if (!disabled && item)
+			SCR_EntityHelper.DeleteEntityAndChildren(item);
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueRightClick(int row, int equipmentRow)
+	{
+		Widget widget;
+		m_GCTestDeletedItem = null;
+		m_aGCTestDeletedContents.Clear();
+		if (row >= 0)
+			widget = m_GCCataloguePanel.GC_TestRow(row);
+		else
+		{
+			array<SCR_InventorySlotUI> slots = {};
+			if (equipmentRow == 200)
+			{
+				foreach (SCR_InventoryStorageBaseUI storageUI : m_aStorages)
+				{
+					if (storageUI && storageUI.GetCurrentNavigationStorage() && storageUI.GetCurrentNavigationStorage().GetOwner().GetPrefabData().GetPrefabName().Contains("Jacket_US_BDU.et"))
+						storageUI.GetSlots(slots);
+				}
+			}
+			else
+				m_pStorageListUI.GetSlots(slots);
+			foreach (SCR_InventorySlotUI slot : slots)
+			{
+				if (equipmentRow != 200 && GridSlot.GetRow(slot.GetWidget()) != equipmentRow)
+					continue;
+				if (equipmentRow == 200 && !slot.GetInventoryItemComponent())
+					continue;
+				widget = slot.GetButtonWidget();
+				if (slot.GetInventoryItemComponent())
+					m_GCTestDeletedItem = slot.GetInventoryItemComponent().GetOwner();
+				break;
+			}
+			array<IEntity> items = {};
+			m_InventoryManager.GetItems(items);
+			foreach (IEntity item : items)
+			{
+				InventoryItemComponent inventory = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+				if (inventory && inventory.GetParentSlot() && inventory.GetParentSlot().GetStorage().GetOwner() == m_GCTestDeletedItem)
+					m_aGCTestDeletedContents.Insert(item);
+			}
+		}
+		if (!widget)
+			return "target absent";
+		GC_TestMouse(widget);
+		GC_ActionCatalogueShortcut();
+		// The existing native hint dispatch must not perform a second move/drop.
+		OnAction(null, "Inventory_Drop");
+		return TextWidget.Cast(m_widget.FindAnyWidget("Status")).GetText();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestCatalogueDeletionState()
+	{
+		int surviving;
+		foreach (IEntity item : m_aGCTestDeletedContents)
+		{
+			if (item)
+				surviving++;
+		}
+		return string.Format("itemExists=%1 contents=%2 survivingContents=%3 locked=%4 listener=%5", m_GCTestDeletedItem != null, m_aGCTestDeletedContents.Count(), surviving, m_InventoryManager.IsInventoryLocked(), m_bGCShortcutBound);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	string GC_TestCatalogueRejectDisabled()
@@ -220,6 +385,8 @@ modded class SCR_InventoryMenuUI
 			GC_TestMouse(destination);
 		else
 			WidgetManager.ReportMouse(1, 1, m_widget);
+		// Catalogue drops must use the actual hit handler, not native selection/focus left on the source.
+		m_pFocusedSlotUI = null;
 		Action_OnDrag();
 		Action_DragUp();
 		return TextWidget.Cast(m_widget.FindAnyWidget("Status")).GetText();

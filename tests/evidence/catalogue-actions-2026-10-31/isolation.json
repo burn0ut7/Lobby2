@@ -1,0 +1,262 @@
+[
+  {
+    "mode": "addon-loaded",
+    "method": "OpenInventory",
+    "result": {
+      "state": "invoked",
+      "processId": 46348,
+      "operationId": "0dd134a5bdbc4626bf47567003a28b74",
+      "receipt": "r67b8d49c15634b11ac285b9b89a196c9",
+      "returnType": "string",
+      "returned": "native inventory requested",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 14,
+        "serverMs": 53.4174
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "OpenInventory"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-loaded",
+    "method": "InventorySnapshot",
+    "result": {
+      "state": "invoked",
+      "processId": 46348,
+      "operationId": "6261d774d68c485197ac9f058375cc1b",
+      "receipt": "re8bea67e0c29499b975928a0cb41b849",
+      "returnType": "string",
+      "returned": "menu=SCR_InventoryMenuUI customPanel=0\nStorageLootSlot visible=1 x=81.5 y=96.9479 w=346.375 h=528.052\nOpenedStorages visible=1 x=81.5 y=625 w=346.375 h=0\nStorageGrid visible=1 x=1071.39 y=96.9479 w=468.625 h=495.792\nplayerRender visible=1 x=436.365 y=12.0521 w=578.99 h=879.521",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 1,
+        "serverMs": 90.0363
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventorySnapshot"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-loaded",
+    "method": "InventoryInputSnapshot",
+    "result": {
+      "state": "invoked",
+      "processId": 46348,
+      "operationId": "2f09d1609b8e4b4f900055be103281e8",
+      "receipt": "r6770d06697c846ea97ee0265f6fd034d",
+      "returnType": "string",
+      "returned": "selected=1 dragging=1 released=1",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 4,
+        "serverMs": 88.5853
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventoryInputSnapshot"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-loaded",
+    "method": "InventoryShortcut",
+    "result": {
+      "state": "invoked",
+      "processId": 46348,
+      "operationId": "bc108d95b2fe4f9d94b2d2acbb4c3366",
+      "receipt": "r44774e35f94f41fc96c0cda776cb522e",
+      "returnType": "string",
+      "returned": "exists=1 contained=0",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 14,
+        "serverMs": 108.2482
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventoryShortcut"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-loaded",
+    "method": "InventoryShortcut",
+    "result": {
+      "state": "invoked",
+      "processId": 46348,
+      "operationId": "c81bf99f24f14f50940e04541499a2cd",
+      "receipt": "re4e0fb31368b43a69209835bd2acc33b",
+      "returnType": "string",
+      "returned": "exists=1 contained=0",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 0,
+        "serverMs": 89.0951
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventoryShortcut"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-free",
+    "method": "OpenInventory",
+    "result": {
+      "state": "invoked",
+      "processId": 23096,
+      "operationId": "21e7e4a56c144a3eb7900c6b9f12aa06",
+      "receipt": "r96900e086d254195a5d79b0d18dda9b4",
+      "returnType": "string",
+      "returned": "native inventory requested",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 18,
+        "serverMs": 46.7835
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "OpenInventory"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-free",
+    "method": "InventorySnapshot",
+    "result": {
+      "state": "invoked",
+      "processId": 23096,
+      "operationId": "bb7aaada3eb34736ae75780d7e73f4e7",
+      "receipt": "re9a10d2a4fdf4f7dac17289159d1682d",
+      "returnType": "string",
+      "returned": "menu=SCR_InventoryMenuUI customPanel=0\nStorageLootSlot visible=1 x=81.5 y=96.9479 w=346.375 h=528.052\nOpenedStorages visible=1 x=81.5 y=625 w=346.375 h=0\nStorageGrid visible=1 x=1071.39 y=96.9479 w=468.625 h=495.792\nplayerRender visible=1 x=436.365 y=12.0521 w=578.99 h=879.521",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 0,
+        "serverMs": 104.7155
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventorySnapshot"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-free",
+    "method": "InventoryInputSnapshot",
+    "result": {
+      "state": "invoked",
+      "processId": 23096,
+      "operationId": "61865135550c49eb9058ee8a18043791",
+      "receipt": "r4a9452bc750b4245a55f75196947085b",
+      "returnType": "string",
+      "returned": "selected=1 dragging=1 released=1",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 3,
+        "serverMs": 82.1175
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventoryInputSnapshot"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-free",
+    "method": "InventoryShortcut",
+    "result": {
+      "state": "invoked",
+      "processId": 23096,
+      "operationId": "efa24000deb049afa796cd6f85bf5926",
+      "receipt": "r5e48331fab2a4e9dbd105070053fdccd",
+      "returnType": "string",
+      "returned": "exists=1 contained=0",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 12,
+        "serverMs": 96.7632
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventoryShortcut"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "mode": "addon-free",
+    "method": "InventoryShortcut",
+    "result": {
+      "state": "invoked",
+      "processId": 23096,
+      "operationId": "2c2fa904d0194be5bf13ce4d9f2126d0",
+      "receipt": "r56d5594d2e304f8da6b68cc5192782c5",
+      "returnType": "string",
+      "returned": "exists=1 contained=0",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 0,
+        "serverMs": 90.4106
+      },
+      "target": {
+        "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+        "entityName": "IsolationProbe",
+        "componentType": "GC_IsolationProbeComponent",
+        "method": "InventoryShortcut"
+      },
+      "completion": "synchronous_call_only"
+    }
+  }
+]

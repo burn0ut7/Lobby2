@@ -3,6 +3,12 @@
 modded class GC_IsolationProbeComponent
 {
 	//------------------------------------------------------------------------------------------------
+	string InventoryShortcut(bool activate)
+	{
+		return SCR_InventoryMenuUI.GetInventoryMenu().GC_ProbeInventoryShortcut(activate);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string InventoryInputSnapshot()
 	{
 		return SCR_InventoryMenuUI.GetInventoryMenu().GC_ProbeInventoryInput();
@@ -46,6 +52,26 @@ modded class GC_IsolationProbeComponent
 
 modded class SCR_InventoryMenuUI
 {
+	protected IEntity m_GCProbeShortcutItem;
+
+	//------------------------------------------------------------------------------------------------
+	string GC_ProbeInventoryShortcut(bool activate)
+	{
+		if (activate)
+		{
+			array<SCR_InventorySlotUI> slots = {};
+			m_pStorageListUI.GetSlots(slots);
+			SCR_InventorySlotUI slot = slots[0];
+			m_GCProbeShortcutItem = slot.GetInventoryItemComponent().GetOwner();
+			float x, y, width, height;
+			slot.GetButtonWidget().GetScreenPos(x, y);
+			slot.GetButtonWidget().GetScreenSize(width, height);
+			WidgetManager.ReportMouse(x + width * 0.5, y + height * 0.5, m_widget);
+			OnAction(null, "Inventory_Drop");
+		}
+		return string.Format("exists=%1 contained=%2", m_GCProbeShortcutItem != null, m_InventoryManager.Contains(m_GCProbeShortcutItem));
+	}
+
 	//------------------------------------------------------------------------------------------------
 	string GC_ProbeInventoryInput()
 	{

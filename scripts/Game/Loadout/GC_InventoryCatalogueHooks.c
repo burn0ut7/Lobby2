@@ -29,7 +29,7 @@ modded class SCR_InventoryMenuUI
 	protected ref GC_InventoryCataloguePanel m_GCCataloguePanel;
 	protected float m_fGCPreviewRefresh;
 	protected GC_ItemCatalogueEntry m_GCGestureItem;
-	protected bool m_bGCSuppressClick;
+	protected bool m_bGCShortcutBound;
 
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuUpdate(float tDelta)
@@ -51,6 +51,8 @@ modded class SCR_InventoryMenuUI
 				GC_WorkbenchItemBrowser.Disable();
 				return;
 			}
+			GetGame().GetInputManager().AddActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
+			m_bGCShortcutBound = true;
 		}
 		m_GCCataloguePanel.Tick(tDelta);
 		// The native animated preview expires while idle in Workbench. Renew through its owner.
@@ -96,30 +98,102 @@ modded class SCR_InventoryMenuUI
 	protected void GC_ReleaseCatalogue()
 	{
 		GC_CancelCatalogueDrag();
+		if (m_bGCShortcutBound)
+			GetGame().GetInputManager().RemoveActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
+		m_bGCShortcutBound = false;
 		if (m_GCCataloguePanel)
 			m_GCCataloguePanel.Detach();
 		m_GCCataloguePanel = null;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void GC_ClickCatalogueItem(GC_ItemCatalogueEntry entry)
+	void GC_EquipCatalogueItem(GC_ItemCatalogueEntry entry)
 	{
-		if (m_bGCSuppressClick || !GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
 			return;
 		if (!GC_CatalogueTransfer.Insert(entry, m_Player, this))
 			GC_CatalogueTransferResult(false);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void GC_CatalogueTransferResult(bool success)
+	void GC_CatalogueTransferResult(bool success, bool deleting = false)
 	{
 		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player))
 			return;
-		m_GCCataloguePanel.TransferResult(success);
+		m_GCCataloguePanel.TransferResult(success, deleting);
 		if (success)
 			UpdatePreview();
 		else
 			SCR_UISoundEntity.SoundEvent(SCR_SoundEvent.SOUND_INV_DROP_ERROR);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_PrepareCatalogueRefresh()
+	{
+		// Native completion rebuilds equipment widgets. Do not preserve a pointer into the removed tree.
+		Action_DeselectItem();
+		m_pFocusedSlotUI = null;
+		m_pActiveHoveredStorageUI = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! One scoped listener owns RMB / the native Inventory_Drop shortcut; suppress its old action.
+	override void OnAction(SCR_InputButtonComponent comp, string action, SCR_InventoryStorageBaseUI pParentStorage = null, int traverseStorageIndex = -1)
+	{
+		if (action == "Inventory_Drop" && m_GCCataloguePanel && GC_WorkbenchItemBrowser.IsActive(m_Player))
+			return;
+		super.OnAction(comp, action, pParentStorage, traverseStorageIndex);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_ActionCatalogueShortcut()
+	{
+		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !GetCanInteract() || m_GCGestureItem || m_bDraggingEnabled)
+			return;
+		Widget cursor = WidgetManager.GetWidgetUnderCursor();
+		GC_ItemCatalogueEntry entry = m_GCCataloguePanel.EntryAt(cursor);
+		if (entry)
+		{
+			GC_EquipCatalogueItem(entry);
+			return;
+		}
+		SCR_InventorySlotUI slot = GC_CatalogueSlotAt(cursor);
+		if (!slot || SCR_InventoryStorageQuickSlotsUI.Cast(slot.GetStorageUI()))
+			return;
+		InventoryItemComponent inventory = slot.GetInventoryItemComponent();
+		if (!inventory)
+			return;
+		IEntity item = inventory.GetOwner();
+		Action_DeselectItem();
+		if (!GC_CatalogueTransfer.Delete(item, m_Player, this))
+			GC_CatalogueTransferResult(false, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Native focus can remain on the source during a data-only drag. Resolve the actual hit handler.
+	protected SCR_InventorySlotUI GC_CatalogueSlotAt(Widget cursor)
+	{
+		while (cursor && cursor != m_widget)
+		{
+			SCR_InventorySlotUI slot = SCR_InventorySlotUI.Cast(cursor.FindHandler(SCR_InventorySlotUI));
+			if (slot)
+				return slot;
+			cursor = cursor.GetParent();
+		}
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected SCR_InventoryStorageBaseUI GC_CatalogueStorageAt(Widget cursor)
+	{
+		while (cursor && cursor != m_widget)
+		{
+			SCR_InventoryStorageBaseUI storage = SCR_InventoryStorageBaseUI.Cast(cursor.FindHandler(SCR_InventoryStorageBaseUI));
+			if (storage)
+				return storage;
+			cursor = cursor.GetParent();
+		}
+		return null;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -132,7 +206,6 @@ modded class SCR_InventoryMenuUI
 			if (entry)
 			{
 				m_GCGestureItem = entry;
-				m_bGCSuppressClick = false;
 				WidgetManager.GetMousePos(m_iMouseX, m_iMouseY);
 				GetGame().GetInputManager().AddActionListener("Inventory_Drag", EActionTrigger.PRESSED, Action_OnDrag);
 				GetGame().GetInputManager().AddActionListener("Inventory_Drag", EActionTrigger.UP, Action_DragUp);
@@ -162,7 +235,6 @@ modded class SCR_InventoryMenuUI
 			if (Math.AbsInt(x - m_iMouseX) < DRAG_THRESHOLD && Math.AbsInt(y - m_iMouseY) < DRAG_THRESHOLD)
 				return;
 			m_bDraggingEnabled = true;
-			m_bGCSuppressClick = true;
 			m_wDragDropContainer.SetVisible(true);
 			m_pPreviewManager.SetPreviewItemFromPrefab(m_pDragDropPreviewImage, m_GCGestureItem.m_sPrefab);
 		}
@@ -205,22 +277,31 @@ modded class SCR_InventoryMenuUI
 		Widget cursor = WidgetManager.GetWidgetUnderCursor();
 		if (cursor == m_wPlayerRender)
 			return GC_CatalogueTransfer.Insert(entry, m_Player, this);
-		if (!m_pFocusedSlotUI || cursor != m_pFocusedSlotUI.GetButtonWidget())
+		SCR_InventorySlotUI slot = GC_CatalogueSlotAt(cursor);
+		SCR_InventoryStorageBaseUI storageUI = GC_CatalogueStorageAt(cursor);
+		if (slot)
+			storageUI = slot.GetStorageUI();
+		if (!storageUI || SCR_InventoryStorageQuickSlotsUI.Cast(storageUI))
 			return false;
-		SCR_InventorySlotWeaponSlotsUI weapon = SCR_InventorySlotWeaponSlotsUI.Cast(m_pFocusedSlotUI);
+		SCR_InventorySlotWeaponSlotsUI weapon = SCR_InventorySlotWeaponSlotsUI.Cast(slot);
 		if (weapon)
 			return GC_CatalogueTransfer.Insert(entry, m_Player, this, m_pWeaponStorageComp, weapon.GetWeaponSlotIndex(), false);
-		SCR_InventoryStoragesListUI clothing = SCR_InventoryStoragesListUI.Cast(m_pFocusedSlotUI.GetStorageUI());
+		SCR_InventoryStoragesListUI clothing = SCR_InventoryStoragesListUI.Cast(storageUI);
 		if (clothing)
 		{
-			if (clothing.GC_GetCatalogueArea(m_pFocusedSlotUI) != entry.m_sEquipmentSlot)
+			if (!slot)
 				return false;
-			// The engine resolves the actual slot behind occupied and empty loadout icons.
-			return GC_CatalogueTransfer.Insert(entry, m_Player, this);
+			string area = clothing.GC_GetCatalogueArea(slot);
+			if (!area.IsEmpty() && area == entry.m_sEquipmentSlot)
+				return GC_CatalogueTransfer.Insert(entry, m_Player, this);
+			// A consumable dropped on the shirt icon goes inside that shirt, not another container.
+			InventoryItemComponent item = slot.GetInventoryItemComponent();
+			if (!item)
+				return false;
+			BaseInventoryStorageComponent container = BaseInventoryStorageComponent.Cast(item.GetOwner().FindComponent(BaseInventoryStorageComponent));
+			return GC_CatalogueTransfer.Insert(entry, m_Player, this, container, -1, false);
 		}
-		if (SCR_InventoryStorageQuickSlotsUI.Cast(m_pFocusedSlotUI.GetStorageUI()))
-			return false;
-		BaseInventoryStorageComponent storage = m_pFocusedSlotUI.GetStorageUI().GetCurrentNavigationStorage();
+		BaseInventoryStorageComponent storage = storageUI.GetCurrentNavigationStorage();
 		return GC_CatalogueTransfer.Insert(entry, m_Player, this, storage, -1, false);
 	}
 

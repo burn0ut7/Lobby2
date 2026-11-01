@@ -1,6 +1,14 @@
 StringTable {
  ItemClassName "CustomStringTableItem"
  Items {
+  CustomStringTableItem "{DC391DA320AF0020}" {
+   Id "GC-Catalogue_Deleted"
+   Target_en_us "Removed from inventory"
+  }
+  CustomStringTableItem "{DC391DA320AF0021}" {
+   Id "GC-Catalogue_CannotDelete"
+   Target_en_us "Cannot remove this item"
+  }
   CustomStringTableItem "{DC391DA320AF0000}" {
    Id "GC-Catalogue_All"
    Target_en_us "All items"

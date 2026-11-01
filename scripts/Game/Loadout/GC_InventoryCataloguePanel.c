@@ -253,10 +253,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		foreach (int index, Widget cell : m_aCells)
 		{
 			if (index < m_aPage.Count() && w == cell.FindAnyWidget("SelectItem"))
-			{
-				SCR_InventoryMenuUI.GetInventoryMenu().GC_ClickCatalogueItem(m_aPage[index]);
 				return true;
-			}
 		}
 		return false;
 	}
@@ -264,20 +261,30 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	GC_ItemCatalogueEntry EntryAt(Widget widget)
 	{
-		foreach (int index, Widget cell : m_aCells)
+		while (widget && widget != m_Root)
 		{
-			if (index < m_aPage.Count() && widget == cell.FindAnyWidget("SelectItem"))
-				return m_aPage[index];
+			foreach (int index, Widget cell : m_aCells)
+			{
+				if (index < m_aPage.Count() && widget == cell.FindAnyWidget("SelectItem"))
+					return m_aPage[index];
+			}
+			widget = widget.GetParent();
 		}
 		return null;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void TransferResult(bool success)
+	void TransferResult(bool success, bool deleting = false)
 	{
 		string label = "#GC-Catalogue_CannotPlace";
 		if (success)
 			label = "#GC-Catalogue_Added";
+		if (deleting)
+		{
+			label = "#GC-Catalogue_CannotDelete";
+			if (success)
+				label = "#GC-Catalogue_Deleted";
+		}
 		m_fFeedbackTime = 2;
 		TextWidget.Cast(m_Root.FindAnyWidget("Status")).SetText(label);
 	}
