@@ -513,10 +513,10 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		bool collapsed = HasCollapsedGroups();
 		m_SlotViewToggle.SetEnabled(!m_aGroupCards.IsEmpty());
 		m_SlotViewToggle.SetToggled(collapsed, false, false);
-		string icon = "minus";
+		string icon = "Fold";
 		if (collapsed)
-			icon = "plus";
-		m_wSlotViewToggleImage.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", icon);
+			icon = "Unfold";
+		m_wSlotViewToggleImage.LoadImageFromSet(0, "{CB9C19A2219A4BFC}UI/Textures/Icons/Lobby_PS_Atlas_x64.imageset", icon);
 	}
 
 	protected void ResetGroupScrollPosition()
