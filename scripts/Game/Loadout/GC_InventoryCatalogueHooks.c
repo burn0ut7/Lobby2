@@ -495,10 +495,7 @@ modded class SCR_InventoryMenuUI
 			if (!area.IsEmpty() && area == entry.m_sEquipmentSlot)
 				return GC_CatalogueTransfer.Insert(entry, m_Player, this);
 			// A consumable dropped on the shirt icon goes inside that shirt, not another container.
-			InventoryItemComponent item = slot.GetInventoryItemComponent();
-			if (!item)
-				return false;
-			BaseInventoryStorageComponent container = BaseInventoryStorageComponent.Cast(item.GetOwner().FindComponent(BaseInventoryStorageComponent));
+			BaseInventoryStorageComponent container = slot.GetAsStorage();
 			return GC_CatalogueTransfer.Insert(entry, m_Player, this, container, -1, false);
 		}
 		BaseInventoryStorageComponent storage = storageUI.GetCurrentNavigationStorage();

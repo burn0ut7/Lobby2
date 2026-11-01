@@ -299,3 +299,52 @@ last page remained at 40 (5779a7e63a064cf8b13a9f1a9595ae7d). These checks exerci
 native hit testing and the production handler separately, not physical wheel
 event dispatch. Screenshot 1793521098333007100-capture_screenshot.png records
 the three-item page and its empty surface.
+
+## Clothing capacity and compartment targets — 2026-11-01
+
+Catalogue drops use the native slot's `GetAsStorage()` rather than the first
+storage component on the garment. For an automatic slot within a selected
+container, Workbench insertion and the authenticated server handler use
+`FindActualStorageForItemResource`, matching the native arsenal. Exact equipment
+and attachment slots retain their existing behavior. Native volume, dimensions,
+weight and compatibility checks remain authoritative; ordinary owned-item drags
+remain native. No capacity values or UI layout were changed.
+
+Installed source revision `d9b5a4246f9247e4be5ea20935889885`, data007.pak:
+`SCR_InventoryStorageManagerComponent.c:648–680` resolves attached pockets;
+`SCR_InventoryMenuUI.c:4111,4246` uses it for arsenal insertion;
+`SCR_InventorySlotUI.c:623,859–891` supplies the actual UI storage and aggregates
+clothing-pocket occupancy; `SCR_UniversalInventoryStorageComponent.c:97–164`
+enforces dimensions/volume and weight. Aggregate free volume does not promise
+that a particular item fits an individual pocket.
+
+Workbench 1.8.0.13, PID 55132, optional MCP test addon. Reload
+`bce01ec720e9497ebb421391fa362b38` had no SCRIPT errors; the five existing
+world/resource errors remain. Raw MCP evidence is under the tool repository's
+`.temp/local/evidence/loadout-foundation`:
+
+- `rc93e6a711bdb479bba09734055104a56`: BDU shirt equipment component rejects
+  bandage while its actual storage accepts it (0/800 occupied).
+- `r0e1c4f5fdfb5429cbb1e1db856e46949`, `r19f7213844eb494f995c0635a0d335a1`:
+  catalogue drag onto shirt succeeds, 46→47 items and shirt 0→100/800.
+- `rbf51e252676d4d99948de71ecd4e13e3`: existing STANAG magazine moved via native
+  drag into BDU shirt; subsequent readback is 300/800.
+- `rf9f47518d73c442cb81eb457a72e49b6`: rifle rejected despite 500 free volume.
+- `rea16712916c44992af4109f93acfc8ab`: after production insertions fill shirt
+  to 800/800, next bandage rejected, count remains 52, manager unlocked.
+- Admin `rf993d2d81dac49718ce7ed9409bfcd09`: ALICE outer ClothNode rejects direct
+  insertion but native lookup resolves an attached pouch. Server completion
+  increases count 52→53 and logs that pouch (session logs_2026-11-01_13-21-18,
+  lines 21828/21830). Full-shirt request fails with count still 53
+  (`r5adeab95b4a747d0a22dc3b2a061e8b5`, log 21837).
+- Capture `1793558895704726400-capture_screenshot.png` shows retained inventory
+  layout and full shirt containing bandages and magazine.
+- Unrelated-mode transition: `reca47f62ac614436a4247f9123c12b9b` has
+  customPanel=0 and native inventory visible; `ra35a0213e70b4a8faa9264bdd5f99f60`
+  has selected/dragging/released=1, matching the addon-free baseline in
+  `tests/evidence/inventory-catalogue-20261031/isolation.json`. Original Lobby
+  world restored after testing.
+
+The user's exact vest/mod was unspecified; these tests reproduce the lookup
+defects on stock clothing and ALICE. Separate remote-client execution and a
+weight-only rejection were not exercised. Native rejection criteria are unchanged.

@@ -238,6 +238,13 @@ class GC_CatalogueTransfer
 		manager.GetStorages(ownedStorages);
 		if (!target || !ownedStorages.Contains(target) || slotID < -1 || slotID >= target.GetSlotsCount())
 			return false;
+		// A clothing node can own several pockets; use the same lookup as the native arsenal.
+		if (slotID == -1)
+		{
+			target = manager.FindActualStorageForItemResource(entry.m_sPrefab, target);
+			if (!target)
+				return false;
+		}
 		bool replace = slotID >= 0 && target.GetSlot(slotID).GetAttachedEntity() != null;
 		if (replace)
 		{

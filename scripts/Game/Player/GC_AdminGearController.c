@@ -188,6 +188,9 @@ modded class GC_LobbyPlayerController
 		}
 		if (automatic)
 			valid = GC_CatalogueTransfer.FindSlot(entry, manager, item, target, slot);
+		// Resolve pockets only within the validated destination, never another garment.
+		if (valid && target && slot == -1)
+			target = manager.FindActualStorageForItemResource(prefab, target);
 		valid = valid && target && slot >= -1 && slot < target.GetSlotsCount();
 		bool replace = valid && slot >= 0 && target.GetSlot(slot).GetAttachedEntity();
 		if (valid && replace)
