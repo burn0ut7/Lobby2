@@ -17,6 +17,18 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	protected ref array<ResourceName> m_aResources = {};
 	protected ref array<SCR_ButtonBaseComponent> m_aButtons = {};
 	protected ref array<SCR_ButtonBaseComponent> m_aRows = {};
+	protected ref array<ResourceName> m_aRowResources = {};
+	protected ref array<SCR_ButtonBaseComponent> m_aVariantRows = {};
+	protected ref array<ResourceName> m_aVariantOwners = {};
+	protected ref array<int> m_aVariantIndices = {};
+	protected ref GC_LoadoutVariants m_Variants;
+	protected ResourceName m_sVariantOwner;
+	protected int m_iVariant = -1;
+	protected bool m_bVariantsDirty;
+	protected SCR_ComboBoxComponent m_VariantPicker;
+	protected ref array<ResourceName> m_aVariantChoices = {};
+	protected SCR_ConfigurableDialogUi m_DeleteDialog;
+	protected bool m_bVariantSaveFailed;
 
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuOpen()
@@ -44,11 +56,17 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			m_Faction.SetText(affiliation.GetAffiliatedFaction().GetFactionKey());
 		m_Group.SetPlaceholderText("My Team");
 		m_Name.SetPlaceholderText("Base");
-		array<string> actions = {"Close", "Load", "Save", "Inherit", "Duplicate", "Current"};
+		m_VariantPicker = SCR_ComboBoxComponent.Cast(root.FindAnyWidget("VariantPrefab").FindHandler(SCR_ComboBoxComponent));
+		m_VariantPicker.m_OnChanged.Insert(OnVariantPrefabChanged);
+		array<string> actions = {"Close", "Load", "Save", "Inherit", "Duplicate", "Current", "AddVariant", "DeleteVariant", "VariantLoad", "VariantSave"};
 		foreach (string action : actions)
 		{
 			SCR_ButtonTextComponent button = SCR_ButtonTextComponent.GetButtonText(action, root);
 			button.SetText("#GC-Loadout_" + action);
+			if (action == "VariantLoad")
+				button.SetText("#GC-Loadout_Load");
+			else if (action == "VariantSave")
+				button.SetText("#GC-Loadout_Save");
 			button.m_OnClicked.Insert(OnAction);
 			m_aButtons.Insert(button);
 		}
@@ -64,6 +82,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected string Label(ResourceName resource)
 	{
+		if (resource.IsEmpty())
+			return WidgetManager.Translate("#GC-Loadout_Current");
 		return FilePath.StripExtension(FilePath.StripPath(resource.GetPath()));
 	}
 
@@ -110,12 +130,21 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void RefreshList()
 	{
+		foreach (SCR_ButtonBaseComponent variantRow : m_aVariantRows)
+		{
+			variantRow.m_OnClicked.Remove(OnVariantSelect);
+			variantRow.GetRootWidget().RemoveFromHierarchy();
+		}
+		m_aVariantRows.Clear();
+		m_aVariantOwners.Clear();
+		m_aVariantIndices.Clear();
 		foreach (SCR_ButtonBaseComponent row : m_aRows)
 		{
 			row.m_OnClicked.Remove(OnSelect);
 			row.GetRootWidget().RemoveFromHierarchy();
 		}
 		m_aRows.Clear();
+		m_aRowResources.Clear();
 		m_aResources.Clear();
 		// Authoring reads source files, including files created before the paused
 		// Play-time resource database has incorporated them.
@@ -135,17 +164,278 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		m_aResources.Clear();
 		foreach (string key : names)
 			m_aResources.Insert(resources.Get(key));
+		map<ResourceName, ref GC_LoadoutVariants> lists = new map<ResourceName, ref GC_LoadoutVariants>();
+		set<ResourceName> referenced = new set<ResourceName>();
 		foreach (ResourceName resource : m_aResources)
 		{
+			GC_LoadoutVariants variants = GC_LoadoutVariants.Load(resource);
+			if (m_Variants && resource == m_sVariantOwner)
+				variants = m_Variants;
+			lists.Insert(resource, variants);
+			if (variants)
+			{
+				foreach (SCR_EditableEntityVariant entry : variants.m_aEntries)
+					referenced.Insert(entry.m_sVariantPrefab);
+			}
+		}
+		foreach (ResourceName resource : m_aResources)
+		{
+			GC_LoadoutVariants variants = lists.Get(resource);
+			// Concrete choices already have a home under their pool. Pools remain
+			// roots, so shared references and even cycles cannot hide every root.
+			if (referenced.Contains(resource) && variants && variants.m_aEntries.IsEmpty())
+				continue;
 			Widget widget = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout", GetRootWidget().FindAnyWidget("SavedRows"));
 			SCR_ButtonTextComponent row = SCR_ButtonTextComponent.Cast(widget.FindHandler(SCR_ButtonTextComponent));
 			row.SetText(Label(resource));
 			row.SetToggleable(true);
-			SetSelection(row, !m_bCurrentGear && resource == m_sSelected);
+			SetSelection(row, !m_bCurrentGear && m_iVariant < 0 && resource == m_sSelected);
 			SetRoleIcon(widget, resource);
 			row.m_OnClicked.Insert(OnSelect);
 			m_aRows.Insert(row);
+			m_aRowResources.Insert(resource);
+			if (!variants)
+				continue;
+			foreach (int index, SCR_EditableEntityVariant entry : variants.m_aEntries)
+			{
+				Widget child = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout", GetRootWidget().FindAnyWidget("SavedRows"));
+				AlignableSlot.SetPadding(child, 28, 0, 0, 2);
+				SCR_ButtonTextComponent variantRow = SCR_ButtonTextComponent.Cast(child.FindHandler(SCR_ButtonTextComponent));
+				string number = (index + 1).ToString();
+				if (index < 9)
+					number = "0" + number;
+				variantRow.SetText(number);
+				variantRow.SetToggleable(true);
+				SetSelection(variantRow, resource == m_sVariantOwner && index == m_iVariant);
+				variantRow.m_OnClicked.Insert(OnVariantSelect);
+				m_aVariantRows.Insert(variantRow);
+				m_aVariantOwners.Insert(resource);
+				m_aVariantIndices.Insert(index);
+			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool CanChangeVariantOwner(ResourceName target)
+	{
+		if (m_bVariantsDirty && target != m_sVariantOwner)
+		{
+			m_Status.SetText("#GC-Loadout_PendingVariants");
+			return false;
+		}
+		if (target != m_sVariantOwner)
+		{
+			m_Variants = null;
+			m_sVariantOwner = target;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ReadVariants()
+	{
+		if (!CanChangeVariantOwner(m_sSelected))
+			return false;
+		if (!m_Variants)
+			m_Variants = GC_LoadoutVariants.Load(m_sSelected);
+		return m_Variants != null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnVariantSelect(SCR_ButtonBaseComponent button)
+	{
+		if (m_DeleteDialog || m_OverwriteDialog)
+			return;
+		int index = m_aVariantRows.Find(button);
+		if (index < 0 || !CanChangeVariantOwner(m_aVariantOwners[index]))
+			return;
+		m_sSelected = m_aVariantOwners[index];
+		if (!ReadVariants())
+			return;
+		m_iVariant = m_aVariantIndices[index];
+		m_bCurrentGear = false;
+		RefreshVariantSelection();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshVariantSelection()
+	{
+		RefreshActions();
+		RefreshPreview();
+		foreach (SCR_ButtonBaseComponent row : m_aRows)
+			SetSelection(row, false);
+		foreach (int i, SCR_ButtonBaseComponent row : m_aVariantRows)
+			SetSelection(row, m_aVariantOwners[i] == m_sVariantOwner && m_aVariantIndices[i] == m_iVariant);
+		if (m_bVariantsDirty)
+			m_Status.SetText("#GC-Loadout_PendingVariants");
+		else
+			m_Status.SetText("");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void AddVariantChoice(ResourceName prefab)
+	{
+		if (prefab.IsEmpty() || prefab == m_sSelected || m_aVariantChoices.Contains(prefab) || !GC_LoadoutVariants.Load(prefab))
+			return;
+		m_aVariantChoices.Insert(prefab);
+		m_VariantPicker.AddItem(Label(prefab));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshVariantControls()
+	{
+		Widget root = GetRootWidget();
+		bool variantSelected = m_iVariant >= 0;
+		root.FindAnyWidget("PrefabFields").SetVisible(!variantSelected);
+		root.FindAnyWidget("PrefabFields").SetEnabled(!m_bVariantsDirty);
+		root.FindAnyWidget("VariantFields").SetVisible(variantSelected);
+		root.FindAnyWidget("FileActions").SetVisible(!variantSelected);
+		root.FindAnyWidget("VariantActions").SetVisible(variantSelected);
+		root.FindAnyWidget("VariantSave").SetVisible(m_bVariantsDirty);
+		bool writable = m_sSelected.GetPath().StartsWith("Prefabs/Loadouts/");
+		SCR_ButtonTextComponent.GetButtonText("AddVariant", root).SetEnabled(writable);
+		SCR_ButtonTextComponent.GetButtonText("DeleteVariant", root).SetEnabled(writable && variantSelected);
+		SCR_ButtonTextComponent.GetButtonText("Load", root).SetEnabled(!m_bCurrentGear && !m_bVariantsDirty);
+		SCR_ButtonTextComponent.GetButtonText("VariantLoad", root).SetEnabled(!m_bVariantsDirty);
+		root.FindAnyWidget("Inherit").SetVisible(!m_bVariantsDirty);
+		root.FindAnyWidget("Duplicate").SetVisible(!m_bVariantsDirty);
+		root.FindAnyWidget("AddVariant").SetVisible(!m_bVariantsDirty);
+		if (!variantSelected)
+			return;
+		TextWidget.Cast(root.FindAnyWidget("VariantParent")).SetText(WidgetManager.Translate("#GC-Loadout_VariantOf") + " " + Label(m_sSelected));
+		m_VariantPicker.ClearAll();
+		m_aVariantChoices.Clear();
+		m_aVariantChoices.Insert(string.Empty);
+		m_VariantPicker.AddItem("#GC-Loadout_Current");
+		foreach (ResourceName prefab : m_aResources)
+			AddVariantChoice(prefab);
+		foreach (SCR_EditableEntityVariant entry : m_Variants.m_aEntries)
+			AddVariantChoice(entry.m_sVariantPrefab);
+		SCR_EditableEntityVariant selected = m_Variants.m_aEntries[m_iVariant];
+		m_VariantPicker.SetCurrentItem(m_aVariantChoices.Find(selected.m_sVariantPrefab), false, false, false);
+		m_VariantPicker.SetEnabled(writable);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnVariantPrefabChanged(SCR_ComboBoxComponent combo, int index)
+	{
+		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner) || m_iVariant < 0 || index < 0 || index >= m_aVariantChoices.Count())
+			return;
+		m_Variants.m_aEntries[m_iVariant].m_sVariantPrefab = m_aVariantChoices[index];
+		m_bVariantsDirty = true;
+		RefreshList();
+		RefreshVariantSelection();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HandleVariantAction(string action)
+	{
+		if (action == "Save" && (m_iVariant >= 0 || m_bVariantsDirty))
+		{
+			GC_LoadoutPrefab writer = new GC_LoadoutPrefab();
+			if (m_bVariantSaveFailed)
+			{
+				m_Status.SetText("#GC-Loadout_VariantsFailed");
+				return true;
+			}
+			if (!m_Variants.IsValid(m_sSelected, true))
+			{
+				m_Status.SetText("#GC-Loadout_InvalidVariants");
+				return true;
+			}
+			foreach (int index, SCR_EditableEntityVariant entry : m_Variants.m_aEntries)
+			{
+				if (!entry.m_sVariantPrefab.IsEmpty())
+					continue;
+				ResourceName created;
+				if (!GC_LoadoutPrefab.CreateGearVariant(m_Owner, m_sSelected, index + 1, created))
+				{
+					m_bVariantSaveFailed = true;
+					m_Status.SetText(WidgetManager.Translate("#GC-Loadout_VariantsFailed") + " " + created.GetPath());
+					return true;
+				}
+				entry.m_sVariantPrefab = created;
+			}
+			if (!writer.Open(m_sSelected) || !writer.SaveVariants(m_Owner, m_Variants))
+				m_Status.SetText("#GC-Loadout_VariantsFailed");
+			else
+			{
+				m_bVariantsDirty = false;
+				RefreshList();
+				RefreshActions();
+				m_Status.SetText("#GC-Loadout_VariantsSaved");
+			}
+			return true;
+		}
+		if (action == "DeleteVariant")
+		{
+			if (m_iVariant < 0)
+				return true;
+			m_DeleteDialog = SCR_ConfigurableDialogUi.CreateFromPreset("{DC391DA320AE5000}Configs/UI/GC_LoadoutDialogs.conf", "deleteVariant");
+			if (m_DeleteDialog)
+			{
+				m_DeleteDialog.GetRootWidget().GetParent().SetZOrder(GetRootWidget().GetZOrder() + 1);
+				string title = WidgetManager.Translate("#GC-Loadout_DeleteVariant") + " " + Label(m_Variants.m_aEntries[m_iVariant].m_sVariantPrefab);
+				m_DeleteDialog.SetTitle(title + " · " + Label(m_sSelected) + "?");
+				m_DeleteDialog.m_OnConfirm.Insert(OnDeleteVariantConfirmed);
+				m_DeleteDialog.m_OnCloseStart.Insert(OnDeleteVariantClosed);
+			}
+			return true;
+		}
+		if (action == "AddVariant")
+		{
+			if (!m_sSelected.GetPath().StartsWith("Prefabs/Loadouts/") || !ReadVariants())
+				return true;
+			SCR_EditableEntityVariant entry = new SCR_EditableEntityVariant();
+			entry.m_bEnabled = true;
+			entry.m_iRandomizerWeight = 1;
+			m_iVariant = m_Variants.m_aEntries.Insert(entry);
+			m_bVariantsDirty = true;
+			m_bCurrentGear = false;
+			RefreshList();
+			RefreshVariantSelection();
+			return true;
+		}
+		if (m_bVariantsDirty && (action == "Load" || action == "Inherit" || action == "Duplicate"))
+		{
+			m_Status.SetText("#GC-Loadout_PendingVariants");
+			return true;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnDeleteVariantConfirmed(SCR_ConfigurableDialogUi dialog)
+	{
+		if (dialog != m_DeleteDialog || !GC_WorkbenchItemBrowser.IsActive(m_Owner) || m_iVariant < 0)
+			return;
+		m_Variants.m_aEntries.Remove(m_iVariant);
+		m_iVariant = Math.Min(m_iVariant, m_Variants.m_aEntries.Count() - 1);
+		m_bVariantsDirty = true;
+		RefreshList();
+		SetFields(m_sSelected);
+		RefreshVariantSelection();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnDeleteVariantClosed(SCR_ConfigurableDialogUi dialog)
+	{
+		if (dialog == m_DeleteDialog)
+		{
+			dialog.m_OnConfirm.Remove(OnDeleteVariantConfirmed);
+			dialog.m_OnCloseStart.Remove(OnDeleteVariantClosed);
+			m_DeleteDialog = null;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ClearDeleteDialog()
+	{
+		SCR_ConfigurableDialogUi dialog = m_DeleteDialog;
+		if (!dialog)
+			return;
+		OnDeleteVariantClosed(dialog);
+		dialog.Close();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -189,7 +479,10 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		int index = m_aRows.Find(button);
 		if (index < 0)
 			return;
-		m_sSelected = m_aResources[index];
+		if (!CanChangeVariantOwner(m_aRowResources[index]))
+			return;
+		m_iVariant = -1;
+		m_sSelected = m_aRowResources[index];
 		m_bCurrentGear = false;
 		SetFields(m_sSelected);
 		m_Status.SetText("");
@@ -198,6 +491,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		RefreshActions();
 		foreach (int i, SCR_ButtonBaseComponent row : m_aRows)
 			SetSelection(row, i == index);
+		foreach (SCR_ButtonBaseComponent variantRow : m_aVariantRows)
+			SetSelection(variantRow, false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -222,18 +517,22 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		// The native preview manager owns this entity; never possess or delete it.
 		m_PreviewManager.SetPreviewItem(m_Preview, null);
 		IEntity character = m_Owner;
-		if (!m_bCurrentGear)
-			character = m_PreviewManager.ResolvePreviewEntityForPrefab(m_sSelected);
+		ResourceName previewPrefab = m_sSelected;
+		if (m_iVariant >= 0)
+			previewPrefab = m_Variants.m_aEntries[m_iVariant].m_sVariantPrefab;
+		bool currentPreview = m_bCurrentGear || previewPrefab.IsEmpty();
+		if (!currentPreview)
+			character = m_PreviewManager.ResolvePreviewEntityForPrefab(previewPrefab);
 		if (!ChimeraCharacter.Cast(character))
 			return;
 		SCR_CharacterInventoryStorageComponent storage = SCR_CharacterInventoryStorageComponent.Cast(character.FindComponent(SCR_CharacterInventoryStorageComponent));
 		PreviewRenderAttributes attributes;
 		if (storage && storage.GetAttributes())
 			attributes = PreviewRenderAttributes.Cast(storage.GetAttributes().FindAttribute(SCR_CharacterInventoryPreviewAttributes));
-		if (m_bCurrentGear)
+		if (currentPreview)
 			m_PreviewManager.SetPreviewItem(m_Preview, m_Owner, attributes, true);
 		else
-			m_PreviewManager.SetPreviewItemFromPrefab(m_Preview, m_sSelected, attributes, true);
+			m_PreviewManager.SetPreviewItemFromPrefab(m_Preview, previewPrefab, attributes, true);
 		message.SetText("");
 	}
 
@@ -247,6 +546,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		SetRoleIcon(current.GetRootWidget(), GC_WorkbenchItemBrowser.GetEditingPrefab());
 		SCR_ButtonTextComponent.GetButtonText("Save", root).SetEnabled(true);
 		SCR_ButtonTextComponent.GetButtonText("Load", root).SetEnabled(!m_bCurrentGear);
+		RefreshVariantControls();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -269,9 +569,13 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnAction(SCR_ButtonBaseComponent button)
 	{
-		if (m_OverwriteDialog)
+		if (m_OverwriteDialog || m_DeleteDialog)
 			return;
 		string action = button.GetRootWidget().GetName();
+		if (action == "VariantLoad")
+			action = "Load";
+		else if (action == "VariantSave")
+			action = "Save";
 		if (action == "Close")
 		{
 			Close();
@@ -279,8 +583,13 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		}
 		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner))
 			return;
+		if (HandleVariantAction(action))
+			return;
 		if (action == "Current")
 		{
+			if (!CanChangeVariantOwner(GC_WorkbenchItemBrowser.GetEditingPrefab()))
+				return;
+			m_iVariant = -1;
 			m_bCurrentGear = true;
 			m_sSelected = GC_WorkbenchItemBrowser.GetEditingPrefab();
 			m_Name.SetText("");
@@ -298,7 +607,10 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		m_Status.SetColor(Color.White);
 		if (action == "Load")
 		{
-			if (m_sSelected.IsEmpty() || !GC_WorkbenchItemBrowser.LoadPrefab(m_sSelected))
+			ResourceName targetPrefab = m_sSelected;
+			if (m_iVariant >= 0)
+				targetPrefab = m_Variants.m_aEntries[m_iVariant].m_sVariantPrefab;
+			if (targetPrefab.IsEmpty() || !GC_WorkbenchItemBrowser.LoadPrefab(targetPrefab))
 				m_Status.SetText("#GC-Loadout_LoadFailed");
 			else
 				Close();
@@ -358,6 +670,11 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnBack()
 	{
+		if (m_VariantPicker && m_VariantPicker.IsOpened())
+		{
+			m_VariantPicker.CloseList();
+			return;
+		}
 		if (m_Icon && m_Icon.IsExpanded())
 		{
 			m_Icon.CloseList();
@@ -433,6 +750,12 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuClose()
 	{
+		ClearDeleteDialog();
+		if (m_VariantPicker)
+		{
+			m_VariantPicker.m_OnChanged.Remove(OnVariantPrefabChanged);
+			m_VariantPicker.CloseList();
+		}
 		SCR_ConfigurableDialogUi dialog = m_OverwriteDialog;
 		ClearOverwrite();
 		if (dialog)
@@ -453,6 +776,9 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			row.m_OnClicked.Remove(OnSelect);
 		m_aButtons.Clear();
 		m_aRows.Clear();
+		foreach (SCR_ButtonBaseComponent variantRow : m_aVariantRows)
+			variantRow.m_OnClicked.Remove(OnVariantSelect);
+		m_aVariantRows.Clear();
 		super.OnMenuClose();
 	}
 #else

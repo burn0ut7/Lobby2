@@ -3,6 +3,84 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestVariantBack()
+	{
+		GC_LoadoutFilesMenu menu = GC_LoadoutFilesMenu.Cast(GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu));
+		if (!menu)
+			return "menu absent";
+		return menu.GC_TestPickerBack();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestLoadoutInactiveMenu()
+	{
+		MenuBase menu = GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu);
+		if (menu)
+			menu.Close();
+		GC_WorkbenchItemBrowser.Disable();
+		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_LoadoutFilesMenu, 0, true, false);
+		return string.Format("menu=%1 active=%2", GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu) != null, GC_WorkbenchItemBrowser.IsActive(GetGame().GetPlayerController().GetControlledEntity()));
+	}
+	//------------------------------------------------------------------------------------------------
+	string GC_TestVariants(string action, string choice)
+	{
+		MenuBase menu = GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu);
+		if (!menu)
+			return "menu absent";
+		Widget root = menu.GetRootWidget();
+		if (!choice.IsEmpty())
+		{
+			SCR_ComboBoxComponent picker = SCR_ComboBoxComponent.Cast(root.FindAnyWidget("VariantPrefab").FindHandler(SCR_ComboBoxComponent));
+			picker.OpenList();
+			picker.GC_TestVariantChoose(choice.ToInt());
+		}
+		if (!action.IsEmpty())
+		{
+			SCR_ButtonTextComponent button = SCR_ButtonTextComponent.GetButtonText(action, root);
+			if (!button)
+				return "button absent";
+			button.OnClick(button.GetRootWidget(), 0, 0, 0);
+		}
+		return "variant action " + action;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestVariantData(string prefab)
+	{
+		GC_LoadoutVariants variants = GC_LoadoutVariants.Load(prefab);
+		if (!variants)
+			return "invalid prefab";
+		string result = string.Format("count=%1 default=%2", variants.m_aEntries.Count(), variants.m_bIncludeDefault);
+		foreach (SCR_EditableEntityVariant entry : variants.m_aEntries)
+			result += string.Format(" | %1 enabled=%2 weight=%3", entry.m_sVariantPrefab, entry.m_bEnabled, entry.m_iRandomizerWeight);
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestVariantRow(string parent, int index)
+	{
+		MenuBase menu = GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu);
+		if (!menu)
+			return "menu absent";
+		Widget row = menu.GetRootWidget().FindAnyWidget("SavedRows").GetChildren();
+		while (row)
+		{
+			TextWidget label = TextWidget.Cast(row.FindAnyWidget("Text"));
+			if (label && label.GetText() == parent)
+			{
+				for (int i; i <= index && row; i++)
+					row = row.GetSibling();
+				if (!row)
+					return "row absent";
+				SCR_ButtonTextComponent.Cast(row.FindHandler(SCR_ButtonTextComponent)).OnClick(row, 0, 0, 0);
+				return "selected variant " + parent + " " + index;
+			}
+			row = row.GetSibling();
+		}
+		return "parent absent";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestLoadoutIcon(int index)
 	{
 		MenuBase menu = GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu);
@@ -28,8 +106,8 @@ modded class GC_LobbyManager
 	string GC_TestLoadoutConfirm(string action)
 	{
 		SCR_ConfigurableDialogUi dialog = SCR_ConfigurableDialogUi.GetCurrentDialog();
-		if (!dialog || dialog.GetDialogPreset().m_sTag != "overwrite")
-			return "overwrite dialog absent";
+		if (!dialog)
+			return "dialog absent";
 		if (!action.IsEmpty())
 		{
 			SCR_InputButtonComponent button = dialog.FindButton(action);
@@ -37,7 +115,7 @@ modded class GC_LobbyManager
 				return "button absent";
 			button.GC_TestPress();
 		}
-		return "overwrite " + action;
+		return "confirmed dialog action " + action;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -121,6 +199,27 @@ modded class GC_LoadoutIconSelector
 			return;
 		Widget row = m_aElementWidgets[index];
 		SCR_ButtonTextComponent.Cast(row.FindHandler(SCR_ButtonTextComponent)).OnClick(row, 0, 0, 0);
+	}
+}
+
+modded class SCR_ComboBoxComponent
+{
+	void GC_TestVariantChoose(int index)
+	{
+		if (index < 0 || index >= m_aElementWidgets.Count())
+			return;
+		Widget row = m_aElementWidgets[index];
+		SCR_ButtonTextComponent.Cast(row.FindHandler(SCR_ButtonTextComponent)).OnClick(row, 0, 0, 0);
+	}
+}
+
+modded class GC_LoadoutFilesMenu
+{
+	string GC_TestPickerBack()
+	{
+		m_VariantPicker.OpenList();
+		OnBack();
+		return string.Format("menu=%1 picker=%2 pending=%3", GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu) != null, m_VariantPicker.IsOpened(), m_bVariantsDirty);
 	}
 }
 #endif

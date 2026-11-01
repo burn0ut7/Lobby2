@@ -174,3 +174,59 @@ Reload `ec0fd465791943518c3cfafb9548cceb` introduced no script errors.
 Load (`e57e72c2449a435bb4469e204cad8c4b`) and Save
 (`79dfe106c1d94a9cad3dcbe90ccac7ff`) outcome checks confirmed actual=editing,
 active=1, files=0, gear=1. Independent source/visual review approved.
+
+## Native random variants (2026-11-01)
+
+The same Save/Load screen shows native entries indented under each parent, labeled
+only 01, 02, 03. Selecting an entry previews its referenced character and shows
+Load/Delete below. Save appears for pending edits; Close discards them. Delete
+requires the native confirmation and removes the reference, never the prefab file.
+The user explicitly removed enabled/disabled, clear-all and extra cancel controls.
+Existing native weights, enabled flags and default-character participation remain
+preserved internally. Add variant defaults to current gear; the picker also offers
+saved loadouts and references already present in that prefab.
+
+Saving current gear creates an inherited concrete character beside its pool using
+`<FACTION>_variant_<lowercase_pool_name>_<number>.et`; occupied names advance the
+number instead of overwriting. The new character inherits gear normally and has
+an empty local randomizer. The parent stores its resource in the native
+`SCR_EditableCharacterComponent.m_VariantData.m_aVariants` list. All writes use
+Workbench source authoring and `SaveEntityTemplate`; there is no custom runtime
+loadout serialization. Saving variant data does not restart Play. Loading continues
+to use the existing prefab-load lifecycle described above.
+
+Installed source evidence, revision `d9b5a4246f9247e4be5ea20935889885`:
+
+- `game/data/data007.pak/scripts/Game/Editor/Components/EditableEntity/SCR_EditableEntityVariantData.c`:
+  native prefab reference, enabled flag, weights and default inclusion.
+- Same directory, `SCR_EditableEntityComponentClass.c:23–97`: native weighted
+  selection and validation; already consumed by Lobby2's lobby/spawn flow.
+- `game/core/data.pak/scripts/Core/generated/WorkbenchAPI/WorldEditorAPI.c:247–283`:
+  owning source paths and object authoring. Removing an inherited array member
+  crashed Workbench 1.8.0.13 in isolated testing. The final writer replaces the
+  local variant-data object instead; equality with the ancestor clears its override.
+  Even equality with current memory still calls SaveEntityTemplate, so a failed
+  disk save cannot be mistaken for success on retry.
+
+Live production-handler checks used disposable `US/VariantsQA` prefabs:
+
+- Add, replace and save references; native readback and `.et` text agreed.
+- Delete confirmation cancellation left data unchanged; confirmed deletion plus
+  Save shortened the list. Deleting the final entry saved count=0, while its native
+  ancestor retained count=1. Returning to the ancestor's list removed the override.
+- Newly created files included `US_variant_pool_2.et` and `US_variant_pool_3.et`.
+  Removing reference 03 retained that file's SHA256; creating again chose `_4`.
+- Replacing a reference preserved its native weight/enabled values. Those controls
+  were subsequently removed from the UI per the user's final simplification.
+- Close discarded pending replacement. Dropdown Back returned menu=1, picker=0,
+  pending=1 (`7b03998606ab4baea0ed0c5fccfe7287`). Inactive authoring rejected and
+  closed the menu without exceptions (`0c20b488104c4266aa13a5b98f1cfd90`).
+- Final compilation `df184fe63d164362af537a7a2bd77002` introduced no script errors;
+  existing resource/plugin/formation diagnostics remained. Final screenshot files
+  in the tool evidence folder: `1793516705593576300-capture_screenshot.png` (selected),
+  `1793516707003416000-capture_screenshot.png` (pending),
+  `1793516724450079900-capture_screenshot.png` (confirmation).
+
+Independent source and visual review approved after keyboard-dismissal,
+early-teardown and persistence-retry fixes. Forced disk-failure injection and
+multiplayer were not tested; authoring remains local Workbench-only.

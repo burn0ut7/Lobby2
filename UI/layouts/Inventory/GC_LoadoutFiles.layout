@@ -13,6 +13,7 @@ FrameWidgetClass { Name "LoadoutFiles" Slot FrameWidgetSlot { Anchor 0 0 1 1 Off
  ItemPreviewWidgetClass { Name "LoadoutPreview" Slot FrameWidgetSlot { Anchor 0.3 0.1 0.67 0.87 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Ignore Cursor" 1 "Use Engine Scale" 0 xscale 1 yscale 1 Filter Bilinear Format LDR "Use clear color" 1 "Clear Color" 0 0 0 0 "Blend mode" Blend }
  TextWidgetClass { Name "PreviewStatus" Text "" Slot FrameWidgetSlot { Anchor 0.32 0.45 0.65 0.55 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
  PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0.69 0.15 0.69 0.79 OffsetLeft 0 OffsetTop 0 OffsetRight -1 OffsetBottom 0 } Color 0.6 0.6 0.6 0.25 style full "Ignore Cursor" 1 }
+ FrameWidgetClass { Name "PrefabFields" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } {
  TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Slot FrameWidgetSlot { Anchor 0.72 0.15 0.97 0.19 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 24 Color 1 1 1 1 Text "#GC-Loadout_Faction" }
  PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0.72 0.2 0.97 0.27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.35 0.35 0.35 0.8 style pixel_outline "Ignore Cursor" 1 }
  EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "Faction" Slot FrameWidgetSlot { Anchor 0.735 0.2 0.955 0.27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 24 Color 1 1 1 1 }
@@ -25,10 +26,23 @@ FrameWidgetClass { Name "LoadoutFiles" Slot FrameWidgetSlot { Anchor 0 0 1 1 Off
  TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Slot FrameWidgetSlot { Anchor 0.72 0.62 0.97 0.66 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 24 Color 1 1 1 1 Text "#GC-Loadout_Icon" }
  SizeLayoutWidgetClass : "{DC391DA320AE5010}UI/layouts/Inventory/GC_LoadoutIconSelector.layout" { Name "RoleSelector" Slot FrameWidgetSlot { Anchor 0.72 0.67 0.97 0.74 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
  TextWidgetClass { Name "Parent" Text "" Slot FrameWidgetSlot { Anchor 0.72 0.76 0.97 0.82 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 20 Wrap 1 Color 0.75 0.75 0.75 1 "Ignore Cursor" 1 }
+ } }
+ FrameWidgetClass { Name "VariantFields" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Is Visible" 0 {
+ TextWidgetClass { Name "VariantParent" Slot FrameWidgetSlot { Anchor 0.72 0.15 0.97 0.22 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 24 Color 1 1 1 1 Wrap 1 "Ignore Cursor" 1 }
+ SizeLayoutWidgetClass : "{DC391DA320AE4001}UI/layouts/Inventory/GC_CatalogueSelector.layout" { Name "VariantPrefab" Slot FrameWidgetSlot { Anchor 0.72 0.25 0.97 0.32 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } AllowHeightOverride 0 }
+ } }
  TextWidgetClass { Name "Status" Text "" Slot FrameWidgetSlot { Anchor 0.03 0.83 0.97 0.89 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 20 Wrap 1 "Ignore Cursor" 1 }
- ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Load" Slot FrameWidgetSlot { Anchor 0.03 0.9 0.24 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
- ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Save" Slot FrameWidgetSlot { Anchor 0.27 0.9 0.48 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
- ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Inherit" Slot FrameWidgetSlot { Anchor 0.51 0.9 0.72 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
- ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Duplicate" Slot FrameWidgetSlot { Anchor 0.75 0.9 0.97 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ FrameWidgetClass { Name "FileActions" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } {
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Load" Slot FrameWidgetSlot { Anchor 0.03 0.9 0.20 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Save" Slot FrameWidgetSlot { Anchor 0.22 0.9 0.39 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Inherit" Slot FrameWidgetSlot { Anchor 0.41 0.9 0.58 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "Duplicate" Slot FrameWidgetSlot { Anchor 0.60 0.9 0.77 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "AddVariant" Slot FrameWidgetSlot { Anchor 0.79 0.9 0.97 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ } }
+ FrameWidgetClass { Name "VariantActions" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Is Visible" 0 {
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "VariantLoad" Slot FrameWidgetSlot { Anchor 0.03 0.9 0.24 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "DeleteVariant" Slot FrameWidgetSlot { Anchor 0.27 0.9 0.48 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" { Name "VariantSave" Slot FrameWidgetSlot { Anchor 0.75 0.9 0.97 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Is Visible" 0 }
+ } }
  } }
 } }

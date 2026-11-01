@@ -134,6 +134,47 @@ class GC_LoadoutPrefab
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! A new gear choice inherits the pool and uses a predictable, collision-safe filename.
+	static bool CreateGearVariant(IEntity owner, ResourceName parent, int number, out ResourceName created)
+	{
+		if (!GC_WorkbenchItemBrowser.IsActive(owner) || !parent.GetPath().StartsWith("Prefabs/Loadouts/"))
+			return false;
+		GC_LoadoutMetadata metadata = GC_LoadoutMetadata.Read(parent);
+		if (!metadata)
+			return false;
+		string faction = metadata.m_sFaction;
+		faction.ToUpper();
+		string pool = FilePath.StripExtension(FilePath.StripPath(parent.GetPath()));
+		pool.ToLower();
+		pool.Replace(" ", "_");
+		if (!ValidName(faction) || !ValidName(pool))
+			return false;
+		string directory;
+		if (!Workbench.GetAbsolutePath("$Lobby2:" + FilePath.StripFileName(parent.GetPath()), directory, false))
+			return false;
+		string path;
+		string name;
+		for (int attempt; attempt < 10000; attempt++)
+		{
+			name = faction + "_variant_" + pool + "_" + number;
+			path = FilePath.Concat(directory, name + ".et");
+			if (!FileIO.FileExists(path) && !FileIO.FileExists(path + ".meta"))
+				break;
+			number++;
+		}
+		created = Create(parent, path, false);
+		if (created.IsEmpty())
+			return false;
+		GC_LoadoutPrefab writer = new GC_LoadoutPrefab();
+		metadata.m_sName = name;
+		if (!writer.Open(created) || !writer.Save(owner, metadata))
+			return false;
+		// A choice is a concrete character, not another pool inherited from its parent.
+		GC_LoadoutVariants empty = new GC_LoadoutVariants();
+		return writer.SaveVariants(owner, empty);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Resolve component identities into paths rooted at the destination, never mutate a supplier.
 	protected BaseContainer FindComponent(BaseContainer container, string identity, array<ref ContainerIdPathEntry> path)
 	{
@@ -543,6 +584,50 @@ class GC_LoadoutPrefab
 		if (inheritedInfo && inheritedInfo.Get(key, inherited) && SerializeLabels(inherited) == value)
 			return m_API.ClearVariableValue(m_Source, path, key);
 		return m_API.SetVariableValue(m_Source, path, key, value);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Updates only the selected prefab's native randomizer; no gear write or Play restart.
+	bool SaveVariants(IEntity owner, GC_LoadoutVariants variants)
+	{
+		if (!GC_WorkbenchItemBrowser.IsActive(owner) || !m_Source || !variants || !variants.IsValid(m_sResource))
+			return false;
+		if (variants.Equals(GC_LoadoutVariants.Read(m_Source)))
+			return m_API.SaveEntityTemplate(m_Source);
+		array<ref ContainerIdPathEntry> path = {};
+		BaseContainer editable = GC_LoadoutMetadata.FindComponent(m_Source, SCR_EditableCharacterComponent, path);
+		if (!editable || !m_API.BeginEntityAction("Save random variants"))
+			return false;
+		bool success = WriteVariants(editable, path, variants);
+		m_API.EndEntityAction();
+		return success && m_API.SaveEntityTemplate(m_Source);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool WriteVariants(BaseContainer editable, array<ref ContainerIdPathEntry> path, GC_LoadoutVariants variants)
+	{
+		if (m_Source.GetAncestor() && variants.Equals(GC_LoadoutVariants.Read(m_Source.GetAncestor())))
+			return m_API.ClearVariableValue(m_Source, path, "m_VariantData");
+		// Replace this object's local value; removing members of an inherited
+		// object array through the native editor API crashes Workbench 1.8.
+		if (!m_API.CreateObjectVariableMember(m_Source, path, "m_VariantData", "SCR_EditableEntityVariantData"))
+			return false;
+		path.Insert(new ContainerIdPathEntry("m_VariantData"));
+		if (!m_API.SetVariableValue(m_Source, path, "m_bRandomizeDefaultVariant", variants.m_bIncludeDefault.ToString()) || !m_API.SetVariableValue(m_Source, path, "m_iDefaultVariantRandomizerWeight", variants.m_iDefaultWeight.ToString()))
+			return false;
+		foreach (int index, SCR_EditableEntityVariant entry : variants.m_aEntries)
+		{
+			if (!m_API.CreateObjectArrayVariableMember(m_Source, path, "m_aVariants", "SCR_EditableEntityVariant", index))
+				return false;
+			path.Insert(new ContainerIdPathEntry("m_aVariants", index));
+			bool success = m_API.SetVariableValue(m_Source, path, "m_sVariantPrefab", entry.m_sVariantPrefab)
+				&& m_API.SetVariableValue(m_Source, path, "m_iRandomizerWeight", entry.m_iRandomizerWeight.ToString())
+				&& m_API.SetVariableValue(m_Source, path, "m_bEnabled", entry.m_bEnabled.ToString());
+			path.Remove(path.Count() - 1);
+			if (!success)
+				return false;
+		}
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

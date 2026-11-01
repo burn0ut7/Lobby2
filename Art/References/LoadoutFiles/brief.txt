@@ -1,6 +1,19 @@
 Active reference: user's supplied native inventory screenshot, with its large
 central dressed character, adapted to the loadout file menu. concept.png is the
 earlier compact modal concept and is retained as history, not the active design.
+
+Random variants (2026-11-01): retain this same screen and three-column layout.
+The user explicitly rejected a second variant screen. Show native variant
+references beneath each saved prefab, indented and labeled only 01, 02, 03.
+The user explicitly rejected extra words or prefab names on these rows. Selecting
+one uses the existing character preview and replaces the right-side fields with
+its prefab choice. Add variant sits beside the parent file actions. Selecting a
+variant shows only Load and Delete below; Save appears with pending edits.
+Delete requires confirmation and never deletes a prefab. Closing discards edits.
+The user rejected enable/disable, clear-all and separate cancel controls.
+Current gear creates an inherited concrete character file when Save is pressed:
+<FACTION>_variant_<lowercase_pool_name>_<number>.et. Existing references retain
+their filenames. The number increments past filename collisions.
 Use 89 percent of the game viewport in each dimension: prefab names left,
 native character preview center, faction/team/name fields right, actions below.
 Click selects and previews the saved prefab without equipping it on the player.

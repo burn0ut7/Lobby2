@@ -1,6 +1,14 @@
 StringTable {
  ItemClassName "CustomStringTableItem"
  Items {
+  CustomStringTableItem "{DC391DA320AF3040}" { Id "GC-Loadout_DeleteVariant" Target_en_us "Delete" }
+  CustomStringTableItem "{DC391DA320AF3043}" { Id "GC-Loadout_VariantOf" Target_en_us "Variant of" }
+  CustomStringTableItem "{DC391DA320AF3044}" { Id "GC-Loadout_PendingVariants" Target_en_us "Unsaved changes. Save, or close to discard." }
+  CustomStringTableItem "{DC391DA320AF3045}" { Id "GC-Loadout_DeleteVariantMessage" Target_en_us "Remove this entry? Its prefab file will be kept. Save to apply." }
+  CustomStringTableItem "{DC391DA320AF3032}" { Id "GC-Loadout_AddVariant" Target_en_us "Add variant" }
+  CustomStringTableItem "{DC391DA320AF303B}" { Id "GC-Loadout_InvalidVariants" Target_en_us "Choose a different loadout for each entry." }
+  CustomStringTableItem "{DC391DA320AF303C}" { Id "GC-Loadout_VariantsFailed" Target_en_us "Could not save variants. Check the prefab before trying again." }
+  CustomStringTableItem "{DC391DA320AF303D}" { Id "GC-Loadout_VariantsSaved" Target_en_us "Variants saved." }
   CustomStringTableItem "{DC391DA320AF3023}" { Id "GC-Loadout_Icon" Target_en_us "ROLE ICON" }
   CustomStringTableItem "{DC391DA320AF3024}" { Id "GC-Loadout_CurrentIcon" Target_en_us "Current icon" }
   CustomStringTableItem "{DC391DA320AF3025}" { Id "GC-Loadout_InvalidMetadata" Target_en_us "Enter a valid faction key and choose a role icon." }
