@@ -128,6 +128,19 @@ ButtonWidgetClass {
             OutlineColor 0 0 0 1
            }
           }
+          ImageWidgetClass "{6A33000000000071}" {
+           Name "GameMasterIcon"
+           "Ignore Cursor" 1
+           "Is Visible" 0
+           Slot LayoutSlot "{6A33000000000072}" {
+            VerticalAlign 1
+            Padding 6 0 0 0
+           }
+           Color 1 1 1 1
+           Texture "{D17288006833490F}UI/Textures/Icons/icons_wrapperUI-32.imageset"
+           Image "favourite"
+           Size 18 18
+          }
          }
         }
         TextWidgetClass "{6A3300000000001A}" {

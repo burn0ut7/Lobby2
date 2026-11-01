@@ -281,7 +281,10 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			|| (m_Slot.GetState() == GC_SlotState.RESERVED && playerId <= 0));
 		// Presence takes priority over admin highlighting, including role refreshes.
 		if (absent)
+		{
 			statusText.SetColor(GC_LobbyPalette.Muted());
+			GC_PlayerNamePresentation.ApplyGameMasterIcon(statusText, -1);
+		}
 		else
 			GC_PlayerNamePresentation.Apply(statusText, playerId);
 	}

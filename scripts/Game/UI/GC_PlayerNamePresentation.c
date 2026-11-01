@@ -17,6 +17,23 @@ class GC_PlayerNamePresentation
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		bool isNew = manager && manager.IsNewPlayer(playerId);
 		nameWidget.SetColor(ResolveColor(isAdmin, isNew));
+		ApplyGameMasterIcon(nameWidget, playerId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Optional lobby-row badge; native roles remain the only authority.
+	static void ApplyGameMasterIcon(Widget nameWidget, int playerId)
+	{
+		if (!nameWidget || !nameWidget.GetParent())
+			return;
+		Widget icon = nameWidget.GetParent().FindAnyWidget("GameMasterIcon");
+		if (!icon)
+			return;
+
+		PlayerManager players = GetGame().GetPlayerManager();
+		bool isGameMaster = GC_LobbyManager.GetManager() && players && playerId > 0
+			&& players.IsPlayerConnected(playerId) && players.HasPlayerRole(playerId, EPlayerRole.GAME_MASTER);
+		icon.SetVisible(isGameMaster);
 	}
 
 	//------------------------------------------------------------------------------------------------

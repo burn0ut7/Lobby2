@@ -102,7 +102,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref array<int> m_aPendingPlayerCatchUps = {};
 	protected ref map<int, int> m_mPlayerCatchUpAttempts = new map<int, int>();
 	//! Transport-convergence hints only. Never consulted for authorization or UI state.
-	protected ref map<int, bool> m_mPendingRoleAdmin = new map<int, bool>();
+	protected ref map<int, EPlayerRole> m_mPendingRoles = new map<int, EPlayerRole>();
 	protected ref map<int, int> m_mPendingRoleAttempts = new map<int, int>();
 	protected ref set<int> m_sPendingAffiliationPlayers = new set<int>();
 	protected ref set<Faction> m_sPendingFactionPresentation = new set<Faction>();
@@ -1794,9 +1794,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
     SCR_AIGroup GetPlayerGroup(int playerId) { return m_Roster.GetPlayerGroup(playerId); }
 	Faction GetPlayerFaction(int playerId) { return m_Roster.GetPlayerFaction(playerId); }
 
-	//! Publishes a role-change prompt from server authority. The transported flag
-	//! is used only to wait for each client's PlayerManager view to converge;
-	//! consumers always query SCR_Global.IsAdmin when applying presentation.
+	//! Publishes a role-change prompt from server authority. Transported role flags
+	//! only wait for each client's PlayerManager view to converge;
+	//! consumers re-query native player roles when applying presentation.
 	void PublishPlayerRoleChanged(int playerId, EPlayerRole roleFlags)
 	{
 		if (!Replication.IsServer() || playerId <= 0)
@@ -1812,24 +1812,24 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (GC_UIEventDiagnostics.ENABLED)
 			PrintFormat("GC | Admin Trace | role publish: player=%1 expectedAdmin=%2", playerId, expectedAdmin);
 
-		QueuePlayerRolePresentation(playerId, expectedAdmin);
-		Rpc(RpcDo_PlayerRoleChanged, playerId, expectedAdmin);
+		QueuePlayerRolePresentation(playerId, roleFlags);
+		Rpc(RpcDo_PlayerRoleChanged, playerId, roleFlags);
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
-	protected void RpcDo_PlayerRoleChanged(int playerId, bool expectedAdmin)
+	protected void RpcDo_PlayerRoleChanged(int playerId, EPlayerRole expectedRoles)
 	{
 		if (Replication.IsServer())
 			return;
 
 		if (GC_UIEventDiagnostics.ENABLED)
-			PrintFormat("GC | Admin Trace | role broadcast received: player=%1 expectedAdmin=%2", playerId, expectedAdmin);
-		QueuePlayerRolePresentation(playerId, expectedAdmin);
+			PrintFormat("GC | Admin Trace | role broadcast received: player=%1 expectedRoles=%2", playerId, expectedRoles);
+		QueuePlayerRolePresentation(playerId, expectedRoles);
 	}
 
-	protected void QueuePlayerRolePresentation(int playerId, bool expectedAdmin)
+	protected void QueuePlayerRolePresentation(int playerId, EPlayerRole expectedRoles)
 	{
-		m_mPendingRoleAdmin.Set(playerId, expectedAdmin);
+		m_mPendingRoles.Set(playerId, expectedRoles);
 		m_mPendingRoleAttempts.Set(playerId, 0);
 		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);
 		GetGame().GetCallqueue().CallLater(ReconcilePendingPlayerRoles, 0);
@@ -1843,17 +1843,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);
 		array<int> completed = {};
 		bool retry;
-		foreach (int playerId, bool expectedAdmin : m_mPendingRoleAdmin)
+		foreach (int playerId, EPlayerRole expectedRoles : m_mPendingRoles)
 		{
 			int attempts;
 			m_mPendingRoleAttempts.Find(playerId, attempts);
-			bool queriedAdmin = SCR_Global.IsAdmin(playerId);
-			if (queriedAdmin == expectedAdmin || attempts >= ROLE_PRESENTATION_MAX_RETRIES)
+			EPlayerRole queriedRoles = GetGame().GetPlayerManager().GetPlayerRoles(playerId);
+			if (queriedRoles == expectedRoles || attempts >= ROLE_PRESENTATION_MAX_RETRIES)
 			{
-				if (GC_UIEventDiagnostics.ENABLED && attempts >= ROLE_PRESENTATION_MAX_RETRIES && queriedAdmin != expectedAdmin)
-					PrintFormat("GC | Admin Trace | role convergence timed out: player=%1 expectedAdmin=%2 queriedAdmin=%3", playerId, expectedAdmin, queriedAdmin, level: LogLevel.WARNING);
+				if (GC_UIEventDiagnostics.ENABLED && attempts >= ROLE_PRESENTATION_MAX_RETRIES && queriedRoles != expectedRoles)
+					PrintFormat("GC | Admin Trace | role convergence timed out: player=%1 expectedRoles=%2 queriedRoles=%3", playerId, expectedRoles, queriedRoles, level: LogLevel.WARNING);
 				else if (GC_UIEventDiagnostics.ENABLED)
-					PrintFormat("GC | Admin Trace | role converged: player=%1 admin=%2 attempts=%3", playerId, queriedAdmin, attempts);
+					PrintFormat("GC | Admin Trace | role converged: player=%1 roles=%2 attempts=%3", playerId, queriedRoles, attempts);
 
 				GetAdminSelectedPlayer();
 				m_OnAdminSelectionChanged.Invoke();
@@ -1868,7 +1868,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		foreach (int completedPlayerId : completed)
 		{
-			m_mPendingRoleAdmin.Remove(completedPlayerId);
+			m_mPendingRoles.Remove(completedPlayerId);
 			m_mPendingRoleAttempts.Remove(completedPlayerId);
 		}
 
@@ -4859,7 +4859,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_aPendingBriefingSpawns.Clear();
 		m_aPendingPlayerCatchUps.Clear();
 		m_mPlayerCatchUpAttempts.Clear();
-		m_mPendingRoleAdmin.Clear();
+		m_mPendingRoles.Clear();
 		m_mPendingRoleAttempts.Clear();
 		m_sPendingAffiliationPlayers.Clear();
 		m_sPendingFactionPresentation.Clear();
