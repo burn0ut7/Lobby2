@@ -1558,3 +1558,9 @@ Existing `von_spectator.acp` remains assigned and already routes radio through i
 ## Workbench inventory catalogue
 
 See [InventoryCatalogue.md](InventoryCatalogue.md) for the expanded item-row browser, native paging, local click/drag placement, opt-in lifecycle, MCP interaction helpers, screenshots and addon-free comparison.
+
+## Lobby slot toolbar — 2026-11-01
+
+`GC_TestSlotToolbarSnapshot()` reports displayed/collapsed groups and player/admin toolbar visibility. `GC_TestSlotGroupToggle()` invokes the first group's production header handler to exercise mixed collapse state; `GC_TestClick("ToggleAllSlotsButton")` exercises the master button. These are optional test-addon helpers.
+
+Workbench 1.8.0.13 reload passed. Live checks covered expand/collapse, mixed-state expansion, collapse persistence across faction switches, ratio on/off, and lock/unlock of all 42 fixture slots. Logged-out players retained the group toggle while admin controls were hidden; production lock/reservation/ratio requests rejected without mutation and emitted audit entries. Native host permissions were restored by restarting embedded Play. Screenshots in local `Art/References/lobby-scaling/slot-icons-*.png` cover expanded, collapsed, mixed, ratio, lock and non-admin states. The wide capture uses 32:9 menu bounds within the editor viewport; physical ultrawide and controller input were not tested.

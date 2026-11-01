@@ -3,10 +3,10 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 {
 	protected GC_LobbyManager m_Manager;
 	protected GC_LobbyPlayerController m_Controller;
-	protected SCR_ButtonBaseComponent m_Button;
+	protected SCR_ButtonTextComponent m_Button;
+	protected Widget m_wAdminControls;
 	protected ImageWidget m_Icon;
 	protected SCR_ButtonTextComponent m_RatioButton;
-	protected ImageWidget m_RatioIcon;
 	protected TextWidget m_Status;
 	protected int m_iPending = -1;
 	protected bool m_bLockRequested;
@@ -19,10 +19,10 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 			return;
 		m_Manager = GC_LobbyManager.GetManager();
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-		m_Button = SCR_ButtonBaseComponent.Cast(w.FindAnyWidget("AllSlotLocksButton").FindHandler(SCR_ButtonBaseComponent));
+		m_Button = SCR_ButtonTextComponent.GetButtonText("AllSlotLocksButton", w);
+		m_wAdminControls = w.FindAnyWidget("SlotAdminControls");
 		m_Icon = ImageWidget.Cast(w.FindAnyWidget("AllSlotLocksImage"));
 		m_RatioButton = SCR_ButtonTextComponent.GetButtonText("FactionRatioButton", w);
-		m_RatioIcon = ImageWidget.Cast(w.FindAnyWidget("FactionRatioImage"));
 		m_Status = TextWidget.Cast(w.FindAnyWidget("AllSlotLocksStatus"));
 		m_Button.m_OnClicked.Insert(OnClicked);
 		m_RatioButton.m_OnClicked.Insert(OnClicked);
@@ -54,23 +54,19 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 	protected void Refresh()
 	{
 		bool access = HasAccess();
-		m_Button.GetRootWidget().SetVisible(access);
+		m_wAdminControls.SetVisible(access);
 		m_Button.SetEnabled(access && m_iPending < 0 && !m_Manager.GetSlots().IsEmpty());
-		m_RatioButton.GetRootWidget().SetVisible(access);
 		m_RatioButton.SetEnabled(access && m_iPending < 0 && m_Manager.GetLobbyPhase() != SCR_EGameModeState.POSTGAME);
-		m_Status.SetVisible(access);
+		m_Status.SetVisible(access && !m_Status.GetText().IsEmpty());
 		if (!access)
 			return;
 
 		bool enforceRatio = m_Manager.IsFactionBalanceEnforced();
 		m_RatioButton.SetToggled(enforceRatio, false, false);
-		if (enforceRatio)
-			m_RatioIcon.SetColor(Color.White);
-		else
-			m_RatioIcon.SetColor(Color.Red);
 		if (m_iPending >= 0)
 		{
 			m_Status.SetText("Waiting for server...");
+			m_Status.SetVisible(true);
 			return;
 		}
 

@@ -85,12 +85,6 @@ FrameWidgetClass {
               VerticalAlign 3
              }
              {
-              TextWidgetClass "{6A1A4D19DE266DDF}" {
-               Name "Text0"
-               Slot LayoutSlot "{6A1A4D19DE266DF6}" {
-               }
-               Text "Factions"
-              }
               ScrollLayoutWidgetClass "{6A18396A1D5D2BCD}" : "{A52A9C30E35CAA58}UI/layouts/Factions/Lobby_Factions_List.layout" {
                Name "Factions"
                Slot LayoutSlot "{6A1A4D195EEFB941}" {
@@ -219,12 +213,6 @@ FrameWidgetClass {
               VerticalAlign 3
              }
              {
-              TextWidgetClass "{6A1C52E851C1A003}" {
-               Name "LoadoutTitle"
-               Slot LayoutSlot "{6A1C52E851C1A004}" {
-               }
-               Text "Loadout"
-              }
               ButtonWidgetClass "{6A1C52E851C1A005}" {
                Name "LoadoutPreview"
                Slot LayoutSlot "{6A1C52E851C1A006}" {

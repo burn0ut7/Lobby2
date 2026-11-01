@@ -1,106 +1,126 @@
 SizeLayoutWidgetClass {
  Name "SlotsHeader"
- Slot LayoutSlot { HorizontalAlign 3 }
- AllowHeightOverride 1
- HeightOverride 48
- components {
-  GC_AllSlotLocksComponent "{6A73000000000002}" {}
- }
+ Slot LayoutSlot { HorizontalAlign 3 Padding 0 0 0 8 }
+ components { GC_AllSlotLocksComponent "{6A73000000000002}" {} }
  {
-  FrameWidgetClass {
-   Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+  VerticalLayoutWidgetClass {
+   Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 }
    {
-    TextWidgetClass {
-     Name "SlotsTitle"
-     Slot FrameWidgetSlot { Anchor 0 0 0 1 PositionX 0 OffsetLeft 0 PositionY 0 OffsetTop 0 SizeX 90 OffsetRight -90 SizeY 0 OffsetBottom 0 }
-     Text "Slots"
-     "Vertical Alignment" Center
-     "Ignore Cursor" 1
+    HorizontalLayoutWidgetClass {
+     Name "SlotToolbar"
+     Slot LayoutSlot { HorizontalAlign 3 }
+     {
+      ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+       Name "ToggleAllSlotsButton"
+       Slot LayoutSlot { Padding 0 0 6 0 }
+       components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_sText "" m_bCanBeToggled 1 } }
+       {
+        SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+         Prefab "{7C41F8A018B24C01}"
+         AllowWidthOverride 1
+         WidthOverride 48
+         HeightOverride 48
+         {
+          OverlayWidgetClass "{7C41F8A018B24C02}" {
+           Prefab "{7C41F8A018B24C02}"
+           {
+            TextWidgetClass "{7C41F8A018B24C05}" { Prefab "{7C41F8A018B24C05}" "Is Visible" 0 }
+            ImageWidgetClass {
+             Name "SlotViewToggleImage"
+             Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
+             "Ignore Cursor" 1
+             Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+             Image "minus"
+             Size 32 32
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+      HorizontalLayoutWidgetClass {
+       Name "SlotAdminControls"
+       Slot LayoutSlot { Padding 12 0 0 0 }
+       "Is Visible" 0
+       {
+        ImageWidgetClass {
+         Slot LayoutSlot { VerticalAlign 3 Padding 0 8 18 8 }
+         Color 1 1 1 0.25
+         Size 1 1
+         "Ignore Cursor" 1
+        }
+        ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+         Name "AllSlotLocksButton"
+         Slot LayoutSlot { Padding 0 0 6 0 }
+         components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_sText "" m_bCanBeToggled 0 } }
+         {
+          SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+           Prefab "{7C41F8A018B24C01}"
+           AllowWidthOverride 1
+           WidthOverride 48
+           HeightOverride 48
+           {
+            OverlayWidgetClass "{7C41F8A018B24C02}" {
+             Prefab "{7C41F8A018B24C02}"
+             {
+              TextWidgetClass "{7C41F8A018B24C05}" { Prefab "{7C41F8A018B24C05}" "Is Visible" 0 }
+              ImageWidgetClass {
+               Name "AllSlotLocksImage"
+               Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
+               "Ignore Cursor" 1
+               Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+               Image "server-locked"
+               Size 32 32
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+        ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
+         Name "FactionRatioButton"
+         Slot LayoutSlot { Padding 0 0 6 0 }
+         components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_sText "" m_bCanBeToggled 1 } }
+         {
+          SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+           Prefab "{7C41F8A018B24C01}"
+           AllowWidthOverride 1
+           WidthOverride 48
+           HeightOverride 48
+           {
+            OverlayWidgetClass "{7C41F8A018B24C02}" {
+             Prefab "{7C41F8A018B24C02}"
+             {
+              TextWidgetClass "{7C41F8A018B24C05}" { Prefab "{7C41F8A018B24C05}" "Is Visible" 0 }
+              ImageWidgetClass {
+               Name "FactionRatioImage"
+               Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
+               "Ignore Cursor" 1
+               Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
+               Image "lawsOfWar"
+               Size 32 32
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
     }
     TextWidgetClass {
      Name "AllSlotLocksStatus"
-     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 95 OffsetTop 0 OffsetRight 110 OffsetBottom 0 }
+     Slot LayoutSlot { HorizontalAlign 3 Padding 0 4 0 0 }
+     "Is Visible" 0
      Text ""
      "Font Size" 18
      Wrap 1
-     "Vertical Alignment" Center
+     FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 1 }
      "Ignore Cursor" 1
-    }
-    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-     Name "FactionRatioButton"
-     Slot FrameWidgetSlot { Anchor 1 0 1 0 PositionX -102 OffsetLeft -102 PositionY 0 OffsetTop 0 SizeX 48 OffsetRight 54 SizeY 48 OffsetBottom -48 }
-     "Is Visible" 0
-     components {
-      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
-       m_sText ""
-       m_bCanBeToggled 0
-       m_bShowBorderOnFocus 1
-      }
-     }
-     {
-      SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
-       Prefab "{7C41F8A018B24C01}"
-       HeightOverride 48
-       {
-        OverlayWidgetClass "{7C41F8A018B24C02}" {
-         Prefab "{7C41F8A018B24C02}"
-         {
-          TextWidgetClass "{7C41F8A018B24C05}" {
-           Prefab "{7C41F8A018B24C05}"
-           "Is Visible" 0
-          }
-          ImageWidgetClass {
-           Name "FactionRatioImage"
-           "Z Order" 1
-           Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
-           "Ignore Cursor" 1
-           Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
-           Image "lawsOfWar"
-           Size 40 40
-          }
-         }
-        }
-       }
-      }
-     }
-    }
-    ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
-     Name "AllSlotLocksButton"
-     Slot FrameWidgetSlot { Anchor 1 0 1 0 PositionX -48 OffsetLeft -48 PositionY 0 OffsetTop 0 SizeX 48 OffsetRight 0 SizeY 48 OffsetBottom -48 }
-     "Is Visible" 0
-     components {
-      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
-       m_sText ""
-       m_bCanBeToggled 0
-       m_bShowBorderOnFocus 1
-      }
-     }
-     {
-      SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
-       Prefab "{7C41F8A018B24C01}"
-       HeightOverride 48
-       {
-        OverlayWidgetClass "{7C41F8A018B24C02}" {
-         Prefab "{7C41F8A018B24C02}"
-         {
-          TextWidgetClass "{7C41F8A018B24C05}" {
-           Prefab "{7C41F8A018B24C05}"
-           "Is Visible" 0
-          }
-          ImageWidgetClass {
-           Name "AllSlotLocksImage"
-           "Z Order" 1
-           Slot OverlayWidgetSlot { HorizontalAlign 1 VerticalAlign 1 }
-           "Ignore Cursor" 1
-           Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
-           Image "server-locked"
-           Size 40 40
-          }
-         }
-        }
-       }
-      }
-     }
     }
    }
   }

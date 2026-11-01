@@ -12,6 +12,8 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
     protected ScrollLayoutWidget m_wGroupScroll;
     protected ref array<Widget> m_aGroupCards = {};
 	protected ref array<SCR_AIGroup> m_aCollapsedGroups = {};
+	protected SCR_ButtonTextComponent m_SlotViewToggle;
+	protected ImageWidget m_wSlotViewToggleImage;
     protected FactionKey m_SelectedFactionKey;
     protected ItemPreviewWidget m_wPlayerRender;
     protected Widget m_wLoadoutInventory;
@@ -43,6 +45,10 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			m_InputManager.AddActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 
         m_wRoot = GetRootWidget();
+		m_SlotViewToggle = SCR_ButtonTextComponent.GetButtonText("ToggleAllSlotsButton", m_wRoot);
+		m_wSlotViewToggleImage = ImageWidget.Cast(m_wRoot.FindAnyWidget("SlotViewToggleImage"));
+		if (m_SlotViewToggle)
+			m_SlotViewToggle.m_OnClicked.Insert(OnSlotViewClicked);
 		m_MenuChat = new GC_LobbyMenuChat();
 		m_MenuChat.Start(this);
 
@@ -137,6 +143,10 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 		PrintFormat("GC | Phase UI | slotting menu closed: menu=%1 state=%2", this, phaseName);
 
 		GetGame().GetCallqueue().Remove(OpenPauseMenu);
+		if (m_SlotViewToggle)
+			m_SlotViewToggle.m_OnClicked.Remove(OnSlotViewClicked);
+		m_SlotViewToggle = null;
+		m_wSlotViewToggleImage = null;
 		if (m_InputManager)
 			m_InputManager.RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnPauseMenuRequested);
 
@@ -436,6 +446,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 		if (!m_wGroups || !m_LobbyManager || m_SelectedFactionKey.IsEmpty())
 		{
+			UpdateSlotViewToggle();
 			return;
 		}
 
@@ -459,9 +470,53 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 			groupWidget.m_OnSlotHoverEnded.Insert(OnSlotHoverEnded);
             groupWidget.SetGroup(group);
 			groupWidget.SetCollapsed(m_aCollapsedGroups.Contains(group));
+			groupWidget.m_OnCollapseChanged.Insert(UpdateSlotViewToggle);
             m_aGroupCards.Insert(groupCard);
         }
 
+		UpdateSlotViewToggle();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Disclosure affects only the displayed faction's local cards, never slot access.
+	protected void OnSlotViewClicked(SCR_ButtonBaseComponent button)
+	{
+		bool collapsed = !HasCollapsedGroups();
+		foreach (Widget groupCard : m_aGroupCards)
+		{
+			GC_GroupWidgetComponent groupWidget = GC_GroupWidgetComponent.Cast(groupCard.FindHandler(GC_GroupWidgetComponent));
+			if (groupWidget)
+				groupWidget.SetCollapsed(collapsed);
+		}
+
+		ResetGroupScrollPosition();
+		UpdateSlotViewToggle();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HasCollapsedGroups()
+	{
+		foreach (Widget groupCard : m_aGroupCards)
+		{
+			GC_GroupWidgetComponent groupWidget = GC_GroupWidgetComponent.Cast(groupCard.FindHandler(GC_GroupWidgetComponent));
+			if (groupWidget && groupWidget.IsCollapsed())
+				return true;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void UpdateSlotViewToggle()
+	{
+		if (!m_SlotViewToggle || !m_wSlotViewToggleImage)
+			return;
+		bool collapsed = HasCollapsedGroups();
+		m_SlotViewToggle.SetEnabled(!m_aGroupCards.IsEmpty());
+		m_SlotViewToggle.SetToggled(collapsed, false, false);
+		string icon = "minus";
+		if (collapsed)
+			icon = "plus";
+		m_wSlotViewToggleImage.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", icon);
 	}
 
 	protected void ResetGroupScrollPosition()
@@ -492,6 +547,7 @@ class GC_Lobby_SlottingMenu : ChimeraMenuBase
 
 					groupWidget.m_OnSlotHovered.Remove(OnSlotHovered);
 					groupWidget.m_OnSlotHoverEnded.Remove(OnSlotHoverEnded);
+					groupWidget.m_OnCollapseChanged.Remove(UpdateSlotViewToggle);
 				}
 
 				groupCard.RemoveFromHierarchy();

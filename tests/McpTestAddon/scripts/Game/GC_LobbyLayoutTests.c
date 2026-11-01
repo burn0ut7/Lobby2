@@ -3,6 +3,53 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	//! Exercise an individual group's production disclosure handler for mixed-state checks.
+	string GC_TestSlotGroupToggle()
+	{
+		Widget root = GC_LobbyManager.Cast(this).GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE menu";
+		Widget header = root.FindAnyWidget("SquadHeader");
+		if (!header)
+			return "UNAVAILABLE group";
+		GC_GroupHeaderContextComponent handler = GC_GroupHeaderContextComponent.Cast(header.FindHandler(GC_GroupHeaderContextComponent));
+		if (!handler)
+			return "UNAVAILABLE disclosure handler";
+		handler.OnMouseButtonDown(header, 0, 0, 0);
+		return GC_TestSlotToolbarSnapshot();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Observe disclosure through production cards; use GC_TestClick for toolbar actions.
+	string GC_TestSlotToolbarSnapshot()
+	{
+		Widget root = GC_LobbyManager.Cast(this).GC_TestMenuRoot();
+		if (!root)
+			return "UNAVAILABLE menu";
+		Widget groups = root.FindAnyWidget("Groups");
+		Widget admin = root.FindAnyWidget("SlotAdminControls");
+		Widget toggle = root.FindAnyWidget("ToggleAllSlotsButton");
+		if (!groups || !admin || !toggle)
+			return "UNAVAILABLE toolbar";
+		int count;
+		int collapsed;
+		Widget card = groups.GetChildren();
+		while (card)
+		{
+			GC_GroupWidgetComponent group = GC_GroupWidgetComponent.Cast(card.FindHandler(GC_GroupWidgetComponent));
+			if (group)
+			{
+				count++;
+				if (group.IsCollapsed())
+					collapsed++;
+			}
+			card = card.GetSibling();
+		}
+		return string.Format("groups=%1 collapsed=%2 toggleVisible=%3 adminVisible=%4",
+			count, collapsed, toggle.IsVisibleInHierarchy(), admin.IsVisibleInHierarchy());
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Constrain the current menu to an aspect ratio inside the real workspace.
 	//! This tests layout bounds, not a display-resolution or DPI setting change.
 	string GC_TestLobbyAspect(float aspect)

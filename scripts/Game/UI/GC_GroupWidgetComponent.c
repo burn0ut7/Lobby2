@@ -33,6 +33,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 	protected static const ResourceName SLOT_LAYOUT = "{6A24000000000001}UI/layouts/Groups/Lobby_Slot.layout";
 	ref ScriptInvoker<GC_Slot> m_OnSlotHovered = new ScriptInvoker<GC_Slot>();
 	ref ScriptInvoker<GC_Slot> m_OnSlotHoverEnded = new ScriptInvoker<GC_Slot>();
+	ref ScriptInvoker m_OnCollapseChanged = new ScriptInvoker();
 
 	protected Widget m_wSlots;
 	protected Widget m_wHeaderDivider;
@@ -120,6 +121,7 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		if (!m_wSlots)
 			return;
 
+		bool wasCollapsed = IsCollapsed();
 		if (collapsed && !IsCollapsed())
 		{
 			// Hidden rows must not retain keyboard focus or a loadout hover preview.
@@ -147,6 +149,8 @@ class GC_GroupWidgetComponent : SCR_ScriptedWidgetComponent
 		m_wSlots.SetVisible(!collapsed);
 		if (m_wHeaderDivider)
 			m_wHeaderDivider.SetVisible(!collapsed);
+		if (wasCollapsed != collapsed)
+			m_OnCollapseChanged.Invoke();
 	}
 
 	SCR_AIGroup GetGroup()
