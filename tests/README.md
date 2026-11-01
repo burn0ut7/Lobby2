@@ -1619,3 +1619,18 @@ pass. Existing Arland resource, dedicated-plugin, formations and missing-map
 fixture diagnostics remain. Remote clients, physical keyboard/controller input,
 alternate viewport scales and an addon-free mode comparison were not exercised.
 No shared overrides changed. Test fixture logout is cleared by restarting Play.
+
+## Voice/player panel background — 2026-11-01
+
+Moved the existing voice/player background widgets out of their scrolling,
+content-height containers into the full panel overlays. Both shared list layouts
+now use black at 72% opacity; Preview and Briefing apply the same translucent
+setting. This also gives other consumers of these shared lists full panel backing.
+Backgrounds retain Ignore Cursor, with scrolling content layered above them.
+
+Workbench 1.8.0.13 Empty_Lobby Reload completed without script compilation errors
+(operation 34fe496adc83489cb1164fccbf5bc3ef; console.log cycle lines 32259–32375
+in logs_2026-11-01_14-30-43). Existing world/resource/plugin errors persisted.
+Live production tab clicks and MCP captures verified Voice and Players in both
+PREGAME Preview and BRIEFING. Local captures: Art/References/voice-background/.
+Alternate display scales, remote clients and populated scrolling were not tested.

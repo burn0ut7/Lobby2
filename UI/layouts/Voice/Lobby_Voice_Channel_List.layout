@@ -20,6 +20,16 @@ SizeLayoutWidgetClass {
     VerticalAlign 3
    }
    {
+    PanelWidgetClass "{6A35000000000005}" {
+     Name "VoiceChannelListBackground"
+     Slot OverlayWidgetSlot "{6A35000000000006}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     "Ignore Cursor" 1
+     Color 0 0 0 0.72
+     style full
+    }
     ScrollLayoutWidgetClass "{6A35000000000007}" {
      Name "VoiceChannelScroll"
      Slot OverlayWidgetSlot "{6A35000000000008}" {
@@ -37,16 +47,6 @@ SizeLayoutWidgetClass {
         VerticalAlign 0
        }
        {
-        PanelWidgetClass "{6A35000000000005}" {
-         Name "VoiceChannelListBackground"
-         Slot OverlayWidgetSlot "{6A35000000000006}" {
-          HorizontalAlign 3
-          VerticalAlign 3
-         }
-         "Ignore Cursor" 1
-         Color 0.008 0.012 0.014 0.72
-         style full
-        }
         VerticalLayoutWidgetClass "{6A35000000000009}" {
          Name "Channels"
          Slot OverlayWidgetSlot "{6A3500000000000A}" {

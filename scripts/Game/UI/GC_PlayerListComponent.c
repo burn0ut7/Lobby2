@@ -352,9 +352,9 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		else
 		{
 			if (voiceBackground)
-				voiceBackground.SetColor(Color.FromRGBA(2, 3, 4, 184));
+				voiceBackground.SetColor(Color.FromRGBA(0, 0, 0, 184));
 			if (playerBackground)
-				playerBackground.SetColor(Color.FromRGBA(2, 3, 4, 184));
+				playerBackground.SetColor(Color.FromRGBA(0, 0, 0, 184));
 		}
 	}
 

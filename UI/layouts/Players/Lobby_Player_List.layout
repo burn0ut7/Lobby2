@@ -20,6 +20,15 @@ SizeLayoutWidgetClass {
     VerticalAlign 3
    }
    {
+    ImageWidgetClass "{6A37000000000005}" {
+     Name "PlayerListBackground"
+     Slot OverlayWidgetSlot "{6A37000000000006}" {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     "Ignore Cursor" 1
+     Color 0 0 0 0.72
+    }
     VerticalLayoutWidgetClass "{6A37000000000007}" {
      Name "PlayerListBody"
      Slot OverlayWidgetSlot "{6A37000000000008}" {
@@ -88,15 +97,6 @@ SizeLayoutWidgetClass {
           VerticalAlign 0
          }
          {
-          ImageWidgetClass "{6A37000000000005}" {
-           Name "PlayerListBackground"
-           Slot OverlayWidgetSlot "{6A37000000000006}" {
-            HorizontalAlign 3
-            VerticalAlign 3
-           }
-           "Ignore Cursor" 1
-           Color 0.008 0.012 0.014 0.72
-          }
           VerticalLayoutWidgetClass "{6A37000000000015}" {
            Name "Players"
            Slot OverlayWidgetSlot "{6A37000000000016}" {

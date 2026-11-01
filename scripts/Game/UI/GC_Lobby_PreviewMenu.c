@@ -206,7 +206,7 @@ class GC_Lobby_PreviewMenu : ChimeraMenuBase
 		if (m_PlayerListTabs)
 		{
 			m_PlayerListTabs.SetPlayerListDefault(!isBriefing);
-			m_PlayerListTabs.SetDarkBackground(!isBriefing);
+			m_PlayerListTabs.SetDarkBackground(false);
 		}
 	}
 
