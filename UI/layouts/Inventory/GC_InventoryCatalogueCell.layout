@@ -14,6 +14,6 @@ TextWidgetClass { Name "ItemName" Slot LayoutSlot { HorizontalAlign 3 } FontProp
 } }
 } }
 TextWidgetClass { Name "SourceMods" "Is Visible" 0 "Ignore Cursor" 1 }
-ButtonWidgetClass { Name "SelectItem" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 Tooltip GC_CatalogueTooltip { m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf" m_sPresetTag "Cell" } components { SCR_ButtonBaseComponent { m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } } }
+ButtonWidgetClass { Name "SelectItem" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 Tooltip GC_CatalogueTooltip { m_sPresetsConfig "{DC391DA320AE5001}Configs/UI/GC_CatalogueTooltips.conf" m_sPresetTag "Cell" } components { SCR_ButtonBaseComponent { m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } } }
 } }
 } }

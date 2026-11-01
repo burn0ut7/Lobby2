@@ -10,6 +10,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	protected ItemPreviewWidget m_Preview;
 	protected ItemPreviewManagerEntity m_PreviewManager;
 	protected ResourceName m_sSelected;
+	protected ResourceName m_sOverwriteTarget;
+	protected SCR_ConfigurableDialogUi m_OverwriteDialog;
 	protected bool m_bCurrentGear = true;
 	protected ref array<ResourceName> m_aResources = {};
 	protected ref array<SCR_ButtonBaseComponent> m_aButtons = {};
@@ -53,7 +55,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		RefreshRelationship();
 		RefreshPreview();
 		RefreshActions();
-		GetGame().GetInputManager().AddActionListener("MenuBack", EActionTrigger.DOWN, Close);
+		GetGame().GetInputManager().AddActionListener("MenuBack", EActionTrigger.DOWN, OnBack);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -216,7 +218,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		current.SetToggleable(true);
 		SetSelection(current, m_bCurrentGear);
 		SetRoleIcon(current.GetRootWidget(), GC_WorkbenchItemBrowser.GetEditingPrefab());
-		SCR_ButtonTextComponent.GetButtonText("Save", root).SetEnabled(m_bCurrentGear);
+		SCR_ButtonTextComponent.GetButtonText("Save", root).SetEnabled(true);
 		SCR_ButtonTextComponent.GetButtonText("Load", root).SetEnabled(!m_bCurrentGear);
 	}
 
@@ -240,6 +242,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnAction(SCR_ButtonBaseComponent button)
 	{
+		if (m_OverwriteDialog)
+			return;
 		string action = button.GetRootWidget().GetName();
 		if (action == "Close")
 		{
@@ -262,7 +266,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			RefreshActions();
 			return;
 		}
-		if ((action == "Load" && m_bCurrentGear) || (action == "Save" && !m_bCurrentGear))
+		if (action == "Load" && m_bCurrentGear)
 			return;
 		m_Status.SetColor(Color.White);
 		if (action == "Load")
@@ -292,11 +296,22 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			MetaFile meta = manager.GetMetaFile(path);
 			if (meta)
 				target = meta.GetResourceID();
-			if (target != GC_WorkbenchItemBrowser.GetEditingPrefab())
+			if (target.IsEmpty())
 			{
-				m_Status.SetText("#GC-Loadout_NameExists");
+				m_Status.SetText("#GC-Loadout_CreateFailed");
 				return;
 			}
+			m_sOverwriteTarget = target;
+			m_OverwriteDialog = SCR_ConfigurableDialogUi.CreateFromPreset("{DC391DA320AE5000}Configs/UI/GC_LoadoutDialogs.conf", "overwrite");
+			if (m_OverwriteDialog)
+			{
+				// Native configurable dialogs place their layout inside a proxy menu.
+				m_OverwriteDialog.GetRootWidget().GetParent().SetZOrder(GetRootWidget().GetZOrder() + 1);
+				m_OverwriteDialog.SetTitle(WidgetManager.Translate("#GC-Loadout_Overwrite") + " " + Label(target) + "?");
+				m_OverwriteDialog.m_OnConfirm.Insert(OnOverwrite);
+				m_OverwriteDialog.m_OnCloseStart.Insert(OnOverwriteClosed);
+			}
+			return;
 		}
 		else
 		{
@@ -304,12 +319,54 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			target = GC_LoadoutPrefab.Create(parent, path, action == "Duplicate");
 			created = !target.IsEmpty();
 		}
+		FinishSave(target, created, m_bCurrentGear || action == "Save");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnBack()
+	{
+		if (!SCR_ConfigurableDialogUi.GetCurrentDialog())
+			Close();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnOverwrite(SCR_ConfigurableDialogUi dialog)
+	{
+		if (dialog != m_OverwriteDialog || !GC_WorkbenchItemBrowser.IsActive(m_Owner))
+			return;
+		ResourceName target = m_sOverwriteTarget;
+		ClearOverwrite();
+		FinishSave(target, false, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnOverwriteClosed(SCR_ConfigurableDialogUi dialog)
+	{
+		if (dialog == m_OverwriteDialog)
+			ClearOverwrite();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ClearOverwrite()
+	{
+		if (m_OverwriteDialog)
+		{
+			m_OverwriteDialog.m_OnConfirm.Remove(OnOverwrite);
+			m_OverwriteDialog.m_OnCloseStart.Remove(OnOverwriteClosed);
+		}
+		m_OverwriteDialog = null;
+		m_sOverwriteTarget = string.Empty;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void FinishSave(ResourceName target, bool created, bool writeGear)
+	{
 		if (target.IsEmpty())
 		{
 			m_Status.SetText("#GC-Loadout_CreateFailed");
 			return;
 		}
-		if (m_bCurrentGear)
+		if (writeGear)
 		{
 			GC_LoadoutPrefab writer = new GC_LoadoutPrefab();
 			if (!writer.Open(target) || !writer.Save(m_Owner))
@@ -340,11 +397,15 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuClose()
 	{
+		SCR_ConfigurableDialogUi dialog = m_OverwriteDialog;
+		ClearOverwrite();
+		if (dialog)
+			dialog.Close();
 		if (m_PreviewManager && m_Preview)
 			m_PreviewManager.SetPreviewItem(m_Preview, null);
 		m_Preview = null;
 		m_PreviewManager = null;
-		GetGame().GetInputManager().RemoveActionListener("MenuBack", EActionTrigger.DOWN, Close);
+		GetGame().GetInputManager().RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnBack);
 		foreach (SCR_ButtonBaseComponent button : m_aButtons)
 			button.m_OnClicked.Remove(OnAction);
 		foreach (SCR_ButtonBaseComponent row : m_aRows)

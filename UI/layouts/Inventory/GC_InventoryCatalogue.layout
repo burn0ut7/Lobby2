@@ -113,6 +113,34 @@ ImageWidgetClass {
  }
 }
 SizeLayoutWidgetClass {
+ Name "CategoryMagazinesBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
+ {
+ButtonWidgetClass {
+ Name "CategoryMagazines"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "rearm-ammo" }
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
  Name "CategoryGrenadesBounds"
  Slot LayoutSlot { HorizontalAlign 3 } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
@@ -193,37 +221,6 @@ ImageWidgetClass {
  }
 }
 SizeLayoutWidgetClass {
- Name "CategoryBackpacksBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
- {
-ButtonWidgetClass {
- Name "CategoryBackpacks"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
- {
-OverlayWidgetClass {
- Name "Content"
- Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
-PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
-PanelWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
-}
-PanelWidgetClass {
- Name "Border"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
-}
-ImageWidgetClass {
- Name "Icon"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{044C18D7A0102172}UI/Textures/InventoryIcons/InventorySlot_backpack.edds"
-}
- }
-}
- }
-}
- }
-}
-SizeLayoutWidgetClass {
  Name "CategoryVestsBounds"
  Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
@@ -247,6 +244,37 @@ PanelWidgetClass {
 ImageWidgetClass {
  Name "Icon"
  Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{7027DDC03DC199C7}UI/Textures/InventoryIcons/InventorySlot_lbs.edds"
+}
+ }
+}
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
+ Name "CategoryBackpacksBounds"
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
+ {
+ButtonWidgetClass {
+ Name "CategoryBackpacks"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass {
+ Name "Content"
+ Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+ {
+PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+PanelWidgetClass {
+ Name "Background"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+}
+PanelWidgetClass {
+ Name "Border"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
+}
+ImageWidgetClass {
+ Name "Icon"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{044C18D7A0102172}UI/Textures/InventoryIcons/InventorySlot_backpack.edds"
 }
  }
 }
@@ -279,34 +307,6 @@ ImageWidgetClass {
  Name "Icon"
  Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{0CDD0FF107787637}UI/Textures/InventoryIcons/InventorySlot_binoculars.edds"
 }
- }
-}
- }
-}
- }
-}
-SizeLayoutWidgetClass {
- Name "CategoryMagazinesBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
- {
-ButtonWidgetClass {
- Name "CategoryMagazines"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
- {
-OverlayWidgetClass {
- Name "Content"
- Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
-PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
-PanelWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
-}
-PanelWidgetClass {
- Name "Border"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
-}
-ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "rearm-ammo" }
  }
 }
  }

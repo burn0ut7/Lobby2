@@ -1,4 +1,4 @@
-//! Native hover placement; display contributing addon titles without repeating the item name.
+//! Native hover placement; display only the resolved item's addon title.
 class GC_CatalogueTooltip : SCR_ScriptedWidgetTooltip
 {
 	//------------------------------------------------------------------------------------------------

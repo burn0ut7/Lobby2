@@ -2,7 +2,7 @@
 
 ## Explosives category and pager keycaps (2026-11-01)
 
-The grenade icon after Weapons filters Explosives & throwables. Classification
+The grenade icon after Ammunition filters Explosives & throwables. Classification
 uses resolved WeaponComponent WeaponSlotType values `grenade` and `throwable`,
 including native grenades, smoke, demolition blocks and mines. These no longer
 appear under Weapons; All Items remains unchanged. Source examples at installed
@@ -19,7 +19,24 @@ forward paging moved to offset 10 and back returned to zero. Capture
 `.temp/local/evidence/loadout-foundation` shows localized labels and complete Q/E
 keycaps at 20 / 24. Transfer and slot-compatibility authority remain unchanged.
 
-## Search options and source hover (2026-11-01)
+## Single-mod hover and category order (2026-11-01)
+
+Ammunition follows Weapons; Headwear, Clothing, Vests and Backpacks are consecutive.
+Hover now shows only the resolved resource provider, following installed
+`SCR_AddonTool.GetResourceLastAddon` semantics (last source addon, PAK revision
+`d9b5a4246f9247e4be5ea20935889885`, SCR_AddonTools.c lines 59–68). It does not list
+inherited contributors. Native items resolve to Arma Reforger; the Lobby2 radio
+resolves to Lobby2 (`338af8fe6d7a46708928cb1c96917f12`). The dedicated tooltip is
+black with white text; shared admin tooltip styling is unchanged.
+
+Actual hover capture, after user mouse input:
+toolrepo `.temp/local/evidence/loadout-foundation/1793512987649435600-capture_screenshot.png`.
+Native mouse exit dismissed it (`eb58bdb538d14e95ae6eb647b38a04c3`). Automated
+mouse reporting reached the row but did not initially dispatch Show in the background;
+physical hover was confirmed by the user and captured through MCP. Independent
+source/visual review approved. Coverage remains the observed desktop viewport.
+
+## Search options and source hover (2026-11-01, superseded hover wording)
 
 The compact row above Search offers A–Z/Z–A and All mods/loaded source addons.
 Only addons contributing portable items are listed, using GameProject titles.

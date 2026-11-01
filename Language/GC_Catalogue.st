@@ -2,6 +2,9 @@ StringTable {
  ItemClassName "CustomStringTableItem"
  Items {
   CustomStringTableItem "{DC391DA320AF3000}" { Id "GC-Loadout_Title" Target_en_us "Loadouts" }
+  CustomStringTableItem "{DC391DA320AF3020}" { Id "GC-Loadout_Overwrite" Target_en_us "Overwrite" }
+  CustomStringTableItem "{DC391DA320AF3021}" { Id "GC-Loadout_OverwriteMessage" Target_en_us "Replace this prefab with your current gear?" }
+  CustomStringTableItem "{DC391DA320AF3022}" { Id "GC-Loadout_Continue" Target_en_us "Continue" }
   CustomStringTableItem "{DC391DA320AF3001}" { Id "GC-Loadout_Saved" Target_en_us "SAVED PREFABS" }
   CustomStringTableItem "{DC391DA320AF3002}" { Id "GC-Loadout_Faction" Target_en_us "FACTION" }
   CustomStringTableItem "{DC391DA320AF3003}" { Id "GC-Loadout_Group" Target_en_us "TEAM" }

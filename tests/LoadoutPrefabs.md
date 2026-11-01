@@ -2,9 +2,11 @@
 
 Press S in the explicitly opened local gear editor. Current gear includes unsaved
 inventory edits. Selecting a saved row changes the source to that file and previews
-it without equipping it. Save applies to Current gear; Load applies to a saved row.
+it without equipping it. Save always writes current gear to the named destination;
+Load equips the selected saved row.
 Inherit and Duplicate accept either source. Enter a new name for either creation
-action. Save can update the currently edited file, but cannot overwrite another file.
+action. Saving an existing destination asks Continue/Cancel before overwriting it,
+including when the saved row is selected. Cancel preserves both gear and file.
 Close returns without writing. Successful actions reopen the gear editor.
 
 Native files live at `Prefabs/Loadouts/<Faction>/<Team>/<Name>.et`. Inherit points to
@@ -31,6 +33,22 @@ or reports the remaining path explicitly. Native array/property inheritance rule
 apply; this is not a runtime state, ammunition-count or health save system.
 
 ## Reproduction
+
+Overwrite verification (2026-11-01, Workbench 1.8.0.13): selected a disposable
+saved prefab while editing a different character. Cancel retained its SHA256
+`4C18934D9CD1683FA017696295AD2AAAB2D4581B09026DFF01622844E653E4C3`
+and left the files menu open (operation `813690eb46a7444abb16352e23c37b12`).
+Continue wrote current gear, preserved GUID/ancestor, and returned to inventory
+(`0586040ac1cb48e89786a1ddaf1789d1`, `548a57dcc3b24ebab538da8e6842ea8c`).
+An added bandage was persisted without an unchanged M16 override; overwriting
+again without that bandage cleared its resource entry (native empty configuration
+structure remains). Popup capture: toolrepo `.temp/local/evidence/loadout-foundation/1793512325113001100-capture_screenshot.png`.
+The optional `GC_TestLoadoutConfirm("confirm" | "cancel")` exercises native dialog
+button dispatch. User-authored prefabs were not overwritten.
+Final Reload `e8777235647245d9a606479636d4b13e` passed without new script errors;
+the existing ArlandLobby, dedicated-server-plugin and formation diagnostics remain.
+Disposable files were removed and the user's saved base restored to the gear screen
+(`a3b157a6fbfa4bdd83b47c1e4dc03ee2`). Independent review approved the changes.
 
 Load the optional MCP test addon in `worlds/examples/MPTest/Empty_Lobby.ent`, start
 Play, call `GC_TestNativeInventoryStart`, then `GC_TestCatalogueOpen`. The test

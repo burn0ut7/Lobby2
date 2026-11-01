@@ -3,6 +3,22 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestLoadoutConfirm(string action)
+	{
+		SCR_ConfigurableDialogUi dialog = SCR_ConfigurableDialogUi.GetCurrentDialog();
+		if (!dialog || dialog.GetDialogPreset().m_sTag != "overwrite")
+			return "overwrite dialog absent";
+		if (!action.IsEmpty())
+		{
+			SCR_InputButtonComponent button = dialog.FindButton(action);
+			if (!button)
+				return "button absent";
+			button.GC_TestPress();
+		}
+		return "overwrite " + action;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestLoadoutFlowState()
 	{
 		IEntity owner = GetGame().GetPlayerController().GetControlledEntity();

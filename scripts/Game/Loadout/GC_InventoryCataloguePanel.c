@@ -62,7 +62,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_Vicinity.SetOpacity(0);
 		m_Opened.SetOpacity(0);
 		m_Root.AddHandler(this);
-		array<string> buttonNames = {"CategoryAll", "CategoryWeapons", "CategoryGrenades", "CategoryHeadwear", "CategoryClothing", "CategoryBackpacks", "CategoryVests", "CategoryEquipment", "CategoryMagazines", "CategoryAttachments"};
+		array<string> buttonNames = {"CategoryAll", "CategoryWeapons", "CategoryMagazines", "CategoryGrenades", "CategoryHeadwear", "CategoryClothing", "CategoryVests", "CategoryBackpacks", "CategoryEquipment", "CategoryAttachments"};
 		foreach (string buttonName : buttonNames)
 			BindButton(m_Root.FindAnyWidget(buttonName));
 		m_Paging = SCR_SpinBoxPagingComponent.GetSpinBoxPagingComponent("CataloguePaging", m_Root);
@@ -403,19 +403,17 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			cell.SetVisible(populated);
 			if (populated)
 			{
-				array<string> titles = {};
-				foreach (string source : m_aPage[index].m_aSourceAddons)
+				// Match SCR_AddonTool.GetResourceLastAddon: the resolved resource's
+				// last provider, rather than every inherited dependency.
+				array<string> sources = m_aPage[index].m_aSourceAddons;
+				string sourceText;
+				if (!sources.IsEmpty())
 				{
-					string title = m_mModTitles.Get(source);
-					if (title.IsEmpty())
-						title = source;
-					if (titles.Find(title) < 0)
-						titles.Insert(title);
+					string source = sources[sources.Count() - 1];
+					sourceText = m_mModTitles.Get(source);
+					if (sourceText.IsEmpty())
+						sourceText = source;
 				}
-				titles.Sort();
-				string sourceText = "Source mods";
-				foreach (string title : titles)
-					sourceText += "\n" + title;
 				TextWidget.Cast(cell.FindAnyWidget("SourceMods")).SetText(sourceText);
 				TextWidget.Cast(cell.FindAnyWidget("ItemName")).SetText(m_aPage[index].m_sName);
 				TextWidget.Cast(cell.FindAnyWidget("ItemCategory")).SetText(m_aPage[index].GetCategoryLabel());
