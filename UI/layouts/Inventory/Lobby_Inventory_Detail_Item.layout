@@ -1,11 +1,11 @@
 SizeLayoutWidgetClass {
  Name "InventoryDetailItem"
  AllowWidthOverride 1
- WidthOverride 132
+ WidthOverride 160
  AllowHeightOverride 1
- HeightOverride 132
- Slot LayoutSlot "{6A32000000000031}" {
-  Padding 0 0 8 0
+ HeightOverride 160
+ Slot WrapLayoutWidgetSlot "{6A32000000000031}" {
+  Padding 0 0 8 8
  }
  {
   OverlayWidgetClass "{6A32000000000032}" {
@@ -21,7 +21,7 @@ SizeLayoutWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0.02 0.025 0.026 0.94
+     Color 0.0048 0.0048 0.0048 0.55
      style full
     }
     PanelWidgetClass "{6A32000000000036}" {
@@ -30,7 +30,7 @@ SizeLayoutWidgetClass {
       HorizontalAlign 3
       VerticalAlign 3
      }
-     Color 0.45 0.48 0.48 0.9
+     Color 1 1 1 0.12
      style outline_2px
     }
     ItemPreviewWidgetClass "{6A32000000000038}" {
@@ -74,9 +74,10 @@ SizeLayoutWidgetClass {
           VerticalAlign 3
           Padding 5 1 5 1
          }
+         FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 1 }
          Text "ITEM"
-         "Font Size" 14
-         "Min Font Size" 10
+         "Font Size" 16
+         "Min Font Size" 14
          "Vertical Alignment" Center
         }
         ButtonWidgetClass "{6A32000000000048}" {
@@ -125,6 +126,7 @@ SizeLayoutWidgetClass {
         VerticalAlign 3
         Padding 6 2 6 2
        }
+       FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 1 }
        Text "x2"
        "Font Size" 17
        "Min Font Size" 17

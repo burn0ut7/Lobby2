@@ -1,4 +1,4 @@
-OverlayWidgetClass {
+FrameWidgetClass {
  Name "InventoryDetail"
  Slot OverlayWidgetSlot "{6A32000000000011}" {
   HorizontalAlign 3
@@ -9,11 +9,27 @@ OverlayWidgetClass {
   }
  }
  {
+  BlurWidgetClass {
+   Name "InventoryBackdropBlur"
+   Slot FrameWidgetSlot {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
+   }
+   Color 0.305 0.305 0.305 1
+   Intensity 0.8
+   "Ignore Cursor" 1
+  }
   ButtonWidgetClass "{6A32000000000013}" {
    Name "InventoryDismissButton"
-   Slot OverlayWidgetSlot "{6A32000000000014}" {
-    HorizontalAlign 3
-    VerticalAlign 3
+   Slot FrameWidgetSlot "{6A32000000000014}" {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
    }
    Color 1 1 1 0
    components {
@@ -38,14 +54,13 @@ OverlayWidgetClass {
   }
   SizeLayoutWidgetClass "{6A32000000000015}" {
    Name "InventoryDetailBounds"
-   Slot OverlayWidgetSlot "{6A32000000000016}" {
-    HorizontalAlign 1
-    VerticalAlign 1
+   Slot FrameWidgetSlot "{6A32000000000016}" {
+    Anchor 0.12 0.08 0.88 0.92
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
    }
-   AllowWidthOverride 1
-   WidthOverride 900
-   AllowHeightOverride 1
-   HeightOverride 650
    {
     OverlayWidgetClass "{6A32000000000017}" {
      Name "InventoryDetailPanel"
@@ -54,14 +69,13 @@ OverlayWidgetClass {
       VerticalAlign 3
      }
      {
-      PanelWidgetClass "{6A32000000000019}" {
+      ImageWidgetClass "{6A32000000000019}" {
        Name "PanelBackground"
        Slot OverlayWidgetSlot "{6A3200000000001A}" {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0.01 0.018 0.02 0.97
-       style full
+       Color 0.0048 0.0048 0.0048 0.99
       }
       PanelWidgetClass "{6A3200000000001B}" {
        Name "PanelOutline"
@@ -69,7 +83,7 @@ OverlayWidgetClass {
         HorizontalAlign 3
         VerticalAlign 3
        }
-       Color 0.45 0.48 0.48 0.95
+       Color 1 1 1 0.35
        style outline_2px
       }
       ButtonWidgetClass "{6A32000000000049}" {
@@ -107,18 +121,9 @@ OverlayWidgetClass {
             SizeMode Fill
            }
            Text "INVENTORY"
+           FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 1 }
            "Font Size" 30
            "Min Font Size" 20
-          }
-          TextWidgetClass "{6A32000000000024}" {
-           Name "InventoryDetailReadOnly"
-           Slot LayoutSlot "{6A32000000000025}" {
-            Padding 0 8 16 0
-           }
-           Color 0.7 0.72 0.72 1
-           Text "PREVIEW ONLY"
-           "Font Size" 15
-           "Min Font Size" 12
           }
           ButtonWidgetClass "{6A32000000000026}" {
            Name "CloseButton"
@@ -128,6 +133,9 @@ OverlayWidgetClass {
            Color 1 1 1 0
            components {
             SCR_ButtonBaseComponent "{6A32000000000028}" {
+             m_BackgroundDefault 0.07 0.1 0.11 0.95
+             m_BackgroundHovered 0.9 0.68 0.27 0.25
+             m_BackgroundClicked 0.9 0.68 0.27 0.6
             }
            }
            {
@@ -139,11 +147,12 @@ OverlayWidgetClass {
              }
              {
               PanelWidgetClass "{6A32000000000040}" {
+               Name "Background"
                Slot OverlayWidgetSlot "{6A32000000000041}" {
                 HorizontalAlign 3
                 VerticalAlign 3
                }
-               Color 0.16 0.18 0.18 0.95
+               Color 0.07 0.1 0.11 0.95
                style full
               }
               TextWidgetClass "{6A32000000000029}" {
@@ -153,6 +162,7 @@ OverlayWidgetClass {
                 VerticalAlign 1
                }
                Text "CLOSE"
+               FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 1 }
                "Font Size" 16
                "Min Font Size" 12
               }
@@ -185,9 +195,12 @@ OverlayWidgetClass {
   }
   FrameWidgetClass "{6A32000000000050}" {
    Name "InventoryNameTooltipLayer"
-   Slot OverlayWidgetSlot "{6A32000000000051}" {
-    HorizontalAlign 3
-    VerticalAlign 3
+   Slot FrameWidgetSlot "{6A32000000000051}" {
+    Anchor 0 0 1 1
+    OffsetLeft 0
+    OffsetTop 0
+    OffsetRight 0
+    OffsetBottom 0
    }
    Clipping False
    "Ignore Cursor" 1
@@ -220,7 +233,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0.01 0.018 0.02 0.98
+         Color 0.07 0.1 0.11 0.98
          style full
         }
         PanelWidgetClass "{6A32000000000058}" {
@@ -229,7 +242,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0.761 0.392 0.078 1
+         Color 1 1 1 0.35
          style outline_2px
         }
         TextWidgetClass "{6A3200000000005A}" {
@@ -240,6 +253,7 @@ OverlayWidgetClass {
           Padding 10 7 10 7
          }
          Text "ITEM NAME"
+         FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 1 }
          "Font Size" 18
          "Min Font Size" 18
          "Vertical Alignment" Center

@@ -270,7 +270,7 @@ FrameWidgetClass {
         }
        }
       }
-      OverlayWidgetClass "{6A32000000000010}" : "{6A32000000000001}UI/layouts/Inventory/Lobby_Inventory_Detail.layout" {
+      FrameWidgetClass "{6A32000000000010}" : "{6A32000000000001}UI/layouts/Inventory/Lobby_Inventory_Detail.layout" {
        Name "InventoryDetail"
        Slot OverlayWidgetSlot "{6A3200000000000F}" {
         HorizontalAlign 3

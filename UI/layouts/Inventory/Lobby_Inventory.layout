@@ -31,7 +31,8 @@ OverlayWidgetClass {
      components {
       SCR_ButtonBaseComponent "{6A31000000000079}" {
        m_BackgroundDefault 0.005 0.005 0.005 0.78
-       m_BackgroundHovered 0.136 0.136 0.136 0.392
+       m_BackgroundHovered 0.07 0.1 0.11 0.95
+       m_BackgroundClicked 0.9 0.68 0.27 0.6
       }
      }
      {
@@ -57,7 +58,7 @@ OverlayWidgetClass {
           HorizontalAlign 3
           VerticalAlign 3
          }
-         Color 0.45 0.48 0.48 0.9
+         Color 1 1 1 0.35
          style outline_2px
         }
         VerticalLayoutWidgetClass "{6A31000000000058}" {

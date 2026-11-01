@@ -13,7 +13,6 @@ class GC_LobbyInventoryDetailComponent : ScriptedWidgetComponent
 	protected static const ResourceName CATEGORY_LAYOUT = "{6A32000000000004}UI/layouts/Inventory/Lobby_Inventory_Detail_Category.layout";
 	protected static const ResourceName ROW_LAYOUT = "{6A32000000000002}UI/layouts/Inventory/Lobby_Inventory_Detail_Row.layout";
 	protected static const ResourceName CELL_LAYOUT = "{6A32000000000003}UI/layouts/Inventory/Lobby_Inventory_Detail_Item.layout";
-	protected static const int ITEMS_PER_ROW = 6;
 	protected static const float NAME_TOOLTIP_MAX_WIDTH = 500;
 	protected static const float NAME_TOOLTIP_OFFSET = 4;
 
@@ -203,10 +202,10 @@ class GC_LobbyInventoryDetailComponent : ScriptedWidgetComponent
 					continue;
 
 				if (categoryItemCount == 0)
+				{
 					CreateCategoryHeader(category);
-
-				if (categoryItemCount % ITEMS_PER_ROW == 0)
 					row = GetGame().GetWorkspace().CreateWidgets(ROW_LAYOUT, m_wRows);
+				}
 
 				if (!row)
 					break;

@@ -26,24 +26,6 @@ SizeLayoutWidgetClass {
       VerticalAlign 3
      }
      {
-      PanelWidgetClass "{6A31000000000038}" {
-       Name "Outline"
-       Slot OverlayWidgetSlot "{6A31000000000039}" {
-        HorizontalAlign 3
-        VerticalAlign 3
-       }
-       Color 0.45 0.48 0.48 0.8
-       style outline_2px
-      }
-      ImageWidgetClass "{6A3100000000003A}" {
-       Name "WeaponAccent"
-       Slot OverlayWidgetSlot "{6A3100000000003B}" {
-        HorizontalAlign 3
-        VerticalAlign 0
-       }
-       Color 0.76 0.39 0.08 1
-       Size 0 3
-      }
       ImageWidgetClass "{6A31000000000044}" {
        Name "BaseIcon"
        Slot OverlayWidgetSlot "{6A31000000000045}" {
@@ -81,7 +63,7 @@ SizeLayoutWidgetClass {
        "Min Font Size" 10
        FontProperties FontProperties "{6A31000000000043}" {
         OutlineSize 1
-        OutlineColor 0 0 0 0.8
+        OutlineColor 0 0 0 1
        }
       }
      }
