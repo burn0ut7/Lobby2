@@ -27,7 +27,7 @@ SizeLayoutWidgetClass {
       VerticalAlign 3
      }
      "Ignore Cursor" 1
-     Color 0 0 0 0.72
+     Color 0 0 0 0.55
     }
     VerticalLayoutWidgetClass "{6A37000000000007}" {
      Name "PlayerListBody"
