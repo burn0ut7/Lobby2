@@ -19,9 +19,12 @@ FrameWidgetClass {
    Intensity 0.8
    "Ignore Cursor" 1
   }
-  TextWidgetClass { Name "PlayersCategory" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.10 0.2 0.13 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "PLAYERS" "Font Size" 18 Color 0.65 0.65 0.65 1 "Ignore Cursor" 1 }
-  TextWidgetClass { Name "MissionCategory" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.46 0.2 0.49 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "MISSION" "Font Size" 18 Color 0.65 0.65 0.65 1 "Ignore Cursor" 1 }
-  TextWidgetClass { Name "ActivityCategory" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.73 0.2 0.76 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ACTIVITY" "Font Size" 18 Color 0.65 0.65 0.65 1 "Ignore Cursor" 1 }
+  TextWidgetClass { Name "PlayersCategory" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.09 0.2 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "PLAYERS" "Font Size" 20 Color 0.82 0.82 0.82 1 "Ignore Cursor" 1 }
+  PanelWidgetClass { Name "PlayersCategoryDivider" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.125 0.2 0.125 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -1 } Color 1 1 1 0.18 style full "Ignore Cursor" 1 }
+  TextWidgetClass { Name "MissionCategory" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.46 0.2 0.49 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "MISSION" "Font Size" 20 Color 0.82 0.82 0.82 1 "Ignore Cursor" 1 }
+  PanelWidgetClass { Name "MissionCategoryDivider" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.495 0.2 0.495 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -1 } Color 1 1 1 0.18 style full "Ignore Cursor" 1 }
+  TextWidgetClass { Name "ActivityCategory" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.775 0.2 0.805 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "ACTIVITY" "Font Size" 20 Color 0.82 0.82 0.82 1 "Ignore Cursor" 1 }
+  PanelWidgetClass { Name "ActivityCategoryDivider" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.025 0.81 0.2 0.81 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -1 } Color 1 1 1 0.18 style full "Ignore Cursor" 1 }
   FrameWidgetClass { Name "MessageMode" "Z Order" 2 Slot FrameWidgetSlot { Anchor 0.24 0.17 0.65 0.22 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } {
    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "MessageNormal" Slot FrameWidgetSlot { Anchor 0 0 0.49 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolWarn" Slot FrameWidgetSlot { Anchor 0.51 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
@@ -108,7 +111,7 @@ FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" 
   PanelWidgetClass {
    Name "LogsSelectedBar"
    "Z Order" 1
-   Slot FrameWidgetSlot { Anchor 0.018 0.78 0.021 0.83 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   Slot FrameWidgetSlot { Anchor 0.018 0.825 0.021 0.875 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
    Color 0.95 0.73 0.3 1
    style full
    "Ignore Cursor" 1
@@ -201,9 +204,9 @@ ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.la
 TextWidgetClass { Name "PlanStatus" Slot FrameWidgetSlot { Anchor 0 0.25 1 0.42 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 24 Wrap 1 "Ignore Cursor" 1 }
 } }
 ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolModeration" Slot FrameWidgetSlot { Anchor 0.018 0.36 0.2 0.41 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolLogs" Slot FrameWidgetSlot { Anchor 0.018 0.78 0.2 0.83 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 } } }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolServerStatus" Slot FrameWidgetSlot { Anchor .018 .835 .2 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 } } }
-PanelWidgetClass { Name "StatusSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { Anchor .018 .835 .021 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color .95 .73 .3 1 style full "Ignore Cursor" 1 }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolLogs" Slot FrameWidgetSlot { Anchor 0.018 0.825 0.2 0.875 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 } } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolServerStatus" Slot FrameWidgetSlot { Anchor .018 .88 .2 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 } } }
+PanelWidgetClass { Name "StatusSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { Anchor .018 .88 .021 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color .95 .73 .3 1 style full "Ignore Cursor" 1 }
 FrameWidgetClass : "{D389716BFE230A42}UI/layouts/Admin/Lobby_AdminStatus.layout" { Name "StatusFields" Slot FrameWidgetSlot { Anchor .24 .18 .98 .95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{B4C238A9F06E7D12}UI/layouts/Admin/Lobby_AdminLogs.layout" { Name "LogFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{6A5A000000000070}UI/layouts/Admin/Lobby_AdminModeration.layout" { Name "ModerationFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
