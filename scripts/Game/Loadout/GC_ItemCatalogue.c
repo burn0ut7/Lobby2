@@ -18,6 +18,21 @@ class GC_ItemCatalogueEntry
 	ref array<typename> m_aMountTypes = {};
 
 	//------------------------------------------------------------------------------------------------
+	string GetSortKey(bool descending)
+	{
+		string name = m_sName.Trim();
+		name.ToLower();
+		bool symbols = name.IsEmpty();
+		if (!symbols)
+			symbols = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~".Contains(name.Substring(0, 1));
+		// Keep punctuation-prefixed names last in both sort directions.
+		string group = "1";
+		if (symbols == descending)
+			group = "0";
+		return group + name + "\t" + m_sPrefab;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GetCategoryLabel()
 	{
 		string label = m_sCategory;
@@ -250,6 +265,7 @@ class GC_ItemCatalogue
 			if (m_aFactionCatalogues[f].GetEntryWithPrefab(prefab))
 				entry.m_sFactions += " " + m_aFactionKeys[f] + " ";
 		}
+		entry.m_sName.TrimInPlace();
 		entry.m_sSearch = entry.m_sName + " " + entry.m_sNameKey + " " + prefab + " " + source + " " + entry.m_sCategory + " " + entry.m_sEquipmentSlot + " " + entry.m_sFactions;
 		entry.m_sSearch += " " + WidgetManager.Translate(entry.GetCategoryLabel());
 		foreach (string addon : entry.m_aSourceAddons)
@@ -382,9 +398,7 @@ class GC_ItemCatalogue
 				continue;
 			if (query.m_bAlphabetical)
 			{
-				string key = Get(index).m_sName;
-				key.ToLower();
-				key += "\t" + Get(index).m_sPrefab;
+				string key = Get(index).GetSortKey(query.m_bDescending);
 				sortedKeys.Insert(key);
 				sortedEntries.Insert(key, Get(index));
 			}

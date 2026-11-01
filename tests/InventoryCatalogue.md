@@ -243,3 +243,23 @@ rejected in this test; that transfer behavior was not changed by this filtering 
 
 Evidence is in toolrepo .temp/local/evidence/loadout-foundation, including screenshot
 1793518509489472400-capture_screenshot.png. Independent source/UI review approved.
+
+## Stable previews and alphabetical names (2026-11-01)
+
+Trim localized display names before indexing; the SVD Magazine Pouch had leading
+whitespace. Alphabetical sort groups ASCII punctuation-prefixed and empty names
+after ordinary names in both directions. Retain each visible prefab's row widget
+and preview binding across result changes, including row movement. Only new
+bindings enter the one-preview-per-frame queue.
+
+Workbench Reload 25cea6c4fc264d0e81e6f6836e575192 compiled without new errors.
+Optional GC_CatalogueRefreshTests exercises production Refresh and GetSortKey.
+Live retention checks passed unchanged=10/10 and shifted=9/9 in both directions
+(7f2dea9cc9514322a3236641470b815d, 4a3242b1287a472f96f63161cad49168).
+Sort fixtures put the trimmed SVD name between Alpha and Zulu and kept punctuation
+last in A-Z and Z-A (381d36fa1f7d458d8439121e8f3af32e,
+c65809286d274c0f8dcf5c7a09e47340). Actual SVD search returned its trimmed name
+(38a22b20815644a4a04f742e54023e70); the full A-Z list starts with 105mm ammunition.
+Screenshot 1793518926007556000-capture_screenshot.png confirms descending row
+order and matching previews. State checks establish retained preview visibility;
+the screenshot is not a temporal flashing measurement. Independent review approved.

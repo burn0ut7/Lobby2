@@ -15,6 +15,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected ref GC_ItemCatalogueQuery m_Query = new GC_ItemCatalogueQuery();
 	protected ref array<GC_ItemCatalogueEntry> m_aPage = {};
 	protected ref array<Widget> m_aCells = {};
+	protected ref map<Widget, ResourceName> m_mPreviewPrefabs = new map<Widget, ResourceName>();
 	protected int m_iOffset;
 	protected int m_iTotal;
 	protected int m_iPreview;
@@ -129,6 +130,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		}
 		m_Root = null;
 		m_aCells.Clear();
+		m_mPreviewPrefabs.Clear();
 		m_aPage.Clear();
 		m_Catalogue = null;
 	}
@@ -175,6 +177,8 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		if (m_bFinished != m_Catalogue.IsFinished() || (m_fRefresh >= 0.5 && m_iIndexed != m_Catalogue.Count()))
 			Refresh();
 		// Only visible cells, one request per frame. A new query cancels the old page queue.
+		while (m_iPreview < m_aPage.Count() && m_mPreviewPrefabs.Get(m_aCells[m_iPreview]) == m_aPage[m_iPreview].m_sPrefab)
+			m_iPreview++;
 		if (m_iPreview < m_aPage.Count())
 		{
 			ChimeraWorld world = GetGame().GetWorld();
@@ -183,9 +187,11 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			{
 				ItemPreviewWidget preview = ItemPreviewWidget.Cast(m_aCells[m_iPreview].FindAnyWidget("ItemPreview"));
 				manager.SetPreviewItemFromPrefab(preview, m_aPage[m_iPreview].m_sPrefab, null, false, 1000);
+				m_mPreviewPrefabs.Remove(m_aCells[m_iPreview]);
+				m_mPreviewPrefabs.Insert(m_aCells[m_iPreview], m_aPage[m_iPreview].m_sPrefab);
 				preview.SetVisible(true);
+				m_iPreview++;
 			}
-			m_iPreview++;
 		}
 	}
 
@@ -395,6 +401,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		if (changed)
 		{
 			GC_CatalogueTooltip.HideCurrent();
+			ReusePageCells(previousPage);
 			m_iPreview = 0;
 		}
 		foreach (int index, Widget cell : m_aCells)
@@ -418,8 +425,8 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 				TextWidget.Cast(cell.FindAnyWidget("ItemName")).SetText(m_aPage[index].m_sName);
 				TextWidget.Cast(cell.FindAnyWidget("ItemCategory")).SetText(m_aPage[index].GetCategoryLabel());
 			}
-			if (changed)
-				cell.FindAnyWidget("ItemPreview").SetVisible(false);
+			if (populated)
+				cell.FindAnyWidget("ItemPreview").SetVisible(m_mPreviewPrefabs.Get(cell) == m_aPage[index].m_sPrefab);
 		}
 		foreach (SCR_ButtonBaseComponent button : m_aButtons)
 		{
@@ -448,6 +455,41 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_Paging.SetPageCount(pages, false);
 		m_Paging.SetCurrentItem(m_iOffset / PAGE_SIZE, false);
 		m_Paging.m_OnChanged.Insert(OnPageChanged);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ReusePageCells(array<GC_ItemCatalogueEntry> previousPage)
+	{
+		array<Widget> available = {};
+		available.Copy(m_aCells);
+		array<Widget> ordered = {};
+		// Keep each retained prefab's widget and render target, even if its row moves.
+		foreach (GC_ItemCatalogueEntry entry : m_aPage)
+		{
+			Widget retained;
+			foreach (int oldIndex, GC_ItemCatalogueEntry previous : previousPage)
+			{
+				if (previous.m_sPrefab == entry.m_sPrefab)
+				{
+					retained = m_aCells[oldIndex];
+					available.RemoveItem(retained);
+					break;
+				}
+			}
+			ordered.Insert(retained);
+		}
+		for (int i; i < PAGE_SIZE; i++)
+		{
+			if (i >= ordered.Count())
+				ordered.Insert(null);
+			if (!ordered[i])
+			{
+				ordered[i] = available[0];
+				available.Remove(0);
+			}
+			ordered[i].SetZOrder(i);
+		}
+		m_aCells.Copy(ordered);
 	}
 
 	//------------------------------------------------------------------------------------------------
