@@ -141,6 +141,10 @@ StringTable {
    Id "GC-Catalogue_grenade"
    Target_en_us "Grenades"
   }
+  CustomStringTableItem "{DC391DA320AF0030}" {
+   Id "GC-Catalogue_Grenades"
+   Target_en_us "Explosives & throwables"
+  }
   CustomStringTableItem "{DC391DA320AF0019}" {
    Id "GC-Catalogue_primary"
    Target_en_us "Primary weapons"

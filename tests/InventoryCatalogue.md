@@ -1,5 +1,24 @@
 # Workbench inventory catalogue
 
+## Explosives category and pager keycaps (2026-11-01)
+
+The grenade icon after Weapons filters Explosives & throwables. Classification
+uses resolved WeaponComponent WeaponSlotType values `grenade` and `throwable`,
+including native grenades, smoke, demolition blocks and mines. These no longer
+appear under Weapons; All Items remains unchanged. Source examples at installed
+revision `d9b5a4246f9247e4be5ea20935889885`: Grenade_Base.et line 106 and
+SmokeGrenade_Base.et line 47 in Prefabs/Weapons/Core.
+
+Native WLib_PagingButton.layout clips its fixed 30x30 bounds. Catalogue-local
+overrides reserve 48x32, remove forced aspect ratio/clipping, and give the native
+pager 40px height. The item counter reserves room for the wider E control.
+Reload `3958a2157fe14bebba7f5c940ee59df3` passed without new script errors.
+Live category callbacks showed 24 explosives and 144 weapons (formerly 168),
+forward paging moved to offset 10 and back returned to zero. Capture
+`1793511760943386700-capture_screenshot.png` in the toolrepo's
+`.temp/local/evidence/loadout-foundation` shows localized labels and complete Q/E
+keycaps at 20 / 24. Transfer and slot-compatibility authority remain unchanged.
+
 ## Search options and source hover (2026-11-01)
 
 The compact row above Search offers A–Z/Z–A and All mods/loaded source addons.

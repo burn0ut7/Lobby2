@@ -35,3 +35,8 @@ Live captures 1793511559820570300-capture_screenshot.png (10 / 813),
 1793511568908592100-capture_screenshot.png (50 / 813), and
 1793511589745440900-capture_screenshot.png (0 / 0); category and clear-search
 callbacks verified, independent source/visual review approved.
+Explosives refinement: add a native grenade icon immediately after Weapons for
+the grenade/throwable slot-tag category, labeled Explosives & throwables. Preserve
+ten result rows. Native Q/E button bounds expand from clipped 30px squares to
+48x32 within a 40px pager, with counter inset increased to avoid overlap.
+Live reference: 1793511760943386700-capture_screenshot.png (20 / 24, both active).

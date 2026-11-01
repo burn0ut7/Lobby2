@@ -113,6 +113,24 @@ ImageWidgetClass {
  }
 }
 SizeLayoutWidgetClass {
+ Name "CategoryGrenadesBounds"
+ Slot LayoutSlot { HorizontalAlign 3 } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
+ {
+ButtonWidgetClass {
+ Name "CategoryGrenades"
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass { Name "Content" Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } {
+ PanelWidgetClass { Name "SquareOutline" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } Color 0.35 0.35 0.35 0.7 style pixel_outline "Ignore Cursor" 1 }
+ PanelWidgetClass { Name "Background" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1 }
+ PanelWidgetClass { Name "Border" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1 }
+ ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 8 8 8 8 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "grenade" }
+} }
+ }
+}
+ }
+}
+SizeLayoutWidgetClass {
  Name "CategoryHeadwearBounds"
  Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
@@ -331,17 +349,23 @@ VerticalLayoutWidgetClass { Name "Results" Slot LayoutSlot { HorizontalAlign 3 S
 } }
 ButtonWidgetClass : "{71EFAB5E571BF23A}UI/layouts/WidgetLibrary/SpinBox/WLib_SpinBoxPaging.layout" {
  Name "CataloguePaging"
- Slot FrameWidgetSlot { Anchor 0 1 1 1 OffsetLeft 6 OffsetTop -38 OffsetRight 6 OffsetBottom 6 }
+ Slot FrameWidgetSlot { Anchor 0 1 1 1 OffsetLeft 6 OffsetTop -46 OffsetRight 6 OffsetBottom 6 }
  components { SCR_SpinBoxPagingComponent "{54A478843A233C04}" { m_sLeftAction "Inventory_PrevPage" m_sRightAction "Inventory_NextPage" } }
- { SizeLayoutWidgetClass "{553D290FEBA7C78B}" { Prefab "{553D290FEBA7C78B}" AllowHeightOverride 1 HeightOverride 32 {
+ { SizeLayoutWidgetClass "{553D290FEBA7C78B}" { Prefab "{553D290FEBA7C78B}" AllowHeightOverride 1 HeightOverride 40 {
  OverlayWidgetClass "{54A47884868C8F19}" { Prefab "{54A47884868C8F19}" {
   ImageWidgetClass "{54A49893FCCABD6D}" { Prefab "{54A49893FCCABD6D}" "Is Visible" 0 }
   HorizontalLayoutWidgetClass "{54A47884868C9D26}" { Prefab "{54A47884868C9D26}" {
+   ButtonWidgetClass "{553D290CAC9609E3}" { Prefab "{553D290CAC9609E3}" Clipping False {
+    SizeLayoutWidgetClass "{54A0782A39F09C6C}" { Prefab "{54A0782A39F09C6C}" WidthOverride 48 HeightOverride 32 AllowAspectRatioForce 0 }
+   } }
+   ButtonWidgetClass "{553D290CAC5478F2}" { Prefab "{553D290CAC5478F2}" Clipping False {
+    SizeLayoutWidgetClass "{54A0782A39F09C6C}" { Prefab "{54A0782A39F09C6C}" WidthOverride 48 HeightOverride 32 AllowAspectRatioForce 0 }
+   } }
    OverlayWidgetClass "{5548A89CBB493BDF}" { Prefab "{5548A89CBB493BDF}" Opacity 0 }
   } }
  } }
 } }
 }
 }
-TextWidgetClass { Name "Status" Slot FrameWidgetSlot { Anchor 0 1 1 1 OffsetLeft 6 OffsetTop -32 OffsetRight 46 OffsetBottom 10 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Horizontal Alignment" Right "Vertical Alignment" Bottom "Ignore Cursor" 1 }
+TextWidgetClass { Name "Status" Slot FrameWidgetSlot { Anchor 0 1 1 1 OffsetLeft 6 OffsetTop -32 OffsetRight 70 OffsetBottom 10 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Horizontal Alignment" Right "Vertical Alignment" Bottom "Ignore Cursor" 1 }
 } }

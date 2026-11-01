@@ -62,7 +62,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_Vicinity.SetOpacity(0);
 		m_Opened.SetOpacity(0);
 		m_Root.AddHandler(this);
-		array<string> buttonNames = {"CategoryAll", "CategoryWeapons", "CategoryHeadwear", "CategoryClothing", "CategoryBackpacks", "CategoryVests", "CategoryEquipment", "CategoryMagazines", "CategoryAttachments"};
+		array<string> buttonNames = {"CategoryAll", "CategoryWeapons", "CategoryGrenades", "CategoryHeadwear", "CategoryClothing", "CategoryBackpacks", "CategoryVests", "CategoryEquipment", "CategoryMagazines", "CategoryAttachments"};
 		foreach (string buttonName : buttonNames)
 			BindButton(m_Root.FindAnyWidget(buttonName));
 		m_Paging = SCR_SpinBoxPagingComponent.GetSpinBoxPagingComponent("CataloguePaging", m_Root);

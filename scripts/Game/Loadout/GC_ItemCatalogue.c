@@ -194,6 +194,8 @@ class GC_ItemCatalogue
 		{
 			entry.m_sCategory = "Weapons";
 			weapon.Get("WeaponSlotType", entry.m_sEquipmentSlot);
+			if (entry.m_sEquipmentSlot == "grenade" || entry.m_sEquipmentSlot == "throwable")
+				entry.m_sCategory = "Grenades";
 		}
 		IEntityComponentSource magazine = SCR_BaseContainerTools.FindComponentSource(resource, BaseMagazineComponent);
 		if (magazine)
