@@ -3,6 +3,7 @@ class GC_GearSession
 {
 	protected static IEntity s_Owner;
 	protected static SCR_BaseGameMode s_Mode;
+	protected static GC_LobbyPlayerController s_AdminController;
 	protected static int s_iRevision;
 	static bool s_bCrate;
 
@@ -56,6 +57,7 @@ class GC_GearSession
 		GC_WorkbenchItemBrowser.Disable();
 #endif
 		s_Owner = owner;
+		s_AdminController = GC_LobbyPlayerController.Cast(controller);
 		s_iRevision++;
 		s_Mode = GC_LobbyGameMode.GetGameMode();
 		s_bCrate = false;
@@ -69,6 +71,9 @@ class GC_GearSession
 	{
 		if (s_Owner)
 			s_iRevision++;
+		if (s_AdminController)
+			s_AdminController.GC_RequestGearClosed();
+		s_AdminController = null;
 		s_Owner = null;
 		s_Mode = null;
 		s_bCrate = false;

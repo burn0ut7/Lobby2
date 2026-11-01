@@ -39,6 +39,8 @@ modded class GC_LobbyManager
 		}
 		else if (action == "spawn")
 			controller.GC_RequestGearItem(prefab, null, -1, true);
+		else if (action == "native-drop" || action == "native-take")
+			return controller.GC_TestGearNativeTransfer(action == "native-take");
 		else if (action == "invalid")
 			controller.GC_TestGearInvalid(prefab);
 		else if (action == "far")
@@ -61,6 +63,30 @@ modded class GC_LobbyManager
 
 modded class GC_LobbyPlayerController
 {
+	protected IEntity m_GC_GearTestDropped;
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestGearNativeTransfer(bool take)
+	{
+		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(GetControlledEntity().FindComponent(SCR_InventoryStorageManagerComponent));
+		if (take)
+		{
+			BaseInventoryStorageComponent target = manager.FindStorageForItem(m_GC_GearTestDropped, EStoragePurpose.PURPOSE_DEPOSIT);
+			return "take=" + manager.TryInsertItemInStorage(m_GC_GearTestDropped, target);
+		}
+		array<IEntity> items = {};
+		manager.GetItems(items);
+		foreach (IEntity item : items)
+		{
+			if (!SCR_ResourceNameUtils.GetPrefabName(item).Contains("FieldDressing"))
+				continue;
+			InventoryItemComponent inventory = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+			m_GC_GearTestDropped = item;
+			return "drop=" + manager.TryRemoveItemFromInventory(item, inventory.GetParentSlot().GetStorage());
+		}
+		return "no bandage";
+	}
+
 	//------------------------------------------------------------------------------------------------
 	void GC_TestGearDenied(ResourceName prefab)
 	{

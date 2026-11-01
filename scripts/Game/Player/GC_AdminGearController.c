@@ -7,6 +7,8 @@ modded class GC_LobbyPlayerController
 	protected RplId m_GC_GearCrate;
 	protected IEntity m_GC_NearestCrate;
 	protected float m_fGC_NearestDistance;
+	protected int m_iGC_GearAuditRequest;
+	protected bool m_bGC_GearAuditOpen;
 
 	//------------------------------------------------------------------------------------------------
 	static RplId GC_GearEntityId(IEntity entity)
@@ -39,14 +41,21 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	protected void GC_RpcAskGearOpen()
 	{
-		if (!GC_AuthorizeGear("gear-open", "inventory"))
+		string context = "character=" + GC_AdminGearAudit.Entity(GetControlledEntity());
+		if (!GC_AuthorizeGear("gear-open", context))
 		{
 			Rpc(GC_RpcDoGearOpen, false);
 			return;
 		}
 		IEntity owner = GetControlledEntity();
 		bool valid = owner && owner.FindComponent(SCR_InventoryStorageManagerComponent);
-		GC_AdminActionLogger.Log(GetPlayerId(), "gear-open", "inventory", valid.ToString());
+		string outcome = "rejected-no-character-inventory";
+		if (valid)
+		{
+			outcome = "authorized; display-request-sent";
+			m_bGC_GearAuditOpen = true;
+		}
+		GC_AdminActionLogger.Log(GetPlayerId(), "gear-open", context, outcome);
 		Rpc(GC_RpcDoGearOpen, valid);
 	}
 
@@ -56,6 +65,23 @@ modded class GC_LobbyPlayerController
 	{
 		if (!valid || !GC_GearSession.Open())
 			GC_AdminToolsComponent.GearUnavailable();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_RequestGearClosed()
+	{
+		if (GetGame().GetPlayerController() == this)
+			Rpc(GC_RpcAskGearClosed);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void GC_RpcAskGearClosed()
+	{
+		if (!m_bGC_GearAuditOpen)
+			return;
+		m_bGC_GearAuditOpen = false;
+		GC_AdminActionLogger.Log(GetPlayerId(), "gear-close", "character=" + GC_AdminGearAudit.Entity(GetControlledEntity()), "client-reported-close");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -88,7 +114,11 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	protected void GC_RpcAskGearItem(ResourceName prefab, RplId characterId, RplId storageId, int slot, bool automatic, bool toCrate, RplId crateId)
 	{
-		if (!GC_AuthorizeGear("gear-spawn", prefab))
+		m_iGC_GearAuditRequest++;
+		string context = string.Format("request=%1 prefab=%2 quantity=1 requested-character=%3 requested-storage=%4 requested-slot=%5 automatic=%6 to-crate=%7 requested-crate=%8",
+			m_iGC_GearAuditRequest, prefab, characterId, storageId, slot, automatic, toCrate, crateId);
+		context += " character=" + GC_AdminGearAudit.Entity(GetControlledEntity());
+		if (!GC_AuthorizeGear("gear-spawn", context))
 		{
 			Rpc(GC_RpcDoGearResult, false, "Admin login required.");
 			return;
@@ -96,20 +126,22 @@ modded class GC_LobbyPlayerController
 		IEntity owner = GetControlledEntity();
 		if (m_bGC_GearServerBusy)
 		{
-			GC_AdminActionLogger.Log(GetPlayerId(), "gear-spawn", prefab, "rejected-busy");
+			GC_AdminActionLogger.Log(GetPlayerId(), "gear-spawn", context, "rejected-busy");
 			Rpc(GC_RpcDoGearResult, false, "Inventory busy.");
 			return;
 		}
 		if (!owner || !characterId.IsValid() || GC_GearEntityId(owner) != characterId)
 		{
-			GC_FinishGear(false, prefab, "Character changed or inventory busy.");
+			GC_FinishGear(false, context, "Character changed or inventory busy.");
 			return;
 		}
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		GC_ItemCatalogueEntry entry = GC_ItemCatalogue.ReadResource(prefab);
+		if (entry)
+			context += " item-name=" + entry.m_sName;
 		if (!manager || manager.IsInventoryLocked() || !entry || !entry.m_bPortable)
 		{
-			GC_FinishGear(false, prefab, "Item cannot be placed.");
+			GC_FinishGear(false, context, "Item cannot be placed.");
 			return;
 		}
 		BaseInventoryStorageComponent target;
@@ -121,7 +153,7 @@ modded class GC_LobbyPlayerController
 			automatic = false;
 			if (!target || vector.Distance(owner.GetOrigin(), crate.GetOrigin()) > 5)
 			{
-				GC_FinishGear(false, prefab, "Select a crate within 5 m.");
+				GC_FinishGear(false, context, "Select a crate within 5 m.");
 				return;
 			}
 		}
@@ -132,7 +164,7 @@ modded class GC_LobbyPlayerController
 			manager.GetStorages(ownedStorages);
 			if (!target || !ownedStorages.Contains(target))
 			{
-				GC_FinishGear(false, prefab, "That slot is no longer available.");
+				GC_FinishGear(false, context, "That slot is no longer available.");
 				return;
 			}
 		}
@@ -143,7 +175,7 @@ modded class GC_LobbyPlayerController
 		IEntity item = GetGame().SpawnEntityPrefab(Resource.Load(prefab), GetGame().GetWorld(), spawn);
 		if (!item)
 		{
-			GC_FinishGear(false, prefab, "Item could not be created.");
+			GC_FinishGear(false, context, "Item could not be created.");
 			return;
 		}
 		bool valid = true;
@@ -151,7 +183,7 @@ modded class GC_LobbyPlayerController
 		if (replication && !replication.Id().IsValid())
 		{
 			SCR_EntityHelper.DeleteEntityAndChildren(item);
-			GC_FinishGear(false, prefab, "Item is not available in this session.");
+			GC_FinishGear(false, context, "Item is not available in this session.");
 			return;
 		}
 		if (automatic)
@@ -165,13 +197,19 @@ modded class GC_LobbyPlayerController
 		if (!valid)
 		{
 			SCR_EntityHelper.DeleteEntityAndChildren(item);
-			GC_FinishGear(false, prefab, "Item does not fit.");
+			GC_FinishGear(false, context, "Item does not fit.");
 			return;
 		}
 		GC_AdminGearInsertCallback callback = new GC_AdminGearInsertCallback();
+		context += " item=" + GC_AdminGearAudit.Entity(item) + " destination=" + GC_AdminGearAudit.Storage(target) + " resolved-slot=" + slot;
+		if (replace)
+			context += " replaces=" + GC_AdminGearAudit.Entity(target.GetSlot(slot).GetAttachedEntity());
+		GC_AdminActionLogger.Log(GetPlayerId(), "gear-spawn", context, "accepted; insertion-pending");
 		callback.m_Controller = this;
 		callback.m_Item = item;
-		callback.m_sContext = prefab;
+		callback.m_sContext = context;
+		callback.m_iActorId = GetPlayerId();
+		callback.m_sActorIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(GetPlayerId());
 		m_bGC_GearServerBusy = true;
 		bool accepted;
 		if (replace)
@@ -183,10 +221,14 @@ modded class GC_LobbyPlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void GC_FinishGear(bool success, string context, string message)
+	void GC_FinishGear(bool success, string context, string message, bool logResult = true)
 	{
 		m_bGC_GearServerBusy = false;
-		GC_AdminActionLogger.Log(GetPlayerId(), "gear-spawn", context, message);
+		string outcome = "failed: " + message;
+		if (success)
+			outcome = "completed: " + message;
+		if (logResult)
+			GC_AdminActionLogger.Log(GetPlayerId(), "gear-spawn", context, outcome);
 		Rpc(GC_RpcDoGearResult, success, message);
 	}
 
@@ -254,7 +296,8 @@ modded class GC_LobbyPlayerController
 		string action = "gear-select-crate";
 		if (create)
 			action = "gear-create-crate";
-		if (!GC_AuthorizeGear(action, "nearby"))
+		string context = "character=" + GC_AdminGearAudit.Entity(GetControlledEntity()) + " radius=5";
+		if (!GC_AuthorizeGear(action, context))
 		{
 			Rpc(GC_RpcDoGearResult, false, "Admin login required.");
 			return;
@@ -277,7 +320,7 @@ modded class GC_LobbyPlayerController
 			float fraction = GetGame().GetWorld().TraceMove(trace, null);
 			if (fraction >= 1)
 			{
-				GC_AdminActionLogger.Log(GetPlayerId(), action, "nearby", "rejected-no-ground");
+				GC_AdminActionLogger.Log(GetPlayerId(), action, context, "rejected-no-ground");
 				Rpc(GC_RpcDoGearResult, false, "No suitable ground nearby.");
 				return;
 			}
@@ -297,7 +340,11 @@ modded class GC_LobbyPlayerController
 			id = GC_GearEntityId(crate);
 		if (create && crate && !id.IsValid())
 			SCR_EntityHelper.DeleteEntityAndChildren(crate);
-		GC_AdminActionLogger.Log(GetPlayerId(), action, "nearby", id.IsValid().ToString());
+		context += " crate=" + GC_AdminGearAudit.Entity(crate);
+		string outcome = "failed-no-usable-crate";
+		if (id.IsValid())
+			outcome = "completed";
+		GC_AdminActionLogger.Log(GetPlayerId(), action, context, outcome);
 		Rpc(GC_RpcDoGearCrate, id);
 	}
 
@@ -321,6 +368,11 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	override void ShutdownLobbyPresentation()
 	{
+		if (Replication.IsServer() && m_bGC_GearAuditOpen)
+		{
+			m_bGC_GearAuditOpen = false;
+			GC_AdminActionLogger.Log(GetPlayerId(), "gear-close", "character=" + GC_AdminGearAudit.Entity(GetControlledEntity()), "controller-shutdown");
+		}
 		m_bGC_GearPending = false;
 		if (GetGame().GetPlayerController() == this)
 			GC_GearSession.Close();
@@ -333,6 +385,8 @@ class GC_AdminGearInsertCallback : ScriptedInventoryOperationCallback
 	GC_LobbyPlayerController m_Controller;
 	IEntity m_Item;
 	string m_sContext;
+	int m_iActorId;
+	string m_sActorIdentity;
 	protected bool m_bFinished;
 
 	//------------------------------------------------------------------------------------------------
@@ -341,8 +395,9 @@ class GC_AdminGearInsertCallback : ScriptedInventoryOperationCallback
 		if (m_bFinished)
 			return;
 		m_bFinished = true;
+		GC_AdminGearAudit.Completion(m_iActorId, m_sActorIdentity, m_sContext, true, "Item added.");
 		if (m_Controller)
-			m_Controller.GC_FinishGear(true, m_sContext, "Item added.");
+			m_Controller.GC_FinishGear(true, m_sContext, "Item added.", false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -353,7 +408,8 @@ class GC_AdminGearInsertCallback : ScriptedInventoryOperationCallback
 		m_bFinished = true;
 		if (m_Item)
 			SCR_EntityHelper.DeleteEntityAndChildren(m_Item);
+		GC_AdminGearAudit.Completion(m_iActorId, m_sActorIdentity, m_sContext, false, "Item could not be placed.");
 		if (m_Controller)
-			m_Controller.GC_FinishGear(false, m_sContext, "Item could not be placed.");
+			m_Controller.GC_FinishGear(false, m_sContext, "Item could not be placed.", false);
 	}
 }

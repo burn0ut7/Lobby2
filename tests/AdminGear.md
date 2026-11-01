@@ -73,3 +73,51 @@ Empty_Lobby test terrain. `spawn` accepts an inventory prefab resource name.
 `denied` creates and removes an unassigned test controller, without granting roles
 or replacing production authorization. All helpers are Workbench-only and live
 only in the optional test addon.
+
+## Gear audit expansion — 2026-11-01
+
+All records use `GC_AdminActionLogger`, hence the normal server console and
+session-history persistence. Privileged requests record the authenticated requester;
+spawn completion retains the requester's identity if the controller disconnects,
+and never attributes that completion to a recycled player ID.
+
+- `gear-open` means server authorization and a display request, not proof of what
+  an untrusted client rendered. `gear-close` distinguishes client-reported close
+  from controller shutdown.
+- Spawn records include request sequence, prefab, item name, quantity (one entity),
+  requested character/storage/slot/crate, automatic-placement flag, resolved
+  destination and slot, entity replication IDs, positions, and any replaced item.
+  Accepted/pending and completed/failed are distinct; rejection logs retain the
+  requested context. Count completed `gear-spawn` records when counting spawns,
+  not the pending or inventory-observation records.
+- Crate selection/creation logs identify the crate prefab, replication ID, position,
+  character and search radius, with an explicit result.
+- Authority observes native inventory additions/removals for connected, logged-in
+  admin inventory owners throughout the active Lobby2 mode, even after Gear closes.
+  Records identify the item and affected storage. These observations **do not
+  establish who initiated a transfer**: the log explicitly says
+  `input-instigator-not-reported`. Native failed drag attempts are not successful
+  inventory-change events. Inventory behavior/permissions are unchanged.
+
+Native reload `a05c3c7d4d444a51b8e219694b6e92f0` compiled with no SCRIPT errors.
+Live host checks in `logs_2026-11-01_13-21-18`:
+
+- Lines 19085, 19170–19222: menu authorization, inventory/crate spawns, explicit
+  rejection details, close, then native drop/take of the same item after close
+  (`r2418b2b7326e43ce942592627fcd94e6`, `r72e2f7112fbb4a27bc362cb06498635f`).
+- Replacement `rb3fc92ee872c4eb9937d187044ce0bfb`, lines 20592/20595: beret into
+  character slot 0 records the old PASGT helmet and new beret; readable storage
+  class name, matching pending/completed contexts.
+- Persisted JSON independently inspected under
+  `$profile:Lobby2SessionLogs/01a19868-1fb1-874f-8400-000000073df7-events-*.json`:
+  batches 0 and 2–7 contain these open/spawn/crate/reject/close/native-change events.
+- Transition to unrelated Isolation mode: `r93b4989b976242afa79c06b6094c9d29`
+  has native inventory/customPanel=0; `rd08e0c64ac724861b99116326ee47217` reports
+  selected/dragging/released=1, matching the recorded addon-free baseline above.
+  Native drop `rd96469ff9d284b3f9080e0ed6d52a074` leaves the entity alive and outside
+  inventory. No Gear audit entries occurred in that mode (after the Lobby shutdown
+  record at line 20601 through line 20832). Returned to the original Lobby test world.
+
+Fresh independent review approved. Connected logged-out remote clients and pending
+callback completion after disconnect were not exercised live; identity safeguards
+were source-reviewed. Native events are observations, not an automatic cheating verdict.
