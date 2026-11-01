@@ -1,6 +1,22 @@
 StringTable {
  ItemClassName "CustomStringTableItem"
  Items {
+  CustomStringTableItem "{DC391DA320AF3000}" { Id "GC-Loadout_Title" Target_en_us "Loadouts" }
+  CustomStringTableItem "{DC391DA320AF3001}" { Id "GC-Loadout_Saved" Target_en_us "SAVED PREFABS" }
+  CustomStringTableItem "{DC391DA320AF3002}" { Id "GC-Loadout_Faction" Target_en_us "FACTION" }
+  CustomStringTableItem "{DC391DA320AF3003}" { Id "GC-Loadout_Group" Target_en_us "TEAM" }
+  CustomStringTableItem "{DC391DA320AF3004}" { Id "GC-Loadout_Name" Target_en_us "NAME" }
+  CustomStringTableItem "{DC391DA320AF3005}" { Id "GC-Loadout_Close" Target_en_us "Close" }
+  CustomStringTableItem "{DC391DA320AF3006}" { Id "GC-Loadout_Load" Target_en_us "Load" }
+  CustomStringTableItem "{DC391DA320AF3007}" { Id "GC-Loadout_Save" Target_en_us "Save" }
+  CustomStringTableItem "{DC391DA320AF3008}" { Id "GC-Loadout_Inherit" Target_en_us "Inherit" }
+  CustomStringTableItem "{DC391DA320AF3009}" { Id "GC-Loadout_Duplicate" Target_en_us "Duplicate" }
+  CustomStringTableItem "{DC391DA320AF300A}" { Id "GC-Loadout_LoadFailed" Target_en_us "Could not load this character prefab." }
+  CustomStringTableItem "{DC391DA320AF300B}" { Id "GC-Loadout_InvalidName" Target_en_us "Enter a faction, team and name. Use letters, numbers, spaces, hyphens or underscores." }
+  CustomStringTableItem "{DC391DA320AF300C}" { Id "GC-Loadout_NameExists" Target_en_us "That name already exists. Enter a new name." }
+  CustomStringTableItem "{DC391DA320AF300D}" { Id "GC-Loadout_CreateFailed" Target_en_us "Could not create the prefab. Check the destination before trying again." }
+  CustomStringTableItem "{DC391DA320AF300E}" { Id "GC-Loadout_SavedOk" Target_en_us "Prefab saved." }
+  CustomStringTableItem "{DC391DA320AF300F}" { Id "GC-Loadout_Duplicated" Target_en_us "Duplicate created." }
   CustomStringTableItem "{DC391DA320AF0020}" {
    Id "GC-Catalogue_Deleted"
    Target_en_us "Removed from inventory"
@@ -40,6 +56,22 @@ StringTable {
   CustomStringTableItem "{DC391DA320AF0007}" {
    Id "GC-Catalogue_Boots"
    Target_en_us "Boots"
+  }
+  CustomStringTableItem "{DC391DA320AF0070}" {
+   Id "GC-Loadout_Inherits"
+   Target_en_us "Inherits"
+  }
+  CustomStringTableItem "{DC391DA320AF0071}" {
+   Id "GC-Loadout_PreviewUnavailable"
+   Target_en_us "Preview unavailable"
+  }
+  CustomStringTableItem "{DC391DA320AF0072}" {
+   Id "GC-Loadout_Current"
+   Target_en_us "Current gear"
+  }
+  CustomStringTableItem "{DC391DA320AF0073}" {
+   Id "GC-Loadout_SavedLoadFailed"
+   Target_en_us "Prefab saved, but could not be loaded. Select Load to try again."
   }
   CustomStringTableItem "{DC391DA320AF0008}" {
    Id "GC-Catalogue_Clothing"

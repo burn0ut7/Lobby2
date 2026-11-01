@@ -55,6 +55,7 @@ modded class SCR_InventoryMenuUI
 			}
 			GetGame().GetInputManager().AddActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
 			GetGame().GetInputManager().AddActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
+			GetGame().GetInputManager().AddActionListener("GC_LoadoutFiles", EActionTrigger.DOWN, GC_ActionLoadoutFiles);
 			m_bGCShortcutBound = true;
 		}
 		m_GCCataloguePanel.Tick(tDelta);
@@ -111,11 +112,22 @@ modded class SCR_InventoryMenuUI
 		{
 			GetGame().GetInputManager().RemoveActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
 			GetGame().GetInputManager().RemoveActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
+			GetGame().GetInputManager().RemoveActionListener("GC_LoadoutFiles", EActionTrigger.DOWN, GC_ActionLoadoutFiles);
 		}
 		m_bGCShortcutBound = false;
 		if (m_GCCataloguePanel)
 			m_GCCataloguePanel.Detach();
 		m_GCCataloguePanel = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_ActionLoadoutFiles()
+	{
+		if (!GC_WorkbenchItemBrowser.IsActive(m_Player) || EditBoxWidget.Cast(GetGame().GetWorkspace().GetFocusedWidget()))
+			return;
+		if (GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu))
+			return;
+		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_LoadoutFilesMenu, 0, true, false);
 	}
 
 	//------------------------------------------------------------------------------------------------

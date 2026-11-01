@@ -1,0 +1,15 @@
+ButtonWidgetClass {
+ Name "LoadoutButton"
+ Slot LayoutSlot { HorizontalAlign 3 Padding 0 2 0 2 }
+ Color 1 1 1 0
+ components { SCR_ButtonTextComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.1 m_BackgroundSelected 0.9 0.68 0.27 0.3 m_bShowBorderOnFocus 1 } }
+ {
+ SizeLayoutWidgetClass { Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } AllowHeightOverride 1 HeightOverride 48 {
+ OverlayWidgetClass { Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } {
+ PanelWidgetClass { Name "Background" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1 }
+ PanelWidgetClass { Name "Border" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.7 0.7 0.7 0.5 style pixel_outline "Ignore Cursor" 1 }
+ TextWidgetClass { Name "Text" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 12 4 12 4 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 22 "Vertical Alignment" Center "Ignore Cursor" 1 }
+ } }
+ } }
+ }
+}

@@ -6,5 +6,6 @@ modded enum ChimeraMenuPreset
 	GC_Lobby_SpectatorMenu,
 	GC_AdminToolsMenu,
 	GC_SlotReservationMenu,
-	GC_Lobby_DebriefMenu
+	GC_Lobby_DebriefMenu,
+	GC_LoadoutFilesMenu
 }
