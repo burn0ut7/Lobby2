@@ -3,6 +3,12 @@
 modded class GC_IsolationProbeComponent
 {
 	//------------------------------------------------------------------------------------------------
+	string InventoryInputSnapshot()
+	{
+		return SCR_InventoryMenuUI.GetInventoryMenu().GC_ProbeInventoryInput();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string OpenInventory()
 	{
 		string possession = PossessCharacter();
@@ -34,6 +40,34 @@ modded class GC_IsolationProbeComponent
 			widget.GetScreenSize(width, height);
 			result += string.Format("\n%1 visible=%2 x=%3 y=%4 w=%5 h=%6", name, widget.IsVisible(), x, y, width, height);
 		}
+		return result;
+	}
+}
+
+modded class SCR_InventoryMenuUI
+{
+	//------------------------------------------------------------------------------------------------
+	string GC_ProbeInventoryInput()
+	{
+		array<SCR_InventorySlotUI> slots = {};
+		m_pStorageListUI.GetSlots(slots);
+		Widget button = slots[0].GetButtonWidget();
+		float x, y, width, height;
+		button.GetScreenPos(x, y);
+		button.GetScreenSize(width, height);
+		x += width * 0.5;
+		y += height * 0.5;
+		WidgetManager.ReportMouse(x, y, m_widget);
+		Action_SelectItem();
+		string result = string.Format("selected=%1", m_pSelectedSlotUI != null);
+		Action_DragDown();
+		WidgetManager.ReportMouse(x + 20, y, m_widget);
+		Action_OnDrag();
+		result += string.Format(" dragging=%1", m_bDraggingEnabled);
+		WidgetManager.ReportMouse(x, y, m_widget);
+		Action_DragUp();
+		Action_DeselectItem();
+		result += string.Format(" released=%1", !m_bDraggingEnabled);
 		return result;
 	}
 }

@@ -117,5 +117,13 @@ StringTable {
    Id "GC-Catalogue_SCR_HandSlot"
    Target_en_us "Hand-carried items"
   }
+   CustomStringTableItem "{DC391DA320AF0050}" {
+   Id "GC-Catalogue_Added"
+   Target_en_us "Added to inventory"
+  }
+   CustomStringTableItem "{DC391DA320AF0051}" {
+   Id "GC-Catalogue_CannotPlace"
+   Target_en_us "Cannot place this item here"
+  }
  }
 }

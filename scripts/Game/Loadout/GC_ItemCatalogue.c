@@ -15,6 +15,20 @@ class GC_ItemCatalogueEntry
 	typename m_AttachmentType;
 	ref array<string> m_aMountNames = {};
 	ref array<typename> m_aMountTypes = {};
+
+	//------------------------------------------------------------------------------------------------
+	string GetCategoryLabel()
+	{
+		string label = m_sCategory;
+		if (m_sEquipmentSlot.StartsWith("Loadout"))
+		{
+			label = m_sEquipmentSlot;
+			label.Replace("Loadout", "");
+			label.Replace("Area", "");
+			label.Replace("HeadCover", "Headwear");
+		}
+		return "#GC-Catalogue_" + label;
+	}
 }
 
 //! Workbench discovery and metadata indexing; caller owns lifetime and frame ticks.
@@ -149,7 +163,9 @@ class GC_ItemCatalogue
 			if (info && !info.GetName().IsEmpty())
 			{
 				entry.m_sNameKey = info.GetName();
-				entry.m_sName = WidgetManager.Translate(info.GetName());
+				string translated = WidgetManager.Translate(info.GetName());
+				if (!translated.IsEmpty() && !translated.StartsWith("#"))
+					entry.m_sName = translated;
 			}
 			WeaponAttachmentAttributes attachment = WeaponAttachmentAttributes.Cast(attributes.FindAttribute(WeaponAttachmentAttributes));
 			if (attachment && attachment.GetAttachmentType())
@@ -196,6 +212,7 @@ class GC_ItemCatalogue
 				entry.m_sFactions += " " + m_aFactionKeys[f] + " ";
 		}
 		entry.m_sSearch = entry.m_sName + " " + entry.m_sNameKey + " " + prefab + " " + source + " " + entry.m_sCategory + " " + entry.m_sEquipmentSlot + " " + entry.m_sFactions;
+		entry.m_sSearch += " " + WidgetManager.Translate(entry.GetCategoryLabel());
 		foreach (string addon : entry.m_aSourceAddons)
 			entry.m_sSearch += " " + addon;
 		entry.m_sSearch.ToLower();

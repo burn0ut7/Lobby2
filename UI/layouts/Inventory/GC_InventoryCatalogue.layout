@@ -1,22 +1,12 @@
-SizeLayoutWidgetClass {
+FrameWidgetClass {
  Name "GCCatalogue"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 396
+ Slot FrameWidgetSlot { Anchor 0 0 0 0 OffsetLeft 24 OffsetTop 24 OffsetRight -584 OffsetBottom -996 }
  {
-OverlayWidgetClass {
- Name "Surface"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
-ImageWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.5 "Ignore Cursor" 1
-}
-VerticalLayoutWidgetClass {
- Name "CatalogueContent"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
+PanelWidgetClass { Name "CatalogueSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 0.5 style full "Ignore Cursor" 1 }
+VerticalLayoutWidgetClass { Name "CatalogueContent" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 6 OffsetTop 6 OffsetRight 6 OffsetBottom 6 } {
 SizeLayoutWidgetClass {
  Name "AdvancedBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 396 AllowHeightOverride 1 HeightOverride 32
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 548 AllowHeightOverride 1 HeightOverride 32
  {
 ButtonWidgetClass {
  Name "Advanced"
@@ -41,20 +31,6 @@ TextWidgetClass {
  }
 }
  }
-}
- }
-}
-VerticalLayoutWidgetClass {
- Name "AdvancedPanel"
- Slot LayoutSlot { HorizontalAlign 3  } "Is Visible" 0
- {
-SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
- Name "Faction"
- Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
-}
-SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
- Name "Sort"
- Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
 }
  }
 }
@@ -118,17 +94,21 @@ TextWidgetClass {
 }
  }
 }
-HorizontalLayoutWidgetClass {
- Name "Body"
- Slot LayoutSlot { HorizontalAlign 3  }
- {
+
+ButtonWidgetClass : "{71EFAB5E571BF23A}UI/layouts/WidgetLibrary/SpinBox/WLib_SpinBoxPaging.layout" {
+ Name "CataloguePaging"
+ Slot LayoutSlot { HorizontalAlign 3 }
+ components { SCR_SpinBoxPagingComponent "{54A478843A233C04}" { m_sLeftAction "Inventory_PrevPage" m_sRightAction "Inventory_NextPage" } }
+ { SizeLayoutWidgetClass "{553D290FEBA7C78B}" { Prefab "{553D290FEBA7C78B}" AllowHeightOverride 1 HeightOverride 36 } }
+}
+HorizontalLayoutWidgetClass { Name "Body" Slot LayoutSlot { HorizontalAlign 3 } {
 VerticalLayoutWidgetClass {
  Name "Categories"
  Slot LayoutSlot { HorizontalAlign 3 Padding 0 0 8 0 }
  {
 SizeLayoutWidgetClass {
  Name "CategoryAllBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryAll"
@@ -159,7 +139,7 @@ ImageWidgetClass {
 }
 SizeLayoutWidgetClass {
  Name "CategoryWeaponsBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryWeapons"
@@ -190,7 +170,7 @@ ImageWidgetClass {
 }
 SizeLayoutWidgetClass {
  Name "CategoryHeadwearBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryHeadwear"
@@ -221,7 +201,7 @@ ImageWidgetClass {
 }
 SizeLayoutWidgetClass {
  Name "CategoryClothingBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryClothing"
@@ -252,7 +232,7 @@ ImageWidgetClass {
 }
 SizeLayoutWidgetClass {
  Name "CategoryBackpacksBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryBackpacks"
@@ -283,7 +263,7 @@ ImageWidgetClass {
 }
 SizeLayoutWidgetClass {
  Name "CategoryVestsBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryVests"
@@ -314,7 +294,7 @@ ImageWidgetClass {
 }
 SizeLayoutWidgetClass {
  Name "CategoryEquipmentBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryEquipment"
@@ -345,7 +325,7 @@ ImageWidgetClass {
 }
 SizeLayoutWidgetClass {
  Name "CategoryMagazinesBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryMagazines"
@@ -373,7 +353,7 @@ ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 Vertic
 }
 SizeLayoutWidgetClass {
  Name "CategoryAttachmentsBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 48 AllowHeightOverride 1 HeightOverride 48
+ Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 64 AllowHeightOverride 1 HeightOverride 64
  {
 ButtonWidgetClass {
  Name "CategoryAttachments"
@@ -401,95 +381,24 @@ ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 Vertic
 }
  }
 }
-GridLayoutWidgetClass {
- Name "Results"
- Slot LayoutSlot { HorizontalAlign 3  }
-}
- }
-}
-TextWidgetClass {
- Name "Status"
- Slot LayoutSlot { HorizontalAlign 3  } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Ignore Cursor" 1
-}
-HorizontalLayoutWidgetClass {
- Name "Paging"
- Slot LayoutSlot { HorizontalAlign 3  }
+
+VerticalLayoutWidgetClass { Name "Results" Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill } }
+} }
+TextWidgetClass { Name "Status" Slot LayoutSlot { HorizontalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Ignore Cursor" 1  }
+TextWidgetClass { Name "Detail" Slot LayoutSlot { HorizontalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 18 "Min Font Size" 18 "Ignore Cursor" 1  }
+} }
+VerticalLayoutWidgetClass {
+ Name "AdvancedPanel"
+ Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 6 OffsetTop 38 OffsetRight 6 OffsetBottom -110 } "Is Visible" 0
  {
-SizeLayoutWidgetClass {
- Name "PreviousBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 198 AllowHeightOverride 1 HeightOverride 32
- {
-ButtonWidgetClass {
- Name "Previous"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
- {
-OverlayWidgetClass {
- Name "Content"
- Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
-PanelWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
+SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
+ Name "Faction"
+ Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
 }
-PanelWidgetClass {
- Name "Border"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
-}
-TextWidgetClass {
- Name "Text"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "<" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
+SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
+ Name "Sort"
+ Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
 }
  }
 }
- }
-}
- }
-}
-SizeLayoutWidgetClass {
- Name "NextBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 198 AllowHeightOverride 1 HeightOverride 32
- {
-ButtonWidgetClass {
- Name "Next"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
- {
-OverlayWidgetClass {
- Name "Content"
- Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
-PanelWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
-}
-PanelWidgetClass {
- Name "Border"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
-}
-TextWidgetClass {
- Name "Text"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text ">" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
-}
- }
-}
- }
-}
- }
-}
- }
-}
-SizeLayoutWidgetClass {
- Name "DetailBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowHeightOverride 1 HeightOverride 42
- {
-TextWidgetClass {
- Name "Detail"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 18 "Min Font Size" 18 "Wrap" 1
-}
- }
-}
- }
-}
- }
-}
- }
-}
+} }

@@ -1,12 +1,10 @@
 #ifdef WORKBENCH
-//! Read-only presentation; no spawned gameplay items or inventory transfers.
+//! Search presentation and bounded previews inside the native inventory menu.
 class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 {
 	protected Widget m_Root;
 	protected Widget m_Vicinity;
 	protected Widget m_Opened;
-	protected bool m_bVicinityVisible;
-	protected bool m_bOpenedVisible;
 	protected EditBoxWidget m_Search;
 	protected ref GC_ItemCatalogue m_Catalogue;
 	protected ref GC_ItemCatalogueQuery m_Query = new GC_ItemCatalogueQuery();
@@ -22,9 +20,13 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected bool m_bFinished;
 	protected SCR_ComboBoxComponent m_Faction;
 	protected SCR_ComboBoxComponent m_Sort;
+	protected SCR_SpinBoxPagingComponent m_Paging;
+	protected float m_fVicinityOpacity;
+	protected float m_fOpenedOpacity;
+	protected bool m_bPagingActive;
 	protected ref array<SCR_ButtonBaseComponent> m_aButtons = {};
 	protected string m_sCategoryLabel = "All items";
-	protected static const int PAGE_SIZE = 35;
+	protected static const int PAGE_SIZE = 9;
 
 	//------------------------------------------------------------------------------------------------
 	bool Attach(Widget inventoryRoot)
@@ -34,7 +36,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_Opened = inventoryRoot.FindAnyWidget("OpenedStorages");
 		if (!left || !m_Vicinity || !m_Opened)
 			return false;
-		m_Root = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE1001}UI/layouts/Inventory/GC_InventoryCatalogue.layout", left);
+		m_Root = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE1001}UI/layouts/Inventory/GC_InventoryCatalogue.layout", inventoryRoot);
 		if (!m_Root)
 			return false;
 		if (!m_Root.FindAnyWidget("Results") || !m_Root.FindAnyWidget("Status") || !m_Root.FindAnyWidget("CatalogueSearch"))
@@ -43,20 +45,20 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			m_Root = null;
 			return false;
 		}
-		m_bVicinityVisible = m_Vicinity.IsVisible();
-		m_bOpenedVisible = m_Opened.IsVisible();
-		m_Vicinity.SetVisible(false);
-		m_Opened.SetVisible(false);
+		m_fVicinityOpacity = m_Vicinity.GetOpacity();
+		m_fOpenedOpacity = m_Opened.GetOpacity();
+		m_Vicinity.SetOpacity(0);
+		m_Opened.SetOpacity(0);
 		m_Root.AddHandler(this);
-		array<string> buttonNames = {"Advanced", "ClearFilter", "Previous", "Next", "CategoryAll", "CategoryWeapons", "CategoryHeadwear", "CategoryClothing", "CategoryBackpacks", "CategoryVests", "CategoryEquipment", "CategoryMagazines", "CategoryAttachments"};
+		array<string> buttonNames = {"Advanced", "ClearFilter", "CategoryAll", "CategoryWeapons", "CategoryHeadwear", "CategoryClothing", "CategoryBackpacks", "CategoryVests", "CategoryEquipment", "CategoryMagazines", "CategoryAttachments"};
 		foreach (string buttonName : buttonNames)
 			BindButton(m_Root.FindAnyWidget(buttonName));
+		m_Paging = SCR_SpinBoxPagingComponent.GetSpinBoxPagingComponent("CataloguePaging", m_Root);
+		m_Paging.m_OnChanged.Insert(OnPageChanged);
 		m_Search = EditBoxWidget.Cast(m_Root.FindAnyWidget("CatalogueSearch"));
 		for (int i; i < PAGE_SIZE; i++)
 		{
 			Widget cell = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE1002}UI/layouts/Inventory/GC_InventoryCatalogueCell.layout", m_Root.FindAnyWidget("Results"));
-			GridSlot.SetColumn(cell, i % 5);
-			GridSlot.SetRow(cell, i / 5);
 			m_aCells.Insert(cell);
 			BindButton(cell.FindAnyWidget("SelectItem"));
 			RenderTargetWidget preview = RenderTargetWidget.Cast(cell.FindAnyWidget("ItemPreview"));
@@ -89,6 +91,11 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		foreach (SCR_ButtonBaseComponent button : m_aButtons)
 			button.m_OnClicked.Remove(OnButton);
 		m_aButtons.Clear();
+		if (m_Paging)
+		{
+			m_Paging.m_OnChanged.Remove(OnPageChanged);
+			m_Paging.SetButtonsActive(false);
+		}
 		if (m_Faction)
 		{
 			m_Faction.m_OnChanged.Remove(OnOptionsChanged);
@@ -104,9 +111,9 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			m_Root.RemoveHandler(this);
 			m_Root.RemoveFromHierarchy();
 			if (m_Vicinity)
-				m_Vicinity.SetVisible(m_bVicinityVisible);
+				m_Vicinity.SetOpacity(m_fVicinityOpacity);
 			if (m_Opened)
-				m_Opened.SetVisible(m_bOpenedVisible);
+				m_Opened.SetOpacity(m_fOpenedOpacity);
 		}
 		m_Root = null;
 		m_aCells.Clear();
@@ -120,6 +127,12 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		if (!m_Root)
 			return;
 		m_Catalogue.Tick();
+		bool pagingActive = GetGame().GetWorkspace().GetFocusedWidget() != m_Search && !m_Faction.IsOpened() && !m_Sort.IsOpened();
+		if (pagingActive != m_bPagingActive)
+		{
+			m_bPagingActive = pagingActive;
+			m_Paging.SetButtonsActive(pagingActive);
+		}
 		string text = m_Search.GetText();
 		if (text != m_sPendingText)
 		{
@@ -187,6 +200,11 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		{
 			bool populated = index < m_aPage.Count();
 			cell.SetVisible(populated);
+			if (populated)
+			{
+				TextWidget.Cast(cell.FindAnyWidget("ItemName")).SetText(m_aPage[index].m_sName);
+				TextWidget.Cast(cell.FindAnyWidget("ItemCategory")).SetText(m_aPage[index].GetCategoryLabel());
+			}
 			if (changed)
 				cell.FindAnyWidget("ItemPreview").SetVisible(false);
 		}
@@ -237,8 +255,10 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		else if (!m_Catalogue.HasCompleteCoverage())
 			status += " / " + WidgetManager.Translate("#GC-Catalogue_Partial");
 		TextWidget.Cast(m_Root.FindAnyWidget("Status")).SetText(status);
-		m_Root.FindAnyWidget("Previous").SetEnabled(m_iOffset > 0);
-		m_Root.FindAnyWidget("Next").SetEnabled(m_iOffset + PAGE_SIZE < m_iTotal);
+		m_Paging.m_OnChanged.Remove(OnPageChanged);
+		m_Paging.SetPageCount(Math.Max(1, Math.Ceil(m_iTotal / (float)PAGE_SIZE)), false);
+		m_Paging.SetCurrentItem(m_iOffset / PAGE_SIZE, false);
+		m_Paging.m_OnChanged.Insert(OnPageChanged);
 		if (changed)
 			TextWidget.Cast(m_Root.FindAnyWidget("Detail")).SetText(string.Empty);
 	}
@@ -287,27 +307,57 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			Refresh();
 			return true;
 		}
-		if (w.GetName() == "Previous" && m_iOffset > 0)
-		{
-			m_iOffset -= PAGE_SIZE;
-			Refresh();
-			return true;
-		}
-		if (w.GetName() == "Next" && m_iOffset + PAGE_SIZE < m_iTotal)
-		{
-			m_iOffset += PAGE_SIZE;
-			Refresh();
-			return true;
-		}
 		foreach (int index, Widget cell : m_aCells)
 		{
 			if (index < m_aPage.Count() && w == cell.FindAnyWidget("SelectItem"))
 			{
-				TextWidget.Cast(m_Root.FindAnyWidget("Detail")).SetText(m_aPage[index].m_sName + "\n" + m_aPage[index].m_sCategory);
+				SCR_InventoryMenuUI.GetInventoryMenu().GC_ClickCatalogueItem(m_aPage[index]);
 				return true;
 			}
 		}
 		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_ItemCatalogueEntry EntryAt(Widget widget)
+	{
+		foreach (int index, Widget cell : m_aCells)
+		{
+			if (index < m_aPage.Count() && widget == cell.FindAnyWidget("SelectItem"))
+				return m_aPage[index];
+		}
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void TransferResult(bool success)
+	{
+		string label = "#GC-Catalogue_CannotPlace";
+		if (success)
+			label = "#GC-Catalogue_Added";
+		TextWidget.Cast(m_Root.FindAnyWidget("Detail")).SetText(label);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnPageChanged(SCR_SpinBoxPagingComponent paging, int page)
+	{
+		PlayerController controller = GetGame().GetPlayerController();
+		if (!controller || !GC_WorkbenchItemBrowser.IsActive(controller.GetControlledEntity()))
+			return;
+		m_iOffset = page * PAGE_SIZE;
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool OnMouseWheel(Widget w, int x, int y, int wheel)
+	{
+		if (!m_Paging || m_Faction.IsOpened() || m_Sort.IsOpened())
+			return false;
+		if (wheel > 0)
+			m_Paging.SetCurrentItem(m_Paging.GetCurrentIndex() - 1);
+		else if (wheel < 0)
+			m_Paging.SetCurrentItem(m_Paging.GetCurrentIndex() + 1);
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

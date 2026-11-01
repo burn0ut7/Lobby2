@@ -1547,4 +1547,4 @@ Existing `von_spectator.acp` remains assigned and already routes radio through i
 
 ## Workbench inventory catalogue
 
-See [InventoryCatalogue.md](InventoryCatalogue.md) for the read-only native left-panel browser, opt-in lifecycle, MCP interaction helpers, screenshots and addon-free comparison.
+See [InventoryCatalogue.md](InventoryCatalogue.md) for the expanded item-row browser, native paging, local click/drag placement, opt-in lifecycle, MCP interaction helpers, screenshots and addon-free comparison.

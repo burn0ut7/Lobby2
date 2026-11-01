@@ -1,0 +1,112 @@
+{
+  "rejected": {
+    "state": "invoked",
+    "processId": 5000,
+    "operationId": "99c4c98c51d64d8c943d8a232d203333",
+    "receipt": "re207c08ece3b4292ba30fe2f749d3815",
+    "returnType": "string",
+    "returned": "false",
+    "invocationAttempted": true,
+    "timings": {
+      "prepareMs": 0,
+      "compileMs": 0,
+      "invokeMs": 1,
+      "serverMs": 79.5469
+    },
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "CatalogueOpenOutsideMode"
+    },
+    "completion": "synchronous_call_only"
+  },
+  "33488-InventorySnapshot": {
+    "state": "invoked",
+    "processId": 33488,
+    "operationId": "2002bd0e28f24c288c1b743c5a5d257d",
+    "receipt": "r6adcb753843141e4bfc517802270635c",
+    "returnType": "string",
+    "returned": "menu=SCR_InventoryMenuUI customPanel=0\nStorageLootSlot visible=1 x=81.5 y=96.9479 w=346.375 h=528.052\nOpenedStorages visible=1 x=81.5 y=625 w=346.375 h=0\nStorageGrid visible=1 x=1071.39 y=96.9479 w=468.625 h=495.792\nplayerRender visible=1 x=436.365 y=12.0521 w=578.99 h=879.521",
+    "invocationAttempted": true,
+    "timings": {
+      "prepareMs": 1,
+      "compileMs": 1,
+      "invokeMs": 0,
+      "serverMs": 80.0964
+    },
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "InventorySnapshot"
+    },
+    "completion": "synchronous_call_only"
+  },
+  "33488-InventoryInputSnapshot": {
+    "state": "invoked",
+    "processId": 33488,
+    "operationId": "41fee7e552a14471ac314abc10c20434",
+    "receipt": "r5e49b3b1cee34f90997be3b74f5864a9",
+    "returnType": "string",
+    "returned": "selected=1 dragging=1 released=1",
+    "invocationAttempted": true,
+    "timings": {
+      "prepareMs": 0,
+      "compileMs": 0,
+      "invokeMs": 4,
+      "serverMs": 85.1366
+    },
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "InventoryInputSnapshot"
+    },
+    "completion": "synchronous_call_only"
+  },
+  "57664-InventorySnapshot": {
+    "state": "invoked",
+    "processId": 57664,
+    "operationId": "c9d591815699483e9162664d8e587b86",
+    "receipt": "r290aaf4943cb4a0188faaf922e9504f7",
+    "returnType": "string",
+    "returned": "menu=SCR_InventoryMenuUI customPanel=0\nStorageLootSlot visible=1 x=81.5 y=96.9479 w=346.375 h=528.052\nOpenedStorages visible=1 x=81.5 y=625 w=346.375 h=0\nStorageGrid visible=1 x=1071.39 y=96.9479 w=468.625 h=495.792\nplayerRender visible=1 x=436.365 y=12.0521 w=578.99 h=879.521",
+    "invocationAttempted": true,
+    "timings": {
+      "prepareMs": 1,
+      "compileMs": 1,
+      "invokeMs": 0,
+      "serverMs": 83.8949
+    },
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "InventorySnapshot"
+    },
+    "completion": "synchronous_call_only"
+  },
+  "57664-InventoryInputSnapshot": {
+    "state": "invoked",
+    "processId": 57664,
+    "operationId": "4ec11c5dcbcb4be2a34c7cc8e0c7cde6",
+    "receipt": "ra8ec6e6fd44244f5bd8f87bf7c31f28c",
+    "returnType": "string",
+    "returned": "selected=1 dragging=1 released=1",
+    "invocationAttempted": true,
+    "timings": {
+      "prepareMs": 0,
+      "compileMs": 0,
+      "invokeMs": 3,
+      "serverMs": 86.7135
+    },
+    "target": {
+      "world": "$Lobby2IsolationProbe:worlds/Isolation.ent",
+      "entityName": "IsolationProbe",
+      "componentType": "GC_IsolationProbeComponent",
+      "method": "InventoryInputSnapshot"
+    },
+    "completion": "synchronous_call_only"
+  }
+}

@@ -1,28 +1,18 @@
 SizeLayoutWidgetClass {
  Name "CatalogueCell"
- Slot GridWidgetSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 66 AllowHeightOverride 1 HeightOverride 66
+ Slot LayoutSlot { HorizontalAlign 3 } AllowHeightOverride 1 HeightOverride 84
  {
-OverlayWidgetClass {
- Name "Cell"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 }
- {
-ImageWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.5 "Ignore Cursor" 1
-}
-PanelWidgetClass {
- Name "Outline"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.3 0.3 0.3 1 style pixel_outline "Ignore Cursor" 1
-}
-ItemPreviewWidgetClass {
- Name "ItemPreview"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 2 2 2 2 } "Ignore Cursor" 1
-}
-ButtonWidgetClass {
- Name "SelectItem"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
-}
- }
-}
- }
-}
+OverlayWidgetClass { Name "Cell" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 Padding 0 2 0 2 } {
+PanelWidgetClass { Name "RowSurface" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.22 style full "Ignore Cursor" 1 }
+HorizontalLayoutWidgetClass { Name "RowContent" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } "Ignore Cursor" 1 {
+SizeLayoutWidgetClass { Name "PreviewBounds" Slot LayoutSlot { VerticalAlign 3 } AllowWidthOverride 1 WidthOverride 96 {
+ItemPreviewWidgetClass { Name "ItemPreview" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 Padding 4 4 4 4 } "Ignore Cursor" 1 }
+} }
+VerticalLayoutWidgetClass { Name "Labels" Slot LayoutSlot { HorizontalAlign 3 VerticalAlign 1 SizeMode Fill Padding 12 0 8 0 } "Ignore Cursor" 1 {
+TextWidgetClass { Name "ItemCategory" Slot LayoutSlot { HorizontalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Ignore Cursor" 1 Color 0.65 0.65 0.65 1 }
+TextWidgetClass { Name "ItemName" Slot LayoutSlot { HorizontalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 22 "Min Font Size" 22 "Ignore Cursor" 1 "Wrap" 1 }
+} }
+} }
+ButtonWidgetClass { Name "SelectItem" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } } }
+} }
+} }
