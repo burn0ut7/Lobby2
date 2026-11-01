@@ -1,0 +1,32 @@
+SizeLayoutWidgetClass {
+ Name "ScopeSelector"
+ Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ AllowHeightOverride 0
+ components { GC_LoadoutScopeSelector {
+  m_fAnimationTime 0.05
+  m_fMaxListHeight 300
+  m_bCreateListBelow 1
+  m_sListRootLayout "{6A5A000000000072}UI/layouts/Admin/Lobby_AdminComboRoot.layout"
+  m_sElementLayout "{7C41F8A018B24C11}UI/layouts/Admin/Lobby_AdminPlayerRow.layout"
+ } }
+ {
+  FrameWidgetClass { Name "ComboButton" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } {
+   ButtonWidgetClass : "{7C41F8A018B24C11}UI/layouts/Admin/Lobby_AdminPlayerRow.layout" {
+    Name "FilterField"
+    Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+    components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+   }
+   EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" {
+    Name "FilterInput"
+    Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 16 OffsetTop 8 OffsetRight 40 OffsetBottom 8 }
+    "Use placeholder text" 1
+    "Font Size" 24
+    components { SCR_EventHandlerComponent {} }
+   }
+   TextWidgetClass {
+    Slot FrameWidgetSlot { Anchor 1 0 1 1 OffsetLeft -32 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+    Text "v" "Font Size" 24 "Vertical Alignment" Center "Ignore Cursor" 1
+   }
+  } }
+ }
+}

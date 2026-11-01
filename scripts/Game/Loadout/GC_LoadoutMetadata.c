@@ -10,8 +10,8 @@ class GC_LoadoutMetadata
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
-		FactionManager factions = GetGame().GetFactionManager();
-		return !m_sName.IsEmpty() && factions && factions.GetFactionByKey(m_sFaction);
+		// Authoring can reference a new faction key before that faction is loaded in this test world.
+		return !m_sName.IsEmpty() && GC_LoadoutPrefab.ValidName(m_sFaction);
 	}
 
 	//------------------------------------------------------------------------------------------------

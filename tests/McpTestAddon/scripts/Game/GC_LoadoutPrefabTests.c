@@ -148,9 +148,9 @@ modded class GC_LobbyManager
 			return "dialog absent";
 		Widget root = menu.GetRootWidget();
 		if (!faction.IsEmpty())
-			EditBoxWidget.Cast(root.FindAnyWidget("Faction")).SetText(faction);
+			GC_LoadoutScopeSelector.Cast(root.FindAnyWidget("Faction").FindHandler(GC_LoadoutScopeSelector)).SetText(faction);
 		if (!group.IsEmpty())
-			EditBoxWidget.Cast(root.FindAnyWidget("Group")).SetText(group);
+			GC_LoadoutScopeSelector.Cast(root.FindAnyWidget("Group").FindHandler(GC_LoadoutScopeSelector)).SetText(group);
 		if (!name.IsEmpty())
 			EditBoxWidget.Cast(root.FindAnyWidget("Name")).SetText(name);
 		if (!action.IsEmpty())

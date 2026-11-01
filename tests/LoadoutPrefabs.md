@@ -279,3 +279,49 @@ the production Load button; `21f6efb2b892476ba2fc929c0ce260f9` confirmed
 actual=editing, active=1, files=0, gear=1. Disposable LiveQA files were archived in
 tool evidence then removed. Independent review approved this as a partial safety
 and UI improvement, explicitly not completion of new-GUID loading.
+
+## Editable faction/team selectors — 2026-11-01
+
+Faction and Team reuse the existing native searchable combo implementation through
+a menu-specific subclass. Existing loadout paths supply both sets of choices;
+loaded FactionManager keys additionally supply factions. Typed text matches
+case-insensitively, selected entries match exactly, and All clears the filter.
+Changing faction text or its exact/partial selection state resets Team and rebuilds
+its choices. Filtering changes existing row visibility, including each pool's
+variant children, without rescanning files or rebuilding previews per keystroke.
+The fields still supply the save destination. New keys are written to the folder,
+character affiliation and editable-character UI faction fields; a faction need
+not already be loaded in the test world's manager. This authors a faction key,
+not a new faction configuration/registration. Existing name validation remains.
+
+Native edit focus commits can invoke another field's change callback. Apply the
+dependent team reset after the current event, deduplicate text plus choice state,
+and cancel the queued callback on close. No shared admin selector was changed.
+
+Workbench 1.8.0.13, PID 55132, final reload
+`b9ce72a4bf584fed92b641d3b6e16d0e`: no SCRIPT compile errors; five pre-existing
+ArlandLobby/plugin/formation errors remain. Explicit MCP tests exercised native
+combo row buttons and edit-change dispatch, not physical keyboard input.
+Raw receipts are in the tool repository `.temp/local/evidence/loadout-foundation`:
+
+- New team save `rbecbbfef3ff344d48fe7dbfd98a211be`; new faction save
+  `r3c3707ced86e4b7ebb4c100288305791`; readback preserved in
+  `tests/evidence/loadout-scope-20261101/new-faction-prefab.txt` confirms both
+  native faction fields. Save returned to gear with files=0, gear=1
+  (`r072b07a7d7b34389a0060655b98fdc78`).
+- Reopening lists the saved new faction/team (`rd168f1b2f117486a9a2f2a9b8fd3db85`).
+  US → Test shows only its three roots (`r654edddc386242ba8caf3d9fba5903be`);
+  mixed-case partial team input narrows to one (`rb63bfba3dadc4809a5f32b40f6b864e7`).
+  All restores all roots (`r06b3d3fdf20d4e93ba80c22398d48c42`).
+- Regression: typed US includes US and USSR-only teams
+  (`rffda96fca7b74263a47138fb57b7a5b3`); choosing the same text US then excludes
+  USSR-only teams (`r7d3a30c4e8cb4f8892963e52092fd15e`).
+- Load returned actual=editing with gear=1/files=0
+  (`r29484030ed7045c7bdfc87ee13a5b5d0`). Closing after typing an unsaved team
+  created no folder (`rff95800723164beda3a38481ec3058d5`, filesystem readback).
+- Reviewed live screenshot: `tests/evidence/loadout-scope-20261101/teams.png`.
+
+Fresh independent review approved after fixing the typed-to-selected transition.
+Three disposable loadout fixtures were removed after preserving evidence; original
+user loadouts were untouched. No hundreds-of-prefabs performance benchmark or
+standalone-client test was run for this Workbench-only menu change.

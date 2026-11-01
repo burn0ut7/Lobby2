@@ -183,5 +183,13 @@ StringTable {
    Id "GC-Catalogue_CannotPlace"
    Target_en_us "Cannot place this item here"
   }
+  CustomStringTableItem "{DC391DA320AF5050}" {
+   Id "GC-Loadout_AllFactions"
+   Target_en_us "All factions"
+  }
+  CustomStringTableItem "{DC391DA320AF5051}" {
+   Id "GC-Loadout_AllTeams"
+   Target_en_us "All teams"
+  }
  }
 }

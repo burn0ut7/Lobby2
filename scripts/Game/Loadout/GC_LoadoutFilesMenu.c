@@ -3,8 +3,10 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 {
 #ifdef WORKBENCH
 	protected IEntity m_Owner;
-	protected EditBoxWidget m_Faction;
-	protected EditBoxWidget m_Group;
+	protected GC_LoadoutScopeSelector m_Faction;
+	protected GC_LoadoutScopeSelector m_Group;
+	protected string m_sScopeFaction;
+	protected bool m_bScopeFactionChosen;
 	protected EditBoxWidget m_Name;
 	protected GC_LoadoutIconSelector m_Icon;
 	protected TextWidget m_Status;
@@ -41,8 +43,10 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			return;
 		}
 		Widget root = GetRootWidget();
-		m_Faction = EditBoxWidget.Cast(root.FindAnyWidget("Faction"));
-		m_Group = EditBoxWidget.Cast(root.FindAnyWidget("Group"));
+		m_Faction = GC_LoadoutScopeSelector.Cast(root.FindAnyWidget("Faction").FindHandler(GC_LoadoutScopeSelector));
+		m_Group = GC_LoadoutScopeSelector.Cast(root.FindAnyWidget("Group").FindHandler(GC_LoadoutScopeSelector));
+		m_Faction.m_OnFilterChanged.Insert(OnFactionFilter);
+		m_Group.m_OnFilterChanged.Insert(ApplyScopeFilter);
 		m_Name = EditBoxWidget.Cast(root.FindAnyWidget("Name"));
 		m_Icon = GC_LoadoutIconSelector.Cast(root.FindAnyWidget("RoleSelector").FindHandler(GC_LoadoutIconSelector));
 		m_Icon.m_OnChanged.Insert(OnIconChanged);
@@ -73,6 +77,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		m_sSelected = GC_WorkbenchItemBrowser.GetEditingPrefab();
 		RefreshList();
 		SetFields(m_sSelected);
+		RefreshTeamChoices();
+		ApplyScopeFilter();
 		RefreshRelationship();
 		RefreshPreview();
 		RefreshActions();
@@ -105,6 +111,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			return;
 		m_Group.SetText(parts[1]);
 		m_Name.SetText(parts[2]);
+		RefreshTeamChoices();
+		ApplyScopeFilter();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -213,6 +221,126 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 				m_aVariantIndices.Insert(index);
 			}
 		}
+		RefreshScopeChoices();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ScopeParts(ResourceName resource, out string faction, out string team)
+	{
+		string path = resource.GetPath();
+		if (!path.StartsWith("Prefabs/Loadouts/"))
+			return false;
+		array<string> parts = {};
+		path.Split("/", parts, true);
+		if (parts.Count() != 5)
+			return false;
+		faction = parts[2];
+		team = parts[3];
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void AddScopeChoice(array<string> values, string value)
+	{
+		if (value.IsEmpty())
+			return;
+		string folded = value;
+		folded.ToLower();
+		foreach (string existing : values)
+		{
+			existing.ToLower();
+			if (existing == folded)
+				return;
+		}
+		values.Insert(value);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool MatchesScope(string value, GC_LoadoutScopeSelector selector)
+	{
+		string query = selector.GetText();
+		query.ToLower();
+		value.ToLower();
+		if (query.IsEmpty())
+			return true;
+		if (selector.HasChoice())
+			return value == query;
+		return value.Contains(query);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshScopeChoices()
+	{
+		array<string> values = {};
+		array<Faction> factions = {};
+		if (GetGame().GetFactionManager())
+			GetGame().GetFactionManager().GetFactionsList(factions);
+		foreach (Faction faction : factions)
+			AddScopeChoice(values, faction.GetFactionKey());
+		foreach (ResourceName resource : m_aResources)
+		{
+			string factionName, team;
+			if (ScopeParts(resource, factionName, team))
+				AddScopeChoice(values, factionName);
+		}
+		values.Sort();
+		m_Faction.Populate(values, "#GC-Loadout_AllFactions");
+		RefreshTeamChoices();
+		ApplyScopeFilter();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshTeamChoices()
+	{
+		m_sScopeFaction = m_Faction.GetText();
+		m_bScopeFactionChosen = m_Faction.HasChoice();
+		array<string> values = {};
+		foreach (ResourceName resource : m_aResources)
+		{
+			string faction, team;
+			if (ScopeParts(resource, faction, team) && MatchesScope(faction, m_Faction))
+				AddScopeChoice(values, team);
+		}
+		values.Sort();
+		m_Group.Populate(values, "#GC-Loadout_AllTeams");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnFactionFilter()
+	{
+		GetGame().GetCallqueue().Remove(ApplyFactionFilter);
+		GetGame().GetCallqueue().CallLater(ApplyFactionFilter, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ApplyFactionFilter()
+	{
+		// Focus commits can report the same edit again while the team field is typing.
+		if (m_sScopeFaction == m_Faction.GetText() && m_bScopeFactionChosen == m_Faction.HasChoice())
+		{
+			ApplyScopeFilter();
+			return;
+		}
+		m_Group.CloseList();
+		m_Group.SetText("");
+		RefreshTeamChoices();
+		ApplyScopeFilter();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool MatchesResourceScope(ResourceName resource)
+	{
+		string faction, team;
+		return ScopeParts(resource, faction, team) && MatchesScope(faction, m_Faction) && MatchesScope(team, m_Group);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ApplyScopeFilter()
+	{
+		foreach (int index, SCR_ButtonBaseComponent row : m_aRows)
+			row.GetRootWidget().SetVisible(MatchesResourceScope(m_aRowResources[index]));
+		foreach (int index, SCR_ButtonBaseComponent row : m_aVariantRows)
+			row.GetRootWidget().SetVisible(MatchesResourceScope(m_aVariantOwners[index]));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -670,6 +798,16 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnBack()
 	{
+		if (m_Faction && m_Faction.IsOpened())
+		{
+			m_Faction.CloseList();
+			return;
+		}
+		if (m_Group && m_Group.IsOpened())
+		{
+			m_Group.CloseList();
+			return;
+		}
 		if (m_VariantPicker && m_VariantPicker.IsOpened())
 		{
 			m_VariantPicker.CloseList();
@@ -752,6 +890,17 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuClose()
 	{
+		GetGame().GetCallqueue().Remove(ApplyFactionFilter);
+		if (m_Faction)
+		{
+			m_Faction.m_OnFilterChanged.Remove(OnFactionFilter);
+			m_Faction.CloseList();
+		}
+		if (m_Group)
+		{
+			m_Group.m_OnFilterChanged.Remove(ApplyScopeFilter);
+			m_Group.CloseList();
+		}
 		ClearDeleteDialog();
 		if (m_VariantPicker)
 		{
