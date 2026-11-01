@@ -202,5 +202,13 @@ StringTable {
    Id "GC-Loadout_AllTeams"
    Target_en_us "All teams"
   }
+  CustomStringTableItem "{6B02000100000001}" { Id "GC-Jip_Title" Target_en_us "JOIN IN PROGRESS" }
+  CustomStringTableItem "{6B02000100000002}" { Id "GC-Jip_Offer" Target_en_us "Double-press J to join your group. Available once this mission." }
+  CustomStringTableItem "{6B02000100000003}" { Id "GC-Jip_Unavailable" Target_en_us "Join in progress is unavailable." }
+  CustomStringTableItem "{6B02000100000004}" { Id "GC-Jip_LeaveVehicle" Target_en_us "Leave your vehicle, then double-press J to join your group." }
+  CustomStringTableItem "{6B02000100000005}" { Id "GC-Jip_NoTarget" Target_en_us "No living group member is available. Double-press J to try again." }
+  CustomStringTableItem "{6B02000100000006}" { Id "GC-Jip_NoLanding" Target_en_us "No safe landing near your group. Double-press J to try again later." }
+  CustomStringTableItem "{6B02000100000007}" { Id "GC-Jip_Arrived" Target_en_us "Joined your group." }
+  CustomStringTableItem "{6B02000100000008}" { Id "GC-Jip_Unverified" Target_en_us "The move could not be confirmed. Your one-time JIP has been spent." }
  }
 }

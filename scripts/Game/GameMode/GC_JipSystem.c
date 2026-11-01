@@ -1,0 +1,236 @@
+enum GC_EJipMode
+{
+	MANUAL,
+	AUTO,
+	DISABLED
+}
+
+//! Mission-lifetime account record. Never keyed by a slot or a reusable player ID.
+class GC_JipPlayer
+{
+	bool m_bEligible;
+	bool m_bOffered;
+	bool m_bConsumed;
+	RplId m_Character = RplId.Invalid();
+}
+
+//! All policy, membership, destination selection and completion checks run on authority.
+class GC_JipSystem
+{
+	protected GC_LobbyGameMode m_Mode;
+	protected ref map<string, ref GC_JipPlayer> m_mPlayers = new map<string, ref GC_JipPlayer>();
+	protected ref map<int, float> m_mConnections = new map<int, float>();
+	static const float MINIMUM_JOIN_SECONDS = 120;
+
+	//------------------------------------------------------------------------------------------------
+	void Start(GC_LobbyGameMode mode)
+	{
+		m_Mode = mode;
+		GetGame().GetCallqueue().CallLater(Tick, 1000, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Stop()
+	{
+		GetGame().GetCallqueue().Remove(Tick);
+		m_Mode = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool IsActive()
+	{
+		return Replication.IsServer() && m_Mode && GC_LobbyGameMode.GetGameMode() == m_Mode;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	float Elapsed()
+	{
+		if (!m_Mode || m_Mode.GetState() != SCR_EGameModeState.GAME)
+			return -1;
+		return m_Mode.GetElapsedTime();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Connected(int playerId)
+	{
+		if (IsActive() && !m_mConnections.Contains(playerId))
+			m_mConnections.Set(playerId, Elapsed());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Disconnected(int playerId)
+	{
+		m_mConnections.Remove(playerId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_JipPlayer Register(int playerId)
+	{
+		if (!IsActive())
+			return null;
+		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		if (identity.IsEmpty())
+			return null;
+		GC_JipPlayer record = m_mPlayers.Get(identity);
+		if (record)
+			return record;
+		Connected(playerId);
+		record = new GC_JipPlayer();
+		record.m_bEligible = m_mConnections.Get(playerId) >= MINIMUM_JOIN_SECONDS && WindowOpen();
+		m_mPlayers.Set(identity, record);
+		return record;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool WindowOpen()
+	{
+		return IsActive() && m_Mode.GetState() == SCR_EGameModeState.GAME
+			&& m_Mode.GetJipMode() != GC_EJipMode.DISABLED
+			&& (m_Mode.GetJipDenySeconds() <= 0 || Elapsed() < m_Mode.GetJipDenySeconds());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected ChimeraCharacter LivingCharacter(int playerId)
+	{
+		PlayerManager players = GetGame().GetPlayerManager();
+		if (!players.IsPlayerConnected(playerId))
+			return null;
+		ChimeraCharacter character = ChimeraCharacter.Cast(players.GetPlayerControlledEntity(playerId));
+		if (!character || character.FindComponent(GC_LobbySpectatorBodyComponent))
+			return null;
+		CharacterControllerComponent controller = character.GetCharacterController();
+		if (!controller || controller.IsDead() || controller.IsUnconscious())
+			return null;
+		return character;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool FactionAllowed(int playerId)
+	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		Faction faction;
+		if (manager)
+			faction = manager.GetPlayerFaction(playerId);
+		return faction && m_Mode.IsJipFactionAllowed(faction.GetFactionKey());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void Tick()
+	{
+		if (!IsActive())
+			return;
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		foreach (int playerId : players)
+		{
+			GC_JipPlayer record = Register(playerId);
+			if (!record || !record.m_bEligible || record.m_bConsumed)
+				continue;
+			if (!WindowOpen())
+			{
+				record.m_bConsumed = true;
+				continue;
+			}
+			ChimeraCharacter character = LivingCharacter(playerId);
+			if (record.m_bOffered)
+			{
+				ChimeraCharacter current = ChimeraCharacter.Cast(GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId));
+				if (!current || Replication.FindItemId(current) != record.m_Character || current.GetCharacterController().IsDead())
+					record.m_bConsumed = true;
+				continue;
+			}
+			if (!character)
+				continue;
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+			RplId characterId = Replication.FindItemId(character);
+			if (!controller || !characterId.IsValid())
+				continue;
+			record.m_bOffered = true;
+			record.m_Character = characterId;
+			if (!FactionAllowed(playerId))
+			{
+				record.m_bConsumed = true;
+				continue;
+			}
+			controller.GC_SendJipOffer(characterId, m_Mode.GetJipMode() == GC_EJipMode.AUTO);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! No target, coordinates, account or player ID is accepted from the client.
+	void Request(GC_LobbyPlayerController controller)
+	{
+		if (!IsActive() || !controller)
+			return;
+		int playerId = controller.GetPlayerId();
+		if (GetGame().GetPlayerManager().GetPlayerController(playerId) != controller)
+			return;
+		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
+		GC_JipPlayer record = m_mPlayers.Get(identity);
+		ChimeraCharacter character = LivingCharacter(playerId);
+		if (identity.IsEmpty() || !WindowOpen() || !record || !record.m_bEligible || !record.m_bOffered || record.m_bConsumed
+			|| !character || Replication.FindItemId(character) != record.m_Character || !FactionAllowed(playerId))
+		{
+			controller.GC_SendJipMessage("#GC-Jip_Unavailable");
+			return;
+		}
+		if (character.GetRootParent() != character || CompartmentAccessComponent.GetVehicleIn(character))
+		{
+			controller.GC_SendJipMessage("#GC-Jip_LeaveVehicle");
+			return;
+		}
+		SCR_GroupsManagerComponent groups = SCR_GroupsManagerComponent.GetInstance();
+		SCR_AIGroup group;
+		if (groups)
+			group = groups.GetPlayerGroup(playerId);
+		ChimeraCharacter target;
+		if (group && group.GetPlayerIDs().Contains(playerId))
+		{
+			int leader = group.GetLeaderID();
+			if (leader != playerId && group.GetPlayerIDs().Contains(leader))
+				target = LivingCharacter(leader);
+			if (!target)
+			{
+				foreach (int member : group.GetPlayerIDs())
+				{
+					if (member == playerId)
+						continue;
+					target = LivingCharacter(member);
+					if (target)
+						break;
+				}
+			}
+		}
+		if (!target)
+		{
+			controller.GC_SendJipMessage("#GC-Jip_NoTarget");
+			return;
+		}
+		// Land on clear dry ground beside the target. Never move a vehicle, claim
+		// a seat, evict an occupant, or put a joining player beneath an aircraft.
+		vector destination;
+		BaseWorld world = character.GetWorld();
+		vector origin = target.GetOrigin();
+		float terrain = world.GetSurfaceY(origin[0], origin[2]);
+		IEntity vehicle = CompartmentAccessComponent.GetVehicleIn(target);
+		Physics vehiclePhysics;
+		if (vehicle)
+			vehiclePhysics = vehicle.GetPhysics();
+		vector ground;
+		if (Math.AbsFloat(origin[1] - terrain) > 3
+			|| (vehiclePhysics && vehiclePhysics.GetVelocity().LengthSq() > 4)
+			|| !SCR_WorldTools.FindEmptyTerrainPosition(ground, origin, 8)
+			|| !SCR_EmptyPositionHelper.TryFindNearbyFloorPositionForEntity(world, character, ground, destination)
+			|| !SCR_Global.IsPositionWithinTerrainBounds(destination)
+			|| vector.DistanceSq(destination, origin) > 100
+			|| Math.AbsFloat(destination[1] - world.GetSurfaceY(destination[0], destination[2])) > 1
+			|| destination[1] < world.GetOceanHeight(destination[0], destination[2]))
+		{
+			controller.GC_SendJipMessage("#GC-Jip_NoLanding");
+			return;
+		}
+		// Consume before dispatch: uncertain delivery must never grant a second move.
+		record.m_bConsumed = true;
+		controller.GC_DispatchJip(record.m_Character, destination);
+	}
+}

@@ -431,6 +431,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     override void OnPlayerAuditSuccess(int playerId)
     {
+        GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+        if (mode && mode.GetJip())
+            mode.GetJip().Register(playerId);
         PrintFormat("GC | OnPlayerAuditSuccess: %1, connected!", playerId);
 
 		if (Replication.IsServer())
@@ -443,6 +446,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     override void OnPlayerConnected(int playerId)
     {
+        GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+        if (mode && mode.GetJip())
+            mode.GetJip().Connected(playerId);
         super.OnPlayerConnected(playerId);
     }
 
@@ -454,6 +460,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
     override void OnPlayerDisconnected(int playerId, KickCauseCode cause, int timeout)
     {
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (mode && mode.GetJip())
+			mode.GetJip().Disconnected(playerId);
 		const KickCauseGroup2 causeGroup = KickCauseCodeAPI.GetGroup(cause);
 		bool isShutdown = causeGroup == RplKickCauseGroup.REPLICATION && KickCauseCodeAPI.GetReason(cause) == RplError.SHUTDOWN;
 		if (Replication.IsServer() && !isShutdown)

@@ -64,6 +64,12 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "jip")
+		{
+			GC_RequestJip();
+			Rpc(GC_TestRpcPeerReport, token, "DISPATCHED production JIP request");
+			return;
+		}
 		if (action == "spectator-focus")
 		{
 			array<string> focusParts = {};
@@ -531,6 +537,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"jip",
 			"player-history",
 			"spectator-radio",
 			"spectator-events",
