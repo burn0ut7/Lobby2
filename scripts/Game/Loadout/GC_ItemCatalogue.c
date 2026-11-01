@@ -208,12 +208,22 @@ class GC_ItemCatalogue
 		IEntityComponentSource cloth = SCR_BaseContainerTools.FindComponentSource(resource, BaseLoadoutClothComponent);
 		if (cloth)
 		{
-			entry.m_sCategory = "Clothing";
+			entry.m_sCategory = "Equipment";
 			BaseContainer area = cloth.GetObject("AreaType");
 			if (area)
+			{
 				entry.m_sEquipmentSlot = area.GetClassName();
-			if (entry.m_sEquipmentSlot == "LoadoutWatchArea" || entry.m_sEquipmentSlot == "LoadoutBinocularsArea" || entry.m_sEquipmentSlot == "LoadoutIdentityItemArea")
-				entry.m_sCategory = "Equipment";
+				typename areaType = entry.m_sEquipmentSlot.ToType();
+				// Categorize by the actual worn slot, including modded subclasses.
+				if (areaType && (areaType.IsInherited(LoadoutJacketArea) || areaType.IsInherited(LoadoutPantsArea) || areaType.IsInherited(LoadoutHandwearSlotArea) || areaType.IsInherited(LoadoutBootsArea)))
+					entry.m_sCategory = "Clothing";
+				else if (areaType && areaType.IsInherited(LoadoutHeadCoverArea))
+					entry.m_sCategory = "Headwear";
+				else if (areaType && (areaType.IsInherited(LoadoutVestArea) || areaType.IsInherited(LoadoutArmoredVestSlotArea)))
+					entry.m_sCategory = "Vests";
+				else if (areaType && areaType.IsInherited(LoadoutBackpackArea))
+					entry.m_sCategory = "Backpacks";
+			}
 		}
 		array<IEntityComponentSource> mounts = {};
 		SCR_BaseContainerTools.FindComponentSourcesOfClass(entity, AttachmentSlotComponent, true, mounts);

@@ -196,3 +196,24 @@ Installed PAK revision `d9b5a4246f9247e4be5ea20935889885`: InventoryMain.layout 
 - Captures: [headwear](evidence/inventory-catalogue-20261029/headwear.png), [advanced faction/sort](evidence/inventory-catalogue-20261029/advanced.png), [addon-free inventory](evidence/inventory-catalogue-20261029/stock-baseline.png). [Compact MCP receipts](evidence/inventory-catalogue-20261029/runtime-receipts.json).
 
 Coverage limits: one desktop viewport/UI scale and English labels; physical typing/gamepad navigation, other languages/scales, multiplayer rejection in a live peer session, and actual insertion/attachment transfers were not exercised. Individual preview requests/resource loads can still exceed the frame budget. This slice deliberately contains no transfer/admin authority surface.
+
+## Clothing categories (2026-11-01)
+
+Wearables are classified from BaseLoadoutClothComponent.AreaType, including derived
+slot types. Clothing contains Jacket, Pants, HandwearSlot and Boots areas only.
+HeadCover belongs to Headwear; Vest and ArmoredVestSlot to Vests; Backpack to
+Backpacks. Other worn equipment stays under Equipment and All. Category buttons
+query these categories; selecting a character slot still uses its specific slot.
+
+Workbench 1.8.0.13, installed-source revision d9b5a4246f9247e4be5ea20935889885:
+Reload 7904b22f6e334cfab3ef41c747b4602c introduced no new errors. Live native-button
+checks found 106 Clothing results (shirts/pants shown; six boots), zero Clothing
+results for helmet or vest, 43 Vests including 6B2/6B3, ALICE and PASGT, 90 Headwear
+and 40 Backpacks. No portable gloves were specifically verified in the installed
+catalogue; their native HandwearSlot type is included by the classifier.
+
+Receipts and unmodified screenshot are in the tool repository's
+.temp/local/evidence/loadout-foundation: 202bd93d83d744c48f9231a519c4f0e9,
+2b4bdf66a90a404286788a8cb3de0af9, bf968afa51d84df2b7dd55653f08f3a8,
+598d1cabc90d4f06821ff19ee86b4068, fd05a6dc60ea415aa7bc445d438f214c,
+fdde650866d14ea3814696500fdc7f52; 1793518176441626200-capture_screenshot.png.

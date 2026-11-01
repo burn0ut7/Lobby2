@@ -433,7 +433,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 					selected = "CategoryHeadwear";
 				else if (m_Query.m_sEquipmentSlot == "LoadoutBackpackArea")
 					selected = "CategoryBackpacks";
-				else if (m_Query.m_sEquipmentSlot == "LoadoutVestArea")
+				else if (m_Query.m_sEquipmentSlot == "LoadoutVestArea" || m_Query.m_sEquipmentSlot == "LoadoutArmoredVestSlotArea")
 					selected = "CategoryVests";
 				else if (!m_Query.m_sEquipmentSlot.IsEmpty())
 					selected = string.Empty;
@@ -474,12 +474,6 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			m_sCategoryLabel = category;
 			if (category == "All")
 				m_sCategoryLabel = "All items";
-			else if (category == "Headwear")
-				m_Query.m_sEquipmentSlot = "LoadoutHeadCoverArea";
-			else if (category == "Backpacks")
-				m_Query.m_sEquipmentSlot = "LoadoutBackpackArea";
-			else if (category == "Vests")
-				m_Query.m_sEquipmentSlot = "LoadoutVestArea";
 			else
 				m_Query.m_sCategory = category;
 			m_iOffset = 0;
