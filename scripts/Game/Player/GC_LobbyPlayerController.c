@@ -34,7 +34,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
 	protected GC_SpectatorManualCamera m_SpectatorCamera;
 	protected ref GC_SpectatorCameraContextAction m_ShoulderCameraAction;
-	protected ref GC_SpectatorCameraContextAction m_EyeCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_FollowCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_MirrorCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_NetworkCameraAction;
@@ -2475,12 +2474,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			GC_ContextMenuActionRegistry.Register(m_ShoulderCameraAction);
 		}
 
-		if (!m_EyeCameraAction)
-		{
-			m_EyeCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.EYE, "EYE CAMERA");
-			GC_ContextMenuActionRegistry.Register(m_EyeCameraAction);
-		}
-
 		if (!m_FollowCameraAction)
 		{
 			m_FollowCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.FOLLOW, "FOLLOW CAMERA");
@@ -2489,7 +2482,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		if (!m_MirrorCameraAction)
 		{
-			m_MirrorCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.MIRROR, "MIRROR FIRST PERSON");
+			m_MirrorCameraAction = new GC_SpectatorCameraContextAction(m_SpectatorCamera, GC_ESpectatorCameraMode.MIRROR, "FIRST PERSON");
 			GC_ContextMenuActionRegistry.Register(m_MirrorCameraAction);
 		}
 
@@ -2506,12 +2499,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		{
 			GC_ContextMenuActionRegistry.Unregister(m_ShoulderCameraAction);
 			m_ShoulderCameraAction = null;
-		}
-
-		if (m_EyeCameraAction)
-		{
-			GC_ContextMenuActionRegistry.Unregister(m_EyeCameraAction);
-			m_EyeCameraAction = null;
 		}
 
 		if (m_FollowCameraAction)

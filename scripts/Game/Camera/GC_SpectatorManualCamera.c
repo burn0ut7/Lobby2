@@ -2,8 +2,7 @@ enum GC_ESpectatorCameraMode
 {
 	FREE,
 	SHOULDER,
-	EYE,
-	FOLLOW,
+	FOLLOW = 3,
 	MIRROR,
 	NETWORK
 }
@@ -173,8 +172,15 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			return true;
 		}
 
-		if ((mode != GC_ESpectatorCameraMode.SHOULDER && mode != GC_ESpectatorCameraMode.EYE && mode != GC_ESpectatorCameraMode.FOLLOW && mode != GC_ESpectatorCameraMode.MIRROR && mode != GC_ESpectatorCameraMode.NETWORK) || !IsEligibleTarget(target))
+		if ((mode != GC_ESpectatorCameraMode.SHOULDER && mode != GC_ESpectatorCameraMode.FOLLOW && mode != GC_ESpectatorCameraMode.MIRROR && mode != GC_ESpectatorCameraMode.NETWORK) || !IsEligibleTarget(target))
 			return false;
+
+		if (mode == GC_ESpectatorCameraMode.NETWORK)
+		{
+			PlayerManager networkPlayerManager = GetGame().GetPlayerManager();
+			if (!networkPlayerManager || networkPlayerManager.GetPlayerIdFromControlledEntity(target) <= 0)
+				return false;
+		}
 
 		SCR_AttachManualCameraComponent attachComponent = SCR_AttachManualCameraComponent.Cast(FindCameraComponent(SCR_AttachManualCameraComponent));
 		if (attachComponent)
@@ -239,7 +245,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		if (playerManager)
 			m_iTargetPlayerId = playerManager.GetPlayerIdFromControlledEntity(target);
 
-		if (mode == GC_ESpectatorCameraMode.EYE || mode == GC_ESpectatorCameraMode.MIRROR || mode == GC_ESpectatorCameraMode.NETWORK)
+		if (mode == GC_ESpectatorCameraMode.MIRROR || mode == GC_ESpectatorCameraMode.NETWORK)
 		{
 			m_EyeCameraHandler = SCR_CharacterCameraHandlerComponent.Cast(target.FindComponent(SCR_CharacterCameraHandlerComponent));
 			if (m_EyeCameraHandler)
@@ -667,19 +673,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 		vector targetTransform[4];
 		m_Target.GetWorldTransform(targetTransform);
-
-		if (m_eMode == GC_ESpectatorCameraMode.EYE)
-		{
-			vector eyeCameraTransform[4];
-			if (!GetEyeCameraTransform(animation, targetTransform, eyeCameraTransform))
-			{
-				SetFreeMode();
-				return;
-			}
-
-			SetTransform(eyeCameraTransform);
-			return;
-		}
 
 		vector positionBoneTransform[4];
 		if (!animation.GetBoneMatrix(animation.GetBoneIndex("Camera"), positionBoneTransform))
@@ -1420,6 +1413,9 @@ class GC_SpectatorCameraContextAction : GC_ContextMenuAction
 	protected IEntity ResolveEligibleTarget(GC_ContextMenuContext context)
 	{
 		if (!context)
+			return null;
+
+		if (m_eMode == GC_ESpectatorCameraMode.NETWORK && context.GetTargetType() != GC_EContextTargetType.PLAYER)
 			return null;
 
 		IEntity target;
