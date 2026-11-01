@@ -26,4 +26,14 @@ class GC_LobbyPalette
 	{
 		return Color.FromRGBA(230, 173, 69, alpha);
 	}
+
+	static Color AdminName()
+	{
+		return Color.FromRGBA(235, 82, 82, 255);
+	}
+
+	static Color NewPlayerName()
+	{
+		return Selection(255);
+	}
 }

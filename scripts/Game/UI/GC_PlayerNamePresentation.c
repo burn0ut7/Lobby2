@@ -13,9 +13,19 @@ class GC_PlayerNamePresentation
 		if (!nameWidget)
 			return;
 
-		if (playerId > 0 && SCR_Global.IsAdmin(playerId))
-			nameWidget.SetColor(GC_LobbyPalette.Selection(255));
-		else
-			nameWidget.SetColor(GC_LobbyPalette.Text());
+		bool isAdmin = playerId > 0 && SCR_Global.IsAdmin(playerId);
+		// New-player identification will supply shared player state in a later slice.
+		nameWidget.SetColor(ResolveColor(isAdmin));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Admin identity takes priority. Gold is reserved until new-player detection exists.
+	static Color ResolveColor(bool isAdmin, bool isNewPlayer = false)
+	{
+		if (isAdmin)
+			return GC_LobbyPalette.AdminName();
+		if (isNewPlayer)
+			return GC_LobbyPalette.NewPlayerName();
+		return GC_LobbyPalette.Text();
 	}
 }
