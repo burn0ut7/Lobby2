@@ -9,8 +9,9 @@ with the same immediate parent and attachment references is reused. Shared
 variants are not overwritten when another unit customizes them. Unchanged saved
 weapons remain direct unit-slot references; no extra copy is needed.
 
-The existing weapon category uses the filename as the authored weapon's display
-name, making numbered/team choices distinguishable. Mod provenance still comes
+The weapon category uses the native item display name for authored weapons too,
+so an M16A2 variant remains labeled M16A2. The numbered filename remains searchable
+through the resource path. Mod provenance still comes
 from native resolved source addons. On a successful weapon save, existing catalogue
 instances queue new authored resources using their native meta identities. This
 uses the existing metadata queue and incremental preview renderer. It does not
@@ -18,8 +19,14 @@ rebuild the page or restart Play. Initial discovery also includes these files.
 
 ## Verified behavior
 
+Display-name follow-up: Reload `3f627114c957448ebdcec7b9e3edce46` passed.
+Catalogue readback `b74472c7173546ce85fd2c223ddb21d1` found the saved
+`M16A2_test_1.et` by filename and displayed **M16A2**. Screenshot
+`1793523827233861900-capture_screenshot.png` confirms the visible row label.
+The numbered files and native weapon references are unchanged by this label fix.
+
 Workbench 1.8.0.13, dataset d9b5a4246f9247e4be5ea20935889885.
-Latest compilation 97cf0d86e2714cfc9e183367700b9f32 passed without new errors.
+Original weapon-save compilation 97cf0d86e2714cfc9e183367700b9f32 passed without new errors.
 Existing ArlandLobby/dedicated-plugin/formations diagnostics remain.
 
 - Native M16A2 plus M9 bayonet saved as M16A2_WeaponAudit_1.et, inheriting the native

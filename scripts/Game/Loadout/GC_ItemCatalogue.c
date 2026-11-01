@@ -308,8 +308,6 @@ class GC_ItemCatalogue
 				entry.m_sFactions += " " + m_aFactionKeys[f] + " ";
 		}
 		entry.m_sName.TrimInPlace();
-		if (entry.m_sCategory == "Weapons" && prefab.GetPath().StartsWith("Prefabs/Loadouts/") && prefab.GetPath().Contains("/Weapons/"))
-			entry.m_sName = FilePath.StripExtension(FilePath.StripPath(prefab.GetPath()));
 		entry.m_sSearch = entry.m_sName + " " + entry.m_sNameKey + " " + prefab + " " + source + " " + entry.m_sCategory + " " + entry.m_sEquipmentSlot + " " + entry.m_sFactions;
 		entry.m_sSearch += " " + WidgetManager.Translate(entry.GetCategoryLabel());
 		foreach (string addon : entry.m_aSourceAddons)
