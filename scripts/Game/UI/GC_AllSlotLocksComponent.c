@@ -64,7 +64,7 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 			return;
 
 		bool enforceRatio = m_Manager.IsFactionBalanceEnforced();
-		m_RatioButton.SetToggled(enforceRatio, false, false);
+		// The icon conveys the rule state; the button highlights only interaction.
 		if (enforceRatio)
 		{
 			m_RatioIcon.SetColor(Color.FromInt(Color.WHITE));

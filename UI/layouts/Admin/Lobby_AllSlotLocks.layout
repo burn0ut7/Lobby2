@@ -82,7 +82,7 @@ SizeLayoutWidgetClass {
         ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" {
          Name "FactionRatioButton"
          Slot LayoutSlot { Padding 0 0 6 0 }
-         components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_sText "" m_bCanBeToggled 1 } }
+         components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_sText "" m_bCanBeToggled 0 } }
          {
           SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
            Prefab "{7C41F8A018B24C01}"
