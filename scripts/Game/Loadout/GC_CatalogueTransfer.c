@@ -247,6 +247,14 @@ class GC_CatalogueTransfer
 		IEntity item = GetGame().SpawnEntityPrefab(Resource.Load(entry.m_sPrefab), world, spawn);
 		if (!item)
 			return false;
+		// New GUIDs can lack a replication identity in an already running Workbench
+		// session. Reject before locking: native insertion never completes for them.
+		RplComponent replication = RplComponent.Cast(item.FindComponent(RplComponent));
+		if (replication && !replication.Id().IsValid())
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(item);
+			return false;
+		}
 		GC_CatalogueTransferCallback callback = new GC_CatalogueTransferCallback();
 		callback.m_Owner = owner;
 		callback.m_Manager = manager;

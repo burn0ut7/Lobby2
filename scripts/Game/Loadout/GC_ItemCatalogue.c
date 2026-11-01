@@ -70,6 +70,14 @@ class GC_ItemCatalogue
 	protected ref array<string> m_aDiscoveryIssues = {};
 	protected ref array<ResourceName> m_aFailedResources = {};
 	protected static const int INDEX_BATCH_SIZE = 500;
+	protected static int s_iAuthoredRevision;
+	protected int m_iAuthoredRevision;
+
+	//------------------------------------------------------------------------------------------------
+	static void NotifyAuthoredSave()
+	{
+		s_iAuthoredRevision++;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	void Start()
@@ -80,6 +88,9 @@ class GC_ItemCatalogue
 		m_bStarted = true;
 		m_fStartedMS = System.GetTickCount();
 		m_aAddons = SCR_AddonTool.GetAllAddonIDs();
+		// Newly authored files may not yet be enumerated by the Play-time database.
+		// Resolve their native meta identities, then use the same metadata queue.
+		QueueAuthoredWeapons();
 		FactionManager manager = GetGame().GetFactionManager();
 		if (!manager)
 			return;
@@ -103,6 +114,8 @@ class GC_ItemCatalogue
 	void Tick()
 	{
 #ifdef WORKBENCH
+		if (m_bStarted && m_iAuthoredRevision != s_iAuthoredRevision)
+			QueueAuthoredWeapons();
 		if (!m_bStarted || IsFinished())
 			return;
 		float started = System.GetTickCount();
@@ -141,6 +154,31 @@ class GC_ItemCatalogue
 		m_aPending.Insert(resourceName);
 		m_aSources.Insert(m_sDiscovering);
 	}
+
+#ifdef WORKBENCH
+	//------------------------------------------------------------------------------------------------
+	protected void QueueAuthoredWeapons()
+	{
+		m_iAuthoredRevision = s_iAuthoredRevision;
+		string directory;
+		if (Workbench.GetAbsolutePath("$Lobby2:Prefabs/Loadouts/", directory, false))
+			FileIO.FindFiles(OnAuthoredWeapon, directory, ".et");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnAuthoredWeapon(string filename)
+	{
+		ResourceManager manager = Workbench.GetModule(ResourceManager);
+		MetaFile meta = manager.GetMetaFile(filename);
+		if (!meta)
+			return;
+		ResourceName prefab = meta.GetResourceID();
+		if (!prefab.GetPath().Contains("/Weapons/"))
+			return;
+		m_sDiscovering = "Lobby2";
+		OnResource(prefab, filename);
+	}
+#endif
 
 	//------------------------------------------------------------------------------------------------
 	protected void ReadEntry(ResourceName prefab, string source)
@@ -270,6 +308,8 @@ class GC_ItemCatalogue
 				entry.m_sFactions += " " + m_aFactionKeys[f] + " ";
 		}
 		entry.m_sName.TrimInPlace();
+		if (entry.m_sCategory == "Weapons" && prefab.GetPath().StartsWith("Prefabs/Loadouts/") && prefab.GetPath().Contains("/Weapons/"))
+			entry.m_sName = FilePath.StripExtension(FilePath.StripPath(prefab.GetPath()));
 		entry.m_sSearch = entry.m_sName + " " + entry.m_sNameKey + " " + prefab + " " + source + " " + entry.m_sCategory + " " + entry.m_sEquipmentSlot + " " + entry.m_sFactions;
 		entry.m_sSearch += " " + WidgetManager.Translate(entry.GetCategoryLabel());
 		foreach (string addon : entry.m_aSourceAddons)

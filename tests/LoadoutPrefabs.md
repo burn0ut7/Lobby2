@@ -22,9 +22,12 @@ value again clears a child override. Team remains a folder name.
 Native files live at `Prefabs/Loadouts/<Faction>/<Team>/<Name>.et`. Inherit points to
 the source prefab; Duplicate retains the source's existing ancestor. Gear slots
 write only changed native resource references. Changed weapon attachments use native
-weapon variants in the adjacent Weapons directory. Stable weapon identities preserve
-attachment inheritance; replacing a weapon allocates a different variant. Variants
-are owned by the exact team directory, loadout name and slot.
+weapon variants in the team's Weapons directory, named Weapon_Team_Number.et.
+Matching configurations with the same immediate parent are reused. Editing a shared
+saved weapon creates another numbered child rather than overwriting other units'
+weapon. Unmodified selected weapon prefabs remain direct references, including
+legacy loadout/slot-named files. Existing variant ancestry remains native; choosing
+a different numbered weapon does not retarget other prefabs' ancestors.
 
 File actions never stop or restart Play. Saving current gear retains the character
 and updates the editing destination. Load spawns and possesses the selected native

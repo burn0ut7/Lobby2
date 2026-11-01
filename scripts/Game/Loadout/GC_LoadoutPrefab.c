@@ -270,11 +270,9 @@ class GC_LoadoutPrefab
 				ResourceName wanted;
 				if (item)
 					wanted = SCR_ResourceNameUtils.GetPrefabName(item);
-				string ownPrefix = FilePath.Concat(FilePath.StripFileName(m_sResource.GetPath()), "Weapons/" + FilePath.StripExtension(FilePath.StripPath(m_sResource.GetPath())) + "_Slot" + i.ToString() + "_");
-				bool ownVariant = wanted.GetPath().StartsWith(ownPrefix);
-				if (item && (HasSlotChanges(item) || ownVariant))
+				if (item && HasSlotChanges(item))
 				{
-					wanted = SaveVariant(item, i);
+					wanted = SaveVariant(item);
 					if (wanted.IsEmpty())
 						return false;
 				}
@@ -345,29 +343,61 @@ class GC_LoadoutPrefab
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected ResourceName SaveVariant(IEntity item, int slotIndex)
+	protected ResourceName SaveVariant(IEntity item)
 	{
-		string absolute;
-		if (!Workbench.GetAbsolutePath(m_sResource.GetPath(), absolute))
+		array<string> parts = {};
+		m_sResource.GetPath().Split("/", parts, true);
+		if (parts.Count() < 5)
 			return string.Empty;
-		string stem = FilePath.StripExtension(FilePath.StripPath(absolute));
 		ResourceName parent = SCR_ResourceNameUtils.GetPrefabName(item);
-		string prefix = stem + "_Slot" + slotIndex.ToString() + "_";
-		string path = FilePath.Concat(FilePath.StripFileName(absolute), "Weapons/" + prefix + parent.Substring(1, 16) + ".et");
-		ResourceName variant;
-		// Keep authored weapon identities stable so child attachment variants continue
-		// inheriting future base changes. A replacement weapon gets its own identity.
-		if (parent.GetPath().StartsWith(FilePath.Concat(FilePath.StripFileName(m_sResource.GetPath()), "Weapons/" + prefix)))
-			variant = parent;
-		else if (FileIO.FileExists(path))
+		Resource parentResource = Resource.Load(parent);
+		IEntitySource source = SCR_BaseContainerTools.FindEntitySource(parentResource);
+		// Use the original weapon name, not an already numbered variant's label.
+		BaseContainer original = source;
+		while (original && original.GetAncestor() && original.GetResourceName().GetPath().StartsWith("Prefabs/Loadouts/"))
+			original = original.GetAncestor();
+		string name = FilePath.StripExtension(FilePath.StripPath(parent));
+		IEntityComponentSource inventory = SCR_ComponentHelper.GetInventoryItemComponentSource(IEntitySource.Cast(original));
+		SCR_ItemAttributeCollection attributes = SCR_ComponentHelper.GetInventoryItemInfo(inventory);
+		if (attributes && attributes.GetUIInfo())
+			name = WidgetManager.Translate(attributes.GetUIInfo().GetName()).Trim();
+		string stem;
+		for (int ch; ch < name.Length(); ch++)
 		{
-			ResourceManager manager = Workbench.GetModule(ResourceManager);
-			MetaFile meta = manager.GetMetaFile(path);
-			if (meta)
-				variant = meta.GetResourceID();
+			string letter = name.Substring(ch, 1);
+			if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-".Contains(letter))
+				stem += letter;
+			else if (letter == " ")
+				stem += "_";
 		}
-		else
-			variant = Create(parent, path, false);
+		if (stem.IsEmpty())
+			stem = "Weapon";
+		string team = parts[3];
+		team.Replace(" ", "_");
+		string directory;
+		if (!Workbench.GetAbsolutePath("$Lobby2:Prefabs/Loadouts/" + parts[2] + "/" + parts[3] + "/Weapons/", directory, false))
+			return string.Empty;
+		ResourceManager manager = Workbench.GetModule(ResourceManager);
+		string path;
+		ResourceName variant;
+		for (int number = 1; number <= 10000; number++)
+		{
+			path = FilePath.Concat(directory, stem + "_" + team + "_" + number + ".et");
+			if (!FileIO.FileExists(path) && !FileIO.FileExists(path + ".meta"))
+				break;
+			MetaFile meta = manager.GetMetaFile(path);
+			if (!meta)
+				continue;
+			Resource candidate = Resource.Load(meta.GetResourceID());
+			BaseContainer candidateSource = SCR_BaseContainerTools.FindEntitySource(candidate);
+			if (candidateSource && candidateSource.GetAncestor() && candidateSource.GetAncestor().GetResourceName() == parent && MatchesSlots(item, candidateSource))
+				return meta.GetResourceID();
+			path = string.Empty;
+		}
+		// Shared variants are not overwritten when another unit customizes a weapon.
+		if (path.IsEmpty())
+			return string.Empty;
+		variant = Create(parent, path, false);
 		GC_LoadoutPrefab writer = new GC_LoadoutPrefab();
 		if (variant.IsEmpty() || !writer.Open(variant))
 			return string.Empty;
@@ -386,6 +416,58 @@ class GC_LoadoutPrefab
 		}
 		m_aPendingWeapons.Insert(writer);
 		return variant;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool MatchesSlots(IEntity owner, BaseContainer source)
+	{
+		set<BaseInventoryStorageComponent> storages = new set<BaseInventoryStorageComponent>();
+		SCR_PlayerArsenalLoadout.FindStorageComponents(owner, storages);
+		foreach (BaseInventoryStorageComponent storage : storages)
+		{
+			if (storage.GetPurpose() == EStoragePurpose.PURPOSE_DEPOSIT)
+				continue;
+			for (int i; i < storage.GetSlotsCount(); i++)
+			{
+				InventoryStorageSlot slot = storage.GetSlot(i);
+				if (!slot || !slot.GetParentContainer())
+					continue;
+				array<ref ContainerIdPathEntry> path = {};
+				BaseContainer component = FindComponent(source, slot.GetParentContainer().GetComponentSource(owner).GetResourceName(), path);
+				if (!component)
+					return false;
+				string key = "Prefab";
+				BaseContainer target = component;
+				if (component.GetVarIndex("WeaponTemplate") >= 0)
+					key = "WeaponTemplate";
+				else if (component.GetVarIndex("MagazineTemplate") >= 0)
+					key = "MagazineTemplate";
+				else
+					target = FindSlot(component, slot.GetSourceName(), path);
+				ResourceName expected;
+				if (!target || !target.Get(key, expected))
+					return false;
+				IEntity item = slot.GetAttachedEntity();
+				ResourceName actual;
+				if (item)
+					actual = SCR_ResourceNameUtils.GetPrefabName(item);
+				if (actual == expected && (!item || !HasSlotChanges(item)))
+					continue;
+				if (!item || expected.IsEmpty())
+					return false;
+				Resource nestedResource = Resource.Load(expected);
+				BaseContainer nestedSource = SCR_BaseContainerTools.FindEntitySource(nestedResource);
+				if (!nestedSource)
+					return false;
+				// A customized attachment is itself an inherited prefab. Compare its
+				// authored slots, not just its new identity, when reusing the weapon.
+				if (actual != expected && (!nestedSource.GetAncestor() || nestedSource.GetAncestor().GetResourceName() != actual))
+					return false;
+				if (!MatchesSlots(item, nestedSource))
+					return false;
+			}
+		}
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -700,6 +782,8 @@ class GC_LoadoutPrefab
 				return false;
 			}
 		}
+		if (!m_aPendingWeapons.IsEmpty())
+			GC_ItemCatalogue.NotifyAuthoredSave();
 		if (!m_API.SaveEntityTemplate(m_Source))
 		{
 			m_sError = "Weapon changes were saved, but the character could not be written.";
