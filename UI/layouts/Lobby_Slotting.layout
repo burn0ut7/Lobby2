@@ -45,151 +45,15 @@ FrameWidgetClass {
      Name "MenuBar"
      Slot LayoutSlot "{6A16118EE53D83D2}" {
      }
-     {
-      ImageWidgetClass "{6A14348DF4743AAA}" {
-       Prefab "{6A14348DF4743AAA}"
-       Tiling None
-       Progress 0.76
-      }
-      ImageWidgetClass "{6A14348FED23A371}" {
-       Prefab "{6A14348FED23A371}"
-       Slot FrameWidgetSlot "{6A14348FED23A36C}" {
-        PositionX 0
-        OffsetLeft 0
-        PositionY 0
-        OffsetTop 0
-        SizeX 0
-        OffsetRight 0
-        SizeY 0
-        OffsetBottom 0
-       }
-       Opacity 1
-       Texture "{DBDAC86F71E7B0EB}UI/Textures/map_texture2.edds"
-       Size 10 400
-      }
-      HorizontalLayoutWidgetClass "{6A145B24392C23D4}" {
-       Prefab "{6A145B24392C23D4}"
-       {
-        ButtonWidgetClass "{6A145B26CB88A0BC}" {
-         Prefab "{6A145B26CB88A0BC}"
-         {
-          SizeLayoutWidgetClass "{557098260F312277}" {
-           Prefab "{557098260F312277}"
-           {
-            OverlayWidgetClass "{557098260F312272}" {
-             Prefab "{557098260F312272}"
-             {
-              HorizontalLayoutWidgetClass "{557098267862A738}" {
-               Prefab "{557098267862A738}"
-               {
-                ScaleWidgetClass "{557478C2A0AF4E50}" {
-                 Prefab "{557478C2A0AF4E50}"
-                 {
-                  ImageWidgetClass "{557098267D2A9494}" {
-                   Prefab "{557098267D2A9494}"
-                   Texture "{7A25136F895BBDC5}UI/Textures/Editor/EditableEntities/Factions/Faction-Icons.imageset"
-                   Image "Show"
-                  }
-                 }
-                }
-               }
-              }
-             }
-            }
-           }
-          }
-         }
-        }
-       }
-      }
-      VerticalLayoutWidgetClass "{6A1577A7F771EB46}" {
-       Prefab "{6A1577A7F771EB46}"
-       Slot FrameWidgetSlot "{6A1577A7F771EB5A}" {
-        PositionX 20
-        OffsetLeft 20
-        OffsetTop 10
-        OffsetRight -500
-        OffsetBottom -60
-       }
-      }
-      HorizontalLayoutWidgetClass "{6A1577A659C82CD8}" {
-       Prefab "{6A1577A659C82CD8}"
-       Slot FrameWidgetSlot "{6A1577A659C82CEB}" {
-        PositionX -20
-        OffsetLeft -20
-        OffsetTop 10
-        OffsetRight -80
-        OffsetBottom -40
-       }
-      }
-     }
     }
     OverlayWidgetClass "{6A1D000100000007}" {
      Name "BodyLayer"
      Slot LayoutSlot "{6A1A4D1F32A87031}" {
-      Padding 5 0 5 0
+      Padding 5 0 5 8
+      SizeMode Fill
      }
      Clipping False
      {
-      SizeLayoutWidgetClass "{6A1C52E851C1A010}" {
-       Name "PreviewFrameSize"
-       Slot OverlayWidgetSlot "{6A1C52E851C1A011}" {
-        HorizontalAlign 0
-        VerticalAlign 0
-        Padding 935 0 0 0
-       }
-       AllowWidthOverride 1
-       WidthOverride 500
-       AllowHeightOverride 1
-       HeightOverride 700
-       {
-        FrameWidgetClass "{6A1C52E851C1A012}" {
-         Name "PreviewFrame"
-         Slot LayoutSlot "{6A1C52E851C1A013}" {
-          HorizontalAlign 1
-          VerticalAlign 1
-         }
-         Clipping False
-         {
-          ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
-           Name "playerRender"
-           Slot FrameWidgetSlot "{6A142E93D253C20D}" {
-            Anchor 0 0 0 0
-            PositionX -350
-            OffsetLeft -350
-            PositionY -84
-            OffsetTop -84
-            SizeX 1144
-            OffsetRight -794
-            SizeY 1036
-            OffsetBottom -952
-           }
-           "Ignore Cursor" 1
-          }
-         }
-        }
-       }
-      }
-      SizeLayoutWidgetClass "{6A31000000000076}" {
-       Name "LoadoutInventoryRenderBounds"
-       Slot OverlayWidgetSlot "{6A31000000000077}" {
-        HorizontalAlign 0
-        VerticalAlign 3
-        Padding 585 0 0 0
-       }
-       AllowWidthOverride 1
-       WidthOverride 1144
-       {
-        OverlayWidgetClass "{6A31000000000072}" : "{6A31000000000003}UI/layouts/Inventory/Lobby_Inventory.layout" {
-         Name "LoadoutInventory"
-         Slot AlignableSlot "{6A31000000000073}" {
-          HorizontalAlign 3
-          VerticalAlign 3
-         }
-         "Is Visible" 0
-        }
-       }
-      }
       HorizontalLayoutWidgetClass "{6A16118381DD1F08}" {
        Name "Body"
        Slot OverlayWidgetSlot "{6A1D00010000000A}" {
@@ -201,12 +65,11 @@ FrameWidgetClass {
          Name "FactionsSize"
          Slot LayoutSlot "{6A1A4BD15D55F2F3}" {
           HorizontalAlign 0
-          VerticalAlign 0
+          VerticalAlign 3
          }
          AllowWidthOverride 1
          WidthOverride 280
-         AllowHeightOverride 1
-         HeightOverride 868
+         AllowHeightOverride 0
          {
           OverlayWidgetClass "{6A1A4BD15D55F2D3}" {
            Name "Factions"
@@ -244,13 +107,14 @@ FrameWidgetClass {
         SizeLayoutWidgetClass "{6A1D000100000005}" {
          Name "SlotsSize"
          Slot LayoutSlot "{6A1A4BD17256800B}" {
-          HorizontalAlign 0
-          VerticalAlign 0
+          HorizontalAlign 3
+          VerticalAlign 3
+          SizeMode Fill
+          FillWeight 1.4
+          Padding 0 0 8 0
          }
-         AllowWidthOverride 1
-         WidthOverride 650
-         AllowHeightOverride 1
-         HeightOverride 868
+         AllowWidthOverride 0
+         AllowHeightOverride 0
          {
           OverlayWidgetClass "{6A1A4BD1725683EB}" {
            Name "Slots"
@@ -298,12 +162,11 @@ FrameWidgetClass {
          Name "LoadoutSize"
          Slot LayoutSlot "{6A1B46245ACCEBEB}" {
           HorizontalAlign 0
-          VerticalAlign 0
+          VerticalAlign 3
          }
          AllowWidthOverride 1
          WidthOverride 466
-         AllowHeightOverride 1
-         HeightOverride 868
+         AllowHeightOverride 0
          {
           OverlayWidgetClass "{6A1B46245ACCEBD4}" {
            Name "Loadout"
@@ -312,6 +175,43 @@ FrameWidgetClass {
             VerticalAlign 3
            }
            {
+            SizeLayoutWidgetClass "{6A1C52E851C1A010}" {
+             Name "PreviewFrameSize"
+             Slot OverlayWidgetSlot "{6A1C52E851C1A011}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             AllowWidthOverride 0
+             AllowHeightOverride 0
+             {
+              FrameWidgetClass "{6A1C52E851C1A012}" {
+               Name "PreviewFrame"
+               Slot LayoutSlot "{6A1C52E851C1A013}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               Clipping False
+               {
+                ItemPreviewWidgetClass "{6A142E93D253CDF6}" {
+                 Name "playerRender"
+                 Slot FrameWidgetSlot "{6A142E93D253C20D}" {
+                  Anchor 0.5 0 0.5 1
+                  Alignment 0.5 0
+                  PositionX 0
+                  OffsetLeft 0
+                  PositionY 32
+                  OffsetTop 32
+                  SizeX 1144
+                  OffsetRight -1144
+                  SizeY 0
+                  OffsetBottom 168
+                 }
+                 "Ignore Cursor" 1
+                }
+               }
+              }
+             }
+            }
             VerticalLayoutWidgetClass "{6A1C52E851C1A001}" {
              Name "LoadoutColumn"
              Slot OverlayWidgetSlot "{6A1C52E851C1A002}" {
@@ -335,6 +235,24 @@ FrameWidgetClass {
               }
              }
             }
+            SizeLayoutWidgetClass "{6A31000000000076}" {
+             Name "LoadoutInventoryRenderBounds"
+             Slot OverlayWidgetSlot "{6A31000000000077}" {
+              HorizontalAlign 3
+              VerticalAlign 3
+             }
+             AllowWidthOverride 0
+             {
+              OverlayWidgetClass "{6A31000000000072}" : "{6A31000000000003}UI/layouts/Inventory/Lobby_Inventory.layout" {
+               Name "LoadoutInventory"
+               Slot AlignableSlot "{6A31000000000073}" {
+                HorizontalAlign 3
+                VerticalAlign 3
+               }
+               "Is Visible" 0
+              }
+             }
+            }
            }
           }
          }
@@ -342,11 +260,13 @@ FrameWidgetClass {
         SizeLayoutWidgetClass "{6A38000000000035}" : "{6A38000000000001}UI/layouts/Players/Lobby_Player_List_Panel.layout" {
          Name "PlayerListPanel"
          Slot LayoutSlot "{6A38000000000036}" {
-          VerticalAlign 0
-          Padding 50 0 0 0
+          VerticalAlign 3
+          Padding 8 0 0 0
           SizeMode Fill
+          FillWeight 1
          }
          AllowWidthOverride 0
+         AllowHeightOverride 0
         }
        }
       }

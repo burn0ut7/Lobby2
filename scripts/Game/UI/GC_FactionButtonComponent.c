@@ -105,6 +105,9 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
             return;
 
         ColorizeBackground(false);
+		Widget selectionAccent = m_wRoot.FindAnyWidget("SelectionAccent");
+		if (selectionAccent)
+			selectionAccent.SetVisible(m_bFactionSelected);
 		if (m_bFactionInteractable || m_bFactionSelected)
 			m_wRoot.SetOpacity(1);
 		else

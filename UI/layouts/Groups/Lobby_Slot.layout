@@ -1,6 +1,7 @@
 ButtonWidgetClass {
  Name "SlotButton"
  Slot LayoutSlot "{6A19072738B404F8}" {
+  HorizontalAlign 3
   VerticalAlign 1
   Padding 0 0 4 4
  }
@@ -13,6 +14,8 @@ ButtonWidgetClass {
   OverlayWidgetClass "{6A24000100000004}" {
    Name "SlotOverlay"
    Slot ButtonWidgetSlot "{6A24000100000005}" {
+    HorizontalAlign 3
+    VerticalAlign 3
    }
    {
     ImageWidgetClass "{6A18A023C7A6F704}" {
@@ -26,9 +29,10 @@ ButtonWidgetClass {
     SizeLayoutWidgetClass "{6A27000100000001}" {
      Name "RowSize"
      Slot OverlayWidgetSlot "{6A27000100000002}" {
+      HorizontalAlign 3
+      VerticalAlign 3
      }
-     AllowWidthOverride 1
-     WidthOverride 630
+     AllowWidthOverride 0
      AllowHeightOverride 1
      HeightOverride 40
      {

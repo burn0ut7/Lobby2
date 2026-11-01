@@ -234,20 +234,20 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		RefreshAdminNamePresentation();
 	}
 
-	//! Applies the faction manager's actual faction color to both channel marks.
+	//! Faction channels use a full faction-colored header; other channels stay neutral.
 	void RefreshFactionColor()
 	{
-		if (!m_Faction || !m_wRoot)
+		if (!m_wRoot)
 			return;
 
-		Color factionColor = m_Faction.GetFactionColor();
-		ImageWidget accent = ImageWidget.Cast(m_wRoot.FindAnyWidget("ChannelAccent"));
-		if (accent)
-			accent.SetColor(factionColor);
+		ImageWidget background = ImageWidget.Cast(m_wRoot.FindAnyWidget("ChannelHeaderBackground"));
+		if (!background)
+			return;
 
-		ImageWidget divider = ImageWidget.Cast(m_wRoot.FindAnyWidget("ChannelDivider"));
-		if (divider)
-			divider.SetColor(factionColor);
+		if (m_Faction && (m_ChannelType == GC_VoiceChannelType.FACTION || m_ChannelType == GC_VoiceChannelType.GROUP))
+			background.SetColor(m_Faction.GetFactionColor());
+		else
+			background.SetColor(Color.FromRGBA(1, 1, 1, 199));
 	}
 
 	protected void ClearPlayerRows()

@@ -12,10 +12,10 @@ ButtonWidgetClass {
   GC_FactionButtonComponent "{6A1611891F697B24}" {
    m_bCanBeToggled 1
    m_bUseColorization 1
-   m_BackgroundDefault 0.01 0.018 0.021 1
-   m_BackgroundHovered 0.05 0.102 0.125 1
-   m_BackgroundSelected 0.231 0.1 0.024 1
-   m_BackgroundSelectedHovered 0.503 0.211 0.047 1
+   m_BackgroundDefault 0.0048 0.0048 0.0048 0.55
+   m_BackgroundHovered 0.08 0.08 0.08 0.68
+   m_BackgroundSelected 0.0048 0.0048 0.0048 0.78
+   m_BackgroundSelectedHovered 0.08 0.08 0.08 0.78
    m_bShowBorderOnFocus 0
   }
  }
@@ -38,6 +38,18 @@ ButtonWidgetClass {
        }
       }
      }
+    }
+    ImageWidgetClass "{6AB1000000000001}" {
+     Name "SelectionAccent"
+     Slot OverlayWidgetSlot "{6AB1000000000002}" {
+      HorizontalAlign 0
+      VerticalAlign 3
+      Padding 0 12 0 12
+     }
+     "Is Visible" 0
+     "Ignore Cursor" 1
+     Color 0.85 0.7 0.25 1
+     Size 3 32
     }
     SizeLayoutWidgetClass "{6A26000200000001}" {
      Name "SquareSize"

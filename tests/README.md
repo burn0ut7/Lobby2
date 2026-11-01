@@ -35,6 +35,16 @@ Most helpers require `WORKBENCH` and run only in embedded Play.
 `GC_AdminMultiplayerTests.c` also compiles in test-addon peers. It grants no roles
 or permissions and runs nothing automatically. Never include it in production.
 
+## Lobby layout
+
+`GC_TestLobbyLayout()` reports actual live widget bounds. On the lobby menu,
+`GC_TestLobbyAspect(2.388889)` and `(3.555556)` constrain the production menu to
+21:9 and 32:9 inside the workspace; `(0)` restores full-workspace anchoring.
+These fixtures do not change display resolution or DPI. `GC_TestLobbySlotHover()`
+exercises the first slot's production hover handler; `GC_TestLobbyFactionScroll(1)`
+scrolls the faction list to its bottom. Use existing `GC_TestScroll` for
+`ScrollLayout0` and `VoiceChannelScroll`. Capture outcomes through MCP.
+
 ## UI layers
 
 `GC_TestUILayers(action)` on `GC_LobbyManager` accepts `notify`, `snapshot`,
