@@ -443,13 +443,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			}
 		}
 		int pages = Math.Max(1, Math.Ceil(m_iTotal / (float)PAGE_SIZE));
-		string status = string.Format("%1 / %2    |    %3-%4 / %5", m_iOffset / PAGE_SIZE + 1, pages, m_iOffset + 1, m_iOffset + m_aPage.Count(), m_iTotal);
-		if (m_iTotal == 0)
-			status = WidgetManager.Translate("#GC-Catalogue_NoMatches");
-		if (!m_bFinished)
-			status += " / " + WidgetManager.Translate("#GC-Catalogue_Indexing");
-		else if (!m_Catalogue.HasCompleteCoverage())
-			status += " / " + WidgetManager.Translate("#GC-Catalogue_Partial");
+		string status = string.Format("%1 / %2", m_iOffset + m_aPage.Count(), m_iTotal);
 		if (m_fFeedbackTime <= 0)
 			TextWidget.Cast(m_Root.FindAnyWidget("Status")).SetText(status);
 		m_Paging.m_OnChanged.Remove(OnPageChanged);

@@ -24,3 +24,14 @@ and 1793511121770865900-capture_screenshot.png.
 Save-menu discoverability: append the game's navigation button beside Back/Select
 in the existing bottom-left footer, showing the resolved S key and Save / Load.
 Capture 1793511296569113400-capture_screenshot.png; no extra permanent help text.
+2026-11-01 spacing/counter polish: align SearchOptions and SearchBounds horizontally
+with Body (zero outer horizontal padding). All Items uses native gridView and
+Weapons uses native weapons, both square 32x32 sprites in icons_wrapperUI.imageset
+(lines 671–674 and 1791–1794, same installed revision), with 8px inset.
+Footer is only last visible item / filtered total, including 0 / 0 for no matches.
+No page/range/indexing/partial text; native Q/E controls remain.
+Reload e8e4cefff000414eb5461b72361f5277 passed with no new script errors.
+Live captures 1793511559820570300-capture_screenshot.png (10 / 813),
+1793511568908592100-capture_screenshot.png (50 / 813), and
+1793511589745440900-capture_screenshot.png (0 / 0); category and clear-search
+callbacks verified, independent source/visual review approved.

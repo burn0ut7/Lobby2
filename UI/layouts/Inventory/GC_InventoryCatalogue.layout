@@ -4,13 +4,13 @@ FrameWidgetClass {
  {
 PanelWidgetClass { Name "CatalogueSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 0.5 style full "Ignore Cursor" 1 }
 VerticalLayoutWidgetClass { Name "CatalogueContent" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 6 OffsetTop 6 OffsetRight 6 OffsetBottom 6 } {
-HorizontalLayoutWidgetClass { Name "SearchOptions" Slot LayoutSlot { HorizontalAlign 3 Padding 4 4 4 0 } {
+HorizontalLayoutWidgetClass { Name "SearchOptions" Slot LayoutSlot { HorizontalAlign 3 Padding 0 4 0 0 } {
  SizeLayoutWidgetClass : "{DC391DA320AE4001}UI/layouts/Inventory/GC_CatalogueSelector.layout" { Name "CatalogueSort" Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill Padding 0 0 4 0 } }
  SizeLayoutWidgetClass : "{DC391DA320AE4001}UI/layouts/Inventory/GC_CatalogueSelector.layout" { Name "CatalogueMod" Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill } }
 } }
 SizeLayoutWidgetClass {
  Name "SearchBounds"
- Slot LayoutSlot { HorizontalAlign 3 Padding 4 4 4 4 } AllowHeightOverride 1 HeightOverride 36
+ Slot LayoutSlot { HorizontalAlign 3 Padding 0 4 0 4 } AllowHeightOverride 1 HeightOverride 36
  {
 OverlayWidgetClass {
  Name "SearchSurface"
@@ -73,7 +73,7 @@ PanelWidgetClass {
 }
 ImageWidgetClass {
  Name "Icon"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{6F779C9C667DB882}UI/Textures/InventoryIcons/InventorySlot_carry.edds"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 8 8 8 8 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "gridView"
 }
  }
 }
@@ -104,7 +104,7 @@ PanelWidgetClass {
 }
 ImageWidgetClass {
  Name "Icon"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 6 6 6 6 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{CDE4B2BF08F5EA5F}UI/Textures/InventoryIcons/InvenorySlot-Primary_UI.edds"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 8 8 8 8 } Color 0.95 0.95 0.95 1 "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "weapons"
 }
  }
 }
