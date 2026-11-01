@@ -217,3 +217,29 @@ Receipts and unmodified screenshot are in the tool repository's
 2b4bdf66a90a404286788a8cb3de0af9, bf968afa51d84df2b7dd55653f08f3a8,
 598d1cabc90d4f06821ff19ee86b4068, fd05a6dc60ea415aa7bc445d438f214c,
 fdde650866d14ea3814696500fdc7f52; 1793518176441626200-capture_screenshot.png.
+
+## Carryable equipment filtering (2026-11-01)
+
+Inventory display/drag attributes alone also describe world storage interfaces.
+Portable results now require ItemPhysicalAttributes and reject native
+SLOT_LOOT_STORAGE markers. Clothing classification ignores disabled
+BaseLoadoutClothComponent instances. No filename/category-name blacklist is used.
+
+Installed-source revision d9b5a4246f9247e4be5ea20935889885: AmmoBox_Base.et has
+storage display attributes without item physics; Sign_SupplyStorage_Base.et uses
+SLOT_LOOT_STORAGE; Part_Sandbag_Base.et disables its inherited cloth component.
+The 81/82mm mortar boxes deliberately define item physics, a gadget and pickup
+action, so these remain available.
+
+Workbench 1.8.0.13 Reload 9bb4184c30ba4f73a67a39b0cb081206 introduced no new
+errors. Live Equipment sign search returned zero (f37001c6be1341d0953e32df5789951b).
+Ammo-box search retained five carryable mortar-box resources (d99a7fb45a4e46089fa47545b7cd07da).
+Three sandbags appeared in Equipment (faa5b98ce4094d1488107a69e4c27315), zero in
+Backpacks (c145b36bf64b484ebd99b8177051bd33). Native drag put a burlap sandbag
+inside the BDU blouse (0cf7c86699d34e3785a78d61f39c5368) and a mortar box inside
+an ALICE medium backpack (ecfc89adce7e42e48ae61ef9d2fdaf7b); owned-item readback
+confirmed both destinations. Automatic right-click placement of the sandbag was
+rejected in this test; that transfer behavior was not changed by this filtering fix.
+
+Evidence is in toolrepo .temp/local/evidence/loadout-foundation, including screenshot
+1793518509489472400-capture_screenshot.png. Independent source/UI review approved.

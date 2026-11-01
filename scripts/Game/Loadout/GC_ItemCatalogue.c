@@ -160,7 +160,10 @@ class GC_ItemCatalogue
 			attributeSource.Get("m_bVisible", visible);
 			bool enabled = true;
 			inventory.Get("Enabled", enabled);
-			entry.m_bPortable = attributes.IsDraggable() && visible && enabled;
+			// Storage interfaces also have display/drag attributes. Carryable gear
+			// needs item physics; loot-storage markers represent the world container.
+			ItemPhysicalAttributes physical = ItemPhysicalAttributes.Cast(attributes.FindAttribute(ItemPhysicalAttributes));
+			entry.m_bPortable = attributes.IsDraggable() && visible && enabled && physical && attributes.GetSlotType() != ESlotID.SLOT_LOOT_STORAGE;
 			// Empty or placeholder models are not finished inventory gear, even when named otherwise.
 			IEntityComponentSource mesh = SCR_BaseContainerTools.FindComponentSource(entity, "MeshObject");
 			ResourceName model;
@@ -206,7 +209,10 @@ class GC_ItemCatalogue
 				entry.m_MagazineWell = well.GetClassName().ToType();
 		}
 		IEntityComponentSource cloth = SCR_BaseContainerTools.FindComponentSource(resource, BaseLoadoutClothComponent);
+		bool clothEnabled = true;
 		if (cloth)
+			cloth.Get("Enabled", clothEnabled);
+		if (cloth && clothEnabled)
 		{
 			entry.m_sCategory = "Equipment";
 			BaseContainer area = cloth.GetObject("AreaType");
