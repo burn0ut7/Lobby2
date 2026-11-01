@@ -9,6 +9,9 @@ modded class GC_LobbyPlayerController
 	protected float m_fGC_NearestDistance;
 	protected int m_iGC_GearAuditRequest;
 	protected bool m_bGC_GearAuditOpen;
+	protected ResourceName m_sGC_GearAmountPrefab;
+	protected int m_iGC_GearAmount;
+	protected int m_iGC_GearAdded;
 
 	//------------------------------------------------------------------------------------------------
 	static RplId GC_GearEntityId(IEntity entity)
@@ -97,7 +100,7 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	bool GC_RequestGearItem(ResourceName prefab, BaseInventoryStorageComponent target, int slot, bool automatic)
 	{
-		if (m_bGC_GearPending || !GC_GearSession.IsAdmin(GetControlledEntity()))
+		if (GC_IsGearPending() || !GC_GearSession.IsAdmin(GetControlledEntity()))
 			return false;
 		RplId targetId;
 		if (target)
@@ -113,6 +116,20 @@ modded class GC_LobbyPlayerController
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
 	//------------------------------------------------------------------------------------------------
 	protected void GC_RpcAskGearItem(ResourceName prefab, RplId characterId, RplId storageId, int slot, bool automatic, bool toCrate, RplId crateId)
+	{
+		GC_InsertGearItem(prefab, characterId, storageId, slot, automatic, toCrate, crateId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Quantity requests use storage capacity, never replacement of equipped items.
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void GC_RpcAskGearAmountItem(ResourceName prefab, RplId characterId, bool toCrate, RplId crateId)
+	{
+		GC_InsertGearItem(prefab, characterId, RplId.Invalid(), -1, true, toCrate, crateId, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_InsertGearItem(ResourceName prefab, RplId characterId, RplId storageId, int slot, bool automatic, bool toCrate, RplId crateId, bool depositOnly = false)
 	{
 		m_iGC_GearAuditRequest++;
 		string context = string.Format("request=%1 prefab=%2 quantity=1 requested-character=%3 requested-storage=%4 requested-slot=%5 automatic=%6 to-crate=%7 requested-crate=%8",
@@ -186,10 +203,16 @@ modded class GC_LobbyPlayerController
 			GC_FinishGear(false, context, "Item is not available in this session.");
 			return;
 		}
-		if (automatic)
+		if (automatic && depositOnly)
+		{
+			target = manager.FindStorageForItem(item, EStoragePurpose.PURPOSE_DEPOSIT);
+			slot = -1;
+			valid = target != null;
+		}
+		else if (automatic)
 			valid = GC_CatalogueTransfer.FindSlot(entry, manager, item, target, slot);
 		// Resolve pockets only within the validated destination, never another garment.
-		if (valid && target && slot == -1)
+		if (valid && target && slot == -1 && !toCrate)
 			target = manager.FindActualStorageForItemResource(prefab, target);
 		valid = valid && target && slot >= -1 && slot < target.GetSlotsCount();
 		bool replace = valid && slot >= 0 && target.GetSlot(slot).GetAttachedEntity();
@@ -241,7 +264,24 @@ modded class GC_LobbyPlayerController
 	{
 		m_bGC_GearPending = false;
 		if (!GC_GearSession.IsAdmin(GetControlledEntity()) || m_iGC_GearRequestRevision != GC_GearSession.GetRevision())
+		{
+			GC_CancelGearAmount();
 			return;
+		}
+		if (m_iGC_GearAmount > 0)
+		{
+			if (success)
+				m_iGC_GearAdded++;
+			string progress = string.Format(WidgetManager.Translate("#GC-Gear_Added"), m_iGC_GearAdded, m_iGC_GearAmount);
+			if (success && m_iGC_GearAdded < m_iGC_GearAmount)
+				GetGame().GetCallqueue().CallLater(GC_ContinueGearAmount, 1);
+			else
+				GC_CancelGearAmount();
+			if (success)
+				message = progress;
+			else
+				message = progress + " " + message;
+		}
 		SCR_InventoryMenuUI menu = SCR_InventoryMenuUI.GetInventoryMenu();
 		if (menu)
 		{
@@ -253,7 +293,7 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	void GC_RequestGearCrate(bool create)
 	{
-		if (!m_bGC_GearPending && GC_GearSession.IsAdmin(GetControlledEntity()))
+		if (!GC_IsGearPending() && GC_GearSession.IsAdmin(GetControlledEntity()))
 		{
 			m_bGC_GearPending = true;
 			m_iGC_GearRequestRevision = GC_GearSession.GetRevision();
@@ -264,7 +304,46 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	bool GC_IsGearPending()
 	{
-		return m_bGC_GearPending;
+		return m_bGC_GearPending || m_iGC_GearAmount > 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool GC_RequestGearAmount(ResourceName prefab, int amount)
+	{
+		if (amount < 1 || GC_IsGearPending() || !GC_GearSession.IsAdmin(GetControlledEntity()))
+			return false;
+		m_sGC_GearAmountPrefab = prefab;
+		m_iGC_GearAmount = amount;
+		m_iGC_GearAdded = 0;
+		m_iGC_GearRequestRevision = GC_GearSession.GetRevision();
+		GC_ContinueGearAmount();
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_ContinueGearAmount()
+	{
+		if (m_iGC_GearAmount < 1 || !GC_GearSession.IsAdmin(GetControlledEntity()) || m_iGC_GearRequestRevision != GC_GearSession.GetRevision())
+		{
+			GC_CancelGearAmount();
+			return;
+		}
+		m_bGC_GearPending = true;
+		Rpc(GC_RpcAskGearAmountItem, m_sGC_GearAmountPrefab, GC_GearEntityId(GetControlledEntity()), GC_GearSession.s_bCrate, m_GC_GearCrate);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_CancelGearAmount()
+	{
+		GetGame().GetCallqueue().Remove(GC_ContinueGearAmount);
+		m_iGC_GearAmount = 0;
+		m_sGC_GearAmountPrefab = string.Empty;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	BaseInventoryStorageComponent GC_GetSelectedGearCrate()
+	{
+		return GC_GetGearCrateStorage(GC_GearEntity(m_GC_GearCrate));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -284,7 +363,7 @@ modded class GC_LobbyPlayerController
 		if (!GC_GetGearCrateStorage(candidate) || !GC_GearEntityId(candidate).IsValid())
 			return true;
 		float distance = vector.Distance(GetControlledEntity().GetOrigin(), candidate.GetOrigin());
-		if (distance < m_fGC_NearestDistance)
+		if (distance <= m_fGC_NearestDistance)
 		{
 			m_fGC_NearestDistance = distance;
 			m_GC_NearestCrate = candidate;
@@ -297,8 +376,6 @@ modded class GC_LobbyPlayerController
 	protected void GC_RpcAskGearCrate(bool create)
 	{
 		string action = "gear-select-crate";
-		if (create)
-			action = "gear-create-crate";
 		string context = "character=" + GC_AdminGearAudit.Entity(GetControlledEntity()) + " radius=5";
 		if (!GC_AuthorizeGear(action, context))
 		{
@@ -307,8 +384,18 @@ modded class GC_LobbyPlayerController
 		}
 		IEntity owner = GetControlledEntity();
 		IEntity crate;
-		if (owner && create)
+		if (owner)
 		{
+			m_GC_NearestCrate = null;
+			m_fGC_NearestDistance = 5;
+			GetGame().GetWorld().QueryEntitiesBySphere(owner.GetOrigin(), 5, GC_CollectGearCrate);
+			crate = m_GC_NearestCrate;
+			m_GC_NearestCrate = null;
+		}
+		bool created;
+		if (owner && !crate && create)
+		{
+			action = "gear-create-crate";
 			EntitySpawnParams spawn = new EntitySpawnParams();
 			spawn.TransformMode = ETransformMode.WORLD;
 			owner.GetWorldTransform(spawn.Transform);
@@ -329,24 +416,20 @@ modded class GC_LobbyPlayerController
 			}
 			spawn.Transform[3] = trace.Start + (trace.End - trace.Start) * fraction;
 			crate = GetGame().SpawnEntityPrefab(Resource.Load("{EBBC859CCD94D96D}Prefabs/Props/EmptyStorages/USSR_AmmoBox_empty.et"), GetGame().GetWorld(), spawn);
-		}
-		else if (owner)
-		{
-			m_GC_NearestCrate = null;
-			m_fGC_NearestDistance = 5;
-			GetGame().GetWorld().QueryEntitiesBySphere(owner.GetOrigin(), 5, GC_CollectGearCrate);
-			crate = m_GC_NearestCrate;
-			m_GC_NearestCrate = null;
+			created = crate != null;
 		}
 		RplId id;
-		if (crate)
+		if (GC_GetGearCrateStorage(crate))
 			id = GC_GearEntityId(crate);
-		if (create && crate && !id.IsValid())
+		context += " crate=" + GC_AdminGearAudit.Entity(crate) + " created=" + created;
+		if (created && !id.IsValid())
 			SCR_EntityHelper.DeleteEntityAndChildren(crate);
-		context += " crate=" + GC_AdminGearAudit.Entity(crate);
 		string outcome = "failed-no-usable-crate";
 		if (id.IsValid())
+		{
+			GC_LobbyManager.GetManager().GC_EnableGearCrateCapacity(SCR_UniversalInventoryStorageComponent.Cast(GC_GetGearCrateStorage(crate)));
 			outcome = "completed";
+		}
 		GC_AdminActionLogger.Log(GetPlayerId(), action, context, outcome);
 		Rpc(GC_RpcDoGearCrate, id);
 	}

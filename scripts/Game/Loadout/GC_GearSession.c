@@ -72,7 +72,10 @@ class GC_GearSession
 		if (s_Owner)
 			s_iRevision++;
 		if (s_AdminController)
+		{
+			s_AdminController.GC_CancelGearAmount();
 			s_AdminController.GC_RequestGearClosed();
+		}
 		s_AdminController = null;
 		s_Owner = null;
 		s_Mode = null;

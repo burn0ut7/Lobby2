@@ -121,3 +121,51 @@ Live host checks in `logs_2026-11-01_13-21-18`:
 Fresh independent review approved. Connected logged-out remote clients and pending
 callback completion after disconnect were not exercised live; identity safeguards
 were source-reviewed. Native events are observations, not an automatic cheating verdict.
+
+## Crate and quantity controls — 2026-11-01
+
+Crate selection reuses the nearest eligible storage within 5 m (inclusive), creating
+one only when absent. Its native vicinity grid replaces the player inventory and
+preview on the right. Selected root crates bypass capacity limits while Lobby2 owns
+the mode; insertion targets that root directly, never clothing stored inside it.
+The top-right X closes Gear. Double-click opens the native quantity dialog: slider
+1–100, positive integer text through 2147483647, Add and Cancel. Requests execute
+one item at a time with existing server permission checks and completion reporting.
+English runtime strings accompany the string table. Catalogue bottom spacing is
+32 layout pixels shorter, retaining ten rows and both pager controls.
+
+Embedded-host checks used installed 1.8.0.13 sources, catalogue revision
+`721cd7b05eb54d3ca3591d9097af381d`, and production handlers through the optional
+test addon. Receipts are in `evidence/admin-gear-quantity-20261101/runtime.json`.
+
+- Final Reload `53097673e0a045da915fddf49182fa2b` had no script compilation errors;
+  existing Arland map GUID and dedicated-server plugin errors remain unrelated.
+- Invalid zero, decimal and overflowing quantities stayed in the dialog. Typed
+  150 retained that amount with slider at 100; moving the slider to six updated text.
+- Six bandages went to the crate; six to Inventory increased player count 46→52
+  without changing the crate. Selecting Crate again reused its replication ID.
+- A subsequent 150-bandage batch completed. Adding a jacket then six AN-M8 HC
+  smoke grenades left all items at the root (169 root items, 31400/10000 volume,
+  nested count zero; receipt `ra879d86bcd664651bdc5fd19280cd73a`).
+- Cancel preserved counts. Exit closed Gear (receipt
+  `rf675ad384e314f9d8c97c9925a8779a0`). Final paging advanced offset 0→10→0.
+- Final 150 batch reported 150/150 and could accept more at 15000/10000 volume.
+  After logout, raw open/select/single/quantity requests logged
+  `rejected-not-logged-in` at 18:25:41 in `logs_2026-11-01_17-45-51/console.log`.
+  Rejection and follow-up snapshots retained 46 player/179 crate items. Concurrent
+  user interaction added items between earlier snapshots; those deltas are not
+  attributed to the rejection test.
+- Shutdown released the manager and restored native capacity: the same overfull
+  crate changed unlimited=true/canFitMore=true to false/false. Unrelated Isolation
+  mode then had customPanel=0, native player/grid visible, and
+  selected/dragging/released=1, matching the addon-free inventory baseline in
+  `evidence/inventory-catalogue-20261031/isolation.json`. Restored the Arland world.
+
+Local MCP screenshots in `Art/References/admin-gear-quantity/` include
+`quantity-six.png`, `inventory-six.png`, and `final-spacing.png`. The final image
+shows translated labels, ten rows, tighter footer spacing and the native crate grid.
+The earlier `crate-filled.png` predates removal of the native capacity indicator.
+Remote replication and inventory-full partial batches were not verified live.
+Double-click coverage invokes the production handler with native hit testing;
+it does not simulate physical OS mouse double-click timing.
+Independent source, evidence and final visual review approved these changes.

@@ -1,11 +1,38 @@
 FrameWidgetClass {
  Name "AdminGearDestination"
- Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -304 OffsetTop 24 OffsetRight 24 OffsetBottom -60 }
+ Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  "Z Order" 100
+ "Ignore Cursor" 1
  {
   SizeLayoutWidgetClass : "{DC391DA320AE4001}UI/layouts/Inventory/GC_CatalogueSelector.layout" {
    Name "GearDestination"
-   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -352 OffsetTop 24 OffsetRight 72 OffsetBottom -60 }
+  }
+  ButtonWidgetClass {
+   Name "GearExit"
+   Color 1 1 1 0
+   Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -60 OffsetTop 24 OffsetRight 24 OffsetBottom -60 }
+   components { SCR_ButtonBaseComponent { m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+   {
+    OverlayWidgetClass { Name "Content" Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } {
+     PanelWidgetClass { Name "Background" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.5 style full "Ignore Cursor" 1 }
+     PanelWidgetClass { Name "Border" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.7 0.7 0.7 0.5 style pixel_outline "Ignore Cursor" 1 }
+     TextWidgetClass { Name "ExitLabel" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Text "×" FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 30 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1 }
+    } }
+   }
+  }
+  FrameWidgetClass {
+   Name "GearCratePanel"
+   Visible 0
+   Slot FrameWidgetSlot { Anchor 1 0 1 1 OffsetLeft -440 OffsetTop 100 OffsetRight 24 OffsetBottom 144 }
+   {
+    TextWidgetClass { Name "GearCrateHeading" Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -48 } Text "#GC-Gear_Vicinity" FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 24 "Vertical Alignment" Center "Ignore Cursor" 1 }
+    ScrollLayoutWidgetClass {
+     Name "GearCrateScroll"
+     Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 52 OffsetRight 0 OffsetBottom 0 }
+     { VerticalLayoutWidgetClass { Name "GearCrateStorages" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } }
+    }
+   }
   }
  }
 }

@@ -10,6 +10,14 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected SCR_ComboBoxComponent m_Mod;
 	protected Widget m_DestinationRoot;
 	protected SCR_ComboBoxComponent m_Destination;
+	protected Widget m_InventoryContent;
+	protected Widget m_CratePanel;
+	protected Widget m_CrateStorages;
+	protected bool m_bCrateView;
+	protected bool m_bInventoryContentVisible;
+	protected Widget m_PlayerWeight;
+	protected bool m_bPlayerWeightVisible;
+	protected ref GC_GearQuantityDialog m_QuantityDialog;
 	protected ref array<string> m_aModIDs = {""};
 	protected ref map<string, string> m_mModTitles = new map<string, string>();
 	protected ref GC_ItemCatalogue m_Catalogue;
@@ -85,11 +93,17 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		{
 			m_DestinationRoot = GetGame().GetWorkspace().CreateWidgets("{618DBD5BF860D947}UI/layouts/Inventory/GC_AdminGearDestination.layout", inventoryRoot);
 			m_Destination = SCR_ComboBoxComponent.Cast(m_DestinationRoot.FindAnyWidget("GearDestination").FindHandler(SCR_ComboBoxComponent));
-			m_Destination.AddItem("Inventory");
-			m_Destination.AddItem("Nearby crate");
-			m_Destination.AddItem("Create crate");
+			m_Destination.AddItem("#GC-Gear_Inventory");
+			m_Destination.AddItem("#GC-Gear_Crate");
 			m_Destination.SetCurrentItem(0, false, false, false);
 			m_Destination.m_OnChanged.Insert(OnDestination);
+			m_InventoryContent = inventoryRoot.FindAnyWidget("InventoryContent");
+			m_bInventoryContentVisible = m_InventoryContent.IsVisible();
+			m_PlayerWeight = inventoryRoot.FindAnyWidget("WeightOverlay");
+			m_bPlayerWeightVisible = m_PlayerWeight.IsVisible();
+			m_CratePanel = m_DestinationRoot.FindAnyWidget("GearCratePanel");
+			m_CrateStorages = m_DestinationRoot.FindAnyWidget("GearCrateStorages");
+			BindButton(m_DestinationRoot.FindAnyWidget("GearExit"));
 		}
 		for (int i; i < PAGE_SIZE; i++)
 		{
@@ -111,12 +125,18 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	void Detach()
 	{
+		if (m_QuantityDialog)
+		{
+			m_QuantityDialog.m_OnClose.Remove(OnQuantityClosed);
+			m_QuantityDialog.Close();
+			m_QuantityDialog = null;
+		}
+		SetCrateView(false);
 		if (m_Destination)
 		{
 			m_Destination.m_OnChanged.Remove(OnDestination);
 			m_Destination.CloseList();
 			m_Destination = null;
-			m_DestinationRoot.RemoveFromHierarchy();
 		}
 		GC_CatalogueTooltip.HideCurrent();
 		if (m_Sort)
@@ -132,6 +152,9 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		foreach (SCR_ButtonBaseComponent button : m_aButtons)
 			button.m_OnClicked.Remove(OnButton);
 		m_aButtons.Clear();
+		if (m_DestinationRoot)
+			m_DestinationRoot.RemoveFromHierarchy();
+		m_DestinationRoot = null;
 		if (m_Paging)
 		{
 			m_Paging.m_OnChanged.Remove(OnPageChanged);
@@ -159,7 +182,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		if (m_DestinationRoot)
 		{
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-			m_DestinationRoot.SetEnabled(controller && !controller.GC_IsGearPending());
+			m_Destination.GetRootWidget().SetEnabled(controller && !controller.GC_IsGearPending());
 		}
 		if (!m_Root)
 			return;
@@ -518,6 +541,11 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	protected bool ProcessClick(Widget w)
 	{
+		if (w.GetName() == "GearExit")
+		{
+			SCR_InventoryMenuUI.GetInventoryMenu().Close();
+			return true;
+		}
 		if (w == m_ClearSearch)
 		{
 			m_Search.SetText(string.Empty);
@@ -576,7 +604,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	{
 		if (m_Destination)
 		{
-			m_DestinationRoot.SetEnabled(true);
+			m_Destination.GetRootWidget().SetEnabled(true);
 			int index;
 			if (GC_GearSession.s_bCrate)
 				index = 1;
@@ -604,9 +632,39 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			GC_GearSession.s_bCrate = false;
 		else
 		{
-			m_DestinationRoot.SetEnabled(false);
-			controller.GC_RequestGearCrate(index == 2);
+			m_Destination.GetRootWidget().SetEnabled(false);
+			controller.GC_RequestGearCrate(true);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetCrateView(bool enabled)
+	{
+		if (!m_CratePanel || m_bCrateView == enabled)
+			return;
+		m_bCrateView = enabled;
+		m_CratePanel.SetVisible(enabled);
+		m_PlayerWeight.SetVisible(!enabled && m_bPlayerWeightVisible);
+		if (enabled)
+		{
+			m_InventoryContent.SetVisible(false);
+			m_Opened.SetName("GearHiddenOpenedStorages");
+			m_CrateStorages.SetName("OpenedStorages");
+		}
+		else
+		{
+			m_CrateStorages.SetName("GearCrateStorages");
+			m_Opened.SetName("OpenedStorages");
+			m_InventoryContent.SetVisible(m_bInventoryContentVisible);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void HideCrateCapacityIndicator()
+	{
+		Widget progress = m_CrateStorages.FindAnyWidget("StorageSpaceIndicator");
+		if (progress)
+			progress.SetVisible(false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -664,6 +722,32 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		if (!controller || !GC_GearSession.IsActive(controller.GetControlledEntity()))
 			return;
 		ProcessClick(button.GetRootWidget());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool OnDoubleClick(Widget w, int x, int y, int button)
+	{
+		GC_ItemCatalogueEntry entry = EntryAt(w);
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (button != 0 || !entry || !controller || !GC_GearSession.IsAdmin(controller.GetControlledEntity()))
+			return false;
+		if (m_QuantityDialog || controller.GC_IsGearPending() || SCR_ConfigurableDialogUi.GetCurrentDialog())
+			return true;
+		SCR_InventoryMenuUI.GetInventoryMenu().GC_PrepareCatalogueRefresh();
+		GC_CatalogueTooltip.HideCurrent();
+		m_QuantityDialog = new GC_GearQuantityDialog();
+		m_QuantityDialog.Configure(entry);
+		SCR_ConfigurableDialogUi.CreateFromPreset("{618DBD5BF860D948}Configs/UI/GC_GearQuantityDialog.conf", "quantity", m_QuantityDialog);
+		m_QuantityDialog.m_OnClose.Insert(OnQuantityClosed);
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnQuantityClosed()
+	{
+		if (m_QuantityDialog)
+			m_QuantityDialog.m_OnClose.Remove(OnQuantityClosed);
+		m_QuantityDialog = null;
 	}
 
 	//------------------------------------------------------------------------------------------------

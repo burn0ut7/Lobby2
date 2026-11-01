@@ -1,6 +1,17 @@
 StringTable {
  ItemClassName "CustomStringTableItem"
  Items {
+  CustomStringTableItem "{618DBD5BF860DA01}" { Id "GC-Gear_Inventory" Target_en_us "Inventory" }
+  CustomStringTableItem "{618DBD5BF860DA02}" { Id "GC-Gear_Crate" Target_en_us "Crate" }
+  CustomStringTableItem "{618DBD5BF860DA03}" { Id "GC-Gear_Vicinity" Target_en_us "Vicinity" }
+  CustomStringTableItem "{618DBD5BF860DA04}" { Id "GC-Gear_Amount" Target_en_us "Amount" }
+  CustomStringTableItem "{618DBD5BF860DA05}" { Id "GC-Gear_Add" Target_en_us "Add" }
+  CustomStringTableItem "{618DBD5BF860DA06}" { Id "GC-Gear_AddItem" Target_en_us "Add %1" }
+  CustomStringTableItem "{618DBD5BF860DA07}" { Id "GC-Gear_Destination" Target_en_us "Destination: %1" }
+  CustomStringTableItem "{618DBD5BF860DA08}" { Id "GC-Gear_AmountHelp" Target_en_us "Slide 1–100, or type an amount." }
+  CustomStringTableItem "{618DBD5BF860DA09}" { Id "GC-Gear_InvalidAmount" Target_en_us "Enter a whole number from 1 to 2147483647." }
+  CustomStringTableItem "{618DBD5BF860DA0A}" { Id "GC-Gear_Busy" Target_en_us "Inventory busy. Try again when the current action finishes." }
+  CustomStringTableItem "{618DBD5BF860DA0B}" { Id "GC-Gear_Added" Target_en_us "Added %1 of %2." }
   CustomStringTableItem "{DC391DA320AF3040}" { Id "GC-Loadout_DeleteVariant" Target_en_us "Delete" }
   CustomStringTableItem "{DC391DA320AF3043}" { Id "GC-Loadout_VariantOf" Target_en_us "Variant of" }
   CustomStringTableItem "{DC391DA320AF3044}" { Id "GC-Loadout_PendingVariants" Target_en_us "Unsaved changes. Save, or close to discard." }

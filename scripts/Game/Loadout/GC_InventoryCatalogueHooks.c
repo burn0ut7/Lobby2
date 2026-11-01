@@ -32,6 +32,9 @@ modded class SCR_InventoryMenuUI
 	protected bool m_bGCShortcutBound;
 	protected bool m_bGCDragged;
 	protected SCR_InputButtonComponent m_GCFilesButton;
+	protected BaseInventoryStorageComponent m_GCShownGearCrate;
+	protected bool m_bGCOpenedGearCrate;
+	protected float m_fGCCrateResolveTime;
 
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuUpdate(float tDelta)
@@ -70,6 +73,7 @@ modded class SCR_InventoryMenuUI
 			m_bGCShortcutBound = true;
 		}
 		m_GCCataloguePanel.Tick(tDelta);
+		GC_UpdateGearCrateView(tDelta);
 		// The native animated preview expires while idle in Workbench. Renew through its owner.
 		m_fGCPreviewRefresh += tDelta;
 		if (m_fGCPreviewRefresh >= 10 && !m_InspectionScreen && GC_GearSession.IsWorkbench(m_Player))
@@ -119,6 +123,7 @@ modded class SCR_InventoryMenuUI
 	protected void GC_ReleaseCatalogue()
 	{
 		GC_CancelCatalogueDrag();
+		GC_CloseGearCrateView();
 		if (m_bGCShortcutBound)
 		{
 			GetGame().GetInputManager().RemoveActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
@@ -135,6 +140,66 @@ modded class SCR_InventoryMenuUI
 		if (m_GCCataloguePanel)
 			m_GCCataloguePanel.Detach();
 		m_GCCataloguePanel = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_CloseGearCrateView()
+	{
+		if (!m_bGCOpenedGearCrate)
+			return;
+		for (int i = m_aOpenedStoragesUI.Count() - 1; i >= 0; i--)
+			RemoveOpenStorage(m_aOpenedStoragesUI[i]);
+		m_GCShownGearCrate = null;
+		m_bGCOpenedGearCrate = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_UpdateGearCrateView(float timeSlice)
+	{
+		if (!GC_GearSession.IsAdmin(m_Player))
+			return;
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		BaseInventoryStorageComponent storage;
+		if (GC_GearSession.s_bCrate)
+			storage = controller.GC_GetSelectedGearCrate();
+		if (GC_GearSession.s_bCrate && !storage)
+		{
+			m_fGCCrateResolveTime += timeSlice;
+			if (m_fGCCrateResolveTime > 5)
+			{
+				GC_GearSession.s_bCrate = false;
+				controller.GC_CancelGearAmount();
+				GC_GearMessage("Crate is no longer available.");
+			}
+		}
+		else
+			m_fGCCrateResolveTime = 0;
+		if (storage && vector.Distance(m_Player.GetOrigin(), storage.GetOwner().GetOrigin()) > 5)
+		{
+			GC_GearSession.s_bCrate = false;
+			controller.GC_CancelGearAmount();
+			storage = null;
+			GC_GearMessage("Crate is no longer nearby.");
+		}
+		if (m_GCShownGearCrate != storage || !GC_GearSession.s_bCrate)
+			GC_CloseGearCrateView();
+		m_GCCataloguePanel.SetCrateView(GC_GearSession.s_bCrate);
+		if (!storage || !GC_GearSession.s_bCrate || GetOpenedStorage(storage))
+			return;
+		// Use the native container owner, refresh events and scrolling grid in the right host.
+		OpenStorageAsContainer(storage, false, true);
+		m_GCShownGearCrate = storage;
+		m_bGCOpenedGearCrate = true;
+		m_GCCataloguePanel.HideCrateCapacityIndicator();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected SCR_InventoryOpenedStorageUI CreateOpenedStorageUI(BaseInventoryStorageComponent storage)
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (GC_GearSession.IsAdmin(m_Player) && GC_GearSession.s_bCrate && controller && controller.GC_GetSelectedGearCrate() == storage)
+			return new SCR_InventoryOpenedStorageUI(storage, null, this, 0, {storage}, 6, 8, true);
+		return super.CreateOpenedStorageUI(storage);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -197,6 +262,9 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	void GC_ClickWeaponCatalogueItem(GC_ItemCatalogueEntry entry)
 	{
+		// Admin double-click opens an amount prompt; its first click must not place an item.
+		if (GC_GearSession.IsAdmin(m_Player))
+			return;
 		if (m_bGCDragged)
 		{
 			m_bGCDragged = false;
@@ -228,6 +296,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	void GC_PrepareCatalogueRefresh()
 	{
+		GC_CancelCatalogueDrag();
 		// Native completion rebuilds equipment widgets. Do not preserve a pointer into the removed tree.
 		Action_DeselectItem();
 		m_pFocusedSlotUI = null;
@@ -246,7 +315,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	protected void GC_ActionCatalogueShortcut()
 	{
-		if (!m_GCCataloguePanel || !GC_GearSession.IsActive(m_Player) || !GetCanInteract() || m_GCGestureItem || m_bDraggingEnabled)
+		if (!m_GCCataloguePanel || !GC_GearSession.IsActive(m_Player) || !GetCanInteract() || m_GCGestureItem || m_bDraggingEnabled || SCR_ConfigurableDialogUi.GetCurrentDialog())
 			return;
 		Widget cursor = WidgetManager.GetWidgetUnderCursor();
 		GC_ItemCatalogueEntry entry = m_GCCataloguePanel.EntryAt(cursor);
@@ -336,6 +405,8 @@ modded class SCR_InventoryMenuUI
 	//! Native drag input, threshold and cursor preview; catalogue items have no live source slot.
 	override void Action_DragDown()
 	{
+		if (m_GCCataloguePanel && SCR_ConfigurableDialogUi.GetCurrentDialog())
+			return;
 		m_bGCDragged = false;
 		m_GCExistingGestureSlot = null;
 		if (m_GCCataloguePanel && GC_GearSession.IsActive(m_Player))

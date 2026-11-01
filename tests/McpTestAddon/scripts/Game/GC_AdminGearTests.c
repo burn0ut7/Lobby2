@@ -2,6 +2,36 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestGearQuantity(string action, string value)
+	{
+		SCR_InventoryMenuUI menu = SCR_InventoryMenuUI.GetInventoryMenu();
+		if (!menu)
+			return "closed";
+		return menu.GC_TestGearQuantity(action, value);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestGearWidgetParents()
+	{
+		SCR_InventoryMenuUI menu = SCR_InventoryMenuUI.GetInventoryMenu();
+		if (!menu)
+			return "closed";
+		string result;
+		array<string> names = {"OpenedStorages", "StoragesListSlot", "StorageGrid", "RightArea", "LeftArea", "playerRender"};
+		foreach (string name : names)
+		{
+			Widget widget = menu.GetRootWidget().FindAnyWidget(name);
+			result += "\n" + name + ": ";
+			while (widget)
+			{
+				result += widget.GetName() + " / ";
+				widget = widget.GetParent();
+			}
+		}
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestAdminGear(string action, string prefab)
 	{
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
@@ -23,16 +53,14 @@ modded class GC_LobbyManager
 			Widget button = menu.GetRootWidget().FindAnyWidget("ToolGear");
 			SCR_ButtonBaseComponent.Cast(button.FindHandler(SCR_ButtonBaseComponent)).m_OnClicked.Invoke(SCR_ButtonBaseComponent.Cast(button.FindHandler(SCR_ButtonBaseComponent)));
 		}
-		else if (action == "create" || action == "nearby" || action == "inventory")
+		else if (action == "create" || action == "nearby" || action == "crate" || action == "inventory")
 		{
 			SCR_InventoryMenuUI menu = SCR_InventoryMenuUI.GetInventoryMenu();
 			if (!menu)
 				return "inventory missing";
 			int index;
-			if (action == "nearby")
+			if (action != "inventory")
 				index = 1;
-			if (action == "create")
-				index = 2;
 			SCR_ComboBoxComponent combo = SCR_ComboBoxComponent.Cast(menu.GetRootWidget().FindAnyWidget("GearDestination").FindHandler(SCR_ComboBoxComponent));
 			combo.SetCurrentItem(index, false, false, true);
 			combo.m_OnChanged.Invoke(combo, index);
@@ -43,6 +71,8 @@ modded class GC_LobbyManager
 			return controller.GC_TestGearNativeTransfer(action == "native-take");
 		else if (action == "invalid")
 			controller.GC_TestGearInvalid(prefab);
+		else if (action == "denied-local")
+			controller.GC_TestGearDenied(prefab);
 		else if (action == "far")
 			controller.GetControlledEntity().SetOrigin("140 1 120");
 		else if (action == "return")
@@ -93,6 +123,7 @@ modded class GC_LobbyPlayerController
 		GC_RpcAskGearOpen();
 		GC_RpcAskGearCrate(true);
 		GC_RpcAskGearItem(prefab, RplId.Invalid(), RplId.Invalid(), -1, true, false, RplId.Invalid());
+		GC_RpcAskGearAmountItem(prefab, GC_GearEntityId(GetControlledEntity()), true, m_GC_GearCrate);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -114,8 +145,24 @@ modded class GC_LobbyPlayerController
 		{
 			BaseInventoryStorageComponent storage = GC_GetGearCrateStorage(crate);
 			array<IEntity> crateItems = {};
-			storage.GetAll(crateItems);
+			storage.GetAll(crateItems, false);
 			result += " crateItems=" + crateItems.Count();
+			result += " crateId=" + m_GC_GearCrate;
+			result += " unlimited=" + SCR_UniversalInventoryStorageComponent.Cast(storage).GC_HasAdminGearCapacity();
+			result += " volume=" + storage.GetOccupiedSpace() + "/" + storage.GetMaxVolumeCapacity();
+			if (!crateItems.IsEmpty())
+				result += " canFitMore=" + storage.CanStoreResource(SCR_ResourceNameUtils.GetPrefabName(crateItems[0]), -1);
+			int nestedCount;
+			foreach (IEntity item : crateItems)
+			{
+				BaseInventoryStorageComponent nested = BaseInventoryStorageComponent.Cast(item.FindComponent(BaseInventoryStorageComponent));
+				if (!nested)
+					continue;
+				array<IEntity> nestedItems = {};
+				nested.GetAll(nestedItems);
+				nestedCount += nestedItems.Count();
+			}
+			result += " nestedItems=" + nestedCount;
 		}
 		SCR_InventoryMenuUI menu = SCR_InventoryMenuUI.GetInventoryMenu();
 		if (menu)
@@ -126,6 +173,60 @@ modded class GC_LobbyPlayerController
 			result += " files=" + (menu.GetRootWidget().FindAnyWidget("CatalogueFiles") != null);
 		}
 		return result;
+	}
+}
+
+modded class SCR_InventoryMenuUI
+{
+	string GC_TestGearQuantity(string action, string value)
+	{
+		if (!m_GCCataloguePanel)
+			return "no panel";
+		string result = m_GCCataloguePanel.GC_TestGearQuantity(action, value);
+		result += " nativeContent=" + m_widget.FindAnyWidget("InventoryContent").IsVisible();
+		result += " opened=" + m_aOpenedStoragesUI.Count();
+		return result;
+	}
+}
+
+modded class GC_InventoryCataloguePanel
+{
+	string GC_TestGearQuantity(string action, string value)
+	{
+		if (action == "open")
+		{
+			if (m_aPage.IsEmpty())
+				return "empty page";
+			m_Destination.CloseList();
+			Widget button = m_aCells[0].FindAnyWidget("SelectItem");
+			float x, y, w, h;
+			button.GetScreenPos(x, y);
+			button.GetScreenSize(w, h);
+			WidgetManager.ReportMouse(x + w / 2, y + h / 2, SCR_InventoryMenuUI.GetInventoryMenu().GetRootWidget());
+			OnDoubleClick(WidgetManager.GetWidgetUnderCursor(), x + w / 2, y + h / 2, 0);
+		}
+		if (m_QuantityDialog)
+			return m_QuantityDialog.GC_TestAmount(action, value);
+		return "dialog=0 crateView=" + m_bCrateView;
+	}
+}
+
+modded class GC_GearQuantityDialog
+{
+	string GC_TestAmount(string action, string value)
+	{
+		if (action == "text")
+		{
+			m_Editbox.SetValue(value);
+			OnAmountChanged(value);
+		}
+		else if (action == "slider")
+			m_Slider.SetValue(value.ToInt());
+		else if (action == "confirm")
+			OnConfirm();
+		else if (action == "cancel")
+			OnCancel();
+		return "dialog=1 text=" + m_Editbox.GetValue() + " slider=" + m_Slider.GetValue() + " closing=" + m_bIsClosing;
 	}
 }
 #endif

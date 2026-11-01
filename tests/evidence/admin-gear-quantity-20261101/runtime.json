@@ -1,0 +1,891 @@
+[
+  {
+    "method": "GC_TestNativeInventoryStart",
+    "args": [],
+    "receipt": "rf16c3e834c7c464aabf7040fc78bf93f",
+    "state": "invoked",
+    "returned": "native inventory requested"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "menu"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rcb147653131b4b9684273ff2a652996a",
+    "state": "invoked",
+    "returned": "admin=1 active=0 crate=0 pending=0 items=46 files=0"
+  },
+  {
+    "method": "GC_TestAdminScopeMove",
+    "args": [
+      {
+        "type": "vector",
+        "value": [
+          1204,
+          46,
+          2723
+        ]
+      }
+    ],
+    "receipt": "rc55622794db846a8b8793ab0b73bbe4e",
+    "state": "invoked",
+    "returned": "fixtureMove=1 server=1 connected=1 listed=1 identityReady=1 character=1 slotEntity=0 replicationItem=0 faction= position=<120, 0.705977, 120> health=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "reffcc389a0434e5f90cd6a8887931841",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=0 pending=0 items=46 files=0"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "crate"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rdc05e6752d9241b6ae9bbe6a6d67d74f",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=46 crateItems=0 crateId=-2147432865 unlimited=true volume=0/10000 nestedItems=0 status=Spawning into nearby crate. files=0"
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "args": [
+      {
+        "type": "string",
+        "value": "bandage"
+      }
+    ],
+    "receipt": "r638f1179453b43a2a9cd9f0436931023",
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r18b020deca18475183ed8bc4c88c19ad",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "text"
+      },
+      {
+        "type": "string",
+        "value": "6.5"
+      }
+    ],
+    "receipt": "rc94197af32494b908a0bffa0915a51b7",
+    "state": "invoked",
+    "returned": "dialog=1 text=6.5 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r81ce40c7a4554f55b3c623f08d32404b",
+    "state": "invoked",
+    "returned": "dialog=1 text=6.5 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "text"
+      },
+      {
+        "type": "string",
+        "value": "0"
+      }
+    ],
+    "receipt": "r6163c7f22a214babbcca1af04b11f834",
+    "state": "invoked",
+    "returned": "dialog=1 text=0 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "text"
+      },
+      {
+        "type": "string",
+        "value": "2147483648"
+      }
+    ],
+    "receipt": "r21a05b9a51de41039d75df1df2fd8985",
+    "state": "invoked",
+    "returned": "dialog=1 text=2147483648 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "text"
+      },
+      {
+        "type": "string",
+        "value": "150"
+      }
+    ],
+    "receipt": "r03a7a4fc79df4193989a0a89100428b7",
+    "state": "invoked",
+    "returned": "dialog=1 text=150 slider=100 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "slider"
+      },
+      {
+        "type": "string",
+        "value": "6"
+      }
+    ],
+    "receipt": "refd409f61ee84fd7882cce3dd5168921",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rca56313ecd444e5b8dfee27cf5eff3e7",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r997768ee32444971bf56a0ddcf21bd1c",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=46 crateItems=6 crateId=-2147432865 unlimited=true volume=600/10000 nestedItems=0 status=Added 6 of 6. files=0"
+  },
+  {
+    "method": "GC_TestCatalogueOption",
+    "args": [
+      {
+        "type": "string",
+        "value": "GearDestination"
+      },
+      {
+        "type": "int",
+        "value": 0
+      }
+    ],
+    "receipt": "r4bb2470e9ec64638b7c2672df61e0496",
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=bandage offset=0 total=4 visible=4 previews=4 indexed=2020 finished=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "ra45f935f0f73483f926a6fd18e4aeea6",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=true opened=0"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "text"
+      },
+      {
+        "type": "string",
+        "value": "6"
+      }
+    ],
+    "receipt": "ra0215a65b07b43ab8cd4b5b43431924a",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=false nativeContent=true opened=0"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "re364233b683e43f5ab7869a73ff39e22",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=true nativeContent=true opened=0"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rd91af5ca94ac4bec8772bcfd92160ecd",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=0 pending=0 items=52 crateItems=6 crateId=-2147432865 unlimited=true volume=600/10000 nestedItems=0 status=Added 6 of 6. files=0"
+  },
+  {
+    "method": "GC_TestCatalogueOption",
+    "args": [
+      {
+        "type": "string",
+        "value": "GearDestination"
+      },
+      {
+        "type": "int",
+        "value": 1
+      }
+    ],
+    "receipt": "rebfb1f16ccdc432585b351f2e13c2028",
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=bandage offset=0 total=4 visible=4 previews=4 indexed=2020 finished=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r0d88b6d87ab14b37bb4c0994609e9647",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "text"
+      },
+      {
+        "type": "string",
+        "value": "150"
+      }
+    ],
+    "receipt": "r86a983baad5745faac00f22159f7dc3b",
+    "state": "invoked",
+    "returned": "dialog=1 text=150 slider=100 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r284efbb5145b4d25b14de31d5dd39044",
+    "state": "invoked",
+    "returned": "dialog=1 text=150 slider=100 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rc671b3345d87496bbec36262babd79d3",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=52 crateItems=156 crateId=-2147432865 unlimited=true volume=15600/10000 nestedItems=0 status=4 / 4 files=0"
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "args": [
+      {
+        "type": "string",
+        "value": "M88 Jacket"
+      }
+    ],
+    "receipt": "r3df18c825b8c4af98b2458cb179d0d3c",
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "method": "GC_TestCataloguePage",
+    "args": [],
+    "receipt": "rf8635ab31aca419ea230fc9f414fb40a",
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=M88 Jacket offset=0 total=5 visible=5 previews=5 indexed=2020 finished=1\nM88 Jacket | {9F546CCA2582D16F}Prefabs/Characters/Uniforms/Jacket_M88.et\nM88 Jacket | {E44990162EBC47B7}Prefabs/Characters/Uniforms/Jacket_M88_base.et\nM88 Jacket - Rolled-up | {D262D2102B9931C6}Prefabs/Characters/Uniforms/Jacket_M88_rolledup.et\nM88 Jacket - TTsKO | {ED9FFC8C35C98B8B}Prefabs/Characters/Uniforms/Jacket_M88_TTsKO.et\nM88 Jacket - TTsKO - Rolled-up | {F6C7806DBBF26C50}Prefabs/Characters/Uniforms/Jacket_M88_rolledup_TTsKO.et"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r5d1587fea4ed49ddbf5ed8ac24055f0d",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rcfdaf263e7884f299391ddcc5b514d31",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r68bc1e6a8aff4b61939c676bd18b0009",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=52 crateItems=157 crateId=-2147432865 unlimited=true volume=17600/10000 nestedItems=0 status=Added 1 of 1. files=0"
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "args": [
+      {
+        "type": "string",
+        "value": "smoke"
+      }
+    ],
+    "receipt": "ra8d9399e66a54d15ba433b801ad4a27b",
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "method": "GC_TestCataloguePage",
+    "args": [],
+    "receipt": "re6f8412e325248c4b0a2747bb5a7bad6",
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=smoke offset=0 total=15 visible=10 previews=10 indexed=2020 finished=1\n81mm M819 Smoke Shell | {6F041895D8456D90}Prefabs/Weapons/Ammo/Ammo_Shell_81mm_Smoke_M819_EffectModule.et\n81mm M819 Smoke Shell | {F7807293E94D3C88}Prefabs/Weapons/Ammo/Ammo_Shell_81mm_Smoke_M819.et\n82mm D-832DU Smoke Shell | {A544A2C131DE2C64}Prefabs/Weapons/Ammo/Ammo_Shell_82mm_Smoke_D832DU.et\nAN-M8 HC | {9DB69176CEF0EE97}Prefabs/Weapons/Grenades/Smoke_ANM8HC.et\nM18 - Green | {D41D22DD1B8E921E}Prefabs/Weapons/Grenades/M18/Smoke_M18_Green.et\nM18 - Purple | {14C1A0F061D9DDEE}Prefabs/Weapons/Grenades/M18/Smoke_M18_Violet.et\nM18 - Purple | {17CACC8BBC442C92}Prefabs/Weapons/Grenades/M18/Smoke_M18_Violet_Repeating.et\nM18 - Red | {3343A055A83CB30D}Prefabs/Weapons/Grenades/M18/Smoke_M18_Red.et\nM18 - Red | {52703C00E2964549}Prefabs/Weapons/Grenades/M18/Smoke_M18_Red_Repeating.et\nM18 - Yellow | {9BBDEE253A16CC66}Prefabs/Weapons/Grenades/M18/Smoke_M18_Yellow.et"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rbe0b2d5b6d75448e8ba4cef8f7edd871",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "slider"
+      },
+      {
+        "type": "string",
+        "value": "6"
+      }
+    ],
+    "receipt": "r4c63a1b5831c4876b4415cd7cfa6d6aa",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r752a7e351c334c93b55b09019fb6a148",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rf31433a53f334dd48d65cd1561a56a0b",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=52 crateItems=163 crateId=-2147432865 unlimited=true volume=30200/10000 nestedItems=0 status=Added 6 of 6. files=0"
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "args": [
+      {
+        "type": "string",
+        "value": "AN-M8 HC"
+      }
+    ],
+    "receipt": "r77e8119e8c8048578a3120993123811a",
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r86fe7be4ad1142189511feee6aab3670",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "slider"
+      },
+      {
+        "type": "string",
+        "value": "6"
+      }
+    ],
+    "receipt": "r55d345ab751c437cb28285374b90e856",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r86d0a57c6716426398f000de27bdb2f6",
+    "state": "invoked",
+    "returned": "dialog=1 text=6 slider=6 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "ra879d86bcd664651bdc5fd19280cd73a",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=52 crateItems=169 crateId=-2147432865 unlimited=true volume=31400/10000 nestedItems=0 status=Added 6 of 6. files=0"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r3848ac1586a84e4d85e67108891b2d5f",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "cancel"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rc8baf24387584289a2c80b611961642d",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r2ddcd0be293148cb925729d8dca87b28",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=52 crateItems=169 crateId=-2147432865 unlimited=true volume=31400/10000 nestedItems=0 status=1 / 1 files=0"
+  },
+  {
+    "method": "GC_TestCatalogueOption",
+    "args": [
+      {
+        "type": "string",
+        "value": "GearDestination"
+      },
+      {
+        "type": "int",
+        "value": 0
+      }
+    ],
+    "receipt": "rc236891ac26e4723bd441cf382734521",
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text=AN-M8 HC offset=0 total=1 visible=1 previews=1 indexed=2020 finished=1"
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "args": [
+      {
+        "type": "string",
+        "value": "bandage"
+      }
+    ],
+    "receipt": "r787f1aca37f549da943f86e49b38686d",
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "open"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "r1f02586d67be49919c773c2689412039",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "text"
+      },
+      {
+        "type": "string",
+        "value": "1000"
+      }
+    ],
+    "receipt": "rcb75937919cb434d8d23cbbdbbb9580b",
+    "state": "invoked",
+    "returned": "dialog=1 text=1000 slider=100 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      {
+        "type": "string",
+        "value": "confirm"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rc003cba9078d415dbfca2cd27d19c6eb",
+    "state": "invoked",
+    "returned": "dialog=1 text=1000 slider=100 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestCatalogueButton",
+    "args": [
+      {
+        "type": "string",
+        "value": "GearExit"
+      }
+    ],
+    "receipt": "r9106168d7e65462781e18586d08fe286",
+    "state": "invoked",
+    "returned": "category=Weapons faction= descending=false slot= text= offset=80 total=139 visible=10 previews=10 indexed=2020 finished=1"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      {
+        "type": "string",
+        "value": "state"
+      },
+      {
+        "type": "string",
+        "value": ""
+      }
+    ],
+    "receipt": "rf675ad384e314f9d8c97c9925a8779a0",
+    "state": "invoked",
+    "returned": "admin=1 active=0 crate=0 pending=0 items=52 crateItems=469 crateId=-2147432865 unlimited=true volume=481400/10000 nestedItems=1176"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      "state after exit"
+    ],
+    "receipt": "r745d3ad8578a47e183ecd03d1b670f5d",
+    "state": "invoked",
+    "returned": "admin=1 active=1 crate=1 pending=0 items=40 crateItems=50 crateId=-2147424346 unlimited=true volume=157692/10000 nestedItems=63 status=Item added. files=0"
+  },
+  {
+    "method": "GC_TestCataloguePager",
+    "args": [
+      true
+    ],
+    "receipt": "r2ff251ce2e2c4689a2e7e997ab2c6c2c",
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=10 total=734 visible=10 previews=0 indexed=2020 finished=1"
+  },
+  {
+    "method": "GC_TestCataloguePager",
+    "args": [
+      false
+    ],
+    "receipt": "rd02b7c09b65d49829454bce08a484d69",
+    "state": "invoked",
+    "returned": "category= faction= descending=false slot= text= offset=0 total=734 visible=10 previews=0 indexed=2020 finished=1"
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "args": [
+      "bandage"
+    ],
+    "receipt": "rd3d636a2e21341e096346b590f6d2654",
+    "state": "invoked",
+    "returned": "input changed"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      "open",
+      ""
+    ],
+    "receipt": "ra4ec70f752b94100ab4cfb94d386c577",
+    "state": "invoked",
+    "returned": "dialog=1 text=1 slider=1 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      "text",
+      "150"
+    ],
+    "receipt": "rc5cb55b4237d472cb187fd8d22cd8a74",
+    "state": "invoked",
+    "returned": "dialog=1 text=150 slider=100 closing=false nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestGearQuantity",
+    "args": [
+      "confirm",
+      ""
+    ],
+    "receipt": "r109652a4231a437c81040204bde0cac2",
+    "state": "invoked",
+    "returned": "dialog=1 text=150 slider=100 closing=true nativeContent=false opened=1"
+  },
+  {
+    "method": "GC_TestReservationLogout",
+    "args": [],
+    "receipt": "r8970b193f4524724a6ead3f953af97c1",
+    "state": "invoked",
+    "returned": "admin=false"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      "denied-local",
+      "{D9F8F9D660D45A7F}Prefabs/Items/Medical/FieldDressing_01.et"
+    ],
+    "receipt": "ra4832b84ae714bed871ef99962c4501a",
+    "state": "invoked",
+    "returned": "admin=0 active=0 crate=0 pending=0 items=46 crateItems=179 crateId=-2147416607 unlimited=true volume=17900/10000 canFitMore=true nestedItems=0 files=0"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      "state",
+      ""
+    ],
+    "receipt": "r01541d0f5ca14792862560902b7da297",
+    "state": "invoked",
+    "returned": "admin=0 active=0 crate=0 pending=0 items=46 crateItems=179 crateId=-2147416607 unlimited=true volume=17900/10000 canFitMore=true nestedItems=0 files=0"
+  },
+  {
+    "method": "GC_TestShutdownIsolation",
+    "args": [],
+    "receipt": "rd5a91b9eb4f2440f98cd3e8cbf0af022",
+    "state": "invoked",
+    "returned": "managerReleased=1 inputBound=0 voiceBound=0 voiceOwned=0 nativeVoiceDisabled=0 cameraPresent=0 publishing=0"
+  },
+  {
+    "method": "GC_TestAdminGear",
+    "args": [
+      "state",
+      ""
+    ],
+    "receipt": "ra3e51436424045368427783c810c7797",
+    "state": "invoked",
+    "returned": "admin=0 active=0 crate=0 pending=0 items=46 crateItems=179 crateId=-2147416607 unlimited=false volume=17900/10000 canFitMore=false nestedItems=0 files=0"
+  },
+  {
+    "method": "InventorySnapshot",
+    "args": [],
+    "receipt": "rcf7217ef04df4524a3577ae2c13c056d",
+    "state": "invoked",
+    "returned": "menu=SCR_InventoryMenuUI customPanel=0\nStorageLootSlot visible=1 x=137.7 y=217.719 w=585.225 h=892.181\nOpenedStorages visible=1 x=137.7 y=1109.9 w=585.225 h=0\nStorageGrid visible=1 x=1810.18 y=217.719 w=791.775 h=837.675\nplayerRender visible=1 x=737.269 y=74.2812 w=978.244 h=1486.01"
+  },
+  {
+    "method": "InventoryInputSnapshot",
+    "args": [],
+    "receipt": "r431f642b92724d799bf0e660f7777013",
+    "state": "invoked",
+    "returned": "selected=1 dragging=1 released=1"
+  }
+]
