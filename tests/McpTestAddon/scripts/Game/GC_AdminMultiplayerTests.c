@@ -291,6 +291,11 @@ modded class GC_LobbyPlayerController
 			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestRosterLocks());
 			return;
 		}
+		if (action == "player-history")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestPlayerHistoryRoster());
+			return;
+		}
 		if (action == "message-all")
 			RequestAdminMessage(GC_EAdminMessageAudience.ALL_PLAYERS, message, recipients);
 		else if (action == "heal-self")
@@ -526,6 +531,7 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"player-history",
 			"spectator-radio",
 			"spectator-events",
 			"spectator-focus",

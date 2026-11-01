@@ -1,5 +1,78 @@
 # Mission history ingestion
 
+## First three hours and player reporting
+
+Lobby2 names are gold while confirmed cumulative `playSeconds` is below 10,800.
+This is the existing v3 connected-during-GAME clock, including spectators,
+independent of population eligibility. Lobby, briefing and disconnected time do
+not count. Admin red takes priority. Every shared Lobby2 name surface uses the
+same authority-owned flag, including late-join snapshots. No lifetime totals or
+database credentials are sent to clients.
+
+Apply `migrations/003_player_history.sql` to existing databases (fresh databases
+use `schema.sql`). Grant readers SELECT on `player_visits`, `player_history` and
+`player_population_daily`; the bridge needs SELECT on `player_visits` and its
+existing importer grants. Run one owner per server profile, using the SAME
+PostgreSQL database on every server:
+
+```powershell
+dotnet StatsIngest.dll --serve-profile 'C:\server-profile'
+```
+
+The service imports the four existing outboxes and handles
+`Lobby2PlayerHistory/*.request.ready` mailboxes every two seconds. This mode
+replaces separate scheduled import jobs for that profile. It follows existing
+acknowledgement/deletion rules: imported stats payloads are removed, while
+history, log and telemetry archives remain. Do not point it at the development
+proof's original profile if preserving all original stats files; use copies for
+that workflow. No Windows service or schedule is installed automatically.
+
+The game requests prior-mission totals every 15 seconds and adds the current
+mission's live stats. Latest cumulative revisions are counted once; the current
+mission is excluded from the database subtotal. Gold expires on the next
+one-second game sample. Across servers, visibility also depends on their
+30-second stats publication and importer cadence. Recording starts when native
+persistent identity resolves. Unknown identity, unavailable/stale responses
+(90 seconds), legacy filtered-time records, unfinished prior missions and
+incomplete or missing prior GAME statistics withhold gold. A recorded visitor
+with no stats is confirmed zero only when complete closed mission history proves
+the mission never entered GAME. The underlying recorded playtime is still
+queryable. An unimported local standard-history batch blocks responses rather than
+silently treating missing history as zero. Resolve retained batches with the
+existing ingestion diagnostics. Interrupted missions require explicit historical
+reconciliation; they are not silently declared complete.
+
+The mailbox is profile-local and bounded to one outstanding request per running
+mission, up to 256 identities and 128 KiB per payload. Responses are atomically
+published and bound to a unique request and mission. Treat profile access as
+server authority. Remove abandoned request/response files only after their
+mission is no longer running. Failed requests remain for retry/inspection;
+monitor disk usage. The existing stats crash-loss window still applies.
+
+Reporting examples:
+
+```sql
+SELECT count(*) AS total_unique_players FROM lobby2.player_history;
+SELECT * FROM lobby2.player_population_daily ORDER BY day DESC;
+SELECT player_id, first_seen_at, missions_visited, recorded_joins,
+       recorded_play_seconds, unknown_playtime_missions, partial_stats_missions
+FROM lobby2.player_history;
+```
+
+`first_seen_at` means first evidence in the retained database, not a claim about
+activity before collection began. Reconnects add recorded joins, not unique
+players. Daily counts use the UTC date of mission visits; they are not a
+continuous-across-midnight DAU measure. `last_visit_at` is the latest recorded
+visit start, not last disconnection. Missing timestamps are excluded from daily
+counts and remain present in lifetime unique counts. Unimported or absent history
+cannot be reconstructed. Optional telemetry joins these identities via its
+existing `playerIdentity` and `missionId`; enabling it is unnecessary for player
+counts or the gold-name feature.
+
+`tests/player_history_test.py` exercises the actual importer/bridge and SQL in
+an empty disposable database, including duplicate revisions, current-mission
+exclusion, unknown history and first/returning-player counts.
+
 ## Mission instances and performance
 
 `$profile:Lobby2History` contains cumulative mission-instance batches, including sessions that never reach GAME. They share `missionId` with player statistics and session logs. Records include the native mission name/author/description/scenario/world, persistent server identity and name, phase timestamps, faction names, commander identity intervals, and native outcome/end reason. GC website metadata tags are not collected. Missing native header/configuration values remain empty (notably in Workbench).

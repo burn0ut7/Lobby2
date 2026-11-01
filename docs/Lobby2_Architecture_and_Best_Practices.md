@@ -669,3 +669,17 @@ New behavior should generally fit one of these locations:
 - New example content: the example prefab or example world, never the production prefab.
 
 If a feature does not fit these boundaries cleanly, pause and revisit ownership before adding another cross-cutting manager responsibility.
+
+
+## New-player identity presentation
+
+`GC_PlayerHistory` obtains prior-mission playtime through a profile-local mailbox
+served by the external StatsIngest `--serve-profile` loop. PostgreSQL
+`player_visits.playtime_known` owns history-completeness policy; the game combines
+that result with `GC_MissionStatsComponent`'s current connected-during-GAME clock.
+Below 10,800 seconds, `GC_LobbyManager` broadcasts an identity-bound new-player
+flag and includes it in JIP snapshots. The existing shared name presenter uses
+gold, with admin red taking priority. No second timer, client authority, or
+telemetry requirement is introduced. Stale/unavailable history withholds gold.
+The service and invokers are scoped to the active Lobby2 manager and shut down
+with it. See the StatsIngest README for deployment, history limits and reporting.

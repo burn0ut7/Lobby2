@@ -14,12 +14,13 @@ class GC_PlayerNamePresentation
 			return;
 
 		bool isAdmin = playerId > 0 && SCR_Global.IsAdmin(playerId);
-		// New-player identification will supply shared player state in a later slice.
-		nameWidget.SetColor(ResolveColor(isAdmin));
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		bool isNew = manager && manager.IsNewPlayer(playerId);
+		nameWidget.SetColor(ResolveColor(isAdmin, isNew));
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Admin identity takes priority. Gold is reserved until new-player detection exists.
+	//! Admin identity takes priority over the first three hours of recorded playtime.
 	static Color ResolveColor(bool isAdmin, bool isNewPlayer = false)
 	{
 		if (isAdmin)
