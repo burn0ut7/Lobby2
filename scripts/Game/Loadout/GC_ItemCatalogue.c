@@ -230,6 +230,10 @@ class GC_ItemCatalogue
 		if (cloth && clothEnabled)
 		{
 			entry.m_sCategory = "Equipment";
+			// Wearable pouches can have storage without a standard body slot.
+			// Dedicated headwear, vest and backpack categories still take precedence.
+			if (SCR_BaseContainerTools.FindComponentSource(resource, BaseInventoryStorageComponent))
+				entry.m_sCategory = "Clothing";
 			BaseContainer area = cloth.GetObject("AreaType");
 			if (area)
 			{

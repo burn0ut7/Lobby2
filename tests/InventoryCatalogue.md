@@ -263,3 +263,22 @@ c65809286d274c0f8dcf5c7a09e47340). Actual SVD search returned its trimmed name
 Screenshot 1793518926007556000-capture_screenshot.png confirms descending row
 order and matching previews. State checks establish retained preview visibility;
 the screenshot is not a temporal flashing measurement. Independent review approved.
+
+## Wearable storage accessories (2026-11-01)
+
+Enabled BaseLoadoutClothComponent plus BaseInventoryStorageComponent now defaults
+to Clothing; dedicated headwear, vest and backpack area classifications override
+that default. Disabled cloth components remain excluded from this classification.
+This covers pouches without standard body slots, including native
+Pouch_Soviet_10rnd_SVD.et (storage and cloth, inherited Equip_Accessory_base.et).
+Source revision: d9b5a4246f9247e4be5ea20935889885.
+
+Reload a47e9ae8c9a346c3ab5d2815e1d0f94d compiled without new errors. Live Clothing
+has 144 items, including 22 pouch search results and the SVD pouch. Helmet and
+sandbag searches return zero. Vest-text matches are nine accessories whose paths
+include Vests, not the dedicated vest-slot items. Dedicated tabs still report
+43 Vests, 90 Headwear and 35 Backpacks. Evidence operations:
+074ffc2f8d4c42838efb7bbacb7a813a, 3743be2ec7d14a2b93b92eca2a2bd888,
+62d26a3bc613451f8587980d72a95fb8, db6f3d02f6fa4c03bcaf93b8be86d6fe.
+Screenshot 1793519034421862100-capture_screenshot.png and independent review
+confirm Clothing selection and pouch rows. No inventory insertion behavior changed.
