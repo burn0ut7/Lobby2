@@ -65,7 +65,7 @@ VerticalLayoutWidgetClass {
            "Vertical Alignment" Center
            FontProperties FontProperties "{6A34000000000011}" {
             OutlineSize 2
-            OutlineColor 0 0 0 0.75
+            OutlineColor 0 0 0 1
            }
           }
          }

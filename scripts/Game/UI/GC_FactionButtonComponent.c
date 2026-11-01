@@ -3,6 +3,7 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
     protected FactionKey m_FactionKey;
     protected bool m_bFactionSelected;
     protected bool m_bFactionHovered;
+	protected bool m_bFactionFocused;
 	protected bool m_bFactionInteractable = true;
 
     override void HandlerAttached(Widget w)
@@ -57,12 +58,25 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
 
     override bool OnFocus(Widget w, int x, int y)
     {
+		m_bFactionFocused = true;
+		UpdateFactionVisuals();
         if (m_bFactionSelected)
             return true;
 
         PlaySound(SCR_SoundEvent.SOUND_FE_BUTTON_HOVER);
-        return super.OnFocus(w, x, y);
+		bool handled = super.OnFocus(w, x, y);
+		UpdateFactionVisuals();
+		return handled;
     }
+
+	//------------------------------------------------------------------------------------------------
+	override bool OnFocusLost(Widget w, int x, int y)
+	{
+		m_bFactionFocused = false;
+		bool handled = super.OnFocusLost(w, x, y);
+		UpdateFactionVisuals();
+		return handled;
+	}
 
     void SetFactionKey(FactionKey factionKey)
     {
@@ -105,9 +119,8 @@ class GC_FactionButtonComponent : SCR_ButtonBaseComponent
             return;
 
         ColorizeBackground(false);
-		Widget selectionAccent = m_wRoot.FindAnyWidget("SelectionAccent");
-		if (selectionAccent)
-			selectionAccent.SetVisible(m_bFactionSelected);
+		if (m_bFactionFocused && !m_bFactionSelected && m_bFactionInteractable && m_wBackground)
+			m_wBackground.SetColor(GC_LobbyPalette.Selection(64));
 		if (m_bFactionInteractable || m_bFactionSelected)
 			m_wRoot.SetOpacity(1);
 		else

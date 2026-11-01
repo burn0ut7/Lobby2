@@ -47,7 +47,7 @@ ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_But
         Padding 0 0 0 1
        }
        Opacity 0
-       Color 0.761 0.386 0.078 1
+       Color 0.9 0.68 0.27 1
        Size 2 2
       }
       ImageWidgetClass "{557098260F312273}" {
@@ -55,7 +55,7 @@ ButtonWidgetClass : "{4913D5BED796721F}UI/layouts/WidgetLibrary/Buttons/WLib_But
        "Is Enabled" 0
        "Is Visible" 0
        Opacity 0.3
-       Color 0.761 0.392 0.078 0
+       Color 0.9 0.68 0.27 0
       }
       PanelWidgetClass "{557098260F31227C}" {
        Prefab "{557098260F31227C}"

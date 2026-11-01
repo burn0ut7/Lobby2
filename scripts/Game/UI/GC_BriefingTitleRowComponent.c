@@ -159,20 +159,19 @@ class GC_BriefingTitleRowComponent : SCR_ButtonBaseComponent
 
     protected void UpdateVisuals()
     {
-        Color textColor = Color.FromRGBA(220, 220, 220, 255);
-        Color accentColor = Color.FromRGBA(255, 255, 255, 255);
+        Color textColor = GC_LobbyPalette.Text();
+        Color accentColor = GC_LobbyPalette.Text();
 
         if (m_bSelected)
         {
-            textColor = Color.FromRGBA(255, 152, 50, 255);
-            accentColor = textColor;
+            accentColor = GC_LobbyPalette.Selection(255);
         }
 
         if (m_wSelectedBackground)
         {
-            m_wSelectedBackground.SetColor(Color.FromRGBA(255, 152, 50, 255));
+            m_wSelectedBackground.SetColor(GC_LobbyPalette.Selection(255));
             if (m_bSelected)
-                m_wSelectedBackground.SetOpacity(0.08);
+                m_wSelectedBackground.SetOpacity(0.45);
             else
                 m_wSelectedBackground.SetOpacity(0);
         }

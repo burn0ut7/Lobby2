@@ -168,13 +168,13 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             isLocalPlayer = playerController.GetPlayerId() == m_iPlayerId;
 
 		if (m_VoiceController && m_VoiceController.GC_CanJumpSpectatorCamera() && m_VoiceController.GC_GetFocusedPlayer() == m_iPlayerId)
-			background.SetColor(Color.FromRGBA(146, 119, 45, 150));
+			background.SetColor(GC_LobbyPalette.Selection());
 		else if (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId)
-			background.SetColor(Color.FromRGBA(146, 104, 35, 180));
+			background.SetColor(GC_LobbyPalette.Selection());
         else if (isLocalPlayer)
-            background.SetColor(Color.FromRGBA(194, 100, 20, 20));
+            background.SetColor(GC_LobbyPalette.Blue(199));
         else
-            background.SetColor(Color.FromRGBA(1, 1, 1, 158));
+            background.SetColor(GC_LobbyPalette.Surface(158));
     }
 
 	//------------------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 		{
 			voiceIcon.LoadImageFromSet(0, "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "microphone");
 			if (!m_bSpeaking)
-				voiceIcon.SetColor(Color.FromRGBA(170, 170, 170, 255));
+				voiceIcon.SetColor(GC_LobbyPalette.Muted());
 			return;
 		}
 

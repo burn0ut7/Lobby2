@@ -248,7 +248,7 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		if (faction && (m_ChannelType == GC_VoiceChannelType.FACTION || m_ChannelType == GC_VoiceChannelType.GROUP))
 			background.SetColor(faction.GetOutlineFactionColor());
 		else
-			background.SetColor(Color.FromRGBA(1, 1, 1, 199));
+			background.SetColor(GC_LobbyPalette.Surface());
 	}
 
 	protected void ClearPlayerRows()

@@ -125,7 +125,7 @@ ButtonWidgetClass {
            "Vertical Alignment" Center
            FontProperties FontProperties "{6A33000000000019}" {
             OutlineSize 1
-            OutlineColor 0 0 0 0.65
+            OutlineColor 0 0 0 1
            }
           }
          }
@@ -138,7 +138,7 @@ ButtonWidgetClass {
           Padding 0 0 4 0
           SizeMode Fill
          }
-         Color 0.82 0.84 0.84 1
+         Color 1 1 1 1
          Text ""
          "Font Size" 19
          "Min Font Size" 13
@@ -146,7 +146,7 @@ ButtonWidgetClass {
          "Vertical Alignment" Center
          FontProperties FontProperties "{6A3300000000001C}" {
           OutlineSize 1
-          OutlineColor 0 0 0 0.65
+          OutlineColor 0 0 0 1
          }
         }
         SizeLayoutWidgetClass "{6A3300000000001D}" {

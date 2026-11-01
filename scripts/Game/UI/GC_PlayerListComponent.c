@@ -435,18 +435,18 @@ class GC_PlayerListTabsComponent : SCR_ScriptedWidgetComponent
 		if (background)
 		{
 			if (selected)
-				background.SetColor(Color.FromRGBA(92, 112, 120, 242));
+				background.SetColor(GC_LobbyPalette.Selection());
 			else
-				background.SetColor(Color.FromRGBA(18, 26, 28, 242));
+				background.SetColor(GC_LobbyPalette.Blue());
 		}
 
 		TextWidget label = TextWidget.Cast(m_wRoot.FindAnyWidget(labelName));
 		if (label)
 		{
 			if (selected)
-				label.SetColor(Color.FromRGBA(255, 255, 255, 255));
+				label.SetColor(GC_LobbyPalette.Text());
 			else
-				label.SetColor(Color.FromRGBA(209, 214, 214, 255));
+				label.SetColor(GC_LobbyPalette.Text());
 		}
 
 		Widget accent = m_wRoot.FindAnyWidget(accentName);

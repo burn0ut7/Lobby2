@@ -61,7 +61,7 @@ SizeLayoutWidgetClass {
               HorizontalAlign 3
               VerticalAlign 3
              }
-             Color 0.36 0.44 0.47 0.95
+             Color 0.9 0.68 0.27 0.45
             }
             TextWidgetClass "{6A38000000000011}" {
              Name "VoiceChannelsButtonLabel"
@@ -77,7 +77,7 @@ SizeLayoutWidgetClass {
              "Vertical Alignment" Center
              FontProperties FontProperties "{6A38000000000013}" {
               OutlineSize 1
-              OutlineColor 0 0 0 0.7
+              OutlineColor 0 0 0 1
              }
             }
             ImageWidgetClass "{6A38000000000014}" {
@@ -86,7 +86,7 @@ SizeLayoutWidgetClass {
               HorizontalAlign 3
               VerticalAlign 2
              }
-             Color 0.25 0.72 0.78 1
+             Color 0.9 0.68 0.27 1
              Size 32 3
             }
            }
@@ -127,7 +127,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 3
               Padding 12 0 12 0
              }
-             Color 0.82 0.84 0.84 1
+             Color 1 1 1 1
              Text "PLAYERS"
              "Font Size" 22
              "Min Font Size" 12
@@ -135,7 +135,7 @@ SizeLayoutWidgetClass {
              "Vertical Alignment" Center
              FontProperties FontProperties "{6A3800000000001F}" {
               OutlineSize 1
-              OutlineColor 0 0 0 0.7
+              OutlineColor 0 0 0 1
              }
             }
             ImageWidgetClass "{6A38000000000020}" {
@@ -145,7 +145,7 @@ SizeLayoutWidgetClass {
               VerticalAlign 2
              }
              "Is Visible" 0
-             Color 0.25 0.72 0.78 1
+             Color 0.9 0.68 0.27 1
              Size 32 3
             }
            }
@@ -170,19 +170,19 @@ SizeLayoutWidgetClass {
             TextWidgetClass {
              Name "FactionListButtonLabel"
              Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 12 0 12 0 }
-             Color 0.82 0.84 0.84 1
+             Color 1 1 1 1
              Text "FACTIONS"
              "Font Size" 22
              "Min Font Size" 12
              "Horizontal Alignment" Center
              "Vertical Alignment" Center
-             FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 0.7 }
+             FontProperties FontProperties { OutlineSize 1 OutlineColor 0 0 0 1 }
             }
             ImageWidgetClass {
              Name "FactionListButtonAccent"
              Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 2 }
              "Is Visible" 0
-             Color 0.25 0.72 0.78 1
+             Color 0.9 0.68 0.27 1
              Size 32 3
             }
            }

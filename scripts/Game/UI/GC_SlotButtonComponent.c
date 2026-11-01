@@ -6,6 +6,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 	protected GC_Slot m_Slot;
 	protected bool m_bSlotInteractable = true;
 	protected bool m_bSlotHovered;
+	protected bool m_bSlotFocused;
 	protected bool m_bClickHoverGrace;
 	protected ResourceName m_RoleInfoPrefab;
 	protected ref SCR_UIInfo m_RoleInfo;
@@ -116,6 +117,8 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 
 	override bool OnFocus(Widget w, int x, int y)
 	{
+		m_bSlotFocused = true;
+		UpdateSlotVisuals();
 		if (!CanInteract())
 			return true;
 
@@ -125,6 +128,8 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 
 	override bool OnFocusLost(Widget w, int x, int y)
 	{
+		m_bSlotFocused = false;
+		UpdateSlotVisuals();
 		return true;
 	}
 
@@ -189,11 +194,11 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (background)
 		{
 			if (!CanInteract())
-				background.SetColor(Color.FromRGBA(1, 1, 1, 100));
-			else if (m_bSlotHovered)
-				background.SetColor(Color.FromRGBA(36, 42, 45, 210));
+				background.SetColor(GC_LobbyPalette.Surface(100));
+			else if (m_bSlotHovered || m_bSlotFocused)
+				background.SetColor(GC_LobbyPalette.Selection());
 			else
-				background.SetColor(Color.FromRGBA(1, 1, 1, 140));
+				background.SetColor(GC_LobbyPalette.Surface(140));
 		}
 
 		ImageWidget accent = ImageWidget.Cast(m_wRoot.FindAnyWidget("SelectionAccent"));
@@ -276,7 +281,7 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 			|| (m_Slot.GetState() == GC_SlotState.RESERVED && playerId <= 0));
 		// Presence takes priority over admin highlighting, including role refreshes.
 		if (absent)
-			statusText.SetColor(Color.FromRGBA(170, 170, 170, 255));
+			statusText.SetColor(GC_LobbyPalette.Muted());
 		else
 			GC_PlayerNamePresentation.Apply(statusText, playerId);
 	}

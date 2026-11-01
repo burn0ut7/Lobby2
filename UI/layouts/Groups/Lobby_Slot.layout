@@ -114,7 +114,7 @@ ButtonWidgetClass {
            "Vertical Alignment" Center
            FontProperties FontProperties "{6A24000100000011}" {
             OutlineSize 1
-            OutlineColor 0 0 0 0.65
+            OutlineColor 0 0 0 1
            }
           }
          }
@@ -154,7 +154,7 @@ ButtonWidgetClass {
            "Vertical Alignment" Center
            FontProperties FontProperties "{6A24000100000017}" {
             OutlineSize 1
-            OutlineColor 0 0 0 0.65
+            OutlineColor 0 0 0 1
            }
           }
          }

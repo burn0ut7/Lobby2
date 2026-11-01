@@ -121,9 +121,7 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
         if (!m_wRoot)
             return;
 
-        Color color = Color.FromRGBA(255, 255, 255, 255);
-        if (m_bHeaderSelected)
-            color = Color.FromRGBA(255, 152, 50, 255);
+        Color color = GC_LobbyPalette.Text();
 
         ImageWidget image = ImageWidget.Cast(m_wRoot.FindAnyWidget("Image0"));
         if (image)
@@ -136,8 +134,9 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
         Widget lineHighlight = m_wRoot.FindAnyWidget("LineHighlight");
         if (lineHighlight)
         {
+            lineHighlight.SetColor(GC_LobbyPalette.Selection(255));
             if (m_bHeaderSelected)
-                lineHighlight.SetOpacity(0.2);
+                lineHighlight.SetOpacity(0.45);
             else
                 lineHighlight.SetOpacity(0);
         }
@@ -148,17 +147,17 @@ class GC_HeaderButtonComponent : SCR_ButtonTextComponent
             if (m_bHeaderSelected)
             {
                 lineHighlight2.SetOpacity(1);
-                lineHighlight2.SetColor(Color.FromRGBA(255, 152, 50, 255));
+                lineHighlight2.SetColor(GC_LobbyPalette.Selection(255));
             }
             else if (m_bHeaderHovered)
             {
                 lineHighlight2.SetOpacity(1);
-                lineHighlight2.SetColor(Color.FromRGBA(255, 255, 255, 255));
+                lineHighlight2.SetColor(GC_LobbyPalette.Text());
             }
             else
             {
                 lineHighlight2.SetOpacity(0);
-                lineHighlight2.SetColor(Color.FromRGBA(255, 255, 255, 255));
+                lineHighlight2.SetColor(GC_LobbyPalette.Text());
             }
         }
 
