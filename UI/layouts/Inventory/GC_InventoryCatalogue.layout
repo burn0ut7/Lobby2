@@ -2,7 +2,7 @@ FrameWidgetClass {
  Name "GCCatalogue"
  Slot FrameWidgetSlot { Anchor 0 0 0 0 OffsetLeft 24 OffsetTop 24 OffsetRight -584 OffsetBottom -996 }
  {
-PanelWidgetClass { Name "CatalogueSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 0.5 style full "Ignore Cursor" 1 }
+PanelWidgetClass { Name "CatalogueSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 0.5 style full "Ignore Cursor" 0 }
 VerticalLayoutWidgetClass { Name "CatalogueContent" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 6 OffsetTop 6 OffsetRight 6 OffsetBottom 6 } {
 HorizontalLayoutWidgetClass { Name "SearchOptions" Slot LayoutSlot { HorizontalAlign 3 Padding 0 4 0 0 } {
  SizeLayoutWidgetClass : "{DC391DA320AE4001}UI/layouts/Inventory/GC_CatalogueSelector.layout" { Name "CatalogueSort" Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill Padding 0 0 4 0 } }

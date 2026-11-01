@@ -282,3 +282,20 @@ include Vests, not the dedicated vest-slot items. Dedicated tabs still report
 62d26a3bc613451f8587980d72a95fb8, db6f3d02f6fa4c03bcaf93b8be86d6fe.
 Screenshot 1793519034421862100-capture_screenshot.png and independent review
 confirm Clothing selection and pouch rows. No inventory insertion behavior changed.
+
+## Wheel paging over blank space (2026-11-01)
+
+CatalogueSurface now participates in cursor hit testing. Its full panel bounds
+route blank-space wheel events to the existing parent paging handler, rather
+than letting them fall through behind the menu. No paging logic or layout sizes
+changed. Reload 0db5f10e974049ae8d2e1631f85e08dc compiled without new errors.
+
+Vests has 43 results. On its three-item last page, the optional
+GC_TestCatalogueBlankWheel helper verified native ReportMouse/GetWidgetUnderCursor
+hit CatalogueSurface in the empty lower area; production OnMouseWheel moved
+offset 40 to 30 (6d6d31cdfed8478f8e844abe4994d9d1). Existing row-wheel handling
+moved 30 to 40 (b8c70897e2d94c8f8d219d5b362adf23); blank-space wheel-down at the
+last page remained at 40 (5779a7e63a064cf8b13a9f1a9595ae7d). These checks exercise
+native hit testing and the production handler separately, not physical wheel
+event dispatch. Screenshot 1793521098333007100-capture_screenshot.png records
+the three-item page and its empty surface.

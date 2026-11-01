@@ -34,6 +34,21 @@ modded class GC_InventoryCataloguePanel
 
 modded class SCR_InventoryMenuUI
 {
+	string GC_TestCatalogueBlankWheel(int direction)
+	{
+		Widget surface = m_widget.FindAnyWidget("CatalogueSurface");
+		float x, y, width, height;
+		surface.GetScreenPos(x, y);
+		surface.GetScreenSize(width, height);
+		WidgetManager.ReportMouse(x + width * 0.75, y + height * 0.8, m_widget);
+		Widget hit = WidgetManager.GetWidgetUnderCursor();
+		if (hit != surface)
+			return "blank surface not hit";
+		// Verify native hit testing separately from the production wheel handler.
+		m_GCCataloguePanel.OnMouseWheel(hit, 0, 0, direction);
+		return hit.GetName() + " " + m_GCCataloguePanel.State();
+	}
+
 	string GC_TestPreviewRetention()
 	{
 		return m_GCCataloguePanel.GC_TestPreviewRetention();
@@ -42,6 +57,11 @@ modded class SCR_InventoryMenuUI
 
 modded class GC_LobbyManager
 {
+	string GC_TestCatalogueBlankWheel(int direction)
+	{
+		return SCR_InventoryMenuUI.GetInventoryMenu().GC_TestCatalogueBlankWheel(direction);
+	}
+
 	string GC_TestPreviewRetention()
 	{
 		return SCR_InventoryMenuUI.GetInventoryMenu().GC_TestPreviewRetention();
