@@ -40,6 +40,7 @@ modded class SCR_InventoryMenuUI
 	override void OnMenuUpdate(float tDelta)
 	{
 		super.OnMenuUpdate(tDelta);
+		GC_UpdateFilesButton();
 		if (!GC_GearSession.IsActive(m_Player))
 		{
 			GC_ReleaseCatalogue();
@@ -58,18 +59,6 @@ modded class SCR_InventoryMenuUI
 			}
 			GetGame().GetInputManager().AddActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
 			GetGame().GetInputManager().AddActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
-#ifdef WORKBENCH
-			if (m_pNavigationBar && GC_GearSession.IsWorkbench(m_Player))
-			{
-				Widget filesButton = GetGame().GetWorkspace().CreateWidgets("{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout", m_pNavigationBar.GetRootWidget());
-				filesButton.SetName("CatalogueFiles");
-				m_GCFilesButton = SCR_InputButtonComponent.Cast(filesButton.FindHandler(SCR_InputButtonComponent));
-				m_GCFilesButton.SetAction("GC_LoadoutFiles", forceUpdate: true);
-				m_GCFilesButton.SetLabel("Save / Load");
-				m_GCFilesButton.m_OnActivated.Insert(GC_OnFilesActivated);
-				m_GCFilesButton.m_OnClicked.Insert(GC_OnFilesClicked);
-			}
-#endif
 			m_bGCShortcutBound = true;
 		}
 		m_GCCataloguePanel.Tick(tDelta);
@@ -128,13 +117,6 @@ modded class SCR_InventoryMenuUI
 		{
 			GetGame().GetInputManager().RemoveActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
 			GetGame().GetInputManager().RemoveActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
-		}
-		if (m_GCFilesButton)
-		{
-			m_GCFilesButton.m_OnActivated.Remove(GC_OnFilesActivated);
-			m_GCFilesButton.m_OnClicked.Remove(GC_OnFilesClicked);
-			m_GCFilesButton.GetRootWidget().RemoveFromHierarchy();
-			m_GCFilesButton = null;
 		}
 		m_bGCShortcutBound = false;
 		if (m_GCCataloguePanel)
@@ -203,6 +185,39 @@ modded class SCR_InventoryMenuUI
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void GC_UpdateFilesButton()
+	{
+#ifdef WORKBENCH
+		if (!GC_PrefabAuthoringSession.IsAvailable(m_Player))
+		{
+			GC_ReleaseFilesButton();
+			return;
+		}
+		if (m_bProcessInitQueue || !m_widget || !m_pNavigationBar || m_GCFilesButton)
+			return;
+		Widget filesButton = GetGame().GetWorkspace().CreateWidgets("{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout", m_pNavigationBar.GetRootWidget());
+		filesButton.SetName("CatalogueFiles");
+		m_GCFilesButton = SCR_InputButtonComponent.Cast(filesButton.FindHandler(SCR_InputButtonComponent));
+		m_GCFilesButton.SetAction("GC_LoadoutFiles", forceUpdate: true);
+		m_GCFilesButton.SetLabel("Save / Load");
+		m_GCFilesButton.m_OnActivated.Insert(GC_OnFilesActivated);
+		m_GCFilesButton.m_OnClicked.Insert(GC_OnFilesClicked);
+#endif
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_ReleaseFilesButton()
+	{
+		if (m_GCFilesButton)
+		{
+			m_GCFilesButton.m_OnActivated.Remove(GC_OnFilesActivated);
+			m_GCFilesButton.m_OnClicked.Remove(GC_OnFilesClicked);
+			m_GCFilesButton.GetRootWidget().RemoveFromHierarchy();
+			m_GCFilesButton = null;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void GC_OnFilesActivated(SCR_InputButtonComponent button, string action)
 	{
 		GC_ActionLoadoutFiles();
@@ -224,7 +239,7 @@ modded class SCR_InventoryMenuUI
 	void GC_ActionLoadoutFiles()
 	{
 #ifdef WORKBENCH
-		if (!GC_GearSession.IsWorkbench(m_Player) || EditBoxWidget.Cast(GetGame().GetWorkspace().GetFocusedWidget()))
+		if (!GC_PrefabAuthoringSession.IsAvailable(m_Player) || EditBoxWidget.Cast(GetGame().GetWorkspace().GetFocusedWidget()))
 			return;
 		if (GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu))
 			return;
@@ -577,6 +592,7 @@ modded class SCR_InventoryMenuUI
 	override void OnMenuClose()
 	{
 		GC_GearSession.Close();
+		GC_ReleaseFilesButton();
 		GC_ReleaseCatalogue();
 		super.OnMenuClose();
 	}

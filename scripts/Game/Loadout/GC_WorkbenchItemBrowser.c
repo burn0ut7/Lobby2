@@ -5,7 +5,6 @@ class GC_WorkbenchItemBrowser
 	protected static IEntity s_Owner;
 	protected static SCR_BaseGameMode s_Mode;
 	protected static SCR_PlayerController s_Controller;
-	protected static ResourceName s_sEditingPrefab;
 
 	//------------------------------------------------------------------------------------------------
 	static bool Open(bool showInventory = true)
@@ -20,14 +19,12 @@ class GC_WorkbenchItemBrowser
 		if (!manager)
 			return false;
 		GC_GearSession.Close();
-		ResourceName editing = SCR_ResourceNameUtils.GetPrefabName(owner);
-		if (s_Owner == owner && IsActive(owner) && !s_sEditingPrefab.IsEmpty())
-			editing = s_sEditingPrefab;
+		ResourceName editing = GC_PrefabAuthoringSession.GetEditingPrefab();
 		Disable();
 		s_Owner = owner;
 		s_Mode = SCR_BaseGameMode.Cast(GetGame().GetGameMode());
 		s_Controller = controller;
-		s_sEditingPrefab = editing;
+		GC_PrefabAuthoringSession.SetEditingPrefab(editing);
 		s_Controller.m_OnControlledEntityChanged.Insert(OnOwnerChanged);
 		s_Mode.GetOnGameEnd().Insert(Disable);
 		if (showInventory)
@@ -57,20 +54,19 @@ class GC_WorkbenchItemBrowser
 		s_Controller = null;
 		s_Owner = null;
 		s_Mode = null;
-		s_sEditingPrefab = string.Empty;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	static ResourceName GetEditingPrefab()
 	{
-		return s_sEditingPrefab;
+		return GC_PrefabAuthoringSession.GetEditingPrefab();
 	}
 
 	//------------------------------------------------------------------------------------------------
 	static void SetEditingPrefab(ResourceName prefab)
 	{
 		if (IsActive(s_Owner))
-			s_sEditingPrefab = prefab;
+			GC_PrefabAuthoringSession.SetEditingPrefab(prefab);
 	}
 
 	//------------------------------------------------------------------------------------------------

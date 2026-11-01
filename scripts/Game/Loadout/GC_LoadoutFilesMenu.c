@@ -37,7 +37,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	{
 		super.OnMenuOpen();
 		m_Owner = GetGame().GetPlayerController().GetControlledEntity();
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner))
+		if (!GC_PrefabAuthoringSession.IsAvailable(m_Owner))
 		{
 			Close();
 			return;
@@ -74,7 +74,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			button.m_OnClicked.Insert(OnAction);
 			m_aButtons.Insert(button);
 		}
-		m_sSelected = GC_WorkbenchItemBrowser.GetEditingPrefab();
+		m_sSelected = GC_PrefabAuthoringSession.GetEditingPrefab();
 		RefreshList();
 		SetFields(m_sSelected);
 		RefreshTeamChoices();
@@ -447,7 +447,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnVariantPrefabChanged(SCR_ComboBoxComponent combo, int index)
 	{
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner) || m_iVariant < 0 || index < 0 || index >= m_aVariantChoices.Count())
+		if (!GC_PrefabAuthoringSession.IsAvailable(m_Owner) || m_iVariant < 0 || index < 0 || index >= m_aVariantChoices.Count())
 			return;
 		m_Variants.m_aEntries[m_iVariant].m_sVariantPrefab = m_aVariantChoices[index];
 		m_bVariantsDirty = true;
@@ -535,7 +535,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnDeleteVariantConfirmed(SCR_ConfigurableDialogUi dialog)
 	{
-		if (dialog != m_DeleteDialog || !GC_WorkbenchItemBrowser.IsActive(m_Owner) || m_iVariant < 0)
+		if (dialog != m_DeleteDialog || !GC_PrefabAuthoringSession.IsAvailable(m_Owner) || m_iVariant < 0)
 			return;
 		m_Variants.m_aEntries.Remove(m_iVariant);
 		m_iVariant = Math.Min(m_iVariant, m_Variants.m_aEntries.Count() - 1);
@@ -627,7 +627,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	override void OnMenuUpdate(float tDelta)
 	{
 		super.OnMenuUpdate(tDelta);
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner))
+		if (!GC_PrefabAuthoringSession.IsAvailable(m_Owner))
 		{
 			Close();
 			return;
@@ -671,7 +671,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		SCR_ButtonTextComponent current = SCR_ButtonTextComponent.GetButtonText("Current", root);
 		current.SetToggleable(true);
 		SetSelection(current, m_bCurrentGear);
-		SetRoleIcon(current.GetRootWidget(), GC_WorkbenchItemBrowser.GetEditingPrefab());
+		SetRoleIcon(current.GetRootWidget(), GC_PrefabAuthoringSession.GetEditingPrefab());
 		SCR_ButtonTextComponent.GetButtonText("Save", root).SetEnabled(true);
 		SCR_ButtonTextComponent.GetButtonText("Load", root).SetEnabled(!m_bCurrentGear);
 		RefreshVariantControls();
@@ -709,17 +709,17 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			Close();
 			return;
 		}
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner))
+		if (!GC_PrefabAuthoringSession.IsAvailable(m_Owner))
 			return;
 		if (HandleVariantAction(action))
 			return;
 		if (action == "Current")
 		{
-			if (!CanChangeVariantOwner(GC_WorkbenchItemBrowser.GetEditingPrefab()))
+			if (!CanChangeVariantOwner(GC_PrefabAuthoringSession.GetEditingPrefab()))
 				return;
 			m_iVariant = -1;
 			m_bCurrentGear = true;
-			m_sSelected = GC_WorkbenchItemBrowser.GetEditingPrefab();
+			m_sSelected = GC_PrefabAuthoringSession.GetEditingPrefab();
 			m_Name.SetText("");
 			SetFields(m_sSelected);
 			m_Status.SetText("");
@@ -738,7 +738,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			ResourceName targetPrefab = m_sSelected;
 			if (m_iVariant >= 0)
 				targetPrefab = m_Variants.m_aEntries[m_iVariant].m_sVariantPrefab;
-			if (targetPrefab.IsEmpty() || !GC_WorkbenchItemBrowser.LoadPrefab(targetPrefab))
+			if (targetPrefab.IsEmpty() || !GC_PrefabAuthoringSession.LoadPrefab(targetPrefab))
 				m_Status.SetText("#GC-Loadout_LoadFailed");
 			else
 				Close();
@@ -825,7 +825,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnOverwrite(SCR_ConfigurableDialogUi dialog)
 	{
-		if (dialog != m_OverwriteDialog || !GC_WorkbenchItemBrowser.IsActive(m_Owner))
+		if (dialog != m_OverwriteDialog || !GC_PrefabAuthoringSession.IsAvailable(m_Owner))
 			return;
 		ResourceName target = m_sOverwriteTarget;
 		ClearOverwrite();
@@ -864,7 +864,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		if (!metadata || !writer.Open(target) || !writer.Save(m_Owner, metadata, writeGear))
 		{
 			if (created)
-				GC_WorkbenchItemBrowser.SetEditingPrefab(target);
+				GC_PrefabAuthoringSession.SetEditingPrefab(target);
 			m_sSelected = target;
 			RefreshList();
 			RefreshRelationship();
@@ -873,7 +873,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		}
 		// The current character already contains the gear just written. Saving
 		// must not respawn it or restart the local Workbench session.
-		if (!writeGear && !GC_WorkbenchItemBrowser.LoadPrefab(target))
+		if (!writeGear && !GC_PrefabAuthoringSession.LoadPrefab(target))
 		{
 			m_sSelected = target;
 			RefreshList();
@@ -883,7 +883,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			m_Status.SetText("#GC-Loadout_SavedLoadFailed");
 			return;
 		}
-		GC_WorkbenchItemBrowser.SetEditingPrefab(target);
+		GC_PrefabAuthoringSession.SetEditingPrefab(target);
 		Close();
 	}
 

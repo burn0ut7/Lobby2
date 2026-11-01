@@ -126,7 +126,7 @@ class GC_LoadoutPrefab
 	//! Native duplication retains the source's existing ancestor, with a fresh resource identity.
 	static ResourceName Create(ResourceName parent, string path, bool duplicate)
 	{
-		if (!GetGame() || !GetGame().GetPlayerController() || !GC_WorkbenchItemBrowser.IsActive(GetGame().GetPlayerController().GetControlledEntity()))
+		if (!GetGame() || !GetGame().GetPlayerController() || !GC_PrefabAuthoringSession.IsAvailable(GetGame().GetPlayerController().GetControlledEntity()))
 			return string.Empty;
 		string root;
 		if (!Workbench.GetAbsolutePath("$Lobby2:Prefabs/Loadouts/", root, false))
@@ -189,7 +189,7 @@ class GC_LoadoutPrefab
 	//! A new gear choice inherits the pool and uses a predictable, collision-safe filename.
 	static bool CreateGearVariant(IEntity owner, ResourceName parent, int number, out ResourceName created)
 	{
-		if (!GC_WorkbenchItemBrowser.IsActive(owner) || !parent.GetPath().StartsWith("Prefabs/Loadouts/"))
+		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !parent.GetPath().StartsWith("Prefabs/Loadouts/"))
 			return false;
 		GC_LoadoutMetadata metadata = GC_LoadoutMetadata.Read(parent);
 		if (!metadata)
@@ -724,7 +724,7 @@ class GC_LoadoutPrefab
 	//! Updates only the selected prefab's native randomizer; no gear write or Play restart.
 	bool SaveVariants(IEntity owner, GC_LoadoutVariants variants)
 	{
-		if (!GC_WorkbenchItemBrowser.IsActive(owner) || !m_Source || !variants || !variants.IsValid(m_sResource))
+		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !m_Source || !variants || !variants.IsValid(m_sResource))
 			return false;
 		if (variants.Equals(GC_LoadoutVariants.Read(m_Source)))
 			return m_API.SaveEntityTemplate(m_Source);
@@ -767,7 +767,7 @@ class GC_LoadoutPrefab
 	//------------------------------------------------------------------------------------------------
 	bool Save(IEntity owner, GC_LoadoutMetadata metadata = null, bool writeGear = true)
 	{
-		if (!GC_WorkbenchItemBrowser.IsActive(owner) || !m_Source)
+		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !m_Source)
 			return false;
 		array<ref ContainerIdPathEntry> editablePath = {};
 		array<ref ContainerIdPathEntry> factionPath = {};
