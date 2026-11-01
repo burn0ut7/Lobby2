@@ -1,0 +1,23 @@
+SizeLayoutWidgetClass {
+ Name "CatalogueSelector"
+ Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill }
+ AllowHeightOverride 1 HeightOverride 36
+ components { SCR_ComboBoxComponent { m_fMaxListHeight 280 m_bCreateListBelow 1 m_sListRootLayout "{6A5A000000000072}UI/layouts/Admin/Lobby_AdminComboRoot.layout" m_sElementLayout "{DC391DA320AE4002}UI/layouts/Inventory/GC_CatalogueOption.layout" } }
+ {
+ ButtonWidgetClass {
+  Name "ComboButton"
+  Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+  Color 1 1 1 0
+  components { SCR_EventHandlerComponent {} SCR_ButtonBaseComponent { m_BackgroundDefault 0 0 0 0.8 m_BackgroundHovered 0.15 0.15 0.15 1 } }
+  {
+   OverlayWidgetClass { Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } {
+    OverlayWidgetClass { Name "OverlayText" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } {
+     PanelWidgetClass { Name "Background" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.8 style full "Ignore Cursor" 1 }
+     TextWidgetClass { Name "Content" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 1 Padding 8 0 30 0 } Color 1 1 1 1 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 20 "Ignore Cursor" 1 }
+    } }
+    TextWidgetClass { Slot OverlayWidgetSlot { HorizontalAlign 2 VerticalAlign 1 Padding 0 0 10 0 } Color 1 1 1 1 Text "v" "Font Size" 18 "Ignore Cursor" 1 }
+   } }
+  }
+ }
+ }
+}

@@ -1,5 +1,59 @@
 # Workbench inventory catalogue
 
+## Search options and source hover (2026-11-01)
+
+The compact row above Search offers A–Z/Z–A and All mods/loaded source addons.
+Only addons contributing portable items are listed, using GameProject titles.
+The mod filter combines with text, category and weapon compatibility filters;
+changing an option resets to page one. Ten rows fit below the selectors. Source
+membership includes inherited contributions, so an item can match multiple mods.
+Hovering a row uses the native tooltip lifecycle and displays only source mod
+titles. Changing results or closing the catalogue hides its tooltip.
+
+Eden's documented precedent is a mod dropdown beside asset search:
+https://dev.arma3.com/post/spotrep-00059. Native source revision remains
+`d9b5a4246f9247e4be5ea20935889885`; SCR_ComboBoxComponent and GameProject supply
+controls and titles. The tooltip reuses the existing plain-text native tooltip
+preset rather than adding an inventory footer.
+
+Reload `f6a77df5f6624dbba2f0949ee285ec03` passed with no new script errors.
+Production option callbacks verified both orders (DH-132A versus ZSh-5 for helmet
+search), 813 all-mod candidates versus one Lobby2 radio, combined category/text
+filters, no matches, clear-search recovery and page-one reset. Native paging and
+wheel advanced by ten; wheel left offset unchanged while a dropdown was open.
+Native tooltip Show/Hide with explicit hover context returned Arma Reforger and
+Lobby2 for the radio, then disappeared when All mods changed the result page.
+Receipts and captures are in toolrepo `.temp/local/evidence/loadout-foundation`:
+`1793510784103683200-capture_screenshot.png` (mod choices),
+`1793511016865539600-capture_screenshot.png` (tooltip), and
+`1793511039501999700-capture_screenshot.png` (page change hides tooltip).
+Native hover dispatch was then exercised through WidgetManager.ReportMouse:
+entry `8045b0eafabb48898e7b9d4302f1c0fe` displayed the layout-attached tooltip
+(`1793511101432572600-capture_screenshot.png`); exit
+`ca68535a864e4bf7b0aed0d794b794d3` dismissed it
+(`1793511121770865900-capture_screenshot.png`). The retained optional fixture uses
+native mouse reporting, not Show or injected hover context.
+
+The bottom-left native navigation bar now includes a clickable S / Save / Load
+button. Its action belongs to InventoryMenuContext (priority 120, activated by
+SCR_InventoryMenuUI), rather than lower-priority InventoryContext. The native
+input button owns key and click dispatch; there is no second manual listener.
+Typing focus suppresses the key action, while an explicit click clears typing
+focus and opens the menu. The control exists only during Workbench authoring.
+
+Final Reload `8edb7adece1b4a83b88baa8c13b12fd4` passed. Key callback with search
+focused left files=0 (`32497880f3c440dba26b20050bed3fc8`); clicking from search
+opened files=1 (`a51ffbb418554c2d8e2f9d90342ddec3`). Native key callback outside
+search opened files=1 (`0bfa41f9809f41c6853b81fd31084f46`). Disable removed the
+button, and reactivation restored exactly one; footer captures
+`1793511296569113400-capture_screenshot.png` and
+`1793511410409327200-capture_screenshot.png`. Final gameplay SCRIPT errors only
+contained the existing missing-map fixture diagnostic.
+
+Physical OS mouse/keyboard input, gamepad navigation, many-mod scrolling, other
+UI scales and a new addon-free baseline were not exercised. Existing catalogue
+coverage and eligibility limits remain.
+
 ## Weapon-slot browsing (2026-10-31)
 
 Click an empty weapon slot to browse that slot's weapon type. Click an equipped weapon to browse its magazines and attachments, including ammunition for attached grenade launchers. Left-click or right-click a result to attach/load it into that selected weapon, replacing a compatible occupied slot when necessary. Transfers include nested attachment storage (for example M203 ammunition) and never fall back to another weapon or clothing. Search narrows this list; a category button or another equipment slot leaves the weapon context. The selected slot is observed every 250 ms, so replacing/removing its weapon updates the filter and resets paging. Dragging still uses its explicit destination; the click following a drag is suppressed.

@@ -32,6 +32,7 @@ modded class SCR_InventoryMenuUI
 	protected SCR_InventorySlotUI m_GCExistingGestureSlot;
 	protected bool m_bGCShortcutBound;
 	protected bool m_bGCDragged;
+	protected SCR_InputButtonComponent m_GCFilesButton;
 
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuUpdate(float tDelta)
@@ -55,7 +56,16 @@ modded class SCR_InventoryMenuUI
 			}
 			GetGame().GetInputManager().AddActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
 			GetGame().GetInputManager().AddActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
-			GetGame().GetInputManager().AddActionListener("GC_LoadoutFiles", EActionTrigger.DOWN, GC_ActionLoadoutFiles);
+			if (m_pNavigationBar)
+			{
+				Widget filesButton = GetGame().GetWorkspace().CreateWidgets("{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout", m_pNavigationBar.GetRootWidget());
+				filesButton.SetName("CatalogueFiles");
+				m_GCFilesButton = SCR_InputButtonComponent.Cast(filesButton.FindHandler(SCR_InputButtonComponent));
+				m_GCFilesButton.SetAction("GC_LoadoutFiles", forceUpdate: true);
+				m_GCFilesButton.SetLabel("Save / Load");
+				m_GCFilesButton.m_OnActivated.Insert(GC_OnFilesActivated);
+				m_GCFilesButton.m_OnClicked.Insert(GC_OnFilesClicked);
+			}
 			m_bGCShortcutBound = true;
 		}
 		m_GCCataloguePanel.Tick(tDelta);
@@ -112,12 +122,34 @@ modded class SCR_InventoryMenuUI
 		{
 			GetGame().GetInputManager().RemoveActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
 			GetGame().GetInputManager().RemoveActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
-			GetGame().GetInputManager().RemoveActionListener("GC_LoadoutFiles", EActionTrigger.DOWN, GC_ActionLoadoutFiles);
+		}
+		if (m_GCFilesButton)
+		{
+			m_GCFilesButton.m_OnActivated.Remove(GC_OnFilesActivated);
+			m_GCFilesButton.m_OnClicked.Remove(GC_OnFilesClicked);
+			m_GCFilesButton.GetRootWidget().RemoveFromHierarchy();
+			m_GCFilesButton = null;
 		}
 		m_bGCShortcutBound = false;
 		if (m_GCCataloguePanel)
 			m_GCCataloguePanel.Detach();
 		m_GCCataloguePanel = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_OnFilesActivated(SCR_InputButtonComponent button, string action)
+	{
+		GC_ActionLoadoutFiles();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_OnFilesClicked(SCR_ButtonBaseComponent button)
+	{
+		// Clicking the footer is explicit navigation even while the search field owns typing.
+		if (GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu))
+			return;
+		GetGame().GetWorkspace().SetFocusedWidget(null);
+		GC_ActionLoadoutFiles();
 	}
 
 	//------------------------------------------------------------------------------------------------

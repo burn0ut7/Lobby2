@@ -1,0 +1,26 @@
+Active reference: item-rows-reference.png, user supplied 2026-10-31. Expand left catalogue into unused margins, preserve native character/right inventory. Vertical square category buttons on left; top search across item names and catalogue text; Q/E and mouse wheel page item results. Each row has a large preview at left, muted category above item name to right. All portable items by default; category and native equipment slot selection filter. Keep native dark translucent surfaces and yellow interaction state. Reference depicts equipped slots, but this browser lists every matching catalogue item. Retain faction/sort options. Click equips/inserts; drag places a newly created item using native inventory targets. Render only visible previews, spread over frames.
+
+2026-11-01 refinement: a single compact row above Search contains A–Z/Z–A and
+All mods selectors. Keep ten item rows and the bottom native pager. The new
+selectors use grayscale native combo controls; no extra headings or help block.
+Only loaded addons contributing portable items appear, using their project titles.
+Contribution includes inherited resource sources, not exclusive mod ownership.
+Reuse SCR_ComboBoxComponent (installed revision above, HandlerAttached 84–125,
+selection callback 565, IsOpened 583), existing high-Z native list root and shared
+loadout row button. GameProject.c 17–26 supplies loaded IDs/titles.
+Eden precedent: https://dev.arma3.com/post/spotrep-00059 documents mod filtering
+beside asset search. The existing categories and broad text search remain combined.
+Live captures in toolrepo .temp/local/evidence/loadout-foundation:
+1793510775684680700-capture_screenshot.png (Z–A),
+1793510784103683200-capture_screenshot.png (mod dropdown),
+1793510799676606600-capture_screenshot.png (Lobby2 gear).
+Follow-up: native hover tooltip shows Source mods and contributing project titles,
+without duplicating the item name. Existing plain-text AdminTableTooltips preset
+supplies grayscale presentation and native placement. Capture
+1793511016865539600-capture_screenshot.png shows inherited source titles;
+1793511039501999700-capture_screenshot.png verifies it hides on result changes.
+Native ReportMouse entry/exit captures: 1793511101432572600-capture_screenshot.png
+and 1793511121770865900-capture_screenshot.png.
+Save-menu discoverability: append the game's navigation button beside Back/Select
+in the existing bottom-left footer, showing the resolved S key and Save / Load.
+Capture 1793511296569113400-capture_screenshot.png; no extra permanent help text.

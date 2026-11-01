@@ -1,0 +1,4 @@
+ButtonWidgetClass : "{DC391DA320AE3002}UI/layouts/Inventory/GC_LoadoutButton.layout" {
+ Name "CatalogueOption"
+ components { SCR_ButtonTextComponent { m_bCanBeToggled 1 m_BackgroundDefault 0.02 0.02 0.02 1 m_BackgroundHovered 0.15 0.15 0.15 1 m_BackgroundSelected 0.25 0.25 0.25 1 m_BackgroundSelectedHovered 0.3 0.3 0.3 1 } }
+}

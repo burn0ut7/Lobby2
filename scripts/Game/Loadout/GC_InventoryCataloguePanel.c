@@ -7,6 +7,10 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected Widget m_Opened;
 	protected EditBoxWidget m_Search;
 	protected Widget m_ClearSearch;
+	protected SCR_ComboBoxComponent m_Sort;
+	protected SCR_ComboBoxComponent m_Mod;
+	protected ref array<string> m_aModIDs = {""};
+	protected ref map<string, string> m_mModTitles = new map<string, string>();
 	protected ref GC_ItemCatalogue m_Catalogue;
 	protected ref GC_ItemCatalogueQuery m_Query = new GC_ItemCatalogueQuery();
 	protected ref array<GC_ItemCatalogueEntry> m_aPage = {};
@@ -34,7 +38,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected string m_sWeaponSlotType;
 	protected string m_sWeaponSignature;
 	protected float m_fWeaponRefresh;
-	protected static const int PAGE_SIZE = 11;
+	protected static const int PAGE_SIZE = 10;
 
 	//------------------------------------------------------------------------------------------------
 	bool Attach(Widget inventoryRoot)
@@ -66,6 +70,15 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_Search = EditBoxWidget.Cast(m_Root.FindAnyWidget("CatalogueSearch"));
 		m_ClearSearch = m_Root.FindAnyWidget("ClearSearch");
 		BindButton(m_ClearSearch);
+		m_Sort = SCR_ComboBoxComponent.Cast(m_Root.FindAnyWidget("CatalogueSort").FindHandler(SCR_ComboBoxComponent));
+		m_Mod = SCR_ComboBoxComponent.Cast(m_Root.FindAnyWidget("CatalogueMod").FindHandler(SCR_ComboBoxComponent));
+		m_Sort.AddItem("A–Z");
+		m_Sort.AddItem("Z–A");
+		m_Sort.SetCurrentItem(0, false, false, false);
+		m_Mod.AddItem("All mods");
+		m_Mod.SetCurrentItem(0, false, false, false);
+		m_Sort.m_OnChanged.Insert(OnSearchOption);
+		m_Mod.m_OnChanged.Insert(OnSearchOption);
 		for (int i; i < PAGE_SIZE; i++)
 		{
 			Widget cell = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE1002}UI/layouts/Inventory/GC_InventoryCatalogueCell.layout", m_Root.FindAnyWidget("Results"));
@@ -86,6 +99,17 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	void Detach()
 	{
+		GC_CatalogueTooltip.HideCurrent();
+		if (m_Sort)
+		{
+			m_Sort.m_OnChanged.Remove(OnSearchOption);
+			m_Sort.CloseList();
+		}
+		if (m_Mod)
+		{
+			m_Mod.m_OnChanged.Remove(OnSearchOption);
+			m_Mod.CloseList();
+		}
 		foreach (SCR_ButtonBaseComponent button : m_aButtons)
 			button.m_OnClicked.Remove(OnButton);
 		m_aButtons.Clear();
@@ -127,7 +151,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			if (m_fFeedbackTime <= 0)
 				Refresh();
 		}
-		bool pagingActive = GetGame().GetWorkspace().GetFocusedWidget() != m_Search;
+		bool pagingActive = GetGame().GetWorkspace().GetFocusedWidget() != m_Search && !m_Sort.IsOpened() && !m_Mod.IsOpened();
 		if (pagingActive != m_bPagingActive)
 		{
 			m_bPagingActive = pagingActive;
@@ -294,8 +318,65 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void OnSearchOption(SCR_ComboBoxComponent combo, int index)
+	{
+		if (combo == m_Sort)
+			m_Query.m_bDescending = index == 1;
+		else if (m_aModIDs.IsIndexValid(index))
+			m_Query.m_sSourceAddon = m_aModIDs[index];
+		m_iOffset = 0;
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PopulateMods()
+	{
+		array<string> contributing = {};
+		for (int i; i < m_Catalogue.Count(); i++)
+		{
+			GC_ItemCatalogueEntry entry = m_Catalogue.Get(i);
+			if (!entry.m_bPortable)
+				continue;
+			foreach (string source : entry.m_aSourceAddons)
+			{
+				if (contributing.Find(source) < 0)
+					contributing.Insert(source);
+			}
+		}
+		array<string> addons = {};
+		GameProject.GetLoadedAddons(addons);
+		array<string> keys = {};
+		map<string, string> labels = new map<string, string>();
+		map<string, string> ids = new map<string, string>();
+		foreach (string guid : addons)
+		{
+			string id = GameProject.GetAddonID(guid);
+			if (contributing.Find(id) < 0)
+				continue;
+			string label = GameProject.GetAddonTitle(guid);
+			if (label.IsEmpty())
+				label = id;
+			m_mModTitles.Insert(id, label);
+			string key = label;
+			key.ToLower();
+			key += "\t" + id;
+			keys.Insert(key);
+			labels.Insert(key, label);
+			ids.Insert(key, id);
+		}
+		keys.Sort();
+		foreach (string key : keys)
+		{
+			m_Mod.AddItem(labels.Get(key));
+			m_aModIDs.Insert(ids.Get(key));
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void Refresh()
 	{
+		if (!m_bFinished && m_Catalogue.IsFinished())
+			PopulateMods();
 		array<GC_ItemCatalogueEntry> previousPage = {};
 		previousPage.Copy(m_aPage);
 		m_iTotal = m_Catalogue.Search(m_Query, m_iOffset, PAGE_SIZE, m_aPage);
@@ -312,13 +393,30 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_bFinished = m_Catalogue.IsFinished();
 		m_fRefresh = 0;
 		if (changed)
+		{
+			GC_CatalogueTooltip.HideCurrent();
 			m_iPreview = 0;
+		}
 		foreach (int index, Widget cell : m_aCells)
 		{
 			bool populated = index < m_aPage.Count();
 			cell.SetVisible(populated);
 			if (populated)
 			{
+				array<string> titles = {};
+				foreach (string source : m_aPage[index].m_aSourceAddons)
+				{
+					string title = m_mModTitles.Get(source);
+					if (title.IsEmpty())
+						title = source;
+					if (titles.Find(title) < 0)
+						titles.Insert(title);
+				}
+				titles.Sort();
+				string sourceText = "Source mods";
+				foreach (string title : titles)
+					sourceText += "\n" + title;
+				TextWidget.Cast(cell.FindAnyWidget("SourceMods")).SetText(sourceText);
 				TextWidget.Cast(cell.FindAnyWidget("ItemName")).SetText(m_aPage[index].m_sName);
 				TextWidget.Cast(cell.FindAnyWidget("ItemCategory")).SetText(m_aPage[index].GetCategoryLabel());
 			}
@@ -451,7 +549,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	override bool OnMouseWheel(Widget w, int x, int y, int wheel)
 	{
-		if (!m_Paging)
+		if (!m_Paging || m_Sort.IsOpened() || m_Mod.IsOpened())
 			return false;
 		if (wheel > 0)
 			m_Paging.SetCurrentItem(m_Paging.GetCurrentIndex() - 1);

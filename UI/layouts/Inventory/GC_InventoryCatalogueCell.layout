@@ -13,6 +13,7 @@ TextWidgetClass { Name "ItemCategory" Slot LayoutSlot { HorizontalAlign 3 } Font
 TextWidgetClass { Name "ItemName" Slot LayoutSlot { HorizontalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 22 "Min Font Size" 22 "Ignore Cursor" 1 "Wrap" 1 }
 } }
 } }
-ButtonWidgetClass { Name "SelectItem" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } } }
+TextWidgetClass { Name "SourceMods" "Is Visible" 0 "Ignore Cursor" 1 }
+ButtonWidgetClass { Name "SelectItem" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 Tooltip GC_CatalogueTooltip { m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf" m_sPresetTag "Cell" } components { SCR_ButtonBaseComponent { m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } } }
 } }
 } }
