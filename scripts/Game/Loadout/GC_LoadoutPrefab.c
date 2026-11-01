@@ -53,16 +53,39 @@ class GC_LoadoutPrefab
 		string root;
 		if (!Workbench.GetAbsolutePath("$Lobby2:", root))
 			return string.Empty;
-		return FilePath.Concat(root, "Prefabs/Loadouts/" + faction + "/" + group + "/" + name + ".et");
+		root = FilePath.Concat(root, "Prefabs/Loadouts/");
+		array<string> files = {};
+		FileIO.FindFiles(files.Insert, root, ".et");
+		string directory = ExistingDirectoryCase(FilePath.Concat(root, faction) + "/", files);
+		directory = ExistingDirectoryCase(FilePath.Concat(directory, group) + "/", files);
+		return FilePath.Concat(directory, name + ".et");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Windows accepts Test/test as one directory; resource identities must use its actual spelling.
+	protected static string ExistingDirectoryCase(string directory, array<string> files)
+	{
+		directory.Replace("\\", "/");
+		string folded = directory;
+		folded.ToLower();
+		foreach (string filename : files)
+		{
+			filename.Replace("\\", "/");
+			string candidate = filename;
+			candidate.ToLower();
+			if (candidate.StartsWith(folded))
+				return filename.Substring(0, directory.Length());
+		}
+		return directory;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	static ResourceName Register(string path)
 	{
 		ResourceManager manager = Workbench.GetModule(ResourceManager);
-		// Build the runtime representation as well as registering the source.
-		// Database enumeration acknowledgement is deferred during Play.
-		if (!manager || !manager.RegisterResourceFile(path, true))
+		// Register the prefab source without requesting an asset build from
+		// the player's loadout menu, as in SCR_BaseContainerTools.
+		if (!manager || !manager.RegisterResourceFile(path, false))
 			return string.Empty;
 		MetaFile meta = manager.GetMetaFile(path);
 		if (!meta)
