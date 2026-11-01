@@ -79,3 +79,13 @@ The final compilation was `7a71e740604b492e8b12662d385b440f`, with no new
 script errors. Existing ArlandLobby resource, dedicated-server-plugin and formation
 diagnostics remained. Disk-full/registration failure injection and a new addon-free
 multiplayer baseline were not run; this slice does not implement live admin saving.
+
+Grayscale UI refinement (2026-11-01): black modal, white headings and outlined
+fields, gray native button states with a white selection edge, editable-prefab
+role icons, and native blur over the retained gear screen. Current/saved source
+captures are `1793510403326104600-capture_screenshot.png` and
+`1793510409272432600-capture_screenshot.png` in the same evidence directory.
+Reload `ec0fd465791943518c3cfafb9548cceb` introduced no script errors.
+Load (`e57e72c2449a435bb4469e204cad8c4b`) and Save
+(`79dfe106c1d94a9cad3dcbe90ccac7ff`) outcome checks confirmed actual=editing,
+active=1, files=0, gear=1. Independent source/visual review approved.

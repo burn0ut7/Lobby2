@@ -112,10 +112,34 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			SCR_ButtonTextComponent row = SCR_ButtonTextComponent.Cast(widget.FindHandler(SCR_ButtonTextComponent));
 			row.SetText(Label(resource));
 			row.SetToggleable(true);
-			row.SetToggled(!m_bCurrentGear && resource == m_sSelected, false, false);
+			SetSelection(row, !m_bCurrentGear && resource == m_sSelected);
+			SetRoleIcon(widget, resource);
 			row.m_OnClicked.Insert(OnSelect);
 			m_aRows.Insert(row);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SetSelection(SCR_ButtonBaseComponent button, bool selected)
+	{
+		button.SetToggled(selected, false, false);
+		Widget edge = button.GetRootWidget().FindAnyWidget("SelectedEdge");
+		if (edge)
+			edge.SetVisible(selected);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SetRoleIcon(Widget widget, ResourceName prefab)
+	{
+		ImageWidget icon = ImageWidget.Cast(widget.FindAnyWidget("RoleIcon"));
+		if (!icon)
+			return;
+		SCR_UIInfo info = GC_Slot.GetPrefabRoleInfo(prefab);
+		bool visible = info && info.SetIconTo(icon);
+		icon.SetVisible(visible);
+		Widget label = widget.FindAnyWidget("Text");
+		if (label && visible)
+			AlignableSlot.SetPadding(label, 64, 4, 16, 4);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -144,7 +168,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		RefreshPreview();
 		RefreshActions();
 		foreach (int i, SCR_ButtonBaseComponent row : m_aRows)
-			row.SetToggled(i == index, false, false);
+			SetSelection(row, i == index);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -190,7 +214,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		Widget root = GetRootWidget();
 		SCR_ButtonTextComponent current = SCR_ButtonTextComponent.GetButtonText("Current", root);
 		current.SetToggleable(true);
-		current.SetToggled(m_bCurrentGear, false, false);
+		SetSelection(current, m_bCurrentGear);
+		SetRoleIcon(current.GetRootWidget(), GC_WorkbenchItemBrowser.GetEditingPrefab());
 		SCR_ButtonTextComponent.GetButtonText("Save", root).SetEnabled(m_bCurrentGear);
 		SCR_ButtonTextComponent.GetButtonText("Load", root).SetEnabled(!m_bCurrentGear);
 	}
@@ -207,7 +232,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			if (source && source.GetAncestor())
 			{
 				badge.SetText(WidgetManager.Translate("#GC-Loadout_Inherits") + " " + Label(source.GetAncestor().GetResourceName()));
-				badge.SetColor(Color.FromRGBA(160, 195, 220, 255));
+				badge.SetColor(Color.White);
 			}
 		}
 	}
@@ -231,7 +256,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			SetFields(m_sSelected);
 			m_Status.SetText("");
 			foreach (SCR_ButtonBaseComponent row : m_aRows)
-				row.SetToggled(false, false, false);
+				SetSelection(row, false);
 			RefreshRelationship();
 			RefreshPreview();
 			RefreshActions();
@@ -239,7 +264,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		}
 		if ((action == "Load" && m_bCurrentGear) || (action == "Save" && !m_bCurrentGear))
 			return;
-		m_Status.SetColor(Color.FromRGBA(235, 180, 170, 255));
+		m_Status.SetColor(Color.White);
 		if (action == "Load")
 		{
 			if (m_sSelected.IsEmpty() || !GC_WorkbenchItemBrowser.LoadPrefab(m_sSelected))

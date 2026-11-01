@@ -1,11 +1,17 @@
 Active reference: user's supplied native inventory screenshot, with its large
 central dressed character, adapted to the loadout file menu. concept.png is the
 earlier compact modal concept and is retained as history, not the active design.
-Use 95 percent of the game viewport in each dimension: prefab names left,
+Use 89 percent of the game viewport in each dimension: prefab names left,
 native character preview center, faction/team/name fields right, actions below.
 Click selects and previews the saved prefab without equipping it on the player.
 Keep native menu lifecycle, field prefabs, fonts, blur and preview manager.
-Yellow marks selection; blue identifies inheritance. Successful actions return
+Current direction (2026-11-01): the user explicitly requests grayscale, overriding
+the former yellow/blue accents. Black modal, white text and larger uppercase field
+labels, gray hover/selected fills, white selection edge, outlined text fields.
+Keep the parent gear screen visible through the native BlurWidget and dark scrim.
+Prefab rows use SCR_EditableEntityComponent UIInfo icons through GC_Slot's existing
+GetPrefabRoleInfo/SetIconTo path. Missing icons are hidden, never fabricated.
+Successful actions return
 to the gear editor. Current gear is the default source, including unsaved edits;
 selecting a file explicitly uses that saved prefab for Load/Inherit/Duplicate.
 Native source: InventoryMain.layout playerRender; SCR_InventoryMenuUI 933-936;
@@ -13,5 +19,10 @@ ItemPreviewManagerEntity.SetPreviewItemFromPrefab and native preview ownership.
 Live evidence in reforger-script-tools/.temp/local/evidence/loadout-foundation:
 1793506963210034900-capture_screenshot.png (open),
 1793506978690527600-capture_screenshot.png (selected Leader).
-Final source selector and sorted list:
+Earlier source selector and sorted list:
 1793509891919609200-capture_screenshot.png (current gear, AK replacement).
+Final grayscale captures:
+1793510403326104600-capture_screenshot.png (current gear),
+1793510409272432600-capture_screenshot.png (saved Rifleman selected).
+Load and Save returned to gear with actual=editing and files=0; compilation
+ec0fd465791943518c3cfafb9548cceb introduced no script errors.
