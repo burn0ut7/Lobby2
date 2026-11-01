@@ -47,7 +47,7 @@ class GC_ItemCatalogueEntry
 	}
 }
 
-//! Workbench discovery and metadata indexing; caller owns lifetime and frame ticks.
+//! Shared resource discovery and metadata indexing; caller owns lifetime and frame ticks.
 class GC_ItemCatalogue
 {
 	protected ref array<ResourceName> m_aPending = {};
@@ -82,7 +82,6 @@ class GC_ItemCatalogue
 	//------------------------------------------------------------------------------------------------
 	void Start()
 	{
-#ifdef WORKBENCH
 		if (m_bStarted)
 			return;
 		m_bStarted = true;
@@ -90,7 +89,9 @@ class GC_ItemCatalogue
 		m_aAddons = SCR_AddonTool.GetAllAddonIDs();
 		// Newly authored files may not yet be enumerated by the Play-time database.
 		// Resolve their native meta identities, then use the same metadata queue.
+#ifdef WORKBENCH
 		QueueAuthoredWeapons();
+#endif
 		FactionManager manager = GetGame().GetFactionManager();
 		if (!manager)
 			return;
@@ -107,7 +108,6 @@ class GC_ItemCatalogue
 			m_aFactionCatalogues.Insert(catalogue);
 			m_aFactionKeys.Insert(faction.GetFactionKey());
 		}
-#endif
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -116,6 +116,7 @@ class GC_ItemCatalogue
 #ifdef WORKBENCH
 		if (m_bStarted && m_iAuthoredRevision != s_iAuthoredRevision)
 			QueueAuthoredWeapons();
+#endif
 		if (!m_bStarted || IsFinished())
 			return;
 		float started = System.GetTickCount();
@@ -142,7 +143,6 @@ class GC_ItemCatalogue
 		}
 		m_fMaxTickMS = Math.Max(m_fMaxTickMS, System.GetTickCount() - started);
 		m_fElapsedMS = System.GetTickCount() - m_fStartedMS;
-#endif
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -179,6 +179,16 @@ class GC_ItemCatalogue
 		OnResource(prefab, filename);
 	}
 #endif
+
+	//------------------------------------------------------------------------------------------------
+	static GC_ItemCatalogueEntry ReadResource(ResourceName prefab)
+	{
+		GC_ItemCatalogue catalogue = new GC_ItemCatalogue();
+		catalogue.ReadEntry(prefab, "");
+		if (catalogue.Count() == 0)
+			return null;
+		return catalogue.Get(0);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void ReadEntry(ResourceName prefab, string source)
@@ -358,9 +368,6 @@ class GC_ItemCatalogue
 	//------------------------------------------------------------------------------------------------
 	string Status()
 	{
-#ifndef WORKBENCH
-		return "Unavailable: resource discovery requires Workbench";
-#else
 		if (!m_bStarted)
 			return "Not started";
 		string state = "Indexing";
@@ -369,7 +376,6 @@ class GC_ItemCatalogue
 		if (m_bDiscoveryFailed)
 			state = "Incomplete discovery";
 		return string.Format("%1: %2 / %3 prefabs | %4 items | %5 non-items | %6 unreadable", state, m_iProcessed, m_aPending.Count(), Count(), m_iExcluded, m_iFailed);
-#endif
 	}
 
 	//------------------------------------------------------------------------------------------------

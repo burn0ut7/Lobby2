@@ -66,6 +66,7 @@ FrameWidgetClass {
    "Ignore Cursor" 1
    Wrap 1
   }
+  ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolGear" Slot FrameWidgetSlot { Anchor 0.018 0.675 0.2 0.725 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
    Name "AdminClose"
    Slot FrameWidgetSlot {

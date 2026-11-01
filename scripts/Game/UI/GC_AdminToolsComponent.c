@@ -84,6 +84,16 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	static void GearUnavailable()
+	{
+		if (!s_wPanel)
+			return;
+		TextWidget status = TextWidget.Cast(s_wPanel.FindAnyWidget("ToolStatus"));
+		if (status)
+			status.SetText("Sign in as admin and take control of a character to open Gear.");
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static void ReviewMakePlayable(IEntity entity)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
@@ -135,6 +145,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_HealRadius.m_OnChanged.Insert(OnHealRadiusChanged);
 		Bind("AdminClose", "Close", "exit");
 		Bind("ToolHeal", "Heal", "plus");
+		Bind("ToolGear", "Gear", "player");
 		Bind("ToolFreeze", "Freeze", "pause");
 		Bind("ToolUnstuck", "Unstuck", "respawn");
 		Bind("ToolWarn", "Warn", "warning");
@@ -214,6 +225,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		if (!HasAccess() || m_iPending >= 0 || m_iMessagePending >= 0 || m_Moderation.IsBusy())
 			return;
+		if (name == "ToolGear")
+		{
+			m_Controller.GC_RequestGearOpen();
+			return;
+		}
 		OnRosterOpened(null);
 		m_bConfirmFactionTeleport = false;
 		int previousTool = m_iTool;

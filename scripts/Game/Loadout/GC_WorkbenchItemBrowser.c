@@ -19,6 +19,7 @@ class GC_WorkbenchItemBrowser
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager)
 			return false;
+		GC_GearSession.Close();
 		ResourceName editing = SCR_ResourceNameUtils.GetPrefabName(owner);
 		if (s_Owner == owner && IsActive(owner) && !s_sEditingPrefab.IsEmpty())
 			editing = s_sEditingPrefab;

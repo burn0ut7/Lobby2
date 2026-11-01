@@ -1,4 +1,3 @@
-#ifdef WORKBENCH
 //! Read the same configuration used to build occupied AND empty native equipment slots.
 modded class SCR_InventoryStoragesListUI
 {
@@ -38,7 +37,7 @@ modded class SCR_InventoryMenuUI
 	override void OnMenuUpdate(float tDelta)
 	{
 		super.OnMenuUpdate(tDelta);
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (!GC_GearSession.IsActive(m_Player))
 		{
 			GC_ReleaseCatalogue();
 			return;
@@ -51,12 +50,13 @@ modded class SCR_InventoryMenuUI
 			if (!m_GCCataloguePanel.Attach(m_widget))
 			{
 				GC_ReleaseCatalogue();
-				GC_WorkbenchItemBrowser.Disable();
+				GC_GearSession.Disable();
 				return;
 			}
 			GetGame().GetInputManager().AddActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
 			GetGame().GetInputManager().AddActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
-			if (m_pNavigationBar)
+#ifdef WORKBENCH
+			if (m_pNavigationBar && GC_GearSession.IsWorkbench(m_Player))
 			{
 				Widget filesButton = GetGame().GetWorkspace().CreateWidgets("{08CF3B69CB1ACBC4}UI/layouts/WidgetLibrary/Buttons/WLib_NavigationButton.layout", m_pNavigationBar.GetRootWidget());
 				filesButton.SetName("CatalogueFiles");
@@ -66,12 +66,13 @@ modded class SCR_InventoryMenuUI
 				m_GCFilesButton.m_OnActivated.Insert(GC_OnFilesActivated);
 				m_GCFilesButton.m_OnClicked.Insert(GC_OnFilesClicked);
 			}
+#endif
 			m_bGCShortcutBound = true;
 		}
 		m_GCCataloguePanel.Tick(tDelta);
 		// The native animated preview expires while idle in Workbench. Renew through its owner.
 		m_fGCPreviewRefresh += tDelta;
-		if (m_fGCPreviewRefresh >= 10 && !m_InspectionScreen)
+		if (m_fGCPreviewRefresh >= 10 && !m_InspectionScreen && GC_GearSession.IsWorkbench(m_Player))
 		{
 			UpdatePreview();
 			m_fGCPreviewRefresh = 0;
@@ -83,7 +84,7 @@ modded class SCR_InventoryMenuUI
 	{
 		if (m_GCCataloguePanel && (m_GCGestureItem || m_GCCataloguePanel.EntryAt(WidgetManager.GetWidgetUnderCursor())))
 			return;
-		if (m_GCCataloguePanel && GC_WorkbenchItemBrowser.IsActive(m_Player) && GetCanInteract())
+		if (m_GCCataloguePanel && GC_GearSession.IsActive(m_Player) && GetCanInteract())
 			GC_FilterCatalogueSlot(m_pFocusedSlotUI);
 		super.Action_SelectItem();
 	}
@@ -145,28 +146,37 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	protected void GC_OnFilesClicked(SCR_ButtonBaseComponent button)
 	{
+#ifdef WORKBENCH
 		// Clicking the footer is explicit navigation even while the search field owns typing.
 		if (GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu))
 			return;
 		GetGame().GetWorkspace().SetFocusedWidget(null);
 		GC_ActionLoadoutFiles();
+#endif
 	}
 
 	//------------------------------------------------------------------------------------------------
 	void GC_ActionLoadoutFiles()
 	{
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Player) || EditBoxWidget.Cast(GetGame().GetWorkspace().GetFocusedWidget()))
+#ifdef WORKBENCH
+		if (!GC_GearSession.IsWorkbench(m_Player) || EditBoxWidget.Cast(GetGame().GetWorkspace().GetFocusedWidget()))
 			return;
 		if (GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu))
 			return;
 		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_LoadoutFilesMenu, 0, true, false);
+#endif
 	}
 
 	//------------------------------------------------------------------------------------------------
 	void GC_EquipCatalogueItem(GC_ItemCatalogueEntry entry)
 	{
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (!GC_GearSession.IsActive(m_Player))
 			return;
+		if (GC_GearSession.IsAdmin(m_Player) && GC_GearSession.s_bCrate)
+		{
+			GC_CatalogueTransfer.Insert(entry, m_Player, this);
+			return;
+		}
 		if (m_GCCataloguePanel && m_GCCataloguePanel.HasInspectionContext())
 		{
 			InventoryStorageSlot target = m_GCCataloguePanel.GetInspectionTarget();
@@ -197,9 +207,16 @@ modded class SCR_InventoryMenuUI
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void GC_GearMessage(string message)
+	{
+		if (m_GCCataloguePanel)
+			m_GCCataloguePanel.GearMessage(message);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void GC_CatalogueTransferResult(bool success, bool deleting = false)
 	{
-		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (!m_GCCataloguePanel || !GC_GearSession.IsActive(m_Player))
 			return;
 		m_GCCataloguePanel.TransferResult(success, deleting);
 		if (success)
@@ -221,7 +238,7 @@ modded class SCR_InventoryMenuUI
 	//! One scoped listener owns RMB / the native Inventory_Drop shortcut; suppress its old action.
 	override void OnAction(SCR_InputButtonComponent comp, string action, SCR_InventoryStorageBaseUI pParentStorage = null, int traverseStorageIndex = -1)
 	{
-		if (action == "Inventory_Drop" && m_GCCataloguePanel && GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (action == "Inventory_Drop" && m_GCCataloguePanel && GC_GearSession.IsActive(m_Player) && (GC_GearSession.IsWorkbench(m_Player) || m_GCCataloguePanel.EntryAt(WidgetManager.GetWidgetUnderCursor())))
 			return;
 		super.OnAction(comp, action, pParentStorage, traverseStorageIndex);
 	}
@@ -229,7 +246,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	protected void GC_ActionCatalogueShortcut()
 	{
-		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !GetCanInteract() || m_GCGestureItem || m_bDraggingEnabled)
+		if (!m_GCCataloguePanel || !GC_GearSession.IsActive(m_Player) || !GetCanInteract() || m_GCGestureItem || m_bDraggingEnabled)
 			return;
 		Widget cursor = WidgetManager.GetWidgetUnderCursor();
 		GC_ItemCatalogueEntry entry = m_GCCataloguePanel.EntryAt(cursor);
@@ -238,6 +255,8 @@ modded class SCR_InventoryMenuUI
 			GC_EquipCatalogueItem(entry);
 			return;
 		}
+		if (!GC_GearSession.IsWorkbench(m_Player))
+			return;
 		SCR_InventorySlotUI slot = GC_CatalogueSlotAt(cursor);
 		if (!slot || SCR_InventoryStorageQuickSlotsUI.Cast(slot.GetStorageUI()))
 			return;
@@ -259,7 +278,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	protected void GC_ActionCatalogueInspect()
 	{
-		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !GetCanInteract() || m_bDraggingEnabled || m_GCGestureItem)
+		if (!m_GCCataloguePanel || !GC_GearSession.IsActive(m_Player) || !GetCanInteract() || m_bDraggingEnabled || m_GCGestureItem)
 			return;
 		SCR_InventorySlotUI slot = GC_CatalogueSlotAt(WidgetManager.GetWidgetUnderCursor());
 		if (!slot || !slot.GetInventoryItemComponent())
@@ -277,7 +296,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	void GC_SelectInspectionSlot(SCR_InventorySlotGearInspectionUI slot)
 	{
-		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !slot)
+		if (!m_GCCataloguePanel || !GC_GearSession.IsActive(m_Player) || !slot)
 			return;
 		SCR_InventoryStorageBaseUI storageUI = slot.GetStorageUI();
 		BaseInventoryStorageComponent storage = storageUI.GetCurrentNavigationStorage();
@@ -319,7 +338,7 @@ modded class SCR_InventoryMenuUI
 	{
 		m_bGCDragged = false;
 		m_GCExistingGestureSlot = null;
-		if (m_GCCataloguePanel && GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (m_GCCataloguePanel && GC_GearSession.IsActive(m_Player))
 		{
 			GC_ItemCatalogueEntry entry = m_GCCataloguePanel.EntryAt(WidgetManager.GetWidgetUnderCursor());
 			if (!entry)
@@ -353,7 +372,7 @@ modded class SCR_InventoryMenuUI
 		{
 			// Retain the pressed source while native code owns preview, highlights and drag state.
 			SCR_InventorySlotUI focused = m_pFocusedSlotUI;
-			if (m_GCExistingGestureSlot && !m_bDraggingEnabled && GC_WorkbenchItemBrowser.IsActive(m_Player))
+			if (m_GCExistingGestureSlot && !m_bDraggingEnabled && GC_GearSession.IsActive(m_Player))
 			{
 				m_pFocusedSlotUI = m_GCExistingGestureSlot;
 				m_pSelectedSlotUI = m_GCExistingGestureSlot;
@@ -362,7 +381,7 @@ modded class SCR_InventoryMenuUI
 			m_pFocusedSlotUI = focused;
 			return;
 		}
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (!GC_GearSession.IsActive(m_Player))
 		{
 			GC_CancelCatalogueDrag();
 			return;
@@ -414,7 +433,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	override protected void Action_Drop()
 	{
-		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !m_pSelectedSlotUI || !m_pSelectedSlotUI.GetInventoryItemComponent())
+		if (!m_GCCataloguePanel || !GC_GearSession.IsWorkbench(m_Player) || !m_pSelectedSlotUI || !m_pSelectedSlotUI.GetInventoryItemComponent())
 		{
 			super.Action_Drop();
 			return;
@@ -447,7 +466,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	protected bool GC_DropCatalogueItem(GC_ItemCatalogueEntry entry)
 	{
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
+		if (!GC_GearSession.IsActive(m_Player))
 			return false;
 		Widget cursor = WidgetManager.GetWidgetUnderCursor();
 		if (cursor == m_wPlayerRender)
@@ -489,8 +508,8 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuClose()
 	{
+		GC_GearSession.Close();
 		GC_ReleaseCatalogue();
 		super.OnMenuClose();
 	}
 }
-#endif

@@ -1,4 +1,3 @@
-#ifdef WORKBENCH
 //! Search presentation and bounded previews inside the native inventory menu.
 class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 {
@@ -9,6 +8,8 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected Widget m_ClearSearch;
 	protected SCR_ComboBoxComponent m_Sort;
 	protected SCR_ComboBoxComponent m_Mod;
+	protected Widget m_DestinationRoot;
+	protected SCR_ComboBoxComponent m_Destination;
 	protected ref array<string> m_aModIDs = {""};
 	protected ref map<string, string> m_mModTitles = new map<string, string>();
 	protected ref GC_ItemCatalogue m_Catalogue;
@@ -80,6 +81,16 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_Mod.SetCurrentItem(0, false, false, false);
 		m_Sort.m_OnChanged.Insert(OnSearchOption);
 		m_Mod.m_OnChanged.Insert(OnSearchOption);
+		if (GC_GearSession.IsAdmin(GetGame().GetPlayerController().GetControlledEntity()))
+		{
+			m_DestinationRoot = GetGame().GetWorkspace().CreateWidgets("{618DBD5BF860D947}UI/layouts/Inventory/GC_AdminGearDestination.layout", inventoryRoot);
+			m_Destination = SCR_ComboBoxComponent.Cast(m_DestinationRoot.FindAnyWidget("GearDestination").FindHandler(SCR_ComboBoxComponent));
+			m_Destination.AddItem("Inventory");
+			m_Destination.AddItem("Nearby crate");
+			m_Destination.AddItem("Create crate");
+			m_Destination.SetCurrentItem(0, false, false, false);
+			m_Destination.m_OnChanged.Insert(OnDestination);
+		}
 		for (int i; i < PAGE_SIZE; i++)
 		{
 			Widget cell = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE1002}UI/layouts/Inventory/GC_InventoryCatalogueCell.layout", m_Root.FindAnyWidget("Results"));
@@ -100,6 +111,13 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	void Detach()
 	{
+		if (m_Destination)
+		{
+			m_Destination.m_OnChanged.Remove(OnDestination);
+			m_Destination.CloseList();
+			m_Destination = null;
+			m_DestinationRoot.RemoveFromHierarchy();
+		}
 		GC_CatalogueTooltip.HideCurrent();
 		if (m_Sort)
 		{
@@ -138,6 +156,11 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	void Tick(float timeSlice)
 	{
+		if (m_DestinationRoot)
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			m_DestinationRoot.SetEnabled(controller && !controller.GC_IsGearPending());
+		}
 		if (!m_Root)
 			return;
 		m_Catalogue.Tick();
@@ -549,6 +572,44 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void GearMessage(string message)
+	{
+		if (m_Destination)
+		{
+			m_DestinationRoot.SetEnabled(true);
+			int index;
+			if (GC_GearSession.s_bCrate)
+				index = 1;
+			m_Destination.SetCurrentItem(index, false, false, false);
+		}
+		m_fFeedbackTime = 4;
+		TextWidget.Cast(m_Root.FindAnyWidget("Status")).SetText(message);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnDestination(SCR_ComboBoxComponent combo, int index)
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (!controller || !GC_GearSession.IsAdmin(controller.GetControlledEntity()))
+			return;
+		if (controller.GC_IsGearPending())
+		{
+			int current;
+			if (GC_GearSession.s_bCrate)
+				current = 1;
+			combo.SetCurrentItem(current, false, false, false);
+			return;
+		}
+		if (index == 0)
+			GC_GearSession.s_bCrate = false;
+		else
+		{
+			m_DestinationRoot.SetEnabled(false);
+			controller.GC_RequestGearCrate(index == 2);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void TransferResult(bool success, bool deleting = false)
 	{
 		string label = "#GC-Catalogue_CannotPlace";
@@ -568,7 +629,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected void OnPageChanged(SCR_SpinBoxPagingComponent paging, int page)
 	{
 		PlayerController controller = GetGame().GetPlayerController();
-		if (!controller || !GC_WorkbenchItemBrowser.IsActive(controller.GetControlledEntity()))
+		if (!controller || !GC_GearSession.IsActive(controller.GetControlledEntity()))
 			return;
 		m_iOffset = page * PAGE_SIZE;
 		Refresh();
@@ -600,7 +661,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected void OnButton(SCR_ButtonBaseComponent button)
 	{
 		PlayerController controller = GetGame().GetPlayerController();
-		if (!controller || !GC_WorkbenchItemBrowser.IsActive(controller.GetControlledEntity()))
+		if (!controller || !GC_GearSession.IsActive(controller.GetControlledEntity()))
 			return;
 		ProcessClick(button.GetRootWidget());
 	}
@@ -611,4 +672,3 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		return string.Format("category=" + m_Query.m_sCategory + " faction=" + m_Query.m_sFaction + " descending=" + m_Query.m_bDescending + " slot=%1 text=%2 offset=%3 total=%4 visible=%5 previews=%6 indexed=%7 finished=%8", m_Query.m_sEquipmentSlot, m_Query.m_sText, m_iOffset, m_iTotal, m_aPage.Count(), m_iPreview, m_iIndexed, m_bFinished);
 	}
 }
-#endif

@@ -1,0 +1,11 @@
+FrameWidgetClass {
+ Name "AdminGearDestination"
+ Slot FrameWidgetSlot { Anchor 1 0 1 0 OffsetLeft -304 OffsetTop 24 OffsetRight 24 OffsetBottom -60 }
+ "Z Order" 100
+ {
+  SizeLayoutWidgetClass : "{DC391DA320AE4001}UI/layouts/Inventory/GC_CatalogueSelector.layout" {
+   Name "GearDestination"
+   Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+  }
+ }
+}

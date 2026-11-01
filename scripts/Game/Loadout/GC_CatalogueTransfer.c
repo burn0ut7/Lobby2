@@ -1,12 +1,11 @@
-#ifdef WORKBENCH
-//! Local workbench transfers. Preview entities are never moved into the player's inventory.
+//! Live creation dispatch and local Workbench transfers. Preview entities never enter inventories.
 class GC_CatalogueTransfer
 {
 	//------------------------------------------------------------------------------------------------
 	//! Release an owned entity through the native removal path, preserving its contents on the ground.
 	static bool Drop(IEntity item, IEntity owner, SCR_InventoryMenuUI menu)
 	{
-		if (!item || !GC_WorkbenchItemBrowser.IsActive(owner))
+		if (!item || !GC_GearSession.IsWorkbench(owner))
 			return false;
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
@@ -34,7 +33,7 @@ class GC_CatalogueTransfer
 	//! Move an existing inspected item: empty weapon attachment slots first, then a deposit container.
 	static bool MoveAvailable(IEntity item, IEntity owner, SCR_InventoryMenuUI menu)
 	{
-		if (!item || !GC_WorkbenchItemBrowser.IsActive(owner))
+		if (!item || !GC_GearSession.IsWorkbench(owner))
 			return false;
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
@@ -69,7 +68,7 @@ class GC_CatalogueTransfer
 	//------------------------------------------------------------------------------------------------
 	static bool MoveTo(IEntity item, IEntity owner, SCR_InventoryMenuUI menu, BaseInventoryStorageComponent target, int slotID = -1)
 	{
-		if (!item || !target || !GC_WorkbenchItemBrowser.IsActive(owner))
+		if (!item || !target || !GC_GearSession.IsWorkbench(owner))
 			return false;
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
@@ -111,7 +110,7 @@ class GC_CatalogueTransfer
 	//! Only the selected weapon's attachment storage, never another weapon or a deposit container.
 	static bool InsertWeapon(GC_ItemCatalogueEntry entry, IEntity owner, SCR_InventoryMenuUI menu, IEntity weapon)
 	{
-		if (!entry || !weapon || !GC_WorkbenchItemBrowser.IsActive(owner))
+		if (!entry || !weapon || !GC_GearSession.IsActive(owner))
 			return false;
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager || manager.IsInventoryLocked() || !manager.Contains(weapon))
@@ -156,7 +155,7 @@ class GC_CatalogueTransfer
 	//------------------------------------------------------------------------------------------------
 	static bool Delete(IEntity item, IEntity owner, SCR_InventoryMenuUI menu)
 	{
-		if (!item || item == owner || !GC_WorkbenchItemBrowser.IsActive(owner))
+		if (!item || item == owner || !GC_GearSession.IsWorkbench(owner))
 			return false;
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
@@ -217,7 +216,14 @@ class GC_CatalogueTransfer
 	//------------------------------------------------------------------------------------------------
 	static bool Insert(GC_ItemCatalogueEntry entry, IEntity owner, SCR_InventoryMenuUI menu, BaseInventoryStorageComponent target = null, int slotID = -1, bool automatic = true)
 	{
-		if (!entry || !entry.m_bPortable || !GC_WorkbenchItemBrowser.IsActive(owner))
+		if (entry && entry.m_bPortable && GC_GearSession.IsAdmin(owner))
+		{
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			if (!controller)
+				return false;
+			return controller.GC_RequestGearItem(entry.m_sPrefab, target, slotID, automatic);
+		}
+		if (!entry || !entry.m_bPortable || !GC_GearSession.IsWorkbench(owner))
 			return false;
 		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
 		if (!manager || manager.IsInventoryLocked())
@@ -294,7 +300,7 @@ class GC_CatalogueTransferCallback : SCR_InvCallBack
 			if (!item || !item.GetParentSlot())
 				SCR_EntityHelper.DeleteEntityAndChildren(m_pItem);
 		}
-		if (GC_WorkbenchItemBrowser.IsActive(m_Owner) && m_pMenu)
+		if (GC_GearSession.IsWorkbench(m_Owner) && m_pMenu)
 			m_pMenu.GC_CatalogueTransferResult(false, m_bDeleting);
 	}
 
@@ -306,11 +312,10 @@ class GC_CatalogueTransferCallback : SCR_InvCallBack
 		m_bFinished = true;
 		if (m_Manager)
 			m_Manager.SetInventoryLocked(false);
-		if (!GC_WorkbenchItemBrowser.IsActive(m_Owner) || !m_pMenu)
+		if (!GC_GearSession.IsWorkbench(m_Owner) || !m_pMenu)
 			return;
 		m_pMenu.GC_PrepareCatalogueRefresh();
 		super.OnComplete();
 		m_pMenu.GC_CatalogueTransferResult(true, m_bDeleting);
 	}
 }
-#endif
