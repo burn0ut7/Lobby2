@@ -234,7 +234,7 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		RefreshAdminNamePresentation();
 	}
 
-	//! Faction channels use a full faction-colored header; other channels stay neutral.
+	//! Use the same configured dark faction color as the faction-card backing.
 	void RefreshFactionColor()
 	{
 		if (!m_wRoot)
@@ -244,8 +244,9 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 		if (!background)
 			return;
 
-		if (m_Faction && (m_ChannelType == GC_VoiceChannelType.FACTION || m_ChannelType == GC_VoiceChannelType.GROUP))
-			background.SetColor(m_Faction.GetFactionColor());
+		SCR_Faction faction = SCR_Faction.Cast(m_Faction);
+		if (faction && (m_ChannelType == GC_VoiceChannelType.FACTION || m_ChannelType == GC_VoiceChannelType.GROUP))
+			background.SetColor(faction.GetOutlineFactionColor());
 		else
 			background.SetColor(Color.FromRGBA(1, 1, 1, 199));
 	}
