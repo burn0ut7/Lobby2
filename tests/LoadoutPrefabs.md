@@ -34,6 +34,30 @@ apply; this is not a runtime state, ammunition-count or health save system.
 
 ## Reproduction
 
+### In-session prefab investigation (2026-11-01)
+
+The restart is implemented by `GC_LoadoutRefresh` / `GC_LoadoutRefreshPlugin`,
+not required by `WorldEditorAPI.SaveEntityTemplate` itself. A direct save and
+local spawn of an already registered prefab reflected changed inventory in the
+same Play session (operations `76f8f69d761843af87b171577c9a9446` and
+`ac4fe20324f146759f08b96b45c6ee7a`). That does not establish support for new IDs.
+
+Creating a new native prefab during Play reproduced an RPL invalid prefab GUID
+error. `SetControlledEntity` returned true, but `GetControlledEntity` did not
+resolve the new character. `ResourceManager.WaitForFile(path, 1000)` timed out;
+the subsequent local spawn still failed possession (operation
+`9643ed4441714fa3994bc3810cd9e80a`: acknowledged=0, assigned=1, matches=0).
+Thus checking only save success, spawn success or the setter's boolean is unsafe.
+The timeout does not establish whether a longer or deferred acknowledgement can
+succeed; that was not verified.
+
+Installed declarations expose registration/building and database acknowledgement,
+but no inspected API establishes a safe in-Play refresh of new replication IDs.
+This is a bounded finding, not proof that no native solution exists. Removing the
+restart alone is insufficient. The experimental replacement was reverted; the
+existing production behavior remains. A future change must preserve native weapon
+identity/inheritance as well as test new-file creation, not just existing-file load.
+
 Overwrite verification (2026-11-01, Workbench 1.8.0.13): selected a disposable
 saved prefab while editing a different character. Cancel retained its SHA256
 `4C18934D9CD1683FA017696295AD2AAAB2D4581B09026DFF01622844E653E4C3`
