@@ -29,6 +29,7 @@ modded class SCR_InventoryMenuUI
 	protected ref GC_InventoryCataloguePanel m_GCCataloguePanel;
 	protected float m_fGCPreviewRefresh;
 	protected GC_ItemCatalogueEntry m_GCGestureItem;
+	protected SCR_InventorySlotUI m_GCExistingGestureSlot;
 	protected bool m_bGCShortcutBound;
 	protected bool m_bGCDragged;
 
@@ -53,6 +54,7 @@ modded class SCR_InventoryMenuUI
 				return;
 			}
 			GetGame().GetInputManager().AddActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
+			GetGame().GetInputManager().AddActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
 			m_bGCShortcutBound = true;
 		}
 		m_GCCataloguePanel.Tick(tDelta);
@@ -80,6 +82,12 @@ modded class SCR_InventoryMenuUI
 	{
 		if (!slot)
 			return;
+		SCR_InventorySlotGearInspectionUI inspection = SCR_InventorySlotGearInspectionUI.Cast(slot);
+		if (inspection)
+		{
+			GC_SelectInspectionSlot(inspection);
+			return;
+		}
 		SCR_InventorySlotWeaponSlotsUI weapon = SCR_InventorySlotWeaponSlotsUI.Cast(slot);
 		if (weapon)
 		{
@@ -100,7 +108,10 @@ modded class SCR_InventoryMenuUI
 	{
 		GC_CancelCatalogueDrag();
 		if (m_bGCShortcutBound)
+		{
 			GetGame().GetInputManager().RemoveActionListener("Inventory_Drop", EActionTrigger.DOWN, GC_ActionCatalogueShortcut);
+			GetGame().GetInputManager().RemoveActionListener("GC_CatalogueInspect", EActionTrigger.DOWN, GC_ActionCatalogueInspect);
+		}
 		m_bGCShortcutBound = false;
 		if (m_GCCataloguePanel)
 			m_GCCataloguePanel.Detach();
@@ -112,6 +123,13 @@ modded class SCR_InventoryMenuUI
 	{
 		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
 			return;
+		if (m_GCCataloguePanel && m_GCCataloguePanel.HasInspectionContext())
+		{
+			InventoryStorageSlot target = m_GCCataloguePanel.GetInspectionTarget();
+			if (!target || !GC_CatalogueTransfer.Insert(entry, m_Player, this, target.GetStorage(), target.GetID(), false))
+				GC_CatalogueTransferResult(false);
+			return;
+		}
 		if (m_GCCataloguePanel && m_GCCataloguePanel.HasWeaponContext())
 		{
 			if (!GC_CatalogueTransfer.InsertWeapon(entry, m_Player, this, m_GCCataloguePanel.GetWeaponTarget()))
@@ -184,8 +202,44 @@ modded class SCR_InventoryMenuUI
 			return;
 		IEntity item = inventory.GetOwner();
 		Action_DeselectItem();
+		if (m_pGearInspectionPointUI && !SCR_InventorySlotWeaponSlotsUI.Cast(slot))
+		{
+			if (!GC_CatalogueTransfer.MoveAvailable(item, m_Player, this))
+				GC_CatalogueTransferResult(false);
+			return;
+		}
 		if (!GC_CatalogueTransfer.Delete(item, m_Player, this))
 			GC_CatalogueTransferResult(false, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_ActionCatalogueInspect()
+	{
+		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !GetCanInteract() || m_bDraggingEnabled || m_GCGestureItem)
+			return;
+		SCR_InventorySlotUI slot = GC_CatalogueSlotAt(WidgetManager.GetWidgetUnderCursor());
+		if (!slot || !slot.GetInventoryItemComponent())
+			return;
+		IEntity item = slot.GetInventoryItemComponent().GetOwner();
+		if (!item.FindComponent(WeaponAttachmentsStorageComponent) || !m_InventoryManager.Contains(item))
+			return;
+		GC_FilterCatalogueSlot(slot);
+		if (m_pInspectedSlot == slot)
+			InspectItem(null);
+		else
+			InspectItem(slot);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_SelectInspectionSlot(SCR_InventorySlotGearInspectionUI slot)
+	{
+		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !slot)
+			return;
+		SCR_InventoryStorageBaseUI storageUI = slot.GetStorageUI();
+		BaseInventoryStorageComponent storage = storageUI.GetCurrentNavigationStorage();
+		int id = storageUI.GetSlotId(slot);
+		if (storage && id >= 0 && id < storage.GetSlotsCount())
+			m_GCCataloguePanel.SetInspectionSlot(storage.GetSlot(id), slot.m_tAttachmentType);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -220,9 +274,22 @@ modded class SCR_InventoryMenuUI
 	override void Action_DragDown()
 	{
 		m_bGCDragged = false;
+		m_GCExistingGestureSlot = null;
 		if (m_GCCataloguePanel && GC_WorkbenchItemBrowser.IsActive(m_Player))
 		{
 			GC_ItemCatalogueEntry entry = m_GCCataloguePanel.EntryAt(WidgetManager.GetWidgetUnderCursor());
+			if (!entry)
+			{
+				SCR_InventorySlotUI source = GC_CatalogueSlotAt(WidgetManager.GetWidgetUnderCursor());
+				if (source && source.IsDraggable() && source.GetInventoryItemComponent() && !SCR_InventoryStorageQuickSlotsUI.Cast(source.GetStorageUI()))
+				{
+					IEntity item = source.GetInventoryItemComponent().GetOwner();
+					if (m_InventoryManager.Contains(item))
+					{
+						m_GCExistingGestureSlot = source;
+					}
+				}
+			}
 			if (entry)
 			{
 				m_GCGestureItem = entry;
@@ -240,7 +307,15 @@ modded class SCR_InventoryMenuUI
 	{
 		if (!m_GCGestureItem)
 		{
+			// Retain the pressed source while native code owns preview, highlights and drag state.
+			SCR_InventorySlotUI focused = m_pFocusedSlotUI;
+			if (m_GCExistingGestureSlot && !m_bDraggingEnabled && GC_WorkbenchItemBrowser.IsActive(m_Player))
+			{
+				m_pFocusedSlotUI = m_GCExistingGestureSlot;
+				m_pSelectedSlotUI = m_GCExistingGestureSlot;
+			}
 			super.Action_OnDrag();
+			m_pFocusedSlotUI = focused;
 			return;
 		}
 		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
@@ -268,6 +343,7 @@ modded class SCR_InventoryMenuUI
 		if (!m_GCGestureItem)
 		{
 			super.Action_DragUp();
+			m_GCExistingGestureSlot = null;
 			return;
 		}
 		GC_ItemCatalogueEntry entry = m_GCGestureItem;
@@ -280,6 +356,7 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	protected void GC_CancelCatalogueDrag()
 	{
+		m_GCExistingGestureSlot = null;
 		if (!m_GCGestureItem)
 			return;
 		GetGame().GetInputManager().RemoveActionListener("Inventory_Drag", EActionTrigger.PRESSED, Action_OnDrag);
@@ -288,6 +365,39 @@ modded class SCR_InventoryMenuUI
 		m_wDragDropContainer.SetVisible(false);
 		m_bDraggingEnabled = false;
 		m_GCGestureItem = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected void Action_Drop()
+	{
+		if (!m_GCCataloguePanel || !GC_WorkbenchItemBrowser.IsActive(m_Player) || !m_pSelectedSlotUI || !m_pSelectedSlotUI.GetInventoryItemComponent())
+		{
+			super.Action_Drop();
+			return;
+		}
+		IEntity item = m_pSelectedSlotUI.GetInventoryItemComponent().GetOwner();
+		Widget cursor = WidgetManager.GetWidgetUnderCursor();
+		SCR_InventorySlotUI slot = GC_CatalogueSlotAt(cursor);
+		SCR_InventoryStorageBaseUI storageUI = GC_CatalogueStorageAt(cursor);
+		if (slot)
+			storageUI = slot.GetStorageUI();
+		bool nativePreviewTarget = cursor == m_wPlayerRender || (cursor && cursor.GetName() == "HitZoneButton");
+		if (!storageUI && !nativePreviewTarget && m_InventoryManager.Contains(item) && !SCR_InventoryStorageQuickSlotsUI.Cast(m_pSelectedSlotUI.GetStorageUI()))
+		{
+			if (!GC_CatalogueTransfer.Drop(item, m_Player, this))
+				GC_CatalogueTransferResult(false);
+			return;
+		}
+		if (SCR_InventorySlotGearInspectionUI.Cast(slot))
+		{
+			if (!GC_CatalogueTransfer.MoveTo(item, m_Player, this, storageUI.GetCurrentNavigationStorage(), storageUI.GetSlotId(slot)))
+				GC_CatalogueTransferResult(false);
+			return;
+		}
+		// All ordinary container, equipment and quick-slot destinations remain native.
+		m_pFocusedSlotUI = slot;
+		m_pActiveHoveredStorageUI = storageUI;
+		super.Action_Drop();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -304,6 +414,12 @@ modded class SCR_InventoryMenuUI
 			storageUI = slot.GetStorageUI();
 		if (!storageUI || SCR_InventoryStorageQuickSlotsUI.Cast(storageUI))
 			return false;
+		if (SCR_InventorySlotGearInspectionUI.Cast(slot))
+		{
+			BaseInventoryStorageComponent inspectionStorage = storageUI.GetCurrentNavigationStorage();
+			int inspectionID = storageUI.GetSlotId(slot);
+			return GC_CatalogueTransfer.Insert(entry, m_Player, this, inspectionStorage, inspectionID, false);
+		}
 		SCR_InventorySlotWeaponSlotsUI weapon = SCR_InventorySlotWeaponSlotsUI.Cast(slot);
 		if (weapon)
 			return GC_CatalogueTransfer.Insert(entry, m_Player, this, m_pWeaponStorageComp, weapon.GetWeaponSlotIndex(), false);

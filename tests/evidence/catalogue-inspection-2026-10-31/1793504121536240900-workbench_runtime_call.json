@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"state\":\"invoked\",\"processId\":44368,\"operationId\":\"aedfdbe93c8c4a6b812c5fbf4de4679f\",\"receipt\":\"r5ac37298a33646d9b56ff934c0c8434f\",\"returnType\":\"string\",\"returned\":\"inspection=1 interact=1 nativeContext=1 blockingContext=0 binding=1 mouse:button2\\n0 visible=1 {D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et\\n1 visible=1 \\n2 visible=0 \\n3 visible=1 \\n4 visible=1 {6288A1F1A5E3AC37}Prefabs/Weapons/Attachments/Muzzle/FlashHider_M16A2/FlashHider_M16.et\",\"invocationAttempted\":true,\"timings\":{\"prepareMs\":0,\"compileMs\":0,\"invokeMs\":11,\"serverMs\":96.3576},\"target\":{\"world\":\"$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent\",\"entityName\":\"GameMode_Lobby3\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestInspectWeapon\"},\"completion\":\"synchronous_call_only\"}"
+      }
+    ]
+  },
+  "id": 1,
+  "jsonrpc": "2.0"
+}

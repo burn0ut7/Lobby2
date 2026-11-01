@@ -27,6 +27,8 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected string m_sCategoryLabel = "All items";
 	protected BaseInventoryStorageComponent m_WeaponStorage;
 	protected IEntity m_WeaponEntity;
+	protected InventoryStorageSlot m_InspectionSlot;
+	protected bool m_bInspectionContext;
 	protected int m_iWeaponSlot;
 	protected string m_sWeaponSlotType;
 	protected string m_sWeaponSignature;
@@ -165,6 +167,8 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		bool wasWeapon = m_WeaponStorage != null;
 		m_WeaponStorage = null;
 		m_WeaponEntity = null;
+		m_InspectionSlot = null;
+		m_bInspectionContext = false;
 		m_Query.m_bWeaponItems = false;
 		m_Query.m_aMagazineWells.Clear();
 		m_Query.m_aAttachmentTypes.Clear();
@@ -245,6 +249,34 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	bool HasWeaponContext()
 	{
 		return m_Query.m_bWeaponItems;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetInspectionSlot(InventoryStorageSlot slot, typename type)
+	{
+		SetSlot(string.Empty);
+		m_iOffset = 0;
+		m_InspectionSlot = slot;
+		m_bInspectionContext = true;
+		m_Query.m_bWeaponItems = true;
+		m_sCategoryLabel = string.Empty;
+		if (type && type.IsInherited(BaseMagazineWell))
+			m_Query.m_aMagazineWells.Insert(type);
+		else if (type)
+			m_Query.m_aAttachmentTypes.Insert(type);
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool HasInspectionContext()
+	{
+		return m_bInspectionContext;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	InventoryStorageSlot GetInspectionTarget()
+	{
+		return m_InspectionSlot;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -3,6 +3,111 @@
 class GC_CatalogueTransfer
 {
 	//------------------------------------------------------------------------------------------------
+	//! Release an owned entity through the native removal path, preserving its contents on the ground.
+	static bool Drop(IEntity item, IEntity owner, SCR_InventoryMenuUI menu)
+	{
+		if (!item || !GC_WorkbenchItemBrowser.IsActive(owner))
+			return false;
+		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
+		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
+			return false;
+		InventoryItemComponent inventory = InventoryItemComponent.Cast(item.FindComponent(InventoryItemComponent));
+		if (!inventory || !inventory.GetParentSlot())
+			return false;
+		BaseInventoryStorageComponent source = inventory.GetParentSlot().GetStorage();
+		if (!manager.CanRemoveItemFromStorage(item, source))
+			return false;
+		GC_CatalogueTransferCallback callback = new GC_CatalogueTransferCallback();
+		callback.m_Owner = owner;
+		callback.m_Manager = manager;
+		callback.m_pItem = item;
+		callback.m_pMenu = menu;
+		callback.m_bExistingItem = true;
+		callback.m_bDeleting = true;
+		bool accepted = manager.TryRemoveItemFromInventory(item, source, callback);
+		if (!accepted)
+			callback.InternalFailed();
+		return accepted;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Move an existing inspected item: empty weapon attachment slots first, then a deposit container.
+	static bool MoveAvailable(IEntity item, IEntity owner, SCR_InventoryMenuUI menu)
+	{
+		if (!item || !GC_WorkbenchItemBrowser.IsActive(owner))
+			return false;
+		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
+		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
+			return false;
+		array<BaseInventoryStorageComponent> storages = {};
+		manager.GetStorages(storages);
+		BaseInventoryStorageComponent target;
+		int slotID = -1;
+		foreach (BaseInventoryStorageComponent storage : storages)
+		{
+			if (!WeaponAttachmentsStorageComponent.Cast(storage))
+				continue;
+			for (int i; i < storage.GetSlotsCount(); i++)
+			{
+				if (!storage.GetSlot(i).GetAttachedEntity() && manager.CanMoveItemToStorage(item, storage, i))
+				{
+					target = storage;
+					slotID = i;
+					break;
+				}
+			}
+			if (target)
+				break;
+		}
+		if (!target)
+			target = manager.FindStorageForItem(item, EStoragePurpose.PURPOSE_DEPOSIT);
+		if (!target || !manager.CanMoveItemToStorage(item, target, slotID))
+			return false;
+		return MoveTo(item, owner, menu, target, slotID);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool MoveTo(IEntity item, IEntity owner, SCR_InventoryMenuUI menu, BaseInventoryStorageComponent target, int slotID = -1)
+	{
+		if (!item || !target || !GC_WorkbenchItemBrowser.IsActive(owner))
+			return false;
+		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
+		if (!manager || manager.IsInventoryLocked() || !manager.Contains(item))
+			return false;
+		array<BaseInventoryStorageComponent> storages = {};
+		manager.GetStorages(storages);
+		if (!storages.Contains(target) || slotID < -1 || slotID >= target.GetSlotsCount())
+			return false;
+		IEntity other;
+		if (slotID >= 0)
+			other = target.GetSlot(slotID).GetAttachedEntity();
+		if (other == item)
+			return true;
+		if (other)
+		{
+			if (!manager.Contains(other) || !manager.CanSwapItemStorages(item, other))
+				return false;
+		}
+		else if (!manager.CanMoveItemToStorage(item, target, slotID))
+			return false;
+		GC_CatalogueTransferCallback callback = new GC_CatalogueTransferCallback();
+		callback.m_Owner = owner;
+		callback.m_Manager = manager;
+		callback.m_pItem = item;
+		callback.m_pMenu = menu;
+		callback.m_bExistingItem = true;
+		manager.SetInventoryLocked(true);
+		bool accepted;
+		if (other)
+			accepted = manager.TrySwapItemStorages(item, other, callback);
+		else
+			accepted = manager.TryMoveItemToStorage(item, target, slotID, callback);
+		if (!accepted)
+			callback.InternalFailed();
+		return accepted;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Only the selected weapon's attachment storage, never another weapon or a deposit container.
 	static bool InsertWeapon(GC_ItemCatalogueEntry entry, IEntity owner, SCR_InventoryMenuUI menu, IEntity weapon)
 	{
@@ -164,6 +269,7 @@ class GC_CatalogueTransferCallback : SCR_InvCallBack
 	IEntity m_Owner;
 	SCR_InventoryStorageManagerComponent m_Manager;
 	bool m_bDeleting;
+	bool m_bExistingItem;
 	protected bool m_bFinished;
 
 	//------------------------------------------------------------------------------------------------
@@ -174,7 +280,7 @@ class GC_CatalogueTransferCallback : SCR_InvCallBack
 		m_bFinished = true;
 		if (m_Manager)
 			m_Manager.SetInventoryLocked(false);
-		if (!m_bDeleting && m_pItem)
+		if (!m_bDeleting && !m_bExistingItem && m_pItem)
 		{
 			InventoryItemComponent item = InventoryItemComponent.Cast(m_pItem.FindComponent(InventoryItemComponent));
 			if (!item || !item.GetParentSlot())
