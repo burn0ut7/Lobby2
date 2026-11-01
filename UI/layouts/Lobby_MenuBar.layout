@@ -387,9 +387,9 @@ FrameWidgetClass {
    Name "PhaseElapsed"
    Slot FrameWidgetSlot {
     Anchor 1 0 1 0
-    OffsetLeft -420
+    OffsetLeft -278
     OffsetTop 0
-    OffsetRight 230
+    OffsetRight 142
     OffsetBottom -70
    }
    "Is Visible" 0
@@ -403,29 +403,28 @@ FrameWidgetClass {
    Name "PlayerCount"
    Slot FrameWidgetSlot "{6A1577A659C82CEB}" {
     Anchor 1 0 1 0
-    PositionX -10
-    OffsetLeft -10
-    PositionY 10
-    OffsetTop 10
-    SizeX 100
-    OffsetRight -90
-    SizeY 30
-    OffsetBottom -40
-    Alignment 1 0
-    SizeToContent 1
+    OffsetLeft -122
+    OffsetTop 0
+    OffsetRight 10
+    OffsetBottom -70
    }
    {
     TextWidgetClass "{6A1577A1BDE77F3D}" {
      Name "PlayerCountText"
      Slot LayoutSlot "{6A1577A1BDE77F56}" {
-      HorizontalAlign 1
       VerticalAlign 1
+      SizeMode Fill
+      Padding 0 0 6 0
      }
      Text ""
+     "Font Size" 22
+     "Horizontal Alignment" Right
+     "Vertical Alignment" Center
     }
     ImageWidgetClass "{6A1577A6397F5800}" {
      Name "PlayerIcon"
      Slot LayoutSlot "{6A161192FD5C0B59}" {
+      VerticalAlign 1
      }
      Texture "{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset"
      Image "global"

@@ -205,13 +205,8 @@ class GC_SlotButtonComponent : SCR_ButtonBaseComponent
 		if (accent)
 		{
 			UpdateFactionAccent(accent);
-
-			if (!CanInteract())
-				accent.SetOpacity(0.35);
-			else if (m_bSlotHovered)
-				accent.SetOpacity(1);
-			else
-				accent.SetOpacity(0.85);
+			// Keep the accent and its layout space for a later slice.
+			accent.SetOpacity(0);
 		}
 
 		string statusImage;
