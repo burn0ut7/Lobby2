@@ -1,12 +1,14 @@
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
+ButtonWidgetClass : "{9ECCD201BCF07E95}UI/layouts/Menus/PauseMenu/PauseMenuButton.layout" {
  Name "PauseAdminTools"
- Slot FrameWidgetSlot { Anchor 1 1 1 1 OffsetLeft -324 OffsetTop -150 OffsetRight 24 OffsetBottom 78 }
- components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } }
+ Slot LayoutSlot "{557478C3F0230865}" {
+ }
  {
-  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" HeightOverride 72 {
-   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
-    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "admin" }
-   } }
-  } }
+  SizeLayoutWidgetClass "{557098260F312277}" {
+   Prefab "{557098260F312277}"
+   Slot ButtonWidgetSlot "{5548E6E7E6AEDDC1}" {
+    Padding 7 1 0 1
+   }
+   HeightOverride 54
+  }
  }
 }

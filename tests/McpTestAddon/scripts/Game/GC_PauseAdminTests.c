@@ -23,7 +23,7 @@ modded class GC_LobbyManager
 		if (action == "snapshot")
 		{
 			MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
-			string result = string.Format("admin=%1 menu=%2", SCR_Global.IsAdmin(GetGame().GetPlayerController().GetPlayerId()), menu.GetRootWidget().GetName());
+			string result = string.Format("admin=%1 menu=%2", SCR_Global.IsAdmin(GetGame().GetPlayerController().GetPlayerId()), GC_TestPauseMenuName(menu));
 			if (dialog)
 				result += "\n" + dialog.GC_TestSignInState();
 			return result;
@@ -34,6 +34,27 @@ modded class GC_LobbyManager
 			return "UNAVAILABLE sign-in dialog";
 		return dialog.GC_TestSignInAction(action);
 	}
+	//------------------------------------------------------------------------------------------------
+	string GC_TestPauseGameMasterDenied()
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (!controller)
+			return "UNAVAILABLE controller";
+#ifdef WORKBENCH
+		return controller.GC_TestPauseGameMasterDenied();
+#else
+		return "UNAVAILABLE Workbench fixture";
+#endif
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string GC_TestPauseMenuName(MenuBase menu)
+	{
+		if (!menu)
+			return "none";
+		return menu.GetRootWidget().GetName();
+	}
+
 	//------------------------------------------------------------------------------------------------
 	protected string GC_TestPauseClick(string name)
 	{
@@ -85,3 +106,19 @@ modded class GC_AdminSignInDialog
 		return GC_TestSignInState();
 	}
 }
+
+#ifdef WORKBENCH
+modded class GC_LobbyPlayerController
+{
+	//------------------------------------------------------------------------------------------------
+	string GC_TestPauseGameMasterDenied()
+	{
+		SCR_EditorManagerEntity editor = SCR_EditorManagerEntity.GetInstance();
+		if (!m_PauseMenu || SCR_Global.IsAdmin(GetPlayerId()) || !editor)
+			return "UNAVAILABLE logged-out player with pause menu and editor required";
+		bool before = editor.IsOpened();
+		OnPauseGameMasterClicked();
+		return string.Format("admin=%1 editorUnchanged=%2 pauseRetained=%3", SCR_Global.IsAdmin(GetPlayerId()), before == editor.IsOpened(), m_PauseMenu != null);
+	}
+}
+#endif

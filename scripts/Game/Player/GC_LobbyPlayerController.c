@@ -24,7 +24,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! Each index is offset by one so zero represents the no-sight/no-zoom state.
 	static const int NETWORK_CAMERA_SIGHT_STATE_SCALE = 65536;
 	protected static const ResourceName SPECTATOR_CAMERA_PREFAB = "{0C428AB427BB44F5}Prefabs/Editor/Camera/GC_SpectatorCamera.et";
-	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{6A4D00000000001A}UI/layouts/Briefing/Lobby_Briefing_Parameter_Option.layout";
+	protected static const ResourceName PAUSE_ACCESS_BUTTON_LAYOUT = "{A934F7BC18E24510}UI/layouts/Admin/Lobby_PauseAdminButton.layout";
 	protected static const int EDITOR_MANAGER_ATTACH_RETRIES = 20;
 	[Attribute("30", desc: "Networked first-person camera snapshots per second (1-60).")]
 	protected int m_iNetworkCameraUpdateRate;
@@ -71,6 +71,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected ref GC_KilledFromDamageTracker m_KilledFromTracker;
 	protected int m_iKilledFromLife;
 	protected PauseMenuUI m_PauseMenu;
+	protected SCR_EditorManagerEntity m_PauseEditorManager;
 	protected Widget m_wPauseAdminButton;
 	protected SCR_ButtonTextComponent m_PauseAdminButton;
 	protected ref GC_AdminSignInDialog m_AdminSignInDialog;
@@ -1295,53 +1296,133 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!m_PauseMenu)
 			return;
 
-		m_wPauseAdminButton = GetGame().GetWorkspace().CreateWidgets("{A934F7BC18E24510}UI/layouts/Admin/Lobby_PauseAdminButton.layout", m_PauseMenu.GetRootWidget());
-		if (m_wPauseAdminButton)
+		Widget root = m_PauseMenu.GetRootWidget();
+		Widget buttonParent = root.FindAnyWidget("ButtonRow");
+		if (!buttonParent)
+			return;
+
+		// Reserve gaps between stock rows for the Lobby2 navigation entries.
+		Widget row = buttonParent.GetChildren();
+		array<Widget> rows = {};
+		while (row)
 		{
-			m_PauseAdminButton = SCR_ButtonTextComponent.Cast(m_wPauseAdminButton.FindHandler(SCR_ButtonTextComponent));
-			if (m_PauseAdminButton)
-			{
-				m_PauseAdminButton.SetText("ADMIN TOOLS");
-				m_PauseAdminButton.m_OnClicked.Insert(OnPauseAdminToolsClicked);
-			}
+			rows.Insert(row);
+			row = row.GetSibling();
 		}
+		foreach (int order, Widget stockRow : rows)
+			stockRow.SetZOrder(order * 10);
+
+		m_wPauseAdminButton = CreatePauseRow(buttonParent, "PauseAdminTools", "Admin Tools", "settings", root.FindAnyWidget("EditorUnlimitedClose").GetZOrder() + 1);
+		m_PauseAdminButton = SCR_ButtonTextComponent.Cast(m_wPauseAdminButton.FindHandler(SCR_ButtonTextComponent));
+		m_PauseAdminButton.m_OnClicked.Insert(OnPauseAdminToolsClicked);
+
+		foreach (string name : {"EditorUnlimitedOpen", "EditorUnlimitedClose"})
+		{
+			SCR_ButtonTextComponent button = SCR_ButtonTextComponent.GetButtonText(name, root);
+			button.m_OnClicked.Clear();
+			button.m_OnClicked.Insert(OnPauseGameMasterClicked);
+		}
+		lobbyManager.m_OnPlayerRoleChanged.Insert(OnPauseRoleChanged);
+		m_PauseEditorManager = SCR_EditorManagerEntity.GetInstance();
+		if (m_PauseEditorManager)
+		{
+			m_PauseEditorManager.GetOnModeAdd().Insert(OnPauseEditorModeChanged);
+			m_PauseEditorManager.GetOnModeRemove().Insert(OnPauseEditorModeChanged);
+		}
+		RefreshPauseRows();
 
 		if (!GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.SLOTTING))
 			return;
 
-		SCR_ButtonTextComponent continueButton = SCR_ButtonTextComponent.GetButtonText("Continue", m_PauseMenu.GetRootWidget());
-		if (!continueButton || !continueButton.GetRootWidget())
-			return;
-
-		Widget buttonParent = continueButton.GetRootWidget().GetParent();
-		if (!buttonParent)
-			return;
-
-		m_wPauseSlottingButton = GetGame().GetWorkspace().CreateWidgets(PAUSE_ACCESS_BUTTON_LAYOUT, buttonParent);
-		if (m_wPauseSlottingButton)
-		{
-			m_PauseSlottingButton = SCR_ButtonTextComponent.Cast(m_wPauseSlottingButton.FindHandler(SCR_ButtonTextComponent));
-			if (m_PauseSlottingButton)
-			{
-				m_PauseSlottingButton.SetText("SLOTTING");
-				m_PauseSlottingButton.m_OnClicked.Insert(RequestOpenSlottingFromPause);
-			}
-		}
+		int navigationOrder = root.FindAnyWidget("Continue").GetZOrder();
+		m_wPauseSlottingButton = CreatePauseRow(buttonParent, "PauseSlotting", "Slotting", "players", navigationOrder + 1);
+		m_PauseSlottingButton = SCR_ButtonTextComponent.Cast(m_wPauseSlottingButton.FindHandler(SCR_ButtonTextComponent));
+		m_PauseSlottingButton.m_OnClicked.Insert(RequestOpenSlottingFromPause);
 
 		Faction playerFaction = lobbyManager.GetPlayerFaction(GetPlayerId());
 		if (!playerFaction || !GC_LobbyPhase.IsAtOrAfter(lobbyManager.GetLobbyPhase(), SCR_EGameModeState.BRIEFING))
 			return;
 
-		m_wPauseBriefingButton = GetGame().GetWorkspace().CreateWidgets(PAUSE_ACCESS_BUTTON_LAYOUT, buttonParent);
-		if (m_wPauseBriefingButton)
+		m_wPauseBriefingButton = CreatePauseRow(buttonParent, "PauseBriefing", "Briefing", "field-manual", navigationOrder + 2);
+		m_PauseBriefingButton = SCR_ButtonTextComponent.Cast(m_wPauseBriefingButton.FindHandler(SCR_ButtonTextComponent));
+		m_PauseBriefingButton.m_OnClicked.Insert(RequestOpenBriefingFromPause);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected Widget CreatePauseRow(Widget parent, string name, string label, string icon, int order)
+	{
+		Widget row = GetGame().GetWorkspace().CreateWidgets(PAUSE_ACCESS_BUTTON_LAYOUT, parent);
+		row.SetName(name);
+		row.SetZOrder(order);
+		SCR_ButtonTextComponent button = SCR_ButtonTextComponent.Cast(row.FindHandler(SCR_ButtonTextComponent));
+		button.SetText(label);
+		ImageWidget image = ImageWidget.Cast(row.FindAnyWidget("Image0"));
+		image.LoadImageFromSet(0, "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset", icon);
+		return row;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnPauseRoleChanged(int playerId)
+	{
+		if (playerId == GetPlayerId())
+			RefreshPauseRows();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnPauseEditorModeChanged(SCR_EditorModeEntity mode)
+	{
+		RefreshPauseRows();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshPauseRows()
+	{
+		if (!m_PauseMenu || !GC_LobbyManager.GetManager())
+			return;
+		Widget root = m_PauseMenu.GetRootWidget();
+		foreach (string name : {"LeaveFaction", "EditorPhotoOpen", "EditorPhotoClose", "GroupMenu", "Feedback", "Camera"})
 		{
-			m_PauseBriefingButton = SCR_ButtonTextComponent.Cast(m_wPauseBriefingButton.FindHandler(SCR_ButtonTextComponent));
-			if (m_PauseBriefingButton)
-			{
-				m_PauseBriefingButton.SetText("BRIEFING");
-				m_PauseBriefingButton.m_OnClicked.Insert(RequestOpenBriefingFromPause);
-			}
+			Widget row = root.FindAnyWidget(name);
+			if (row)
+				row.SetVisible(false);
 		}
+
+		bool admin = SCR_Global.IsAdmin(GetPlayerId());
+		bool unlimited = m_PauseEditorManager && !m_PauseEditorManager.IsLimited();
+		bool opened = unlimited && m_PauseEditorManager.IsOpened() && !m_PauseEditorManager.GetCurrentModeEntity().IsLimited();
+		SCR_ButtonTextComponent open = SCR_ButtonTextComponent.GetButtonText("EditorUnlimitedOpen", root);
+		SCR_ButtonTextComponent close = SCR_ButtonTextComponent.GetButtonText("EditorUnlimitedClose", root);
+		open.SetVisible(admin && !opened);
+		open.SetEnabled(admin && unlimited);
+		close.SetVisible(admin && opened);
+		close.SetEnabled(admin && opened && m_PauseEditorManager.CanClose());
+		root.FindAnyWidget("Separator0").SetVisible(true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnPauseGameMasterClicked()
+	{
+		if (!m_PauseMenu || !GC_LobbyManager.GetManager())
+			return;
+		if (!SCR_Global.IsAdmin(GetPlayerId()))
+		{
+			GC_AdminActionLogger.Log(GetPlayerId(), "game-master", "pause-menu", "rejected-not-logged-in");
+			RefreshPauseRows();
+			return;
+		}
+		SCR_EditorManagerEntity editor = SCR_EditorManagerEntity.GetInstance();
+		if (!editor || editor.IsLimited())
+			return;
+		if (!editor.IsOpened() || editor.GetCurrentModeEntity().IsLimited())
+		{
+			editor.SetCurrentMode(false);
+			editor.Open();
+		}
+		else if (editor.CanClose())
+			editor.Close();
+		GC_AdminActionLogger.Log(GetPlayerId(), "game-master", "pause-menu", "dispatched");
+		if (m_PauseMenu)
+			m_PauseMenu.Close();
 	}
 
 	protected void OnPauseMenuClosed()
@@ -1353,6 +1434,15 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected void RemovePauseAccessButtons()
 	{
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			manager.m_OnPlayerRoleChanged.Remove(OnPauseRoleChanged);
+		if (m_PauseEditorManager)
+		{
+			m_PauseEditorManager.GetOnModeAdd().Remove(OnPauseEditorModeChanged);
+			m_PauseEditorManager.GetOnModeRemove().Remove(OnPauseEditorModeChanged);
+		}
+		m_PauseEditorManager = null;
 		if (m_PauseAdminButton)
 			m_PauseAdminButton.m_OnClicked.Remove(OnPauseAdminToolsClicked);
 		if (m_wPauseAdminButton)

@@ -1583,3 +1583,39 @@ See [InventoryCatalogue.md](InventoryCatalogue.md) for the expanded item-row bro
 `GC_TestSlotToolbarSnapshot()` reports displayed/collapsed groups and player/admin toolbar visibility. `GC_TestSlotGroupToggle()` invokes the first group's production header handler to exercise mixed collapse state; `GC_TestClick("ToggleAllSlotsButton")` exercises the master button. These are optional test-addon helpers.
 
 Workbench 1.8.0.13 reload passed. Live checks covered expand/collapse, mixed-state expansion, collapse persistence across faction switches, ratio on/off, and lock/unlock of all 42 fixture slots. Logged-out players retained the group toggle while admin controls were hidden; production lock/reservation/ratio requests rejected without mutation and emitted audit entries. Native host permissions were restored by restarting embedded Play. Screenshots in local `Art/References/lobby-scaling/slot-icons-*.png` cover expanded, collapsed, mixed, ratio, lock and non-admin states. The wide capture uses 32:9 menu bounds within the editor viewport; physical ultrawide and controller input were not tested.
+
+## Native pause-menu rows — 2026-11-01
+
+Lobby2's owning player controller inserts Slotting and Briefing immediately after
+Continue using the stock PauseMenuButton layout. Admin Tools follows Game Master
+between the stock separators and retains its existing authenticated/sign-in flow.
+Leave faction, Armavision, Group Menu, Feedback and Camera are hidden only in
+Lobby2's active pause menu. Game Master visibility refreshes on native editor
+mode and Lobby2 role events; its click checks the current admin login and native
+editor permission again. No shared pause-menu class or layout is overridden.
+
+Installed source: catalogue revision 8a01b6e6158343feb1745f1d1935602b,
+base source 58D0FB3206B6F859, data007.pak/scripts/Game/UI/Menu/SCR_PauseMenuUI.c
+(lines 262–304, 560–631), data010.pak/UI/layouts/Menus/PauseMenu/pauseMenu.layout
+(lines 126–206, 428–488), and PauseMenuButton.layout (lines 1–100).
+The native screenshot taken at task start is the styling reference; this change
+reuses that row instead of introducing a new visual design.
+
+Workbench 1.8.0.13, embedded Empty_Lobby with the existing test addons: Reload
+passed without script compilation errors. Production button handlers opened
+AdminToolsPanel, Slotting and Briefing; Briefing reported activeView=2 without
+rolling back the BRIEFING phase. GAME pause offered the same navigation rows.
+Game Master opened, changed to Close Game Master on reopening pause, and closed.
+Logout while pause remained open removed Game Master; Admin Tools opened the
+sign-in dialog, which cancelled normally. GC_TestPauseGameMasterDenied invoked
+the production handler after logout and reported admin=0, editorUnchanged=1,
+pauseRetained=1; its rejection audit is console.log line 29803 in
+logs_2026-11-01_14-30-43. The accepted GM audit is line 29382.
+
+Local MCP captures are Art/References/pause-menu/admin.png and logged-out.png.
+The optional pause snapshot helper now tolerates no top menu (normal after GM
+opens); its previous null dereference was encountered and corrected during this
+pass. Existing Arland resource, dedicated-plugin, formations and missing-map
+fixture diagnostics remain. Remote clients, physical keyboard/controller input,
+alternate viewport scales and an addon-free mode comparison were not exercised.
+No shared overrides changed. Test fixture logout is cleared by restarting Play.
