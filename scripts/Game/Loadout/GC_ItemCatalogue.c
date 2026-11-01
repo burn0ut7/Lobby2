@@ -47,10 +47,13 @@ class GC_ItemCatalogue
 	protected int m_iFailed;
 	protected int m_iExcluded;
 	protected float m_fMaxTickMS;
+	protected float m_fStartedMS;
+	protected float m_fElapsedMS;
 	protected bool m_bStarted;
 	protected bool m_bDiscoveryFailed;
 	protected ref array<string> m_aDiscoveryIssues = {};
 	protected ref array<ResourceName> m_aFailedResources = {};
+	protected static const int INDEX_BATCH_SIZE = 200;
 
 	//------------------------------------------------------------------------------------------------
 	void Start()
@@ -59,6 +62,7 @@ class GC_ItemCatalogue
 		if (m_bStarted)
 			return;
 		m_bStarted = true;
+		m_fStartedMS = System.GetTickCount();
 		m_aAddons = SCR_AddonTool.GetAllAddonIDs();
 		FactionManager manager = GetGame().GetFactionManager();
 		if (!manager)
@@ -83,7 +87,7 @@ class GC_ItemCatalogue
 	void Tick()
 	{
 #ifdef WORKBENCH
-		if (!m_bStarted)
+		if (!m_bStarted || IsFinished())
 			return;
 		float started = System.GetTickCount();
 		if (m_iAddon < m_aAddons.Count())
@@ -100,16 +104,15 @@ class GC_ItemCatalogue
 		}
 		else
 		{
-			// One resource load is indivisible. Both count and elapsed time bound each batch.
-			for (int batch; batch < 4 && m_iProcessed < m_aPending.Count(); batch++)
+			// Metadata only; the UI schedules visible image previews separately.
+			for (int batch; batch < INDEX_BATCH_SIZE && m_iProcessed < m_aPending.Count(); batch++)
 			{
 				ReadEntry(m_aPending[m_iProcessed], m_aSources[m_iProcessed]);
 				m_iProcessed++;
-				if (System.GetTickCount() - started >= 2)
-					break;
 			}
 		}
 		m_fMaxTickMS = Math.Max(m_fMaxTickMS, System.GetTickCount() - started);
+		m_fElapsedMS = System.GetTickCount() - m_fStartedMS;
 #endif
 	}
 
@@ -157,13 +160,14 @@ class GC_ItemCatalogue
 			bool enabled = true;
 			inventory.Get("Enabled", enabled);
 			entry.m_bPortable = attributes.IsDraggable() && visible && enabled;
-			// Empty inheritance templates have inventory attributes but no resolved item model.
-			// Read inherited data: usable children and model-bearing *_Base prefabs remain valid.
+			// Empty or placeholder models are not finished inventory gear, even when named otherwise.
 			IEntityComponentSource mesh = SCR_BaseContainerTools.FindComponentSource(entity, "MeshObject");
 			ResourceName model;
 			if (mesh)
 				mesh.Get("Object", model);
-			if (model.IsEmpty())
+			string modelPath = model;
+			modelPath.ToLower();
+			if (model.IsEmpty() || modelPath.EndsWith("common/models/default.xob"))
 				entry.m_bPortable = false;
 			if (entityType && (entityType.IsInherited(ChimeraCharacter) || entityType.IsInherited(Vehicle)))
 				entry.m_bPortable = false;
@@ -175,6 +179,8 @@ class GC_ItemCatalogue
 				if (!translated.IsEmpty() && !translated.StartsWith("#"))
 					entry.m_sName = translated;
 			}
+			else
+				entry.m_bPortable = false;
 			WeaponAttachmentAttributes attachment = WeaponAttachmentAttributes.Cast(attributes.FindAttribute(WeaponAttachmentAttributes));
 			if (attachment && attachment.GetAttachmentType())
 			{
@@ -297,7 +303,7 @@ class GC_ItemCatalogue
 	//------------------------------------------------------------------------------------------------
 	string Metrics()
 	{
-		return Status() + string.Format(" | maxIndexTickMS=%1", m_fMaxTickMS);
+		return Status() + string.Format(" | batch=%1 maxIndexTickMS=%2 elapsedMS=%3", INDEX_BATCH_SIZE, m_fMaxTickMS, m_fElapsedMS);
 	}
 
 	//------------------------------------------------------------------------------------------------
