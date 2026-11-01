@@ -1,6 +1,6 @@
 SizeLayoutWidgetClass {
  Name "CatalogueCell"
- Slot LayoutSlot { HorizontalAlign 3 } AllowHeightOverride 1 HeightOverride 84
+ Slot LayoutSlot { HorizontalAlign 3 } AllowHeightOverride 1 HeightOverride 80
  {
 OverlayWidgetClass { Name "Cell" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 Padding 0 2 0 2 } {
 PanelWidgetClass { Name "RowSurface" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0 0 0 0.22 style full "Ignore Cursor" 1 }

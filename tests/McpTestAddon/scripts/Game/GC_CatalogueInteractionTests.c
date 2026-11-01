@@ -175,7 +175,7 @@ modded class SCR_InventoryMenuUI
 		Action_DragDown();
 		Action_DragUp();
 		SCR_ButtonBaseComponent.Cast(widget.FindHandler(SCR_ButtonBaseComponent)).OnClick(widget, 0, 0, 0);
-		return TextWidget.Cast(m_widget.FindAnyWidget("Detail")).GetText();
+		return TextWidget.Cast(m_widget.FindAnyWidget("Status")).GetText();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -222,7 +222,7 @@ modded class SCR_InventoryMenuUI
 			WidgetManager.ReportMouse(1, 1, m_widget);
 		Action_OnDrag();
 		Action_DragUp();
-		return TextWidget.Cast(m_widget.FindAnyWidget("Detail")).GetText();
+		return TextWidget.Cast(m_widget.FindAnyWidget("Status")).GetText();
 	}
 }
 #endif

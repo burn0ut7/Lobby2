@@ -157,6 +157,14 @@ class GC_ItemCatalogue
 			bool enabled = true;
 			inventory.Get("Enabled", enabled);
 			entry.m_bPortable = attributes.IsDraggable() && visible && enabled;
+			// Empty inheritance templates have inventory attributes but no resolved item model.
+			// Read inherited data: usable children and model-bearing *_Base prefabs remain valid.
+			IEntityComponentSource mesh = SCR_BaseContainerTools.FindComponentSource(entity, "MeshObject");
+			ResourceName model;
+			if (mesh)
+				mesh.Get("Object", model);
+			if (model.IsEmpty())
+				entry.m_bPortable = false;
 			if (entityType && (entityType.IsInherited(ChimeraCharacter) || entityType.IsInherited(Vehicle)))
 				entry.m_bPortable = false;
 			UIInfo info = attributes.GetUIInfo();

@@ -5,36 +5,6 @@ FrameWidgetClass {
 PanelWidgetClass { Name "CatalogueSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 0.5 style full "Ignore Cursor" 1 }
 VerticalLayoutWidgetClass { Name "CatalogueContent" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 6 OffsetTop 6 OffsetRight 6 OffsetBottom 6 } {
 SizeLayoutWidgetClass {
- Name "AdvancedBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 548 AllowHeightOverride 1 HeightOverride 32
- {
-ButtonWidgetClass {
- Name "Advanced"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
- {
-OverlayWidgetClass {
- Name "Content"
- Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
-PanelWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
-}
-PanelWidgetClass {
- Name "Border"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
-}
-TextWidgetClass {
- Name "Text"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "#GC-Catalogue_Filters" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
-}
- }
-}
- }
-}
- }
-}
-SizeLayoutWidgetClass {
  Name "SearchBounds"
  Slot LayoutSlot { HorizontalAlign 3 Padding 4 4 4 4 } AllowHeightOverride 1 HeightOverride 36
  {
@@ -53,53 +23,6 @@ EditBoxWidgetClass {
  }
 }
  }
-}
-HorizontalLayoutWidgetClass {
- Name "FilterRow"
- Slot LayoutSlot { HorizontalAlign 3  }
- {
-TextWidgetClass {
- Name "FilterText"
- Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill Padding 6 2 6 2 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "#GC-Catalogue_All" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
-}
-SizeLayoutWidgetClass {
- Name "ClearFilterBounds"
- Slot LayoutSlot { HorizontalAlign 3  } AllowWidthOverride 1 WidthOverride 32 AllowHeightOverride 1 HeightOverride 24
- {
-ButtonWidgetClass {
- Name "ClearFilter"
- Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_BackgroundSelected 0.9 0.68 0.27 0.4 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
- {
-OverlayWidgetClass {
- Name "Content"
- Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
- {
-PanelWidgetClass {
- Name "Background"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1
-}
-PanelWidgetClass {
- Name "Border"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1
-}
-TextWidgetClass {
- Name "Text"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "X" "Font Size" 18 "Min Font Size" 18 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1
-}
- }
-}
- }
-}
- }
-}
- }
-}
-
-ButtonWidgetClass : "{71EFAB5E571BF23A}UI/layouts/WidgetLibrary/SpinBox/WLib_SpinBoxPaging.layout" {
- Name "CataloguePaging"
- Slot LayoutSlot { HorizontalAlign 3 }
- components { SCR_SpinBoxPagingComponent "{54A478843A233C04}" { m_sLeftAction "Inventory_PrevPage" m_sRightAction "Inventory_NextPage" } }
- { SizeLayoutWidgetClass "{553D290FEBA7C78B}" { Prefab "{553D290FEBA7C78B}" AllowHeightOverride 1 HeightOverride 36 } }
 }
 HorizontalLayoutWidgetClass { Name "Body" Slot LayoutSlot { HorizontalAlign 3 } {
 VerticalLayoutWidgetClass {
@@ -384,21 +307,20 @@ ImageWidgetClass { Name "Icon" Slot OverlayWidgetSlot { HorizontalAlign 3 Vertic
 
 VerticalLayoutWidgetClass { Name "Results" Slot LayoutSlot { HorizontalAlign 3 SizeMode Fill } }
 } }
-TextWidgetClass { Name "Status" Slot LayoutSlot { HorizontalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Ignore Cursor" 1  }
-TextWidgetClass { Name "Detail" Slot LayoutSlot { HorizontalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 18 "Min Font Size" 18 "Ignore Cursor" 1  }
 } }
-VerticalLayoutWidgetClass {
- Name "AdvancedPanel"
- Slot FrameWidgetSlot { Anchor 0 0 1 0 OffsetLeft 6 OffsetTop 38 OffsetRight 6 OffsetBottom -110 } "Is Visible" 0
- {
-SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
- Name "Faction"
- Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
+ButtonWidgetClass : "{71EFAB5E571BF23A}UI/layouts/WidgetLibrary/SpinBox/WLib_SpinBoxPaging.layout" {
+ Name "CataloguePaging"
+ Slot FrameWidgetSlot { Anchor 0 1 1 1 OffsetLeft 6 OffsetTop -38 OffsetRight 6 OffsetBottom 6 }
+ components { SCR_SpinBoxPagingComponent "{54A478843A233C04}" { m_sLeftAction "Inventory_PrevPage" m_sRightAction "Inventory_NextPage" } }
+ { SizeLayoutWidgetClass "{553D290FEBA7C78B}" { Prefab "{553D290FEBA7C78B}" AllowHeightOverride 1 HeightOverride 32 {
+ OverlayWidgetClass "{54A47884868C8F19}" { Prefab "{54A47884868C8F19}" {
+  ImageWidgetClass "{54A49893FCCABD6D}" { Prefab "{54A49893FCCABD6D}" "Is Visible" 0 }
+  HorizontalLayoutWidgetClass "{54A47884868C9D26}" { Prefab "{54A47884868C9D26}" {
+   OverlayWidgetClass "{5548A89CBB493BDF}" { Prefab "{5548A89CBB493BDF}" Opacity 0 }
+  } }
+ } }
+} }
 }
-SizeLayoutWidgetClass : "{D271A640B8000200}UI/layouts/Admin/Lobby_AdminTableFilter.layout" {
- Name "Sort"
- Slot LayoutSlot { HorizontalAlign 3  } HeightOverride 36
 }
- }
-}
+TextWidgetClass { Name "Status" Slot FrameWidgetSlot { Anchor 0 1 1 1 OffsetLeft 6 OffsetTop -32 OffsetRight 46 OffsetBottom 10 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "" "Font Size" 16 "Min Font Size" 16 "Horizontal Alignment" Right "Vertical Alignment" Bottom "Ignore Cursor" 1 }
 } }
