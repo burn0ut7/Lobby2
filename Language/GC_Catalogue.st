@@ -1,6 +1,9 @@
 StringTable {
  ItemClassName "CustomStringTableItem"
  Items {
+  CustomStringTableItem "{DC391DA320AF3023}" { Id "GC-Loadout_Icon" Target_en_us "ROLE ICON" }
+  CustomStringTableItem "{DC391DA320AF3024}" { Id "GC-Loadout_CurrentIcon" Target_en_us "Current icon" }
+  CustomStringTableItem "{DC391DA320AF3025}" { Id "GC-Loadout_InvalidMetadata" Target_en_us "Enter a valid faction key and choose a role icon." }
   CustomStringTableItem "{DC391DA320AF3000}" { Id "GC-Loadout_Title" Target_en_us "Loadouts" }
   CustomStringTableItem "{DC391DA320AF3020}" { Id "GC-Loadout_Overwrite" Target_en_us "Overwrite" }
   CustomStringTableItem "{DC391DA320AF3021}" { Id "GC-Loadout_OverwriteMessage" Target_en_us "Replace this prefab with your current gear?" }

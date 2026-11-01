@@ -6,6 +6,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	protected EditBoxWidget m_Faction;
 	protected EditBoxWidget m_Group;
 	protected EditBoxWidget m_Name;
+	protected GC_LoadoutIconSelector m_Icon;
 	protected TextWidget m_Status;
 	protected ItemPreviewWidget m_Preview;
 	protected ItemPreviewManagerEntity m_PreviewManager;
@@ -31,6 +32,8 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		m_Faction = EditBoxWidget.Cast(root.FindAnyWidget("Faction"));
 		m_Group = EditBoxWidget.Cast(root.FindAnyWidget("Group"));
 		m_Name = EditBoxWidget.Cast(root.FindAnyWidget("Name"));
+		m_Icon = GC_LoadoutIconSelector.Cast(root.FindAnyWidget("RoleSelector").FindHandler(GC_LoadoutIconSelector));
+		m_Icon.m_OnChanged.Insert(OnIconChanged);
 		m_Status = TextWidget.Cast(root.FindAnyWidget("Status"));
 		m_Preview = ItemPreviewWidget.Cast(root.FindAnyWidget("LoadoutPreview"));
 		ChimeraWorld world = GetGame().GetWorld();
@@ -67,6 +70,11 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void SetFields(ResourceName resource)
 	{
+		GC_LoadoutMetadata metadata = GC_LoadoutMetadata.Read(resource);
+		m_Icon.Populate(metadata);
+		OnIconChanged(m_Icon, m_Icon.GetCurrentIndex());
+		if (metadata)
+			m_Faction.SetText(metadata.m_sFaction);
 		if (!resource.GetPath().StartsWith("Prefabs/Loadouts/"))
 			return;
 		array<string> parts = {};
@@ -75,9 +83,28 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		FilePath.StripExtension(relativePath).Split("/", parts, true);
 		if (parts.Count() != 3)
 			return;
-		m_Faction.SetText(parts[0]);
 		m_Group.SetText(parts[1]);
 		m_Name.SetText(parts[2]);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OnIconChanged(SCR_ComboBoxComponent combo, int index)
+	{
+		GC_LoadoutIconSelector.DrawIcon(ImageWidget.Cast(GetRootWidget().FindAnyWidget("SelectedIcon")), m_Icon.GetSelectedIcon());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected GC_LoadoutMetadata GetMetadata()
+	{
+		GC_LoadoutMetadata icon = m_Icon.GetSelectedIcon();
+		if (!icon)
+			return null;
+		GC_LoadoutMetadata metadata = new GC_LoadoutMetadata();
+		metadata.m_sName = m_Name.GetText();
+		metadata.m_sFaction = m_Faction.GetText();
+		metadata.m_sIcon = icon.m_sIcon;
+		metadata.m_sIconName = icon.m_sIconName;
+		return metadata;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -283,6 +310,12 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			m_Status.SetText("#GC-Loadout_InvalidName");
 			return;
 		}
+		GC_LoadoutMetadata metadata = GetMetadata();
+		if (!metadata || !metadata.IsValid())
+		{
+			m_Status.SetText("#GC-Loadout_InvalidMetadata");
+			return;
+		}
 		ResourceName target;
 		bool created;
 		if (FileIO.FileExists(path))
@@ -325,6 +358,11 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnBack()
 	{
+		if (m_Icon && m_Icon.IsExpanded())
+		{
+			m_Icon.CloseList();
+			return;
+		}
 		if (!SCR_ConfigurableDialogUi.GetCurrentDialog())
 			Close();
 	}
@@ -366,21 +404,19 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			m_Status.SetText("#GC-Loadout_CreateFailed");
 			return;
 		}
-		if (writeGear)
+		GC_LoadoutPrefab writer = new GC_LoadoutPrefab();
+		GC_LoadoutMetadata metadata = GetMetadata();
+		if (!metadata || !writer.Open(target) || !writer.Save(m_Owner, metadata, writeGear))
 		{
-			GC_LoadoutPrefab writer = new GC_LoadoutPrefab();
-			if (!writer.Open(target) || !writer.Save(m_Owner))
-			{
-				if (created)
-					GC_WorkbenchItemBrowser.SetEditingPrefab(target);
-				m_sSelected = target;
-				RefreshList();
-				RefreshRelationship();
-				m_Status.SetText("Save incomplete. Your current gear is retained; retry Save. " + writer.GetError());
-				return;
-			}
-			GC_WorkbenchItemBrowser.SetEditingPrefab(target);
+			if (created)
+				GC_WorkbenchItemBrowser.SetEditingPrefab(target);
+			m_sSelected = target;
+			RefreshList();
+			RefreshRelationship();
+			m_Status.SetText("Save incomplete. Your current gear is retained; retry Save. " + writer.GetError());
+			return;
 		}
+		GC_WorkbenchItemBrowser.SetEditingPrefab(target);
 		if (!GC_WorkbenchItemBrowser.LoadPrefab(target))
 		{
 			m_sSelected = target;
@@ -405,6 +441,11 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			m_PreviewManager.SetPreviewItem(m_Preview, null);
 		m_Preview = null;
 		m_PreviewManager = null;
+		if (m_Icon)
+		{
+			m_Icon.m_OnChanged.Remove(OnIconChanged);
+			m_Icon.CloseList();
+		}
 		GetGame().GetInputManager().RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnBack);
 		foreach (SCR_ButtonBaseComponent button : m_aButtons)
 			button.m_OnClicked.Remove(OnAction);

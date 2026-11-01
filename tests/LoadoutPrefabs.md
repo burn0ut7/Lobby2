@@ -9,6 +9,16 @@ action. Saving an existing destination asks Continue/Cancel before overwriting i
 including when the saved row is selected. Cancel preserves both gear and file.
 Close returns without writing. Successful actions reopen the gear editor.
 
+The role-icon selector lists the 28 named character glyphs from the native
+`LoadoutIcons.imageset`, A–Z by displayed label, with each glyph visible in its row.
+A source's custom image is retained as an additional Current icon choice. The name
+field also writes the editable-character UI name used by lobby roles. Faction must
+be a key registered in the current world's faction manager; saving writes native
+character affiliation, editable UI faction and faction labels, retaining unrelated
+labels. These fields apply to Save, Inherit and Duplicate; selecting a row or Load
+does not author metadata. Unchanged values remain inherited; choosing the parent's
+value again clears a child override. Team remains a folder name.
+
 Native files live at `Prefabs/Loadouts/<Faction>/<Team>/<Name>.et`. Inherit points to
 the source prefab; Duplicate retains the source's existing ancestor. Gear slots
 write only changed native resource references. Changed weapon attachments use native
@@ -33,6 +43,39 @@ or reports the remaining path explicitly. Native array/property inheritance rule
 apply; this is not a runtime state, ammunition-count or health save system.
 
 ## Reproduction
+
+### Metadata verification (2026-11-01)
+
+Workbench 1.8.0.13; native source revision `d9b5a4246f9247e4be5ea20935889885`.
+The faction field is `SCR_CharacterFactionAffiliationComponent`'s
+`faction affiliation`. `SCR_EditableCharacterComponent.m_UIInfo` supplies `Name`,
+`Icon`, `IconSetName`, `m_sFaction`, `m_aAuthoredLabels` and `m_aAutoLabels`.
+`SCR_Faction.GetFactionLabel()` supplies the faction label. Native array setters
+accept numeric enum values, not their symbolic names.
+
+- Production Save created a disposable USSR/MetadataQA/MetadataBase from a US
+  rifleman with Medic icon (`a7de6d87ad074a20becb56fd777de39c`). Disk readback
+  showed the new name, icon, USSR affiliation/UI faction and FACTION_USSR;
+  GROUPSIZE_SMALL and ENTITYTYPE_CHARACTER remained. No gear overrides appeared.
+- Current-gear Inherit (`5123a1d673bd4d11a82ea287203468c6`) created MetadataChild
+  with only its Name override. Confirmed Save changed its icon to Engineer
+  (`f100238bbc33492fb5a30a825d9ababc`); choosing Medic again cleared that override
+  (`799a41371f9e4e1d822e3454de69c9f9`). Base SHA256 stayed
+  `DCE33802D7A2F37EF59BF0398DF58C4A3F3CBF8D5DAC6C1016852C6091BBFC44`.
+- Saved-row Duplicate (`80ef70f6fcca497088c59032ff7850b2`) retained the native
+  ancestor and metadata, with the new name MetadataCopy.
+- An unknown faction was rejected before file creation; the menu stayed open
+  (`597e7eb8b5ce47098816e1b07649800c`). User-authored US/Test files were not saved.
+
+`GC_TestLoadoutIcon(index)` opens the native combo and invokes its native row button;
+-1 leaves it open for inspection. `GC_TestLoadoutMetadata(prefab)` reads native
+source metadata. Existing runtime-refresh behavior is unchanged by this feature.
+Final Reload `06952b695da94c71a9def83f53e5ec40` introduced no new script errors.
+Native dropdown/closed-state captures in the tool repository's
+`.temp/local/evidence/loadout-foundation` are
+`1793514753052702200-capture_screenshot.png` and
+`1793514763851584900-capture_screenshot.png`. The list opens above the field while
+retaining top-to-bottom alphabetical order; native row selection updates the glyph.
 
 ### In-session prefab investigation (2026-11-01)
 

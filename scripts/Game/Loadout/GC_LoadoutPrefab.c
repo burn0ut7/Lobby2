@@ -501,26 +501,108 @@ class GC_LoadoutPrefab
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Save(IEntity owner)
+	protected string SerializeLabels(array<EEditableEntityLabel> labels)
+	{
+		string value;
+		foreach (EEditableEntityLabel label : labels)
+		{
+			if (!value.IsEmpty())
+				value += ",";
+			value += label.ToString();
+		}
+		return value;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool WriteFactionLabels(BaseContainer info, BaseContainer inheritedInfo, array<ref ContainerIdPathEntry> path, string key, SCR_Faction faction, bool authored)
+	{
+		array<EEditableEntityLabel> current = {};
+		if (!info.Get(key, current))
+			return false;
+		array<EEditableEntityLabel> wanted = {};
+		bool inserted;
+		foreach (EEditableEntityLabel label : current)
+		{
+			if (typename.EnumToString(EEditableEntityLabel, label).StartsWith("FACTION_"))
+			{
+				if (authored && faction && !inserted)
+				{
+					wanted.Insert(faction.GetFactionLabel());
+					inserted = true;
+				}
+			}
+			else
+				wanted.Insert(label);
+		}
+		if (authored && faction && !inserted)
+			wanted.Insert(faction.GetFactionLabel());
+		string value = SerializeLabels(wanted);
+		if (SerializeLabels(current) == value)
+			return true;
+		array<EEditableEntityLabel> inherited = {};
+		if (inheritedInfo && inheritedInfo.Get(key, inherited) && SerializeLabels(inherited) == value)
+			return m_API.ClearVariableValue(m_Source, path, key);
+		return m_API.SetVariableValue(m_Source, path, key, value);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool Save(IEntity owner, GC_LoadoutMetadata metadata = null, bool writeGear = true)
 	{
 		if (!GC_WorkbenchItemBrowser.IsActive(owner) || !m_Source)
 			return false;
+		array<ref ContainerIdPathEntry> editablePath = {};
+		array<ref ContainerIdPathEntry> factionPath = {};
+		BaseContainer editable;
+		BaseContainer affiliation;
+		if (metadata)
+		{
+			editable = GC_LoadoutMetadata.FindComponent(m_Source, SCR_EditableCharacterComponent, editablePath);
+			affiliation = GC_LoadoutMetadata.FindComponent(m_Source, FactionAffiliationComponent, factionPath);
+			if (!metadata.IsValid() || !editable || !editable.GetObject("m_UIInfo") || !affiliation)
+			{
+				m_sError = "Choose a valid faction and character role icon.";
+				return false;
+			}
+		}
 		m_aPendingWeapons = {};
 		EntitySpawnParams spawn = new EntitySpawnParams();
 		spawn.TransformMode = ETransformMode.WORLD;
 		spawn.Transform[3] = owner.GetOrigin() - "0 1000 0";
-		m_Reference = GetGame().SpawnEntityPrefabLocal(m_Resource, GetGame().GetWorld(), spawn);
-		if (!m_Reference)
-			return false;
+		if (writeGear)
+		{
+			m_Reference = GetGame().SpawnEntityPrefabLocal(m_Resource, GetGame().GetWorld(), spawn);
+			if (!m_Reference)
+				return false;
+		}
 		if (!m_API.BeginEntityAction("Save loadout"))
 		{
-			SCR_EntityHelper.DeleteEntityAndChildren(m_Reference);
+			if (m_Reference)
+				SCR_EntityHelper.DeleteEntityAndChildren(m_Reference);
 			m_Reference = null;
 			return false;
 		}
-		bool success = WriteSlots(owner) && WriteContents(owner);
+		bool success = true;
+		if (writeGear)
+			success = WriteSlots(owner) && WriteContents(owner);
+		if (success && metadata)
+		{
+			BaseContainer info = editable.GetObject("m_UIInfo");
+			BaseContainer inheritedInfo;
+			if (editable.GetAncestor())
+				inheritedInfo = editable.GetAncestor().GetObject("m_UIInfo");
+			editablePath.Insert(new ContainerIdPathEntry("m_UIInfo"));
+			SCR_Faction faction = SCR_Faction.Cast(GetGame().GetFactionManager().GetFactionByKey(metadata.m_sFaction));
+			success = SetResource(info, inheritedInfo, editablePath, "Name", metadata.m_sName)
+				&& SetResource(info, inheritedInfo, editablePath, "Icon", metadata.m_sIcon)
+				&& SetResource(info, inheritedInfo, editablePath, "IconSetName", metadata.m_sIconName)
+				&& SetResource(info, inheritedInfo, editablePath, "m_sFaction", metadata.m_sFaction)
+				&& SetResource(affiliation, affiliation.GetAncestor(), factionPath, "faction affiliation", metadata.m_sFaction)
+				&& WriteFactionLabels(info, inheritedInfo, editablePath, "m_aAuthoredLabels", faction, true)
+				&& WriteFactionLabels(info, inheritedInfo, editablePath, "m_aAutoLabels", faction, false);
+		}
 		m_API.EndEntityAction();
-		SCR_EntityHelper.DeleteEntityAndChildren(m_Reference);
+		if (m_Reference)
+			SCR_EntityHelper.DeleteEntityAndChildren(m_Reference);
 		m_Reference = null;
 		if (!success)
 			return false;

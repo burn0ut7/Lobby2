@@ -3,6 +3,28 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestLoadoutIcon(int index)
+	{
+		MenuBase menu = GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu);
+		if (!menu)
+			return "dialog absent";
+		GC_LoadoutIconSelector selector = GC_LoadoutIconSelector.Cast(menu.GetRootWidget().FindAnyWidget("RoleSelector").FindHandler(GC_LoadoutIconSelector));
+		selector.OpenList();
+		if (index >= 0)
+			selector.GC_TestChoose(index);
+		GC_LoadoutMetadata icon = selector.GetSelectedIcon();
+		return string.Format("count=%1 selected=%2 icon=%3", selector.GetNumItems(), selector.GetCurrentIndex(), icon.m_sIconName);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestLoadoutMetadata(string prefab)
+	{
+		GC_LoadoutMetadata metadata = GC_LoadoutMetadata.Read(prefab);
+		if (!metadata)
+			return "metadata absent";
+		return string.Format("name=%1 faction=%2 icon=%3 image=%4", metadata.m_sName, metadata.m_sFaction, metadata.m_sIconName, metadata.m_sIcon);
+	}
+	//------------------------------------------------------------------------------------------------
 	string GC_TestLoadoutConfirm(string action)
 	{
 		SCR_ConfigurableDialogUi dialog = SCR_ConfigurableDialogUi.GetCurrentDialog();
@@ -88,6 +110,17 @@ modded class GC_LobbyManager
 			row = row.GetSibling();
 		}
 		return "not found";
+	}
+}
+
+modded class GC_LoadoutIconSelector
+{
+	void GC_TestChoose(int index)
+	{
+		if (index < 0 || index >= m_aElementWidgets.Count())
+			return;
+		Widget row = m_aElementWidgets[index];
+		SCR_ButtonTextComponent.Cast(row.FindHandler(SCR_ButtonTextComponent)).OnClick(row, 0, 0, 0);
 	}
 }
 #endif
