@@ -123,8 +123,6 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
             if (name.IsEmpty() && m_Slot)
                 name = m_Slot.GetCachedPlayerName();
 
-			if (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId)
-				name += "  [SELECTED]";
             playerName.SetText(name);
 			GC_PlayerNamePresentation.Apply(playerName, m_iPlayerId);
         }
@@ -140,10 +138,9 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
                 groupCallsign.SetText(string.Empty);
         }
 
-        UpdateFactionAccent();
+        UpdateSelectionVisuals();
         UpdateRoleVisuals();
         UpdateVoiceVisuals();
-        UpdateLocalPlayerBackground();
     }
 
 	void RefreshAdminNamePresentation()
@@ -154,28 +151,6 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 		GC_PlayerNamePresentation.Apply(m_wRoot.FindAnyWidget("PlayerName"), m_iPlayerId);
 	}
 
-    //! Recolors this row only for the player represented by the local client.
-    //! The same row layout is used by both the player and voice-channel lists.
-    protected void UpdateLocalPlayerBackground()
-    {
-        Widget background = m_wRoot.FindAnyWidget("Background");
-        if (!background)
-            return;
-
-        bool isLocalPlayer;
-        PlayerController playerController = GetGame().GetPlayerController();
-        if (playerController)
-            isLocalPlayer = playerController.GetPlayerId() == m_iPlayerId;
-
-		if (m_VoiceController && m_VoiceController.GC_CanJumpSpectatorCamera() && m_VoiceController.GC_GetFocusedPlayer() == m_iPlayerId)
-			background.SetColor(GC_LobbyPalette.Selection());
-		else if (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId)
-			background.SetColor(GC_LobbyPalette.Selection());
-        else if (isLocalPlayer)
-            background.SetColor(GC_LobbyPalette.Blue(199));
-        else
-            background.SetColor(GC_LobbyPalette.Surface(158));
-    }
 
 	//------------------------------------------------------------------------------------------------
 	//! Speech uses native local capture/receive activity; deafen remains replicated.
@@ -224,11 +199,30 @@ class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 	}
 
 
-    protected void UpdateFactionAccent()
+    //! Selection uses the row surface and edge; player identity colors affect only names.
+    protected void UpdateSelectionVisuals()
     {
+		bool selected = m_VoiceController && m_VoiceController.GC_CanJumpSpectatorCamera()
+			&& m_VoiceController.GC_GetFocusedPlayer() == m_iPlayerId;
+		selected = selected || (m_SelectionManager && m_SelectionManager.GetAdminSelectedPlayer() == m_iPlayerId);
+		Widget background = m_wRoot.FindAnyWidget("Background");
+		if (background)
+		{
+			if (selected)
+				background.SetColor(GC_LobbyPalette.Selection());
+			else
+				background.SetColor(GC_LobbyPalette.Surface(158));
+		}
+
         ImageWidget accent = ImageWidget.Cast(m_wRoot.FindAnyWidget("FactionAccent"));
         if (!accent)
             return;
+		if (selected)
+		{
+			accent.SetColor(GC_LobbyPalette.Selection(255));
+			accent.SetOpacity(1);
+			return;
+		}
 
         Faction playerFaction = ResolvePlayerFaction();
         if (playerFaction)
