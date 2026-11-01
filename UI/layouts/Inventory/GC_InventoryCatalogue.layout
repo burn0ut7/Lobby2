@@ -18,7 +18,24 @@ PanelWidgetClass {
 }
 EditBoxWidgetClass {
  Name "CatalogueSearch"
- Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 8 0 8 0 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 20 Color 0.94 0.94 0.94 1 "Use placeholder text" 1 "Placeholder color" 0.65 0.65 0.65 1 "Placeholder text" "#AR-Editor_ContentBrowser_SearchButton"
+ Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 Padding 8 0 40 0 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Font Size" 20 Color 0.94 0.94 0.94 1 "Use placeholder text" 1 "Placeholder color" 0.65 0.65 0.65 1 "Placeholder text" "#AR-Editor_ContentBrowser_SearchButton"
+}
+SizeLayoutWidgetClass {
+ Name "ClearSearchBounds"
+ Slot OverlayWidgetSlot { HorizontalAlign 2 VerticalAlign 3 } AllowWidthOverride 1 WidthOverride 36
+ {
+ButtonWidgetClass {
+ Name "ClearSearch" Visible 0
+ Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 components { SCR_ButtonBaseComponent { m_bCanBeToggled 0 m_BackgroundDefault 1 1 1 0 m_BackgroundHovered 1 1 1 0.12 m_bShowBorderOnHover 1 m_bShowBorderOnFocus 1 } }
+ {
+OverlayWidgetClass { Name "Content" Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } {
+PanelWidgetClass { Name "Background" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 0 style full "Ignore Cursor" 1 }
+PanelWidgetClass { Name "Border" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 0.65 0.65 0.65 0.6 style pixel_outline "Ignore Cursor" 1 }
+TextWidgetClass { Name "ClearSearchLabel" Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } Text "X" "Font Size" 20 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1 }
+} }
+ }
+}
+ }
 }
  }
 }

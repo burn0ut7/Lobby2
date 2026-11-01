@@ -6,6 +6,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected Widget m_Vicinity;
 	protected Widget m_Opened;
 	protected EditBoxWidget m_Search;
+	protected Widget m_ClearSearch;
 	protected ref GC_ItemCatalogue m_Catalogue;
 	protected ref GC_ItemCatalogueQuery m_Query = new GC_ItemCatalogueQuery();
 	protected ref array<GC_ItemCatalogueEntry> m_aPage = {};
@@ -63,6 +64,8 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		m_Paging = SCR_SpinBoxPagingComponent.GetSpinBoxPagingComponent("CataloguePaging", m_Root);
 		m_Paging.m_OnChanged.Insert(OnPageChanged);
 		m_Search = EditBoxWidget.Cast(m_Root.FindAnyWidget("CatalogueSearch"));
+		m_ClearSearch = m_Root.FindAnyWidget("ClearSearch");
+		BindButton(m_ClearSearch);
 		for (int i; i < PAGE_SIZE; i++)
 		{
 			Widget cell = GetGame().GetWorkspace().CreateWidgets("{DC391DA320AE1002}UI/layouts/Inventory/GC_InventoryCatalogueCell.layout", m_Root.FindAnyWidget("Results"));
@@ -131,6 +134,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			m_Paging.SetButtonsActive(pagingActive);
 		}
 		string text = m_Search.GetText();
+		m_ClearSearch.SetVisible(!text.IsEmpty());
 		if (text != m_sPendingText)
 		{
 			m_sPendingText = text;
@@ -359,6 +363,18 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	protected bool ProcessClick(Widget w)
 	{
+		if (w == m_ClearSearch)
+		{
+			m_Search.SetText(string.Empty);
+			m_sPendingText = string.Empty;
+			m_Query.m_sText = string.Empty;
+			m_fSearchDelay = 0;
+			m_iOffset = 0;
+			m_ClearSearch.SetVisible(false);
+			GetGame().GetWorkspace().SetFocusedWidget(m_Search);
+			Refresh();
+			return true;
+		}
 		if (w.GetName().StartsWith("Category"))
 		{
 			string category = w.GetName();
