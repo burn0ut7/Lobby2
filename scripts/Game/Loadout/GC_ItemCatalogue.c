@@ -54,7 +54,7 @@ class GC_ItemCatalogue
 	protected bool m_bDiscoveryFailed;
 	protected ref array<string> m_aDiscoveryIssues = {};
 	protected ref array<ResourceName> m_aFailedResources = {};
-	protected static const int INDEX_BATCH_SIZE = 200;
+	protected static const int INDEX_BATCH_SIZE = 500;
 
 	//------------------------------------------------------------------------------------------------
 	void Start()

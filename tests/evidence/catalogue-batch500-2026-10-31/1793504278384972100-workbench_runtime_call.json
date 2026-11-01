@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"state\":\"invoked\",\"processId\":44368,\"operationId\":\"30bd1216ad374bdabb28cea683fb24c4\",\"receipt\":\"r96d1c7e89fa345db8e1706ff96626e7e\",\"returnType\":\"string\",\"returned\":\"category= faction= descending=false slot= text= offset=0 total=813 visible=11 previews=11 indexed=2009 finished=1\",\"invocationAttempted\":true,\"timings\":{\"prepareMs\":1,\"compileMs\":1,\"invokeMs\":0,\"serverMs\":70.97},\"target\":{\"world\":\"$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent\",\"entityName\":\"GameMode_Lobby3\",\"componentType\":\"GC_LobbyManager\",\"method\":\"GC_TestCatalogueState\"},\"completion\":\"synchronous_call_only\"}"
+      }
+    ]
+  },
+  "id": 1,
+  "jsonrpc": "2.0"
+}

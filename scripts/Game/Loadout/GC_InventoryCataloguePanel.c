@@ -144,7 +144,7 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 			Refresh();
 		}
 		m_fRefresh += timeSlice;
-		if (m_fRefresh >= 0.5 && (m_iIndexed != m_Catalogue.Count() || m_bFinished != m_Catalogue.IsFinished()))
+		if (m_bFinished != m_Catalogue.IsFinished() || (m_fRefresh >= 0.5 && m_iIndexed != m_Catalogue.Count()))
 			Refresh();
 		// Only visible cells, one request per frame. A new query cancels the old page queue.
 		if (m_iPreview < m_aPage.Count())
