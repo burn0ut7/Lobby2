@@ -1,5 +1,10 @@
 # Game Master name badge
 
+Follow-up: name labels use native Auto sizing so the star follows the text with
+a six-unit gap instead of sitting at the far edge of a filled name cell. Stars
+are now 22 × 22 (previously 18 × 18). Reload and live slot/voice-row inspection
+confirmed the corrected position: [adjacent star](evidence/gm-badge-20261101/gm-adjacent.png).
+
 Lobby player/voice rows and occupied slot rows show a small white star when the
 connected player has the native `GAME_MASTER` role. Admin/new-player name colors
 remain independent. Empty, disconnected and KIA slot presentations hide it.

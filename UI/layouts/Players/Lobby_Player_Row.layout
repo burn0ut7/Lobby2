@@ -117,7 +117,7 @@ ButtonWidgetClass {
            "Ignore Cursor" 1
            Slot LayoutSlot "{6A33000000000018}" {
             VerticalAlign 1
-            SizeMode Fill
+            SizeMode Auto
            }
            Text ""
            "Font Size" 22
@@ -139,7 +139,7 @@ ButtonWidgetClass {
            Color 1 1 1 1
            Texture "{D17288006833490F}UI/Textures/Icons/icons_wrapperUI-32.imageset"
            Image "favourite"
-           Size 18 18
+           Size 22 22
           }
          }
         }

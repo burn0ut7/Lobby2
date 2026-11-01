@@ -144,8 +144,7 @@ ButtonWidgetClass {
            Slot LayoutSlot "{6A24000100000016}" {
             HorizontalAlign 0
             VerticalAlign 1
-            Padding 0 0 18 0
-            SizeMode Fill
+            SizeMode Auto
            }
            Color 1 1 1 1
            Text ""
@@ -168,7 +167,7 @@ ButtonWidgetClass {
            Color 1 1 1 1
            Texture "{D17288006833490F}UI/Textures/Icons/icons_wrapperUI-32.imageset"
            Image "favourite"
-           Size 18 18
+           Size 22 22
           }
          }
         }
