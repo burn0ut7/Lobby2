@@ -181,7 +181,7 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 		}
 		array<int> connected = {};
 		players.GetPlayers(connected);
-		count.SetTextFormat("%1 connected", connected.Count());
+		count.SetTextFormat("%1", connected.Count());
 	}
 
     protected void OnPlayerRoleChanged(int playerId)
