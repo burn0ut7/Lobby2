@@ -82,10 +82,39 @@ class GC_LoadoutPrefab
 	//------------------------------------------------------------------------------------------------
 	static ResourceName Register(string path)
 	{
+		// RegisterResourceFile always opens Workbench's registration progress UI,
+		// even with runtime building disabled. Author the native prefab sidecar
+		// directly; the resource manager reads it without invoking the importer.
+		string root;
+		if (!Workbench.GetAbsolutePath("$Lobby2:", root))
+			return string.Empty;
+		root.Replace("\\", "/");
+		path.Replace("\\", "/");
+		if (!root.EndsWith("/"))
+			root += "/";
+		if (!path.StartsWith(root + "Prefabs/Loadouts/") || path.Contains("/../") || !path.EndsWith(".et") || FileIO.FileExists(path + ".meta"))
+			return string.Empty;
+		string guid = Workbench.GenerateGloballyUniqueID64();
+		guid.Replace("{", "");
+		guid.Replace("}", "");
+		if (guid.Length() != 16)
+			return string.Empty;
+		string identity = "{" + guid + "}" + path.Substring(root.Length(), path.Length() - root.Length());
+		FileHandle file = FileIO.OpenFile(path + ".meta", FileMode.WRITE);
+		if (!file)
+			return string.Empty;
+		file.WriteLine("MetaFileClass {");
+		file.WriteLine(" Name " + Quote(identity));
+		file.WriteLine(" Configurations {");
+		file.WriteLine("  EntityTemplateResourceClass PC {}");
+		array<string> platforms = {"XBOX_ONE", "XBOX_SERIES", "PS4", "PS5", "HEADLESS"};
+		foreach (string platform : platforms)
+			file.WriteLine("  EntityTemplateResourceClass " + platform + " : PC {}");
+		file.WriteLine(" }");
+		file.WriteLine("}");
+		file.Close();
 		ResourceManager manager = Workbench.GetModule(ResourceManager);
-		// Register the prefab source without requesting an asset build from
-		// the player's loadout menu, as in SCR_BaseContainerTools.
-		if (!manager || !manager.RegisterResourceFile(path, false))
+		if (!manager)
 			return string.Empty;
 		MetaFile meta = manager.GetMetaFile(path);
 		if (!meta)
