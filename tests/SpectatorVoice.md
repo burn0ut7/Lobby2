@@ -63,3 +63,25 @@ co-located receiver within 0.001 m is not proven inaudible. Simultaneous speech,
 dedicated-server audio and a fresh addon-free microphone comparison remain
 unmeasured. Native callbacks prove routing, not audible output by themselves.
 Existing Arland resource/plugin/loadout warnings are separate from this change.
+
+## Radio menu ownership
+
+Radio monitoring defaults off. The prior microphone setup explicitly enabled it
+through a test command; that was not startup behavior. A separate UI defect made
+the menu's dynamically created radio actions expire when `Build` returned: the
+button kept only a weak reference. The button now owns its action until detach,
+using the existing cleanup. No radio defaults or network protocol changed.
+
+Reload at 21:18:13 passed script compilation. A fresh session reported target 0,
+zero receivers and zero inventory receivers. Opening the marker menu and invoking
+its real All radios row through `GC_TestContextAction` created two receivers;
+reopening and invoking Stop listening cleared target, selection and both inventory
+receivers. Selecting and deselecting the individual radio did the same. Menu builds
+and clicks were separate runtime calls, exercising the action's retained lifetime.
+These are production button-handler checks, not physical mouse input.
+
+MCP captures `Art/References/spectator-radio/listening-selected.png` and
+`listening-stopped.png` show checked choices plus Stop, then unchecked choices
+without Stop. Local speech remains audible while near the player, including the
+local portion of radio speech; stopping radio monitoring does not mute proximity
+voice. The test session was left with monitoring off.

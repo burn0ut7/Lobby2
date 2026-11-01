@@ -827,6 +827,21 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
+	string GC_TestContextAction(string text)
+	{
+		array<Widget> widgets = {};
+		GC_TestCollect(GetGame().GetWorkspace(), widgets);
+		foreach (Widget widget : widgets)
+		{
+			GC_ContextMenuActionButtonComponent button = GC_ContextMenuActionButtonComponent.Cast(widget.FindHandler(GC_ContextMenuActionButtonComponent));
+			TextWidget label = TextWidget.Cast(widget.FindAnyWidget("ContextActionLabel"));
+			if (button && label && label.GetText() == text)
+				return GC_TestDispatchClick(widget);
+		}
+		return "NO ACTION";
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestFactionInfoTargets()
 	{
 		array<int> targets;

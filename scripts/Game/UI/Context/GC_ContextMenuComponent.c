@@ -1,6 +1,7 @@
 class GC_ContextMenuActionButtonComponent : SCR_ButtonBaseComponent
 {
-	protected GC_ContextMenuAction m_Action;
+	// Radio choices are built per popup; keep their action alive until detach.
+	protected ref GC_ContextMenuAction m_Action;
 	protected ref GC_ContextMenuContext m_Context;
 
 	void Bind(GC_ContextMenuAction action, GC_ContextMenuContext context)
