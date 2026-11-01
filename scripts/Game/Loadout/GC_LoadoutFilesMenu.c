@@ -733,8 +733,9 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			m_Status.SetText("Save incomplete. Your current gear is retained; retry Save. " + writer.GetError());
 			return;
 		}
-		GC_WorkbenchItemBrowser.SetEditingPrefab(target);
-		if (!GC_WorkbenchItemBrowser.LoadPrefab(target))
+		// The current character already contains the gear just written. Saving
+		// must not respawn it or restart the local Workbench session.
+		if (!writeGear && !GC_WorkbenchItemBrowser.LoadPrefab(target))
 		{
 			m_sSelected = target;
 			RefreshList();
@@ -744,6 +745,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 			m_Status.SetText("#GC-Loadout_SavedLoadFailed");
 			return;
 		}
+		GC_WorkbenchItemBrowser.SetEditingPrefab(target);
 		Close();
 	}
 

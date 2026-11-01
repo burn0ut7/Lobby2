@@ -8,7 +8,7 @@ class GC_WorkbenchItemBrowser
 	protected static ResourceName s_sEditingPrefab;
 
 	//------------------------------------------------------------------------------------------------
-	static bool Open()
+	static bool Open(bool showInventory = true)
 	{
 		SCR_PlayerController controller = SCR_PlayerController.Cast(GetGame().GetPlayerController());
 		if (RplSession.Mode() != RplMode.None || !GC_LobbyGameMode.GetGameMode() || !controller)
@@ -29,7 +29,8 @@ class GC_WorkbenchItemBrowser
 		s_sEditingPrefab = editing;
 		s_Controller.m_OnControlledEntityChanged.Insert(OnOwnerChanged);
 		s_Mode.GetOnGameEnd().Insert(Disable);
-		manager.OpenInventory();
+		if (showInventory)
+			manager.OpenInventory();
 		return true;
 	}
 
@@ -76,18 +77,7 @@ class GC_WorkbenchItemBrowser
 	{
 		if (!IsActive(s_Owner))
 			return false;
-		return GC_LoadoutRefresh.Request(prefab, s_Owner);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	//! Called after the Workbench preview has restarted with a fresh resource database.
-	static bool ResumePrefab(ResourceName prefab, vector position, vector angles)
-	{
-		if (RplSession.Mode() != RplMode.None || !GC_LobbyGameMode.GetGameMode())
-			return false;
-		SCR_PlayerController controller = SCR_PlayerController.Cast(GetGame().GetPlayerController());
-		if (!controller || !controller.GetControlledEntity())
-			return false;
+		SCR_PlayerController controller = s_Controller;
 		Resource resource = Resource.Load(prefab);
 		if (!resource || !resource.IsValid())
 			return false;
@@ -96,23 +86,50 @@ class GC_WorkbenchItemBrowser
 			return false;
 		EntitySpawnParams spawn = new EntitySpawnParams();
 		spawn.TransformMode = ETransformMode.WORLD;
-		Math3D.AnglesToMatrix(angles, spawn.Transform);
-		spawn.Transform[3] = position;
 		IEntity previous = controller.GetControlledEntity();
+		previous.GetWorldTransform(spawn.Transform);
 		IEntity character = GetGame().SpawnEntityPrefabLocal(resource, GetGame().GetWorld(), spawn);
 		if (!character)
 			return false;
-		controller.SetControlledEntity(character);
-		if (controller.GetControlledEntity() != character)
+		RplComponent replication = RplComponent.Cast(character.FindComponent(RplComponent));
+		if (!replication || !replication.Id().IsValid() || !character.FindComponent(SCR_InventoryStorageManagerComponent))
 		{
 			SCR_EntityHelper.DeleteEntityAndChildren(character);
 			return false;
 		}
-		SCR_EntityHelper.DeleteEntityAndChildren(previous);
-		if (!Open())
+		controller.SetControlledEntity(character);
+		if (controller.GetControlledEntity() != character)
+		{
+			controller.SetControlledEntity(previous);
+			SCR_EntityHelper.DeleteEntityAndChildren(character);
 			return false;
+		}
+		if (!Open(false))
+		{
+			controller.SetControlledEntity(previous);
+			SCR_EntityHelper.DeleteEntityAndChildren(character);
+			return false;
+		}
+		SCR_EntityHelper.DeleteEntityAndChildren(previous);
 		SetEditingPrefab(prefab);
+		// Let the old character's inventory and the file dialog finish closing.
+		GetGame().GetCallqueue().CallLater(ReopenInventory, 1, false, character, 0);
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected static void ReopenInventory(IEntity owner, int attempt)
+	{
+		if (!IsActive(owner))
+			return;
+		MenuManager menus = GetGame().GetMenuManager();
+		if (menus.FindMenuByPreset(ChimeraMenuPreset.Inventory20Menu) || menus.FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu))
+		{
+			if (attempt < 40)
+				GetGame().GetCallqueue().CallLater(ReopenInventory, 25, false, owner, attempt + 1);
+			return;
+		}
+		Open();
 	}
 	//------------------------------------------------------------------------------------------------
 	protected static void OnOwnerChanged(IEntity from, IEntity to)

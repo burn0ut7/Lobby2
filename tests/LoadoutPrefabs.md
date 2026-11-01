@@ -26,14 +26,20 @@ weapon variants in the adjacent Weapons directory. Stable weapon identities pres
 attachment inheritance; replacing a weapon allocates a different variant. Variants
 are owned by the exact team directory, loadout name and slot.
 
-Workbench caches resources during embedded Play, including newly registered GUIDs.
-After a successful file action the Workbench plugin briefly stops and restarts the
-preview, then possesses the selected native prefab and opens its inventory. This
-resets runtime-only world state. The one-shot profile handoff contains only the
-prefab identity, project/world and character transform, never serialized gear.
-Ordinary Play starts/stops do not activate the editor. Generation and world/project
-checks cancel interrupted handoffs. This authoring service is Workbench-only and
-requires the explicit local Lobby2 authoring session; network play is rejected.
+File actions never stop or restart Play. Saving current gear retains the character
+and updates the editing destination. Load spawns and possesses the selected native
+character in the current world, then reopens inventory after the old menu closes.
+It checks the replication ID and actual possession before deleting the old character.
+This authoring service requires the explicit local Workbench Lobby2 session;
+network play is rejected.
+
+Known unresolved limitation in Workbench 1.8.0.13: newly registered prefab GUIDs
+cannot be possessed during the same Play session. This also affects saved-source
+Inherit/Duplicate when opening their newly created destination. The file is saved,
+but the menu reports the load failure and retains current gear. There is no automatic
+restart or substitute prefab. Current-gear Save/Inherit/Duplicate need no respawn
+and return directly to inventory. Loading new files in the same session is still
+unfinished; existing-file loading does not establish support for that case.
 
 All slots and contents are validated before writing existing weapon dependencies.
 A disk failure while publishing multiple native files can be partial; the message
@@ -77,9 +83,9 @@ Native dropdown/closed-state captures in the tool repository's
 `1793514763851584900-capture_screenshot.png`. The list opens above the field while
 retaining top-to-bottom alphabetical order; native row selection updates the glyph.
 
-### In-session prefab investigation (2026-11-01)
+### Earlier in-session prefab investigation (2026-11-01, superseded below)
 
-The restart is implemented by `GC_LoadoutRefresh` / `GC_LoadoutRefreshPlugin`,
+The former restart was implemented by `GC_LoadoutRefresh` / `GC_LoadoutRefreshPlugin`,
 not required by `WorldEditorAPI.SaveEntityTemplate` itself. A direct save and
 local spawn of an already registered prefab reflected changed inventory in the
 same Play session (operations `76f8f69d761843af87b171577c9a9446` and
@@ -97,8 +103,8 @@ succeed; that was not verified.
 Installed declarations expose registration/building and database acknowledgement,
 but no inspected API establishes a safe in-Play refresh of new replication IDs.
 This is a bounded finding, not proof that no native solution exists. Removing the
-restart alone is insufficient. The experimental replacement was reverted; the
-existing production behavior remains. A future change must preserve native weapon
+restart alone is insufficient. That earlier experiment was reverted; the later
+change below removes the restart with an explicit new-file limitation. Further work must preserve native weapon
 identity/inheritance as well as test new-file creation, not just existing-file load.
 
 Overwrite verification (2026-11-01, Workbench 1.8.0.13): selected a disposable
@@ -127,8 +133,9 @@ component is `GC_LobbyManager` on `GameMode_Lobby3`.
 - `GC_TestLoadoutFlowState()` reports actual/editing prefab, menu and active state.
 - `GC_TestLoadoutSnapshot()` reads the native arsenal's transient inspection output.
 
-After each successful action wait for the automatic preview restart, then inspect
-flow state and native contents. Do not treat the initial button return as completion.
+Use `GC_TestLiveBegin()` before an action and `GC_TestLiveState()` afterward to
+verify session/character continuity. Inspect flow state and native contents after
+the deferred inventory reopen. Do not treat the button return as completion.
 Use a disposable team directory and inspect source files as well as the live entity.
 
 ## Verified 2026-11-01
@@ -192,8 +199,8 @@ number instead of overwriting. The new character inherits gear normally and has
 an empty local randomizer. The parent stores its resource in the native
 `SCR_EditableCharacterComponent.m_VariantData.m_aVariants` list. All writes use
 Workbench source authoring and `SaveEntityTemplate`; there is no custom runtime
-loadout serialization. Saving variant data does not restart Play. Loading continues
-to use the existing prefab-load lifecycle described above.
+loadout serialization. Saving variant data does not restart Play. Loading uses the
+in-session path and has the new-resource limitation described above.
 
 Installed source evidence, revision `d9b5a4246f9247e4be5ea20935889885`:
 
@@ -230,3 +237,42 @@ Live production-handler checks used disposable `US/VariantsQA` prefabs:
 Independent source and visual review approved after keyboard-dismissal,
 early-teardown and persistence-retry fixes. Forced disk-failure injection and
 multiplayer were not tested; authoring remains local Workbench-only.
+
+## Session-preserving file actions (2026-11-01)
+
+Removed both restart/handoff classes. No file action calls SwitchToEditMode or
+SwitchToGameMode. Current-gear writes retain the character; existing-file Load
+replaces only the character, validates inventory and replication before possession,
+and waits for the old menus to close before reopening inventory.
+
+Live evidence on PID 41892, Workbench 1.8.0.13, same installed-source revision:
+
+- Current-gear Save (`be20e731d669460884b30dd8be193ef0`), Inherit
+  (`3378113ddb1f452091cc47e98f975665`) and Duplicate
+  (`92e253224f5d48b78ce189ef30f91593`) persisted native files. Checkpoints
+  `0136d0c0dd6b4e6ebf32bf235ac5cbc8` and `dffb9ea9ed8c406dab94858d921242d9`
+  retained the same session and character. The child inherited SessionSave;
+  its duplicate retained that ancestor. Neither introduced gear overrides.
+- Production Load (`2a20be1681984b36b8d9fa9855e79345`) changed the character
+  without changing session; `e4a85bf6405b45feb8e1fea33f09d51e` returned
+  active=1, files=0, gear=1 and actual=editing. Screenshot
+  `1793517905154267500-capture_screenshot.png` shows the reopened gear editor.
+- A newly saved GUID could not load (`f2bc0327e3284672a122760b7797e379`),
+  returning loaded=0 with the same session and character. Saved-source Duplicate
+  persisted its file, then reported the same limitation (`9375b7d4c6054f948708d0262d4d6323`);
+  `8c9072fde10b41e5a386d5585ace518f` confirmed no replacement/restart.
+- New-GUID experiments using normal/local spawn, SetInitialMainEntity,
+  InsertToReplication, PrefabList.RegisterPrefab and a delayed respawn after
+  registration still produced invalid replication IDs. These are bounded results,
+  not proof that no native registration solution exists. Exploratory code was removed.
+
+The new-GUID load case remains unfinished. No network-mode behavior or shared
+inventory overrides changed in this slice. Optional continuity checks live in
+GC_LoadoutLiveTests.c; they exercise production Load rather than implementing it.
+
+Final compilation `65a4ee50eea34521979cc9ed2a30522f` passed with only the existing
+ArlandLobby/plugin/formation diagnostics. User `US/Test/base` was restored through
+the production Load button; `21f6efb2b892476ba2fc929c0ce260f9` confirmed
+actual=editing, active=1, files=0, gear=1. Disposable LiveQA files were archived in
+tool evidence then removed. Independent review approved this as a partial safety
+and UI improvement, explicitly not completion of new-GUID loading.

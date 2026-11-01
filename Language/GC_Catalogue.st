@@ -25,7 +25,7 @@ StringTable {
   CustomStringTableItem "{DC391DA320AF3007}" { Id "GC-Loadout_Save" Target_en_us "Save" }
   CustomStringTableItem "{DC391DA320AF3008}" { Id "GC-Loadout_Inherit" Target_en_us "Inherit" }
   CustomStringTableItem "{DC391DA320AF3009}" { Id "GC-Loadout_Duplicate" Target_en_us "Duplicate" }
-  CustomStringTableItem "{DC391DA320AF300A}" { Id "GC-Loadout_LoadFailed" Target_en_us "Could not load this character prefab." }
+  CustomStringTableItem "{DC391DA320AF300A}" { Id "GC-Loadout_LoadFailed" Target_en_us "Cannot load this prefab in this session. Your gear is unchanged." }
   CustomStringTableItem "{DC391DA320AF300B}" { Id "GC-Loadout_InvalidName" Target_en_us "Enter a faction, team and name. Use letters, numbers, spaces, hyphens or underscores." }
   CustomStringTableItem "{DC391DA320AF300C}" { Id "GC-Loadout_NameExists" Target_en_us "That name already exists. Enter a new name." }
   CustomStringTableItem "{DC391DA320AF300D}" { Id "GC-Loadout_CreateFailed" Target_en_us "Could not create the prefab. Check the destination before trying again." }
@@ -85,7 +85,7 @@ StringTable {
   }
   CustomStringTableItem "{DC391DA320AF0073}" {
    Id "GC-Loadout_SavedLoadFailed"
-   Target_en_us "Prefab saved, but could not be loaded. Select Load to try again."
+   Target_en_us "Saved, but cannot load in this session. Your gear is unchanged."
   }
   CustomStringTableItem "{DC391DA320AF0008}" {
    Id "GC-Catalogue_Clothing"
