@@ -75,7 +75,7 @@ SizeLayoutWidgetClass {
         SizeMode Fill
         Padding 0 12 0 0
        }
-       Color 1 1 1 0
+       Color 1 1 1 1
        "Scrollbar Always Visible" 0
        {
         VerticalLayoutWidgetClass "{6A5A000000000013}" {

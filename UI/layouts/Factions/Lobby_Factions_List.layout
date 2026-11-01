@@ -1,6 +1,6 @@
 ScrollLayoutWidgetClass {
  Name "Scroll"
- Color 1 1 1 0
+ Color 1 1 1 1
  components {
   GC_FactionListComponent "{6A18396A1D5D2BEE}" {
   }

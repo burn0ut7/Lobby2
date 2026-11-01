@@ -96,7 +96,7 @@ FrameWidgetClass {
                Slot LayoutSlot "{6A1A4D195EEFB941}" {
                 SizeMode Fill
                }
-               Color 0.096 0.2036 0.2502 1
+               Color 1 1 1 1
               }
              }
             }
@@ -141,7 +141,7 @@ FrameWidgetClass {
                Slot LayoutSlot "{6A1B462DF999F7A2}" {
                 SizeMode Fill
                }
-               Color 0.096 0.2036 0.2502 1
+               Color 1 1 1 1
                {
                 VerticalLayoutWidgetClass "{6A1B462DF999F7B0}" {
                  Name "Groups"

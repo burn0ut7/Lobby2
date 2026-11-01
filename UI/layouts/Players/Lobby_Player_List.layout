@@ -78,8 +78,8 @@ SizeLayoutWidgetClass {
         HorizontalAlign 3
         SizeMode Fill
        }
-       Color 1 1 1 0
-       "Scrollbar Always Visible" 1
+       Color 1 1 1 1
+       "Scrollbar Always Visible" 0
        {
         OverlayWidgetClass {
          Name "PlayerListRows"

@@ -27,8 +27,8 @@ SizeLayoutWidgetClass {
       VerticalAlign 3
       Padding 4 4 0 0
      }
-     Color 1 1 1 0
-     "Scrollbar Always Visible" 1
+     Color 1 1 1 1
+     "Scrollbar Always Visible" 0
      {
       OverlayWidgetClass {
        Name "VoiceChannelContent"
