@@ -30,6 +30,7 @@ modded class SCR_InventoryMenuUI
 	protected float m_fGCPreviewRefresh;
 	protected GC_ItemCatalogueEntry m_GCGestureItem;
 	protected bool m_bGCShortcutBound;
+	protected bool m_bGCDragged;
 
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuUpdate(float tDelta)
@@ -82,7 +83,7 @@ modded class SCR_InventoryMenuUI
 		SCR_InventorySlotWeaponSlotsUI weapon = SCR_InventorySlotWeaponSlotsUI.Cast(slot);
 		if (weapon)
 		{
-			m_GCCataloguePanel.SetSlot(weapon.GC_GetCatalogueWeaponType());
+			m_GCCataloguePanel.SetWeaponSlot(m_pWeaponStorageComp, weapon.GetWeaponSlotIndex(), weapon.GC_GetCatalogueWeaponType());
 			return;
 		}
 		SCR_InventoryStoragesListUI clothing = SCR_InventoryStoragesListUI.Cast(slot.GetStorageUI());
@@ -111,8 +112,26 @@ modded class SCR_InventoryMenuUI
 	{
 		if (!GC_WorkbenchItemBrowser.IsActive(m_Player))
 			return;
+		if (m_GCCataloguePanel && m_GCCataloguePanel.HasWeaponContext())
+		{
+			if (!GC_CatalogueTransfer.InsertWeapon(entry, m_Player, this, m_GCCataloguePanel.GetWeaponTarget()))
+				GC_CatalogueTransferResult(false);
+			return;
+		}
 		if (!GC_CatalogueTransfer.Insert(entry, m_Player, this))
 			GC_CatalogueTransferResult(false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GC_ClickWeaponCatalogueItem(GC_ItemCatalogueEntry entry)
+	{
+		if (m_bGCDragged)
+		{
+			m_bGCDragged = false;
+			return;
+		}
+		if (m_GCCataloguePanel && m_GCCataloguePanel.HasWeaponContext())
+			GC_EquipCatalogueItem(entry);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -200,6 +219,7 @@ modded class SCR_InventoryMenuUI
 	//! Native drag input, threshold and cursor preview; catalogue items have no live source slot.
 	override void Action_DragDown()
 	{
+		m_bGCDragged = false;
 		if (m_GCCataloguePanel && GC_WorkbenchItemBrowser.IsActive(m_Player))
 		{
 			GC_ItemCatalogueEntry entry = m_GCCataloguePanel.EntryAt(WidgetManager.GetWidgetUnderCursor());
@@ -235,6 +255,7 @@ modded class SCR_InventoryMenuUI
 			if (Math.AbsInt(x - m_iMouseX) < DRAG_THRESHOLD && Math.AbsInt(y - m_iMouseY) < DRAG_THRESHOLD)
 				return;
 			m_bDraggingEnabled = true;
+			m_bGCDragged = true;
 			m_wDragDropContainer.SetVisible(true);
 			m_pPreviewManager.SetPreviewItemFromPrefab(m_pDragDropPreviewImage, m_GCGestureItem.m_sPrefab);
 		}

@@ -25,6 +25,12 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	protected bool m_bPagingActive;
 	protected ref array<SCR_ButtonBaseComponent> m_aButtons = {};
 	protected string m_sCategoryLabel = "All items";
+	protected BaseInventoryStorageComponent m_WeaponStorage;
+	protected IEntity m_WeaponEntity;
+	protected int m_iWeaponSlot;
+	protected string m_sWeaponSlotType;
+	protected string m_sWeaponSignature;
+	protected float m_fWeaponRefresh;
 	protected static const int PAGE_SIZE = 11;
 
 	//------------------------------------------------------------------------------------------------
@@ -104,6 +110,12 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		if (!m_Root)
 			return;
 		m_Catalogue.Tick();
+		m_fWeaponRefresh += timeSlice;
+		if (m_WeaponStorage && m_fWeaponRefresh >= 0.25)
+		{
+			m_fWeaponRefresh = 0;
+			UpdateWeaponFilter();
+		}
 		if (m_fFeedbackTime > 0)
 		{
 			m_fFeedbackTime -= timeSlice;
@@ -150,13 +162,99 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 	//------------------------------------------------------------------------------------------------
 	void SetSlot(string slot)
 	{
-		if (m_Query.m_sEquipmentSlot == slot && m_Query.m_sCategory.IsEmpty())
+		bool wasWeapon = m_WeaponStorage != null;
+		m_WeaponStorage = null;
+		m_WeaponEntity = null;
+		m_Query.m_bWeaponItems = false;
+		m_Query.m_aMagazineWells.Clear();
+		m_Query.m_aAttachmentTypes.Clear();
+		if (!wasWeapon && m_Query.m_sEquipmentSlot == slot && m_Query.m_sCategory.IsEmpty())
 			return;
 		m_Query.m_sCategory = string.Empty;
 		m_sCategoryLabel = "All items";
 		m_Query.m_sEquipmentSlot = slot;
 		m_iOffset = 0;
 		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetWeaponSlot(BaseInventoryStorageComponent storage, int slotID, string slotType)
+	{
+		SetSlot(string.Empty);
+		m_WeaponStorage = storage;
+		m_iWeaponSlot = slotID;
+		m_sWeaponSlotType = slotType;
+		m_sWeaponSignature = string.Empty;
+		UpdateWeaponFilter();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Read only the selected live weapon; catalogue candidates remain metadata, never spawned previews.
+	protected void UpdateWeaponFilter()
+	{
+		if (!m_WeaponStorage || m_iWeaponSlot < 0 || m_iWeaponSlot >= m_WeaponStorage.GetSlotsCount())
+			return;
+		IEntity item = m_WeaponStorage.GetSlot(m_iWeaponSlot).GetAttachedEntity();
+		BaseWeaponComponent weapon;
+		if (item)
+			weapon = BaseWeaponComponent.Cast(item.FindComponent(BaseWeaponComponent));
+		m_Query.m_aMagazineWells.Clear();
+		m_Query.m_aAttachmentTypes.Clear();
+		m_Query.m_bWeaponItems = weapon != null;
+		m_WeaponEntity = item;
+		string signature = "empty:" + m_sWeaponSlotType;
+		if (weapon)
+		{
+			signature = item.GetPrefabData().GetPrefabName();
+			array<BaseMuzzleComponent> muzzles = {};
+			weapon.GetMuzzlesList(muzzles);
+			foreach (BaseMuzzleComponent muzzle : muzzles)
+			{
+				BaseMagazineWell well = muzzle.GetMagazineWell();
+				if (!well)
+					continue;
+				m_Query.m_aMagazineWells.Insert(well.Type());
+				signature += "|mag:" + well.Type().ToString();
+			}
+			array<AttachmentSlotComponent> attachments = {};
+			weapon.GetAttachments(attachments);
+			foreach (AttachmentSlotComponent attachment : attachments)
+			{
+				BaseAttachmentType mount = attachment.GetAttachmentSlotType();
+				if (!mount || !attachment.ShouldShowInInspection())
+					continue;
+				m_Query.m_aAttachmentTypes.Insert(mount.Type());
+				signature += "|mount:" + mount.Type().ToString();
+			}
+		}
+		if (signature == m_sWeaponSignature)
+			return;
+		m_sWeaponSignature = signature;
+		m_Query.m_sEquipmentSlot = m_sWeaponSlotType;
+		m_sCategoryLabel = "Weapons";
+		if (weapon)
+		{
+			m_Query.m_sEquipmentSlot = string.Empty;
+			m_sCategoryLabel = string.Empty;
+		}
+		m_iOffset = 0;
+		Refresh();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool HasWeaponContext()
+	{
+		return m_Query.m_bWeaponItems;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	IEntity GetWeaponTarget()
+	{
+		if (!m_Query.m_bWeaponItems || !m_WeaponStorage || !m_WeaponEntity || m_iWeaponSlot < 0 || m_iWeaponSlot >= m_WeaponStorage.GetSlotsCount())
+			return null;
+		if (m_WeaponStorage.GetSlot(m_iWeaponSlot).GetAttachedEntity() != m_WeaponEntity)
+			return null;
+		return m_WeaponEntity;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -253,7 +351,10 @@ class GC_InventoryCataloguePanel : ScriptedWidgetEventHandler
 		foreach (int index, Widget cell : m_aCells)
 		{
 			if (index < m_aPage.Count() && w == cell.FindAnyWidget("SelectItem"))
+			{
+				SCR_InventoryMenuUI.GetInventoryMenu().GC_ClickWeaponCatalogueItem(m_aPage[index]);
 				return true;
+			}
 		}
 		return false;
 	}

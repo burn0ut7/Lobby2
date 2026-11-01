@@ -3,6 +3,52 @@
 class GC_CatalogueTransfer
 {
 	//------------------------------------------------------------------------------------------------
+	//! Only the selected weapon's attachment storage, never another weapon or a deposit container.
+	static bool InsertWeapon(GC_ItemCatalogueEntry entry, IEntity owner, SCR_InventoryMenuUI menu, IEntity weapon)
+	{
+		if (!entry || !weapon || !GC_WorkbenchItemBrowser.IsActive(owner))
+			return false;
+		SCR_InventoryStorageManagerComponent manager = SCR_InventoryStorageManagerComponent.Cast(owner.FindComponent(SCR_InventoryStorageManagerComponent));
+		if (!manager || manager.IsInventoryLocked() || !manager.Contains(weapon))
+			return false;
+		array<BaseInventoryStorageComponent> ownedStorages = {};
+		manager.GetStorages(ownedStorages);
+		array<BaseInventoryStorageComponent> weaponStorages = {};
+		foreach (BaseInventoryStorageComponent candidate : ownedStorages)
+		{
+			IEntity parent = candidate.GetOwner();
+			while (parent && parent != weapon)
+			{
+				InventoryItemComponent inventory = InventoryItemComponent.Cast(parent.FindComponent(InventoryItemComponent));
+				if (!inventory || !inventory.GetParentSlot())
+					break;
+				parent = inventory.GetParentSlot().GetStorage().GetOwner();
+			}
+			if (parent == weapon)
+				weaponStorages.Insert(candidate);
+		}
+		ChimeraWorld world = GetGame().GetWorld();
+		IEntity preview = world.GetItemPreviewManager().ResolvePreviewEntityForPrefab(entry.m_sPrefab);
+		if (!preview)
+			return false;
+		for (int replace = 0; replace < 2; replace++)
+		{
+			foreach (BaseInventoryStorageComponent storage : weaponStorages)
+			{
+				for (int i; i < storage.GetSlotsCount(); i++)
+				{
+					bool occupied = storage.GetSlot(i).GetAttachedEntity() != null;
+					if (occupied != (replace == 1))
+						continue;
+					if ((!occupied && manager.CanInsertResourceInStorage(entry.m_sPrefab, storage, i)) || (occupied && manager.CanReplaceItem(preview, storage, i)))
+						return Insert(entry, owner, menu, storage, i, false);
+				}
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static bool Delete(IEntity item, IEntity owner, SCR_InventoryMenuUI menu)
 	{
 		if (!item || item == owner || !GC_WorkbenchItemBrowser.IsActive(owner))

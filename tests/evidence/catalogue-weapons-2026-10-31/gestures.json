@@ -1,0 +1,473 @@
+[
+  {
+    "method": "GC_TestNativeInventoryStart",
+    "values": [],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "a9ff3341a1d040ae99d3f6be5d25b044",
+      "receipt": "rfc44245c6db146ac819974c6e23165b5",
+      "returnType": "string",
+      "returned": "native inventory requested",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 20,
+        "serverMs": 68.885
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestNativeInventoryStart"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueOpen",
+    "values": [],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "f21393e3faf14f03b1cde9d6e2f56b29",
+      "receipt": "r7ec9781d9c094c1781c829b737fe7c3b",
+      "returnType": "string",
+      "returned": "true",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 0,
+        "serverMs": 77.723
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueOpen"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueWeapon",
+    "values": [
+      0,
+      false
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "28de7e9e938f4edaafae10198c2a2ab0",
+      "receipt": "r183fc9ad4b914a748652b18f5c2815a7",
+      "returnType": "string",
+      "returned": "category= faction= descending=false slot= text= offset=0 total=22 visible=11 previews=0 indexed=2009 finished=1",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 2,
+        "serverMs": 92.0781
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueWeapon"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "values": [
+      "Magazine_556x45_STANAG_30rnd_M855_Ball.et"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "bf29e53c35a546fd8a155d46baa3d94c",
+      "receipt": "rce834d5497dc4d8697700a80cfb2e553",
+      "returnType": "string",
+      "returned": "input changed",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 0,
+        "invokeMs": 1,
+        "serverMs": 84.4887
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueSearch"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueDrag",
+    "values": [
+      0,
+      4
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "59049d2710f6442abfd914502791e1ba",
+      "receipt": "r93e1445381fa41c68adbb3bd2c2e2e46",
+      "returnType": "string",
+      "returned": "Added to inventory",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 10,
+        "serverMs": 97.4439
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueDrag"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueTrailingClick",
+    "values": [
+      0
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "92d902273d5a45e392703e85d0c327da",
+      "receipt": "rc41b159649584702aa851eea58267022",
+      "returnType": "string",
+      "returned": "suppressed=1 consumed=1",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 1,
+        "serverMs": 86.8147
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueTrailingClick"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueWeaponContents",
+    "values": [
+      0
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "995e3cab85794568b84c87eec40f153e",
+      "receipt": "rc01bdebb635e45138141c345088114d5",
+      "returnType": "string",
+      "returned": "{3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et\n0 | {D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et\n2 | {FB1A7F5BC7D935E2}Prefabs/Weapons/Attachments/Handguards/Handguard_M16A2/Handguard_M16.et\n4 | {6288A1F1A5E3AC37}Prefabs/Weapons/Attachments/Muzzle/FlashHider_M16A2/FlashHider_M16.et",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 0,
+        "serverMs": 70.9652
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueWeaponContents"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueOwnedItems",
+    "values": [],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "a6293b6fbc1e4378ad4f9641028c4743",
+      "receipt": "r0254986ea1374cae820d90322cac8c01",
+      "returnType": "string",
+      "returned": "\n{0CF54B9A85D8E0D4}Prefabs/Items/Equipment/Binoculars/Binoculars_M22/Binoculars_M22.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{78ED4FEF62BBA728}Prefabs/Items/Equipment/Watches/Watch_SandY184A.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{FE5C49069C2499D9}Prefabs/Characters/HeadGear/Helmet_PASGT_01/Helmet_PASGT_01_cover.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{C7861F11D5334C0E}Prefabs/Characters/Uniforms/Jacket_US_BDU.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{4B57C11AA5161760}Prefabs/Characters/Vests/Vest_PASGT/Vest_PASGT.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{DAAFD15478BDE1C3}Prefabs/Characters/Footwear/CombatBoots_US_01.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{0CF54B9A85D8E0D4}Prefabs/Items/Equipment/Binoculars/Binoculars_M22/Binoculars_M22.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{78ED4FEF62BBA728}Prefabs/Items/Equipment/Watches/Watch_SandY184A.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{E8F00BF730225B00}Prefabs/Weapons/Grenades/Grenade_M67.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{3A421547BC29F679}Prefabs/Items/Equipment/Flashlights/Flashlight_MX991/Flashlight_MX991.et in {B95BD66EA8F863C8}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_suspenders_2.et\n{558117556F3880A8}Prefabs/Weapons/Attachments/Bayonets/Bayonet_M9.et in {EE7FBAD35CA9D0F2}Prefabs/Items/Equipment/Accessories/Scabbard_Bayonet_M9/Scabbard_Bayonet_M9.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{E8F00BF730225B00}Prefabs/Weapons/Grenades/Grenade_M67.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{9DB69176CEF0EE97}Prefabs/Weapons/Grenades/Smoke_ANM8HC.et in {9A21918AC35AC182}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_buttpack.et\n{9DB69176CEF0EE97}Prefabs/Weapons/Grenades/Smoke_ANM8HC.et in {9A21918AC35AC182}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_buttpack.et\n{B95BD66EA8F863C8}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_suspenders_2.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{630FB4AD4A735264}Prefabs/Items/Equipment/Canteens/Canteen_US_01.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{9A21918AC35AC182}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_buttpack.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{02DF51DB063ABD36}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_firstaid.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{630FB4AD4A735264}Prefabs/Items/Equipment/Canteens/Canteen_US_01.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{EE7FBAD35CA9D0F2}Prefabs/Items/Equipment/Accessories/Scabbard_Bayonet_M9/Scabbard_Bayonet_M9.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{2EBF60EF24B108FC}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_Ball.et in {C7861F11D5334C0E}Prefabs/Characters/Uniforms/Jacket_US_BDU.et\n{EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{6E35D94130954509}Prefabs/Items/Equipment/Accessories/ETool_ALICE/ETool_ALICE_FreeRoamBuilding_Gadget.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{0D9A5DCF89AE7AA9}Prefabs/Items/Medicine/MorphineInjection_01/MorphineInjection_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{D70216B1B2889129}Prefabs/Items/Medicine/Tourniquet_01/Tourniquet_US_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{A81F501D3EF6F38E}Prefabs/Items/Medicine/FieldDressing_01/FieldDressing_US_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{A81F501D3EF6F38E}Prefabs/Items/Medicine/FieldDressing_01/FieldDressing_US_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{922F95F91943F69A}Prefabs/Items/Equipment/Maps/Map_Paper_01/PaperMap_01_folded_US.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{61D4F80E49BF9B12}Prefabs/Items/Equipment/Compass/Compass_SY183.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{73950FBA2D7DB5C5}Prefabs/Items/Equipment/Radios/Radio_ANPRC68.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et\n{6288A1F1A5E3AC37}Prefabs/Weapons/Attachments/Muzzle/FlashHider_M16A2/FlashHider_M16.et in {3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et\n{47665331979536BC}Prefabs/Weapons/Ammo/Ammo_Flare_40mm_StarParachute_White.et in {EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et\n{47665331979536BC}Prefabs/Weapons/Ammo/Ammo_Flare_40mm_StarParachute_White.et in {EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 1,
+        "serverMs": 75.7168
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueOwnedItems"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueClick",
+    "values": [
+      0
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "049bce9abb4a4429a65a8e19f8d390c2",
+      "receipt": "r999c1257c4d1451a9db73a9a63b7e631",
+      "returnType": "string",
+      "returned": "Added to inventory",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 10,
+        "serverMs": 95.1815
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueClick"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueWeaponContents",
+    "values": [
+      0
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "79f5b5d7631d47b79a05e19eb5db736f",
+      "receipt": "rd3bb33282b144119b466dafc6a8bde8c",
+      "returnType": "string",
+      "returned": "{3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et\n0 | {2EBF60EF24B108FC}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_Ball.et\n2 | {FB1A7F5BC7D935E2}Prefabs/Weapons/Attachments/Handguards/Handguard_M16A2/Handguard_M16.et\n4 | {6288A1F1A5E3AC37}Prefabs/Weapons/Attachments/Muzzle/FlashHider_M16A2/FlashHider_M16.et",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 0,
+        "serverMs": 92.3285
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueWeaponContents"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueSearch",
+    "values": [
+      "Optic_4x20.et"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "e0ae3db136b642058df5d35225c7211e",
+      "receipt": "r1c48ec07c60043ff8ee971aa1d3dc1aa",
+      "returnType": "string",
+      "returned": "input changed",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 1,
+        "serverMs": 78.5305
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueSearch"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueDrag",
+    "values": [
+      0,
+      -1
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "198cc2fd442248c5a6b3d14c4815ceea",
+      "receipt": "r89fb610bf8534b3f84705695243ae5ee",
+      "returnType": "string",
+      "returned": "Cannot place this item here",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 1,
+        "serverMs": 89.4595
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueDrag"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueTrailingClick",
+    "values": [
+      0
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "3dd65fed878f40d0ab803518122229af",
+      "receipt": "r57ae32e3151d45b197bb49fcc7d88dbe",
+      "returnType": "string",
+      "returned": "suppressed=1 consumed=1",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 0,
+        "serverMs": 90.3732
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueTrailingClick"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueWeaponContents",
+    "values": [
+      0
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "e8954814d45e4996a29c3ebc4f9681c1",
+      "receipt": "r9b18ee5ea23c44daa8ed7eeafd955be3",
+      "returnType": "string",
+      "returned": "{3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et\n0 | {2EBF60EF24B108FC}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_Ball.et\n2 | {FB1A7F5BC7D935E2}Prefabs/Weapons/Attachments/Handguards/Handguard_M16A2/Handguard_M16.et\n4 | {6288A1F1A5E3AC37}Prefabs/Weapons/Attachments/Muzzle/FlashHider_M16A2/FlashHider_M16.et",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 1,
+        "serverMs": 87.7842
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueWeaponContents"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueButton",
+    "values": [
+      "CategoryAll"
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "1e095cd673ff4c3eb6db3ecafac4dfa7",
+      "receipt": "rc82c38f4b21d491db90dc57df11aa3ab",
+      "returnType": "string",
+      "returned": "category= faction= descending=false slot= text=Optic_4x20.et offset=0 total=1 visible=1 previews=1 indexed=2009 finished=1",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 3,
+        "serverMs": 83.6348
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueButton"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueClick",
+    "values": [
+      0
+    ],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "339594da40fa4bee99eab35bc51166af",
+      "receipt": "r73cf602acf5e47a5857edd20a4e0f7d0",
+      "returnType": "string",
+      "returned": "Cannot place this item here",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 0,
+        "compileMs": 0,
+        "invokeMs": 1,
+        "serverMs": 81.0862
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueClick"
+      },
+      "completion": "synchronous_call_only"
+    }
+  },
+  {
+    "method": "GC_TestCatalogueOwnedItems",
+    "values": [],
+    "result": {
+      "state": "invoked",
+      "processId": 44368,
+      "operationId": "cbfc721470d545bf9a01d9fe242ea50c",
+      "receipt": "r9c2c5894f5474e1685bc14f45badbe09",
+      "returnType": "string",
+      "returned": "\n{0CF54B9A85D8E0D4}Prefabs/Items/Equipment/Binoculars/Binoculars_M22/Binoculars_M22.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{78ED4FEF62BBA728}Prefabs/Items/Equipment/Watches/Watch_SandY184A.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{FE5C49069C2499D9}Prefabs/Characters/HeadGear/Helmet_PASGT_01/Helmet_PASGT_01_cover.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{C7861F11D5334C0E}Prefabs/Characters/Uniforms/Jacket_US_BDU.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{4B57C11AA5161760}Prefabs/Characters/Vests/Vest_PASGT/Vest_PASGT.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{DAAFD15478BDE1C3}Prefabs/Characters/Footwear/CombatBoots_US_01.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{0CF54B9A85D8E0D4}Prefabs/Items/Equipment/Binoculars/Binoculars_M22/Binoculars_M22.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{78ED4FEF62BBA728}Prefabs/Items/Equipment/Watches/Watch_SandY184A.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{E8F00BF730225B00}Prefabs/Weapons/Grenades/Grenade_M67.et in {26A9756790131354}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Rifleman.et\n{3A421547BC29F679}Prefabs/Items/Equipment/Flashlights/Flashlight_MX991/Flashlight_MX991.et in {B95BD66EA8F863C8}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_suspenders_2.et\n{558117556F3880A8}Prefabs/Weapons/Attachments/Bayonets/Bayonet_M9.et in {EE7FBAD35CA9D0F2}Prefabs/Items/Equipment/Accessories/Scabbard_Bayonet_M9/Scabbard_Bayonet_M9.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{D8F2CA92583B23D3}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_M856_Last_5Tracer.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{E8F00BF730225B00}Prefabs/Weapons/Grenades/Grenade_M67.et in {E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et\n{9DB69176CEF0EE97}Prefabs/Weapons/Grenades/Smoke_ANM8HC.et in {9A21918AC35AC182}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_buttpack.et\n{9DB69176CEF0EE97}Prefabs/Weapons/Grenades/Smoke_ANM8HC.et in {9A21918AC35AC182}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_buttpack.et\n{B95BD66EA8F863C8}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_suspenders_2.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{E3154E0EAC48D67B}Prefabs/Items/Equipment/Accessories/Pouch_ALICE_30rnd_STANAG/Pouch_ALICE_30rnd_STANAG.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{630FB4AD4A735264}Prefabs/Items/Equipment/Canteens/Canteen_US_01.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{9A21918AC35AC182}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_buttpack.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{02DF51DB063ABD36}Prefabs/Characters/Vests/Vest_ALICE/Vest_ALICE_firstaid.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{630FB4AD4A735264}Prefabs/Items/Equipment/Canteens/Canteen_US_01.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{EE7FBAD35CA9D0F2}Prefabs/Items/Equipment/Accessories/Scabbard_Bayonet_M9/Scabbard_Bayonet_M9.et in {2835A0EA3B79E63E}Prefabs/Characters/Vests/Vest_ALICE/Variants/Vest_ALICE_rifleman.et\n{2EBF60EF24B108FC}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_Ball.et in {C7861F11D5334C0E}Prefabs/Characters/Uniforms/Jacket_US_BDU.et\n{EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{6E35D94130954509}Prefabs/Items/Equipment/Accessories/ETool_ALICE/ETool_ALICE_FreeRoamBuilding_Gadget.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{0D9A5DCF89AE7AA9}Prefabs/Items/Medicine/MorphineInjection_01/MorphineInjection_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{D70216B1B2889129}Prefabs/Items/Medicine/Tourniquet_01/Tourniquet_US_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{A81F501D3EF6F38E}Prefabs/Items/Medicine/FieldDressing_01/FieldDressing_US_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{A81F501D3EF6F38E}Prefabs/Items/Medicine/FieldDressing_01/FieldDressing_US_01.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{922F95F91943F69A}Prefabs/Items/Equipment/Maps/Map_Paper_01/PaperMap_01_folded_US.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{61D4F80E49BF9B12}Prefabs/Items/Equipment/Compass/Compass_SY183.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{73950FBA2D7DB5C5}Prefabs/Items/Equipment/Radios/Radio_ANPRC68.et in {604BB72BE8E023C2}Prefabs/Characters/Uniforms/Pants_US_BDU.et\n{2EBF60EF24B108FC}Prefabs/Weapons/Magazines/Magazine_556x45_STANAG_30rnd_M855_Ball.et in {3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et\n{6288A1F1A5E3AC37}Prefabs/Weapons/Attachments/Muzzle/FlashHider_M16A2/FlashHider_M16.et in {3E413771E1834D2F}Prefabs/Weapons/Rifles/M16/Rifle_M16A2.et\n{47665331979536BC}Prefabs/Weapons/Ammo/Ammo_Flare_40mm_StarParachute_White.et in {EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et\n{47665331979536BC}Prefabs/Weapons/Ammo/Ammo_Flare_40mm_StarParachute_White.et in {EC9BDA3D9DDD8795}Prefabs/Weapons/Flares/FlareStarParachute_M127A1_white.et",
+      "invocationAttempted": true,
+      "timings": {
+        "prepareMs": 1,
+        "compileMs": 1,
+        "invokeMs": 0,
+        "serverMs": 85.3124
+      },
+      "target": {
+        "world": "$Lobby2:worlds/examples/MPTest/Empty_Lobby.ent",
+        "entityName": "GameMode_Lobby3",
+        "componentType": "GC_LobbyManager",
+        "method": "GC_TestCatalogueOwnedItems"
+      },
+      "completion": "synchronous_call_only"
+    }
+  }
+]

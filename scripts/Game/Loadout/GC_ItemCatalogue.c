@@ -13,6 +13,7 @@ class GC_ItemCatalogueEntry
 	string m_sSearch;
 	string m_sFactions;
 	typename m_AttachmentType;
+	typename m_MagazineWell;
 	ref array<string> m_aMountNames = {};
 	ref array<typename> m_aMountTypes = {};
 
@@ -194,8 +195,14 @@ class GC_ItemCatalogue
 			entry.m_sCategory = "Weapons";
 			weapon.Get("WeaponSlotType", entry.m_sEquipmentSlot);
 		}
-		if (SCR_BaseContainerTools.FindComponentSource(resource, MagazineComponent))
+		IEntityComponentSource magazine = SCR_BaseContainerTools.FindComponentSource(resource, BaseMagazineComponent);
+		if (magazine)
+		{
 			entry.m_sCategory = "Magazines";
+			BaseContainer well = magazine.GetObject("MagazineWell");
+			if (well)
+				entry.m_MagazineWell = well.GetClassName().ToType();
+		}
 		IEntityComponentSource cloth = SCR_BaseContainerTools.FindComponentSource(resource, BaseLoadoutClothComponent);
 		if (cloth)
 		{
@@ -353,6 +360,8 @@ class GC_ItemCatalogue
 				continue;
 			if (!Matches(index, terms, query.m_sCategory, query.m_sEquipmentSlot, query.m_sSourceAddon, query.m_sFaction, query.m_MountType))
 				continue;
+			if (query.m_bWeaponItems && !query.MatchesWeapon(Get(index)))
+				continue;
 			if (query.m_bAlphabetical)
 			{
 				string key = Get(index).m_sName;
@@ -388,4 +397,24 @@ class GC_ItemCatalogueQuery
 	//! Exact loaded faction key; "Unassigned" means no match in observed faction catalogues.
 	string m_sFaction;
 	typename m_MountType;
+	bool m_bWeaponItems;
+	ref array<typename> m_aMagazineWells = {};
+	ref array<typename> m_aAttachmentTypes = {};
+
+	//------------------------------------------------------------------------------------------------
+	//! Same inheritance direction as the native magazine and compatible-attachment predicates.
+	bool MatchesWeapon(GC_ItemCatalogueEntry entry)
+	{
+		foreach (typename well : m_aMagazineWells)
+		{
+			if (entry.m_MagazineWell && entry.m_MagazineWell.IsInherited(well))
+				return true;
+		}
+		foreach (typename mount : m_aAttachmentTypes)
+		{
+			if (entry.m_AttachmentType && entry.m_AttachmentType.IsInherited(mount))
+				return true;
+		}
+		return false;
+	}
 }
