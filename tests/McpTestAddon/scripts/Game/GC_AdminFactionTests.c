@@ -5,6 +5,9 @@ modded class GC_LobbyManager
 	string GC_TestFactionQuotas()
 	{
 		array<int> quotas;
+		GC_FactionBalancePolicy.Calculate({30, 20}, 5, quotas);
+		if (quotas[0] != 3 || quotas[1] != 2)
+			return "FAIL 3:2 ratio with five players";
 		GC_FactionBalancePolicy.Calculate({10, 30}, 20, quotas);
 		if (quotas[0] != 5 || quotas[1] != 15)
 			return "FAIL 1:3 ratio with twenty players";

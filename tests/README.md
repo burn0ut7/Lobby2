@@ -4,6 +4,25 @@ This optional project owns Lobby2-specific test controls and checks. The MCP
 server remains addon-agnostic. Production Lobby2 does not depend on this addon,
 and loading it alone runs no tests. Do not publish the test addon.
 
+## Ratio indicator and faction targets — 2026-11-01
+
+The ratio icon is white when enforcement is active, red and horizontally mirrored
+when inactive. Active faction counters show current players / proportional target
+from the shared admission policy; locked slots still contribute to total capacity.
+Inactive counters retain available-slot counts and the existing Locked label.
+
+Reload passed without compilation errors. `GC_TestFactionQuotas()` passed,
+including five players across 30:20 slots producing 3:2 targets. Live production
+button clicks changed the icon color and FLIPU flag, and refreshed faction counters
+to USSR 0 / 0 and US 1 / 1 for the one-player, 10:32-slot fixture. The unresolved
+requester rejection preserved all 42 slots and rules; accepted/rejected actions
+appear in `logs_2026-11-01_14-30-43/console.log`, lines 28689–28707.
+Local MCP captures: `Art/References/lobby-scaling/ratio-off.png` and `ratio-on.png`.
+`GC_TestRatioUI()` now reports icon color/flags and rendered faction counters.
+Five-client multiplayer and join/leave replication were not exercised in this
+pass. Existing Arland resource, dedicated-plugin, formations, missing map and
+loadout-manager diagnostics remain unrelated fixture limitations.
+
 ## Development setup
 
 1. Keep the current Workbench and test project open. Use Reload for script changes.

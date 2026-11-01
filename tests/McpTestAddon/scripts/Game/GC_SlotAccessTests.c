@@ -105,9 +105,20 @@ modded class GC_LobbyManager
 		TextWidget status = TextWidget.Cast(root.FindAnyWidget("AllSlotLocksStatus"));
 		if (!ratio || !locks || !status)
 			return "UNAVAILABLE lobby controls";
+		Widget icon = root.FindAnyWidget("FactionRatioImage");
+		string counters;
+		array<Widget> widgets = {};
+		GC_TestCollect(root, widgets);
+		foreach (Widget widget : widgets)
+		{
+			GC_FactionWidgetComponent card = GC_FactionWidgetComponent.Cast(widget.FindHandler(GC_FactionWidgetComponent));
+			if (card)
+				counters += card.GetFactionKey() + "=" + TextWidget.Cast(widget.FindAnyWidget("Counter")).GetText() + "; ";
+		}
 		return string.Format("ratioVisible=%1 ratioEnabled=%2 lockVisible=%3 lockEnabled=%4 ratioOn=%5 revision=%6 status=%7",
 			GC_TestVisible(ratio), ratio.IsEnabled(), GC_TestVisible(locks), locks.IsEnabled(),
-			IsFactionBalanceEnforced(), GetFactionRulesRevision(), status.GetText());
+			IsFactionBalanceEnforced(), GetFactionRulesRevision(), status.GetText())
+			+ string.Format(" color=%1 flags=%2 counters=%3", icon.GetColor().PackToInt(), icon.GetFlags(), counters);
 	}
 
 

@@ -7,6 +7,7 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 	protected Widget m_wAdminControls;
 	protected ImageWidget m_Icon;
 	protected SCR_ButtonTextComponent m_RatioButton;
+	protected ImageWidget m_RatioIcon;
 	protected TextWidget m_Status;
 	protected int m_iPending = -1;
 	protected bool m_bLockRequested;
@@ -23,6 +24,7 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 		m_wAdminControls = w.FindAnyWidget("SlotAdminControls");
 		m_Icon = ImageWidget.Cast(w.FindAnyWidget("AllSlotLocksImage"));
 		m_RatioButton = SCR_ButtonTextComponent.GetButtonText("FactionRatioButton", w);
+		m_RatioIcon = ImageWidget.Cast(w.FindAnyWidget("FactionRatioImage"));
 		m_Status = TextWidget.Cast(w.FindAnyWidget("AllSlotLocksStatus"));
 		m_Button.m_OnClicked.Insert(OnClicked);
 		m_RatioButton.m_OnClicked.Insert(OnClicked);
@@ -63,6 +65,16 @@ class GC_AllSlotLocksComponent : SCR_ScriptedWidgetComponent
 
 		bool enforceRatio = m_Manager.IsFactionBalanceEnforced();
 		m_RatioButton.SetToggled(enforceRatio, false, false);
+		if (enforceRatio)
+		{
+			m_RatioIcon.SetColor(Color.FromInt(Color.WHITE));
+			m_RatioIcon.ClearFlags(WidgetFlags.FLIPU);
+		}
+		else
+		{
+			m_RatioIcon.SetColor(Color.FromInt(Color.RED));
+			m_RatioIcon.SetFlags(WidgetFlags.FLIPU);
+		}
 		if (m_iPending >= 0)
 		{
 			m_Status.SetText("Waiting for server...");
