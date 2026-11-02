@@ -314,6 +314,14 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void RecordProjectileImpact(IEntity projectile, IEntity target, vector position, vector normal)
+	{
+		if (GetInstance() != this || !Replication.IsServer() || m_bClosed || !m_Telemetry)
+			return;
+		m_Telemetry.RecordImpact(projectile, target, position, normal);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void RecordShot(string type, int playerId, BaseWeaponComponent weapon, IEntity projectile)
 	{
 		GC_SessionEvent entry = CreateEvent(type, playerId, 0);

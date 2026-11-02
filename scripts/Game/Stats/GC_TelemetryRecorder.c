@@ -253,6 +253,14 @@ class GC_TelemetryRecorder
 		context.WriteValue("weaponPrefab", prefab);
 		context.WriteValue("projectilePrefab", projectile.GetPrefabData().GetPrefabName());
 		WriteVector(context, "origin", projectile.GetOrigin());
+		context.WriteValue("originEvidence", "projectile-entity-at-shot");
+		IEntity shooter = GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId);
+		BaseWeaponManagerComponent weapons;
+		if (shooter)
+			weapons = BaseWeaponManagerComponent.Cast(shooter.FindComponent(BaseWeaponManagerComponent));
+		vector muzzleTransform[4];
+		if (weapon && weapons && weapons.GetCurrentWeapon() == weapon && weapons.GetCurrentMuzzleTransform(muzzleTransform))
+			WriteVector(context, "muzzlePosition", muzzleTransform[3]);
 		vector velocity;
 		ProjectileMoveComponent movement = ProjectileMoveComponent.Cast(projectile.FindComponent(ProjectileMoveComponent));
 		if (movement)
@@ -261,6 +269,27 @@ class GC_TelemetryRecorder
 			velocity = projectile.GetPhysics().GetVelocity();
 		WriteVector(context, "velocity", velocity);
 		context.WriteValue("sessionEventSequence", eventSequence);
+		CommitRecord(context);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Each event is a contact, not a claim that the projectile stopped there.
+	void RecordImpact(IEntity projectile, IEntity target, vector position, vector normal)
+	{
+		if (!m_bRunning)
+			return;
+		// Native rewind can report a contact before the character shot callback.
+		// Allocate from the same identity map; a later shot reuses this exact ID.
+		string projectileId = ProjectileId(projectile, true);
+		if (projectileId.IsEmpty())
+			return;
+		string targetId = EntityId(target);
+		JsonSaveContext context = BeginRecord("impact");
+		context.WriteValue("projectileId", projectileId);
+		context.WriteValue("target", targetId);
+		WriteVector(context, "position", position);
+		WriteVector(context, "normal", normal);
+		context.WriteValue("evidence", "engine-event");
 		CommitRecord(context);
 	}
 
@@ -417,9 +446,9 @@ class GC_TelemetryRecorder
 			context.WriteValue("actors", "players");
 			context.WriteValue("pose", "inferred");
 			bool captured = true;
-			bool unsupported = false;
 			context.WriteValue("shots", captured);
-			context.WriteValue("impacts", unsupported);
+			context.WriteValue("impacts", captured);
+			context.WriteValue("impactScope", "projectiles-inheriting-stock-bullet-base");
 			context.WriteValue("damage", captured);
 			context.WriteValue("grenades", captured);
 			context.WriteValue("vehicles", captured);

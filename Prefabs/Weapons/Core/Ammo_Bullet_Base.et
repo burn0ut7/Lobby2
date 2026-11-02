@@ -1,0 +1,36 @@
+Projectile {
+ ID "DA5C6308000CDEF2"
+ components {
+  ShellMoveComponent "{851AA4A2AE0A5691}" {
+   InitSpeed 750
+   Mass 0.01
+   TriggerWhenTimeout 0
+   LayerPreset "Projectile"
+   ProjectileEffects {
+    ProjectileDamage "{5168BBF3DBD79134}" {
+     DamageValue 50
+     DamageEffects {
+      SCR_BaseBulletDamageEffect "{611E7405A19DBF5F}" {
+      }
+     }
+    }
+    AIHitEffect "{C422E51CCDDF6BD3}" {
+    }
+    ExplosionEffect "{85DB664DDCA5D5B0}" {
+     EffectPrefab "{9B5FF7EECAD376FA}Prefabs/Weapons/Warheads/Warhead_Base.et"
+     ExitEffectPrefab "{4E168888868FE6C7}Prefabs/Weapons/Core/ExitEffect.et"
+    }
+    HitSoundEffect "{2FC22748C7ABD466}" {
+     Filename "{E252C97A41BE786C}Sounds/Weapons/_SharedData/BulletHits/Weapons_BulletHits.acp"
+    }
+    GC_TelemetryImpactEffect "{6A115D5DFF7ED9B3}" {
+    }
+   }
+   BallisticTableConfig "{042AB57ADFE17DA6}Configs/Weapons/AIBallisticTables/AIBT_Bullet_Base.conf"
+   SonicCracks "{ABAD8342FF1E1578}Sounds/Weapons/_SharedData/BulletSonicCracks/Rifle/Weapons_BulletSonicCracks_Rifle.acp"
+   SubsonicFlybys "{F957FD54EA57C9F1}Sounds/Weapons/_SharedData/BulletFlybys/Rifle/Weapons_BulletFlybys_Rifle.acp"
+   Diameter 8
+  }
+ }
+ SpawnAsCartridge 1
+}

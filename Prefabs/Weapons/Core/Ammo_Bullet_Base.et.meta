@@ -1,0 +1,7 @@
+MetaFileClass {
+ Name "{67FED88E5085F63F}Prefabs/Weapons/Core/Ammo_Bullet_Base.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+ }
+}
