@@ -157,6 +157,7 @@ modded class GC_LobbyPlayerController
 		{
 			if (vector.DistanceSq(character.GetOrigin(), m_vGC_JipDestination) <= 9)
 			{
+				GC_LobbyGameMode.GetGameMode().GetJip().CompleteMove(this, m_GC_JipMovingCharacter, true);
 				GC_SendJipMessage("#GC-Jip_Arrived");
 				return;
 			}

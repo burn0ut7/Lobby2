@@ -209,6 +209,9 @@ StringTable {
   CustomStringTableItem "{6B02000100000005}" { Id "GC-Jip_NoTarget" Target_en_us "No living group member is available. Double-press J to try again." }
   CustomStringTableItem "{6B02000100000006}" { Id "GC-Jip_NoLanding" Target_en_us "No safe landing near your group. Double-press J to try again later." }
   CustomStringTableItem "{6B02000100000007}" { Id "GC-Jip_Arrived" Target_en_us "Joined your group." }
-  CustomStringTableItem "{6B02000100000008}" { Id "GC-Jip_Unverified" Target_en_us "The move could not be confirmed. Your one-time JIP has been spent." }
+  CustomStringTableItem "{6B02000100000008}" { Id "GC-Jip_Unverified" Target_en_us "The move could not be confirmed. JIP remains pending." }
+  CustomStringTableItem "{6B02000100000009}" { Id "GC-Jip_Pending" Target_en_us "Your JIP move is already pending." }
+  CustomStringTableItem "{6B0200010000000A}" { Id "GC-Jip_VehicleFull" Target_en_us "Your group's vehicle has no available seat. Double-press J to try again in a little while." }
+  CustomStringTableItem "{6B0200010000000B}" { Id "GC-Jip_Retry" Target_en_us "Unable to board your group's vehicle. Double-press J to try again." }
  }
 }

@@ -39,8 +39,8 @@ modded class GC_JipSystem
 		GC_JipPlayer record = m_mPlayers.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId));
 		if (!record)
 			return "record=absent";
-		return string.Format("eligible=%1 offered=%2 consumed=%3 character=%4 elapsed=%5", record.m_bEligible,
-			record.m_bOffered, record.m_bConsumed, record.m_Character, Elapsed());
+		return string.Format("eligible=%1 offered=%2 consumed=%3 character=%4 elapsed=%5 pending=%6", record.m_bEligible,
+			record.m_bOffered, record.m_bConsumed, record.m_Character, Elapsed(), record.m_bPending);
 	}
 
 	void GC_TestTick()

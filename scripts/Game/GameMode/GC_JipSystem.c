@@ -11,6 +11,7 @@ class GC_JipPlayer
 	bool m_bEligible;
 	bool m_bOffered;
 	bool m_bConsumed;
+	bool m_bPending;
 	RplId m_Character = RplId.Invalid();
 }
 
@@ -174,11 +175,51 @@ class GC_JipSystem
 			controller.GC_SendJipMessage("#GC-Jip_Unavailable");
 			return;
 		}
+		if (record.m_bPending)
+		{
+			controller.GC_SendJipMessage("#GC-Jip_Pending");
+			return;
+		}
 		if (character.GetRootParent() != character || CompartmentAccessComponent.GetVehicleIn(character))
 		{
 			controller.GC_SendJipMessage("#GC-Jip_LeaveVehicle");
 			return;
 		}
+		ChimeraCharacter target = ResolveTarget(playerId);
+		if (!target)
+		{
+			controller.GC_SendJipMessage("#GC-Jip_NoTarget");
+			return;
+		}
+		IEntity vehicle = CompartmentAccessComponent.GetVehicleIn(target);
+		if (vehicle)
+		{
+			controller.GC_BeginJipVehicle(character, target, vehicle);
+			return;
+		}
+		vector destination;
+		BaseWorld world = character.GetWorld();
+		vector origin = target.GetOrigin();
+		float terrain = world.GetSurfaceY(origin[0], origin[2]);
+		vector ground;
+		if (Math.AbsFloat(origin[1] - terrain) > 3
+			|| !SCR_WorldTools.FindEmptyTerrainPosition(ground, origin, 8)
+			|| !SCR_EmptyPositionHelper.TryFindNearbyFloorPositionForEntity(world, character, ground, destination)
+			|| !SCR_Global.IsPositionWithinTerrainBounds(destination)
+			|| vector.DistanceSq(destination, origin) > 100
+			|| Math.AbsFloat(destination[1] - world.GetSurfaceY(destination[0], destination[2])) > 1
+			|| destination[1] < world.GetOceanHeight(destination[0], destination[2]))
+		{
+			controller.GC_SendJipMessage("#GC-Jip_NoLanding");
+			return;
+		}
+		record.m_bPending = true;
+		controller.GC_DispatchJip(record.m_Character, destination);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected ChimeraCharacter ResolveTarget(int playerId)
+	{
 		SCR_GroupsManagerComponent groups = SCR_GroupsManagerComponent.GetInstance();
 		SCR_AIGroup group;
 		if (groups)
@@ -201,36 +242,46 @@ class GC_JipSystem
 				}
 			}
 		}
-		if (!target)
-		{
-			controller.GC_SendJipMessage("#GC-Jip_NoTarget");
+		return target;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool ValidateVehicleMove(GC_LobbyPlayerController controller, IEntity character, IEntity target, IEntity vehicle)
+	{
+		if (!IsActive() || !WindowOpen() || !controller || !character || !target || !vehicle)
+			return false;
+		int playerId = controller.GetPlayerId();
+		GC_JipPlayer record = m_mPlayers.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId));
+		return record && record.m_bEligible && record.m_bOffered && !record.m_bConsumed
+			&& GetGame().GetPlayerManager().GetPlayerController(playerId) == controller
+			&& LivingCharacter(playerId) == character && record.m_Character == Replication.FindItemId(character)
+			&& FactionAllowed(playerId) && ResolveTarget(playerId) == target
+			&& character.GetRootParent() == character
+			&& !CompartmentAccessComponent.GetVehicleIn(character)
+			&& CompartmentAccessComponent.GetVehicleIn(target) == vehicle;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void SetMovePending(GC_LobbyPlayerController controller, RplId character)
+	{
+		if (!IsActive())
 			return;
-		}
-		// Land on clear dry ground beside the target. Never move a vehicle, claim
-		// a seat, evict an occupant, or put a joining player beneath an aircraft.
-		vector destination;
-		BaseWorld world = character.GetWorld();
-		vector origin = target.GetOrigin();
-		float terrain = world.GetSurfaceY(origin[0], origin[2]);
-		IEntity vehicle = CompartmentAccessComponent.GetVehicleIn(target);
-		Physics vehiclePhysics;
-		if (vehicle)
-			vehiclePhysics = vehicle.GetPhysics();
-		vector ground;
-		if (Math.AbsFloat(origin[1] - terrain) > 3
-			|| (vehiclePhysics && vehiclePhysics.GetVelocity().LengthSq() > 4)
-			|| !SCR_WorldTools.FindEmptyTerrainPosition(ground, origin, 8)
-			|| !SCR_EmptyPositionHelper.TryFindNearbyFloorPositionForEntity(world, character, ground, destination)
-			|| !SCR_Global.IsPositionWithinTerrainBounds(destination)
-			|| vector.DistanceSq(destination, origin) > 100
-			|| Math.AbsFloat(destination[1] - world.GetSurfaceY(destination[0], destination[2])) > 1
-			|| destination[1] < world.GetOceanHeight(destination[0], destination[2]))
-		{
-			controller.GC_SendJipMessage("#GC-Jip_NoLanding");
+		GC_JipPlayer record = m_mPlayers.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(controller.GetPlayerId()));
+		if (record && record.m_Character == character)
+			record.m_bPending = true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Failure means no movement was submitted. Unknown outcomes remain pending.
+	void CompleteMove(GC_LobbyPlayerController controller, RplId character, bool success)
+	{
+		if (!IsActive())
 			return;
-		}
-		// Consume before dispatch: uncertain delivery must never grant a second move.
-		record.m_bConsumed = true;
-		controller.GC_DispatchJip(record.m_Character, destination);
+		GC_JipPlayer record = m_mPlayers.Get(SCR_PlayerIdentityUtils.GetPlayerIdentityId(controller.GetPlayerId()));
+		if (!record || record.m_Character != character)
+			return;
+		record.m_bPending = false;
+		if (success)
+			record.m_bConsumed = true;
 	}
 }
