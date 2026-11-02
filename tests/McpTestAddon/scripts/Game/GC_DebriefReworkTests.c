@@ -267,7 +267,7 @@ modded class GC_SessionLogComponent
 		{
 			death.m_sDeathCause = cause;
 			string detail = GC_DebriefText.CombatDetail(death);
-			valid = valid && detail.Contains("Last hit: Jim Bob / Rifle Test");
+			valid = valid && detail.Contains("Rifle Test") && !detail.Contains("Jim Bob") && !detail.Contains("Last hit") && GC_DebriefText.CombatSource(death) == hit;
 			result += detail + " | ";
 		}
 		return "valid=" + valid.ToString() + " " + result;

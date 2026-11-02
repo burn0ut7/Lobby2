@@ -212,13 +212,22 @@ class GC_DebriefText
 		return Short(label, 64);
 	}
 
+	//! Display the last external hit without changing the event's authoritative kill credit.
+	static GC_SessionEvent CombatSource(GC_SessionEvent entry)
+	{
+		if (entry.m_sType != "damage" && entry.m_LastDamage)
+			return entry.m_LastDamage;
+		return entry;
+	}
+
 	static string CombatDetail(GC_SessionEvent entry)
 	{
-		string detail = Weapon(entry);
+		GC_SessionEvent source = CombatSource(entry);
+		string detail = Weapon(source);
 		if (detail.IsEmpty())
 			detail = "Unknown source";
-		if (entry.m_fDistance >= 0)
-			detail += string.Format(" · %1 m", Math.Round(entry.m_fDistance));
+		if (source.m_fDistance >= 0)
+			detail += string.Format(" · %1 m", Math.Round(source.m_fDistance));
 		string cause;
 		if (entry.m_sDeathCause == "bleeding")
 			cause = "Bled to death";
@@ -227,17 +236,7 @@ class GC_DebriefText
 		else if (entry.m_sDeathCause == "suicide")
 			cause = "Suicide";
 		if (!cause.IsEmpty())
-			detail = cause;
-		GC_SessionEvent hit = entry.m_LastDamage;
-		if (hit && (!cause.IsEmpty() || entry.m_iDamageEventSequence != hit.m_iSequence))
-		{
-			string source = Weapon(hit);
-			if (source.IsEmpty())
-				source = "Unknown source";
-			detail += " · Last hit: " + Short(Actor(hit.m_sActorName, hit.m_sActorKind, hit.m_sActorPrefab), 48) + " / " + source;
-		}
-		if (!cause.IsEmpty() && !hit)
-			detail += " · Last hit unavailable";
+			detail = cause + " · " + detail;
 		return Short(detail, 240);
 	}
 

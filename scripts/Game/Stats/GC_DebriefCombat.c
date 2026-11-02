@@ -50,7 +50,8 @@ modded class GC_SessionLogComponent
 			if (entry.m_sType == "teamKill")
 				label = "Team kill";
 			rows.Insert(label);
-			rows.Insert(GC_DebriefText.Actor(entry.m_sActorName, entry.m_sActorKind, entry.m_sActorPrefab));
+			GC_SessionEvent source = GC_DebriefText.CombatSource(entry);
+			rows.Insert(GC_DebriefText.Actor(source.m_sActorName, source.m_sActorKind, source.m_sActorPrefab));
 			rows.Insert(GC_DebriefText.Actor(entry.m_sTargetName, entry.m_sTargetKind, entry.m_sTargetPrefab));
 			string amount = "—";
 			if (damage)
@@ -58,12 +59,12 @@ modded class GC_SessionLogComponent
 			rows.Insert(amount);
 			rows.Insert(GC_DebriefText.CombatDetail(entry));
 			GC_MissionStatsComponent stats = GC_MissionStatsComponent.GetInstance();
-			string actorFaction = entry.m_sActorFaction;
+			string actorFaction = source.m_sActorFaction;
 			string targetFaction = entry.m_sTargetFaction;
 			if (stats)
 			{
 				if (actorFaction.IsEmpty())
-					actorFaction = stats.GetReportFactionAt(entry.m_sActor, m_fStarted + entry.m_fSeconds);
+					actorFaction = stats.GetReportFactionAt(source.m_sActor, m_fStarted + source.m_fSeconds);
 				if (targetFaction.IsEmpty())
 					targetFaction = stats.GetReportFactionAt(entry.m_sTarget, m_fStarted + entry.m_fSeconds);
 			}
