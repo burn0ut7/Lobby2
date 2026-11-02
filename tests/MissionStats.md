@@ -148,3 +148,12 @@ omitted. This is faction combat aggregation, not individual AI profiles.
 
 Native rifle testing and the final screenshot are recorded in
 [AI validation](../Art/References/debrief-rework/ai-validation.md).
+
+## All overview and sidebar navigation — 2026-11-02
+
+All opens first, followed by factions, Private and Other players. The All player
+summary sums each final player once and merges assignment ammunition; unique
+participants include unassigned players. All AI sums transient faction counters.
+Both are sealed once and use the existing report queue/cache. Sidebar labels
+ignore pointer input so clicks reach the native button rather than a tooltip
+cell. See [navigation validation](../Art/References/debrief-rework/navigation-validation.md).

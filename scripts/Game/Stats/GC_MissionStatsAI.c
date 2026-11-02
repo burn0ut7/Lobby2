@@ -5,6 +5,7 @@ class GC_MissionStatsAI
 	protected ref map<string, ref GC_StatsAssignment> m_mGC_AIStats = new map<string, ref GC_StatsAssignment>();
 	protected ref map<string, ref GC_StatsDebrief> m_mGC_AIReports = new map<string, ref GC_StatsDebrief>();
 	protected bool m_bGC_AIPartial;
+	protected ref GC_StatsDebrief m_AllReport;
 
 	//------------------------------------------------------------------------------------------------
 	protected Faction AIFaction(IEntity character)
@@ -81,6 +82,10 @@ class GC_MissionStatsAI
 	void BuildReports()
 	{
 		m_mGC_AIReports.Clear();
+		m_AllReport = new GC_StatsDebrief();
+		foreach (string factionKey, GC_StatsAssignment totals : m_mGC_AIStats)
+			m_AllReport.AddAssignment(totals, "AI", true);
+		m_AllReport.Seal(false, true);
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager)
 			return;
@@ -99,6 +104,8 @@ class GC_MissionStatsAI
 	//------------------------------------------------------------------------------------------------
 	GC_StatsDebrief GetReport(string faction)
 	{
+		if (faction.IsEmpty())
+			return m_AllReport;
 		return m_mGC_AIReports.Get(faction);
 	}
 

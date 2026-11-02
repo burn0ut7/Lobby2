@@ -35,3 +35,8 @@ AI refinement: reuse the faction overview geometry and its two native top-right
 buttons as Players / AI. The selected AI state scopes all visible totals and
 ammunition to AI. Use six combat-only metrics and omit uncollected player-only
 statistics. Active evidence: ai-final.png. No additional paragraphs or panels.
+
+Navigation refinement: sidebar order is All, registered factions, Private, Other
+players. All is the opening selection and retains the Players / AI switch.
+Active live capture: all-final.png. Sidebar label/decorative widgets ignore
+pointer input so the native button receives the whole row's hit area.

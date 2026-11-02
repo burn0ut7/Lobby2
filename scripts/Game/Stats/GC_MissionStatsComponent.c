@@ -6,6 +6,7 @@ class GC_MissionStatsComponentClass : SCR_BaseGameModeComponentClass
 class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 {
 	protected ref GC_MissionStatsBatch m_Batch;
+	protected ref GC_StatsDebrief m_AllReport;
 	protected ref GC_MissionStatsAI m_AIStats = new GC_MissionStatsAI();
 	protected ref map<string, ref GC_StatsPlayer> m_mPlayers = new map<string, ref GC_StatsPlayer>();
 	protected ref map<string, ref GC_StatsCharacterTracker> m_mTrackers = new map<string, ref GC_StatsCharacterTracker>();
@@ -95,13 +96,16 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	protected void BuildDebriefs()
 	{
+		m_AllReport = new GC_StatsDebrief();
 		foreach (GC_StatsPlayer player : m_Batch.m_aPlayers)
 		{
 			GC_StatsDebrief personal = new GC_StatsDebrief();
 			personal.UsePersonalCounters(player);
+			m_AllReport.UsePersonalCounters(player);
 			foreach (GC_StatsAssignment assignment : player.m_aAssignments)
 			{
 				personal.AddAssignment(assignment, player.m_sIdentity, false);
+				m_AllReport.AddAssignment(assignment, player.m_sIdentity, false);
 				if (assignment.m_sFaction.IsEmpty())
 					continue;
 				GC_StatsDebrief faction = m_mFactionReports.Get(assignment.m_sFaction);
@@ -117,6 +121,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		}
 		foreach (string key, GC_StatsDebrief report : m_mFactionReports)
 			report.Seal(false);
+		m_AllReport.Seal(false);
 		m_AIStats.BuildReports();
 	}
 

@@ -25,6 +25,7 @@ class GC_StatsDebrief
 	void UsePersonalCounters(GC_StatsPlayer player)
 	{
 		m_Counters.Add(player);
+		m_Participants.Insert(player.m_sIdentity);
 		m_sPlayerName = GC_DebriefText.Short(player.m_sName);
 		m_Counters.m_iCommanderMissions = player.m_iCommanderMissions;
 		m_Counters.m_iLeaderMissions = player.m_iLeaderMissions;

@@ -23,9 +23,9 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	protected SCR_EventHandlerComponent m_SearchEvents;
 	protected GC_AdminSearchFilter m_Sort;
 	protected GC_AdminSearchFilter m_EventFilter;
-	protected string m_sFaction;
+	protected string m_sFaction = "all";
 	protected string m_sSubject;
-	protected string m_sTitle = "Private";
+	protected string m_sTitle = "All";
 	protected string m_sView = "overview";
 	protected string m_sReportKey;
 	protected string m_sCombatPrefix;
@@ -45,13 +45,14 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		GC_HeaderComponent header = GC_HeaderComponent.Cast(root.FindAnyWidget("MenuBar").FindHandler(GC_HeaderComponent));
 		if (header)
 			header.SetActiveState(4);
-		AddSelection("Private", "");
+		AddSelection("All", "all");
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (manager)
 		{
 			foreach (Faction faction : manager.GetRegisteredFactions())
 				AddSelection(WidgetManager.Translate(faction.GetFactionName()), faction.GetFactionKey());
 		}
+		AddSelection("Private", "");
 		AddSelection("Other players", "players");
 		Bind("DebriefBack", "Back (Esc)");
 		Bind("ReportOverview", "Overview");
@@ -100,6 +101,13 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		row.SetName("DebriefSelection_" + key);
 		TextWidget caption = TextWidget.Cast(row.FindAnyWidget("Cell1"));
 		caption.SetText(label);
+		// Sidebar labels are not tooltip cells: the full row receives pointer input.
+		Widget decoration = caption;
+		while (decoration && decoration != row)
+		{
+			decoration.SetFlags(WidgetFlags.IGNORE_CURSOR);
+			decoration = decoration.GetParent();
+		}
 		FrameSlot.SetAnchorMax(caption.GetParent(), 1, 1);
 		for (int cell = 2; cell <= 6; cell++)
 			row.FindAnyWidget("Cell" + cell).GetParent().SetVisible(false);
@@ -137,6 +145,12 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 			if (m_bAI)
 				kind = "ai";
 			subject = m_sFaction;
+			if (m_sFaction == "all")
+			{
+				subject = "";
+				if (!m_bAI)
+					kind = "all";
+			}
 		}
 		m_sReportKey = string.Format("%1|%2|0|0", kind, subject);
 		Refresh();

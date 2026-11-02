@@ -2,6 +2,40 @@
 #ifdef WORKBENCH
 modded class GC_LobbyManager
 {
+	//! Resolve pointer input before dispatch, so text overlays cannot hide a broken button.
+	string GC_TestDebriefPointer(string name, string surface, bool activate)
+	{
+		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
+		if (!menu)
+			return "UNAVAILABLE menu";
+		Widget button = menu.GetRootWidget().FindAnyWidget(name);
+		if (!button)
+			return "UNAVAILABLE button";
+		Widget target = button;
+		if (!surface.IsEmpty())
+			target = button.FindAnyWidget(surface);
+		if (!target)
+			return "UNAVAILABLE surface";
+		float x, y, width, height;
+		target.GetScreenPos(x, y);
+		target.GetScreenSize(width, height);
+		WidgetManager.ReportMouse(x + width * 0.5, y + height * 0.5, menu.GetRootWidget());
+		Widget hit = WidgetManager.GetWidgetUnderCursor();
+		if (!hit)
+			return "NO HIT";
+		string result = "hit=" + hit.GetName();
+		if (activate && hit == button && button.IsEnabled())
+		{
+			SCR_ButtonBaseComponent handler = SCR_ButtonBaseComponent.Cast(button.FindHandler(SCR_ButtonBaseComponent));
+			if (handler)
+			{
+				handler.OnClick(hit, x, y, 0);
+				result += " activated";
+			}
+		}
+		return result;
+	}
+
 	string GC_TestReport(string action, string value)
 	{
 		GC_Lobby_DebriefMenu menu = GC_Lobby_DebriefMenu.Cast(GetGame().GetMenuManager().GetTopMenu());
@@ -98,6 +132,7 @@ modded class GC_MissionStatsComponent
 		if (!rows.IsEmpty() || status != "Player unavailable")
 			return "FAIL malformed ordinal";
 		GC_MissionStatsBatch original = m_Batch;
+		GC_StatsDebrief originalAll = m_AllReport;
 		map<string, ref GC_StatsDebrief> originalPersonal = m_mPersonalReports;
 		map<string, ref GC_StatsDebrief> originalFaction = m_mFactionReports;
 		m_Batch = new GC_MissionStatsBatch();
@@ -121,11 +156,19 @@ modded class GC_MissionStatsComponent
 		int started = System.GetTickCount();
 		BuildDebriefs();
 		int buildMs = System.GetTickCount(started);
+		array<string> allValues = {};
+		ReadReport(requester, "all", "", 0, 0, rows, next, status);
+		bool allValid = rows.Count() == 2;
+		if (allValid)
+		{
+			rows[0].Split("\n", allValues, false);
+			allValid = allValues.Count() == 15 && allValues[1] == "158024576" && allValues[4] == "8128" && allValues[14] == "128";
+		}
 		int total;
 		int pages;
 		int maxLength;
 		int offset;
-		bool valid = true;
+		bool valid = allValid;
 		while (offset >= 0)
 		{
 			ReadReport(requester, "players", "", offset, 0, rows, next, status);
@@ -147,6 +190,7 @@ modded class GC_MissionStatsComponent
 			}
 		}
 		m_Batch = original;
+		m_AllReport = originalAll;
 		m_mPersonalReports = originalPersonal;
 		m_mFactionReports = originalFaction;
 		return string.Format("valid=%1 players=%2 pages=%3 maxPayloadCharacters=%4 buildMs=%5 totalMs=%6; original batch restored", valid && total == 128 && pages == 8, total, pages, maxLength, buildMs, System.GetTickCount(started));

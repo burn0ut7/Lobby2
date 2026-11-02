@@ -125,6 +125,8 @@ modded class GC_MissionStatsComponent
 			if (m_AIStats.IsPartial())
 				status = "Partial AI report";
 		}
+		else if (kind == "all")
+			report = m_AllReport;
 		else if (kind == "faction")
 			report = m_mFactionReports.Get(subject);
 		else if (kind == "player")
