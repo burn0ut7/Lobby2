@@ -40,3 +40,9 @@ Navigation refinement: sidebar order is All, registered factions, Private, Other
 players. All is the opening selection and retains the Players / AI switch.
 Active live capture: all-final.png. Sidebar label/decorative widgets ignore
 pointer input so the native button receives the whole row's hit area.
+
+Current refinement: All and each faction now show combined player + AI totals
+and ammunition. Remove the Players / AI toggle from those overviews. Rename
+Private to Your stats; personal Overview / Activity remains available. The prior
+all-final.png and ai-final.png show superseded toggle states. New live captures
+and further testing are deferred at the user's explicit request.

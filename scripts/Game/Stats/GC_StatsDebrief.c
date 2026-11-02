@@ -10,11 +10,12 @@ class GC_StatsDebrief
 	protected string m_sFactions;
 
 	//------------------------------------------------------------------------------------------------
-	void AddAssignment(GC_StatsAssignment assignment, string identity, bool includeCounters)
+	void AddAssignment(GC_StatsAssignment assignment, string identity, bool includeCounters, bool includeParticipant = true)
 	{
 		if (includeCounters)
 			m_Counters.Add(assignment);
-		m_Participants.Insert(identity);
+		if (includeParticipant)
+			m_Participants.Insert(identity);
 		if (!assignment.m_sFaction.IsEmpty())
 			m_sFactions = GC_DebriefText.Short(assignment.m_sFaction);
 		foreach (GC_StatsAmmo ammo : assignment.m_aAmmo)
@@ -32,7 +33,7 @@ class GC_StatsDebrief
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Seal(bool personal, bool transientAI = false)
+	void Seal(bool personal)
 	{
 		m_sSummary = FormatTime(m_Counters.m_fPlaySeconds);
 		m_sSummary += "\n" + m_Counters.m_iShots.ToString();
@@ -90,12 +91,7 @@ class GC_StatsDebrief
 			displayed++;
 		}
 		if (types.Count() > displayed)
-		{
-			if (transientAI)
-				m_sAmmunition += string.Format("%1 more ammunition types", types.Count() - displayed);
-			else
-				m_sAmmunition += string.Format("%1 more ammunition types saved in mission history.", types.Count() - displayed);
-		}
+			m_sAmmunition += string.Format("%1 more ammunition types", types.Count() - displayed);
 		if (m_sAmmunition.IsEmpty())
 			m_sAmmunition = "No ammunition fired.";
 		// No identities or mutable collections are retained in the presentation cache.

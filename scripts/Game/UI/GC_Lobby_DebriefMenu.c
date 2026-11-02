@@ -34,7 +34,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	protected int m_iPlayerNext;
 	protected int m_iCombatNext;
 	protected bool m_bDescending;
-	protected bool m_bAI;
 
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuOpen()
@@ -52,7 +51,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 			foreach (Faction faction : manager.GetRegisteredFactions())
 				AddSelection(WidgetManager.Translate(faction.GetFactionName()), faction.GetFactionKey());
 		}
-		AddSelection("Private", "");
+		AddSelection("Your stats", "");
 		AddSelection("Other players", "players");
 		Bind("DebriefBack", "Back (Esc)");
 		Bind("ReportOverview", "Overview");
@@ -120,7 +119,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	protected void OnSelection(SCR_ButtonBaseComponent selected)
 	{
 		m_sFaction = m_mSelections.Get(selected);
-		m_bAI = false;
 		m_sSubject = "";
 		m_sTitle = TextWidget.Cast(selected.GetRootWidget().FindAnyWidget("Cell1")).GetText();
 		m_Search.SetText("");
@@ -142,14 +140,11 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		if (!m_sFaction.IsEmpty() && m_sFaction != "players")
 		{
 			kind = "faction";
-			if (m_bAI)
-				kind = "ai";
 			subject = m_sFaction;
 			if (m_sFaction == "all")
 			{
 				subject = "";
-				if (!m_bAI)
-					kind = "all";
+				kind = "all";
 			}
 		}
 		m_sReportKey = string.Format("%1|%2|0|0", kind, subject);
@@ -265,20 +260,9 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		if (name == "DebriefBack")
 			OnBack();
 		else if (name == "ReportOverview")
-		{
-			m_bAI = false;
 			ShowOverview();
-		}
 		else if (name == "ReportCombat")
-		{
-			if (IsFactionOverview())
-			{
-				m_bAI = true;
-				ShowOverview();
-			}
-			else
-				ShowCombat();
-		}
+			ShowCombat();
 		else if (name == "ReportPlayers")
 			ShowPlayers();
 		else if (name == "ReportDirection")
@@ -367,20 +351,11 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		root.FindAnyWidget("ReportDirection").SetVisible(players);
 		root.FindAnyWidget("ReportSortArrow").SetVisible(players);
 		root.FindAnyWidget("ReportFilter").SetVisible(combat);
-		root.FindAnyWidget("ReportOverview").SetVisible(!players);
-		root.FindAnyWidget("ReportCombat").SetVisible(!players);
+		root.FindAnyWidget("ReportOverview").SetVisible(!players && !IsFactionOverview());
+		root.FindAnyWidget("ReportCombat").SetVisible(!players && !IsFactionOverview());
 		root.FindAnyWidget("ReportPlayers").SetVisible(false);
-		string overviewLabel = "Overview";
-		string activityLabel = "Activity";
-		if (IsFactionOverview())
-		{
-			overviewLabel = "Players";
-			activityLabel = "AI";
-		}
-		SCR_ButtonTextComponent.GetButtonText("ReportOverview", root).SetText(overviewLabel);
-		SCR_ButtonTextComponent.GetButtonText("ReportCombat", root).SetText(activityLabel);
-		SCR_ButtonTextComponent.GetButtonText("ReportOverview", root).SetToggled(overview && !m_bAI, false, false);
-		SCR_ButtonTextComponent.GetButtonText("ReportCombat", root).SetToggled(combat || m_bAI, false, false);
+		SCR_ButtonTextComponent.GetButtonText("ReportOverview", root).SetToggled(overview, false, false);
+		SCR_ButtonTextComponent.GetButtonText("ReportCombat", root).SetToggled(combat, false, false);
 		string direction = "sortArrowUp";
 		if (m_bDescending)
 			direction = "sortArrowDown";
@@ -439,12 +414,10 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 				text = m_aValues[i];
 			string caption = m_aLabels[i];
 			if (i == 14 && !m_sFaction.IsEmpty() && m_sFaction != "players")
-				caption = "Participants";
+				caption = "Players";
 			label.SetText(caption);
 			value.SetText(text);
 			bool visible = i != 1 && i != 2 && i != 3 && i != 4 && i != 5 && i != 7 && Matches(caption + " " + text);
-			if (m_bAI)
-				visible = (i == 6 || i == 10) && Matches(caption + " " + text);
 			label.SetVisible(visible);
 			value.SetVisible(visible);
 			if (visible)
@@ -477,8 +450,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	protected void RenderHeroes()
 	{
 		array<int> indexes = {1, 4, 7, 5, 2, 3};
-		if (m_bAI)
-			indexes = {1, 4, 7, 5, 8, 9};
 		for (int i; i < 6; i++)
 		{
 			string value = "—";

@@ -157,3 +157,19 @@ participants include unassigned players. All AI sums transient faction counters.
 Both are sealed once and use the existing report queue/cache. Sidebar labels
 ignore pointer input so clicks reach the native button rather than a tooltip
 cell. See [navigation validation](../Art/References/debrief-rework/navigation-validation.md).
+
+## Combined faction totals — current behavior
+
+Faction and All summaries now include both player and AI combat counters and
+ammunition, merged before the shared summaries are sealed. The separate AI report
+cache/request kind and UI toggle are removed. Your stats replaces Private and
+continues to show only the selected player's counters and activity. The Players
+count remains a human participant count; AI does not insert synthetic identities.
+Transient AI counters remain outside the persistent player batch. AI collection
+truncation marks combined summaries partial, without affecting personal reports.
+Ammunition truncation no longer claims all omitted AI types were saved.
+
+The user explicitly halted all testing for this slice. Further builds, live
+checks, captures and regression execution are deferred until requested. Existing
+AI collection coverage limitations remain unchanged. Test helpers were updated
+for the merged report API and isolate transient AI during the player fixture.

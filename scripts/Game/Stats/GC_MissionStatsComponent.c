@@ -119,10 +119,10 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			personal.Seal(true);
 			m_mPersonalReports.Set(player.m_sIdentity, personal);
 		}
+		m_AIStats.AddToReports(m_AllReport, m_mFactionReports);
 		foreach (string key, GC_StatsDebrief report : m_mFactionReports)
 			report.Seal(false);
 		m_AllReport.Seal(false);
-		m_AIStats.BuildReports();
 	}
 
 	//------------------------------------------------------------------------------------------------

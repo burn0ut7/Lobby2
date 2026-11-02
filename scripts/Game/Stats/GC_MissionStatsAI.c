@@ -3,9 +3,7 @@
 class GC_MissionStatsAI
 {
 	protected ref map<string, ref GC_StatsAssignment> m_mGC_AIStats = new map<string, ref GC_StatsAssignment>();
-	protected ref map<string, ref GC_StatsDebrief> m_mGC_AIReports = new map<string, ref GC_StatsDebrief>();
 	protected bool m_bGC_AIPartial;
-	protected ref GC_StatsDebrief m_AllReport;
 
 	//------------------------------------------------------------------------------------------------
 	protected Faction AIFaction(IEntity character)
@@ -79,34 +77,29 @@ class GC_MissionStatsAI
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void BuildReports()
+	void AddToReports(GC_StatsDebrief all, map<string, ref GC_StatsDebrief> factions)
 	{
-		m_mGC_AIReports.Clear();
-		m_AllReport = new GC_StatsDebrief();
-		foreach (string factionKey, GC_StatsAssignment totals : m_mGC_AIStats)
-			m_AllReport.AddAssignment(totals, "AI", true);
-		m_AllReport.Seal(false, true);
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (!manager)
-			return;
-		foreach (Faction faction : manager.GetRegisteredFactions())
+		if (manager)
 		{
-			string key = faction.GetFactionKey();
-			GC_StatsAssignment stats = m_mGC_AIStats.Get(key);
-			GC_StatsDebrief report = new GC_StatsDebrief();
-			if (stats)
-				report.AddAssignment(stats, "AI", true);
-			report.Seal(false, true);
-			m_mGC_AIReports.Set(key, report);
+			foreach (Faction registered : manager.GetRegisteredFactions())
+			{
+				if (!factions.Contains(registered.GetFactionKey()))
+					factions.Set(registered.GetFactionKey(), new GC_StatsDebrief());
+			}
 		}
-	}
-
-	//------------------------------------------------------------------------------------------------
-	GC_StatsDebrief GetReport(string faction)
-	{
-		if (faction.IsEmpty())
-			return m_AllReport;
-		return m_mGC_AIReports.Get(faction);
+		foreach (string key, GC_StatsAssignment totals : m_mGC_AIStats)
+		{
+			GC_StatsDebrief faction = factions.Get(key);
+			if (!faction)
+			{
+				faction = new GC_StatsDebrief();
+				factions.Set(key, faction);
+			}
+			// AI contributes combat totals and ammunition, never a fake player identity.
+			faction.AddAssignment(totals, "", true, false);
+			all.AddAssignment(totals, "", true, false);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------

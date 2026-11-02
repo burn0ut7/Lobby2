@@ -19,13 +19,12 @@ modded class GC_MissionStatsComponent
 			GC_MissionStatsAI original = m_AIStats;
 			m_AIStats = new GC_MissionStatsAI();
 			m_AIStats.MarkIncomplete();
-			m_AIStats.BuildReports();
 			array<string> partialRows;
 			int partialNext;
 			string partialStatus;
-			ReadReport(GetGame().GetPlayerController().GetPlayerId(), "ai", "USSR", 0, 0, partialRows, partialNext, partialStatus);
+			ReadReport(GetGame().GetPlayerController().GetPlayerId(), "faction", "USSR", 0, 0, partialRows, partialNext, partialStatus);
 			m_AIStats = original;
-			return string.Format("partialVisible=%1 rows=%2", partialStatus == "Partial AI report", partialRows.Count());
+			return string.Format("partialVisible=%1 rows=%2", partialStatus == "Partial report", partialRows.Count());
 		}
 		if (action == "player-exclusion")
 		{
@@ -44,7 +43,7 @@ modded class GC_MissionStatsComponent
 		array<string> rows;
 		int next;
 		string status;
-		ReadReport(GetGame().GetPlayerController().GetPlayerId(), "ai", action, 0, 0, rows, next, status);
+		ReadReport(GetGame().GetPlayerController().GetPlayerId(), "faction", action, 0, 0, rows, next, status);
 		result += string.Format(" | reportRows=%1 status=%2", rows.Count(), status);
 		if (rows.Count() == 2)
 			result += " | " + rows[1];

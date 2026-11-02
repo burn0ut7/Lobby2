@@ -689,3 +689,7 @@ from the persisted player batch. Native weapon firing and the existing resolved
 death callback feed per-faction combat totals; player and AI views share bounded
 summary generation, queued delivery and client caching. See tests/MissionStats.md
 for collection coverage and limits.
+
+Current debrief presentation merges transient AI counters/ammunition into faction
+and All summaries before sealing. Your stats remains personal. No separate AI
+report cache or selection is retained; the human Players count excludes AI.

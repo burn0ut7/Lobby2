@@ -133,6 +133,8 @@ modded class GC_MissionStatsComponent
 			return "FAIL malformed ordinal";
 		GC_MissionStatsBatch original = m_Batch;
 		GC_StatsDebrief originalAll = m_AllReport;
+		GC_MissionStatsAI originalAI = m_AIStats;
+		m_AIStats = new GC_MissionStatsAI();
 		map<string, ref GC_StatsDebrief> originalPersonal = m_mPersonalReports;
 		map<string, ref GC_StatsDebrief> originalFaction = m_mFactionReports;
 		m_Batch = new GC_MissionStatsBatch();
@@ -191,6 +193,7 @@ modded class GC_MissionStatsComponent
 		}
 		m_Batch = original;
 		m_AllReport = originalAll;
+		m_AIStats = originalAI;
 		m_mPersonalReports = originalPersonal;
 		m_mFactionReports = originalFaction;
 		return string.Format("valid=%1 players=%2 pages=%3 maxPayloadCharacters=%4 buildMs=%5 totalMs=%6; original batch restored", valid && total == 128 && pages == 8, total, pages, maxLength, buildMs, System.GetTickCount(started));
