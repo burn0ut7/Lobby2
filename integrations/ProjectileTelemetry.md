@@ -51,3 +51,26 @@ Damage with no usable projectile reference remains uncorrelated.
 Optional explicit probes are in `tests/McpTestAddon`; they are not deployed.
 Website model regression tests cover early-contact ordering and successive
 contacts; connecting observed points is not a simulated ballistic path.
+
+## Initial actors and ownership (2026-11-02)
+
+The server recorder discovers characters through native AIWorld.GetAIAgents in
+bounded batches (eight agents per tick, refreshed once per second after draining).
+Stationary AI receive a spawn with their initial transform; unchanged positions
+do not need repeated samples. This uses native game identity, not movement or
+combat as an admission trigger.
+
+Unoccupied Lobby2 slots and native playable-group bodies are excluded until
+observed under player control. Once admitted, a surviving body remains tracked
+after ownership loss. Ownership is sampled separately from equipment, at the
+actor's 200ms cadence, and emits an empty playerIdentity when vacated.
+Destroyed/removed entities still despawn normally. Existing 256-active-actor
+limits and explicit overflow behavior remain; this is not unlimited AI capture.
+
+Live Arland proof: recording 01a19e06-4852-8ff7-8400-0000006a8b6b contains 18 AI,
+two successively occupied player bodies, and 378 records with zero drops.
+The stationary fixture stayed at (1180,39,2730); an unused slot at
+(1185,39,2730) was excluded. An authenticated slot switch emitted empty ownership
+at 19847.898437ms; the old body remained, with three later state samples.
+Website intake/read APIs verified all 378 records. Optional explicit discovery
+probe is in tests/McpTestAddon; it is not deployed.

@@ -136,6 +136,8 @@ class GC_TelemetryActor
 		float now = m_Recorder.Now();
 		if (!finalState && now - m_fLastSample < 200)
 			return;
+		if (!finalState)
+			SampleOwnership();
 		ChimeraCharacter character = ChimeraCharacter.Cast(m_Entity);
 		GC_SpectatorSample sample;
 		if (character)
@@ -271,15 +273,13 @@ class GC_TelemetryActor
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void SampleAppearance(bool finalState)
+	protected void SampleOwnership()
 	{
-		if (!m_Entity.GetVObject())
-			return;
 		int playerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(m_Entity);
 		string identity;
 		if (playerId > 0)
 			identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
-		if (!finalState && identity != m_sIdentity)
+		if (identity != m_sIdentity)
 		{
 			m_sIdentity = identity;
 			JsonSaveContext owner = m_Recorder.BeginRecord("ownership");
@@ -287,6 +287,13 @@ class GC_TelemetryActor
 			owner.WriteValue("playerIdentity", identity);
 			m_Recorder.CommitRecord(owner);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SampleAppearance(bool finalState)
+	{
+		if (!m_Entity.GetVObject())
+			return;
 		if (!SCR_PlayerArsenalLoadout.ARSENALLOADOUT_COMPONENTS_TO_CHECK)
 			SCR_ArsenalManagerComponent.GetArsenalLoadoutComponentsToCheck(SCR_PlayerArsenalLoadout.ARSENALLOADOUT_COMPONENTS_TO_CHECK);
 		JsonSaveContext gear = new JsonSaveContext();

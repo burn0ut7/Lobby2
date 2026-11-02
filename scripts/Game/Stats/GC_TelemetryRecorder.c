@@ -33,6 +33,9 @@ class GC_TelemetryRecorder
 	protected bool m_bPendingClosed;
 	protected ref array<int> m_aPlayers = {};
 	protected int m_iPlayerCursor;
+	protected ref array<AIAgent> m_aAgents = {};
+	protected int m_iAgentCursor;
+	protected float m_fLastAgentDiscovery = -1000;
 	protected ref array<ref GC_TelemetryActor> m_aActors = {};
 	protected ref map<EntityID, GC_TelemetryActor> m_mActors = new map<EntityID, GC_TelemetryActor>();
 	protected ref map<EntityID, ref GC_TelemetryProjectile> m_mProjectiles = new map<EntityID, ref GC_TelemetryProjectile>();
@@ -184,6 +187,21 @@ class GC_TelemetryRecorder
 		if (actor && actor.GetEntity() == entity)
 			return actor;
 		ChimeraCharacter character = ChimeraCharacter.Cast(entity);
+		// Existing tracks survive ownership loss. Never admit unused player slots
+		// through discovery, damage or target lookup merely because a body exists.
+		if (character && !wasPlayer && GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(entity) <= 0)
+		{
+			GC_LobbyManager manager = GC_LobbyManager.GetManager();
+			if (manager && manager.GetSlotByEntity(entity))
+				return null;
+			AIControlComponent control = AIControlComponent.Cast(entity.FindComponent(AIControlComponent));
+			if (control && control.GetAIAgent())
+			{
+				SCR_AIGroup group = SCR_AIGroup.Cast(control.GetAIAgent().GetParentGroup());
+				if (group && group.IsPlayable())
+					return null;
+			}
+		}
 		if (!deathEvent && character && character.GetCharacterController() && character.GetCharacterController().IsDead())
 			return null;
 		if (m_aActors.Count() >= 256)
@@ -371,6 +389,22 @@ class GC_TelemetryRecorder
 		}
 		for (int discovered; m_bRunning && discovered < 8 && m_iPlayerCursor < m_aPlayers.Count(); discovered++)
 			Track(GetGame().GetPlayerManager().GetPlayerControlledEntity(m_aPlayers[m_iPlayerCursor++]));
+		// Native AI registration includes stationary units; movement and combat
+		// are not discovery signals. Drain a snapshot in bounded per-frame work.
+		if (m_bRunning && now - m_fLastAgentDiscovery >= 1000 && m_iAgentCursor >= m_aAgents.Count())
+		{
+			m_fLastAgentDiscovery = now;
+			m_aAgents.Clear();
+			if (GetGame().GetAIWorld())
+				GetGame().GetAIWorld().GetAIAgents(m_aAgents);
+			m_iAgentCursor = 0;
+		}
+		for (int aiDiscovered; m_bRunning && aiDiscovered < 8 && m_iAgentCursor < m_aAgents.Count(); aiDiscovered++)
+		{
+			AIAgent agent = m_aAgents[m_iAgentCursor++];
+			if (agent)
+				Track(agent.GetControlledEntity());
+		}
 		int count = m_aActors.Count();
 		for (int step; m_bRunning && step < count; step++)
 		{
@@ -443,7 +477,7 @@ class GC_TelemetryRecorder
 			context.WriteValue("stopReason", m_sStopReason);
 			context.WriteValue("droppedRecords", m_iDropped);
 			context.StartObject("coverage");
-			context.WriteValue("actors", "players");
+			context.WriteValue("actors", "players-and-ai");
 			context.WriteValue("pose", "inferred");
 			bool captured = true;
 			context.WriteValue("shots", captured);
