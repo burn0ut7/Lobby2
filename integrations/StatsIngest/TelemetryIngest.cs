@@ -24,21 +24,8 @@ internal static class TelemetryIngest
         {
             using var stored = JsonDocument.Parse(reader.GetString(0));
             var other = stored.RootElement;
-            foreach (var name in new[] { "schemaVersion", "missionId", "startedAt", "world", "gameVersion", "assetManifestId", "clock", "coordinates", "sampleHz", "coverage" })
-                if (!JsonElement.DeepEquals(incoming.GetProperty(name), other.GetProperty(name)))
-                    throw new InvalidDataException("Telemetry recording metadata changed.");
-            var otherRevision = other.GetProperty("revision").GetInt32();
-            if (otherRevision == revision) continue; // Exact checksum checked by the shared importer.
-            var earlier = otherRevision < revision ? other : incoming;
-            var later = otherRevision < revision ? incoming : other;
-            if (earlier.GetProperty("closed").GetBoolean()
-                || earlier.GetProperty("untilMs").GetDouble() > later.GetProperty("fromMs").GetDouble()
-                || earlier.GetProperty("droppedRecords").GetInt32() > later.GetProperty("droppedRecords").GetInt32())
-                throw new InvalidDataException("Telemetry timeline or closure conflicts.");
-            var nextSequence = (long)earlier.GetProperty("firstSequence").GetInt32() + earlier.GetProperty("records").GetArrayLength();
-            var laterSequence = later.GetProperty("firstSequence").GetInt32();
-            if (nextSequence > laterSequence || (Math.Abs((long)otherRevision - revision) == 1 && nextSequence != laterSequence))
-                throw new InvalidDataException("Telemetry sequence range conflicts.");
+            TelemetryContinuity.Validate(incoming, incoming.GetProperty("records").GetArrayLength(),
+                other, other.GetProperty("records").GetArrayLength());
         }
     }
 }

@@ -2,7 +2,7 @@ using System.Text.Json;
 
 // Replay records are separate from aggregate statistics. No engine assets or
 // animation graph behavior are inferred by the importer.
-internal static class TelemetryContract
+public static class TelemetryContract
 {
     public const int MaxBatchBytes = 1024 * 1024;
     public const int MaxRecords = 1024;

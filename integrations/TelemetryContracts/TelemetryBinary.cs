@@ -4,7 +4,7 @@ using System.Text.Json;
 
 // L2TB v1. Numeric movement tables are little-endian IEEE binary32/int32.
 // Cold events and metadata preserve the existing schema-2 JSON contract.
-internal static class TelemetryBinary
+public static class TelemetryBinary
 {
     public const int Magic = 0x4254324C;
     private static readonly UTF8Encoding Utf8 = new(false, true);
