@@ -1,0 +1,8 @@
+GenericEntity {
+ ID "A79C4E0A43DEB841"
+ {
+  SCR_AIWorld : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
+   ID "A79C4E0A43DEB842"
+  }
+ }
+}

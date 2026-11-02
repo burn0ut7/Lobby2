@@ -1,0 +1,7 @@
+MetaFileClass {
+ Name "{A79C4E0A43DEB832}worlds/TemplateEden.ent"
+ Configurations {
+  ENTResourceClass PC {
+  }
+ }
+}
