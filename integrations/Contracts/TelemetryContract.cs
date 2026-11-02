@@ -61,6 +61,47 @@ public static class TelemetryContract
     {
         switch (type)
         {
+            case "map-state":
+                Text(data, "faction", 256);
+                data.GetProperty("markersAvailable").GetBoolean();
+                data.GetProperty("drawingsAvailable").GetBoolean();
+                var shapes = data.GetProperty("shapes");
+                if (shapes.GetArrayLength() > 384) Fail();
+                foreach (var shape in shapes.EnumerateArray())
+                {
+                    UniqueFields(shape);
+                    var points = shape.GetProperty("points");
+                    if (points.GetArrayLength() < 4 || points.GetArrayLength() > 512 || points.GetArrayLength() % 2 != 0) Fail();
+                    foreach (var point in points.EnumerateArray())
+                        if (!point.TryGetDouble(out var coordinate) || !double.IsFinite(coordinate) || Math.Abs(coordinate) > 1000000) Fail();
+                    shape.GetProperty("lineColor").GetInt32();
+                    shape.GetProperty("fillColor").GetInt32();
+                    Number(shape, "width", 0, 256);
+                    shape.GetProperty("inverted").GetBoolean();
+                    shape.GetProperty("closed").GetBoolean();
+                    shape.GetProperty("worldWidth").GetBoolean();
+                }
+                var markers = data.GetProperty("markers");
+                if (markers.GetArrayLength() > 512) Fail();
+                foreach (var marker in markers.EnumerateArray())
+                {
+                    UniqueFields(marker);
+                    Vector(marker, "position");
+                    Text(marker, "label", 4096);
+                    Text(marker, "iconResource", 4096);
+                    Text(marker, "iconName", 256);
+                    marker.GetProperty("color").GetInt32();
+                    Number(marker, "rotation", -360000, 360000);
+                    Number(marker, "size", 0, 1000000);
+                    Number(marker, "minSize", 0, 1000000);
+                    marker.GetProperty("worldScale").GetBoolean();
+                    Integer(marker, "nativeType", -1);
+                    Integer(marker, "nativeConfig", -1);
+                    if (marker.TryGetProperty("nativeFlags", out _)) Integer(marker, "nativeFlags", int.MinValue);
+                    if (marker.TryGetProperty("militaryIdentity", out _)) Integer(marker, "militaryIdentity", -1);
+                    if (marker.TryGetProperty("militaryDimension", out _)) Integer(marker, "militaryDimension", -1);
+                }
+                break;
             case "spawn":
                 Entity(data);
                 if (Text(data, "kind", 16) is not ("player" or "ai" or "vehicle")) Fail();
@@ -264,3 +305,4 @@ public static class TelemetryContract
 
     private static void Fail() => throw new InvalidDataException("Invalid telemetry batch.");
 }
+

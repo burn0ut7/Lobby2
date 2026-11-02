@@ -3,6 +3,7 @@
 class GC_TelemetryRecorder
 {
 	protected GC_SessionLogComponent m_Logs;
+	protected ref GC_TelemetryMap m_Map = new GC_TelemetryMap();
 	protected string m_sRecordingId;
 	protected string m_sRecords;
 	protected string m_sPending;
@@ -380,6 +381,8 @@ class GC_TelemetryRecorder
 		}
 		int started = System.GetTickCount();
 		float now = Now();
+		if (m_bRunning)
+			m_Map.Sample(this, now);
 		if (m_bRunning && now - m_fLastDiscovery >= 1000 && m_iPlayerCursor >= m_aPlayers.Count())
 		{
 			m_fLastDiscovery = now;
@@ -478,6 +481,7 @@ class GC_TelemetryRecorder
 			context.WriteValue("droppedRecords", m_iDropped);
 			context.StartObject("coverage");
 			context.WriteValue("actors", "players-and-ai");
+			context.WriteValue("map", "server-faction-snapshots-1s");
 			context.WriteValue("pose", "inferred");
 			bool captured = true;
 			context.WriteValue("shots", captured);

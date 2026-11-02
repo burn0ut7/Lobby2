@@ -77,6 +77,22 @@ with tempfile.TemporaryDirectory(prefix="Lobby2TelemetryContract-") as temp:
 
     check("all-record-types", valid=True)
 
+    def map_layer(b, mutate=None):
+        data = dict(faction="US", markersAvailable=True, drawingsAvailable=True,
+            shapes=[dict(points=[100,200,120,220,140,200], lineColor=-1, fillColor=859006719,
+                width=3, inverted=True, closed=True, worldWidth=False)],
+            markers=[dict(position=[120,0,200],label="Objective",iconResource="",iconName="",
+                color=-1,rotation=90,size=32,minSize=0,worldScale=False,nativeType=4,nativeConfig=100,
+                nativeFlags=8,militaryIdentity=1,militaryDimension=0)])
+        if mutate:
+            mutate(data)
+        b["records"][0].update(type="map-state",data=data)
+    check("map-snapshot", map_layer, valid=True)
+    check("map-odd-points", lambda b: map_layer(b, lambda d: d["shapes"][0]["points"].append(5)))
+    check("map-too-many-markers", lambda b: map_layer(b, lambda d: d.update(markers=d["markers"]*513)))
+    check("map-bad-coordinate", lambda b: map_layer(b, lambda d: d["markers"][0].update(position=[0,0])))
+    check("map-invalid-flags", lambda b: map_layer(b, lambda d: d["markers"][0].update(nativeFlags="bad")))
+
     def compact(b):
         b["schemaVersion"] = 2
         b["coverage"]["pose"] = "inferred"
@@ -193,3 +209,4 @@ with tempfile.TemporaryDirectory(prefix="Lobby2TelemetryContract-") as temp:
             count += 1
 
 print(f"PASS {count} telemetry cases (synthetic contract evidence only)")
+

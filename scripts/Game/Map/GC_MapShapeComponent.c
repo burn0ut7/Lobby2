@@ -117,11 +117,17 @@ class GC_MapShapeComponent : ScriptComponent
 	//! Recipient filtering happens on authority, before geometry is sent.
 	void AppendSnapshot(int playerId, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<vector> frameBounds = null)
 	{
+		AppendFactionSnapshot(GC_LobbyManager.GetManager().GetPlayerFaction(playerId), counts, colors, fills, inverted, widths, points, frameBounds);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Same presentation rules for recorded faction perspectives, without a connected player.
+	void AppendFactionSnapshot(Faction faction, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points, array<vector> frameBounds = null)
+	{
 		if (!m_bEnabled || !m_Shape)
 			return;
 		if (m_aFactionKeys && !m_aFactionKeys.IsEmpty())
 		{
-			Faction faction = GC_LobbyManager.GetManager().GetPlayerFaction(playerId);
 			if (!faction || !m_aFactionKeys.Contains(faction.GetFactionKey()))
 				return;
 		}

@@ -53,6 +53,20 @@ class GC_MapShapeSystem
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Trusted recorder read. Administrative boundary hints are not player map content.
+	void GetFactionSnapshot(Faction faction, array<int> counts, array<int> colors, array<int> fills, array<bool> inverted, array<float> widths, array<vector> points)
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!Replication.IsServer() || !mode || mode.GetMapShapes() != this)
+			return;
+		foreach (GC_MapShapeComponent shape : m_aShapes)
+		{
+			if (shape)
+				shape.AppendFactionSnapshot(faction, counts, colors, fills, inverted, widths, points);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void Stop()
 	{
 		m_aShapes.Clear();
