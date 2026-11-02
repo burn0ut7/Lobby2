@@ -683,3 +683,9 @@ gold, with admin red taking priority. No second timer, client authority, or
 telemetry requirement is introduced. Stale/unavailable history withholds gold.
 The service and invokers are scoped to the active Lobby2 manager and shut down
 with it. See the StatsIngest README for deployment, history limits and reporting.
+
+AI debrief summaries remain in memory under the mission stats owner, separately
+from the persisted player batch. Native weapon firing and the existing resolved
+death callback feed per-faction combat totals; player and AI views share bounded
+summary generation, queued delivery and client caching. See tests/MissionStats.md
+for collection coverage and limits.

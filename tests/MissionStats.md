@@ -117,3 +117,34 @@ Validation in Workbench 1.8.0.13, Lobby2 MCP Tests / Arland:
 - Empty, unordered and out-of-duration population history, and mismatched raw totals were rejected and retained. Test artifacts: `%TEMP%/Lobby2Playtime-mkdj2v9y`.
 
 No five-client population transition, real network disconnect/reconnect, dedicated server timing or long-duration precision benchmark was run for this revision. Callback fixtures and SQL interval checks cover those calculations, not transport behavior. Existing snapshot/capacity bounds still mark incomplete histories and exclude them from public lifetime totals.
+
+## AI faction summaries — 2026-11-02
+
+Each faction overview has Players / AI selections. AI summaries are match-local
+GC_MissionStatsAI data owned by GC_MissionStatsComponent, never inserted into the
+persistent mission batch. They reuse GC_StatsAssignment/GC_StatsDebrief and the
+same bounded report queue and client cache. No per-shot network message or AI
+profile is added. Native AI-only death session events retain their existing
+storage policy; this change adds no new persistence for AI counters/ammunition.
+
+The native character OnProjectileShot event did not fire for an unpossessed AI
+in the live test. AI weapon shots therefore enter at SCR_MuzzleEffectComponent
+and SCR_OptimizedMuzzleEffectComponent.OnFired. Both preserve inherited behavior,
+then defer to the active authority stats owner. The existing bounded projectile
+map deduplicates multiple effects for one shot. Attribution uses the projectile's
+native instigator and event-time faction. Player and retained player lives are
+excluded. GC_StatsAmmunition supplies one aggregation path for player and AI
+projectile/magazine/weapon combinations. Death credit uses the existing resolved,
+deduplicated game-mode callback.
+
+AI state is bounded to 32 factions and 128 ammunition combinations per faction;
+summary display retains the existing 32-projectile-type bound. Limits set a
+separate Partial AI report status, including shared death-collection overflow;
+unrelated player-history persistence failures do not mark AI counters partial.
+Counters freeze at match end. AI heroes show shots, player kills, deaths, AI
+kills, deaths by players and deaths by AI; secondary values show team kills and
+other deaths. Untracked movement/radio/medical/hand-thrown-grenade values are
+omitted. This is faction combat aggregation, not individual AI profiles.
+
+Native rifle testing and the final screenshot are recorded in
+[AI validation](../Art/References/debrief-rework/ai-validation.md).

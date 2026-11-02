@@ -31,7 +31,7 @@ class GC_StatsDebrief
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Seal(bool personal)
+	void Seal(bool personal, bool transientAI = false)
 	{
 		m_sSummary = FormatTime(m_Counters.m_fPlaySeconds);
 		m_sSummary += "\n" + m_Counters.m_iShots.ToString();
@@ -89,7 +89,12 @@ class GC_StatsDebrief
 			displayed++;
 		}
 		if (types.Count() > displayed)
-			m_sAmmunition += string.Format("%1 more ammunition types saved in mission history.", types.Count() - displayed);
+		{
+			if (transientAI)
+				m_sAmmunition += string.Format("%1 more ammunition types", types.Count() - displayed);
+			else
+				m_sAmmunition += string.Format("%1 more ammunition types saved in mission history.", types.Count() - displayed);
+		}
 		if (m_sAmmunition.IsEmpty())
 			m_sAmmunition = "No ammunition fired.";
 		// No identities or mutable collections are retained in the presentation cache.

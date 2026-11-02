@@ -30,3 +30,8 @@ six prominent metrics: shots, player kills, deaths, AI kills, grenades, bandages
 Rename Combat log to Activity. Remove the player-list faction column; use native
 faction colors on player names. Keep the faction overview selections. Remaining
 copy is labels, counts, loading/errors and retention status.
+
+AI refinement: reuse the faction overview geometry and its two native top-right
+buttons as Players / AI. The selected AI state scopes all visible totals and
+ammunition to AI. Use six combat-only metrics and omit uncollected player-only
+statistics. Active evidence: ai-final.png. No additional paragraphs or panels.

@@ -6,6 +6,7 @@ class GC_MissionStatsComponentClass : SCR_BaseGameModeComponentClass
 class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 {
 	protected ref GC_MissionStatsBatch m_Batch;
+	protected ref GC_MissionStatsAI m_AIStats = new GC_MissionStatsAI();
 	protected ref map<string, ref GC_StatsPlayer> m_mPlayers = new map<string, ref GC_StatsPlayer>();
 	protected ref map<string, ref GC_StatsCharacterTracker> m_mTrackers = new map<string, ref GC_StatsCharacterTracker>();
 	protected ref map<EntityID, ref GC_StatsAIDamageTracker> m_mDamageObservers = new map<EntityID, ref GC_StatsAIDamageTracker>();
@@ -116,6 +117,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		}
 		foreach (string key, GC_StatsDebrief report : m_mFactionReports)
 			report.Seal(false);
+		m_AIStats.BuildReports();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -228,6 +230,22 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		assignment.m_Start.Add(player);
 		player.m_aAssignments.Insert(assignment);
 		player.m_ActiveAssignment = assignment;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RecordAIFired(BaseMuzzleComponent muzzle, IEntity projectile)
+	{
+		if (!IsCollecting() || !muzzle || !projectile || m_mProjectileWeapons.Contains(projectile.GetID()))
+			return;
+		BaseProjectileComponent flight = BaseProjectileComponent.Cast(projectile.FindComponent(BaseProjectileComponent));
+		if (!flight || !flight.GetInstigator())
+			return;
+		IEntity character = flight.GetInstigator().GetInstigatorEntity();
+		if (!ChimeraCharacter.Cast(character) || IsPlayerCharacter(character))
+			return;
+		BaseWeaponComponent weapon = BaseWeaponComponent.Cast(muzzle.GetOwner().FindComponent(BaseWeaponComponent));
+		if (weapon)
+			m_AIStats.RecordShot(this, character, weapon, projectile);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -516,9 +534,11 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		if (m_RecordedDeaths.Count() >= 16384)
 		{
 			MarkIncomplete();
+			m_AIStats.MarkIncomplete();
 			return;
 		}
 		m_RecordedDeaths.Insert(victim.GetID());
+		m_AIStats.RecordDeath(victim, killer, death.m_sVictimKind, death.m_sKillerKind);
 		if (victimRecord)
 		{
 			bool byPlayer = killerRecord && killerRecord != victimRecord;

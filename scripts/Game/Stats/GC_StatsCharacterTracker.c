@@ -266,40 +266,7 @@ class GC_StatsCharacterTracker
 		GC_StatsAssignment assignment = m_Record.m_ActiveAssignment;
 		if (!assignment)
 			return;
-		string projectilePrefab;
-		string magazinePrefab;
-		string weaponPrefab;
-		if (projectile && projectile.GetPrefabData())
-			projectilePrefab = projectile.GetPrefabData().GetPrefabName();
-		if (weapon)
-		{
-			if (weapon.GetOwner() && weapon.GetOwner().GetPrefabData())
-				weaponPrefab = weapon.GetOwner().GetPrefabData().GetPrefabName();
-			BaseMagazineComponent magazine = weapon.GetCurrentMagazine();
-			if (magazine && magazine.GetOwner() && magazine.GetOwner().GetPrefabData())
-				magazinePrefab = magazine.GetOwner().GetPrefabData().GetPrefabName();
-		}
-		foreach (GC_StatsAmmo existing : assignment.m_aAmmo)
-		{
-			if (existing.m_sProjectile == projectilePrefab && existing.m_sMagazine == magazinePrefab && existing.m_sWeapon == weaponPrefab)
-			{
-				existing.m_iRounds++;
-				return;
-			}
-		}
-		if (assignment.m_aAmmo.Count() >= 128)
-		{
-			m_Stats.MarkIncomplete();
-			return;
-		}
-		if (!m_Stats.AllocateAmmoType())
-			return;
-		GC_StatsAmmo ammo = new GC_StatsAmmo();
-		ammo.m_sProjectile = projectilePrefab;
-		ammo.m_sMagazine = magazinePrefab;
-		ammo.m_sWeapon = weaponPrefab;
-		ammo.m_iRounds = 1;
-		assignment.m_aAmmo.Insert(ammo);
+		GC_StatsAmmunition.Record(m_Stats, assignment, weapon, projectile, true);
 	}
 
 	//------------------------------------------------------------------------------------------------

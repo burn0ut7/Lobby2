@@ -33,6 +33,48 @@ modded class GC_LobbyManager
 		}
 		if (!m_GC_TestCombatAI || m_GC_TestCombatAI.GetCharacterController().IsDead())
 			return "UNAVAILABLE living AI";
+		if (action == "faction")
+		{
+			FactionAffiliationComponent affiliation = FactionAffiliationComponent.Cast(m_GC_TestCombatAI.FindComponent(FactionAffiliationComponent));
+			if (!affiliation)
+				return "NO affiliation";
+			return string.Format("faction=%1", affiliation.GetAffiliatedFaction());
+		}
+		if (action == "weapon")
+		{
+			CharacterControllerComponent current = m_GC_TestCombatAI.GetCharacterController();
+			BaseWeaponComponent equipped = current.GetWeaponManagerComponent().GetCurrentWeapon();
+			int ammo = -1;
+			if (equipped && equipped.GetCurrentMagazine())
+				ammo = equipped.GetCurrentMagazine().GetAmmoCount();
+			return string.Format("weapon=%1 ammo=%2 canFire=%3 raised=%4", equipped, ammo, current.CanFire(), current.IsWeaponRaised());
+		}
+		if (action == "fire" || action == "prepare-fire")
+		{
+			CharacterControllerComponent aiController = m_GC_TestCombatAI.GetCharacterController();
+			AIControlComponent ai = AIControlComponent.Cast(m_GC_TestCombatAI.FindComponent(AIControlComponent));
+			if (ai)
+				ai.DeactivateAI();
+			array<BaseWeaponComponent> weapons = {};
+			aiController.GetWeaponManagerComponent().GetWeapons(weapons);
+			if (action == "prepare-fire")
+			{
+				foreach (BaseWeaponComponent candidate : weapons)
+				{
+					if (candidate.GetCurrentMagazine() && candidate.GetCurrentMagazine().GetAmmoCount() > 0)
+					{
+						aiController.SelectWeapon(candidate);
+						break;
+					}
+				}
+			}
+			aiController.SetWeaponRaised(true);
+			if (action == "prepare-fire")
+				return "PREPARED native AI weapon";
+			aiController.SetFireWeaponWanted(true);
+			GetGame().GetCallqueue().CallLater(aiController.SetFireWeaponWanted, 1000, false, false);
+			return "DISPATCHED native AI fire; inspect ammunition delta";
+		}
 		if (action == "delete-ai")
 		{
 			SCR_EntityHelper.DeleteEntityAndChildren(m_GC_TestCombatAI);
@@ -47,6 +89,15 @@ modded class GC_LobbyManager
 			actor = player;
 			if (action != "kill-ai")
 				amount = 1;
+		}
+		else if (action == "kill-ai-by-ai")
+		{
+			EntitySpawnParams targetParameters = new EntitySpawnParams();
+			targetParameters.TransformMode = ETransformMode.WORLD;
+			targetParameters.Transform[3] = player.GetOrigin() + Vector(6, 0, 0);
+			target = ChimeraCharacter.Cast(GetGame().SpawnEntityPrefab(Resource.Load("{BF643BE4ADBDFDD3}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_LAT.et"), GetGame().GetWorld(), targetParameters));
+			if (!target)
+				return "FAIL native target spawn";
 		}
 		else if (action == "hurt-player")
 			amount = 2;

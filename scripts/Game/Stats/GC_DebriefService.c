@@ -119,7 +119,13 @@ modded class GC_MissionStatsComponent
 			}
 		}
 		GC_StatsDebrief report;
-		if (kind == "faction")
+		if (kind == "ai")
+		{
+			report = m_AIStats.GetReport(subject);
+			if (m_AIStats.IsPartial())
+				status = "Partial AI report";
+		}
+		else if (kind == "faction")
 			report = m_mFactionReports.Get(subject);
 		else if (kind == "player")
 			report = m_mPersonalReports.Get(identity);
@@ -130,7 +136,7 @@ modded class GC_MissionStatsComponent
 		}
 		rows.Insert(report.GetSummary());
 		rows.Insert(report.GetAmmunition());
-		if (!IsHistoryComplete())
+		if (kind != "ai" && !IsHistoryComplete())
 			status = "Partial report";
 	}
 
