@@ -17,13 +17,6 @@ class GC_StatsCharacterTracker
 	protected string m_sDamageWeapon;
 	protected float m_fDamageImpactTime = -1;
 	protected EntityID m_DamageCharacterId;
-	protected EntityID m_LastPlayerDamageVictim;
-	protected GC_StatsPlayer m_LastAttacker;
-	protected string m_sLastPlayerWeapon;
-	protected string m_sLastPlayerPrefab;
-	protected int m_iLastPlayerRelation;
-	protected int m_iLastPlayerDamageSequence;
-	protected float m_fLastPlayerDistance = -1;
 	protected EntityID m_RespawnVictim;
 	protected EntityID m_LifeCharacterId;
 
@@ -94,8 +87,6 @@ class GC_StatsCharacterTracker
 			return;
 		m_Character = player;
 		m_LifeCharacterId = player.GetID();
-		if (m_LastPlayerDamageVictim != player.GetID())
-			m_LastAttacker = null;
 		m_Events = EventHandlerManagerComponent.Cast(player.FindComponent(EventHandlerManagerComponent));
 		if (m_Events)
 		{
@@ -284,9 +275,8 @@ class GC_StatsCharacterTracker
 			&& context.impactVelocity.LengthSq() < 0.0001)
 			return;
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
-		int damageSequence;
 		if (logs)
-			damageSequence = logs.RecordDamage(context, m_Character, m_Stats, m_Record);
+			logs.RecordDamage(context, m_Character, m_Stats, m_Record);
 		// Native bleed-out Kill() emits a source-less TRUE damage notification with
 		// the retained instigator. Keep that event, but do not call it a new hit.
 		if (context.damageType == EDamageType.BLEEDING
@@ -299,28 +289,7 @@ class GC_StatsCharacterTracker
 		m_fDamageImpactTime = GetGame().GetWorld().GetWorldTime();
 		if (m_Character)
 			m_DamageCharacterId = m_Character.GetID();
-		// Snapshot historical credit from native ownership/relations at the damaging hit.
-		// Self damage, bleeding ticks and healing cannot erase the last other player.
-		if (m_Character && context.damageValue > 0 && m_iDamageInstigator > 0 && m_iDamageInstigator != m_iPlayerId
-			&& context.instigator.GetInstigatorType() != InstigatorType.INSTIGATOR_GM)
-		{
-			GC_StatsPlayer attackerRecord = m_Stats.GetPlayer(m_iDamageInstigator);
-			IEntity attacker = context.instigator.GetInstigatorEntity();
-			if (!attackerRecord || attackerRecord == m_Record || attacker == m_Character)
-				return;
-			m_LastAttacker = attackerRecord;
-			m_sLastPlayerPrefab = string.Empty;
-			if (attacker && attacker.GetPrefabData())
-				m_sLastPlayerPrefab = attacker.GetPrefabData().GetPrefabName();
-			m_LastPlayerDamageVictim = m_Character.GetID();
-			m_sLastPlayerWeapon = m_sDamageWeapon;
-			m_iLastPlayerDamageSequence = damageSequence;
-			SCR_InstigatorContextData relation = new SCR_InstigatorContextData(m_iPlayerId, m_Character, attacker, context.instigator);
-			m_iLastPlayerRelation = relation.GetVictimKillerRelation();
-			m_fLastPlayerDistance = -1;
-			if (attacker)
-				m_fLastPlayerDistance = vector.Distance(attacker.GetOrigin(), m_Character.GetOrigin());
-		}
+
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -339,20 +308,6 @@ class GC_StatsCharacterTracker
 		if (damage && damage.GetBloodHitZone() && damage.GetBloodHitZone().GetDamageState() == ECharacterBloodState.DESTROYED)
 			return "bleeding";
 		return "other";
-	}
-
-	//------------------------------------------------------------------------------------------------
-	GC_StatsPlayer ApplyDelayedCredit(IEntity victim, GC_StatsDeath death)
-	{
-		if (!victim || victim.GetID() != m_LastPlayerDamageVictim || !m_LastAttacker)
-			return null;
-		death.m_sWeapon = m_sLastPlayerWeapon;
-		death.m_sKillerPrefab = m_sLastPlayerPrefab;
-		death.m_iRelation = m_iLastPlayerRelation;
-		death.m_fDistance = m_fLastPlayerDistance;
-		death.m_iDamageEventSequence = m_iLastPlayerDamageSequence;
-		death.m_sCreditSource = "lastPlayerDamage";
-		return m_LastAttacker;
 	}
 
 	//------------------------------------------------------------------------------------------------

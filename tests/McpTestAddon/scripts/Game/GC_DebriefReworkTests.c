@@ -233,6 +233,8 @@ modded class GC_SessionLogComponent
 		if (!victim)
 			return "UNAVAILABLE controlled entity";
 		GC_SpectatorEventBuffer original = m_SpectatorEvents;
+		map<string, ref GC_SessionEvent> originalHits = m_mLastDamage;
+		m_mLastDamage = new map<string, ref GC_SessionEvent>();
 		m_SpectatorEvents = new GC_SpectatorEventBuffer(8);
 		GC_SessionEvent hit = new GC_SessionEvent();
 		hit.m_sType = "damage";
@@ -246,18 +248,30 @@ modded class GC_SessionLogComponent
 		hit.m_fDamage = 12;
 		hit.m_iDamageType = EDamageType.KINETIC;
 		m_SpectatorEvents.Insert(hit);
+		RememberDamage(hit);
 		array<int> types = {EDamageType.BLEEDING, EDamageType.TRUE, EDamageType.MELEE};
 		foreach (int type : types)
 		{
 			GC_SessionEvent ignored = new GC_SessionEvent();
 			ignored.m_sType = "damage";
 			ignored.m_sTargetEntity = hit.m_sTargetEntity;
-			ignored.m_sActorEntity = hit.m_sTargetEntity;
+			ignored.m_sActorKind = "player";
+			ignored.m_sActor = "another-attacker";
+			if (type == EDamageType.MELEE)
+				ignored.m_sActorEntity = hit.m_sTargetEntity;
 			ignored.m_fDamage = 100;
 			ignored.m_iDamageType = type;
 			m_SpectatorEvents.Insert(ignored);
+			RememberDamage(ignored);
 		}
 		bool valid = GetLastMeaningfulDamage(victim) == hit;
+		// Eviction of presentation history must not evict statistical attribution.
+		for (int i; i < 4097; i++)
+			m_SpectatorEvents.Insert(new GC_SessionEvent());
+		valid = valid && GetLastMeaningfulDamage(victim) == hit;
+		ForgetDamage(victim);
+		valid = valid && !GetLastMeaningfulDamage(victim);
+		m_mLastDamage = originalHits;
 		m_SpectatorEvents = original;
 		GC_SessionEvent death = new GC_SessionEvent();
 		death.m_LastDamage = hit;

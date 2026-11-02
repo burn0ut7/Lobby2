@@ -53,8 +53,8 @@ internal static class SessionEventContract
             if (entry.TryGetProperty(name, out _) && Text(entry, name, 16) is not ("" or "player" or "ai" or "other")) Fail();
         foreach (var name in new[] { "actorPrefab", "targetPrefab", "victimPrefab", "killerPrefab" })
             if (entry.TryGetProperty(name, out _)) Text(entry, name, 4096);
-        if (entry.TryGetProperty("deathCause", out _) && Text(entry, "deathCause", 32) is not ("" or "other" or "bleeding" or "respawn")) Fail();
-        if (entry.TryGetProperty("creditSource", out _) && Text(entry, "creditSource", 32) is not ("" or "engine" or "lastPlayerDamage")) Fail();
+        if (entry.TryGetProperty("deathCause", out _) && Text(entry, "deathCause", 32) is not ("" or "other" or "bleeding" or "respawn" or "suicide")) Fail();
+        if (entry.TryGetProperty("creditSource", out _) && Text(entry, "creditSource", 32) is not ("" or "engine" or "lastPlayerDamage" or "lastDamage")) Fail();
         if (entry.TryGetProperty("damageEventSequence", out _)) Nonnegative(entry, "damageEventSequence");
     }
 

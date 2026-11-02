@@ -24,6 +24,8 @@ class GC_SessionEvent
 	string m_sDetail;
 	float m_fDamage;
 	int m_iDamageType = -1;
+	int m_iRelation;
+	bool m_bFriendly;
 	float m_fDistance = -1;
 	string m_sDeathCause;
 	string m_sCreditSource;
@@ -57,6 +59,7 @@ class GC_SessionEvent
 		context.WriteValue("detail", m_sDetail);
 		context.WriteValue("reportedDamage", m_fDamage);
 		context.WriteValue("damageType", m_iDamageType);
+		context.WriteValue("relation", m_iRelation);
 		context.WriteValue("distanceMetres", m_fDistance);
 		context.WriteValue("deathCause", m_sDeathCause);
 		context.WriteValue("creditSource", m_sCreditSource);

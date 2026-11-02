@@ -1,4 +1,4 @@
-//! Game-mode-owned subscription. Player lives retain their existing credit tracker.
+//! Game-mode-owned subscription; player and AI hits share the session credit lookup.
 class GC_StatsAIDamageTracker
 {
 	protected GC_MissionStatsComponent m_Stats;

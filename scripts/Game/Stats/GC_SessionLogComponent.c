@@ -12,6 +12,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	protected float m_fStarted;
 	protected int m_iSequence;
 	protected int m_iSpectatorRevision;
+	protected ref map<string, ref GC_SessionEvent> m_mLastDamage = new map<string, ref GC_SessionEvent>();
 	protected ref GC_SpectatorEventBuffer m_SpectatorEvents = new GC_SpectatorEventBuffer(4096);
 	protected ref map<string, ref GC_SpectatorEventBuffer> m_mPersonalEvents = new map<string, ref GC_SpectatorEventBuffer>();
 	protected bool m_bSpectatorUpdateQueued;
@@ -169,7 +170,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (actor)
 				entry.m_sActor = "ai:" + actor.GetID().ToString();
 		}
-		else if (actorId > 0)
+		else if (actorId > 0 && context.instigator.GetInstigatorType() != InstigatorType.INSTIGATOR_GM)
 			entry.m_sActorKind = "player";
 		if (actor)
 		{
@@ -182,6 +183,11 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		}
 		entry.m_sActorFaction = EventFaction(actor);
 		entry.m_sTargetFaction = EventFaction(victim);
+		SCR_InstigatorContextData relation = new SCR_InstigatorContextData(GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(victim), victim, actor, context.instigator);
+		entry.m_iRelation = relation.GetVictimKillerRelation();
+		Faction sourceFaction = GetGame().GetFactionManager().GetFactionByKey(entry.m_sActorFaction);
+		Faction targetFaction = GetGame().GetFactionManager().GetFactionByKey(entry.m_sTargetFaction);
+		entry.m_bFriendly = sourceFaction && targetFaction && sourceFaction.IsFactionFriendly(targetFaction);
 		entry.m_fDamage = context.damageValue;
 		entry.m_iDamageType = context.damageType;
 		entry.m_sWeapon = stats.GetProjectileWeapon(context.damageSource);
@@ -200,6 +206,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		if (!entry || !Replication.IsServer() || GetInstance() != this || m_sSessionId.IsEmpty() || m_bClosed)
 			return;
 		entry.m_iSequence = ++m_iSequence;
+		RememberDamage(entry);
 		entry.m_fSeconds = Math.Max(0, GetGame().GetWorld().GetWorldTime() * 0.001 - m_fStarted);
 		if (IsSpectatorCombat(entry))
 		{
@@ -233,24 +240,44 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Resolve context from the shared bounded history; never award kill credit here.
+	//! One immutable hit per living victim, independent of the presentation ring's eviction.
+	protected void RememberDamage(GC_SessionEvent hit)
+	{
+		if (hit.m_sType != "damage" || hit.m_sTargetEntity.IsEmpty() || hit.m_fDamage <= 0
+			|| hit.m_iDamageType == EDamageType.BLEEDING || hit.m_iDamageType == EDamageType.TRUE
+			|| hit.m_iDamageType == EDamageType.HEALING || hit.m_iDamageType == EDamageType.REGENERATION
+			|| (hit.m_sActorKind != "player" && hit.m_sActorKind != "ai") || hit.m_sActor.IsEmpty()
+			|| hit.m_sActorEntity == hit.m_sTargetEntity || hit.m_sActor == hit.m_sTarget)
+			return;
+		if (!m_mLastDamage.Contains(hit.m_sTargetEntity) && m_mLastDamage.Count() >= 16384)
+		{
+			GC_MissionStatsComponent stats = GC_MissionStatsComponent.GetInstance();
+			if (stats)
+				stats.MarkIncomplete();
+			return;
+		}
+		m_mLastDamage.Set(hit.m_sTargetEntity, hit);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	GC_SessionEvent GetLastMeaningfulDamage(IEntity victim)
 	{
 		if (!victim)
 			return null;
-		string entityId = victim.GetID().ToString();
-		for (int i; i < m_SpectatorEvents.Count(); i++)
-		{
-			GC_SessionEvent hit = m_SpectatorEvents.GetNewest(i);
-			if (hit.m_sType != "damage" || hit.m_sTargetEntity != entityId || hit.m_fDamage <= 0)
-				continue;
-			if (hit.m_iDamageType == EDamageType.BLEEDING || hit.m_iDamageType == EDamageType.TRUE)
-				continue;
-			if (hit.m_sActorEntity == entityId || (!hit.m_sActor.IsEmpty() && hit.m_sActor == hit.m_sTarget))
-				continue;
-			return hit;
-		}
-		return null;
+		return m_mLastDamage.Get(victim.GetID().ToString());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ForgetDamage(IEntity victim)
+	{
+		if (victim)
+			m_mLastDamage.Remove(victim.GetID().ToString());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ClearDamageCredit()
+	{
+		m_mLastDamage.Clear();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -268,19 +295,20 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	void RecordDeath(GC_SessionEvent entry, IEntity victim, IEntity killer)
 	{
 		entry.m_sTargetFaction = EventFaction(victim);
-		if (entry.m_sCreditSource != "lastPlayerDamage")
+		if (entry.m_sCreditSource != "lastPlayerDamage" && entry.m_sCreditSource != "lastDamage")
 			entry.m_sActorFaction = EventFaction(killer);
 		if (victim)
 		{
 			vector position = victim.GetOrigin();
 			entry.m_aTargetPosition = {position[0], position[1], position[2]};
 		}
-		if (killer && entry.m_sCreditSource != "lastPlayerDamage")
+		if (killer && entry.m_sCreditSource != "lastPlayerDamage" && entry.m_sCreditSource != "lastDamage")
 		{
 			vector origin = killer.GetOrigin();
 			entry.m_aActorPosition = {origin[0], origin[1], origin[2]};
 		}
 		Record(entry);
+		ForgetDamage(victim);
 		if (m_Telemetry && entry.m_iSequence > 0)
 			m_Telemetry.RecordDeath(entry, victim, killer);
 	}
@@ -686,6 +714,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	override void OnGameEnd()
 	{
+		ClearDamageCredit();
 		if (m_Telemetry)
 			m_Telemetry.Close();
 		GetGame().GetCallqueue().Remove(Tick);

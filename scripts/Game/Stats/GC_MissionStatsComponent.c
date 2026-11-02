@@ -511,12 +511,6 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		{
 			death.m_sWeapon = tracker.GetDamageWeapon(instigatorContextData.GetKillerPlayerID(), victim);
 			death.m_sCause = tracker.GetDeathCause(victim);
-			if (death.m_sCause == "respawn" || death.m_sCause == "bleeding")
-			{
-				GC_StatsPlayer attacker = tracker.ApplyDelayedCredit(victim, death);
-				if (attacker)
-					killerRecord = attacker;
-			}
 		}
 		// A disconnected player's tracked body remains a player victim, not an AI kill.
 		if (victimRecord || instigatorContextData.GetVictimPlayerID() > 0)
@@ -529,7 +523,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			death.m_sKillerKind = "ai";
 		if (victim.GetPrefabData())
 			death.m_sVictimPrefab = victim.GetPrefabData().GetPrefabName();
-		if (killer && killer.GetPrefabData() && death.m_sCreditSource != "lastPlayerDamage")
+		if (killer && killer.GetPrefabData())
 			death.m_sKillerPrefab = killer.GetPrefabData().GetPrefabName();
 		if (death.m_sCreditSource.IsEmpty() && ((killerRecord && killerRecord != victimRecord) || death.m_sKillerKind == "ai"))
 			death.m_sCreditSource = "engine";
@@ -545,26 +539,41 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		GC_SessionEvent lastDamage;
 		if (logs)
 			lastDamage = logs.GetLastMeaningfulDamage(victim);
-		// AI victims have no player tracker. Recover their weapon from the actual hit,
-		// only when it belongs to the credited source, never the killer's held weapon.
+		// Resolve delayed credit before any totals or persisted records are produced.
+		bool delayed = lastDamage && (death.m_sCause == "respawn" || death.m_sCause == "bleeding" || death.m_sCause == "suicide");
+		if (delayed)
+		{
+			killerRecord = m_mPlayers.Get(lastDamage.m_sActor);
+			death.m_sKillerKind = lastDamage.m_sActorKind;
+			death.m_sKiller = lastDamage.m_sActor;
+			death.m_sKillerName = lastDamage.m_sActorName;
+			death.m_sKillerPrefab = lastDamage.m_sActorPrefab;
+			death.m_sWeapon = lastDamage.m_sWeapon;
+			death.m_fDistance = lastDamage.m_fDistance;
+			death.m_iRelation = lastDamage.m_iRelation;
+			death.m_iDamageEventSequence = lastDamage.m_iSequence;
+			death.m_sCreditSource = "lastDamage";
+		}
 		bool matchingDamage;
 		if (lastDamage)
 		{
-			if (death.m_iDamageEventSequence > 0)
-				matchingDamage = death.m_iDamageEventSequence == lastDamage.m_iSequence;
+			if (delayed)
+				matchingDamage = true;
 			else if (killerRecord)
 				matchingDamage = lastDamage.m_sActor == killerRecord.m_sIdentity;
 			else if (killer)
 				matchingDamage = lastDamage.m_sActorEntity == killer.GetID().ToString();
 		}
-		if (matchingDamage && death.m_sCause != "suicide")
+		if (matchingDamage)
 		{
 			if (death.m_sWeapon.IsEmpty())
 				death.m_sWeapon = lastDamage.m_sWeapon;
-			if (death.m_iDamageEventSequence == 0)
-				death.m_iDamageEventSequence = lastDamage.m_iSequence;
+			death.m_iDamageEventSequence = lastDamage.m_iSequence;
 		}
+
 		bool teamKill = (death.m_iRelation & SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER) != 0;
+		if (delayed)
+			teamKill = lastDamage.m_bFriendly;
 		if (!victimRecord && !killerRecord && death.m_sVictimKind != "ai")
 			return;
 		if (m_RecordedDeaths.Count() >= 16384)
@@ -574,7 +583,10 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			return;
 		}
 		m_RecordedDeaths.Insert(victim.GetID());
-		m_AIStats.RecordDeath(victim, killer, death.m_sVictimKind, death.m_sKillerKind);
+		GC_SessionEvent creditedHit;
+		if (delayed)
+			creditedHit = lastDamage;
+		m_AIStats.RecordDeath(victim, killer, death.m_sVictimKind, death.m_sKillerKind, creditedHit);
 		if (victimRecord)
 		{
 			bool byPlayer = killerRecord && killerRecord != victimRecord;
@@ -611,7 +623,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			death.m_sVictim = "ai:" + victim.GetID().ToString();
 			death.m_sVictimName = "AI";
 		}
-		if (death.m_sKillerKind == "ai")
+		if (death.m_sKillerKind == "ai" && !delayed)
 		{
 			death.m_sKillerName = "AI";
 			if (killer)
@@ -630,8 +642,15 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			}
 			GC_SessionEvent entry = logs.CreateEvent(type, instigatorContextData.GetKillerPlayerID(), instigatorContextData.GetVictimPlayerID());
 			entry.m_sTargetEntity = victim.GetID().ToString();
-			if (killer && death.m_sCreditSource != "lastPlayerDamage")
+			if (killer && !delayed)
 				entry.m_sActorEntity = killer.GetID().ToString();
+			if (delayed)
+			{
+				entry.m_sActorEntity = lastDamage.m_sActorEntity;
+				entry.m_sActorFaction = lastDamage.m_sActorFaction;
+				entry.m_aActorPosition.Copy(lastDamage.m_aActorPosition);
+			}
+			entry.m_iRelation = death.m_iRelation;
 			entry.m_sActor = death.m_sKiller;
 			entry.m_sActorName = death.m_sKillerName;
 			entry.m_sTarget = death.m_sVictim;
@@ -652,8 +671,8 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 				entry.m_sDetail = "Respawn selected";
 			else if (death.m_sCause == "bleeding")
 				entry.m_sDetail = "Bled to death";
-			if (death.m_sCreditSource == "lastPlayerDamage")
-				entry.m_sDetail += " | last damaging player credited";
+			if (delayed)
+				entry.m_sDetail += " | last attacker credited";
 			logs.RecordDeath(entry, victim, killer);
 		}
 		// AI-only deaths belong in the session event feed, not player statistics.
@@ -705,6 +724,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			if (observer)
 				observer.Detach();
 			m_mDamageObservers.Remove(entity.GetID());
+			GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+			if (logs)
+				logs.ForgetDamage(entity);
 			m_RecordedDeaths.RemoveItem(entity.GetID());
 			for (int i = m_mTrackers.Count() - 1; i >= 0; i--)
 			{
@@ -810,6 +832,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	protected void Stop()
 	{
 		m_bCollecting = false;
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
+			logs.ClearDamageCredit();
 		if (GetGame())
 			GetGame().GetCallqueue().Remove(Sample);
 		if (m_Manager)

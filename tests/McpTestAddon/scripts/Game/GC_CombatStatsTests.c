@@ -3,6 +3,35 @@ modded class GC_LobbyManager
 {
 	protected ChimeraCharacter m_GC_TestCombatAI;
 
+	//! Native death actions; production callbacks alone award credit and increment counters.
+	string GC_TestDelayedDeath(string action)
+	{
+		if (!Replication.IsServer() || !GC_MissionStatsComponent.GetInstance().IsCollecting())
+			return "UNAVAILABLE active authority";
+		ChimeraCharacter target = m_GC_TestCombatAI;
+		if (action.Contains("player"))
+			target = ChimeraCharacter.Cast(GetGame().GetPlayerController().GetControlledEntity());
+		if (!target || target.FindComponent(GC_LobbySpectatorBodyComponent) || target.GetCharacterController().IsDead())
+			return "UNAVAILABLE living target";
+		if (action == "bleed-ai" || action == "bleed-player")
+			return GC_TestApplyBleed(target);
+		if (action == "respawn-player")
+		{
+			SCR_RespawnComponent respawn = SCR_RespawnComponent.Cast(GetGame().GetPlayerController().FindComponent(SCR_RespawnComponent));
+			respawn.RequestPlayerSuicide();
+			return "DISPATCHED owner respawn";
+		}
+		if (action != "suicide-ai" && action != "suicide-player")
+			return "UNAVAILABLE action";
+		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(target.GetDamageManager());
+		vector hit[3];
+		hit[0] = target.GetOrigin();
+		SCR_DamageContext context = new SCR_DamageContext(EDamageType.MELEE, 1000, hit, target, damage.GetHeadHitZone(), Instigator.CreateInstigator(target), null, -1, -1);
+		context.damageEffect = new SCR_MeleeDamageEffect();
+		damage.HandleDamage(context);
+		return "DISPATCHED native self damage";
+	}
+
 	//------------------------------------------------------------------------------------------------
 	//! Native characters/damage only; production game-mode callbacks own all statistics.
 	string GC_TestCombatAI(string action)

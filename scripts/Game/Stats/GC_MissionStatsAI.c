@@ -22,7 +22,14 @@ class GC_MissionStatsAI
 		Faction faction = AIFaction(character);
 		if (!faction)
 			return null;
-		string key = faction.GetFactionKey();
+		return AIStatsForFaction(faction.GetFactionKey());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected GC_StatsAssignment AIStatsForFaction(string key)
+	{
+		if (key.IsEmpty())
+			return null;
 		GC_StatsAssignment stats = m_mGC_AIStats.Get(key);
 		if (!stats)
 		{
@@ -54,10 +61,10 @@ class GC_MissionStatsAI
 
 	//------------------------------------------------------------------------------------------------
 	//! Called once after the existing death deduplication and player-credit resolution.
-	void RecordDeath(IEntity victim, IEntity killer, string victimKind, string killerKind)
+	void RecordDeath(IEntity victim, IEntity killer, string victimKind, string killerKind, GC_SessionEvent creditedHit = null)
 	{
 		GC_StatsAssignment stats;
-		bool distinct = killer && killer != victim;
+		bool distinct = creditedHit || (killer && killer != victim);
 		if (victimKind == "ai")
 		{
 			stats = AIStats(victim);
@@ -66,10 +73,19 @@ class GC_MissionStatsAI
 		}
 		if (killerKind != "ai" || !distinct || (victimKind != "player" && victimKind != "ai"))
 			return;
-		stats = AIStats(killer);
+		if (creditedHit)
+			stats = AIStatsForFaction(creditedHit.m_sActorFaction);
+		else
+			stats = AIStats(killer);
 		if (!stats)
 			return;
 		stats.RecordKill(victimKind == "ai", false);
+		if (creditedHit)
+		{
+			if (creditedHit.m_bFriendly)
+				stats.m_iTeamKills++;
+			return;
+		}
 		Faction killerFaction = AIFaction(killer);
 		Faction victimFaction = AIFaction(victim);
 		if (killerFaction && victimFaction && killerFaction.IsFactionFriendly(victimFaction))

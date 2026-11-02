@@ -305,7 +305,7 @@ class GC_TelemetryRecorder
 		string victimId = victimActor.GetId();
 		string killerId;
 		// Delayed statistical credit does not establish the current killer body.
-		if (entry.m_sCreditSource != "lastPlayerDamage")
+		if (entry.m_sCreditSource != "lastPlayerDamage" && entry.m_sCreditSource != "lastDamage")
 			killerId = EntityId(killer);
 		if (victimId.IsEmpty())
 			return;
