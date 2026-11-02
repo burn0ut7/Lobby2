@@ -49,3 +49,5 @@ and further testing are deferred at the user's explicit request.
 
 
 Current refinement: three overview figures (Projectiles, Killed in action, Participants), scoped to the selection. Participants retains the existing human count. Removed search and the second hero row; all remaining summary fields form one vertical list, with ammunition alongside. Existing screenshots predate this refinement. Testing and new captures remain on hold at the user’s request.
+
+Player drill-down refinement: every visible cell in Other players routes clicks to its row. A resolved player opens the shared personal Overview/Activity with their name and report ordinal; Back/Esc returns to the list. Player-row cells no longer own hover tooltips; the opened report exposes the details. Activity cells retain their tooltips. Source review only; testing remains deferred by request.

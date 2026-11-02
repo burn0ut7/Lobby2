@@ -95,19 +95,24 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		row.SetName("DebriefSelection_" + key);
 		TextWidget caption = TextWidget.Cast(row.FindAnyWidget("Cell1"));
 		caption.SetText(label);
-		// Sidebar labels are not tooltip cells: the full row receives pointer input.
-		Widget decoration = caption;
-		while (decoration && decoration != row)
-		{
-			decoration.SetFlags(WidgetFlags.IGNORE_CURSOR);
-			decoration = decoration.GetParent();
-		}
+		RouteCellClickToRow(caption, row);
 		FrameSlot.SetAnchorMax(caption.GetParent(), 1, 1);
 		for (int cell = 2; cell <= 6; cell++)
 			row.FindAnyWidget("Cell" + cell).GetParent().SetVisible(false);
 		SCR_ButtonBaseComponent button = SCR_ButtonBaseComponent.Cast(row.FindHandler(SCR_ButtonBaseComponent));
 		button.m_OnClicked.Insert(OnSelection);
 		m_mSelections.Set(button, key);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RouteCellClickToRow(Widget cell, Widget row)
+	{
+		// Navigable rows own pointer input; their details open in the report view.
+		while (cell && cell != row)
+		{
+			cell.SetFlags(WidgetFlags.IGNORE_CURSOR);
+			cell = cell.GetParent();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -551,6 +556,8 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 			if (i >= cells.Count())
 				continue;
 			cell.SetText(cells[i]);
+			if (!heading && !id.IsEmpty())
+				RouteCellClickToRow(cell, row);
 			FrameSlot.SetAnchorMin(cell.GetParent(), widths[i], 0);
 			FrameSlot.SetAnchorMax(cell.GetParent(), widths[i + 1], 1);
 		}
@@ -587,13 +594,19 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 
 	protected void OnPlayer(SCR_ButtonBaseComponent button)
 	{
-		m_sSubject = m_mRows.Get(button);
+		string subject = m_mRows.Get(button);
+		if (subject.IsEmpty())
+			return;
 		foreach (GC_DebriefPlayerRow player : m_aPlayers)
 		{
-			if (player.m_sId == m_sSubject)
-				m_sTitle = player.m_sName;
+			if (player.m_sId != subject)
+				continue;
+			m_sFaction = "players";
+			m_sSubject = subject;
+			m_sTitle = player.m_sName;
+			ShowOverview();
+			return;
 		}
-		ShowOverview();
 	}
 
 	protected void ClearRows()
