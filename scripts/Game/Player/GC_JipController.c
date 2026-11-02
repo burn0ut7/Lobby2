@@ -120,20 +120,20 @@ modded class GC_LobbyPlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void GC_DispatchJip(RplId character, vector position)
+	void GC_DispatchJip(RplId character, vector position, ECharacterStance stance)
 	{
 		if (!Replication.IsServer() || !GC_LobbyGameMode.GetGameMode())
 			return;
 		m_GC_JipMovingCharacter = character;
 		m_vGC_JipDestination = position;
 		m_iGC_JipChecks = 0;
-		Rpc(GC_RpcDoJipTeleport, character, position);
+		Rpc(GC_RpcDoJipTeleport, character, position, stance);
 		GetGame().GetCallqueue().CallLater(GC_ObserveJip, 500);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void GC_RpcDoJipTeleport(RplId expectedCharacter, vector position)
+	protected void GC_RpcDoJipTeleport(RplId expectedCharacter, vector position, ECharacterStance stance)
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		ChimeraCharacter character = ChimeraCharacter.Cast(GetControlledEntity());
@@ -145,6 +145,7 @@ modded class GC_LobbyPlayerController
 		if (!control || control.IsDead() || control.IsUnconscious())
 			return;
 		SCR_Global.TeleportPlayer(GetPlayerId(), position);
+		control.SetStanceChange(SCR_AIStanceHandling.ConvertStanceToStanceChange(stance));
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -70,7 +70,7 @@ modded class GC_LobbyManager
 			if (mode.GetState() != SCR_EGameModeState.GAME || !character || character.GetRootParent() != character
 				|| !SCR_WorldTools.FindEmptyTerrainPosition(destination, character.GetOrigin() + "20 0 0", 5))
 				return "UNAVAILABLE live on-foot character/landing";
-			controller.GC_DispatchJip(Replication.FindItemId(character), destination);
+			controller.GC_DispatchJip(Replication.FindItemId(character), destination, ECharacterStance.STAND);
 			return "DISPATCHED transport-only fixture destination=" + destination.ToString();
 		}
 		else if (action == "slot")

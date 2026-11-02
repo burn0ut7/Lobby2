@@ -198,23 +198,44 @@ class GC_JipSystem
 			return;
 		}
 		vector destination;
-		BaseWorld world = character.GetWorld();
-		vector origin = target.GetOrigin();
-		float terrain = world.GetSurfaceY(origin[0], origin[2]);
-		vector ground;
-		if (Math.AbsFloat(origin[1] - terrain) > 3
-			|| !SCR_WorldTools.FindEmptyTerrainPosition(ground, origin, 8)
-			|| !SCR_EmptyPositionHelper.TryFindNearbyFloorPositionForEntity(world, character, ground, destination)
-			|| !SCR_Global.IsPositionWithinTerrainBounds(destination)
-			|| vector.DistanceSq(destination, origin) > 100
-			|| Math.AbsFloat(destination[1] - world.GetSurfaceY(destination[0], destination[2])) > 1
-			|| destination[1] < world.GetOceanHeight(destination[0], destination[2]))
+		if (!FindBehindDestination(character, target, destination))
 		{
 			controller.GC_SendJipMessage("#GC-Jip_NoLanding");
 			return;
 		}
 		record.m_bPending = true;
-		controller.GC_DispatchJip(record.m_Character, destination);
+		controller.GC_DispatchJip(record.m_Character, destination, target.GetCharacterController().GetStance());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Keep the landing on the target's rear axis; never accept a sideways/front fallback.
+	static bool FindBehindDestination(ChimeraCharacter character, ChimeraCharacter target, out vector destination)
+	{
+		BaseWorld world = character.GetWorld();
+		vector origin = target.GetOrigin();
+		if (Math.AbsFloat(origin[1] - world.GetSurfaceY(origin[0], origin[2])) > 3)
+			return false;
+		vector transform[4];
+		target.GetWorldTransform(transform);
+		vector forward = transform[2];
+		forward[1] = 0;
+		if (forward.LengthSq() < 0.01)
+			return false;
+		forward.Normalize();
+		for (float distance = 3; distance <= 5; distance++)
+		{
+			vector desired = origin - forward * distance;
+			vector floor;
+			if (!SCR_EmptyPositionHelper.TryFindNearbyFloorPositionForEntity(world, character, desired, floor)
+				|| vector.DistanceSqXZ(floor, desired) > 0.0625
+				|| !SCR_Global.IsPositionWithinTerrainBounds(floor)
+				|| Math.AbsFloat(floor[1] - world.GetSurfaceY(floor[0], floor[2])) > 1
+				|| floor[1] < world.GetOceanHeight(floor[0], floor[2]))
+				continue;
+			destination = floor;
+			return true;
+		}
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
