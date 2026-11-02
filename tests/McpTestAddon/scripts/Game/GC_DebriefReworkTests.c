@@ -51,16 +51,13 @@ modded class GC_Lobby_DebriefMenu
 {
 	string GC_TestReportUI(string action, string value)
 	{
-		if (action == "search")
-		{
-			m_Search.SetText(value);
-			m_SearchEvents.GetOnChange().Invoke(m_Search);
-		}
-		else if (action == "sort")
+		if (action == "sort")
 			{
 			m_Sort.SetCurrentItem(value.ToInt());
 			m_Sort.m_OnChanged.Invoke(m_Sort, value.ToInt());
 		}
+		else if (action == "back")
+			OnBack();
 		else if (action == "filter")
 		{
 			m_EventFilter.SetCurrentItem(value.ToInt());
@@ -78,7 +75,6 @@ modded class GC_Lobby_DebriefMenu
 			m_PlayerPages.Clear();
 			m_iPlayerNext = 0;
 			m_sPlayerStatus = "";
-			m_Search.SetText("");
 			ShowPlayers();
 		}
 		else if (action == "fixture")
@@ -99,6 +95,13 @@ modded class GC_Lobby_DebriefMenu
 			}
 			ShowPlayers();
 			return "SYNTHETIC UI fixture only; reload restores real participants";
+		}
+		if (action == "summary")
+		{
+			string summary = "scope=" + m_sFaction + " subject=" + m_sSubject + " title=" + m_sTitle;
+			for (int hero; hero < 3; hero++)
+				summary += " | " + TextWidget.Cast(GetRootWidget().FindAnyWidget("HeroLabel" + hero)).GetText() + "=" + TextWidget.Cast(GetRootWidget().FindAnyWidget("HeroValue" + hero)).GetText();
+			return summary;
 		}
 		Widget rows = GetRootWidget().FindAnyWidget("ReportRows");
 		int count;
@@ -201,6 +204,45 @@ modded class GC_MissionStatsComponent
 }
 modded class GC_SessionLogComponent
 {
+	protected ref GC_SpectatorEventBuffer m_GC_TestOriginalMissionEvents;
+
+	//! Swap presentation references only; never Record or persist synthetic events.
+	string GC_TestMissionActivityFixture(bool restore)
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!mode || mode.GetState() != SCR_EGameModeState.POSTGAME)
+			return "UNAVAILABLE postgame required";
+		if (restore)
+		{
+			if (m_GC_TestOriginalMissionEvents)
+				m_SpectatorEvents = m_GC_TestOriginalMissionEvents;
+			m_GC_TestOriginalMissionEvents = null;
+			return "RESTORED actual mission events; clear client cache";
+		}
+		if (m_GC_TestOriginalMissionEvents)
+			return "UNAVAILABLE fixture already active";
+		m_GC_TestOriginalMissionEvents = m_SpectatorEvents;
+		m_SpectatorEvents = new GC_SpectatorEventBuffer(4096);
+		for (int i; i < 130; i++)
+		{
+			GC_SessionEvent entry = new GC_SessionEvent();
+			entry.m_iSequence = i + 1;
+			entry.m_fSeconds = i;
+			entry.m_sType = "damage";
+			if (i % 3 == 0)
+				entry.m_sType = "aiKill";
+			entry.m_sActorName = "Fixture player " + i;
+			entry.m_sActorKind = "player";
+			entry.m_sActorFaction = "US";
+			entry.m_sTargetName = "Fixture AI";
+			entry.m_sTargetKind = "ai";
+			entry.m_sTargetFaction = "USSR";
+			entry.m_fDamage = 12;
+			m_SpectatorEvents.Insert(entry);
+		}
+		return "SYNTHETIC presentation fixture: 130 mission events; persistence untouched";
+	}
+
 	string GC_TestReportEvents()
 	{
 		string identity = "debrief-retention-fixture";

@@ -14,6 +14,8 @@ modded class GC_MissionStatsComponent
 {
 	string GC_TestAIReport(string action)
 	{
+		if (!m_Batch)
+			return "UNAVAILABLE mission has not started";
 		if (action == "partial")
 		{
 			GC_MissionStatsAI original = m_AIStats;
