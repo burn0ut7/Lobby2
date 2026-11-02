@@ -21,9 +21,9 @@ class GC_MissionMetadataExport
 		m_aReferencedAddons.Clear();
 		m_iEntityCount = 0;
 		// Flat editor enumeration omits some prefab-inherited children. Visit each root once.
-		for (int i, count = api.GetEditorEntityCount(); i < count; i++)
+		for (int i, count = api.GetEntityCount(subscene); i < count; i++)
 		{
-			IEntitySource source = api.GetEditorEntity(i);
+			IEntitySource source = api.GetEntity(subscene, i);
 			if (source && !source.GetParent() && source.GetSubScene() == subscene)
 				Visit(source, false);
 		}
@@ -277,11 +277,35 @@ class GC_MissionMetadataExport
 	//------------------------------------------------------------------------------------------------
 	bool Save(string output, string worldPath)
 	{
+		PrettyJsonSaveContext context = CreateJson(worldPath);
+		return context && context.SaveToFile(output);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool SaveIfChanged(string output, string worldPath, inout string previous, out bool changed)
+	{
+		changed = false;
+		PrettyJsonSaveContext context = CreateJson(worldPath);
+		if (!context)
+			return false;
+		string current = context.SaveToString();
+		if (current == previous && FileIO.FileExists(output))
+			return true;
+		if (!context.SaveToFile(output))
+			return false;
+		previous = current;
+		changed = true;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected PrettyJsonSaveContext CreateJson(string worldPath)
+	{
 		PrettyJsonSaveContext context = new PrettyJsonSaveContext(false);
-		array<string> limitations = {"Active subscene only; inherited/other world subscenes excluded.", "Current editor snapshot, including unsaved edits.", "Placed entities only; resource-valued slots, loadouts and runtime spawners are not expanded.", "Prefab source addons are evidence of content use, not a complete dependency list.", "Asset categories describe presence, not player availability; mod configuration may be inaccurate."};
+		array<string> limitations = {"Captured world subscene only; inherited/other world subscenes excluded.", "Current editor snapshot, including unsaved edits.", "Placed entities only; resource-valued slots, loadouts and runtime spawners are not expanded.", "Prefab source addons are evidence of content use, not a complete dependency list.", "Asset categories describe presence, not player availability; mod configuration may be inaccurate."};
 		bool valid = context.WriteValue("schemaVersion", 1)
 			&& context.WriteValue("world", worldPath)
-			&& context.WriteValue("scope", "active_subscene")
+			&& context.WriteValue("scope", "world_subscene")
 			&& context.WriteValue("limitations", limitations)
 			&& context.WriteValue("entityCount", m_iEntityCount)
 			&& context.WriteValue("factions", m_aFactions)
@@ -328,7 +352,9 @@ class GC_MissionMetadataExport
 			valid = context.EndObject() && valid;
 		}
 		valid = context.EndArray() && valid;
-		return valid && context.SaveToFile(output);
+		if (!valid)
+			return null;
+		return context;
 	}
 }
 #endif

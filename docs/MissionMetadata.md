@@ -1,15 +1,23 @@
-# Mission metadata export
+# Mission metadata
 
-In World Editor, select the mission subscene and choose **Plugins → GC → Export Mission Metadata**. The plugin writes `<world>.ent.metadata.json` beside that subscene's local world file, replacing the previous generated export. It does not change or save the mission. Save the world and export again before publishing; the snapshot includes unsaved editor changes.
+The GC co-op mission template includes `GC_MissionMetadataScannerComponent`. While its mission is open in Workbench, the component scans every 10 seconds and writes `<world>.ent.metadata.json` beside its own subscene's local world file. **No export button or mission-config creation hook is required.** This works while authoring, including before or after creating the mission header. The first update occurs after roughly 10 seconds of editor updates; subsequent writes happen only when generated metadata changes (or the output file is missing).
 
-Version 1 deliberately scans **all layers of the active subscene**, including nested prefab entities, but excludes inherited/other world subscenes. This avoids exporting the base terrain's scenery. Select each mission subscene separately if a scenario is split across worlds. Selecting the terrain-owning subscene is refused. There is no website upload or runtime component.
+Existing worlds need the component added once to a root entity in the mission subscene, or must use the updated GC template. Use exactly one scanner per subscene. The component's Enabled checkbox stops automatic scanning. No scanner code executes during Play or in the game/server, and prefab editing and terrain-owning subscenes are refused. The component scans its own subscene even when another subscene is selected. It does not edit/save the world, mission header, author text or tags, and adds no undo actions.
+
+The output is generated JSON in the addon workspace for the website/external importer. It is **not embedded into the mission header** and automatic inclusion in a published packed addon has not been verified. The website can associate it using its `world` field. Treat it as generated data; do not put manual tags into this file. `GC_MissionHeader.m_aManualTags` provides an editable list of author-supplied tags in the mission config; the scanner leaves that config alone. Curated tag choices and website ingestion remain separate work.
+
+The snapshot includes unsaved editor changes. Save the mission and let one refresh finish before collecting files for publishing. Closing Workbench immediately after editing can leave an older snapshot; this is periodic refresh, not an on-save guarantee. Large-mission performance has not yet been benchmarked. Unchanged output avoids disk writes but still requires a scan every 10 seconds. Disabling/removing the component leaves the last output file in place.
+
+The existing **Plugins > GC > Export Mission Metadata** action remains an optional immediate export for worlds without a scanner. It writes the same generated file for the selected subscene. All automatic/manual paths use the same collector and JSON serializer.
+
+Version 1 deliberately scans **all layers of the captured subscene**, including nested prefab entities, but excludes inherited/other world subscenes. This avoids exporting the base terrain's scenery. Select each mission subscene separately if a scenario is split across worlds. Scanning the terrain-owning subscene is refused. There is no website upload or runtime scanning.
 
 ## JSON contract
 
 | Field | Meaning |
 | --- | --- |
 | `schemaVersion` | Currently `1`. |
-| `world`, `scope`, `limitations` | Snapshot identity and explicit coverage limits. |
+| `world`, `scope`, `limitations` | Snapshot identity and explicit coverage limits. `scope` is `world_subscene`: automatic scanning uses the component-owning subscene; manual export uses the selected subscene. Earlier exports used `active_subscene`. |
 | `entityCount` | Entities visited, including nested helper entities. Not a unit count. |
 | `factions` | Unique nonempty effective faction-affiliation keys on placed entities. No friendly/enemy or player-side inference. |
 | `configuredFactions` | Faction keys configured in faction managers in the scanned subscene, reported separately from actual affiliations. |
@@ -50,7 +58,7 @@ Workbench 1.8.0.13, optional `Lobby2McpTests` addon:
 
 The fixture is editor-only; no Play session is needed. Test metadata JSON is generated output, not a checked-in expectation.
 
-## Native mission-config prototype (2026-11-01)
+## Earlier native mission-config experiment (2026-11-01)
 
 `GC_MissionHeader : SCR_MissionHeader` adds an optional `m_GC_GeneratedMetadata` container. `GC_MissionMetadataExport.CreateSnapshot` converts the existing collector's results to native attributed containers: schema version, world, capture scope, entity count, effective/configured factions, assets, prefab inventory and addon provenance. These types are included in Lobby2; no runtime scan runs. **Production Lobby2 does not automatically populate or refresh this field.** Existing JSON export behavior is unchanged.
 
@@ -77,3 +85,14 @@ Relevant installed declarations: `ResourceManagerPlugin.c` registration/build ca
 ### Reproducing the isolated experiment
 
 Load the optional test addon and open `$Lobby2McpTests:worlds/MetadataTest.ent`. Temporarily uncomment the single plugin attribute in `GC_MetadataCallbackProbe.c`, Reload, then invoke Resource Manager > Plugins > GC Tests > Metadata callback probe. The helper creates only `MetadataAutomatic4.conf` and refuses to overwrite an existing file. It uses the native save/register sequence, then checks native snapshot readback. The registration callback, not the creation helper, collects metadata. Expected fixture counts are APC=2, helicopter=1, infantry=1, total entities=9. The known registration GUID diagnostics remain expected evidence of the incomplete experiment. Comment the attribute again and Reload afterward. Do not publish the test addon.
+
+## Automatic editor scanner verification (2026-11-01)
+
+Workbench 1.8.0.13; catalogue revision `721cd7b05eb54d3ca3591d9097af381d`. The installed `GenericComponent` declares `_WB_AfterWorldUpdate` as an editor callback after world updating; `_WB_GetAfterWorldUpdateSpecs` controls its scheduling. The component uses `CALL_ALWAYS` so an off-screen root still updates, but each frame only performs guards/timer work until the ten-second interval elapses. Enumeration is restricted to the captured subscene via `GetEntityCount(subscene)` / `GetEntity(subscene, index)` before recursively visiting prefab children; it does not traverse the inherited terrain inventory. The collector moved to the Game script module under `WORKBENCH` so this native component callback and the optional Workbench plugin share it.
+
+- Opening the saved MetadataTest fixture automatically wrote nine entities, APC=2, helicopter=1, infantry=1, US/USSR factions and loaded/referenced addon records. No metadata action was invoked.
+- Placing another BTR through native World Editor increased APCs to three and visited entities to eleven on the next automatic pass. Native Undo returned APCs to two/entities to nine. The scanner added no undo actions.
+- Subsequent unchanged cycles preserved the output modification time. Embedded Play ran without metadata writes; edit-mode refresh resumed afterward. The generated file can be parsed as JSON.
+- Source data remains a snapshot, not an exhaustive dependency list or a guarantee of player-available assets. Existing classifier limitations above still apply.
+
+Evidence: `logs_2026-11-01_17-45-51/console.log`, initial/add/undo automatic writes at lines 32198-32200 and subsequent `GC | Automatic Metadata` entries. Post-optimization Reload `2231626b36c04e2e9ffb28f1747f4cbe` passed and automatic JSON readback remained nine entities, eight prefab rows, APC=2, helicopter=1, infantry=1 and US/USSR factions. The earlier registration experiment remains disabled and is not part of this path. Normal script Reload compiled the moved collector and scanner without script errors; pre-existing stale Arland resource diagnostics remain.

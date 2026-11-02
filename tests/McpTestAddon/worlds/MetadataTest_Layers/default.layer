@@ -13,4 +13,8 @@ Vehicle MetadataAPCOverride : "{C012BB3488BEA0C2}Prefabs/Vehicles/Wheeled/BTR70/
  coords 1030 20 1000
 }
 SCR_FactionManager MetadataFactions : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
+ components {
+  GC_MissionMetadataScannerComponent "{A79C4E0A43DEB860}" {
+  }
+ }
 }
