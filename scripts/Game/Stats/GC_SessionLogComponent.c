@@ -203,13 +203,10 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		{
 			m_iSpectatorRevision = entry.m_iSequence;
 			m_SpectatorEvents.Insert(entry);
-			if (entry.m_sTargetKind != "ai")
-			{
-				if (entry.m_sActorKind == "player")
+			if (entry.m_sActorKind == "player")
 				RetainPersonalEvent(entry.m_sActor, entry);
-				if (entry.m_sTargetKind == "player" && entry.m_sTarget != entry.m_sActor)
-					RetainPersonalEvent(entry.m_sTarget, entry);
-			}
+			if (entry.m_sTargetKind == "player" && entry.m_sTarget != entry.m_sActor)
+				RetainPersonalEvent(entry.m_sTarget, entry);
 			if (!m_bSpectatorUpdateQueued)
 			{
 				m_bSpectatorUpdateQueued = true;

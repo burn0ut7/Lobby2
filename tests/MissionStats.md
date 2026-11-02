@@ -1,5 +1,44 @@
 # Mission statistics validation
 
+## Debrief rework — 2026-11-02
+
+This replaces the October all-tabs burst and owner-only presentation contract
+below. Final reports now expose other players' counters by mission ordinal after
+POSTGAME. Private is the default own-player view, not a privacy guarantee for
+match counters. Backend identity and outbox formats are unchanged.
+
+See [implementation and live evidence](../Art/References/debrief-rework/validation.md).
+The overview uses six large counters and two compact stat columns. Other players
+supports local search and numeric sort; Activity supports timestamped kills,
+deaths and damage filters. Player names use faction colors rather than a faction
+column. Historical affiliation comes from existing membership intervals.
+
+Final summaries and roster labels are sealed once by the stats owner. One global
+queue drains every 50 ms, at most eight responses and an 8,000-unit estimated
+serialized-text budget per tick, reserving the 3,800-unit page ceiling before each
+send. These are payload estimates including conservative field overhead, not a
+measurement of engine packet bytes or a fixed bandwidth guarantee. Directory
+pages carry up to 16 players; Activity pages carry up to six events. Every response
+is owner-targeted. One pending server slot per controller prevents queue growth.
+
+Clients retain up to 128 immutable pages for this POSTGAME. Filters/search/sort
+use cached data. First-open directory/history pages load progressively and stop
+prefetching when the view changes. Closing the menu retains cache; leaving the
+mode clears it. No live-match stats prefetch exposes opposing players' counters.
+
+Activity retains the latest 256 events involving a player, including AI targets,
+using the existing session-event buffer. Truncation is visible as `Recent 256 events`.
+The backend retains its original persistent batches; UI retention does not trim
+those files. Damage values are the recorded callback's reported damage, not a
+new estimate of health removed. Activity timestamps use session time.
+
+A real 128-client network soak, packet-loss conditions, gamepad and multiple
+viewport/DPI combinations remain unmeasured. The fixture measures data projection
+and local UI work; it does not establish those broader performance results.
+
+## Historical validation
+
+
 ## Client debrief cache â€” 2026-10-27
 
 Finalization now sends the owner's personal report plus all registered faction summaries in one burst. The owning controller caches them across selection changes and menu reopening; cache misses request the set once. No personal report for another identity is sent. Existing server pacing remains for repeated requests, while tab changes use local data. Leaving POSTGAME or shutting down Lobby2 presentation clears the cache.

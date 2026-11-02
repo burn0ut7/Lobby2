@@ -360,7 +360,7 @@ view never requests or performs a backward phase transition.
   current base-game group/slot. A player without one remains a spectator and is
   presented the spectator camera, HUD, and marker overlay when `BRIEFING`
   begins. Slotting remains available from the pause menu.
-- `POSTGAME` opens the mission debrief with an owner-only personal report and selectable faction aggregates. The normal lobby entry reopens it after dismissal. Lobby2's derived end-screen component replaces the stock menu scheduler on its own prefab; its auto-reload delay is -1 unless server configuration overrides it.
+- `POSTGAME` opens the mission debrief with Private, faction aggregates, and Other players. Private selects the local player; all final player reports are intentionally browsable after the match. Persistent account identities remain server-only. Activity projects the session log’s existing combat records, with event-time faction colors resolved from the stats membership intervals. The normal lobby entry reopens it after dismissal. Lobby2's derived end-screen component replaces the stock menu scheduler on its own prefab; its auto-reload delay is -1 unless server configuration overrides it.
 - Every widget component must unsubscribe invokers and remove queued callbacks in `HandlerDeattached`.
 
 ### UI event domains

@@ -6,6 +6,8 @@ class GC_StatsDebrief
 	protected ref set<string> m_Participants = new set<string>();
 	protected string m_sSummary;
 	protected string m_sAmmunition;
+	protected string m_sPlayerName;
+	protected string m_sFactions;
 
 	//------------------------------------------------------------------------------------------------
 	void AddAssignment(GC_StatsAssignment assignment, string identity, bool includeCounters)
@@ -13,6 +15,8 @@ class GC_StatsDebrief
 		if (includeCounters)
 			m_Counters.Add(assignment);
 		m_Participants.Insert(identity);
+		if (!assignment.m_sFaction.IsEmpty())
+			m_sFactions = GC_DebriefText.Short(assignment.m_sFaction);
 		foreach (GC_StatsAmmo ammo : assignment.m_aAmmo)
 			m_mAmmo.Set(ammo.m_sProjectile, m_mAmmo.Get(ammo.m_sProjectile) + ammo.m_iRounds);
 	}
@@ -21,6 +25,7 @@ class GC_StatsDebrief
 	void UsePersonalCounters(GC_StatsPlayer player)
 	{
 		m_Counters.Add(player);
+		m_sPlayerName = GC_DebriefText.Short(player.m_sName);
 		m_Counters.m_iCommanderMissions = player.m_iCommanderMissions;
 		m_Counters.m_iLeaderMissions = player.m_iLeaderMissions;
 	}
@@ -102,6 +107,16 @@ class GC_StatsDebrief
 	string GetAmmunition()
 	{
 		return m_sAmmunition;
+	}
+
+	string GetPlayerName()
+	{
+		return m_sPlayerName;
+	}
+
+	string GetFactions()
+	{
+		return m_sFactions;
 	}
 
 	//------------------------------------------------------------------------------------------------

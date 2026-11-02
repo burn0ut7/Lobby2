@@ -187,7 +187,10 @@ modded class GC_Lobby_DebriefMenu
 		GC_StatsDebrief report = new GC_StatsDebrief();
 		report.AddAssignment(assignment, "fixture", true);
 		report.Seal(false);
-		OnSummary(m_sFaction, report.GetSummary(), report.GetAmmunition(), false);
+		GC_DebriefPage page = new GC_DebriefPage();
+		page.m_aRows = {report.GetSummary(), report.GetAmmunition()};
+		page.m_sStatus = "Synthetic values";
+		OnPage(m_sReportKey, page);
 		TextWidget.Cast(GetRootWidget().FindAnyWidget("DebriefPlayer")).SetText("Layout test · synthetic values");
 		return string.Format("synthetic ammo characters=%1", report.GetAmmunition().Length());
 	}

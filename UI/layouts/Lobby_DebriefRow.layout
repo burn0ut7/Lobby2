@@ -1,0 +1,23 @@
+ButtonWidgetClass : "{D271A640B8000000}UI/layouts/Admin/Lobby_AdminTableRow.layout" {
+ Name "DebriefRow"
+ components { GC_AdminTableRowComponent "{D271A640B8000001}" { m_BackgroundDefault 1 1 1 0 } }
+ {
+  SizeLayoutWidgetClass "{D271A640B8000002}" {
+   Prefab "{D271A640B8000002}"
+   HeightOverride 48
+   {
+    FrameWidgetClass "{D271A640B8000003}" {
+     Prefab "{D271A640B8000003}"
+     {
+      FrameWidgetClass "{D271A640B8000010}" { Prefab "{D271A640B8000010}" { TextWidgetClass "{D271A640B8000011}" { Prefab "{D271A640B8000011}" "Font Size" 22 "Min Font Size" 20 } } }
+      FrameWidgetClass "{D271A640B8000012}" { Prefab "{D271A640B8000012}" { TextWidgetClass "{D271A640B8000013}" { Prefab "{D271A640B8000013}" "Font Size" 22 "Min Font Size" 20 } } }
+      FrameWidgetClass "{D271A640B8000014}" { Prefab "{D271A640B8000014}" { TextWidgetClass "{D271A640B8000015}" { Prefab "{D271A640B8000015}" "Font Size" 22 "Min Font Size" 20 } } }
+      FrameWidgetClass "{D271A640B8000016}" { Prefab "{D271A640B8000016}" { TextWidgetClass "{D271A640B8000017}" { Prefab "{D271A640B8000017}" "Font Size" 22 "Min Font Size" 20 } } }
+      FrameWidgetClass "{D271A640B8000018}" { Prefab "{D271A640B8000018}" { TextWidgetClass "{D271A640B8000019}" { Prefab "{D271A640B8000019}" "Font Size" 22 "Min Font Size" 20 } } }
+      FrameWidgetClass "{D271A640B800001A}" { Prefab "{D271A640B800001A}" { TextWidgetClass "{D271A640B800001B}" { Prefab "{D271A640B800001B}" "Font Size" 22 "Min Font Size" 20 } } }
+     }
+    }
+   }
+  }
+ }
+}

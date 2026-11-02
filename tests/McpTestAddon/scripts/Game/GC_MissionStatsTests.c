@@ -110,66 +110,39 @@ modded class GC_LobbyManager
 	}
 }
 
-//! Test-only counters observe actual requests and deliveries, not timing assumptions.
+//! Observe the production page transport and verify warm-cache requests remain local.
 modded class GC_LobbyPlayerController
 {
 	protected int m_iGC_TestDebriefRequests;
 	protected int m_iGC_TestDebriefDeliveries;
 
-	//------------------------------------------------------------------------------------------------
-	override protected void GC_RpcAsk_Debrief()
+	override protected void GC_RpcAsk_ReportPage(string kind, string subject, int cursor, int filter)
 	{
 		m_iGC_TestDebriefRequests++;
-		super.GC_RpcAsk_Debrief();
+		super.GC_RpcAsk_ReportPage(kind, subject, cursor, filter);
 	}
 
-	//------------------------------------------------------------------------------------------------
-	override protected void GC_RpcDo_Debrief(string factionKey, string summary, string ammunition, bool complete)
+	override protected void GC_RpcDo_ReportPage(string key, array<string> rows, int next, string status)
 	{
 		m_iGC_TestDebriefDeliveries++;
-		super.GC_RpcDo_Debrief(factionKey, summary, ammunition, complete);
+		super.GC_RpcDo_ReportPage(key, rows, next, status);
 	}
 
-	//------------------------------------------------------------------------------------------------
 	string GC_TestDebriefCache(string action)
 	{
 		if (action == "clear")
 			GC_ClearDebriefCache();
 		else if (action == "cycle")
 		{
-			GC_LobbyManager manager = GC_LobbyManager.GetManager();
-			if (!manager || m_mGC_DebriefCache.Count() < 3)
-				return "unavailable: three cached views";
-			array<string> keys = {"USSR", "US", ""};
-			for (int i = 0; i < 12; i++)
-			{
-				string key = keys[i % keys.Count()];
-				GC_StatsCachedReport cached = m_mGC_DebriefCache.Get(key);
-				if (!cached)
-					return "FAIL: fixture faction absent";
-				manager.GC_TestDebriefSelect(key);
-				Widget root = GetGame().GetMenuManager().GetTopMenu().GetRootWidget();
-				string status = TextWidget.Cast(root.FindAnyWidget("DebriefStatus")).GetText();
-				string ammo = TextWidget.Cast(root.FindAnyWidget("DebriefAmmo")).GetText();
-				if (status == "Loading mission statistics…" || ammo != cached.m_sAmmunition)
-					return string.Format("FAIL: selection %1 not rendered synchronously", key);
-				array<string> values = {};
-				cached.m_sSummary.Split("\n", values, false);
-				if (values.Count() == 15)
-				{
-					for (int row = 0; row < 15; row++)
-					{
-						if (TextWidget.Cast(root.FindAnyWidget("StatValue" + row)).GetText() != values[row])
-							return "FAIL: cached counter mismatch";
-					}
-				}
-				else if (status != cached.m_sSummary)
-					return "FAIL: cached empty report mismatch";
-			}
+			if (!m_mGC_ReportPages.Contains("player||0|0"))
+				return "UNAVAILABLE private page";
+			int before = m_iGC_TestDebriefRequests;
+			for (int i; i < 12; i++)
+				GC_RequestReport("player");
+			if (before != m_iGC_TestDebriefRequests)
+				return "FAIL warm page used network";
 		}
-		else if (action != "snapshot")
-			return "unavailable: expected snapshot, cycle or clear";
-		return string.Format("cached=%1 requested=%2 serverRequests=%3 deliveries=%4", m_mGC_DebriefCache.Count(), m_bGC_DebriefRequested, m_iGC_TestDebriefRequests, m_iGC_TestDebriefDeliveries);
+		return string.Format("cached=%1 pending=%2 serverRequests=%3 deliveries=%4", m_mGC_ReportPages.Count(), m_sGC_ActiveReportKey, m_iGC_TestDebriefRequests, m_iGC_TestDebriefDeliveries);
 	}
 }
 

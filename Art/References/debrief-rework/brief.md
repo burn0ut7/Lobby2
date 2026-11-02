@@ -1,0 +1,32 @@
+# Debrief rework
+
+Active concept: `concept.png`, a deterministic layout wireframe with illustrative
+data and no world background. Keep the existing native BlurWidget and translucent
+surface, sparse typography and horizontal Private / faction / Other players tabs.
+Player selection opens Overview / Combat log; search applies to the current view.
+Reuse the existing admin table row, edit field and native button handlers.
+
+Installed reference: catalogue revision `721cd7b05eb54d3ca3591d9097af381d`,
+`game/data/data010.pak/UI/layouts/Menus/DeployMenu/DebriefingScreenStatistic.layout`
+lines 1–30 and `DebriefingScreenStatisticsTile.layout` lines 1–65. Native size
+layouts, vertical row containers and Roboto Condensed remain the presentation basis.
+The existing Lobby_Debrief.layout supplies the supported blur mechanism.
+
+Data ownership: final counters remain GC_MissionStatsComponent projections of its
+backend batch. Combat entries remain references owned by GC_SessionLogComponent;
+the debrief never starts another damage/death collector. Client identifiers are
+final-report ordinals, never persistent account identities.
+
+User-directed revision: use the full viewport. Move Private/factions/Other players
+into a left navigation column; show the overview counters across the content
+width and the remaining stats in two columns. Hide overview heroes in player and
+combat lists so those tables can use the full content height. No explanatory copy.
+The original wireframe is superseded for geometry by this revision and final live
+captures; retain its sparse monochrome style.
+
+Final user-directed refinement: remove AFTER ACTION REPORT and generic Players
+headings, move content up, put Back (Esc) at the bottom-right edge. Overview uses
+six prominent metrics: shots, player kills, deaths, AI kills, grenades, bandages.
+Rename Combat log to Activity. Remove the player-list faction column; use native
+faction colors on player names. Keep the faction overview selections. Remaining
+copy is labels, counts, loading/errors and retention status.

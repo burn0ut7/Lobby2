@@ -8,6 +8,7 @@ class GC_SpectatorEventBuffer
 	protected int m_iCursor;
 	protected int m_iRevision;
 	protected int m_iIndexRevision = -1;
+	protected bool m_bTruncated;
 
 	void GC_SpectatorEventBuffer(int capacity)
 	{
@@ -20,6 +21,7 @@ class GC_SpectatorEventBuffer
 			m_aEvents.Insert(entry);
 		else
 		{
+			m_bTruncated = true;
 			m_aEvents[m_iCursor] = entry;
 			m_iCursor = (m_iCursor + 1) % m_iCapacity;
 		}
@@ -29,6 +31,11 @@ class GC_SpectatorEventBuffer
 	int Count()
 	{
 		return m_aEvents.Count();
+	}
+
+	bool WasTruncated()
+	{
+		return m_bTruncated;
 	}
 
 	GC_SessionEvent GetNewest(int offset)
