@@ -6,31 +6,62 @@ class GC_MissionMetadataScannerComponentClass : ScriptComponentClass
 //! Explicit opt-in through the GC mission template. No game/server update events.
 class GC_MissionMetadataScannerComponent : ScriptComponent
 {
-	[Attribute("1", UIWidgets.CheckBox, "Automatically update generated metadata while this mission is open in Workbench.")]
+	[Attribute("1", UIWidgets.CheckBox, "Refresh generated metadata on mission load, owner edits and config registration in Workbench.")]
 	protected bool m_bEnabled;
 
 #ifdef WORKBENCH
-	protected float m_fElapsed;
-	protected string m_sPrevious;
-	protected string m_sOutput;
+	protected bool m_bRefreshPending;
+	protected string m_sRefreshReason;
 	protected string m_sLastWarning;
+
+	//------------------------------------------------------------------------------------------------
+	void RequestRefresh(string reason)
+	{
+		if (!m_bRefreshPending)
+			m_sRefreshReason = reason;
+		m_bRefreshPending = true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void _WB_OnInit(IEntity owner, inout vector mat[4], IEntitySource src)
+	{
+		super._WB_OnInit(owner, mat, src);
+		RequestRefresh("world/entity initialization");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void _WB_OnCreate(IEntity owner, IEntitySource src)
+	{
+		super._WB_OnCreate(owner, src);
+		RequestRefresh("owner created or restored");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool _WB_OnKeyChanged(IEntity owner, BaseContainer src, string key, BaseContainerList ownerContainers, IEntity parent)
+	{
+		bool result = super._WB_OnKeyChanged(owner, src, key, ownerContainers, parent);
+		RequestRefresh("owner property changed");
+		return result;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	override int _WB_GetAfterWorldUpdateSpecs(IEntity owner, IEntitySource src)
 	{
-		// Must work when the game-mode entity is off-screen. Only a timer runs each frame.
+		// Off-screen event requests need a dispatch point. Idle frames only test a flag;
+		// no timers, source enumeration, file checks or metadata collection run while idle.
 		return EEntityFrameUpdateSpecs.CALL_ALWAYS;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override void _WB_AfterWorldUpdate(IEntity owner, float timeSlice)
 	{
+		if (!m_bRefreshPending)
+			return;
 		if (!m_bEnabled || !GetGame() || GetGame().InPlayMode())
+		{
+			m_bRefreshPending = false;
 			return;
-		m_fElapsed += timeSlice;
-		if (m_fElapsed < 10)
-			return;
-		m_fElapsed = 0;
+		}
 		WorldEditor editor = Workbench.GetModule(WorldEditor);
 		if (!editor)
 			return;
@@ -38,6 +69,8 @@ class GC_MissionMetadataScannerComponent : ScriptComponent
 		if (!api || !api.GetWorld() || !api.IsEditMode() || api.IsGameMode() || api.IsPrefabEditMode()
 			|| api.IsDoingEditAction() || api.IsModifyingData() || api.UndoOrRedoIsRestoring())
 			return;
+		// Consume once the editor is ready. Failures require a new event, not retries on a timer.
+		m_bRefreshPending = false;
 		IEntitySource source = api.EntityToSource(owner);
 		if (!source || source.GetParent())
 			return;
@@ -73,22 +106,15 @@ class GC_MissionMetadataScannerComponent : ScriptComponent
 			return;
 		}
 		string output = absolutePath + ".metadata.json";
-		if (output != m_sOutput)
-		{
-			m_sOutput = output;
-			m_sPrevious = string.Empty;
-		}
 		GC_MissionMetadataExport exporter = new GC_MissionMetadataExport();
 		exporter.Collect(api, subscene);
-		bool changed;
-		if (!exporter.SaveIfChanged(output, worldPath, m_sPrevious, changed))
+		if (!exporter.Save(output, worldPath))
 		{
 			Warn("Could not write generated metadata: " + output);
 			return;
 		}
 		m_sLastWarning = string.Empty;
-		if (changed)
-			PrintFormat("GC | Automatic Metadata | Updated %1 entities: %2", exporter.GetEntityCount(), output);
+		PrintFormat("GC | Automatic Metadata | Refreshed %1 entities (%2): %3", exporter.GetEntityCount(), m_sRefreshReason, output);
 	}
 
 	//------------------------------------------------------------------------------------------------

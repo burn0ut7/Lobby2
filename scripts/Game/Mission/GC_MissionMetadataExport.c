@@ -282,23 +282,6 @@ class GC_MissionMetadataExport
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool SaveIfChanged(string output, string worldPath, inout string previous, out bool changed)
-	{
-		changed = false;
-		PrettyJsonSaveContext context = CreateJson(worldPath);
-		if (!context)
-			return false;
-		string current = context.SaveToString();
-		if (current == previous && FileIO.FileExists(output))
-			return true;
-		if (!context.SaveToFile(output))
-			return false;
-		previous = current;
-		changed = true;
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	protected PrettyJsonSaveContext CreateJson(string worldPath)
 	{
 		PrettyJsonSaveContext context = new PrettyJsonSaveContext(false);

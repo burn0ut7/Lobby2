@@ -1,7 +1,36 @@
 #ifdef WORKBENCH
-[WorkbenchPluginAttribute(name: "Export Mission Metadata", description: "Export factions, placed prefab addons and asset categories from all layers of the active mission subscene. Replaces its .metadata.json file; does not modify or save the world.", wbModules: { "WorldEditor" }, category: "GC", awesomeFontCode: 0xF15C)]
-class GC_MissionMetadataPlugin : WorkbenchPlugin
+[WorkbenchPluginAttribute(name: "Export Mission Metadata", description: "Export factions, placed prefab addons and asset categories from all layers of the active mission subscene. Replaces its .metadata.json file; does not modify or save the world.", wbModules: { "WorldEditor", "ResourceManager" }, category: "GC", awesomeFontCode: 0xF15C)]
+class GC_MissionMetadataPlugin : ResourceManagerPlugin
 {
+	//------------------------------------------------------------------------------------------------
+	override void OnRegisterResource(string absFileName, BaseContainer metaFile)
+	{
+		string path = absFileName;
+		path.ToLower();
+		if (!path.EndsWith(".conf"))
+			return;
+		WorldEditor editor = Workbench.GetModule(WorldEditor);
+		if (!editor)
+			return;
+		WorldEditorAPI api = editor.GetApi();
+		if (!api || !api.GetWorld() || !api.IsEditMode() || api.IsGameMode() || api.IsPrefabEditMode())
+			return;
+		int subscene = api.GetCurrentSubScene();
+		for (int i, count = api.GetEntityCount(subscene); i < count; i++)
+		{
+			IEntitySource source = api.GetEntity(subscene, i);
+			if (!source || source.GetParent())
+				continue;
+			IEntity owner = api.SourceToEntity(source);
+			if (!owner)
+				continue;
+			GC_MissionMetadataScannerComponent scanner = GC_MissionMetadataScannerComponent.Cast(owner.FindComponent(GC_MissionMetadataScannerComponent));
+			if (scanner)
+				scanner.RequestRefresh("config resource registered");
+		}
+		// Never load the new config here: its resource GUID is still being registered.
+	}
+
 	//------------------------------------------------------------------------------------------------
 	override void Run()
 	{
