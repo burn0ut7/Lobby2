@@ -1634,3 +1634,21 @@ in logs_2026-11-01_14-30-43). Existing world/resource/plugin errors persisted.
 Live production tab clicks and MCP captures verified Voice and Players in both
 PREGAME Preview and BRIEFING. Local captures: Art/References/voice-background/.
 Alternate display scales, remote clients and populated scrolling were not tested.
+
+## Parameters overhaul — 2026-11-01
+
+See [authoring and behavior](../docs/MissionParameters.md). Optional
+`GC_ParameterOverhaulTests.c` exposes state/readback, raw production requests,
+canonical command-slot assignment, and a runtime-only briefing-window fixture.
+Nothing runs on load and no roles are granted. The existing native host logout
+fixture removes admin roles; fresh embedded Play restores its normal login.
+
+Embedded Arland passed actual CO stepper/text/selection Apply, cross-side and
+post-lock rejection, a real timed briefing lock, admin edits on both sides during
+GAME, Revert, and one automatic respawn restoring possession while consuming one
+ticket. Delta/clamp budget changes and malformed/stale/unresolved requests were
+checked. Final script Reload0a8338db8f124ef592ba877f1cee03ea passed; existing
+Arland resource, BlockListApi and missing loadout-manager diagnostics remain.
+Independent source/UI review approved. Local captures and detailed receipts:
+`Art/References/parameters/validation.md`. Remote/dedicated/JIP, physical inputs
+and alternate viewport scales were not exercised; no stock shared override changed.

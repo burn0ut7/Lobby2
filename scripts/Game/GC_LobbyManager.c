@@ -45,6 +45,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values", category: "Lobby2")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
 
+	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1", category: "Lobby2")]
+	protected int m_iParameterLockSeconds;
+
 	//! Authority-only policy for slots added after an all-slot action; -1 uses authoring.
 	protected int m_iNewSlotLockOverride = -1;
 	protected bool m_bPublishingSlotLocks;
@@ -4199,23 +4202,41 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return GetScenarioParameterCatalog() && m_ParameterCatalog.IsValid();
 	}
 
-	//! Returns whether this admin may change one definition. Visibility is a
-	//! separate presentation concern and is intentionally not checked here.
+	//------------------------------------------------------------------------------------------------
+	int GC_GetParameterLockRemaining()
+	{
+		if (GetLobbyPhase() == SCR_EGameModeState.PREGAME || GetLobbyPhase() == SCR_EGameModeState.SLOTTING)
+			return -1;
+		if (GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+			return 0;
+		int elapsed = GetPhaseElapsedSeconds();
+		if (elapsed < 0)
+			return -2;
+		return Math.Max(0, Math.Clamp(m_iParameterLockSeconds, 30, 3600) - elapsed);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool GC_AreParametersLocked()
+	{
+		int remaining = GC_GetParameterLockRemaining();
+		return remaining == 0 || remaining == -2;
+	}
+
+	//! Authentication and current command ownership are checked on every execution.
 	bool CanModifyScenarioParameter(int playerId, int definitionIndex)
 	{
-		if (!IsScenarioParameterCatalogValid() || !SCR_Global.IsAdmin(playerId))
+		if (GetManager() != this || m_bShutdown || playerId <= 0 || !IsScenarioParameterCatalogValid()
+			|| !GetGame().GetPlayerManager().IsPlayerConnected(playerId) || GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
 			return false;
 
 		GC_LobbyParameterDefinition definition = m_ParameterCatalog.FindDefinition(definitionIndex);
 		if (!definition)
 			return false;
 
-		string ownerFactionKey = definition.GetOwnerFactionKey();
-		Faction playerFaction = GetPlayerFaction(playerId);
-		if (!playerFaction)
+		if (SCR_Global.IsAdmin(playerId))
 			return true;
 
-		return playerFaction.GetFactionKey() == ownerFactionKey;
+		return !GC_AreParametersLocked() && GetFactionCommanderPlayerId(definition.GetOwnerFactionKey()) == playerId;
 	}
 
 	//! Applies one complete client draft atomically on the server. The player id
@@ -4237,20 +4258,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
-		if (!SCR_Global.IsAdmin(playerId))
+		if (GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
 		{
-			if (GC_UIEventDiagnostics.ENABLED)
-				PrintFormat("GC | Admin Trace | server action rejected: action=apply-parameters player=%1 queriedAdmin=false", playerId, level: LogLevel.WARNING);
-			PrintFormat("GC | Parameters | request rejected: player=%1 is not an admin", playerId, level: LogLevel.WARNING);
-			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-not-admin");
-			return false;
-		}
-
-		SCR_EGameModeState phase = GetLobbyPhase();
-		if (phase != SCR_EGameModeState.PREGAME && phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
-		{
-			PrintFormat("GC | Parameters | request rejected: parameters locked in lobby=%1", GetPhaseName(phase), level: LogLevel.WARNING);
-			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-phase-locked");
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-mission-ended");
 			return false;
 		}
 
@@ -4268,11 +4278,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
+		bool hasChanges;
 		foreach (GC_LobbyParameterValue value : values)
 		{
 			GC_LobbyParameterValue currentValue = m_ParameterCatalog.FindValue(value.GetDefinitionIndex());
 			if (!currentValue || GC_LobbyParameterCatalog.AreValuesEqual(currentValue, value))
 				continue;
+			hasChanges = true;
 
 			if (!CanModifyScenarioParameter(playerId, value.GetDefinitionIndex()))
 			{
@@ -4288,6 +4300,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			}
 		}
 
+		if (!hasChanges)
+		{
+			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-no-changes");
+			return false;
+		}
 		if (!m_ParameterCatalog.ApplyValues(values))
 		{
 			GC_AdminActionLogger.Log(playerId, "apply-parameters", "scenario-parameters", "rejected-apply-failed");

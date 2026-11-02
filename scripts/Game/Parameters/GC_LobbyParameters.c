@@ -11,6 +11,14 @@ enum GC_ELobbyParameterType
 	SELECTION
 }
 
+//! Explicit gameplay consumers. NONE remains a mission-authored briefing value.
+enum GC_ELobbyParameterEffect
+{
+	NONE = 0,
+	RESPAWN_BUDGET,
+	RESPAWN_INTERVAL
+}
+
 enum GC_ELobbyIntegerPresentation
 {
 	EDIT_BOX = 0,
@@ -55,6 +63,9 @@ class GC_LobbyParameterDefinition
 	[Attribute("", UIWidgets.EditBoxMultiline, "Player-facing parameter description")]
 	protected string m_sDescription;
 
+	[Attribute("0", UIWidgets.ComboBox, "Gameplay consumer; non-NONE requires a nonnegative integer", enumType: GC_ELobbyParameterEffect)]
+	protected GC_ELobbyParameterEffect m_eEffect;
+
 	[Attribute("", UIWidgets.EditBox, "Required authoritative owner faction key")]
 	protected string m_sOwnerFactionKey;
 
@@ -63,6 +74,7 @@ class GC_LobbyParameterDefinition
 
 	string GetLabel() { return m_sLabel; }
 	string GetDescription() { return m_sDescription; }
+	GC_ELobbyParameterEffect GetEffect() { return m_eEffect; }
 	string GetOwnerFactionKey() { return m_sOwnerFactionKey; }
 
 	array<string> GetVisibleFactionKeys()
@@ -504,6 +516,7 @@ class GC_LobbyParameterCatalog
 			return false;
 		}
 
+		array<string> effectOwners = {};
 		foreach (GC_LobbyParameterDefinition definition : definitions)
 		{
 			if (!definition)
@@ -523,6 +536,18 @@ class GC_LobbyParameterCatalog
 
 			if (!ValidateDefinition(definition))
 				return false;
+
+			if (definition.GetEffect() != GC_ELobbyParameterEffect.NONE)
+			{
+				GC_LobbyIntegerParameterDefinition integerDefinition = GC_LobbyIntegerParameterDefinition.Cast(definition);
+				string owner = definition.GetOwnerFactionKey() + ":" + definition.GetEffect().ToString();
+				if (!integerDefinition || integerDefinition.GetMinimum() < 0 || effectOwners.Contains(owner)
+					|| definition.GetEffect() < GC_ELobbyParameterEffect.RESPAWN_BUDGET
+					|| definition.GetEffect() > GC_ELobbyParameterEffect.RESPAWN_INTERVAL
+					|| (definition.GetEffect() == GC_ELobbyParameterEffect.RESPAWN_INTERVAL && integerDefinition.GetMaximum() > 1440))
+					return false;
+				effectOwners.Insert(owner);
+			}
 		}
 
 		return true;

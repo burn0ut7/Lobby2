@@ -294,17 +294,17 @@ class GC_BriefingParameterRowComponent : SCR_ScriptedWidgetComponent
 		if (m_wBoolText)
 		{
 			if (m_bBoolValue)
-				m_wBoolText.SetText("ENABLED");
+				m_wBoolText.SetText("On");
 			else
-				m_wBoolText.SetText("DISABLED");
+				m_wBoolText.SetText("Off");
 		}
 
 		if (m_wBoolBackground)
 		{
 			if (m_bBoolValue)
-				m_wBoolBackground.SetColor(Color.FromRGBA(194, 100, 20, 242));
+				m_wBoolBackground.SetColor(Color.FromRGBA(190, 150, 70, 170));
 			else
-				m_wBoolBackground.SetColor(Color.FromRGBA(20, 27, 30, 242));
+				m_wBoolBackground.SetColor(Color.FromRGBA(30, 30, 30, 210));
 		}
 	}
 
@@ -420,15 +420,14 @@ class GC_BriefingParameterRowComponent : SCR_ScriptedWidgetComponent
 			return false;
 
 		PlayerController playerController = GetGame().GetPlayerController();
-		if (!playerController || !SCR_Global.IsAdmin(playerController.GetPlayerId()))
+		if (!playerController)
 			return false;
 
 		GC_LobbyManager lobbyManager = GC_LobbyManager.GetManager();
 		if (!lobbyManager)
 			return false;
 
-		SCR_EGameModeState phase = lobbyManager.GetLobbyPhase();
-		return phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING;
+		return lobbyManager.CanModifyScenarioParameter(playerController.GetPlayerId(), m_iDefinitionIndex);
 	}
 
 	protected bool IsIntegerText(string text)

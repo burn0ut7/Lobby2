@@ -35,34 +35,7 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_
      }
     }
    }
-   m_ParameterCatalog GC_LobbyParameterCatalog "{6A4D100000000015}" {
-    m_aDefinitions {
-     GC_LobbySelectionParameterDefinition "{6A4D100000000024}" {
-      m_aOptions {
-       GC_LobbyParameterOption "{6A2881E8AFE4E2C9}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard1"
-        m_sPayload "variant.standard"
-       }
-       GC_LobbyParameterOption "{6A2881E8AF2FBCB6}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard2"
-        m_sPayload "variant.standard"
-       }
-       GC_LobbyParameterOption "{6A2881E8AE1F5F44}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard3"
-        m_sPayload "variant.standard"
-       }
-       GC_LobbyParameterOption "{6A2881E8AD79BB18}" {
-        m_sLabel "STANDARD"
-        m_sKey "standard4"
-        m_sPayload "variant.standard"
-       }
-      }
-     }
-    }
-   }
+
   }
  }
  coords 10347.059 30.977 350.325

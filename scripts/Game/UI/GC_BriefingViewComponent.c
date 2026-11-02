@@ -328,8 +328,7 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
     protected void RefreshParametersTab()
     {
         bool hasParameters;
-        bool isBriefingPhase = m_LobbyManager && m_LobbyManager.GetLobbyPhase() == SCR_EGameModeState.BRIEFING;
-        bool catalogValid = isBriefingPhase && m_LobbyManager.IsScenarioParameterCatalogValid();
+        bool catalogValid = m_LobbyManager && m_LobbyManager.IsScenarioParameterCatalogValid();
         int definitionCount;
         if (catalogValid)
         {
