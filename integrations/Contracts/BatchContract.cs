@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-internal static class BatchContract
+public static class BatchContract
 {
     // Validate every field consumed by SQL views before acknowledging a local batch.
     public static void Validate(JsonElement root)

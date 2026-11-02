@@ -1,8 +1,10 @@
-# Lobby2 telemetry contracts
+# Lobby2 data contracts
 
-Canonical .NET validation and L2TB codec shared by StatsIngest and the GC website.
+Canonical .NET statistics, session, history and telemetry validation plus the L2TB codec shared by StatsIngest and the GC website.
 The engine recorder and on-disk formats are unchanged by this extraction.
 
+- `LobbyBatch.Read` routes and validates all four streams, with canonical identity, filenames and per-stream byte limits (64 MiB JSON, 1 MiB telemetry).
+- `BatchContract`, `SessionEventContract` and `MissionHistoryContract` own their respective schemas.
 - `TelemetryBatch.Read` reads bounded JSON or L2TB and validates the logical batch.
 - `TelemetryContract.Validate` owns schema 1/2 rules.
 - `TelemetryBinary` owns L2TB v1 numeric encoding and decoding.
@@ -16,7 +18,7 @@ NuGet package built from a committed revision; it does not maintain another code
 ```powershell
 dotnet build integrations/StatsIngest -c Release
 python tests/telemetry_contract_test.py
-dotnet pack integrations/TelemetryContracts -c Release -o <package-output>
+dotnet pack integrations/Contracts -c Release -o <package-output>
 ```
 
 Change the package version when releasing changed code. Record the source commit

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-internal static class SessionEventContract
+public static class SessionEventContract
 {
     public static void Validate(JsonElement root)
     {

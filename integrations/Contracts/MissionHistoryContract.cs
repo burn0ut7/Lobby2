@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-internal static class MissionHistoryContract
+public static class MissionHistoryContract
 {
-    internal static void Validate(JsonElement root)
+    public static void Validate(JsonElement root)
     {
         Object(root);
         if (Text(root, "kind", 32) != "missionHistory" || Count(root, "schemaVersion") != 1) Fail();

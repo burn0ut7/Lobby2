@@ -4,3 +4,6 @@ resourceDatabase.rdb
 /Art
 /tests
 /Prefabs/Loadouts
+
+integrations/Contracts/bin/
+integrations/Contracts/obj/

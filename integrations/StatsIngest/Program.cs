@@ -82,34 +82,16 @@ static async Task<int> Ingest(string[] args)
             var info = new FileInfo(path);
             if (info.Length is <= 0 or > 64 * 1024 * 1024)
                 throw new InvalidDataException("Batch exceeds the 64 MiB bound or is empty.");
-            // Strict UTF-8 preserves identity/name data and rejects incomplete encodings.
             var bytes = await File.ReadAllBytesAsync(path);
-            var binary = path.EndsWith(".l2t", StringComparison.Ordinal);
-            var decoded = binary ? TelemetryBinary.Decode(bytes) : bytes;
-            var payload = new UTF8Encoding(false, true).GetString(decoded);
-            using var json = JsonDocument.Parse(payload);
-            var root = json.RootElement;
-            var hasKind = root.TryGetProperty("kind", out var kind);
-            var sessionEvents = hasKind && kind.GetString() == "sessionEvents";
-            var history = hasKind && kind.GetString() == "missionHistory";
-            var telemetry = hasKind && kind.GetString() == "telemetry";
-            if (binary && !telemetry) throw new InvalidDataException("Binary payload must be telemetry.");
-            if (hasKind && !sessionEvents && !history && !telemetry)
-                throw new InvalidDataException("Unsupported batch kind.");
-            if (telemetry)
-            {
-                if (bytes.Length > TelemetryContract.MaxBatchBytes)
-                    throw new InvalidDataException("Telemetry batch exceeds 1 MiB.");
-                TelemetryContract.Validate(root);
-            }
-            else if (history) MissionHistoryContract.Validate(root);
-            else if (sessionEvents) SessionEventContract.Validate(root);
-            else BatchContract.Validate(root);
-            var mission = root.GetProperty(telemetry ? "recordingId" : sessionEvents ? "sessionId" : "missionId").GetGuid();
-            var revision = root.GetProperty("revision").GetInt32();
-            var extension = binary ? "l2t" : "json";
-            var expectedName = telemetry ? $"{mission}-telemetry-{revision}.{extension}" : history ? $"{mission}-history-{revision}.json" : sessionEvents ? $"{mission}-events-{revision}.json" : $"{mission}-{revision}.json";
-            if (revision < 0 || Path.GetFileName(path) != expectedName)
+            using var batch = LobbyBatch.Read(bytes);
+            var root = batch.Root;
+            var payload = root.GetRawText();
+            var sessionEvents = batch.Stream == "session";
+            var history = batch.Stream == "history";
+            var telemetry = batch.Stream == "telemetry";
+            var mission = batch.Id;
+            var revision = batch.Revision;
+            if (Path.GetFileName(path) != batch.FileName)
                 throw new InvalidDataException("Batch identity differs from its filename.");
             var checksum = Convert.ToHexString(SHA256.HashData(bytes));
             if (database is null)
