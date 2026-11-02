@@ -72,6 +72,14 @@ class GC_TelemetryActor
 		context.WriteValue("prefab", prefab);
 		context.WriteValue("playerIdentity", m_sIdentity);
 		context.WriteValue("faction", FactionKey());
+		// Record the native editor presentation identity; websites choose supported artwork.
+		SCR_EditableEntityComponent editable = SCR_EditableEntityComponent.Cast(entity.FindComponent(SCR_EditableEntityComponent));
+		if (editable && editable.GetInfo())
+		{
+			SCR_UIInfo info = editable.GetInfo();
+			context.WriteValue("iconResource", info.GetIcon());
+			context.WriteValue("iconName", info.GetIconSetName());
+		}
 		GC_TelemetryRecorder.WriteVector(context, "position", entity.GetOrigin());
 		GC_TelemetryRecorder.WriteVector(context, "anglesDegrees", entity.GetAngles());
 		recorder.CommitRecord(context);

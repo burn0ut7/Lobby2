@@ -74,3 +74,22 @@ The stationary fixture stayed at (1180,39,2730); an unused slot at
 at 19847.898437ms; the old body remained, with three later state samples.
 Website intake/read APIs verified all 378 records. Optional explicit discovery
 probe is in tests/McpTestAddon; it is not deployed.
+
+## Native playback presentation (2026-11-02)
+
+Spawn records optionally include iconResource and iconName from the entity's
+SCR_EditableEntityComponent.GetInfo().GetIcon()/GetIconSetName(). These are
+native presentation references, not browser URLs or guessed roles; no role is
+inferred from carried weapons. Missing editor metadata remains absent.
+Shared contract validates optional strings (4096/256 characters), retaining old
+capture compatibility. Numeric state layout is unchanged.
+
+The existing anglesDegrees uses IEntity.GetAngles: XYZ rotations, with Y yaw.
+Live optional GC_TelemetryIconTests verified M998/UH1H/USSR LAT at yaw90 and270
+against native transform forward. Their native offroad/helicopter/anti-tank
+references were retained in capture01a19e0e-ba7e-8a6d-8400-0000006f4026;
+1,007 records (47 vehicle states) passed website intake and range queries,
+zero dropped records. The optional fixture explicitly admits its spawned
+vehicles through the production recorder; ordinary capture still discovers
+vehicles via the existing seat/combat paths. No global actor discovery changes
+were made in this slice. Test runtime entities were discarded on stopping Play.

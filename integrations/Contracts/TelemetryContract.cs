@@ -65,6 +65,8 @@ public static class TelemetryContract
                 Entity(data);
                 if (Text(data, "kind", 16) is not ("player" or "ai" or "vehicle")) Fail();
                 Text(data, "prefab", 4096, false);
+                if (data.TryGetProperty("iconResource", out _)) Text(data, "iconResource", 4096);
+                if (data.TryGetProperty("iconName", out _)) Text(data, "iconName", 256);
                 Text(data, "playerIdentity", 256);
                 Text(data, "faction", 256);
                 RootTransform(data, version);
