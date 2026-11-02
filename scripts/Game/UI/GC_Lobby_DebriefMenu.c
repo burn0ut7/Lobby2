@@ -566,13 +566,14 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 
 	protected void RenderCombat()
 	{
-		MakeRow({"Time", "Event", "From", "To", "Damage", "Weapon / range"}, "", true);
+		MakeRow({"Time", "Event", "From", "To", "Cause"}, "", true);
 		for (int i; i + 7 < m_aCombat.Count(); i += 8)
 		{
 			array<string> cells = {};
 			for (int j; j < 6; j++)
 			{
-				cells.Insert(m_aCombat[i + j]);
+				if (j != 4)
+					cells.Insert(m_aCombat[i + j]);
 			}
 			MakeRow(cells, "", false, m_aCombat[i + 6], m_aCombat[i + 7]);
 		}
@@ -588,7 +589,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		SizeLayoutWidget.Cast(row.GetChildren()).SetHeightOverride(48);
 		array<float> widths = {0, 0.40, 0.55, 0.70, 0.85, 1};
 		if (m_sView == "combat")
-			widths = {0, 0.08, 0.20, 0.43, 0.66, 0.76, 1};
+			widths = {0, 0.08, 0.24, 0.44, 0.64, 1};
 		for (int i; i < 6; i++)
 		{
 			TextWidget cell = TextWidget.Cast(row.FindAnyWidget("Cell" + (i + 1)));

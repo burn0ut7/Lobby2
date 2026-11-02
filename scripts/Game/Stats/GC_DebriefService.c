@@ -202,6 +202,45 @@ class GC_DebriefText
 		return value;
 	}
 
+	static string Weapon(GC_SessionEvent entry)
+	{
+		string resource = entry.m_sWeapon;
+		if (resource.IsEmpty())
+			resource = entry.m_sProjectile;
+		string label = FilePath.StripExtension(FilePath.StripPath(resource));
+		label.Replace("_", " ");
+		return Short(label, 64);
+	}
+
+	static string CombatDetail(GC_SessionEvent entry)
+	{
+		string detail = Weapon(entry);
+		if (detail.IsEmpty())
+			detail = "Unknown source";
+		if (entry.m_fDistance >= 0)
+			detail += string.Format(" · %1 m", Math.Round(entry.m_fDistance));
+		string cause;
+		if (entry.m_sDeathCause == "bleeding")
+			cause = "Bled to death";
+		else if (entry.m_sDeathCause == "respawn")
+			cause = "Respawned";
+		else if (entry.m_sDeathCause == "suicide")
+			cause = "Suicide";
+		if (!cause.IsEmpty())
+			detail = cause;
+		GC_SessionEvent hit = entry.m_LastDamage;
+		if (hit && (!cause.IsEmpty() || entry.m_iDamageEventSequence != hit.m_iSequence))
+		{
+			string source = Weapon(hit);
+			if (source.IsEmpty())
+				source = "Unknown source";
+			detail += " · Last hit: " + Short(Actor(hit.m_sActorName, hit.m_sActorKind, hit.m_sActorPrefab), 48) + " / " + source;
+		}
+		if (!cause.IsEmpty() && !hit)
+			detail += " · Last hit unavailable";
+		return Short(detail, 240);
+	}
+
 	static string Actor(string name, string kind, string prefab)
 	{
 		if (kind == "ai")
@@ -220,7 +259,7 @@ class GC_DebriefText
 			}
 			if (!role.IsEmpty())
 			{
-				cached = "AI · " + role;
+				cached = Short(role);
 				if (s_mRoles.Count() < 256)
 					s_mRoles.Set(prefab, cached);
 				return Short(cached);

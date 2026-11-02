@@ -533,6 +533,37 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			death.m_sKillerPrefab = killer.GetPrefabData().GetPrefabName();
 		if (death.m_sCreditSource.IsEmpty() && ((killerRecord && killerRecord != victimRecord) || death.m_sKillerKind == "ai"))
 			death.m_sCreditSource = "engine";
+		if (death.m_sCause.IsEmpty() || death.m_sCause == "other")
+		{
+			SCR_CharacterDamageManagerComponent damageManager = SCR_CharacterDamageManagerComponent.Cast(victim.FindComponent(SCR_CharacterDamageManagerComponent));
+			if (damageManager && damageManager.GetBloodHitZone() && damageManager.GetBloodHitZone().GetDamageState() == ECharacterBloodState.DESTROYED)
+				death.m_sCause = "bleeding";
+			else if (killer == victim)
+				death.m_sCause = "suicide";
+		}
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		GC_SessionEvent lastDamage;
+		if (logs)
+			lastDamage = logs.GetLastMeaningfulDamage(victim);
+		// AI victims have no player tracker. Recover their weapon from the actual hit,
+		// only when it belongs to the credited source, never the killer's held weapon.
+		bool matchingDamage;
+		if (lastDamage)
+		{
+			if (death.m_iDamageEventSequence > 0)
+				matchingDamage = death.m_iDamageEventSequence == lastDamage.m_iSequence;
+			else if (killerRecord)
+				matchingDamage = lastDamage.m_sActor == killerRecord.m_sIdentity;
+			else if (killer)
+				matchingDamage = lastDamage.m_sActorEntity == killer.GetID().ToString();
+		}
+		if (matchingDamage && death.m_sCause != "suicide")
+		{
+			if (death.m_sWeapon.IsEmpty())
+				death.m_sWeapon = lastDamage.m_sWeapon;
+			if (death.m_iDamageEventSequence == 0)
+				death.m_iDamageEventSequence = lastDamage.m_iSequence;
+		}
 		bool teamKill = (death.m_iRelation & SCR_ECharacterDeathStatusRelations.KILLED_BY_FRIENDLY_PLAYER) != 0;
 		if (!victimRecord && !killerRecord && death.m_sVictimKind != "ai")
 			return;
@@ -586,7 +617,6 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			if (killer)
 				death.m_sKiller = "ai:" + killer.GetID().ToString();
 		}
-		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		if (logs)
 		{
 			string type = "death";
@@ -615,6 +645,9 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			entry.m_sDeathCause = death.m_sCause;
 			entry.m_sCreditSource = death.m_sCreditSource;
 			entry.m_iDamageEventSequence = death.m_iDamageEventSequence;
+			entry.m_LastDamage = lastDamage;
+			if (matchingDamage)
+				entry.m_sProjectile = lastDamage.m_sProjectile;
 			if (death.m_sCause == "respawn")
 				entry.m_sDetail = "Respawn selected";
 			else if (death.m_sCause == "bleeding")

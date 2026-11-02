@@ -28,6 +28,8 @@ class GC_SessionEvent
 	string m_sDeathCause;
 	string m_sCreditSource;
 	int m_iDamageEventSequence;
+	// Reference to an immutable damage record, never another death.
+	ref GC_SessionEvent m_LastDamage;
 
 	//------------------------------------------------------------------------------------------------
 	void Write(SaveContext context)
@@ -59,5 +61,16 @@ class GC_SessionEvent
 		context.WriteValue("deathCause", m_sDeathCause);
 		context.WriteValue("creditSource", m_sCreditSource);
 		context.WriteValue("damageEventSequence", m_iDamageEventSequence);
+		if (m_LastDamage)
+		{
+			context.WriteValue("lastDamageSequence", m_LastDamage.m_iSequence);
+			context.WriteValue("lastDamageActor", m_LastDamage.m_sActor);
+			context.WriteValue("lastDamageActorName", m_LastDamage.m_sActorName);
+			context.WriteValue("lastDamageActorKind", m_LastDamage.m_sActorKind);
+			context.WriteValue("lastDamageActorPrefab", m_LastDamage.m_sActorPrefab);
+			context.WriteValue("lastDamageWeapon", m_LastDamage.m_sWeapon);
+			context.WriteValue("lastDamageProjectile", m_LastDamage.m_sProjectile);
+			context.WriteValue("lastDamageType", m_LastDamage.m_iDamageType);
+		}
 	}
 }

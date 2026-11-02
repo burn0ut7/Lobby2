@@ -233,6 +233,27 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Resolve context from the shared bounded history; never award kill credit here.
+	GC_SessionEvent GetLastMeaningfulDamage(IEntity victim)
+	{
+		if (!victim)
+			return null;
+		string entityId = victim.GetID().ToString();
+		for (int i; i < m_SpectatorEvents.Count(); i++)
+		{
+			GC_SessionEvent hit = m_SpectatorEvents.GetNewest(i);
+			if (hit.m_sType != "damage" || hit.m_sTargetEntity != entityId || hit.m_fDamage <= 0)
+				continue;
+			if (hit.m_iDamageType == EDamageType.BLEEDING || hit.m_iDamageType == EDamageType.TRUE)
+				continue;
+			if (hit.m_sActorEntity == entityId || (!hit.m_sActor.IsEmpty() && hit.m_sActor == hit.m_sTarget))
+				continue;
+			return hit;
+		}
+		return null;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected string EventFaction(IEntity entity)
 	{
 		if (!entity)

@@ -96,6 +96,13 @@ modded class GC_Lobby_DebriefMenu
 			ShowPlayers();
 			return "SYNTHETIC UI fixture only; reload restores real participants";
 		}
+		if (action == "events")
+		{
+			string details;
+			for (int eventIndex; eventIndex + 7 < m_aCombat.Count(); eventIndex += 8)
+				details += m_aCombat[eventIndex + 1] + " | " + m_aCombat[eventIndex + 2] + " > " + m_aCombat[eventIndex + 3] + " | " + m_aCombat[eventIndex + 5] + "\n";
+			return details;
+		}
 		if (action == "summary")
 		{
 			string summary = "scope=" + m_sFaction + " subject=" + m_sSubject + " title=" + m_sTitle;
@@ -204,6 +211,52 @@ modded class GC_MissionStatsComponent
 }
 modded class GC_SessionLogComponent
 {
+	string GC_TestDeathContext()
+	{
+		IEntity victim = GetGame().GetPlayerController().GetControlledEntity();
+		if (!victim)
+			return "UNAVAILABLE controlled entity";
+		GC_SpectatorEventBuffer original = m_SpectatorEvents;
+		m_SpectatorEvents = new GC_SpectatorEventBuffer(8);
+		GC_SessionEvent hit = new GC_SessionEvent();
+		hit.m_sType = "damage";
+		hit.m_sTargetEntity = victim.GetID().ToString();
+		hit.m_sTarget = "victim";
+		hit.m_sActor = "attacker";
+		hit.m_sActorName = "Jim Bob";
+		hit.m_sActorKind = "player";
+		hit.m_sWeapon = "Rifle_Test.et";
+		hit.m_iSequence = 1;
+		hit.m_fDamage = 12;
+		hit.m_iDamageType = EDamageType.KINETIC;
+		m_SpectatorEvents.Insert(hit);
+		array<int> types = {EDamageType.BLEEDING, EDamageType.TRUE, EDamageType.MELEE};
+		foreach (int type : types)
+		{
+			GC_SessionEvent ignored = new GC_SessionEvent();
+			ignored.m_sType = "damage";
+			ignored.m_sTargetEntity = hit.m_sTargetEntity;
+			ignored.m_sActorEntity = hit.m_sTargetEntity;
+			ignored.m_fDamage = 100;
+			ignored.m_iDamageType = type;
+			m_SpectatorEvents.Insert(ignored);
+		}
+		bool valid = GetLastMeaningfulDamage(victim) == hit;
+		m_SpectatorEvents = original;
+		GC_SessionEvent death = new GC_SessionEvent();
+		death.m_LastDamage = hit;
+		array<string> causes = {"bleeding", "respawn", "suicide"};
+		string result;
+		foreach (string cause : causes)
+		{
+			death.m_sDeathCause = cause;
+			string detail = GC_DebriefText.CombatDetail(death);
+			valid = valid && detail.Contains("Last hit: Jim Bob / Rifle Test");
+			result += detail + " | ";
+		}
+		return "valid=" + valid.ToString() + " " + result;
+	}
+
 	protected ref GC_SpectatorEventBuffer m_GC_TestOriginalMissionEvents;
 
 	//! Swap presentation references only; never Record or persist synthetic events.

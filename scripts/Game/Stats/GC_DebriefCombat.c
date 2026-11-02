@@ -46,7 +46,7 @@ modded class GC_SessionLogComponent
 			if (incoming || entry.m_sType == "death")
 				label = "Death";
 			if (damage)
-				label = "Damage";
+				label = "Damaged " + (Math.Round(entry.m_fDamage * 10) * 0.1).ToString();
 			if (entry.m_sType == "teamKill")
 				label = "Team kill";
 			rows.Insert(label);
@@ -56,21 +56,7 @@ modded class GC_SessionLogComponent
 			if (damage)
 				amount = (Math.Round(entry.m_fDamage * 10) * 0.1).ToString();
 			rows.Insert(amount);
-			string detail = FilePath.StripExtension(FilePath.StripPath(entry.m_sWeapon));
-			detail.Replace("_", " ");
-			if (entry.m_fDistance >= 0)
-			{
-				if (!detail.IsEmpty())
-					detail += " · ";
-				detail += string.Format("%1 m", Math.Round(entry.m_fDistance));
-			}
-			if (!entry.m_sDeathCause.IsEmpty() && entry.m_sDeathCause != "other")
-			{
-				if (!detail.IsEmpty())
-					detail += " · ";
-				detail += entry.m_sDeathCause;
-			}
-			rows.Insert(GC_DebriefText.Short(detail));
+			rows.Insert(GC_DebriefText.CombatDetail(entry));
 			GC_MissionStatsComponent stats = GC_MissionStatsComponent.GetInstance();
 			string actorFaction = entry.m_sActorFaction;
 			string targetFaction = entry.m_sTargetFaction;
