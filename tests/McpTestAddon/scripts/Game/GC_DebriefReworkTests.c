@@ -96,6 +96,22 @@ modded class GC_Lobby_DebriefMenu
 			ShowPlayers();
 			return "SYNTHETIC UI fixture only; reload restores real participants";
 		}
+		if (action == "alignment")
+		{
+			Widget header = GetRootWidget().FindAnyWidget("ReportTableHeader").GetChildren();
+			Widget row = GetRootWidget().FindAnyWidget("ReportRows").GetChildren();
+			if (!header || !row)
+				return "UNAVAILABLE rows";
+			string alignment;
+			for (int cellIndex = 1; cellIndex <= 5; cellIndex++)
+			{
+				float headerX, headerY, rowX, rowY;
+				header.FindAnyWidget("Cell" + cellIndex).GetScreenPos(headerX, headerY);
+				row.FindAnyWidget("Cell" + cellIndex).GetScreenPos(rowX, rowY);
+				alignment += string.Format("cell%1 deltaX=%2 ", cellIndex, headerX - rowX);
+			}
+			return alignment;
+		}
 		if (action == "events")
 		{
 			string details;

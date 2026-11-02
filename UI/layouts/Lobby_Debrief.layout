@@ -15,7 +15,7 @@ TextWidgetClass {
 }
 ScrollLayoutWidgetClass {
  Name "StatsScroll"
- Slot FrameWidgetSlot { Anchor .22 .25 .71 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor .22 .285 .71 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  "Scrollbar Always Visible" 0
  {
   SizeLayoutWidgetClass {
@@ -276,7 +276,7 @@ TextWidgetClass {
 }
 TextWidgetClass {
  Name "AmmoHeading"
- Slot FrameWidgetSlot { Anchor .75 .25 .97 .30 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor .75 .285 .97 .335 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  Text "Ammunition used"
  "Font Size" 28
  Wrap 1
@@ -284,7 +284,7 @@ TextWidgetClass {
 }
 ScrollLayoutWidgetClass {
  Name "AmmoScroll"
- Slot FrameWidgetSlot { Anchor .75 .32 .97 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor .75 .355 .97 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  "Scrollbar Always Visible" 0
  {
   SizeLayoutWidgetClass {

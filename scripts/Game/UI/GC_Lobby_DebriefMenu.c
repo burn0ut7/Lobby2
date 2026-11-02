@@ -402,12 +402,42 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		else
 			RenderOverview();
 		RenderHeroes();
+		GetGame().GetCallqueue().Remove(AlignReportHeader);
+		if (!overview)
+			GetGame().GetCallqueue().CallLater(AlignReportHeader, 0);
 		if (!focusedRow.IsEmpty())
 		{
 			Widget restored = root.FindAnyWidget(focusedRow);
 			if (restored)
 				GetGame().GetWorkspace().SetFocusedWidget(restored);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void AlignReportHeader()
+	{
+		if (m_sView == "overview")
+			return;
+		Widget root = GetRootWidget();
+		root.Update();
+		Widget row = root.FindAnyWidget("ReportRows").GetChildren();
+		if (!row)
+			return;
+		float rootX, rootY, rootWidth, rootHeight;
+		float rowX, rowY, rowWidth, rowHeight;
+		root.GetScreenPos(rootX, rootY);
+		root.GetScreenSize(rootWidth, rootHeight);
+		row.GetScreenPos(rowX, rowY);
+		row.GetScreenSize(rowWidth, rowHeight);
+		if (rootWidth <= 0)
+			return;
+		float top = 0.135;
+		if (m_sView == "combat" && m_sFaction == "activity")
+			top = 0.08;
+		// Scroll content reserves its own gutter; use the rendered row's exact width.
+		Widget header = root.FindAnyWidget("ReportTableHeader");
+		FrameSlot.SetAnchorMin(header, (rowX - rootX) / rootWidth, top);
+		FrameSlot.SetAnchorMax(header, (rowX + rowWidth - rootX) / rootWidth, top + 0.045);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -691,6 +721,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		GetGame().GetCallqueue().Remove(Close);
 		GetGame().GetCallqueue().Remove(Refresh);
 		GetGame().GetCallqueue().Remove(ResizeAmmo);
+		GetGame().GetCallqueue().Remove(AlignReportHeader);
 		GetGame().GetCallqueue().Remove(ContinuePlayers);
 		GetGame().GetCallqueue().Remove(ContinueCombat);
 		super.OnMenuClose();
