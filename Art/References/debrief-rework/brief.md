@@ -46,3 +46,6 @@ and ammunition. Remove the Players / AI toggle from those overviews. Rename
 Private to Your stats; personal Overview / Activity remains available. The prior
 all-final.png and ai-final.png show superseded toggle states. New live captures
 and further testing are deferred at the user's explicit request.
+
+
+Current refinement: three overview figures (Projectiles, Killed in action, Participants), scoped to the selection. Participants retains the existing human count. Removed search and the second hero row; all remaining summary fields form one vertical list, with ammunition alongside. Existing screenshots predate this refinement. Testing and new captures remain on hold at the user’s request.

@@ -19,8 +19,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	protected ref array<string> m_aCombat = {};
 	protected ref array<string> m_aValues = {};
 	protected ref array<string> m_aLabels = {"Play time", "Shots fired", "Grenades", "Bandages given", "Player kills", "AI kills", "Team kills", "Deaths", "Deaths by players", "Deaths by AI", "Other deaths", "On foot", "Driving / piloting", "Radio time (estimated)", "Command"};
-	protected EditBoxWidget m_Search;
-	protected SCR_EventHandlerComponent m_SearchEvents;
 	protected GC_AdminSearchFilter m_Sort;
 	protected GC_AdminSearchFilter m_EventFilter;
 	protected string m_sFaction = "all";
@@ -58,9 +56,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		Bind("ReportCombat", "Activity");
 		Bind("ReportPlayers", "Players");
 		Bind("ReportDirection", "");
-		m_Search = EditBoxWidget.Cast(root.FindAnyWidget("ReportSearch"));
-		m_SearchEvents = SCR_EventHandlerComponent.Cast(m_Search.FindHandler(SCR_EventHandlerComponent));
-		m_SearchEvents.GetOnChange().Insert(OnSearch);
 		m_Sort = GC_AdminSearchFilter.Cast(root.FindAnyWidget("ReportSort").FindHandler(GC_AdminSearchFilter));
 		array<string> labels = {"Name"};
 		array<string> values = {""};
@@ -121,7 +116,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		m_sFaction = m_mSelections.Get(selected);
 		m_sSubject = "";
 		m_sTitle = TextWidget.Cast(selected.GetRootWidget().FindAnyWidget("Cell1")).GetText();
-		m_Search.SetText("");
 		if (m_sFaction == "players")
 			ShowPlayers();
 		else
@@ -277,11 +271,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		return !m_sFaction.IsEmpty() && m_sFaction != "players";
 	}
 
-	protected void OnSearch()
-	{
-		QueueRefresh();
-	}
-
 	protected void OnSort()
 	{
 		m_bDescending = m_Sort.HasChoice() && !m_Sort.GetFilterValue().IsEmpty();
@@ -305,22 +294,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	protected void SetStatus(string status)
 	{
 		TextWidget.Cast(GetRootWidget().FindAnyWidget("DebriefStatus")).SetText(status);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected bool Matches(string text)
-	{
-		string query = m_Search.GetText();
-		query.ToLower();
-		text.ToLower();
-		array<string> terms = {};
-		query.Split(" ", terms, true);
-		foreach (string term : terms)
-		{
-			if (!text.Contains(term))
-				return false;
-		}
-		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -360,15 +333,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		if (m_bDescending)
 			direction = "sortArrowDown";
 		ImageWidget.Cast(root.FindAnyWidget("ReportSortArrow")).LoadImageFromSet(0, "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset", direction);
-		float searchTop = 0.10;
-		if (combat)
-			searchTop = 0.17;
-		if (overview)
-			searchTop = 0.435;
-		FrameSlot.SetAnchorMin(root.FindAnyWidget("SearchSurface"), 0.22, searchTop);
-		FrameSlot.SetAnchorMax(root.FindAnyWidget("SearchSurface"), 0.71, searchTop + 0.05);
-		FrameSlot.SetAnchorMin(m_Search, 0.23, searchTop + 0.005);
-		FrameSlot.SetAnchorMax(m_Search, 0.70, searchTop + 0.048);
 		float headerTop = 0.175;
 		float rowsTop = 0.23;
 		if (combat)
@@ -380,7 +344,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		FrameSlot.SetAnchorMax(root.FindAnyWidget("ReportTableHeader"), 0.97, headerTop + 0.045);
 		FrameSlot.SetAnchorMin(root.FindAnyWidget("ReportTable"), 0.22, rowsTop);
 		FrameSlot.SetAnchorMax(root.FindAnyWidget("ReportTable"), 0.97, 0.94);
-		for (int hero; hero < 6; hero++)
+		for (int hero; hero < 3; hero++)
 		{
 			root.FindAnyWidget("HeroValue" + hero).SetVisible(overview);
 			root.FindAnyWidget("HeroLabel" + hero).SetVisible(overview);
@@ -417,24 +381,21 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 				caption = "Players";
 			label.SetText(caption);
 			value.SetText(text);
-			bool visible = i != 1 && i != 2 && i != 3 && i != 4 && i != 5 && i != 7 && Matches(caption + " " + text);
+			bool visible = i != 1 && i != 7 && (i != 14 || !IsFactionOverview());
 			label.SetVisible(visible);
 			value.SetVisible(visible);
 			if (visible)
 			{
-				int column = shown / 5;
-				int line = shown % 5;
-				float left = column * 0.52;
-				FrameSlot.SetAnchorMin(label, left, 0);
-				FrameSlot.SetAnchorMax(label, left + 0.31, 0);
-				FrameSlot.SetAnchorMin(value, left + 0.32, 0);
-				FrameSlot.SetAnchorMax(value, left + 0.48, 0);
-				FrameSlot.SetOffsets(label, 0, line * 58, 0, -(line * 58 + 54));
-				FrameSlot.SetOffsets(value, 0, line * 58, 0, -(line * 58 + 54));
+				FrameSlot.SetAnchorMin(label, 0, 0);
+				FrameSlot.SetAnchorMax(label, 0.57, 0);
+				FrameSlot.SetAnchorMin(value, 0.60, 0);
+				FrameSlot.SetAnchorMax(value, 0.96, 0);
+				FrameSlot.SetOffsets(label, 0, shown * 48, 0, -(shown * 48 + 44));
+				FrameSlot.SetOffsets(value, 0, shown * 48, 0, -(shown * 48 + 44));
 				shown++;
 			}
 		}
-		SizeLayoutWidget.Cast(GetRootWidget().FindAnyWidget("StatsSize")).SetHeightOverride(Math.Min(shown, 5) * 58);
+		SizeLayoutWidget.Cast(GetRootWidget().FindAnyWidget("StatsSize")).SetHeightOverride(shown * 48);
 		GetGame().GetCallqueue().CallLater(ResizeAmmo, 0);
 	}
 
@@ -449,24 +410,20 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void RenderHeroes()
 	{
-		array<int> indexes = {1, 4, 7, 5, 2, 3};
-		for (int i; i < 6; i++)
+		array<int> indexes = {1, 7, 14};
+		array<string> labels = {"Projectiles", "Killed in action", "Participants"};
+		for (int i; i < 3; i++)
 		{
 			string value = "—";
-			if (m_sView == "players")
+			if (m_aValues.Count() == 15)
 			{
-				int total;
-				foreach (GC_DebriefPlayerRow player : m_aPlayers)
-				{
-					if (player.m_aValues.Count() == 15)
-						total += player.m_aValues[indexes[i]].ToInt();
-				}
-				value = total.ToString();
-			}
-			else if (m_aValues.Count() == 15)
 				value = m_aValues[indexes[i]];
+				// Personal summaries use field 14 for command, not participant count.
+				if (i == 2 && !IsFactionOverview())
+					value = "1";
+			}
 			TextWidget.Cast(GetRootWidget().FindAnyWidget("HeroValue" + i)).SetText(value);
-			TextWidget.Cast(GetRootWidget().FindAnyWidget("HeroLabel" + i)).SetText(m_aLabels[indexes[i]]);
+			TextWidget.Cast(GetRootWidget().FindAnyWidget("HeroLabel" + i)).SetText(labels[i]);
 		}
 	}
 
@@ -514,11 +471,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		foreach (GC_DebriefPlayerRow player : m_aPlayers)
 		{
 			if (player.m_aValues.Count() != 15)
-				continue;
-			string text = player.m_sName + " " + player.m_sFaction;
-			for (int field; field < 15; field++)
-				text += " " + m_aLabels[field] + " " + player.m_aValues[field];
-			if (!Matches(text))
 				continue;
 			int position = ordered.Count();
 			for (int j; j < ordered.Count(); j++)
@@ -573,14 +525,11 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		for (int i; i + 7 < m_aCombat.Count(); i += 8)
 		{
 			array<string> cells = {};
-			string search;
 			for (int j; j < 6; j++)
 			{
 				cells.Insert(m_aCombat[i + j]);
-				search += " " + m_aCombat[i + j];
 			}
-			if (Matches(search))
-				MakeRow(cells, "", false, m_aCombat[i + 6], m_aCombat[i + 7]);
+			MakeRow(cells, "", false, m_aCombat[i + 6], m_aCombat[i + 7]);
 		}
 	}
 
@@ -644,7 +593,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 			if (player.m_sId == m_sSubject)
 				m_sTitle = player.m_sName;
 		}
-		m_Search.SetText("");
 		ShowOverview();
 	}
 
@@ -676,7 +624,6 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	{
 		if (m_Controller)
 			m_Controller.m_GC_OnReportPage.Remove(OnPage);
-		m_SearchEvents.GetOnChange().Remove(OnSearch);
 		m_Sort.m_OnFilterChanged.Remove(OnSort);
 		m_EventFilter.m_OnFilterChanged.Remove(OnEventFilter);
 		foreach (SCR_ButtonBaseComponent button : m_aActions)
