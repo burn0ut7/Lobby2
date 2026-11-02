@@ -49,3 +49,31 @@ Workbench 1.8.0.13, optional `Lobby2McpTests` addon:
 - Empty mission export produces empty inventory/faction/addon-use collections. Export leaves the editor undo history unchanged.
 
 The fixture is editor-only; no Play session is needed. Test metadata JSON is generated output, not a checked-in expectation.
+
+## Native mission-config prototype (2026-11-01)
+
+`GC_MissionHeader : SCR_MissionHeader` adds an optional `m_GC_GeneratedMetadata` container. `GC_MissionMetadataExport.CreateSnapshot` converts the existing collector's results to native attributed containers: schema version, world, capture scope, entity count, effective/configured factions, assets, prefab inventory and addon provenance. These types are included in Lobby2; no runtime scan runs. **Production Lobby2 does not automatically populate or refresh this field.** Existing JSON export behavior is unchanged.
+
+The creation experiment lives in the optional test addon. Its plugin registration attribute is commented out, so it adds no menu or automatic callback by default. The experimental callback is restricted to the exact `Missions/MetadataAutomatic4.conf` fixture before loading any resource. It requires a nonempty World matching the open mission, preserves existing metadata, and does not assign the mission for the author.
+
+### Observed lifecycle behavior
+
+Workbench 1.8.0.13, installed source catalogue revision `721cd7b05eb54d3ca3591d9097af381d`:
+
+| Action | Result |
+| --- | --- |
+| Add a nested container in the native config editor | The script constructor did not run. Explicit script `new` was a positive control and did run it. |
+| Save the edited config with native File > Save | Persisted the container; no registration/build callback observed. |
+| Add an entity and save the mission world | No registration/build callback observed. Test entity was undone and the world saved again. |
+| Create a header and call native `RegisterResourceFile` | `OnRegisterResource` ran and embedded metadata without calling the exporter action. |
+| Read the saved native metadata as a script instance | Nine entities, three asset summaries, eight prefab rows and six loaded addons survived readback. |
+
+The registration callback runs before the new resource GUID is fully available. Loading the newly registered config during that callback emitted `Wrong GUID/name` diagnostics even though serialization succeeded. A path-only load did not resolve this. This is an unresolved lifecycle issue, **not a production-supported automatic creation workflow**. The experimental hook is therefore inactive by default. Saves do not refresh snapshots, and adding an empty metadata container does not initiate scanning.
+
+Evidence: `logs_2026-11-01_17-45-51/console.log`, creation lines 31378-31384; native readback line 31536. The final fixture-restricted callback also passed creation/readback at lines 31687-31693, with its known GUID diagnostics. `MetadataAutomatic3.conf` recorded APC=2, helicopter=1, infantry=1, US/USSR affiliations and unchanged name/author. Generated outputs are local test artifacts, not published mission configs. Existing stale Arland resource and temporary reload-snapshot `Parent` diagnostics are separate from the registration GUID issue; script compilation passed.
+
+Relevant installed declarations: `ResourceManagerPlugin.c` registration/build callbacks, `WorldEditorPlugin.c` game/drop callbacks, and `Core/proto/Types.c`'s empty `ScriptAndConfig`. Native `GameModeSetupConfig.GenerateMissionHeader` (lines 212-266) saves and registers its header explicitly. No general config/world-save callback was established by this investigation. The next integration point to evaluate is the owning mission-header creation workflow, where the header container is already available before saving; it should call the same collector directly rather than reload a resource during registration. That would cover creation, not ordinary later saves.
+
+### Reproducing the isolated experiment
+
+Load the optional test addon and open `$Lobby2McpTests:worlds/MetadataTest.ent`. Temporarily uncomment the single plugin attribute in `GC_MetadataCallbackProbe.c`, Reload, then invoke Resource Manager > Plugins > GC Tests > Metadata callback probe. The helper creates only `MetadataAutomatic4.conf` and refuses to overwrite an existing file. It uses the native save/register sequence, then checks native snapshot readback. The registration callback, not the creation helper, collects metadata. Expected fixture counts are APC=2, helicopter=1, infantry=1, total entities=9. The known registration GUID diagnostics remain expected evidence of the incomplete experiment. Comment the attribute again and Reload afterward. Do not publish the test addon.

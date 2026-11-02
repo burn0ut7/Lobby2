@@ -1,28 +1,4 @@
 #ifdef WORKBENCH
-//! One inventory row per prefab/class, effective faction and asset classification.
-class GC_MissionMetadataPrefab
-{
-	ResourceName m_sPrefab;
-	string m_sClass;
-	string m_sFaction;
-	string m_sAsset;
-	string m_sAssetEvidence;
-	int m_iCount;
-	ref array<string> m_aAddonIds = {};
-
-	//------------------------------------------------------------------------------------------------
-	bool Write(SaveContext context)
-	{
-		return context.WriteValue("prefab", m_sPrefab)
-			&& context.WriteValue("entityClass", m_sClass)
-			&& context.WriteValue("faction", m_sFaction)
-			&& context.WriteValue("asset", m_sAsset)
-			&& context.WriteValue("assetEvidence", m_sAssetEvidence)
-			&& context.WriteValue("count", m_iCount)
-			&& context.WriteValue("sourceAddonIds", m_aAddonIds);
-	}
-}
-
 //! Editor snapshot only: no runtime spawning, world edits or exhaustive dependency analysis.
 class GC_MissionMetadataExport
 {
@@ -115,6 +91,7 @@ class GC_MissionMetadataExport
 		if (!row)
 		{
 			row = new GC_MissionMetadataPrefab();
+			row.m_aAddonIds = {};
 			row.m_sPrefab = prefab;
 			row.m_sClass = source.GetClassName();
 			row.m_sFaction = faction;
@@ -245,6 +222,56 @@ class GC_MissionMetadataExport
 	{
 		if (!value.IsEmpty() && !values.Contains(value))
 			values.Insert(value);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	GC_GeneratedMissionMetadata CreateSnapshot(ResourceName world)
+	{
+		GC_GeneratedMissionMetadata snapshot = new GC_GeneratedMissionMetadata();
+		snapshot.m_iSchemaVersion = 1;
+		snapshot.m_aFactions = {};
+		snapshot.m_aConfiguredFactions = {};
+		snapshot.m_aReferencedAddonIds = {};
+		snapshot.m_aAssets = {};
+		snapshot.m_aPrefabs = {};
+		snapshot.m_aLoadedAddons = {};
+		snapshot.m_sWorld = world;
+		snapshot.m_sCaptureScope = "Editor snapshot; active subscene, including unsaved edits and prefab children. Other subscenes, resource-valued slots and runtime spawns excluded. This snapshot does not refresh automatically. Asset presence does not imply player availability; source addons are not a complete dependency list.";
+		snapshot.m_iEntityCount = m_iEntityCount;
+		snapshot.m_aFactions.Copy(m_aFactions);
+		snapshot.m_aConfiguredFactions.Copy(m_aConfiguredFactions);
+		snapshot.m_aReferencedAddonIds.Copy(m_aReferencedAddons);
+		array<string> keys = {};
+		foreach (string assetKey, int assetCount : m_mAssets)
+			keys.Insert(assetKey);
+		keys.Sort();
+		foreach (string key : keys)
+		{
+			GC_MissionMetadataAsset asset = new GC_MissionMetadataAsset();
+			asset.m_sCategory = key;
+			asset.m_iCount = m_mAssets.Get(key);
+			snapshot.m_aAssets.Insert(asset);
+		}
+		keys.Clear();
+		foreach (string prefabKey, GC_MissionMetadataPrefab row : m_mPrefabs)
+			keys.Insert(prefabKey);
+		keys.Sort();
+		foreach (string prefab : keys)
+			snapshot.m_aPrefabs.Insert(m_mPrefabs.Get(prefab));
+		array<string> addons = {};
+		GameProject.GetLoadedAddons(addons);
+		addons.Sort();
+		foreach (string guid : addons)
+		{
+			GC_MissionMetadataAddon addon = new GC_MissionMetadataAddon();
+			addon.m_sId = GameProject.GetAddonID(guid);
+			addon.m_sGuid = guid;
+			addon.m_sTitle = GameProject.GetAddonTitle(guid);
+			addon.m_bVanilla = GameProject.IsVanillaAddon(guid);
+			addon.m_bReferencedByPlacedPrefab = m_aReferencedAddons.Contains(addon.m_sId);
+			snapshot.m_aLoadedAddons.Insert(addon);
+		}
+		return snapshot;
 	}
 
 	//------------------------------------------------------------------------------------------------
