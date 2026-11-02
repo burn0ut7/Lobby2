@@ -23,7 +23,7 @@ modded class GC_LobbyManager
 		FileHandle output = FileIO.OpenFile("$profile:GC_MapScenery_Arland.tsv", FileMode.WRITE);
 		if (!output)
 			return "open-failed";
-		output.WriteLine("kind\tx\tz\trx\trz\tresource");
+		output.WriteLine("kind\tx\tz\trx\trz\tresource\tbottom\ttop\tsubmergedDepth");
 		foreach (string row : m_aGC_SceneryRows)
 			output.WriteLine(row);
 		output.Close();
@@ -60,7 +60,17 @@ modded class GC_LobbyManager
 		float rz = (maxs[2] - mins[2]) * 0.5;
 		if (center[0] < 0 || center[0] > 4096 || center[2] < 0 || center[2] > 4096 || rx <= 0 || rz <= 0)
 			return true;
-		m_aGC_SceneryRows.Insert(string.Format("%1\t%2\t%3\t%4\t%5\t%6", kind, center[0], center[2], rx, rz, resource));
+		// Query at the top of the world bounds: only fully submerged objects fade.
+		// This water query does not trace through vegetation or rock geometry.
+		vector probe = Vector(center[0], maxs[1], center[2]);
+		vector surface, transform[4], extents;
+		EWaterSurfaceType waterType;
+		float submergedDepth;
+		if (ChimeraWorldUtils.TryGetWaterSurface(GetGame().GetWorld(), probe, surface, waterType, transform, extents))
+			submergedDepth = Math.Max(0, surface[1] - maxs[1]);
+		string row = string.Format("%1\t%2\t%3\t%4\t%5\t%6", kind, center[0], center[2], rx, rz, resource);
+		row += string.Format("\t%1\t%2\t%3", mins[1], maxs[1], submergedDepth);
+		m_aGC_SceneryRows.Insert(row);
 		return true;
 	}
 }
