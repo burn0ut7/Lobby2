@@ -10,6 +10,8 @@ class GC_SessionEvent
 	string m_sTargetName;
 	string m_sActorKind;
 	string m_sTargetKind;
+	string m_sActorFaction;
+	string m_sTargetFaction;
 	string m_sActorPrefab;
 	string m_sTargetPrefab;
 	string m_sActorEntity;
@@ -39,6 +41,8 @@ class GC_SessionEvent
 		context.WriteValue("targetName", m_sTargetName);
 		context.WriteValue("actorKind", m_sActorKind);
 		context.WriteValue("targetKind", m_sTargetKind);
+		context.WriteValue("actorFaction", m_sActorFaction);
+		context.WriteValue("targetFaction", m_sTargetFaction);
 		context.WriteValue("actorPrefab", m_sActorPrefab);
 		context.WriteValue("targetPrefab", m_sTargetPrefab);
 		context.WriteValue("actorEntity", m_sActorEntity);

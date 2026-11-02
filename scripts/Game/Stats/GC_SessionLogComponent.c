@@ -180,6 +180,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 			if (actor.GetPrefabData())
 				entry.m_sActorPrefab = actor.GetPrefabData().GetPrefabName();
 		}
+		entry.m_sActorFaction = EventFaction(actor);
+		entry.m_sTargetFaction = EventFaction(victim);
 		entry.m_fDamage = context.damageValue;
 		entry.m_iDamageType = context.damageType;
 		entry.m_sWeapon = stats.GetProjectileWeapon(context.damageSource);
@@ -231,8 +233,22 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected string EventFaction(IEntity entity)
+	{
+		if (!entity)
+			return string.Empty;
+		FactionAffiliationComponent affiliation = FactionAffiliationComponent.Cast(entity.FindComponent(FactionAffiliationComponent));
+		if (!affiliation || !affiliation.GetAffiliatedFaction())
+			return string.Empty;
+		return affiliation.GetAffiliatedFaction().GetFactionKey();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void RecordDeath(GC_SessionEvent entry, IEntity victim, IEntity killer)
 	{
+		entry.m_sTargetFaction = EventFaction(victim);
+		if (entry.m_sCreditSource != "lastPlayerDamage")
+			entry.m_sActorFaction = EventFaction(killer);
 		if (victim)
 		{
 			vector position = victim.GetOrigin();

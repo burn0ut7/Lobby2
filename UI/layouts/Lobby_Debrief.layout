@@ -7,7 +7,7 @@ FrameWidgetClass {
 VerticalLayoutWidgetClass { Name "DebriefSelections" Slot FrameWidgetSlot { Anchor .025 .10 .18 .80 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 TextWidgetClass {
  Name "DebriefPlayer"
- Slot FrameWidgetSlot { Anchor .22 .08 .60 .125 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor .22 .067 .60 .10 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  Text "This mission Â· My stats (private)"
  "Font Size" 26
  Wrap 1
@@ -15,7 +15,7 @@ TextWidgetClass {
 }
 ScrollLayoutWidgetClass {
  Name "StatsScroll"
- Slot FrameWidgetSlot { Anchor .22 .30 .71 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor .22 .25 .71 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  "Scrollbar Always Visible" 0
  {
   SizeLayoutWidgetClass {
@@ -276,7 +276,7 @@ TextWidgetClass {
 }
 TextWidgetClass {
  Name "AmmoHeading"
- Slot FrameWidgetSlot { Anchor .75 .30 .97 .35 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor .75 .25 .97 .30 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  Text "Ammunition used"
  "Font Size" 28
  Wrap 1
@@ -284,7 +284,7 @@ TextWidgetClass {
 }
 ScrollLayoutWidgetClass {
  Name "AmmoScroll"
- Slot FrameWidgetSlot { Anchor .75 .37 .97 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Slot FrameWidgetSlot { Anchor .75 .32 .97 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  "Scrollbar Always Visible" 0
  {
   SizeLayoutWidgetClass {
@@ -313,20 +313,21 @@ TextWidgetClass {
  "Ignore Cursor" 1
 }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "DebriefBack" Slot FrameWidgetSlot { Anchor .92 .96 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-TextWidgetClass { Name "HeroValue0" Slot FrameWidgetSlot { Anchor 0.220 0.140 0.450 0.220 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
-TextWidgetClass { Name "HeroLabel0" Slot FrameWidgetSlot { Anchor 0.220 0.223 0.450 0.258 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Projectiles" "Font Size" 24 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
-TextWidgetClass { Name "HeroValue1" Slot FrameWidgetSlot { Anchor 0.480 0.140 0.710 0.220 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
-TextWidgetClass { Name "HeroLabel1" Slot FrameWidgetSlot { Anchor 0.480 0.223 0.710 0.258 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Killed in action" "Font Size" 24 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
-TextWidgetClass { Name "HeroValue2" Slot FrameWidgetSlot { Anchor 0.740 0.140 0.970 0.220 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
-TextWidgetClass { Name "HeroLabel2" Slot FrameWidgetSlot { Anchor 0.740 0.223 0.970 0.258 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Participants" "Font Size" 24 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReportPlayers" Slot FrameWidgetSlot { Anchor 0.55 0.12 0.67 0.17 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReportOverview" Slot FrameWidgetSlot { Anchor 0.7 0.08 0.82 0.125 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReportCombat" Slot FrameWidgetSlot { Anchor 0.84 0.08 0.97 0.125 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminTableFilter.layout" { Name "ReportSort" Slot FrameWidgetSlot { Anchor 0.74 0.10 0.91 0.15 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } HeightOverride 48 }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReportDirection" Slot FrameWidgetSlot { Anchor 0.92 0.10 0.97 0.15 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminTableFilter.layout" { Name "ReportFilter" HeightOverride 48 Slot FrameWidgetSlot { Anchor 0.74 0.17 0.97 0.22 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+TextWidgetClass { Name "HeroValue0" Slot FrameWidgetSlot { Anchor 0.220 0.100 0.450 0.180 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
+TextWidgetClass { Name "HeroLabel0" Slot FrameWidgetSlot { Anchor 0.220 0.183 0.450 0.218 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Projectiles" "Font Size" 24 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
+TextWidgetClass { Name "HeroValue1" Slot FrameWidgetSlot { Anchor 0.480 0.100 0.710 0.180 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
+TextWidgetClass { Name "HeroLabel1" Slot FrameWidgetSlot { Anchor 0.480 0.183 0.710 0.218 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Killed in action" "Font Size" 24 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
+TextWidgetClass { Name "HeroValue2" Slot FrameWidgetSlot { Anchor 0.740 0.100 0.970 0.180 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
+TextWidgetClass { Name "HeroLabel2" Slot FrameWidgetSlot { Anchor 0.740 0.183 0.970 0.218 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Participants" "Font Size" 24 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminTableFilter.layout" { Name "ReportSort" Slot FrameWidgetSlot { Anchor 0.74 0.075 0.91 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } HeightOverride 48 }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ReportDirection" Slot FrameWidgetSlot { Anchor 0.92 0.075 0.97 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminTableFilter.layout" { Name "ReportFilter" HeightOverride 48 Slot FrameWidgetSlot { Anchor 0.74 0.075 0.97 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 VerticalLayoutWidgetClass { Name "ReportTableHeader" Slot FrameWidgetSlot { Anchor 0.22 0.285 0.97 0.33 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ScrollLayoutWidgetClass { Name "ReportTable" Slot FrameWidgetSlot { Anchor 0.22 0.34 0.97 0.895 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Scrollbar Always Visible" 0 { VerticalLayoutWidgetClass { Name "ReportRows" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 } } } }
-ImageWidgetClass { Name "ReportSortArrow" Slot FrameWidgetSlot { Anchor .932 .111 .958 .139 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "sortArrowDown" Color 1 1 1 1 }
+ImageWidgetClass { Name "ReportSortArrow" Slot FrameWidgetSlot { Anchor .932 .086 .958 .114 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Ignore Cursor" 1 Texture "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset" Image "sortArrowDown" Color 1 1 1 1 }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "PlayerActivity" Slot FrameWidgetSlot { Anchor .025 .84 .18 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ActivityNewer" Slot FrameWidgetSlot { Anchor .025 .84 .095 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ActivityOlder" Slot FrameWidgetSlot { Anchor .105 .84 .18 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+
  }
 }

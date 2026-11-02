@@ -31,6 +31,9 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	protected int m_iCombatFilter;
 	protected int m_iPlayerNext;
 	protected int m_iCombatNext;
+	protected int m_iCombatStart;
+	protected ref array<int> m_aCombatStarts = {};
+	protected bool m_bCombatLoading;
 	protected bool m_bDescending;
 
 	//------------------------------------------------------------------------------------------------
@@ -51,10 +54,11 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		}
 		AddSelection("Your stats", "");
 		AddSelection("Other players", "players");
+		AddSelection("Activity log", "activity");
 		Bind("DebriefBack", "Back (Esc)");
-		Bind("ReportOverview", "Overview");
-		Bind("ReportCombat", "Activity");
-		Bind("ReportPlayers", "Players");
+		Bind("PlayerActivity", "View activity");
+		Bind("ActivityNewer", "Newer");
+		Bind("ActivityOlder", "Older");
 		Bind("ReportDirection", "");
 		m_Sort = GC_AdminSearchFilter.Cast(root.FindAnyWidget("ReportSort").FindHandler(GC_AdminSearchFilter));
 		array<string> labels = {"Name"};
@@ -123,6 +127,8 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		m_sTitle = TextWidget.Cast(selected.GetRootWidget().FindAnyWidget("Cell1")).GetText();
 		if (m_sFaction == "players")
 			ShowPlayers();
+		else if (m_sFaction == "activity")
+			ShowCombat();
 		else
 			ShowOverview();
 	}
@@ -164,17 +170,38 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected string CombatKind()
+	{
+		if (m_sFaction == "activity")
+			return "missionCombat";
+		return "combat";
+	}
+
+	protected int CombatFilter()
+	{
+		if (m_sFaction == "activity")
+			return 0;
+		return m_iCombatFilter;
+	}
+
 	protected void ShowCombat()
+	{
+		m_aCombatStarts.Clear();
+		LoadCombat(0);
+	}
+
+	protected void LoadCombat(int cursor)
 	{
 		m_sView = "combat";
 		m_aCombat.Clear();
 		m_CombatPages.Clear();
-		m_iCombatNext = 0;
-		m_sCombatPrefix = "combat|" + m_sSubject + "|";
+		m_iCombatStart = cursor;
+		m_iCombatNext = cursor;
+		m_bCombatLoading = true;
+		m_sCombatPrefix = CombatKind() + "|" + m_sSubject + "|";
 		SetStatus("Loading…");
 		Refresh();
-		if (m_Controller)
-			m_Controller.GC_RequestReport("combat", m_sSubject, 0, m_iCombatFilter);
+		ContinueCombat();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -209,7 +236,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 					GetGame().GetCallqueue().CallLater(ContinuePlayers, 0);
 			}
 		}
-		else if (key == m_sReportKey && m_sView != "players")
+		else if (key == m_sReportKey && m_sView == "overview")
 		{
 			m_aValues.Clear();
 			if (page.m_aRows.Count() == 2)
@@ -224,9 +251,11 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		{
 			array<string> fields = {};
 			key.Split("|", fields, false);
-			if (fields.Count() != 4 || fields[3].ToInt() != m_iCombatFilter)
+			if (fields.Count() != 4 || fields[3].ToInt() != CombatFilter())
 				return;
 			int cursor = fields[2].ToInt();
+			if (!m_bCombatLoading || cursor != m_iCombatNext)
+				return;
 			if (!m_CombatPages.Contains(cursor))
 			{
 				m_CombatPages.Insert(cursor);
@@ -235,7 +264,9 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 			m_iCombatNext = page.m_iNext;
 			SetStatus(page.m_sStatus);
 			QueueRefresh();
-			if (m_iCombatNext >= 0)
+			// Ten small replies fill a page without growing thousands of row widgets.
+			m_bCombatLoading = m_iCombatNext >= 0 && m_aCombat.Count() < 480;
+			if (m_bCombatLoading)
 				GetGame().GetCallqueue().CallLater(ContinueCombat, 0);
 		}
 	}
@@ -248,8 +279,8 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 
 	protected void ContinueCombat()
 	{
-		if (m_sView == "combat" && m_iCombatNext >= 0 && m_Controller)
-			m_Controller.GC_RequestReport("combat", m_sSubject, m_iCombatNext, m_iCombatFilter);
+		if (m_sView == "combat" && m_bCombatLoading && m_iCombatNext >= 0 && m_Controller)
+			m_Controller.GC_RequestReport(CombatKind(), m_sSubject, m_iCombatNext, CombatFilter());
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -258,12 +289,20 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		string name = button.GetRootWidget().GetName();
 		if (name == "DebriefBack")
 			OnBack();
-		else if (name == "ReportOverview")
-			ShowOverview();
-		else if (name == "ReportCombat")
+		else if (name == "PlayerActivity")
 			ShowCombat();
-		else if (name == "ReportPlayers")
-			ShowPlayers();
+		else if (name == "ActivityOlder" && !m_bCombatLoading && m_iCombatNext >= 0)
+		{
+			m_aCombatStarts.Insert(m_iCombatStart);
+			LoadCombat(m_iCombatNext);
+		}
+		else if (name == "ActivityNewer" && !m_bCombatLoading && !m_aCombatStarts.IsEmpty())
+		{
+			int last = m_aCombatStarts.Count() - 1;
+			int cursor = m_aCombatStarts[last];
+			m_aCombatStarts.RemoveOrdered(last);
+			LoadCombat(cursor);
+		}
 		else if (name == "ReportDirection")
 		{
 			m_bDescending = !m_bDescending;
@@ -318,8 +357,11 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		bool combat = m_sView == "combat";
 		foreach (SCR_ButtonBaseComponent selection, string key : m_mSelections)
 			selection.SetToggled(key == m_sFaction, false, false);
-		TextWidget.Cast(root.FindAnyWidget("DebriefPlayer")).SetText(m_sTitle);
-		root.FindAnyWidget("DebriefPlayer").SetVisible(!players && m_sFaction == "players");
+		string title = m_sTitle;
+		if (combat && m_sFaction != "activity")
+			title += " · Activity";
+		TextWidget.Cast(root.FindAnyWidget("DebriefPlayer")).SetText(title);
+		root.FindAnyWidget("DebriefPlayer").SetVisible((!players && m_sFaction == "players") || (combat && m_sFaction.IsEmpty()));
 		root.FindAnyWidget("StatsScroll").SetVisible(overview);
 		root.FindAnyWidget("AmmoHeading").SetVisible(overview);
 		root.FindAnyWidget("AmmoScroll").SetVisible(overview);
@@ -328,22 +370,20 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		root.FindAnyWidget("ReportSort").SetVisible(players);
 		root.FindAnyWidget("ReportDirection").SetVisible(players);
 		root.FindAnyWidget("ReportSortArrow").SetVisible(players);
-		root.FindAnyWidget("ReportFilter").SetVisible(combat);
-		root.FindAnyWidget("ReportOverview").SetVisible(!players && !IsFactionOverview());
-		root.FindAnyWidget("ReportCombat").SetVisible(!players && !IsFactionOverview());
-		root.FindAnyWidget("ReportPlayers").SetVisible(false);
-		SCR_ButtonTextComponent.GetButtonText("ReportOverview", root).SetToggled(overview, false, false);
-		SCR_ButtonTextComponent.GetButtonText("ReportCombat", root).SetToggled(combat, false, false);
+		root.FindAnyWidget("ReportFilter").SetVisible(combat && m_sFaction != "activity");
+		root.FindAnyWidget("PlayerActivity").SetVisible(overview && !IsFactionOverview());
+		root.FindAnyWidget("ActivityNewer").SetVisible(combat && !m_bCombatLoading && !m_aCombatStarts.IsEmpty());
+		root.FindAnyWidget("ActivityOlder").SetVisible(combat && !m_bCombatLoading && m_iCombatNext >= 0);
 		string direction = "sortArrowUp";
 		if (m_bDescending)
 			direction = "sortArrowDown";
 		ImageWidget.Cast(root.FindAnyWidget("ReportSortArrow")).LoadImageFromSet(0, "{3262679C50EF4F01}UI/Textures/Icons/icons_wrapperUI.imageset", direction);
-		float headerTop = 0.175;
-		float rowsTop = 0.23;
-		if (combat)
+		float headerTop = 0.135;
+		float rowsTop = 0.185;
+		if (combat && m_sFaction == "activity")
 		{
-			headerTop = 0.245;
-			rowsTop = 0.30;
+			headerTop = 0.08;
+			rowsTop = 0.13;
 		}
 		FrameSlot.SetAnchorMin(root.FindAnyWidget("ReportTableHeader"), 0.22, headerTop);
 		FrameSlot.SetAnchorMax(root.FindAnyWidget("ReportTableHeader"), 0.97, headerTop + 0.045);
@@ -626,7 +666,9 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	{
 		if (!IsFocused())
 			return;
-		if (m_sFaction == "players" && m_sView != "players")
+		if (m_sView == "combat" && m_sFaction != "activity")
+			ShowOverview();
+		else if (m_sFaction == "players" && m_sView != "players")
 			ShowPlayers();
 		else
 			GetGame().GetCallqueue().CallLater(Close, 0);

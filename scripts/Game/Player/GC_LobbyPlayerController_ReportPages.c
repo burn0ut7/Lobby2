@@ -90,7 +90,7 @@ modded class GC_LobbyPlayerController
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		if (!Replication.IsServer() || !stats || !mode || mode.GetState() != SCR_EGameModeState.POSTGAME)
 			return;
-		if ((kind != "player" && kind != "faction" && kind != "all" && kind != "players" && kind != "combat") || subject.Length() > 80 || cursor < 0 || filter < 0 || filter > 4)
+		if ((kind != "player" && kind != "faction" && kind != "all" && kind != "players" && kind != "combat" && kind != "missionCombat") || subject.Length() > 80 || cursor < 0 || filter < 0 || filter > 4)
 			return;
 		// One slot per owning controller; queued requests never multiply server work.
 		GC_SetServerReport(kind, subject, cursor, filter);

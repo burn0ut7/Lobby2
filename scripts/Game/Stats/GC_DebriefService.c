@@ -95,6 +95,20 @@ modded class GC_MissionStatsComponent
 				next = until;
 			return;
 		}
+		if (kind == "missionCombat")
+		{
+			if (!subject.IsEmpty() || filter != 0)
+			{
+				status = "Unavailable";
+				return;
+			}
+			GC_SessionLogComponent missionEvents = GC_SessionLogComponent.GetInstance();
+			if (missionEvents)
+				missionEvents.ReadDebriefCombat("", cursor, 0, rows, next, status, true);
+			else
+				status = "Combat log unavailable";
+			return;
+		}
 		string identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(requester);
 		if (kind == "player" || kind == "combat")
 		{
