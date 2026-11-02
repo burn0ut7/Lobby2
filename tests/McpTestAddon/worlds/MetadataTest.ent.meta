@@ -1,0 +1,7 @@
+MetaFileClass {
+ Name "{A79C4E0A43DEB850}worlds/MetadataTest.ent"
+ Configurations {
+  ENTResourceClass PC {
+  }
+ }
+}

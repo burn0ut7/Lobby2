@@ -1,0 +1,12 @@
+GenericEntity {
+ ID "A79C4E0A43DEB852"
+ {
+  Vehicle MetadataNestedHelicopter : "{70BAEEFC2D3FEE64}Prefabs/Vehicles/Helicopters/UH1H/UH1H.et" {
+   ID "A79C4E0A43DEB853"
+  }
+  SCR_ChimeraCharacter MetadataNestedSoldier : "{371FD0F920B600DD}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Scout.et" {
+   ID "A79C4E0A43DEB854"
+   coords 0 0 10
+  }
+ }
+}
