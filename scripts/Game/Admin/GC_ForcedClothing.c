@@ -57,8 +57,10 @@ modded class GC_LobbyManager
 		}
 		string state = "locked";
 		if (allowed)
-			state = "allowed";
-		string result = string.Format("Clothing changes %1 for %2 player(s). Skipped %3.", state, applied, skipped);
+			state = "unlocked";
+		string result = string.Format("Clothing %1 for %2 player(s).", state, applied);
+		if (skipped > 0)
+			result += string.Format(" Skipped %1.", skipped);
 		GC_AdminActionLogger.Log(requesterId, action, context, result);
 		return result;
 	}

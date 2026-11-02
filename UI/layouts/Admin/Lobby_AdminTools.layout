@@ -35,7 +35,6 @@ FrameWidgetClass {
   } }
   PanelWidgetClass { Name "GearSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.018 0.675 0.021 0.725 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
   ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolAllowClothing" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.78 0.81 0.98 0.875 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
-  TextWidgetClass { Name "ClothingHint" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.24 0.69 0.94 0.76 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "New connections start locked. Permissions last through respawn; locking keeps the clothing currently worn." "Font Size" 22 Color 0.78 0.78 0.78 1 Wrap 1 "Ignore Cursor" 1 }
   PanelWidgetClass {
    Name "ToolBackground"
    Slot FrameWidgetSlot {

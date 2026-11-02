@@ -148,7 +148,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("ToolGear", "Gear", "player");
 		Bind("ToolGearLoadout", "Gear Loadout", "player");
 		Bind("ToolForcedClothing", "Forced Clothing", "server-locked");
-		SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", w).SetText("Allow changes");
+		SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", w).SetText("Unlock clothing");
 		SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", w).m_OnClicked.Insert(OnApply);
 		ImageWidget.Cast(w.FindAnyWidget("ToolAllowClothing").FindAnyWidget("Icon")).LoadImageFromSet(0,
 			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "check");
@@ -399,7 +399,6 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool gear = gearHome || clothing;
 		m_wRoot.FindAnyWidget("GearMode").SetVisible(gear);
 		m_wRoot.FindAnyWidget("GearSelectedBar").SetVisible(gear);
-		m_wRoot.FindAnyWidget("ClothingHint").SetVisible(clothing);
 		m_wRoot.FindAnyWidget("ToolAllowClothing").SetVisible(clothing);
 		SCR_ButtonTextComponent.GetButtonText("ToolGear", m_wRoot).SetToggled(gear, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolForcedClothing", m_wRoot).SetToggled(clothing, false, false);
@@ -546,15 +545,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (gear)
 		{
 			title = "Gear";
-			description = "Open Gear Loadout or manage clothing permissions.";
+			description = "";
+			summary = "";
 			if (clothing)
 			{
-				description = "Pants, shirt and boots stay on until an admin allows changes.";
 				action = "Lock clothing";
-				if (m_eScope == GC_EAdminHealScope.EVERYONE)
-					summary = "All connected players when applied.";
-				else if (m_eScope == GC_EAdminHealScope.NEARBY)
-					summary = string.Format("Players within %1m of you when applied.", m_iHealRadius);
 				SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", m_wRoot).SetEnabled(enabled);
 			}
 		}
