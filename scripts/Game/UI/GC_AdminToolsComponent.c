@@ -146,6 +146,12 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("AdminClose", "Close", "exit");
 		Bind("ToolHeal", "Heal", "plus");
 		Bind("ToolGear", "Gear", "player");
+		Bind("ToolGearLoadout", "Gear Loadout", "player");
+		Bind("ToolForcedClothing", "Forced Clothing", "server-locked");
+		SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", w).SetText("Allow changes");
+		SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", w).m_OnClicked.Insert(OnApply);
+		ImageWidget.Cast(w.FindAnyWidget("ToolAllowClothing").FindAnyWidget("Icon")).LoadImageFromSet(0,
+			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "check");
 		Bind("ToolFreeze", "Freeze", "pause");
 		Bind("ToolUnstuck", "Unstuck", "respawn");
 		Bind("ToolWarn", "Warn", "warning");
@@ -225,7 +231,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		if (!HasAccess() || m_iPending >= 0 || m_iMessagePending >= 0 || m_Moderation.IsBusy())
 			return;
-		if (name == "ToolGear")
+		if (name == "ToolGearLoadout")
 		{
 			m_Controller.GC_RequestGearOpen();
 			return;
@@ -240,6 +246,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			previousPicker = m_MessagePlayers;
 		if (name == "ToolHeal")
 			m_iTool = 0;
+		else if (name == "ToolGear")
+			m_iTool = 13;
+		else if (name == "ToolForcedClothing")
+			m_iTool = 14;
 		else if (name == "ToolFreeze")
 			m_iTool = 8;
 		else if (name == "ToolUnstuck")
@@ -353,6 +363,29 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void GC_PositionClothingScope(bool clothing)
+	{
+		float offset;
+		if (clothing)
+			offset = 0.1;
+		Widget scope = m_wRoot.FindAnyWidget("HealScope");
+		FrameSlot.SetAnchorMin(scope, 0.24, 0.18 + offset);
+		FrameSlot.SetAnchorMax(scope, 0.94, 0.275 + offset);
+		Widget faction = m_wRoot.FindAnyWidget("ScopeFaction");
+		FrameSlot.SetAnchorMin(faction, 0.779, 0.218 + offset);
+		FrameSlot.SetAnchorMax(faction, 0.94, 0.275 + offset);
+		Widget radius = m_wRoot.FindAnyWidget("HealRadius");
+		FrameSlot.SetAnchorMin(radius, 0.24, 0.31 + offset);
+		FrameSlot.SetAnchorMax(radius, 0.8, 0.46 + offset);
+		Widget label = m_wRoot.FindAnyWidget("HealSelectionLabel");
+		FrameSlot.SetAnchorMin(label, 0.24, 0.31 + offset);
+		FrameSlot.SetAnchorMax(label, 0.8, 0.35 + offset);
+		Widget players = m_wRoot.FindAnyWidget("HealPlayers");
+		FrameSlot.SetAnchorMin(players, 0.24, 0.355 + offset);
+		FrameSlot.SetAnchorMax(players, 0.8, 0.43 + offset);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void Refresh()
 	{
 		if (!HasAccess())
@@ -361,6 +394,16 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			return;
 		}
 		bool heal = m_iTool == 0;
+		bool gearHome = m_iTool == 13;
+		bool clothing = m_iTool == 14;
+		bool gear = gearHome || clothing;
+		m_wRoot.FindAnyWidget("GearMode").SetVisible(gear);
+		m_wRoot.FindAnyWidget("GearSelectedBar").SetVisible(gear);
+		m_wRoot.FindAnyWidget("ClothingHint").SetVisible(clothing);
+		m_wRoot.FindAnyWidget("ToolAllowClothing").SetVisible(clothing);
+		SCR_ButtonTextComponent.GetButtonText("ToolGear", m_wRoot).SetToggled(gear, false, false);
+		SCR_ButtonTextComponent.GetButtonText("ToolForcedClothing", m_wRoot).SetToggled(clothing, false, false);
+		GC_PositionClothingScope(clothing);
 		bool unstuck = m_iTool == 10;
 		bool warn = m_iTool == 11;
 		bool individual = unstuck || warn;
@@ -375,7 +418,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		m_Logs.SetActive(logs);
 		SCR_ButtonTextComponent.GetButtonText("ToolLogs", m_wRoot).SetToggled(logs, false, false);
 		bool freeze = m_iTool == 8;
-		bool playerScope = heal || freeze;
+		bool playerScope = heal || freeze || clothing;
 		m_wRoot.FindAnyWidget("ToolUnfreeze").SetVisible(freeze);
 		m_wRoot.FindAnyWidget("FreezeSelectedBar").SetVisible(freeze);
 		bool teleport = m_iTool == 1;
@@ -399,7 +442,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool moderation = m_iTool == 5;
 		m_wRoot.FindAnyWidget("ModerationSelectedBar").SetVisible(moderation);
 		m_wRoot.FindAnyWidget("ModerationFields").SetVisible(moderation);
-		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
+		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!gearHome && !moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
 		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
 		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
 		bool factionTarget = (playerScope && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
@@ -424,8 +467,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		else
 		{
-			FrameSlot.SetAnchorMin(factionScroll, 0.24, 0.36);
-			FrameSlot.SetAnchorMax(factionScroll, 0.94, 0.46);
+			float factionOffset;
+			if (clothing)
+				factionOffset = 0.1;
+			FrameSlot.SetAnchorMin(factionScroll, 0.24, 0.36 + factionOffset);
+			FrameSlot.SetAnchorMax(factionScroll, 0.94, 0.46 + factionOffset);
 			FrameSlot.SetOffsets(factionScroll, 0, 0, 0, 0);
 		}
 		m_wRoot.FindAnyWidget("TeleportScope").SetVisible(teleport || unstuck);
@@ -496,6 +542,21 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			SCR_ButtonTextComponent unfreeze = SCR_ButtonTextComponent.GetButtonText("ToolUnfreeze", m_wRoot);
 			unfreeze.SetText("Unfreeze players");
 			unfreeze.SetEnabled(enabled);
+		}
+		if (gear)
+		{
+			title = "Gear";
+			description = "Open Gear Loadout or manage clothing permissions.";
+			if (clothing)
+			{
+				description = "Pants, shirt and boots stay on until an admin allows changes.";
+				action = "Lock clothing";
+				if (m_eScope == GC_EAdminHealScope.EVERYONE)
+					summary = "All connected players when applied.";
+				else if (m_eScope == GC_EAdminHealScope.NEARBY)
+					summary = string.Format("Players within %1m of you when applied.", m_iHealRadius);
+				SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", m_wRoot).SetEnabled(enabled);
+			}
 		}
 
 		if (teleport)
@@ -622,6 +683,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			actionIcon = "plus";
 		else if (freeze)
 			actionIcon = "pause";
+		else if (clothing)
+			actionIcon = "server-locked";
 		else if (teleport)
 			actionIcon = "move";
 		else if (unstuck)
@@ -678,7 +741,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_Controller.RequestAdminMessage(m_eMessageAudience, m_MessageText.GetText(), identities, m_iMessagePending, m_sTargetFaction);
 			return;
 		}
-		if ((m_iTool == 0 || m_iTool == 8) && m_eScope == GC_EAdminHealScope.SELECTED && !m_Targets.GetSelection(players, identities))
+		if ((m_iTool == 0 || m_iTool == 8 || m_iTool == 14) && m_eScope == GC_EAdminHealScope.SELECTED && !m_Targets.GetSelection(players, identities))
 			return;
 		array<int> destinations;
 		array<string> destinationIdentities;
@@ -708,6 +771,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_Controller.GC_RequestAdminWarn(players[0], identities[0], m_MessageText.GetText(), m_iPending);
 		else if (m_iTool == 8)
 			m_Controller.GC_RequestAdminControlFreeze(m_eScope, players, identities, m_iPending, m_iHealRadius, m_sTargetFaction, button.GetRootWidget().GetName() != "ToolUnfreeze");
+		else if (m_iTool == 14)
+			m_Controller.GC_RequestForcedClothing(m_eScope, players, identities, m_iPending, m_iHealRadius, m_sTargetFaction, button.GetRootWidget().GetName() == "ToolAllowClothing");
 		else if (m_iTool == 1 && m_bTeleportFaction)
 			m_Controller.GC_RequestFactionTeleport(m_sTargetFaction, destinations[0], destinationIdentities[0], m_iPending);
 		else if (m_iTool == 1)

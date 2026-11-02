@@ -1652,3 +1652,32 @@ Arland resource, BlockListApi and missing loadout-manager diagnostics remain.
 Independent source/UI review approved. Local captures and detailed receipts:
 `Art/References/parameters/validation.md`. Remote/dedicated/JIP, physical inputs
 and alternate viewport scales were not exercised; no stock shared override changed.
+
+## Forced clothing (2026-11-02)
+
+Gear now opens Gear Loadout and Forced Clothing. Optional
+GC_ForcedClothingTests probes the production request/authority handlers and native
+inventory deletion, removal and replacement. GC_ClothingIsolationTests runs the
+same native operations in the independent stock-mode probe.
+
+Live checks: default jacket/pants/boots deletion/removal/replacement rejected
+before mutation, exact original items retained; admin allow enabled removal and
+relock blocked it. Selected UI, everyone UI, faction and nearby production
+requests passed. Actual logged-out host request rejected without mutation and
+central audit recorded it. Production shutdown cleared the raw controller grant.
+Gear Loadout opened the original spawner. Final Reload
+9c9e2ff45bc1482d89d595bda2e03c1d and restored project compilation passed.
+
+Stock mode with Lobby2 loaded and an addon-free project (core+Arma+IsolationProbe)
+returned identical results for native eligibility, invalid replacement, pants
+removal/reinsertion and boots deletion. Native override-enable callbacks must be
+constant because the engine caches them; inactive-mode predicates inherit normal
+permission behavior. Trusted server entity deletion/character teardown is outside
+the player inventory permission contract.
+
+Limitations: diagnostic peer was disconnected for duplicate native identity
+(logs_2026-11-01_17-45-51 line37783, group6/reason2), so this pass does not establish
+remote replication/denial/teardown. Grant survived a new controlled character;
+full death/respawn possession was not conclusively observed. No dedicated or
+physical input-device coverage. Local concept, final screenshots, validation notes
+and paired operation receipts are retained under Art/References/forced-clothing.

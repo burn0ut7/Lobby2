@@ -64,6 +64,21 @@ modded class GC_LobbyPlayerController
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager || GetGame().GetPlayerController() != this)
 			return;
+		if (action == "clothing-snapshot")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestClothingSnapshot(GetPlayerId()));
+			return;
+		}
+		if (action == "clothing-request")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestClothingRequest(GC_EAdminHealScope.SELECTED, GetPlayerId(), message == "allow", 15, "", false));
+			return;
+		}
+		if (action == "clothing-mutation")
+		{
+			Rpc(GC_TestRpcPeerReport, token, manager.GC_TestClothingMutation(message, "LoadoutPantsArea"));
+			return;
+		}
 		if (action == "jip")
 		{
 			GC_RequestJip();
@@ -537,6 +552,9 @@ modded class GC_LobbyManager
 		if (m_GC_PendingPeerReports.Count() + m_GC_PeerReports.Count() >= 128)
 			return "UNAVAILABLE report limit; start a fresh test session";
 		array<string> allowedActions = {
+			"clothing-snapshot",
+			"clothing-request",
+			"clothing-mutation",
 			"jip",
 			"player-history",
 			"spectator-radio",

@@ -216,6 +216,13 @@ modded class GC_LobbyPlayerController
 			target = manager.FindActualStorageForItemResource(prefab, target);
 		valid = valid && target && slot >= -1 && slot < target.GetSlotsCount();
 		bool replace = valid && slot >= 0 && target.GetSlot(slot).GetAttachedEntity();
+		SCR_CharacterInventoryStorageComponent clothing = SCR_CharacterInventoryStorageComponent.Cast(target);
+		if (replace && clothing && clothing.GC_IsClothingLocked(target.GetSlot(slot).GetAttachedEntity()))
+		{
+			SCR_EntityHelper.DeleteEntityAndChildren(item);
+			GC_FinishGear(false, context, "Allow clothing changes in Forced Clothing first.");
+			return;
+		}
 		if (valid && replace)
 			valid = manager.CanReplaceItem(item, target, slot);
 		else if (valid)
