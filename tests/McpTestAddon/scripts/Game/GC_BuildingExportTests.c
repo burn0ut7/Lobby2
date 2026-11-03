@@ -197,15 +197,41 @@ modded class GC_LobbyManager
 			IEntity source = m_mGC_PhotoSources.Get(resource);
 			EntitySpawnParams parameters = new EntitySpawnParams();
 			parameters.TransformMode = ETransformMode.WORLD;
-			int row = slot / 5;
-			int column = slot - row * 5;
-			parameters.Transform[3] = m_vGC_ExportPhoto + Vector(column * 1024, 0, row * 1024);
+			// A single row perpendicular to the camera: no models behind the subject.
+			parameters.Transform[3] = m_vGC_ExportPhoto + Vector(slot * 1024, 0, slot * 1024);
 			IEntity root = GetGame().SpawnEntity(GenericEntity, GetGame().GetWorld(), parameters);
 			m_aGC_PhotoClones.Insert(root);
 			vector original[4];
 			source.GetTransform(original);
 			GC_TestBuildingPhotoClone(source, root, original);
 			m_mGC_PhotoBatch.Insert(resource, root);
+			slot++;
+		}
+		// Size spacing from the largest render bounds, including custom-map models.
+		float spacing = 1024;
+		foreach (string resource : requested)
+		{
+			vector low = "1e20 1e20 1e20";
+			vector high = "-1e20 -1e20 -1e20";
+			IEntity preview = m_mGC_PhotoBatch.Get(resource);
+			if (!preview.GetChildren())
+				continue;
+			GC_TestBuildingPhotoBounds(preview, low, high);
+			spacing = Math.Max(spacing, vector.Distance(low, high) * 8);
+		}
+		slot = 0;
+		foreach (string resource : requested)
+		{
+			IEntity preview = m_mGC_PhotoBatch.Get(resource);
+			if (preview.GetChildren())
+			{
+				vector low = "1e20 1e20 1e20";
+				vector high = "-1e20 -1e20 -1e20";
+				GC_TestBuildingPhotoBounds(preview, low, high);
+				vector center = (low + high) * 0.5;
+				vector target = m_vGC_ExportPhoto + Vector(slot * spacing, 0, slot * spacing);
+				preview.SetOrigin(preview.GetOrigin() + target - center);
+			}
 			slot++;
 		}
 		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-photo-batch", "preview", "prepared=" + slot);
