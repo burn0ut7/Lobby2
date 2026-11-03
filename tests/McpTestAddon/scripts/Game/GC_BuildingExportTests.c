@@ -91,7 +91,7 @@ modded class GC_LobbyManager
 		m_GC_PhotoBuilding.GetWorldBounds(mins, maxs);
 		vector center = (mins + maxs) * 0.5;
 		float distance = Math.Max(4, vector.Distance(mins, maxs) * 1.9);
-		vector position = center + Vector(0.7, 0.3, -0.7) * distance;
+		vector position = center + Vector(-0.7, 0.3, 0.7) * distance;
 		vector transform[4];
 		Math3D.DirectionAndUpMatrix((center - position).Normalized(), "0 1 0", transform);
 		transform[3] = position;
