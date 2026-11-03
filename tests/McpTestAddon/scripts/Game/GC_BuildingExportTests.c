@@ -8,8 +8,9 @@ modded class GC_LobbyManager
 	protected CameraBase m_GC_PreviousCamera;
 	protected IEntity m_GC_PhotoBuilding;
 	protected int m_iGC_PhotoIndex = -1;
-	protected ref array<IEntity> m_aGC_PhotoOriginal;
-	protected ref array<IEntity> m_aGC_PhotoNearby;
+	protected ref map<string, IEntity> m_mGC_PhotoSources;
+	protected ref map<string, IEntity> m_mGC_PhotoBatch;
+	protected ref array<IEntity> m_aGC_PhotoClones;
 
 	//------------------------------------------------------------------------------------------------
 	string GC_TestBuildingExport()
@@ -23,6 +24,7 @@ modded class GC_LobbyManager
 			return "preview-active";
 		m_aGC_BuildingRows = {};
 		m_aGC_BuildingResources = {};
+		m_mGC_PhotoSources = new map<string, IEntity>();
 		vector mins, maxs;
 		GetGame().GetWorld().GetBoundBox(mins, maxs);
 		if (!GetGame().GetWorld().QueryEntitiesByAABB(mins, maxs, GC_TestBuildingEntity))
@@ -43,15 +45,22 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	protected bool GC_TestBuildingEntity(IEntity entity)
 	{
-		if (!entity || !entity.GetPrefabData())
+		if (!entity)
 			return true;
+		string resource;
+		if (entity.GetPrefabData())
+			resource = entity.GetPrefabData().GetPrefabName();
+		if (resource.IsEmpty() && entity.GetVObject())
+			resource = entity.GetVObject().GetResourceName();
+		if (!resource.IsEmpty() && !m_mGC_PhotoSources.Contains(resource))
+			m_mGC_PhotoSources.Insert(resource, entity);
 		MapDescriptorComponent descriptor = MapDescriptorComponent.Cast(entity.FindComponent(MapDescriptorComponent));
 		if (!SCR_DestructibleBuildingEntity.Cast(entity) && (!descriptor || descriptor.GetBaseType() != EMapDescriptorType.MDT_BUILDING))
 			return true;
 		vector mins, maxs;
 		entity.GetWorldBounds(mins, maxs);
-		m_aGC_BuildingRows.Insert(string.Format("%1\t%2\t%3\t%4\t%5", mins[0], mins[2], maxs[0], maxs[2], entity.GetPrefabData().GetPrefabName()));
-		m_aGC_BuildingResources.Insert(entity.GetPrefabData().GetPrefabName());
+		m_aGC_BuildingRows.Insert(string.Format("%1\t%2\t%3\t%4\t%5", mins[0], mins[2], maxs[0], maxs[2], resource));
+		m_aGC_BuildingResources.Insert(resource);
 		return true;
 	}
 
@@ -65,13 +74,16 @@ modded class GC_LobbyManager
 			return "unsupported-world";
 		if (!m_aGC_BuildingResources || index < 0 || index >= m_aGC_BuildingResources.Count() || m_aGC_BuildingResources[index].IsEmpty())
 			return "invalid-index";
-		GC_TestBuildingPhotoClear();
-		EntitySpawnParams parameters = new EntitySpawnParams();
-		parameters.TransformMode = ETransformMode.WORLD;
-		parameters.Transform[3] = m_vGC_ExportPhoto;
-		m_GC_PhotoBuilding = GetGame().SpawnEntityPrefab(Resource.Load(m_aGC_BuildingResources[index]), GetGame().GetWorld(), parameters);
-		if (!m_GC_PhotoBuilding)
-			return "spawn-failed";
+		string resource = m_aGC_BuildingResources[index];
+		if (!m_mGC_PhotoBatch || !m_mGC_PhotoBatch.Contains(resource))
+		{
+			string result = GC_TestBuildingPhotoBatch(resource);
+			if (result != "prepared=1")
+				return result;
+		}
+		m_GC_PhotoBuilding = m_mGC_PhotoBatch.Get(resource);
+		if (!m_GC_PhotoBuilding || !m_GC_PhotoBuilding.GetChildren())
+			return "no-visual";
 		if (!m_GC_PhotoCamera)
 		{
 			m_GC_PreviousCamera = GetGame().GetCameraManager().CurrentCamera();
@@ -84,7 +96,9 @@ modded class GC_LobbyManager
 			return "camera-failed";
 		}
 		vector mins, maxs;
-		m_GC_PhotoBuilding.GetWorldBounds(mins, maxs);
+		mins = "1e20 1e20 1e20";
+		maxs = "-1e20 -1e20 -1e20";
+		GC_TestBuildingPhotoBounds(m_GC_PhotoBuilding, mins, maxs);
 		vector center = (mins + maxs) * 0.5;
 		float distance = Math.Max(4, vector.Distance(mins, maxs) * 1.9);
 		vector position = center + Vector(-0.7, 0.3, 0.7) * distance;
@@ -98,6 +112,26 @@ modded class GC_LobbyManager
 		m_iGC_PhotoIndex = index;
 		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-photo", index.ToString(), "positioned");
 		return "positioned";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Select a source resource already resolved by the active world export.
+	string GC_TestBuildingPhotoResource(string resource)
+	{
+		PlayerController player = GetGame().GetPlayerController();
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-photo-resource", resource))
+			return "denied";
+		if (!GC_MapExportReady())
+			return "unsupported-world";
+		if (!m_aGC_BuildingResources)
+			m_aGC_BuildingResources = {};
+		int index = m_aGC_BuildingResources.Find(resource);
+		if (index < 0)
+			index = m_aGC_BuildingResources.Insert(resource);
+		string result = GC_TestBuildingPhoto(index);
+		if (result != "positioned")
+			return result;
+		return "index=" + index;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -133,35 +167,109 @@ modded class GC_LobbyManager
 		m_GC_PhotoCamera = null;
 		m_GC_PreviousCamera = null;
 		m_iGC_PhotoIndex = -1;
-		m_aGC_PhotoOriginal = null;
-		m_aGC_PhotoNearby = null;
 		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-photo-end", "preview", "restored");
 		return "restored";
 	}
 	//------------------------------------------------------------------------------------------------
-	//! Match the game's image generator: remove all spawned nearby attachments too.
-	protected void GC_TestBuildingPhotoClear()
+	//! Snapshot only render objects, not simulation scripts or editor-only splines.
+	string GC_TestBuildingPhotoBatch(string resources)
 	{
-		m_aGC_PhotoNearby = {};
-		GetGame().GetWorld().QueryEntitiesByAABB(m_vGC_ExportPhoto - "256 256 256", m_vGC_ExportPhoto + "256 256 256", GC_TestBuildingPhotoCollect);
-		if (!m_aGC_PhotoOriginal)
+		PlayerController player = GetGame().GetPlayerController();
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-photo-batch", "preview"))
+			return "denied";
+		if (!GC_MapExportReady() || !m_mGC_PhotoSources)
+			return "export-buildings-first";
+		array<string> requested = {};
+		resources.Split("\n", requested, true);
+		if (requested.IsEmpty() || requested.Count() > 20)
+			return "invalid-batch";
+		foreach (string resource : requested)
 		{
-			m_aGC_PhotoOriginal = m_aGC_PhotoNearby;
-			return;
+			if (!m_mGC_PhotoSources.Get(resource))
+				return "source-unavailable:" + resource;
 		}
-		foreach (IEntity entity : m_aGC_PhotoNearby)
+		GC_TestBuildingPhotoClear();
+		m_mGC_PhotoBatch = new map<string, IEntity>();
+		m_aGC_PhotoClones = {};
+		int slot;
+		foreach (string resource : requested)
 		{
-			if (entity && entity != m_GC_PhotoCamera && !m_aGC_PhotoOriginal.Contains(entity))
-				delete entity;
+			IEntity source = m_mGC_PhotoSources.Get(resource);
+			EntitySpawnParams parameters = new EntitySpawnParams();
+			parameters.TransformMode = ETransformMode.WORLD;
+			int row = slot / 5;
+			int column = slot - row * 5;
+			parameters.Transform[3] = m_vGC_ExportPhoto + Vector(column * 1024, 0, row * 1024);
+			IEntity root = GetGame().SpawnEntity(GenericEntity, GetGame().GetWorld(), parameters);
+			m_aGC_PhotoClones.Insert(root);
+			vector original[4];
+			source.GetTransform(original);
+			GC_TestBuildingPhotoClone(source, root, original);
+			m_mGC_PhotoBatch.Insert(resource, root);
+			slot++;
 		}
-		m_GC_PhotoBuilding = null;
+		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-photo-batch", "preview", "prepared=" + slot);
+		return "prepared=" + slot;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool GC_TestBuildingPhotoCollect(IEntity entity)
+	protected void GC_TestBuildingPhotoClone(IEntity source, IEntity root, vector original[4])
 	{
-		m_aGC_PhotoNearby.Insert(entity);
-		return true;
+		if (source.GetVObject())
+		{
+			vector transform[4];
+			source.GetTransform(transform);
+			EntitySpawnParams parameters = new EntitySpawnParams();
+			vector relative[4], rootTransform[4];
+			Math3D.MatrixInvMultiply4(original, transform, relative);
+			root.GetTransform(rootTransform);
+			Math3D.MatrixMultiply4(rootTransform, relative, parameters.Transform);
+			parameters.TransformMode = ETransformMode.WORLD;
+			IEntity clone = GetGame().SpawnEntity(GenericEntity, GetGame().GetWorld(), parameters);
+			root.AddChild(clone, -1, EAddChildFlags.RECALC_LOCAL_TRANSFORM);
+			clone.SetObject(source.GetVObject(), "");
+			clone.SetFixedLOD(0);
+			m_aGC_PhotoClones.Insert(clone);
+		}
+		IEntity child = source.GetChildren();
+		while (child)
+		{
+			GC_TestBuildingPhotoClone(child, root, original);
+			child = child.GetSibling();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_TestBuildingPhotoBounds(IEntity root, out vector mins, out vector maxs)
+	{
+		IEntity child = root.GetChildren();
+		while (child)
+		{
+			vector low, high;
+			child.GetWorldBounds(low, high);
+			for (int axis; axis < 3; axis++)
+			{
+				mins[axis] = Math.Min(mins[axis], low[axis]);
+				maxs[axis] = Math.Max(maxs[axis], high[axis]);
+			}
+			child = child.GetSibling();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_TestBuildingPhotoClear()
+	{
+		if (m_aGC_PhotoClones)
+		{
+			for (int i = m_aGC_PhotoClones.Count() - 1; i >= 0; i--)
+			{
+				if (m_aGC_PhotoClones[i])
+					delete m_aGC_PhotoClones[i];
+			}
+		}
+		m_aGC_PhotoClones = null;
+		m_mGC_PhotoBatch = null;
+		m_GC_PhotoBuilding = null;
 	}
 
 }
