@@ -13,6 +13,8 @@ modded class GC_LobbyManager
 	protected ref array<IEntity> m_aGC_PhotoClones;
 	protected string m_sGC_PhotoProbe;
 	protected bool m_bGC_ObjectExportPending;
+	protected ref array<IEntity> m_aGC_BuildingSources;
+	protected ref map<string, ref array<IEntity>> m_mGC_PhotoAssemblies;
 
 	//------------------------------------------------------------------------------------------------
 	//! Large worlds exceed the synchronous runtime-call deadline. Publish a receipt.
@@ -89,6 +91,8 @@ modded class GC_LobbyManager
 			return "preview-active";
 		m_aGC_BuildingRows = {};
 		m_aGC_BuildingResources = {};
+		m_aGC_BuildingSources = {};
+		m_mGC_PhotoAssemblies = new map<string, ref array<IEntity>>();
 		m_mGC_PhotoSources = new map<string, IEntity>();
 		vector mins, maxs;
 		GetGame().GetWorld().GetBoundBox(mins, maxs);
@@ -97,7 +101,7 @@ modded class GC_LobbyManager
 		FileHandle output = FileIO.OpenFile("$profile:GC_MapBuildings_" + m_sGC_ExportName + ".tsv", FileMode.WRITE);
 		if (!output)
 			return "open-failed";
-		output.WriteLine("minX\tminZ\tmaxX\tmaxZ\tresource");
+		output.WriteLine("minX\tminZ\tmaxX\tmaxZ\tresource\tt0\tt1\tt2\tt3");
 		foreach (string row : m_aGC_BuildingRows)
 			output.WriteLine(row);
 		output.Close();
@@ -125,9 +129,40 @@ modded class GC_LobbyManager
 			return true;
 		vector mins, maxs;
 		entity.GetWorldBounds(mins, maxs);
-		m_aGC_BuildingRows.Insert(string.Format("%1\t%2\t%3\t%4\t%5", mins[0], mins[2], maxs[0], maxs[2], resource));
+		vector transform[4];
+		entity.GetTransform(transform);
+		m_aGC_BuildingRows.Insert(string.Format("%1\t%2\t%3\t%4\t%5", mins[0], mins[2], maxs[0], maxs[2], resource) + "\t" + transform[0].ToString(false) + "\t" + transform[1].ToString(false) + "\t" + transform[2].ToString(false) + "\t" + transform[3].ToString(false));
 		m_aGC_BuildingResources.Insert(resource);
+		m_aGC_BuildingSources.Insert(entity);
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Register actual exported instances, never independently centred model guesses.
+	string GC_TestBuildingPhotoAssembly(string key, string indices, string resources)
+	{
+		PlayerController player = GetGame().GetPlayerController();
+		if (!GC_MapExportReady() || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-assembly", key))
+			return "denied";
+		if (!m_aGC_BuildingSources || !m_mGC_PhotoAssemblies)
+			return "export-buildings-first";
+		array<string> ids = {};
+		array<string> expected = {};
+		indices.Split(",", ids, true);
+		resources.Split("\n", expected, true);
+		if (ids.IsEmpty() || ids.Count() > 64 || ids.Count() != expected.Count() || !key.StartsWith("assembly:"))
+			return "invalid-assembly";
+		array<IEntity> members = {};
+		for (int i; i < ids.Count(); i++)
+		{
+			int index = ids[i].ToInt();
+			if (index < 0 || index >= m_aGC_BuildingSources.Count() || m_aGC_BuildingResources[index] != expected[i])
+				return "stale-export";
+			members.Insert(m_aGC_BuildingSources[index]);
+		}
+		m_mGC_PhotoAssemblies.Set(key, members);
+		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-assembly", key, "registered");
+		return "registered";
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -175,6 +210,7 @@ modded class GC_LobbyManager
 		m_GC_PhotoCamera.SetFOVDegree(40);
 		GetGame().GetCameraManager().SetCamera(m_GC_PhotoCamera);
 		m_GC_PhotoCamera.ApplyTransform(0);
+		GetGame().BeginPreload(GetGame().GetWorld(), center, distance * 2, 30);
 		m_iGC_PhotoIndex = index;
 		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-photo", index.ToString(), "positioned");
 		return "positioned";
@@ -208,6 +244,8 @@ modded class GC_LobbyManager
 			return "denied";
 		if (index != m_iGC_PhotoIndex || !m_GC_PhotoBuilding || !m_GC_PhotoCamera || GetGame().GetCameraManager().CurrentCamera() != m_GC_PhotoCamera)
 			return "no-preview";
+		if (!GetGame().IsPreloadFinished())
+			return "loading";
 		FileHandle provenance = FileIO.OpenFile("$profile:GC_BuildingPhoto_" + index + ".resource", FileMode.WRITE);
 		if (!provenance)
 			return "provenance-failed";
@@ -251,7 +289,7 @@ modded class GC_LobbyManager
 			return "invalid-batch";
 		foreach (string resource : requested)
 		{
-			if (!m_mGC_PhotoSources.Get(resource))
+			if (!m_mGC_PhotoSources.Get(resource) && (!m_mGC_PhotoAssemblies || !m_mGC_PhotoAssemblies.Contains(resource)))
 				return "source-unavailable:" + resource;
 		}
 		GC_TestBuildingPhotoClear();
@@ -261,6 +299,12 @@ modded class GC_LobbyManager
 		foreach (string resource : requested)
 		{
 			IEntity source = m_mGC_PhotoSources.Get(resource);
+			array<IEntity> members = {};
+			if (m_mGC_PhotoAssemblies && m_mGC_PhotoAssemblies.Contains(resource))
+				members.Copy(m_mGC_PhotoAssemblies.Get(resource));
+			else
+				members.Insert(source);
+			source = members[0];
 			EntitySpawnParams parameters = new EntitySpawnParams();
 			parameters.TransformMode = ETransformMode.WORLD;
 			// A single row perpendicular to the camera: no models behind the subject.
@@ -269,7 +313,19 @@ modded class GC_LobbyManager
 			m_aGC_PhotoClones.Insert(root);
 			vector original[4];
 			source.GetTransform(original);
-			GC_TestBuildingPhotoClone(source, root, original);
+			foreach (IEntity member : members)
+			{
+				bool nested = false;
+				IEntity parent = member.GetParent();
+				while (parent)
+				{
+					if (members.Contains(parent))
+						nested = true;
+					parent = parent.GetParent();
+				}
+				if (!nested)
+					GC_TestBuildingPhotoClone(member, root, original);
+			}
 			m_mGC_PhotoBatch.Insert(resource, root);
 			slot++;
 		}
@@ -311,6 +367,7 @@ modded class GC_LobbyManager
 		// Runtime render objects can be streamed aggregates or omit the exterior.
 		// Resolve the authored mesh, as SCR_PrefabPreviewEntity does.
 		Resource meshResource;
+		string remap;
 		if (source.GetPrefabData())
 		{
 			Resource prefab = Resource.Load(source.GetPrefabData().GetPrefabName());
@@ -329,6 +386,18 @@ modded class GC_LobbyManager
 					meshResource = Resource.Load(mesh);
 					if (meshResource && meshResource.GetResource())
 						visual = meshResource.GetResource().ToVObject();
+					BaseContainerList materials = component.GetObjectArray("Materials");
+					if (materials)
+					{
+						for (int materialIndex; materialIndex < materials.Count(); materialIndex++)
+						{
+							string sourceMaterial;
+							ResourceName assignedMaterial;
+							materials.Get(materialIndex).Get("SourceMaterial", sourceMaterial);
+							materials.Get(materialIndex).Get("AssignedMaterial", assignedMaterial);
+							remap += "$remap '" + sourceMaterial + "' '" + assignedMaterial + "';";
+						}
+					}
 				}
 			}
 		}
@@ -344,7 +413,7 @@ modded class GC_LobbyManager
 			parameters.TransformMode = ETransformMode.WORLD;
 			IEntity clone = GetGame().SpawnEntity(GenericEntity, GetGame().GetWorld(), parameters);
 			root.AddChild(clone, -1, EAddChildFlags.RECALC_LOCAL_TRANSFORM);
-			clone.SetObject(visual, "");
+			clone.SetObject(visual, remap);
 			clone.SetFixedLOD(0);
 			m_aGC_PhotoClones.Insert(clone);
 		}
