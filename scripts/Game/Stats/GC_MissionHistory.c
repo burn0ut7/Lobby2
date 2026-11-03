@@ -9,6 +9,7 @@ class GC_MissionHistory
 	protected string m_sDescription;
 	protected string m_sWorld;
 	protected string m_sScenarioPath;
+	protected ResourceName m_sScenarioResource;
 	protected string m_sHostKind;
 	protected string m_sStatus = "pregame";
 	protected string m_sOutcome = "unknown";
@@ -75,6 +76,7 @@ class GC_MissionHistory
 			m_sAuthor = header.m_sAuthor;
 			m_sDescription = header.m_sDescription;
 			m_sScenarioPath = header.m_sPath;
+			m_sScenarioResource = header.GetHeaderResourceName();
 		}
 		array<Faction> factions = {};
 		GetGame().GetFactionManager().GetFactionsList(factions);
@@ -283,6 +285,7 @@ class GC_MissionHistory
 		context.WriteValue("description", m_sDescription);
 		context.WriteValue("world", m_sWorld);
 		context.WriteValue("scenarioPath", m_sScenarioPath);
+		context.WriteValue("scenarioResource", m_sScenarioResource);
 		context.WriteValue("startedAt", m_iStartedAt);
 		context.WriteValue("endedAt", m_iEndedAt);
 		context.WriteValue("observedSeconds", m_fObserved);
