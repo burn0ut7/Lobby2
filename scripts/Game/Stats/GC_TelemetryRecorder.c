@@ -228,6 +228,20 @@ class GC_TelemetryRecorder
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void ObserveVoice(int playerId, IEntity body, int mask)
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		ChimeraCharacter character = ChimeraCharacter.Cast(body);
+		if (!m_bRunning || !Replication.IsServer() || !mode || mode.GetState() != SCR_EGameModeState.GAME || playerId <= 0 || mask < 0 || mask > 3)
+			return;
+		if (!character || !character.GetCharacterController() || character.GetCharacterController().IsDead() || GetGame().GetPlayerManager().GetPlayerControlledEntity(playerId) != body)
+			return;
+		GC_TelemetryActor actor = Track(body);
+		if (actor && !actor.HasEnded())
+			actor.ReportVoice(playerId, mask);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string ProjectileId(IEntity projectile, bool create)
 	{
 		if (!projectile)
@@ -483,6 +497,7 @@ class GC_TelemetryRecorder
 			context.WriteValue("actors", "players-and-ai");
 			context.WriteValue("map", "server-faction-snapshots-1s");
 			context.WriteValue("pose", "inferred");
+			context.WriteValue("voice", "client-capture-500ms-timeout");
 			bool captured = true;
 			context.WriteValue("shots", captured);
 			context.WriteValue("impacts", captured);

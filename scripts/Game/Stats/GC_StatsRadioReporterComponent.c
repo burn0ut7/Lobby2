@@ -11,6 +11,90 @@ class GC_StatsRadioReporterComponent : ScriptComponent
 	protected float m_fServerReported;
 	protected float m_fServerReceivedAt;
 	protected bool m_bSentFinal;
+	protected SCR_VoNComponent m_Capture;
+	protected IEntity m_CaptureBody;
+	protected float m_fLocalUntil;
+	protected float m_fRadioUntil;
+	protected float m_fVoiceReportAt;
+	protected float m_fVoiceReceivedAt = -1000;
+	protected int m_iVoiceMask;
+
+	//------------------------------------------------------------------------------------------------
+	//! Observe capture only; never change voice routing or record audio.
+	protected void OnVoiceCapture(BaseTransceiver transmitter)
+	{
+		float until = GetGame().GetWorld().GetWorldTime() + 500;
+		if (transmitter)
+			m_fRadioUntil = until;
+		else
+			m_fLocalUntil = until;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SampleVoice(GC_LobbyGameMode mode, PlayerController controller)
+	{
+		IEntity body;
+		if (mode && mode.GetState() == SCR_EGameModeState.GAME)
+			body = controller.GetControlledEntity();
+		if (body && body.FindComponent(GC_LobbySpectatorBodyComponent))
+			body = null;
+		if (body != m_CaptureBody)
+		{
+			if (m_Capture)
+				m_Capture.m_OnCaptureVON.Remove(OnVoiceCapture);
+			m_Capture = null;
+			m_CaptureBody = body;
+			m_fLocalUntil = 0;
+			m_fRadioUntil = 0;
+			m_iVoiceMask = 0;
+			if (body)
+				m_Capture = SCR_VoNComponent.Cast(body.FindComponent(SCR_VoNComponent));
+			if (m_Capture)
+				m_Capture.m_OnCaptureVON.Insert(OnVoiceCapture);
+		}
+		if (!body)
+			return;
+		float now = GetGame().GetWorld().GetWorldTime();
+		int mask;
+		if (now < m_fLocalUntil)
+			mask |= 1;
+		if (now < m_fRadioUntil)
+			mask |= 2;
+		if (mask == m_iVoiceMask && (mask == 0 || now - m_fVoiceReportAt < 500))
+			return;
+		if (now - m_fVoiceReportAt < 75)
+			return;
+		m_iVoiceMask = mask;
+		m_fVoiceReportAt = now;
+		Rpc(RpcAsk_Voice, Replication.FindItemId(body), mask);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RpcAsk_Voice(RplId bodyId, int mask)
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		PlayerController controller = PlayerController.Cast(GetOwner());
+		if (!Replication.IsServer() || !mode || mode.GetState() != SCR_EGameModeState.GAME || !controller || mask < 0 || mask > 3)
+			return;
+		IEntity body = controller.GetControlledEntity();
+		if (!body || bodyId == RplId.Invalid() || Replication.FindItemId(body) != bodyId)
+			return;
+		float now = GetGame().GetWorld().GetWorldTime();
+		if (now - m_fVoiceReceivedAt < 50)
+			return;
+		m_fVoiceReceivedAt = now;
+		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
+		if (logs)
+			logs.ObserveVoice(controller.GetPlayerId(), body, mask);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ~GC_StatsRadioReporterComponent()
+	{
+		if (m_Capture)
+			m_Capture.m_OnCaptureVON.Remove(OnVoiceCapture);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	override protected void OnPostInit(IEntity owner)
@@ -26,7 +110,10 @@ class GC_StatsRadioReporterComponent : ScriptComponent
 	override protected void EOnFrame(IEntity owner, float timeSlice)
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
-		if (!mode || GetGame().GetPlayerController() != owner)
+		if (GetGame().GetPlayerController() != owner)
+			return;
+		SampleVoice(mode, PlayerController.Cast(owner));
+		if (!mode)
 			return;
 		if (mode.GetState() == SCR_EGameModeState.POSTGAME && !m_bSentFinal)
 		{

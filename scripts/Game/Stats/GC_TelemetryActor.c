@@ -26,6 +26,47 @@ class GC_TelemetryActor
 	protected int m_iSights = -2;
 	protected float m_fLastWritten = -5000;
 	protected vector m_vLastPosition;
+	protected int m_iVoiceMask;
+	protected int m_iVoicePlayer;
+	protected float m_fVoiceUntil;
+
+	//------------------------------------------------------------------------------------------------
+	//! Server-timed, owner-reported capture transitions and bounded renewals.
+	void ReportVoice(int playerId, int mask)
+	{
+		if (m_iVoiceMask && mask && playerId != m_iVoicePlayer)
+			ReportVoice(0, 0);
+		if (mask)
+			SampleOwnership();
+		int previous = m_iVoiceMask;
+		m_iVoiceMask = mask;
+		m_iVoicePlayer = playerId;
+		m_fVoiceUntil = m_Recorder.Now() + 1500;
+		for (int bit = 1; bit <= 2; bit *= 2)
+		{
+			if (!(previous & bit) && !(mask & bit))
+				continue;
+			string type = "voice-stop";
+			if (mask & bit)
+			{
+				type = "voice-start";
+				if (previous & bit)
+					type = "voice-refresh";
+			}
+			string channel = "local";
+			if (bit == 2)
+				channel = "radio";
+			JsonSaveContext context = m_Recorder.BeginRecord(type);
+			context.WriteValue("entity", m_sId);
+			context.WriteValue("channel", channel);
+			context.WriteValue("source", "client-capture");
+			int validForMs = 1500;
+			if (type == "voice-stop")
+				validForMs = 0;
+			context.WriteValue("validForMs", validForMs);
+			m_Recorder.CommitRecord(context);
+		}
+	}
 
 	//------------------------------------------------------------------------------------------------
 	IEntity GetEntity()
@@ -109,6 +150,7 @@ class GC_TelemetryActor
 	//------------------------------------------------------------------------------------------------
 	void Finish()
 	{
+		ReportVoice(0, 0);
 		Sample(true);
 		m_bEnded = true;
 		m_LastState = null;
@@ -119,6 +161,9 @@ class GC_TelemetryActor
 	//------------------------------------------------------------------------------------------------
 	void Sample(bool finalState = false)
 	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (m_iVoiceMask && (m_Recorder.Now() >= m_fVoiceUntil || !mode || mode.GetState() != SCR_EGameModeState.GAME || !m_Entity || GetGame().GetPlayerManager().GetPlayerControlledEntity(m_iVoicePlayer) != m_Entity))
+			ReportVoice(0, 0);
 		if (m_bEnded)
 			return;
 		if (!m_Entity || m_Entity.IsDeleted())
@@ -289,6 +334,7 @@ class GC_TelemetryActor
 			identity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		if (identity != m_sIdentity)
 		{
+			ReportVoice(0, 0);
 			m_sIdentity = identity;
 			JsonSaveContext owner = m_Recorder.BeginRecord("ownership");
 			owner.WriteValue("entity", m_sId);

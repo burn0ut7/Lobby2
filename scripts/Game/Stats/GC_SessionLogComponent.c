@@ -68,6 +68,13 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void ObserveVoice(int playerId, IEntity body, int mask)
+	{
+		if (Replication.IsServer() && GetInstance() == this && m_Telemetry)
+			m_Telemetry.ObserveVoice(playerId, body, mask);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Authority entry point; callers must supply the authenticated requesting player.
 	bool SetTelemetry(int requester, bool enabled, int quotaMiB = 1024)
 	{

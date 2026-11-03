@@ -61,6 +61,14 @@ public static class TelemetryContract
     {
         switch (type)
         {
+            case "voice-start":
+            case "voice-refresh":
+            case "voice-stop":
+                Entity(data);
+                if (Text(data, "channel", 16) is not ("local" or "radio")) Fail();
+                if (Text(data, "source", 32) != "client-capture") Fail();
+                Integer(data, "validForMs", type == "voice-stop" ? 0 : 1500, type == "voice-stop" ? 0 : 1500);
+                break;
             case "map-state":
                 Text(data, "faction", 256);
                 data.GetProperty("markersAvailable").GetBoolean();
