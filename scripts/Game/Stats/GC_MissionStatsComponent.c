@@ -330,7 +330,8 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	override void OnGameModeStart()
 	{
 		super.OnGameModeStart();
-		if (!Replication.IsServer() || GetInstance() != this || m_Batch)
+		if (!Replication.IsServer() || GetInstance() != this || m_Batch
+			|| GC_LobbyGameMode.GetGameMode().GetState() != SCR_EGameModeState.GAME)
 			return;
 		m_Manager = GC_LobbyManager.GetManager();
 		if (!m_Manager)

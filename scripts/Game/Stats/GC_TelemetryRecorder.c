@@ -50,6 +50,10 @@ class GC_TelemetryRecorder
 	//------------------------------------------------------------------------------------------------
 	void Start(GC_SessionLogComponent logs, int quotaMiB)
 	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!Replication.IsServer() || !mode || mode.GetState() != SCR_EGameModeState.GAME
+			|| !logs || GC_SessionLogComponent.GetInstance() != logs || !m_sRecordingId.IsEmpty())
+			return;
 		m_Logs = logs;
 		m_fByteLimit = quotaMiB * 1048576.0;
 		m_sRecordingId = PersistenceIdUtils.Generate();
@@ -395,6 +399,8 @@ class GC_TelemetryRecorder
 		}
 		int started = System.GetTickCount();
 		float now = Now();
+		if (m_bRunning && GC_LobbyGameMode.GetGameMode().GetState() != SCR_EGameModeState.GAME)
+			Stop("mission-end");
 		if (m_bRunning)
 			m_Map.Sample(this, now);
 		if (m_bRunning && now - m_fLastDiscovery >= 1000 && m_iPlayerCursor >= m_aPlayers.Count())

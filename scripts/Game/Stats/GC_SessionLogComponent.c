@@ -7,6 +7,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 {
 	protected ref GC_MissionHistory m_History;
 	protected ref GC_TelemetryRecorder m_Telemetry;
+	protected bool m_bTelemetryEnabled = true;
+	protected int m_iTelemetryQuotaMiB = 1024;
 	protected string m_sSessionId;
 	protected int m_iStartedAt;
 	protected float m_fStarted;
@@ -64,6 +66,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	{
 		if (m_Telemetry)
 			return m_Telemetry.Report();
+		if (m_bTelemetryEnabled && !m_bClosed)
+			return "Telemetry armed; recording starts at GAME.";
 		return "Telemetry disabled; no recording created.";
 	}
 
@@ -88,18 +92,46 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		}
 		if (enabled)
 		{
+			if (GC_LobbyGameMode.GetGameMode().GetState() == SCR_EGameModeState.POSTGAME)
+			{
+				GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "rejected-postgame");
+				return false;
+			}
 			if (m_Telemetry && !m_Telemetry.IsSealed())
 			{
 				GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "rejected-unsealed-recording");
 				return false;
 			}
-			m_Telemetry = new GC_TelemetryRecorder();
-			m_Telemetry.Start(this, quotaMiB);
+			m_bTelemetryEnabled = true;
+			m_iTelemetryQuotaMiB = quotaMiB;
+			StartTelemetry();
 		}
-		else if (m_Telemetry)
-			m_Telemetry.Stop("disabled");
+		else
+		{
+			m_bTelemetryEnabled = false;
+			if (m_Telemetry)
+				m_Telemetry.Stop("disabled");
+		}
 		GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "accepted");
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void StartTelemetry()
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!Replication.IsServer() || GetInstance() != this || !mode || mode.GetState() != SCR_EGameModeState.GAME
+			|| !m_bTelemetryEnabled || m_bClosed || m_sSessionId.IsEmpty() || (m_Telemetry && !m_Telemetry.IsSealed()))
+			return;
+		m_Telemetry = new GC_TelemetryRecorder();
+		m_Telemetry.Start(this, m_iTelemetryQuotaMiB);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnGameModeStart()
+	{
+		super.OnGameModeStart();
+		StartTelemetry();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -122,6 +154,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		entry.m_sDetail = "Session opened";
 		Record(entry);
 		GetGame().GetCallqueue().CallLater(Tick, 1000, true);
+		StartTelemetry();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -722,6 +755,8 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	override void OnGameModeEnd(SCR_GameModeEndData data)
 	{
 		super.OnGameModeEnd(data);
+		if (Replication.IsServer() && GetInstance() == this && m_Telemetry)
+			m_Telemetry.Stop("mission-end");
 		if (Replication.IsServer() && GetInstance() == this && m_History)
 			m_History.EndMission(data);
 	}
