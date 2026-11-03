@@ -11,6 +11,71 @@ modded class GC_LobbyManager
 	protected ref map<string, IEntity> m_mGC_PhotoSources;
 	protected ref map<string, IEntity> m_mGC_PhotoBatch;
 	protected ref array<IEntity> m_aGC_PhotoClones;
+	protected string m_sGC_PhotoProbe;
+	protected bool m_bGC_ObjectExportPending;
+
+	//------------------------------------------------------------------------------------------------
+	//! Large worlds exceed the synchronous runtime-call deadline. Publish a receipt.
+	string GC_TestBuildingExportStart()
+	{
+		PlayerController player = GetGame().GetPlayerController();
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-export-start", m_sGC_ExportName))
+			return "denied";
+		if (!GC_MapExportReady() || m_bGC_ObjectExportPending || m_GC_PhotoCamera)
+			return "not-ready";
+		FileHandle status = FileIO.OpenFile("$profile:GC_MapBuildings_" + m_sGC_ExportName + ".status", FileMode.WRITE);
+		if (!status)
+			return "open-failed";
+		status.WriteLine("running");
+		status.Close();
+		m_bGC_ObjectExportPending = true;
+		GetGame().GetCallqueue().CallLater(GC_TestBuildingExportDeferred, 500, false);
+		return "started";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_TestBuildingExportDeferred()
+	{
+		string result = GC_TestBuildingExport();
+		FileHandle status = FileIO.OpenFile("$profile:GC_MapBuildings_" + m_sGC_ExportName + ".status", FileMode.WRITE);
+		if (status)
+		{
+			status.WriteLine(result);
+			status.Close();
+		}
+		m_bGC_ObjectExportPending = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestBuildingProbe(vector position)
+	{
+		PlayerController player = GetGame().GetPlayerController();
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-probe", position.ToString()))
+			return "denied";
+		m_sGC_PhotoProbe = "";
+		GetGame().GetWorld().QueryEntitiesByAABB(Vector(position[0] - 5, -200, position[2] - 5), Vector(position[0] + 5, 2000, position[2] + 5), GC_TestBuildingProbeEntity);
+		return m_sGC_PhotoProbe;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool GC_TestBuildingProbeEntity(IEntity entity)
+	{
+		string resource;
+		if (entity.GetPrefabData())
+			resource = entity.GetPrefabData().GetPrefabName();
+		if (resource.IsEmpty() && entity.GetVObject())
+			resource = entity.GetVObject().GetResourceName();
+		if (resource.Contains("Vegetation"))
+			return true;
+		vector mins, maxs;
+		entity.GetWorldBounds(mins, maxs);
+		MapDescriptorComponent descriptor = MapDescriptorComponent.Cast(entity.FindComponent(MapDescriptorComponent));
+		int type = -1;
+		if (descriptor)
+			type = descriptor.GetBaseType();
+		m_sGC_PhotoProbe += string.Format("%1 | %2 | %3 | %4 | %5\n", entity.Type(), type, mins, maxs, resource);
+		return true;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	string GC_TestBuildingExport()
@@ -54,8 +119,9 @@ modded class GC_LobbyManager
 			resource = entity.GetVObject().GetResourceName();
 		if (!resource.IsEmpty() && !m_mGC_PhotoSources.Contains(resource))
 			m_mGC_PhotoSources.Insert(resource, entity);
-		MapDescriptorComponent descriptor = MapDescriptorComponent.Cast(entity.FindComponent(MapDescriptorComponent));
-		if (!SCR_DestructibleBuildingEntity.Cast(entity) && (!descriptor || descriptor.GetBaseType() != EMapDescriptorType.MDT_BUILDING))
+		// Native map footprints also include generic meshes without descriptors.
+		// Export source identity for every visual candidate; the map owns inclusion.
+		if (resource.IsEmpty())
 			return true;
 		vector mins, maxs;
 		entity.GetWorldBounds(mins, maxs);
@@ -241,7 +307,32 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	protected void GC_TestBuildingPhotoClone(IEntity source, IEntity root, vector original[4])
 	{
-		if (source.GetVObject())
+		VObject visual = source.GetVObject();
+		// Runtime render objects can be streamed aggregates or omit the exterior.
+		// Resolve the authored mesh, as SCR_PrefabPreviewEntity does.
+		Resource meshResource;
+		if (source.GetPrefabData())
+		{
+			Resource prefab = Resource.Load(source.GetPrefabData().GetPrefabName());
+			IEntitySource definition = SCR_BaseContainerTools.FindEntitySource(prefab);
+			if (definition)
+			{
+				for (int i; i < definition.GetComponentCount(); i++)
+				{
+					IEntityComponentSource component = definition.GetComponent(i);
+					if (component.GetClassName() != "MeshObject")
+						continue;
+					ResourceName mesh;
+					component.Get("Object", mesh);
+					if (mesh.IsEmpty())
+						continue;
+					meshResource = Resource.Load(mesh);
+					if (meshResource && meshResource.GetResource())
+						visual = meshResource.GetResource().ToVObject();
+				}
+			}
+		}
+		if (visual)
 		{
 			vector transform[4];
 			source.GetTransform(transform);
@@ -253,7 +344,7 @@ modded class GC_LobbyManager
 			parameters.TransformMode = ETransformMode.WORLD;
 			IEntity clone = GetGame().SpawnEntity(GenericEntity, GetGame().GetWorld(), parameters);
 			root.AddChild(clone, -1, EAddChildFlags.RECALC_LOCAL_TRANSFORM);
-			clone.SetObject(source.GetVObject(), "");
+			clone.SetObject(visual, "");
 			clone.SetFixedLOD(0);
 			m_aGC_PhotoClones.Insert(clone);
 		}
