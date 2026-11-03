@@ -15,11 +15,9 @@ modded class GC_LobbyManager
 	string GC_TestBuildingExport()
 	{
 		PlayerController player = GetGame().GetPlayerController();
-		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-export", "Arland"))
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-export", m_sGC_ExportName))
 			return "denied";
-		string world = GetGame().GetWorldFile();
-		world.ToLower();
-		if (!world.Contains("worlds/examples/arland/arland_lobby.ent"))
+		if (!GC_MapExportReady())
 			return "unsupported-world";
 		if (m_GC_PhotoCamera)
 			return "preview-active";
@@ -29,7 +27,7 @@ modded class GC_LobbyManager
 		GetGame().GetWorld().GetBoundBox(mins, maxs);
 		if (!GetGame().GetWorld().QueryEntitiesByAABB(mins, maxs, GC_TestBuildingEntity))
 			return "incomplete-query";
-		FileHandle output = FileIO.OpenFile("$profile:GC_MapBuildings_Arland.tsv", FileMode.WRITE);
+		FileHandle output = FileIO.OpenFile("$profile:GC_MapBuildings_" + m_sGC_ExportName + ".tsv", FileMode.WRITE);
 		if (!output)
 			return "open-failed";
 		output.WriteLine("minX\tminZ\tmaxX\tmaxZ\tresource");
@@ -38,7 +36,7 @@ modded class GC_LobbyManager
 		output.Close();
 		string result = "exported=" + m_aGC_BuildingRows.Count();
 		m_aGC_BuildingRows = null;
-		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-export", "Arland", result);
+		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-export", m_sGC_ExportName, result);
 		return result;
 	}
 
@@ -63,16 +61,14 @@ modded class GC_LobbyManager
 		PlayerController player = GetGame().GetPlayerController();
 		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-photo", index.ToString()))
 			return "denied";
-		string world = GetGame().GetWorldFile();
-		world.ToLower();
-		if (!world.Contains("worlds/examples/arland/arland_lobby.ent"))
+		if (!GC_MapExportReady())
 			return "unsupported-world";
 		if (!m_aGC_BuildingResources || index < 0 || index >= m_aGC_BuildingResources.Count() || m_aGC_BuildingResources[index].IsEmpty())
 			return "invalid-index";
 		GC_TestBuildingPhotoClear();
 		EntitySpawnParams parameters = new EntitySpawnParams();
 		parameters.TransformMode = ETransformMode.WORLD;
-		parameters.Transform[3] = "2048 1000 2048";
+		parameters.Transform[3] = m_vGC_ExportPhoto;
 		m_GC_PhotoBuilding = GetGame().SpawnEntityPrefab(Resource.Load(m_aGC_BuildingResources[index]), GetGame().GetWorld(), parameters);
 		if (!m_GC_PhotoBuilding)
 			return "spawn-failed";
@@ -147,7 +143,7 @@ modded class GC_LobbyManager
 	protected void GC_TestBuildingPhotoClear()
 	{
 		m_aGC_PhotoNearby = {};
-		GetGame().GetWorld().QueryEntitiesByAABB("1792 744 1792", "2304 1256 2304", GC_TestBuildingPhotoCollect);
+		GetGame().GetWorld().QueryEntitiesByAABB(m_vGC_ExportPhoto - "256 256 256", m_vGC_ExportPhoto + "256 256 256", GC_TestBuildingPhotoCollect);
 		if (!m_aGC_PhotoOriginal)
 		{
 			m_aGC_PhotoOriginal = m_aGC_PhotoNearby;

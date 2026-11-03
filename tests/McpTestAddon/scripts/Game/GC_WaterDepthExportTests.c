@@ -6,11 +6,9 @@ modded class GC_LobbyManager
 	string GC_TestWaterDepthExport()
 	{
 		PlayerController player = GetGame().GetPlayerController();
-		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "water-depth-export", "Arland"))
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "water-depth-export", m_sGC_ExportName))
 			return "denied";
-		string worldName = GetGame().GetWorldFile();
-		worldName.ToLower();
-		if (!worldName.Contains("worlds/examples/arland/arland_lobby.ent"))
+		if (!GC_MapExportReady())
 			return "unsupported-world";
 		FileHandle input = FileIO.OpenFile("$profile:GC_WaterProbePoints.tsv", FileMode.READ);
 		if (!input)
@@ -28,7 +26,7 @@ modded class GC_LobbyManager
 			}
 			float x = fields[0].ToFloat();
 			float z = fields[1].ToFloat();
-			if (x < 0 || x > 4096 || z < 0 || z > 4096)
+			if (x < 0 || x > m_vGC_ExportSize[0] || z < 0 || z > m_vGC_ExportSize[2])
 			{
 				input.Close();
 				return "outside-world";
@@ -36,7 +34,7 @@ modded class GC_LobbyManager
 			points.Insert(Vector(x, 0, z));
 		}
 		input.Close();
-		FileHandle output = FileIO.OpenFile("$profile:GC_WaterDepth_Arland.tsv", FileMode.WRITE);
+		FileHandle output = FileIO.OpenFile("$profile:GC_WaterDepth_" + m_sGC_ExportName + ".tsv", FileMode.WRITE);
 		if (!output)
 			return "open-failed";
 		output.WriteLine("x\tz\tground\tsurface\ttype\twet");
@@ -55,7 +53,7 @@ modded class GC_LobbyManager
 		}
 		output.Close();
 		string result = string.Format("samples=%1 wet=%2", points.Count(), wetCount);
-		GC_AdminActionLogger.Log(player.GetPlayerId(), "water-depth-export", "Arland", result);
+		GC_AdminActionLogger.Log(player.GetPlayerId(), "water-depth-export", m_sGC_ExportName, result);
 		return result;
 	}
 }

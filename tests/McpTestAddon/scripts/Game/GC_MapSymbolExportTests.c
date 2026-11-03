@@ -6,18 +6,16 @@ modded class GC_LobbyManager
 	string GC_TestMapSymbolsExport()
 	{
 		PlayerController player = GetGame().GetPlayerController();
-		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "map-symbol-export", "Arland"))
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "map-symbol-export", m_sGC_ExportName))
 			return "denied";
-		string world = GetGame().GetWorldFile();
-		world.ToLower();
-		if (!world.Contains("worlds/examples/arland/arland_lobby.ent"))
+		if (!GC_MapExportReady())
 			return "unsupported-world";
 		m_aGC_SymbolRows = {};
 		vector mins, maxs;
 		GetGame().GetWorld().GetBoundBox(mins, maxs);
 		if (!GetGame().GetWorld().QueryEntitiesByAABB(mins, maxs, GC_TestMapSymbolEntity))
 			return "incomplete-query";
-		FileHandle output = FileIO.OpenFile("$profile:GC_MapSymbols_Arland.tsv", FileMode.WRITE);
+		FileHandle output = FileIO.OpenFile("$profile:GC_MapSymbols_" + m_sGC_ExportName + ".tsv", FileMode.WRITE);
 		if (!output)
 			return "open-failed";
 		output.WriteLine("type\tx\tz\tyaw\tresource");
@@ -26,7 +24,7 @@ modded class GC_LobbyManager
 		output.Close();
 		string result = "exported=" + m_aGC_SymbolRows.Count();
 		m_aGC_SymbolRows = null;
-		GC_AdminActionLogger.Log(player.GetPlayerId(), "map-symbol-export", "Arland", result);
+		GC_AdminActionLogger.Log(player.GetPlayerId(), "map-symbol-export", m_sGC_ExportName, result);
 		return result;
 	}
 	//------------------------------------------------------------------------------------------------

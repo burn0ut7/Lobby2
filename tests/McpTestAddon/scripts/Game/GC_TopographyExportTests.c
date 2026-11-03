@@ -10,21 +10,19 @@ modded class GC_LobbyManager
 	string GC_TestTopographyExport()
 	{
 		PlayerController player = GetGame().GetPlayerController();
-		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "topography-export", "Arland"))
+		if (!Replication.IsServer() || GetManager() != this || !player || !AuthorizeAdminAction(player.GetPlayerId(), "topography-export", m_sGC_ExportName))
 			return "denied";
 		SCR_MapEntity mapEntity = SCR_MapEntity.GetMapInstance();
-		string world = GetGame().GetWorldFile();
-		world.ToLower();
-		if (!world.Contains("worlds/examples/arland/arland_lobby.ent"))
+		if (!GC_MapExportReady())
 			return "unsupported-world";
-		if (!mapEntity || mapEntity.Size()[0] != 4096 || mapEntity.Size()[2] != 4096)
+		if (!mapEntity)
 			return "unsupported-map";
 		if (m_aGC_MapHeights)
 			return m_sGC_MapExportStatus;
 		m_aGC_MapHeights = {};
 		m_iGC_MapRow = 0;
 		m_sGC_MapExportStatus = "sampling";
-		GC_AdminActionLogger.Log(player.GetPlayerId(), "topography-export", "Arland 8m terrain grid", "started");
+		GC_AdminActionLogger.Log(player.GetPlayerId(), "topography-export", m_sGC_ExportName + " 8m terrain grid", "started");
 		GetGame().GetCallqueue().CallLater(GC_TestTopographyRow, 1);
 		return m_sGC_MapExportStatus;
 	}
@@ -34,10 +32,10 @@ modded class GC_LobbyManager
 	{
 		if (GetManager() != this || !Replication.IsServer())
 			return;
-		for (int x; x <= 512; x++)
+		for (int x; x <= m_vGC_ExportSize[0] / 8; x++)
 			m_aGC_MapHeights.Insert(GetGame().GetWorld().GetSurfaceY(x * 8, m_iGC_MapRow * 8));
 		m_iGC_MapRow++;
-		if (m_iGC_MapRow <= 512)
+		if (m_iGC_MapRow <= m_vGC_ExportSize[2] / 8)
 		{
 			GetGame().GetCallqueue().CallLater(GC_TestTopographyRow, 1);
 			return;
@@ -45,10 +43,10 @@ modded class GC_LobbyManager
 		JsonSaveContext context = new JsonSaveContext();
 		context.SetMaxDecimalPlaces(3);
 		context.WriteValue("spacing", 8);
-		context.WriteValue("columns", 513);
-		context.WriteValue("rows", 513);
+		context.WriteValue("columns", (int)(m_vGC_ExportSize[0] / 8) + 1);
+		context.WriteValue("rows", (int)(m_vGC_ExportSize[2] / 8) + 1);
 		context.WriteValue("heights", m_aGC_MapHeights);
-		bool saved = context.SaveToFile("$profile:GC_MapDetail_Arland.json");
+		bool saved = context.SaveToFile("$profile:GC_MapDetail_" + m_sGC_ExportName + ".json");
 		m_sGC_MapExportStatus = "saved=" + saved + " samples=" + m_aGC_MapHeights.Count();
 	}
 
