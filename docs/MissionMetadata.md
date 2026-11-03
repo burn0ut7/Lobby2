@@ -2,7 +2,7 @@
 
 ## Author workflow
 
-1. Edit the mission header: choose Mission Type, Objectives and Player Assets. Optional details and Advanced fields can be left alone.
+1. Edit the mission header: choose Mission Type, Objectives and Player Assets. The seven types are CO-OP, TVT, COTVT, Training, LOL, Testing and Broken. Factions replaces Forces. Manual Tags, Map Name, Required Addon IDs and grouping fields are no longer shown; their old serialized values remain readable for compatibility.
 2. Save the header in Resource Manager. The world action does not save separate header tabs.
 3. In World Editor select the mission subscene, then choose **Plugins > GC > Save Mission and Metadata**. This saves the world first and refreshes `<world>.ent.metadata.json` beside it.
 

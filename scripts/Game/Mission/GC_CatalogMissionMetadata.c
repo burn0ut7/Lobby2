@@ -5,9 +5,9 @@ class GC_CatalogMissionMetadata
 {
 	[Attribute("1", UIWidgets.Hidden)]
 	int m_iSchemaVersion;
-	[Attribute("", UIWidgets.ComboBox, "Choose how people play this mission.", enums: { ParamEnum("Not set", ""), ParamEnum("Team versus team (TvT)", "TVT"), ParamEnum("Cooperative (Co-op)", "COOP"), ParamEnum("Co-op versus team", "COTVT"), ParamEnum("Fun / unconventional (LOL)", "LOL"), ParamEnum("Search and destroy", "SD"), ParamEnum("Advance and secure", "AAS"), ParamEnum("Training", "TRNG"), ParamEnum("Testing", "TEST"), ParamEnum("Other", "OTHER") })]
+	[Attribute("", UIWidgets.ComboBox, "Choose how people play this mission.", enums: { ParamEnum("Not set", ""), ParamEnum("CO-OP - Cooperative", "COOP"), ParamEnum("TVT - Team versus team", "TVT"), ParamEnum("COTVT - Cooperative and team versus team", "COTVT"), ParamEnum("Training", "TRNG"), ParamEnum("LOL - Non-serious mission", "LOL"), ParamEnum("Testing", "TEST"), ParamEnum("Broken", "BROKEN") })]
 	string m_sMissionType;
-	[Attribute("", UIWidgets.EditBox, "Map name, for example Arland.", category: "Optional details")]
+	[Attribute("", UIWidgets.Hidden)]
 	string m_sMapName;
 	[Attribute("", UIWidgets.ComboBox, "Press + and choose an objective. Add more if needed.", enums: { ParamEnum("Not set", ""), ParamEnum("Defense", "Defense"), ParamEnum("Attack & Defend", "Attack & Defend"), ParamEnum("Assault", "Assault"), ParamEnum("Convoy", "Convoy"), ParamEnum("High-value target (HVT)", "HVT"), ParamEnum("Sweep", "Sweep"), ParamEnum("Hostage", "Hostage"), ParamEnum("Delay", "Delay"), ParamEnum("Search & Rescue", "Search & Rescue") })]
 	ref array<string> m_aObjectives;
@@ -21,13 +21,17 @@ class GC_CatalogMissionMetadata
 	ref array<string> m_aPlayerAssets;
 	[Attribute("", UIWidgets.EditBox, "Optional mod names to show on the website. One name per entry.", category: "Optional details")]
 	ref array<string> m_aMods;
-	[Attribute("", UIWidgets.EditBox, "Optional required addon IDs. Leave empty unless maintaining dependencies.", category: "Advanced")]
+	[Attribute("", UIWidgets.Hidden)]
 	ref array<string> m_aRequiredAddonIds;
-	[Attribute("", UIWidgets.Object, "Optional team details. These describe the mission; they do not create teams or slots.", category: "Optional details")]
+	[Attribute("", UIWidgets.Object, "Optional faction details. Detected factions are also included in saved metadata.", category: "Optional details")]
+	ref array<ref GC_CatalogForce> m_aFactions;
+
+	// Retain old serialized data for compatibility; no longer author-facing.
+	[Attribute("", UIWidgets.Hidden)]
 	ref array<ref GC_CatalogForce> m_aForces;
-	[Attribute("", UIWidgets.EditBox, "Optional identifier shared by mission variants.", category: "Advanced")]
+	[Attribute("", UIWidgets.Hidden)]
 	string m_sGroupId;
-	[Attribute("-1", UIWidgets.SpinBox, "Similarity to other variants. Leave -1 if unused.", "-1 1", category: "Advanced")]
+	[Attribute("-1", UIWidgets.Hidden)]
 	float m_fGroupSimilarity;
 }
 

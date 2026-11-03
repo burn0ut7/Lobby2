@@ -4,7 +4,8 @@ class GC_MissionHeader : SCR_MissionHeader
 	[Attribute("", UIWidgets.Object, "Choose the mission type, objectives and equipment. Other details are optional.", "noDetails")]
 	ref GC_CatalogMissionMetadata m_GC_Catalog;
 
-	[Attribute("", UIWidgets.EditBox, "Optional extra tags, such as Night or Training. One tag per entry.", category: "Optional details")]
+	// Legacy serialized field; new missions use the catalogue categories.
+	[Attribute("", UIWidgets.Hidden)]
 	ref array<string> m_aManualTags;
 
 	[Attribute("", UIWidgets.Hidden)]
