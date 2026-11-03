@@ -1,29 +1,31 @@
 # Mission metadata
 
-The GC co-op mission template includes `GC_MissionMetadataScannerComponent`. It writes `<world>.ent.metadata.json` beside its own subscene's local world file, using **event-driven refreshes rather than a repeating timer**. Refresh requests come from:
+## Author workflow
 
-- The scanner owner's initialization (including opening/reloading a world).
-- Creating/restoring that owner or changing its properties, including enabling the scanner.
-- Registering a `.conf` resource while the scanner's mission subscene is active in World Editor. This covers the normal resource-registration step of config creation; it does not read or modify the new config.
+1. Edit the mission header: choose Mission Type, Objectives and Player Assets. Optional details and Advanced fields can be left alone.
+2. Save the header in Resource Manager. The world action does not save separate header tabs.
+3. In World Editor select the mission subscene, then choose **Plugins > GC > Save Mission and Metadata**. This saves the world first and refreshes `<world>.ent.metadata.json` beside it.
 
-Requests are coalesced and run on the next safe editor update. Idle frames only check a pending flag; they do not enumerate entities, inspect files, or collect metadata. Each successful event refresh replaces the generated file. There is no cached-content shortcut that could leave a newer manual export in place after an Undo. There is no timer or automatic retry loop after a failed refresh.
+Editing, adding or resetting catalogue properties never requests a scan. Opening worlds and registering resources no longer request scans either. The legacy scanner component remains only to preserve existing prefab serialization; it does no work.
 
-Existing worlds need the component added once to a root entity in the mission subscene, or must use the updated GC template. Use exactly one scanner per subscene. The component's Enabled checkbox stops automatic scanning. No scanning or metadata writes occur during Play or in the game/server, and prefab editing and terrain-owning subscenes are refused. The component scans its own subscene even when another subscene is selected. It does not edit/save the world, mission header, author text or tags, and adds no undo actions.
+Ordinary Ctrl+S saves normally but does not refresh metadata: the installed Workbench scripting API exposes no general save callback. Use the combined action when publishing changed mission content. There is no timer, filesystem polling or global entity override.
 
-The output is generated JSON in the addon workspace for the website/external importer. It is **not embedded into the mission header** and automatic inclusion in a published packed addon has not been verified. The website can associate it using its `world` field. Treat it as generated data; do not put manual tags into this file. `GC_MissionHeader.m_aManualTags` provides an editable list of author-supplied tags in the mission config; the scanner leaves that config alone. Curated tag choices and website ingestion remain separate work.
+The collector visits only the selected mission subscene and its prefab children, excluding inherited terrain scenery and other subscenes. It refuses terrain scenes and Play/prefab modes. Progress is shown during collection. Guards abort collection at 100,000 entities, 128 nesting/inheritance levels or 30 seconds; failed collection does not replace the previous snapshot. These are cooperative guards between engine calls, not a guarantee against a stalled native call. The action is synchronous; large mission performance still needs measurement.
 
-The snapshot includes unsaved editor changes. **Arbitrary edits to other entities and ordinary world/config saves are not automatic triggers.** For edits made after the last event, reopen/reload the world or use the existing immediate export before collecting files for publishing. Do not assume that saving refreshes metadata. These are the verified hooks; no global entity overrides or file watchers are installed. Large-mission performance has not yet been benchmarked. Disabling/removing the component leaves its last output in place.
+The generated file contains content evidence, not authored objective tags or a complete dependency list. It does not edit the mission header. Include it with the published mission files if the website should use it. Packed-addon inclusion has not been verified.
 
-The existing **Plugins > GC > Export Mission Metadata** action remains an optional immediate export for worlds without a scanner. It writes the same generated file for the selected subscene. All automatic/manual paths use the same collector and JSON serializer.
+## Current verification (2026-11-03)
 
-Version 1 deliberately scans **all layers of the captured subscene**, including nested prefab entities, but excludes inherited/other world subscenes. This avoids exporting the base terrain's scenery. Select each mission subscene separately if a scenario is split across worlds. Scanning the terrain-owning subscene is refused. There is no website upload or runtime scanning.
+Script reload passed. With the Arland mission and inherited terrain loaded, the combined action saved successfully and generated valid JSON for 25 mission entities. Property edit callbacks and registration callbacks have been removed. The reported native config reset/plus freeze has not yet been isolated; removal of automatic scanning is not proof that the editor issue is fixed.
+
+The verification sections below describe historical implementations and do not describe current triggers.
 
 ## JSON contract
 
 | Field | Meaning |
 | --- | --- |
 | `schemaVersion` | Currently `1`. |
-| `world`, `scope`, `limitations` | Snapshot identity and explicit coverage limits. `scope` is `world_subscene`: automatic scanning uses the component-owning subscene; manual export uses the selected subscene. Earlier exports used `active_subscene`. |
+| `world`, `scope`, `limitations` | Snapshot identity and explicit coverage limits. `scope` is `world_subscene`: the save action uses the selected mission subscene. Earlier exports used `active_subscene`. |
 | `entityCount` | Entities visited, including nested helper entities. Not a unit count. |
 | `factions` | Unique nonempty effective faction-affiliation keys on placed entities. No friendly/enemy or player-side inference. |
 | `configuredFactions` | Faction keys configured in faction managers in the scanned subscene, reported separately from actual affiliations. |
@@ -105,9 +107,9 @@ Workbench 1.8.0.13; catalogue revision `721cd7b05eb54d3ca3591d9097af381d`. The i
 
 Evidence: `logs_2026-11-01_17-45-51/console.log`, initial/add/undo automatic writes at lines 32198-32200 and subsequent `GC | Automatic Metadata` entries. Post-optimization Reload `2231626b36c04e2e9ffb28f1747f4cbe` passed and automatic JSON readback remained nine entities, eight prefab rows, APC=2, helicopter=1, infantry=1 and US/USSR factions. The earlier registration experiment remains disabled and is not part of this path. Normal script Reload compiled the moved collector and scanner without script errors; pre-existing stale Arland resource diagnostics remain.
 
-## Event-driven revision verification (2026-11-01)
+## Earlier event-driven revision verification (2026-11-01)
 
-`GC_MissionMetadataScannerComponent` now queues a single pending refresh from its native `_WB_OnInit`, `_WB_OnCreate` and `_WB_OnKeyChanged` callbacks. `GC_MissionMetadataPlugin.OnRegisterResource` also requests a refresh for root scanners in the active subscene when a `.conf` is registered. It never loads or edits that resource. `_WB_AfterWorldUpdate` dispatches queued work after editor mutation/undo finishes. `CALL_ALWAYS` is needed to service off-screen requests, but idle callbacks immediately return on the pending flag. There is no elapsed-time condition, repeated scan or file polling.
+`GC_MissionMetadataScannerComponent` previously queued a single pending refresh from its native `_WB_OnInit`, `_WB_OnCreate` and `_WB_OnKeyChanged` callbacks. `GC_MissionMetadataPlugin.OnRegisterResource` also requests a refresh for root scanners in the active subscene when a `.conf` is registered. It never loads or edits that resource. `_WB_AfterWorldUpdate` dispatches queued work after editor mutation/undo finishes. `CALL_ALWAYS` is needed to service off-screen requests, but idle callbacks immediately return on the pending flag. There is no elapsed-time condition, repeated scan or file polling.
 
 In Workbench 1.8.0.13, opening MetadataTest produced one refresh (nine entities/APC=2). Placing another BTR did not trigger collection. Creating two config resources in the same native invocation then produced one combined refresh (eleven entities/APC=3). The new configs retained their authored name, author and manual tags; the callback caused no resource-ID diagnostics. Undoing the other entity did not trigger collection either; the snapshot stayed unchanged during the following idle period. This deliberately demonstrates both event dispatch and its limited coverage, rather than claiming every edit is observed. Undo history still contained only the author's entity action.
 

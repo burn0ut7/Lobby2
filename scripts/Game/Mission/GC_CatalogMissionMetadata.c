@@ -3,31 +3,31 @@
 [BaseContainerProps()]
 class GC_CatalogMissionMetadata
 {
-	[Attribute("1", desc: "Website catalogue contract version. Keep at 1.")]
+	[Attribute("1", UIWidgets.Hidden)]
 	int m_iSchemaVersion;
-	[Attribute(desc: "TVT, COOP, COTVT, LOL, OTHER, SD, AAS, TRNG or TEST.")]
+	[Attribute("", UIWidgets.ComboBox, "Choose how people play this mission.", enums: { ParamEnum("Not set", ""), ParamEnum("Team versus team (TvT)", "TVT"), ParamEnum("Cooperative (Co-op)", "COOP"), ParamEnum("Co-op versus team", "COTVT"), ParamEnum("Fun / unconventional (LOL)", "LOL"), ParamEnum("Search and destroy", "SD"), ParamEnum("Advance and secure", "AAS"), ParamEnum("Training", "TRNG"), ParamEnum("Testing", "TEST"), ParamEnum("Other", "OTHER") })]
 	string m_sMissionType;
-	[Attribute(desc: "Map display name, for example Arland. World resource identity remains in the mission header.")]
+	[Attribute("", UIWidgets.EditBox, "Map name, for example Arland.", category: "Optional details")]
 	string m_sMapName;
-	[Attribute(desc: "Mission objectives: Defense, Attack & Defend, Assault, Convoy, HVT, Sweep, Hostage, Delay, Search & Rescue. Custom labels are allowed.")]
+	[Attribute("", UIWidgets.ComboBox, "Press + and choose an objective. Add more if needed.", enums: { ParamEnum("Not set", ""), ParamEnum("Defense", "Defense"), ParamEnum("Attack & Defend", "Attack & Defend"), ParamEnum("Assault", "Assault"), ParamEnum("Convoy", "Convoy"), ParamEnum("High-value target (HVT)", "HVT"), ParamEnum("Sweep", "Sweep"), ParamEnum("Hostage", "Hostage"), ParamEnum("Delay", "Delay"), ParamEnum("Search & Rescue", "Search & Rescue") })]
 	ref array<string> m_aObjectives;
-	[Attribute("0", desc: "Minimum intended players; 0 means unspecified. Maximum uses the header player count.")]
+	[Attribute("0", UIWidgets.SpinBox, "Smallest recommended group. Leave 0 if unsure. Maximum is Player Count above.", "0 10000", category: "Optional details")]
 	int m_iMinPlayers;
-	[Attribute("0", desc: "Recommended players; 0 means unspecified.")]
+	[Attribute("0", UIWidgets.SpinBox, "Ideal group size. Leave 0 if unsure.", "0 10000", category: "Optional details")]
 	int m_iRecommendedPlayers;
-	[Attribute(desc: "Historical era, for example 1980s. Empty means unspecified.")]
+	[Attribute("", UIWidgets.EditBox, "Time period, for example 1980s. Optional.", category: "Optional details")]
 	string m_sEra;
-	[Attribute(desc: "Equipment available to players, not every object placed in the world.")]
+	[Attribute("", UIWidgets.ComboBox, "Press + and choose equipment players can use.", enums: { ParamEnum("Not set", ""), ParamEnum("Infantry", "Infantry"), ParamEnum("Cars / light vehicles", "Cars"), ParamEnum("Trucks", "Trucks"), ParamEnum("APCs", "APCs"), ParamEnum("IFVs", "IFVs"), ParamEnum("Tanks", "Tanks"), ParamEnum("Transport helicopters", "Transport helicopters"), ParamEnum("Attack helicopters", "Attack helicopters"), ParamEnum("Aircraft", "Aircraft"), ParamEnum("Boats", "Boats"), ParamEnum("Mortars", "Mortars"), ParamEnum("Artillery", "Artillery"), ParamEnum("Drones", "Drones") })]
 	ref array<string> m_aPlayerAssets;
-	[Attribute(desc: "Player-facing mod names. Required addon GUIDs are recorded separately.")]
+	[Attribute("", UIWidgets.EditBox, "Optional mod names to show on the website. One name per entry.", category: "Optional details")]
 	ref array<string> m_aMods;
-	[Attribute(desc: "Author-declared required addon GUIDs (16 hexadecimal characters each). Not inferred from loaded addons.")]
+	[Attribute("", UIWidgets.EditBox, "Optional required addon IDs. Leave empty unless maintaining dependencies.", category: "Advanced")]
 	ref array<string> m_aRequiredAddonIds;
-	[Attribute(desc: "Factions and forces. Specify whether a force is playable instead of assuming the opposition is a player team.")]
+	[Attribute("", UIWidgets.Object, "Optional team details. These describe the mission; they do not create teams or slots.", category: "Optional details")]
 	ref array<ref GC_CatalogForce> m_aForces;
-	[Attribute(desc: "Optional group identifier shared by variants of a mission.")]
+	[Attribute("", UIWidgets.EditBox, "Optional identifier shared by mission variants.", category: "Advanced")]
 	string m_sGroupId;
-	[Attribute("-1", desc: "Similarity to other group variants: 0 to 1; -1 means unspecified.", params: "-1 1")]
+	[Attribute("-1", UIWidgets.SpinBox, "Similarity to other variants. Leave -1 if unused.", "-1 1", category: "Advanced")]
 	float m_fGroupSimilarity;
 }
 
@@ -36,11 +36,11 @@ class GC_CatalogForce
 {
 	[Attribute(desc: "Faction key from the mission's faction manager.")]
 	string m_sFactionKey;
-	[Attribute(desc: "LIGHT, MOTORIZED, MECHANIZED, ARMORED, AIRMOBILE, AIRBORNE, COMBINED or OTHER.")]
+	[Attribute("", UIWidgets.ComboBox, "Choose the team's equipment style.", enums: { ParamEnum("Not set", ""), ParamEnum("Light infantry", "LIGHT"), ParamEnum("Motorized", "MOTORIZED"), ParamEnum("Mechanized", "MECHANIZED"), ParamEnum("Armored", "ARMORED"), ParamEnum("Airmobile", "AIRMOBILE"), ParamEnum("Airborne", "AIRBORNE"), ParamEnum("Combined arms", "COMBINED"), ParamEnum("Other", "OTHER") })]
 	string m_sForceType;
 	[Attribute(desc: "Optional relation or side label, for example friendly or opposing.")]
 	string m_sSide;
-	[Attribute("-1", desc: "Player-controlled force: 1 yes, 0 AI only, -1 unspecified.", params: "-1 1")]
+	[Attribute("-1", UIWidgets.ComboBox, "Who controls this team?", enums: { ParamEnum("Not set", "-1"), ParamEnum("Players", "1"), ParamEnum("AI only", "0") })]
 	int m_iPlayable;
 	[Attribute("0", desc: "Intended player slots for this force; 0 means unspecified. This is descriptive and does not alter slots.")]
 	int m_iSlots;

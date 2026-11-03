@@ -9,10 +9,18 @@ class GC_MissionMetadataExport
 	protected ref array<string> m_aConfiguredFactions = {};
 	protected ref array<string> m_aReferencedAddons = {};
 	protected int m_iEntityCount;
+	protected string m_sError;
+	protected bool m_bComplete;
+	protected int m_iStarted;
+	protected WBProgressDialog m_Progress;
 
 	//------------------------------------------------------------------------------------------------
-	void Collect(WorldEditorAPI api, int subscene)
+	bool Collect(WorldEditorAPI api, int subscene, WBProgressDialog progress = null)
 	{
+		m_bComplete = false;
+		m_sError = string.Empty;
+		m_iStarted = System.GetTickCount();
+		m_Progress = progress;
 		m_mPrefabs.Clear();
 		m_mPrefabAddons.Clear();
 		m_mAssets.Clear();
@@ -23,13 +31,41 @@ class GC_MissionMetadataExport
 		// Flat editor enumeration omits some prefab-inherited children. Visit each root once.
 		for (int i, count = api.GetEntityCount(subscene); i < count; i++)
 		{
+			if (count > 100000 || System.GetTickCount(m_iStarted) > 30000)
+			{
+				m_sError = "Mission scan exceeded its safety limit (100,000 entities or 30 seconds).";
+				break;
+			}
 			IEntitySource source = api.GetEntity(subscene, i);
 			if (source && !source.GetParent() && source.GetSubScene() == subscene)
-				Visit(source, false);
+			{
+				typename type = source.GetClassName().ToType();
+				if (type && type.IsInherited(GenericTerrainEntity))
+				{
+					m_sError = "Select the mission subscene, not the base terrain.";
+					break;
+				}
+				Visit(source, false, 0);
+			}
+			if (!m_sError.IsEmpty())
+				break;
+			if (progress && (i % 32 == 0 || i == count - 1))
+				progress.SetProgress((i + 1.0) / count);
 		}
+		m_Progress = null;
+		if (!m_sError.IsEmpty())
+			return false;
 		m_aFactions.Sort();
 		m_aConfiguredFactions.Sort();
 		m_aReferencedAddons.Sort();
+		m_bComplete = true;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GetError()
+	{
+		return m_sError;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -39,9 +75,18 @@ class GC_MissionMetadataExport
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void Visit(IEntitySource source, bool insideVehicle)
+	protected void Visit(IEntitySource source, bool insideVehicle, int depth)
 	{
+		if (!source || !m_sError.IsEmpty())
+			return;
+		if (depth > 128 || m_iEntityCount >= 100000 || System.GetTickCount(m_iStarted) > 30000)
+		{
+			m_sError = "Mission scan exceeded its entity, nesting or time limit.";
+			return;
+		}
 		m_iEntityCount++;
+		if (m_Progress && m_iEntityCount % 32 == 0)
+			m_Progress.SetActionTitle(string.Format("%1 mission entities checked", m_iEntityCount));
 		typename type = source.GetClassName().ToType();
 		bool vehicle = type && type.IsInherited(BaseVehicle);
 		string faction;
@@ -76,7 +121,8 @@ class GC_MissionMetadataExport
 		BaseContainer ancestor = source.GetAncestor();
 		// Inherited child containers can return their entity name instead of a resource.
 		// Advance to the first actual prefab resource before grouping or caching provenance.
-		while (ancestor)
+		int ancestorDepth;
+		while (ancestor && ancestorDepth++ < 128)
 		{
 			ResourceName candidate = ancestor.GetResourceName();
 			if (candidate.StartsWith("{") && candidate.EndsWith(".et"))
@@ -85,6 +131,11 @@ class GC_MissionMetadataExport
 				break;
 			}
 			ancestor = ancestor.GetAncestor();
+		}
+		if (ancestorDepth > 128)
+		{
+			m_sError = "Prefab inheritance exceeded 128 levels.";
+			return;
 		}
 		string rowKey = prefab + "\n" + source.GetClassName() + "\n" + faction + "\n" + asset + "\n" + evidence;
 		GC_MissionMetadataPrefab row = m_mPrefabs.Get(rowKey);
@@ -103,7 +154,11 @@ class GC_MissionMetadataExport
 		}
 		row.m_iCount++;
 		for (int i, count = source.GetNumChildren(); i < count; i++)
-			Visit(source.GetChild(i), insideVehicle || vehicle);
+		{
+			Visit(source.GetChild(i), insideVehicle || vehicle, depth + 1);
+			if (!m_sError.IsEmpty())
+				break;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -114,7 +169,8 @@ class GC_MissionMetadataExport
 			return result;
 		result = {};
 		// Include addons defining/modifying any ancestor, not just the leaf prefab's addon.
-		while (ancestor)
+		int ancestorDepth;
+		while (ancestor && ancestorDepth++ < 128)
 		{
 			array<string> ids = {};
 			ancestor.GetSourceAddons(ids);
@@ -125,6 +181,8 @@ class GC_MissionMetadataExport
 			}
 			ancestor = ancestor.GetAncestor();
 		}
+		if (ancestor)
+			m_sError = "Prefab inheritance exceeded 128 levels.";
 		result.Sort();
 		m_mPrefabAddons.Set(prefab, result);
 		return result;
@@ -149,7 +207,8 @@ class GC_MissionMetadataExport
 	{
 		// RHIB uses wheeled simulation. Its verified ancestor identifies a boat, not buoyancy alone.
 		BaseContainer ancestor = source.GetAncestor();
-		while (ancestor)
+		int ancestorDepth;
+		while (ancestor && ancestorDepth++ < 128)
 		{
 			if (ancestor.GetResourceName() == "{A295678AF2AE1205}Prefabs/Vehicles/Naval/RHIB/RHIB_Base.et")
 			{
@@ -158,6 +217,8 @@ class GC_MissionMetadataExport
 			}
 			ancestor = ancestor.GetAncestor();
 		}
+		if (ancestor)
+			m_sError = "Prefab inheritance exceeded 128 levels.";
 		if (FindComponent(source, VehicleHelicopterSimulation))
 		{
 			evidence = "component:VehicleHelicopterSimulation";
@@ -277,6 +338,8 @@ class GC_MissionMetadataExport
 	//------------------------------------------------------------------------------------------------
 	bool Save(string output, string worldPath)
 	{
+		if (!m_bComplete)
+			return false;
 		PrettyJsonSaveContext context = CreateJson(worldPath);
 		return context && context.SaveToFile(output);
 	}

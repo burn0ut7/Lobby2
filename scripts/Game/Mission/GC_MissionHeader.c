@@ -1,13 +1,13 @@
 //! Native metadata schema. Automatic population is currently an optional test-addon experiment.
 class GC_MissionHeader : SCR_MissionHeader
 {
-	[Attribute(desc: "Mission catalogue information for the website. Author-confirmed gameplay, never overwritten by the placed-content scanner.")]
+	[Attribute("", UIWidgets.Object, "Choose the mission type, objectives and equipment. Other details are optional.", "noDetails")]
 	ref GC_CatalogMissionMetadata m_GC_Catalog;
 
-	[Attribute(desc: "Author-supplied mission tags. Automatic metadata scanning never modifies these tags.")]
+	[Attribute("", UIWidgets.EditBox, "Optional extra tags, such as Night or Training. One tag per entry.", category: "Optional details")]
 	ref array<string> m_aManualTags;
 
-	[Attribute(desc: "Placed-content snapshot. Not populated or refreshed automatically by production Lobby2; creation lifecycle is experimental.")]
+	[Attribute("", UIWidgets.Hidden)]
 	ref GC_GeneratedMissionMetadata m_GC_GeneratedMetadata;
 }
 
