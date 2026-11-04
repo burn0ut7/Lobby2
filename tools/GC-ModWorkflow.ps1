@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Lobby2, [string]$GlobalConflictsCore, [string]$GlobalConflictsUnits,
-    [string]$GlobalConflictsMissions, [switch]$UpdateMods, [string]$MissionWorld
+    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld
 )
 
 $ErrorActionPreference = 'Stop'
@@ -15,7 +15,7 @@ function Git([string]$root, [string[]]$arguments) {
 }
 
 function Get-Checkout([string]$project, [string]$guid) {
-    if (!$project -or !(Test-Path -LiteralPath $project -PathType Leaf)) { throw 'Source addon is unavailable.' }
+    if (!$project -or !(Test-Path -LiteralPath $project -PathType Leaf)) { throw "Source checkout missing. Expected $project" }
     if ((Get-Content -LiteralPath $project -Raw) -notmatch ('(?m)^\s*GUID "' + $guid + '"')) { throw 'Unexpected addon identity.' }
     $root = [IO.Path]::GetFullPath((Split-Path -LiteralPath $project))
     $top = Git $root @('rev-parse','--show-toplevel')
@@ -58,15 +58,27 @@ function Read-MissionBranch([string]$current, [string]$world) {
 function Invoke-ModWorkflow {
     Add-Type -AssemblyName System.Windows.Forms
     $addons = @(
-        @{Name='Lobby2'; Project=$Lobby2; Guid='6A115D5DFF7ED870'; Repo='burn0ut7/Lobby2'}
-        @{Name='GC Core'; Project=$GlobalConflictsCore; Guid='623555110E2B2CA0'; Repo='Global-Conflicts-ArmA/gc-reforger-core'}
-        @{Name='GC Units'; Project=$GlobalConflictsUnits; Guid='6156F2F771D5D73D'; Repo='Global-Conflicts-ArmA/gc-reforger-units'}
-        @{Name='GC Missions'; Project=$GlobalConflictsMissions; Guid='62D55563549DA97A'; Repo='Global-Conflicts-ArmA/gc-reforger-missions'}
+        @{Name='Lobby2'; Key='Lobby2'; Project=$Lobby2; Guid='6A115D5DFF7ED870'; Repo='burn0ut7/Lobby2'}
+        @{Name='GC Core'; Key='GlobalConflictsCore'; Project=$GlobalConflictsCore; Guid='623555110E2B2CA0'; Repo='Global-Conflicts-ArmA/gc-reforger-core'}
+        @{Name='GC Units'; Key='GlobalConflictsUnits'; Project=$GlobalConflictsUnits; Guid='6156F2F771D5D73D'; Repo='Global-Conflicts-ArmA/gc-reforger-units'}
+        @{Name='GC Missions'; Key='GlobalConflictsMissions'; Project=$GlobalConflictsMissions; Guid='62D55563549DA97A'; Repo='Global-Conflicts-ArmA/gc-reforger-missions'}
     )
     $null = Get-Command git.exe -ErrorAction Stop
-    if ($UpdateMods) {
+    # Workbench only resolves mounts loaded in the current project. Source checkouts
+    # installed alongside Lobby2 can still be updated after their GUID is verified.
+    $addonsDirectory = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    foreach ($addon in $addons) {
+        if (!$addon.Project) {
+            $folder = ($addon.Repo -split '/')[-1]
+            $addon.Project = Join-Path $addonsDirectory "$folder/addon.gproj"
+        }
+    }
+    if ($UpdateMods -and !$SelectedMods) { $SelectedMods = $addons.Key -join ',' }
+    if ($SelectedMods) {
+        $selectedKeys = $SelectedMods -split ','
         $rows = @()
         $plans = @(foreach ($addon in $addons) {
+            if ($addon.Key -notin $selectedKeys) { continue }
             try {
                 $plan = New-UpdatePlan $addon
                 $rows += "$($addon.Name) ($($plan.Branch)): update to $($plan.Target.Substring(0,8))."
@@ -100,7 +112,8 @@ function Invoke-ModWorkflow {
         }
     }
     if ($MissionWorld) {
-        $root = Get-Checkout $GlobalConflictsMissions '62D55563549DA97A'
+        $missions = $addons | Where-Object Key -eq GlobalConflictsMissions
+        $root = Get-Checkout $missions.Project $missions.Guid
         $world = (Get-Item -LiteralPath $MissionWorld).FullName
         if (!$world.StartsWith($root.TrimEnd('\','/') + '\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Select a saved world in GC Missions to create its branch.' }
         $current = Git $root @('symbolic-ref','--short','HEAD')
