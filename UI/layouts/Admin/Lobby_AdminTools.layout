@@ -34,7 +34,20 @@ FrameWidgetClass {
    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolForcedClothing" Slot FrameWidgetSlot { Anchor 0.49 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   } }
   PanelWidgetClass { Name "GearSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.018 0.675 0.021 0.725 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
-  ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolAllowClothing" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.78 0.81 0.98 0.875 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+  ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
+   Name "ToolAllowClothing"
+   "Z Order" 1
+   Slot FrameWidgetSlot { Anchor 0.56 0.9 0.76 0.965 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   components {
+    SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+     m_BackgroundDefault 1 1 1 0.08
+     m_BackgroundHovered 1 1 1 0.18
+     m_BackgroundClicked 0.9 0.68 0.27 0.6
+     m_TextDefault 0.94 0.94 0.94 1
+     m_bCanBeToggled 0
+    }
+   }
+  }
   PanelWidgetClass {
    Name "ToolBackground"
    Slot FrameWidgetSlot {

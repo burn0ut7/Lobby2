@@ -151,7 +151,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", w).SetText("Unlock clothing");
 		SCR_ButtonTextComponent.GetButtonText("ToolAllowClothing", w).m_OnClicked.Insert(OnApply);
 		ImageWidget.Cast(w.FindAnyWidget("ToolAllowClothing").FindAnyWidget("Icon")).LoadImageFromSet(0,
-			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "check");
+			"{2EFEA2AF1F38E7F0}UI/Textures/Icons/icons_wrapperUI-64.imageset", "server-unlocked");
 		Bind("ToolFreeze", "Freeze", "pause");
 		Bind("ToolUnstuck", "Unstuck", "respawn");
 		Bind("ToolWarn", "Warn", "warning");
@@ -365,6 +365,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	//------------------------------------------------------------------------------------------------
 	protected void GC_PositionClothingScope(bool clothing)
 	{
+		float actionLeft = 0.815;
+		if (clothing)
+			actionLeft = 0.78;
+		FrameSlot.SetAnchorMin(m_Apply.GetRootWidget(), actionLeft, 0.9);
+		FrameSlot.SetAnchorMax(m_Apply.GetRootWidget(), 0.98, 0.965);
 		float offset;
 		if (clothing)
 			offset = 0.1;
@@ -696,6 +701,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			actionText.SetColor(Color.FromRGBA(240, 240, 240, 255));
 		else
 			actionText.SetColor(Color.FromRGBA(150, 150, 150, 255));
+		if (clothing)
+			TextWidget.Cast(m_wRoot.FindAnyWidget("ToolAllowClothing").FindAnyWidget("Text")).SetColor(actionText.GetColor());
 		SCR_ButtonTextComponent.GetButtonText("ToolHeal", m_wRoot).SetToggled(heal, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolFreeze", m_wRoot).SetToggled(freeze, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolTeleport", m_wRoot).SetToggled(teleport || unstuck, false, false);

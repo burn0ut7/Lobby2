@@ -179,6 +179,7 @@ class GC_StatsAssignment : GC_StatsCounters
 class GC_StatsPlayer : GC_StatsCounters
 {
 	string m_sIdentity;
+	string m_sSteamId;
 	string m_sName;
 	//! Session bookkeeping is deliberately omitted from the wire contract.
 	int m_iLastSlotId = -1;
@@ -202,6 +203,8 @@ class GC_StatsPlayer : GC_StatsCounters
 	{
 		super.Write(context);
 		context.WriteValue("identity", m_sIdentity);
+		if (!m_sSteamId.IsEmpty())
+			context.WriteValue("steamId", m_sSteamId);
 		context.WriteValue("name", m_sName);
 		int assignmentsCount = m_aAssignments.Count();
 		context.StartArray("assignments", assignmentsCount);

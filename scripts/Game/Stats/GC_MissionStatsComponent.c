@@ -323,6 +323,8 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 			m_Batch.m_aPlayers.Insert(player);
 		}
 		player.m_sName = GetGame().GetPlayerManager().GetPlayerName(playerId);
+		if (player.m_sSteamId.IsEmpty())
+			player.m_sSteamId = GC_PlayerPlatformIdentity.SteamId(playerId);
 		return player;
 	}
 

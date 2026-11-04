@@ -3,7 +3,7 @@ VerticalLayoutWidgetClass {
  Slot LayoutSlot "{6A34000000000002}" {
   HorizontalAlign 3
   VerticalAlign 0
-  Padding 0 0 0 8
+  Padding 0 0 0 2
  }
  components {
   GC_VoiceChannelWidgetComponent "{6A34000000000020}" {
@@ -15,7 +15,7 @@ VerticalLayoutWidgetClass {
    Slot LayoutSlot "{6A34000000000004}" {
     HorizontalAlign 3
     VerticalAlign 0
-    Padding 0 0 0 4
+    Padding 0 0 0 2
    }
    Color 1 1 1 0
    components {
