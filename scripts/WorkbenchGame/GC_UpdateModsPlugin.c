@@ -102,14 +102,7 @@ class GC_ModWorkflow
 			}
 		}
 
-		string command;
-		array<string> mounts = {"Lobby2", "GlobalConflictsCore", "GlobalConflictsUnits", "GlobalConflictsMissions"};
-		foreach (string mount : mounts)
-		{
-			string project;
-			if (Workbench.GetAbsolutePath("$" + mount + ":addon.gproj", project))
-				command += " -" + mount + " \"" + project + "\"";
-		}
+		string command = ProjectArguments();
 
 		if (!selected.IsEmpty())
 			command += " -SelectedMods " + selected;
@@ -125,6 +118,20 @@ class GC_ModWorkflow
 		}
 
 		return Launch(command);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static string ProjectArguments()
+	{
+		string arguments;
+		array<string> mounts = {"Lobby2", "GlobalConflictsCore", "GlobalConflictsUnits", "GlobalConflictsMissions"};
+		foreach (string mount : mounts)
+		{
+			string project;
+			if (Workbench.GetAbsolutePath("$" + mount + ":addon.gproj", project))
+				arguments += " -" + mount + " \"" + project + "\"";
+		}
+		return arguments;
 	}
 
 	//------------------------------------------------------------------------------------------------

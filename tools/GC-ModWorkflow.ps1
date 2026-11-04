@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Lobby2, [string]$GlobalConflictsCore, [string]$GlobalConflictsUnits,
-    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld
+    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld, [switch]$SubmitMission
 )
 
 $ErrorActionPreference = 'Stop'
@@ -107,16 +107,22 @@ function Open-BranchHelp($root, $branch, $before, $incoming, [ref]$filesChanged,
     return 'Finish the merge in GitHub Desktop.'
 }
 
-function Update-Mod($addon, [ref]$filesChanged, [ref]$desktopPending) {
+function Get-ModBase($root, $repo) {
+    $lines = @(Git $root @('ls-remote','--symref',"https://github.com/$repo.git",'HEAD') | Where-Object { $_ -cmatch '\tHEAD$' })
+    if ($lines.Count -ne 2 -or $lines[0] -notmatch '^ref: refs/heads/(.+)\s+HEAD$') { throw "Could not check $repo." }
+    $name = $Matches[1]
+    if ($lines[1] -notmatch '^([a-f0-9]{40,64})\s+HEAD$') { throw "Could not check $repo." }
+    @{ Name=$name; Commit=$Matches[1] }
+}
+
+function Update-Mod($addon, [ref]$filesChanged, [ref]$desktopPending, [switch]$ForSubmission) {
     $root = Get-Checkout $addon.Project $addon.Guid $desktopPending
     $branch = Git $root @('symbolic-ref','--short','HEAD')
     $url = "https://github.com/$($addon.Repo).git"
-    $head = @(Git $root @('ls-remote','--symref',$url,'HEAD'))
-    if ($head.Count -lt 2 -or $head[0] -notmatch '^ref: refs/heads/(.+)\s+HEAD$') { throw 'Could not check for updates.' }
-    $defaultBranch = $Matches[1]
+    $upstream = Get-ModBase $root $addon.Repo
+    $defaultBranch = $upstream.Name
     $personal = $branch -cne $defaultBranch
-    if ($head[1] -notmatch '^([0-9a-f]{40,64})\s+HEAD$') { throw 'Could not check for updates.' }
-    $target = $Matches[1]
+    $target = $upstream.Commit
     $incoming = $target
     $before = Git $root @('rev-parse','HEAD')
     if ($before -eq $target) { return 'Up to date.' }
@@ -131,7 +137,10 @@ function Update-Mod($addon, [ref]$filesChanged, [ref]$desktopPending) {
         $tree = @(& git.exe -C $root merge-tree --write-tree --no-messages $before $target 2>&1)
         $mergeResult = $LASTEXITCODE
         $ErrorActionPreference = 'Stop'
-        if ($mergeResult -eq 1) { return Open-BranchHelp $root $branch $before $target $filesChanged $desktopPending }
+        if ($mergeResult -eq 1) {
+            if ($ForSubmission) { return 'Resolve the branch conflict first.' }
+            return Open-BranchHelp $root $branch $before $target $filesChanged $desktopPending
+        }
         if ($mergeResult -ne 0 -or $tree.Count -ne 1 -or $tree[0] -notmatch '^[0-9a-f]{40,64}$') { throw 'Could not check this merge. Update Git for Windows and try again.' }
         try { $target = Git $root @('commit-tree',$tree[0],'-p',$before,'-p',$target,'-m',"Merge $defaultBranch into $branch") }
         catch { throw 'Could not save the merge. Check your Git name, email and signing settings.' }
@@ -146,6 +155,7 @@ function Update-Mod($addon, [ref]$filesChanged, [ref]$desktopPending) {
         # Only offer replacement for paths Git explicitly refused to overwrite.
         $reason = $_.Exception.Message
         if ($reason -notmatch 'would be overwritten by merge:|would be removed by merge:') { throw }
+        if ($ForSubmission) { return 'Local changes block this update.' }
         $paths = @([regex]::Matches($reason,'(?m)^\t([^\r\n]+)') | ForEach-Object { $_.Groups[1].Value })
         if (!$paths.Count) { return 'Skipped to protect your files.' }
     }
@@ -211,6 +221,17 @@ function Read-MissionBranch([string]$current, [string]$world) {
     [Microsoft.VisualBasic.Interaction]::InputBox("Name your mission branch. Cancel keeps $current.",'GC Mission Branch',"mission/$slug")
 }
 
+function New-MissionBranch($root, $current, $world) {
+    $branch = Read-MissionBranch $current $world
+    if (!$branch) { return $false }
+    if ($branch -notmatch '^[a-zA-Z0-9][a-zA-Z0-9._/-]*$') { throw 'Use letters, numbers, slashes, dots, underscores or hyphens in the branch name.' }
+    $null = Git $root @('check-ref-format','--branch',$branch)
+    if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $current) { throw 'Branch changed. Try again.' }
+    $null = Git $root @('switch','--quiet','-c',$branch)
+    if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch) { throw 'Could not verify the new branch.' }
+    return $true
+}
+
 function Invoke-ModWorkflow {
     Add-Type -AssemblyName System.Windows.Forms
     $addons = @(
@@ -228,7 +249,12 @@ function Invoke-ModWorkflow {
     $accounts = @()
     try { $accounts = @(& git.exe credential-manager github list 2>$null) } catch {}
     if ($LASTEXITCODE -ne 0 -or !$accounts.Count) {
-        $answer = Show-Message 'Sign in to GitHub? Choose No to continue without signing in.' 'YesNoCancel'
+        if ($SubmitMission) {
+            $answer = Show-Message 'Sign in to GitHub to submit your mission?' 'YesNo'
+            if ($answer -ne 'Yes') { return 2 }
+        } else {
+            $answer = Show-Message 'Sign in to GitHub? Choose No to continue without signing in.' 'YesNoCancel'
+        }
         if ($answer -eq 'Cancel') { return 2 }
         if ($answer -eq 'Yes' -and (Connect-GitHub) -ne 0) { return 2 }
     }
@@ -240,6 +266,10 @@ function Invoke-ModWorkflow {
             $folder = ($addon.Repo -split '/')[-1]
             $addon.Project = Join-Path $addonsDirectory "$folder/addon.gproj"
         }
+    }
+    if ($SubmitMission) {
+        . (Join-Path $PSScriptRoot 'GC-SubmitMission.ps1')
+        return Invoke-MissionSubmission $addons $MissionWorld
     }
     if ($UpdateMods -and !$SelectedMods) { $SelectedMods = $addons.Key -join ',' }
     if ($SelectedMods) {
@@ -267,14 +297,7 @@ function Invoke-ModWorkflow {
         $world = (Get-Item -LiteralPath $MissionWorld).FullName
         if (!$world.StartsWith($root.TrimEnd('\','/') + '\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Save your mission in GC Missions first.' }
         $current = Git $root @('symbolic-ref','--short','HEAD')
-        $branch = Read-MissionBranch $current $world
-        if ($branch) {
-            if ($branch -notmatch '^[a-zA-Z0-9][a-zA-Z0-9._/-]*$') { throw 'Use letters, numbers, slashes, dots, underscores or hyphens in the branch name.' }
-            $null = Git $root @('check-ref-format','--branch',$branch)
-            if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $current) { throw 'Branch changed. Try again.' }
-            $null = Git $root @('switch','--quiet','-c',$branch)
-            if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch) { throw 'Could not verify the new branch.' }
-        }
+        $null = New-MissionBranch $root $current $world
     }
     return 0
 }
