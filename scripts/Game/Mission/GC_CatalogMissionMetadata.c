@@ -11,9 +11,9 @@ class GC_CatalogMissionMetadata
 	string m_sMapName;
 	[Attribute("", UIWidgets.ComboBox, "Press + and choose an objective. Add more if needed.", enums: { ParamEnum("Not set", ""), ParamEnum("Defense", "Defense"), ParamEnum("Attack & Defend", "Attack & Defend"), ParamEnum("Assault", "Assault"), ParamEnum("Convoy", "Convoy"), ParamEnum("High-value target (HVT)", "HVT"), ParamEnum("Sweep", "Sweep"), ParamEnum("Hostage", "Hostage"), ParamEnum("Delay", "Delay"), ParamEnum("Search & Rescue", "Search & Rescue") })]
 	ref array<string> m_aObjectives;
-	[Attribute("0", UIWidgets.SpinBox, "Smallest recommended group. Leave 0 if unsure. Maximum is Player Count above.", "0 10000", category: "Optional details")]
+	[Attribute("0", UIWidgets.Hidden)]
 	int m_iMinPlayers;
-	[Attribute("0", UIWidgets.SpinBox, "Ideal group size. Leave 0 if unsure.", "0 10000", category: "Optional details")]
+	[Attribute("0", UIWidgets.Hidden)]
 	int m_iRecommendedPlayers;
 	[Attribute("", UIWidgets.EditBox, "Time period, for example 1980s. Optional.", category: "Optional details")]
 	string m_sEra;
@@ -23,7 +23,7 @@ class GC_CatalogMissionMetadata
 	ref array<string> m_aMods;
 	[Attribute("", UIWidgets.Hidden)]
 	ref array<string> m_aRequiredAddonIds;
-	[Attribute("", UIWidgets.Object, "Optional faction details. Detected factions are also included in saved metadata.", category: "Optional details")]
+	[Attribute("", UIWidgets.Hidden)]
 	ref array<ref GC_CatalogForce> m_aFactions;
 
 	// Retain old serialized data for compatibility; no longer author-facing.

@@ -8,7 +8,10 @@ class GC_MissionMetadataExport
 	protected ref array<string> m_aFactions = {};
 	protected ref array<string> m_aConfiguredFactions = {};
 	protected ref array<string> m_aReferencedAddons = {};
+	protected ref array<ref GC_MissionMetadataSlot> m_aPlayerSlots = {};
+	protected ref map<ResourceName, ref GC_LoadoutMetadata> m_mLoadouts = new map<ResourceName, ref GC_LoadoutMetadata>();
 	protected int m_iEntityCount;
+	protected int m_iPlayableGroupCount;
 	protected string m_sError;
 	protected bool m_bComplete;
 	protected int m_iStarted;
@@ -27,7 +30,10 @@ class GC_MissionMetadataExport
 		m_aFactions.Clear();
 		m_aConfiguredFactions.Clear();
 		m_aReferencedAddons.Clear();
+		m_aPlayerSlots.Clear();
+		m_mLoadouts.Clear();
 		m_iEntityCount = 0;
+		m_iPlayableGroupCount = 0;
 		// Flat editor enumeration omits some prefab-inherited children. Visit each root once.
 		for (int i, count = api.GetEntityCount(subscene); i < count; i++)
 		{
@@ -94,6 +100,8 @@ class GC_MissionMetadataExport
 		if (affiliation)
 			affiliation.Get("faction affiliation", faction);
 		AddUnique(m_aFactions, faction);
+		if (type && type.IsInherited(SCR_AIGroup))
+			CollectPlayerSlots(source);
 		if (type && type.IsInherited(FactionManager))
 		{
 			BaseContainerList factions = source.GetObjectArray("Factions");
@@ -186,6 +194,52 @@ class GC_MissionMetadataExport
 		result.Sort();
 		m_mPrefabAddons.Set(prefab, result);
 		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Read exactly the authored entries used by GC_LobbyManager.RegisterGroupMembers.
+	//! This never spawns characters or chooses a random variant.
+	protected void CollectPlayerSlots(IEntitySource source)
+	{
+		bool playable;
+		source.Get("m_bPlayable", playable);
+		if (!playable)
+			return;
+		m_iPlayableGroupCount++;
+		string groupName = source.GetName();
+		if (groupName.IsEmpty())
+			groupName = string.Format("Group %1", m_iPlayableGroupCount);
+		string faction;
+		source.Get("m_faction", faction);
+		AddUnique(m_aFactions, faction);
+		array<ResourceName> prefabs = {};
+		source.Get("m_aUnitPrefabSlots", prefabs);
+		foreach (int index, ResourceName prefab : prefabs)
+		{
+			if (m_aPlayerSlots.Count() >= 10000 || System.GetTickCount(m_iStarted) > 30000)
+			{
+				m_sError = "Player-slot scan exceeded its slot or time limit.";
+				return;
+			}
+			GC_MissionMetadataSlot slot = new GC_MissionMetadataSlot();
+			slot.m_sGroup = groupName;
+			slot.m_iIndex = index;
+			slot.m_sFaction = faction;
+			slot.m_sPrefab = prefab;
+			GC_LoadoutMetadata loadout;
+			if (!m_mLoadouts.Find(prefab, loadout))
+			{
+				loadout = GC_LoadoutMetadata.Read(prefab);
+				m_mLoadouts.Set(prefab, loadout);
+			}
+			if (loadout)
+			{
+				slot.m_sName = loadout.m_sName;
+				slot.m_sLoadoutFaction = loadout.m_sFaction;
+				AddUnique(m_aFactions, loadout.m_sFaction);
+			}
+			m_aPlayerSlots.Insert(slot);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -297,7 +351,7 @@ class GC_MissionMetadataExport
 		snapshot.m_aPrefabs = {};
 		snapshot.m_aLoadedAddons = {};
 		snapshot.m_sWorld = world;
-		snapshot.m_sCaptureScope = "Editor snapshot; active subscene, including unsaved edits and prefab children. Other subscenes, resource-valued slots and runtime spawns excluded. This snapshot does not refresh automatically. Asset presence does not imply player availability; source addons are not a complete dependency list.";
+		snapshot.m_sCaptureScope = "Editor snapshot; active subscene, including unsaved edits and prefab children. Factions include authored playable groups and loadout keys. Slot rows are exported only to the JSON sidecar. Other subscenes and runtime spawns excluded. This snapshot does not refresh automatically. Asset presence does not imply player availability; source addons are not a complete dependency list.";
 		snapshot.m_iEntityCount = m_iEntityCount;
 		snapshot.m_aFactions.Copy(m_aFactions);
 		snapshot.m_aConfiguredFactions.Copy(m_aConfiguredFactions);
@@ -348,7 +402,7 @@ class GC_MissionMetadataExport
 	protected PrettyJsonSaveContext CreateJson(string worldPath)
 	{
 		PrettyJsonSaveContext context = new PrettyJsonSaveContext(false);
-		array<string> limitations = {"Captured world subscene only; inherited/other world subscenes excluded.", "Current editor snapshot, including unsaved edits.", "Placed entities only; resource-valued slots, loadouts and runtime spawners are not expanded.", "Prefab source addons are evidence of content use, not a complete dependency list.", "Asset categories describe presence, not player availability; mod configuration may be inaccurate."};
+		array<string> limitations = {"Captured world subscene only; inherited/other world subscenes excluded.", "Current editor snapshot, including unsaved edits.", "Player slots describe authored playable groups and their loadout prefabs; random variants, runtime spawns and inventory contents are not expanded. Group and loadout faction keys are separate authored values; runtime changes are not inferred.", "Prefab source addons are evidence of content use, not a complete dependency list.", "Asset categories describe presence, not player availability; mod configuration may be inaccurate."};
 		bool valid = context.WriteValue("schemaVersion", 1)
 			&& context.WriteValue("world", worldPath)
 			&& context.WriteValue("scope", "world_subscene")
@@ -357,6 +411,15 @@ class GC_MissionMetadataExport
 			&& context.WriteValue("factions", m_aFactions)
 			&& context.WriteValue("configuredFactions", m_aConfiguredFactions)
 			&& context.WriteValue("referencedAddonIds", m_aReferencedAddons);
+		int slotCount = m_aPlayerSlots.Count();
+		valid = context.StartArray("playerSlots", slotCount) && valid;
+		foreach (GC_MissionMetadataSlot slot : m_aPlayerSlots)
+		{
+			valid = context.StartObject() && valid;
+			valid = slot.Write(context) && valid;
+			valid = context.EndObject() && valid;
+		}
+		valid = context.EndArray() && valid;
 
 		array<string> keys = {};
 		foreach (string assetKey, int assetCount : m_mAssets)
@@ -401,6 +464,27 @@ class GC_MissionMetadataExport
 		if (!valid)
 			return null;
 		return context;
+	}
+}
+
+//! Export-only derived data; never appears in a mission header's property grid.
+class GC_MissionMetadataSlot
+{
+	string m_sGroup;
+	int m_iIndex;
+	string m_sFaction;
+	ResourceName m_sPrefab;
+	string m_sName;
+	string m_sLoadoutFaction;
+
+	bool Write(SaveContext context)
+	{
+		return context.WriteValue("group", m_sGroup)
+			&& context.WriteValue("index", m_iIndex)
+			&& context.WriteValue("faction", m_sFaction)
+			&& context.WriteValue("prefab", m_sPrefab)
+			&& context.WriteValue("name", m_sName)
+			&& context.WriteValue("loadoutFaction", m_sLoadoutFaction);
 	}
 }
 #endif

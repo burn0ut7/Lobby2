@@ -2,7 +2,7 @@
 
 ## Author workflow
 
-1. Edit the mission header: choose Mission Type, Objectives and Player Assets. The seven types are CO-OP, TVT, COTVT, Training, LOL, Testing and Broken. Factions replaces Forces. Manual Tags, Map Name, Required Addon IDs and grouping fields are no longer shown; their old serialized values remain readable for compatibility.
+1. Edit the mission header: choose Mission Type, Objectives and Player Assets. The seven types are CO-OP, TVT, COTVT, Training, LOL, Testing and Broken. Player Count on the native header is the only authored capacity. Minimum/recommended counts and manual factions are hidden; factions and playable slots come from world export. Manual Tags, Map Name, Required Addon IDs and grouping fields are no longer shown; their old serialized values remain readable for compatibility.
 2. Save the header in Resource Manager. The world action does not save separate header tabs.
 3. In World Editor select the mission subscene, then choose **Plugins > GC > Save Mission and Metadata**. This saves the world first and refreshes `<world>.ent.metadata.json` beside it.
 
@@ -27,7 +27,8 @@ The verification sections below describe historical implementations and do not d
 | `schemaVersion` | Currently `1`. |
 | `world`, `scope`, `limitations` | Snapshot identity and explicit coverage limits. `scope` is `world_subscene`: the save action uses the selected mission subscene. Earlier exports used `active_subscene`. |
 | `entityCount` | Entities visited, including nested helper entities. Not a unit count. |
-| `factions` | Unique nonempty effective faction-affiliation keys on placed entities. No friendly/enemy or player-side inference. |
+| `factions` | Unique nonempty placed affiliation, playable-group and authored loadout faction keys. No friendly/enemy inference. |
+| `playerSlots` | One row per authored playable-group slot: group name, zero-based index, group faction, character prefab, loadout name and loadout faction. AI-only groups are excluded. Random variants, runtime changes and inventory contents are not expanded. |
 | `configuredFactions` | Faction keys configured in faction managers in the scanned subscene, reported separately from actual affiliations. |
 | `assets` | Counts by detected category. Mounted vehicle subentities are not counted as independent vehicles/weapons. |
 | `prefabs` | Inventory grouped by prefab, entity class, effective faction, asset and classification evidence. Each row includes `count` and `sourceAddonIds`. Entities without prefab ancestry have an empty prefab reference. |
@@ -52,7 +53,7 @@ The exporter reads resolved sources, so ordinary prefab inheritance and instance
 
 ## Deliberate limits
 
-This is placed-content metadata, not a complete mod dependency analyzer. Script-only mods, components' resource references, equipment/loadout slots, catalogs and runtime spawners are not recursively expanded. The loaded-addon list preserves context without claiming those addons were all used by placed prefabs. No era, difficulty, mission purpose or player availability is guessed. No positions or mission-header fields are exported.
+This is placed-content metadata, not a complete mod dependency analyzer. Script-only mods, components' resource references, loadout inventory, random variants, catalogs and runtime spawners are not recursively expanded. Playable-group slot prefab references are included. The loaded-addon list preserves context without claiming those addons were all used by placed prefabs. No era, difficulty, mission purpose or player availability is guessed. No positions or mission-header fields are exported.
 
 ## Verification
 
@@ -116,3 +117,7 @@ In Workbench 1.8.0.13, opening MetadataTest produced one refresh (nine entities/
 Evidence: `logs_2026-11-01_17-45-51/console.log`, initial refresh line 33013; native registration lines 33018-33020; combined refresh line 33021. More than 50 seconds afterward, no additional refresh log appeared and the file modification time was unchanged. Disabling the scanner through the native property editor caused no scan; Undo restored it and produced one initialization refresh with nine entities/APC=2 at line 33022. Script compilation passed (pre-existing Arland resource errors remain).
 
 Reproduce the config event with optional `GC_MetadataEventProbe.c`: temporarily uncomment its plugin attribute, Reload, open MetadataTest, place an additional BTR, then invoke Resource Manager > Plugins > GC Tests > Metadata event probe. It creates two test configs using native save/register calls and never calls the scanner. It refuses replacement of either existing output. Comment the attribute and Reload afterward; the helper adds no tool by default. Generated test configs are local artifacts, not published resources.
+
+### Derived slot verification (2026-11-03)
+The production Save Mission and Metadata action on Arland exported 25 mission entities and 28 slots across eight playable groups. Inherited group slot arrays and character UI names/faction affiliations resolved; unnamed groups receive export-local Group N labels. Website intake retained all 28 rows. Script compilation passed; loaded-world reload still reports the existing stale ArlandLobby m_World resource reference. Native inherited .conf fields are unchanged: no supported GC-only category override was established.
+
