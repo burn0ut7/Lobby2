@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Lobby2, [string]$GlobalConflictsCore, [string]$GlobalConflictsUnits,
-    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld
+    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld, [switch]$SignIn
 )
 
 $ErrorActionPreference = 'Stop'
@@ -49,6 +49,36 @@ function Show-Message([string]$message, [string]$buttons = 'OK') {
     [Windows.Forms.MessageBox]::Show($message,'GC Git', $buttons)
 }
 
+function Connect-GitHub {
+    $setupUrl = 'https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git'
+    $reason = 'Install Git for Windows with Git Credential Manager to connect an account.'
+    $previous = $env:GCM_INTERACTIVE
+    try {
+        $null = Get-Command git.exe -ErrorAction Stop
+        # Windows PowerShell treats native stderr as error records. GCM can write
+        # browser instructions there on success, so use its exit code for the result.
+        $ErrorActionPreference = 'Continue'
+        $null = & git.exe credential-manager github login --help 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            $reason = 'GitHub sign-in did not complete. You can try again from the GC menu.'
+            $env:GCM_INTERACTIVE = 'true'
+            $null = & git.exe credential-manager github login --browser 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                $null = Show-Message 'Git Credential Manager completed GitHub sign-in.'
+                return 0
+            }
+        }
+    } catch {
+        # Show setup guidance without exposing authentication output in Workbench.
+    } finally {
+        $env:GCM_INTERACTIVE = $previous
+    }
+    if ((Show-Message "$reason Open GitHub's setup guide?" 'YesNo') -eq 'Yes') {
+        Start-Process $setupUrl
+    }
+    return 2
+}
+
 function Read-MissionBranch([string]$current, [string]$world) {
     Add-Type -AssemblyName Microsoft.VisualBasic
     $slug = ([IO.Path]::GetFileNameWithoutExtension($world).ToLowerInvariant() -replace '[^a-z0-9]+','-').Trim('-')
@@ -57,6 +87,7 @@ function Read-MissionBranch([string]$current, [string]$world) {
 
 function Invoke-ModWorkflow {
     Add-Type -AssemblyName System.Windows.Forms
+    if ($SignIn) { return Connect-GitHub }
     $addons = @(
         @{Name='Lobby2'; Key='Lobby2'; Project=$Lobby2; Guid='6A115D5DFF7ED870'; Repo='burn0ut7/Lobby2'}
         @{Name='GC Core'; Key='GlobalConflictsCore'; Project=$GlobalConflictsCore; Guid='623555110E2B2CA0'; Repo='Global-Conflicts-ArmA/gc-reforger-core'}

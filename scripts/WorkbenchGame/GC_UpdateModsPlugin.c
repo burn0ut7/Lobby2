@@ -8,6 +8,15 @@ class GC_UpdateModsPlugin : WorkbenchPlugin
 	}
 }
 
+[WorkbenchPluginAttribute(name: "Sign in to GitHub", description: "Connect a GitHub account using Git Credential Manager and your browser.", wbModules: { "WorldEditor" }, category: "GC")]
+class GC_GitHubSignInPlugin : WorkbenchPlugin
+{
+	override void Run()
+	{
+		GC_ModWorkflow.Launch(" -SignIn");
+	}
+}
+
 class GC_TemplateGitOptions
 {
 	[Attribute("0", UIWidgets.CheckBox, "Preview available updates for the four GC addons.")]
@@ -91,7 +100,7 @@ class GC_ModWorkflow
 		if (updateMods)
 		{
 			GC_ModSelection picker = new GC_ModSelection();
-			if (!Workbench.ScriptDialog("Update Mods", "Choose the mods to check for updates. You can review available updates before applying them.", picker))
+			if (!Workbench.ScriptDialog("Update Mods", "Choose the mods to check for updates. Public updates work without sign-in. For account access, use GC > Sign in to GitHub.", picker))
 				return false;
 
 			selected = picker.SelectedMods();
@@ -99,13 +108,7 @@ class GC_ModWorkflow
 				return true;
 		}
 
-		string helper;
-		if (!Workbench.GetAbsolutePath("$Lobby2:tools/GC-ModLauncher.js", helper))
-		{
-			Workbench.Dialog("GC Git", "The Git helper is missing. Install the Lobby2 source checkout or continue with the optional steps off.");
-			return false;
-		}
-		string command = "wscript.exe //nologo //E:JScript \"" + helper + "\"";
+		string command;
 		array<string> mounts = {"Lobby2", "GlobalConflictsCore", "GlobalConflictsUnits", "GlobalConflictsMissions"};
 		foreach (string mount : mounts)
 		{
@@ -127,7 +130,19 @@ class GC_ModWorkflow
 			command += " -MissionWorld \"" + absoluteWorld + "\"";
 		}
 
-		int result = Workbench.RunCmd(command, true);
+		return Launch(command);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool Launch(string arguments)
+	{
+		string helper;
+		if (!Workbench.GetAbsolutePath("$Lobby2:tools/GC-ModLauncher.js", helper))
+		{
+			Workbench.Dialog("GC Git", "The Git helper is missing. Install the Lobby2 source checkout or continue with the optional steps off.");
+			return false;
+		}
+		int result = Workbench.RunCmd("wscript.exe //nologo //E:JScript \"" + helper + "\"" + arguments, true);
 		if (result == 0)
 			return true;
 		if (result != 2)
