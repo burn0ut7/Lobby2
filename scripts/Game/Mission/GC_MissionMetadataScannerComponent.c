@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Mission", description: "Legacy metadata component. Use GC > Save Mission and Metadata in World Editor.")]
+[ComponentEditorProps(category: "Lobby2/Mission", description: "Legacy metadata component. Use GC > Create Mission Data in World Editor.")]
 class GC_MissionMetadataScannerComponentClass : ScriptComponentClass
 {
 }

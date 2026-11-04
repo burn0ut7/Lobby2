@@ -2,13 +2,13 @@
 
 ## Author workflow
 
-For a new header, open your saved mission in World Editor, select its mission subscene and choose **Plugins > GC > Create Mission Header**. Fill in Name, Author, Description and Player Count, then expand GC Catalog for Era, Mission Type, Objectives, Player Assets and Mods. Advanced is collapsed initially and contains optional technical settings. Press **Create header** to create `<world-name>_header.conf` beside the world. Cancel writes nothing; existing output files or meta files are never replaced. Open the resulting config in Resource Manager for later edits or settings not exposed by the creation form.
+Start Workbench with `-scriptAuthorizeAll` when using this workflow with trusted addons. This allows Workbench scripts to write files for that session. On the tested installation, a normal launch could save the world but refused the header write.
 
-This is a creation helper, not a replacement config format or a general editor. It creates a normal `GC_MissionHeader` (derived from `SCR_MissionHeader`) using native container defaults and the world's registered resource ID. Unexposed settings retain their usual defaults. It does not modify the world, set the running game mode, scan entities, or change other header classes. Header creation alone does not publish a mission to the website. Existing headers elsewhere are not searched or migrated; use their normal editor instead of creating a duplicate.
+In World Editor, select your saved mission subscene and choose **Plugins > GC > Create Mission Data**. Fill in Name, Author, Description and Player Count. Expand GC Catalog for Era, Mission Type, Objectives, Player Assets and Mods. Advanced contains optional technical settings.
 
-1. Edit the mission header: choose Mission Type, Objectives and Player Assets. The seven types are CO-OP, TVT, COTVT, Training, LOL, Testing and Broken. Player Count on the native header is the only authored capacity. Minimum/recommended counts and manual factions are hidden; factions and playable slots come from world export. Manual Tags, Map Name, Required Addon IDs and grouping fields are no longer shown; their old serialized values remain readable for compatibility.
-2. Save the header in Resource Manager. The world action does not save separate header tabs.
-3. In World Editor select the mission subscene, then choose **Plugins > GC > Save Mission and Metadata**. This saves the world first and refreshes `<world>.ent.metadata.json` beside it.
+Press **Create mission data** once. Workbench saves the world, collects its slot and asset metadata, creates and registers the standard `<world-name>_header.conf`, and writes `<world>.ent.metadata.json` beside the world. Cancel exits before saving.
+
+Run the same command again after world edits to refresh the metadata and preserve the existing generated header. For a mission whose header lives elsewhere, choose **Refresh metadata only** in the form. Edit and save existing headers in Resource Manager.
 
 Editing, adding or resetting catalogue properties never requests a scan. Opening worlds and registering resources no longer request scans either. The legacy scanner component remains only to preserve existing prefab serialization; it does no work.
 

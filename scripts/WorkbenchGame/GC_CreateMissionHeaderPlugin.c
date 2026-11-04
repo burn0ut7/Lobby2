@@ -1,6 +1,6 @@
 #ifdef WORKBENCH
-//! Creates a standard header; no world scans, shared overrides or new file format.
-[WorkbenchPluginAttribute(name: "Create Mission Header", description: "Create a GC mission .conf beside the active saved mission world. Existing headers are never overwritten.", wbModules: { "WorldEditor" }, category: "GC", awesomeFontCode: 0xF044)]
+//! One explicit authoring action for a mission header and its saved-world snapshot.
+[WorkbenchPluginAttribute(name: "Create Mission Data", description: "Save the active mission, create its header if needed, and refresh world metadata.", wbModules: { "WorldEditor" }, category: "GC", awesomeFontCode: 0xF044)]
 class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 {
 	//------------------------------------------------------------------------------------------------
@@ -12,75 +12,127 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 		WorldEditorAPI api = editor.GetApi();
 		if (!api || !api.IsEditMode() || api.IsGameMode() || api.IsPrefabEditMode() || api.IsDoingEditAction() || !api.GetWorld())
 		{
-			Workbench.Dialog("Create Mission Header", "Open your mission world in edit mode first.");
+			Workbench.Dialog("Create Mission Data", "Open your mission world in edit mode first.");
 			return;
 		}
 		int subscene = api.GetCurrentSubScene();
 		IEntitySource terrain = SCR_WorldEditorToolHelper.GetTerrainEntitySource();
 		if (terrain && terrain.GetSubScene() == subscene)
 		{
-			Workbench.Dialog("Create Mission Header", "Select your mission subscene, not the base terrain.");
+			Workbench.Dialog("Create Mission Data", "Select your mission subscene, not the base terrain.");
 			return;
 		}
 		string world = api.GetWorld().GetSubSceneName(subscene);
 		string absoluteWorld;
-		if (world.IsEmpty() || !Workbench.GetAbsolutePath(world, absoluteWorld) || !FileIO.FileExists(absoluteWorld))
+		if (world.IsEmpty() || !Workbench.GetAbsolutePath(world, absoluteWorld))
 		{
-			Workbench.Dialog("Create Mission Header", "Save your mission world into your addon first.");
+			Workbench.Dialog("Create Mission Data", "Select a saved mission subscene in your addon.\n" + world);
 			return;
 		}
-		string output = FilePath.StripExtension(absoluteWorld) + "_header.conf";
+		string output = FilePath.StripExtension(world) + "_header.conf";
+		string absoluteOutput;
+		if (!Workbench.GetAbsolutePath(output, absoluteOutput, false))
+		{
+			Workbench.Dialog("Create Mission Data", "Could not resolve the mission header destination.");
+			return;
+		}
 		ResourceManager manager = Workbench.GetModule(ResourceManager);
 		MetaFile worldMeta;
 		if (manager)
 			worldMeta = manager.GetMetaFile(absoluteWorld);
 		if (!worldMeta)
 		{
-			Workbench.Dialog("Create Mission Header", "The mission world is not registered yet. Save it and try again.");
+			Workbench.Dialog("Create Mission Data", "The mission world is not registered yet. Save it and try again.");
 			return;
 		}
 		ResourceName worldResource = worldMeta.GetResourceID();
-		if (FileIO.FileExists(output) || FileIO.FileExists(output + ".meta"))
+		string foundPath;
+		bool existing = Workbench.GetAbsolutePath(output, foundPath);
+		if (!existing && Workbench.GetAbsolutePath(output + ".meta", foundPath))
 		{
-			Workbench.Dialog("Create Mission Header", "A header already exists here. Open it in the Resource Browser to edit it.\n" + output);
+			Workbench.Dialog("Create Mission Data", "A resource registration exists without its header. Restore the missing file first.\n" + output);
 			return;
 		}
+		GC_MissionHeaderForm form;
+		Resource resource;
+		if (!existing)
+		{
+			resource = BaseContainerTools.CreateContainer("GC_MissionHeader");
+			if (!resource || !resource.IsValid())
+			{
+				Workbench.Dialog("Create Mission Data", "Workbench could not prepare the mission header.");
+				return;
+			}
+			form = Prompt(resource.GetResource().ToBaseContainer(), absoluteWorld);
+			if (!form)
+				return;
+		}
+
+		if (!editor.Save())
+		{
+			Workbench.Dialog("Create Mission Data", "World save failed. Mission data was not exported.");
+			return;
+		}
+		WBProgressDialog progress = new WBProgressDialog("Collecting mission data", editor);
+		GC_MissionMetadataExport exporter = new GC_MissionMetadataExport();
+		bool collected = exporter.Collect(api, subscene, progress);
+		progress = null;
+		if (!collected)
+		{
+			Workbench.Dialog("Create Mission Data", "World saved. Metadata collection failed: " + exporter.GetError());
+			return;
+		}
+		if (form && !form.m_bMetadataOnly)
+		{
+			string error;
+			if (!form.Create(resource.GetResource().ToBaseContainer(), worldResource, output, error))
+			{
+				Workbench.Dialog("Create Mission Data", "World saved. " + error);
+				return;
+			}
+		}
+		if (!form || !form.m_bMetadataOnly)
+		{
+			if (!manager.GetMetaFile(absoluteOutput) && !manager.RegisterResourceFile(absoluteOutput, true))
+			{
+					Workbench.Dialog("Create Mission Data", "World and header saved. Header registration failed. Run Create Mission Data again to retry.");
+				return;
+			}
+		}
+		if (!exporter.Save(world + ".metadata.json", world))
+		{
+			Workbench.Dialog("Create Mission Data", "World saved. Metadata export failed. Check write access to the mission folder and the Workbench console before retrying.");
+			return;
+		}
+		Workbench.Dialog("Mission Data Saved", "Mission saved and metadata refreshed for " + exporter.GetEntityCount().ToString() + " entities.");
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected GC_MissionHeaderForm Prompt(BaseContainer header, string absoluteWorld)
+	{
 		GC_MissionHeaderForm form = new GC_MissionHeaderForm();
 		form.m_sName = FilePath.StripExtension(FilePath.StripPath(absoluteWorld));
 		form.m_sName.Replace("_", " ");
-		Resource resource = BaseContainerTools.CreateContainer("GC_MissionHeader");
-		if (!resource || !resource.IsValid())
-			return;
-		BaseContainer header = resource.GetResource().ToBaseContainer();
 		form.m_Advanced = new GC_HeaderAdvancedSettings();
 		form.m_Advanced.Read(header);
 		Resource catalogDefaults = BaseContainerTools.CreateContainer("GC_CatalogMissionMetadata");
 		if (!catalogDefaults || !catalogDefaults.IsValid())
-			return;
+			return null;
 		form.m_GC_Catalog = GC_CatalogMissionMetadata.Cast(BaseContainerTools.CreateInstanceFromContainer(catalogDefaults.GetResource().ToBaseContainer()));
-		string description = "World: " + world + "\nCreates: " + FilePath.StripPath(output);
-		while (Workbench.ScriptDialog("Create Mission Header", description, form))
+		string description = "World: " + FilePath.StripPath(absoluteWorld) + "\nAlready have a header elsewhere? Choose Refresh metadata only.";
+		while (Workbench.ScriptDialog("Create Mission Data", description, form))
 		{
+			if (form.m_bMetadataOnly)
+				return form;
 			form.m_sName.TrimInPlace();
 			if (form.m_sName.IsEmpty() || form.m_iPlayerCount < 1)
 			{
-				Workbench.Dialog("Create Mission Header", "Enter a mission name and a player count of at least 1.");
+				Workbench.Dialog("Create Mission Data", "Enter a mission name and a player count of at least 1.");
 				continue;
 			}
-			string error;
-			if (!form.Create(header, worldResource, output, error))
-			{
-				Workbench.Dialog("Create Mission Header", error);
-				return;
-			}
-			if (!manager || !manager.RegisterResourceFile(output, true))
-			{
-				Workbench.Dialog("Create Mission Header", "The file was saved, but resource registration failed. Check the Resource Browser before using it.\n" + output);
-				return;
-			}
-			Workbench.Dialog("Mission Header Created", "Open this file in the Resource Browser to edit it.\n" + output);
-			return;
+			return form;
 		}
+		return null;
 	}
 }
 
@@ -99,12 +151,14 @@ class GC_MissionHeaderForm
 	ref GC_CatalogMissionMetadata m_GC_Catalog;
 	[Attribute("", UIWidgets.Object, "Optional technical settings. Other settings retain their normal game defaults.", "noDetails")]
 	ref GC_HeaderAdvancedSettings m_Advanced;
+	bool m_bMetadataOnly;
 
 	//------------------------------------------------------------------------------------------------
 	bool Create(BaseContainer header, ResourceName world, string output, out string error)
 	{
 		m_sName.TrimInPlace();
-		if (FileIO.FileExists(output) || FileIO.FileExists(output + ".meta"))
+		string foundPath;
+		if (Workbench.GetAbsolutePath(output, foundPath) || Workbench.GetAbsolutePath(output + ".meta", foundPath))
 		{
 			error = "Nothing was replaced: this header already exists.\n" + output;
 			return false;
@@ -129,16 +183,24 @@ class GC_MissionHeaderForm
 		}
 		if (!BaseContainerTools.SaveContainer(header, "", output))
 		{
-			error = "The header could not be saved. Check the destination and console before trying again.\n" + output;
+			error = "Header write failed. Check the mission folder and Workbench script-write permissions before retrying.\n" + output;
 			return false;
 		}
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	[ButtonAttribute("Create header")]
+	[ButtonAttribute("Create mission data")]
 	bool CreateHeader()
 	{
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[ButtonAttribute("Refresh metadata only")]
+	bool RefreshOnly()
+	{
+		m_bMetadataOnly = true;
 		return true;
 	}
 
