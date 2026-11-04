@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Lobby2, [string]$GlobalConflictsCore, [string]$GlobalConflictsUnits,
-    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld, [switch]$SignIn
+    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld
 )
 
 $ErrorActionPreference = 'Stop'
@@ -118,7 +118,7 @@ function Connect-GitHub {
         $ErrorActionPreference = 'Continue'
         $null = & git.exe credential-manager github login --help 2>&1
         if ($LASTEXITCODE -eq 0) {
-            $reason = 'GitHub sign-in did not complete. You can try again from the GC menu.'
+            $reason = 'GitHub sign-in did not complete. You can try again the next time you run a Git action.'
             $env:GCM_INTERACTIVE = 'true'
             $null = & git.exe credential-manager github login --browser 2>&1
             if ($LASTEXITCODE -eq 0) {
@@ -145,14 +145,25 @@ function Read-MissionBranch([string]$current, [string]$world) {
 
 function Invoke-ModWorkflow {
     Add-Type -AssemblyName System.Windows.Forms
-    if ($SignIn) { return Connect-GitHub }
     $addons = @(
         @{Name='Lobby2'; Key='Lobby2'; Project=$Lobby2; Guid='6A115D5DFF7ED870'; Repo='burn0ut7/Lobby2'}
         @{Name='GC Core'; Key='GlobalConflictsCore'; Project=$GlobalConflictsCore; Guid='623555110E2B2CA0'; Repo='Global-Conflicts-ArmA/gc-reforger-core'}
         @{Name='GC Units'; Key='GlobalConflictsUnits'; Project=$GlobalConflictsUnits; Guid='6156F2F771D5D73D'; Repo='Global-Conflicts-ArmA/gc-reforger-units'}
         @{Name='GC Missions'; Key='GlobalConflictsMissions'; Project=$GlobalConflictsMissions; Guid='62D55563549DA97A'; Repo='Global-Conflicts-ArmA/gc-reforger-missions'}
     )
-    $null = Get-Command git.exe -ErrorAction Stop
+    if (!(Get-Command git.exe -ErrorAction SilentlyContinue)) {
+        if ((Show-Message 'Git for Windows is required for this action. Open the Git installer page?' 'YesNo') -eq 'Yes') {
+            Start-Process 'https://git-scm.com/downloads/win'
+        }
+        return 2
+    }
+    $accounts = @()
+    try { $accounts = @(& git.exe credential-manager github list 2>$null) } catch {}
+    if ($LASTEXITCODE -ne 0 -or !$accounts.Count) {
+        $answer = Show-Message 'Git Credential Manager has no available GitHub account. Yes opens browser sign-in. No continues with public updates and local branch creation. Cancel stops this action.' 'YesNoCancel'
+        if ($answer -eq 'Cancel') { return 2 }
+        if ($answer -eq 'Yes' -and (Connect-GitHub) -ne 0) { return 2 }
+    }
     # Workbench only resolves mounts loaded in the current project. Source checkouts
     # installed alongside Lobby2 can still be updated after their GUID is verified.
     $addonsDirectory = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)

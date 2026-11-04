@@ -8,15 +8,6 @@ class GC_UpdateModsPlugin : WorkbenchPlugin
 	}
 }
 
-[WorkbenchPluginAttribute(name: "Sign in to GitHub", description: "Connect a GitHub account using Git Credential Manager and your browser.", wbModules: { "WorldEditor" }, category: "GC")]
-class GC_GitHubSignInPlugin : WorkbenchPlugin
-{
-	override void Run()
-	{
-		GC_ModWorkflow.Launch(" -SignIn");
-	}
-}
-
 class GC_TemplateGitOptions
 {
 	[Attribute("0", UIWidgets.CheckBox, "Preview available updates for the four GC addons.")]
@@ -100,12 +91,15 @@ class GC_ModWorkflow
 		if (updateMods)
 		{
 			GC_ModSelection picker = new GC_ModSelection();
-			if (!Workbench.ScriptDialog("Update Mods", "Choose the mods to check for updates. Public updates work without sign-in. For account access, use GC > Sign in to GitHub.", picker))
+			if (!Workbench.ScriptDialog("Update Mods", "Choose the mods to check for updates. If Git has no saved GitHub account, you can sign in or continue without one.", picker))
 				return false;
 
 			selected = picker.SelectedMods();
 			if (selected.IsEmpty() && !createBranch)
+			{
+				Workbench.Dialog("Update Mods", "No mods selected. No updates were requested.");
 				return true;
+			}
 		}
 
 		string command;
@@ -142,10 +136,18 @@ class GC_ModWorkflow
 			Workbench.Dialog("GC Git", "The Git helper is missing. Install the Lobby2 source checkout or continue with the optional steps off.");
 			return false;
 		}
-		int result = Workbench.RunCmd("wscript.exe //nologo //E:JScript \"" + helper + "\"" + arguments, true);
-		if (result == 0)
+		ProcessHandle process = Workbench.RunProcess("wscript.exe //nologo //E:JScript \"" + helper + "\"" + arguments);
+		if (!process)
+		{
+			Workbench.Dialog("GC Git", "Workbench could not start the Git helper. If your Workbench launch options include -noThrow, remove it and restart Workbench. Otherwise check script authorization and Windows Script Host.");
+			return false;
+		}
+		int result = Workbench.WaitProcess(process);
+		Workbench.FinishProcess(process);
+		PrintFormat("GC | Git | Launcher result %1", result);
+		if (result == 73)
 			return true;
-		if (result != 2)
+		if (result != 74)
 			Workbench.Dialog("GC Git", "The Git workflow did not complete. Check that Windows PowerShell and Git for Windows are available.");
 		return false;
 	}

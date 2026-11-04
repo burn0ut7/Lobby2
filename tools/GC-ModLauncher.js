@@ -8,6 +8,17 @@ function quote(value) {
     if (value.indexOf('"') !== -1) throw new Error("Unexpected quote in argument.");
     return '"' + value + '"';
 }
-var command = quote(executable) + " -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File " + quote(helper);
-for (var i = 0; i < WScript.Arguments.length; i++) command += " " + quote(WScript.Arguments(i));
-WScript.Quit(shell.Run(command, 0, true));
+var args = "-NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File " + quote(helper);
+for (var i = 0; i < WScript.Arguments.length; i++) args += " " + quote(WScript.Arguments(i));
+// WScript's hidden window style suppresses GUI dialogs as well. Start the actual
+// helper with CreateNoWindow so it has no console and can show ordinary dialogs.
+shell.Environment("Process")("GC_WORKBENCH_GIT_ARGS") = args;
+var bootstrap = "$ErrorActionPreference = 'Stop'; $start = New-Object Diagnostics.ProcessStartInfo; " +
+    "$start.FileName = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; " +
+    "$start.Arguments = $env:GC_WORKBENCH_GIT_ARGS; $start.UseShellExecute = $false; " +
+    "$start.CreateNoWindow = $true; $child = [Diagnostics.Process]::Start($start); " +
+    "$child.WaitForExit(); exit $child.ExitCode";
+var command = quote(executable) + " -NoProfile -NonInteractive -Command " + quote(bootstrap);
+// Distinct exits let Workbench distinguish a completed workflow from a failed launch.
+var result = shell.Run(command, 0, true);
+WScript.Quit(result === 0 ? 73 : result === 2 ? 74 : 1);
