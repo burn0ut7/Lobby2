@@ -5,7 +5,7 @@ class GC_CatalogMissionMetadata
 {
 	[Attribute("1", UIWidgets.Hidden)]
 	int m_iSchemaVersion;
-	[Attribute("", UIWidgets.EditBox, "Time period, for example 1980s. Optional.")]
+	[Attribute("", UIWidgets.ComboBox, "Choose the mission decade.", enums: GC_MissionCatalogChoices.Eras())]
 	string m_sEra;
 	[Attribute("", UIWidgets.ComboBox, "Choose how people play this mission.", enums: GC_MissionCatalogChoices.MissionTypes())]
 	string m_sMissionType;
@@ -53,6 +53,19 @@ class GC_CatalogForce
 //! Shared labels for the native header and the compact Workbench form.
 class GC_MissionCatalogChoices
 {
+	//------------------------------------------------------------------------------------------------
+	static ParamEnumArray Eras()
+	{
+		ParamEnumArray choices = new ParamEnumArray();
+		for (int year = 1940; year <= 2030; year += 10)
+		{
+			string decade = year.ToString() + "s";
+			choices.Insert(new ParamEnum(decade, decade));
+		}
+		choices.Insert(new ParamEnum("Other", "Other"));
+		return choices;
+	}
+
 	//------------------------------------------------------------------------------------------------
 	static ParamEnumArray MissionTypes()
 	{

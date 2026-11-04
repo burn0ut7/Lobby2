@@ -198,14 +198,16 @@ class GC_MissionHeaderForm
 	int m_iPlayerCount = 1;
 	[Attribute("1", UIWidgets.EditBox, "Fewest players needed to run the mission.")]
 	int m_iMinimumPlayers = 1;
-	[Attribute("", UIWidgets.EditBox)]
-	string m_sEra;
+	[Attribute("Other", UIWidgets.ComboBox, "Choose the mission decade.", enums: GC_MissionCatalogChoices.Eras())]
+	string m_sEra = "Other";
 	[Attribute("Testing", UIWidgets.ComboBox, enums: GC_MissionCatalogChoices.MissionTypes())]
 	string m_sMissionType = "Testing";
 	[Attribute("0", UIWidgets.Flags, enums: ObjectiveFlags())]
 	int m_iObjectives;
 	[Attribute("0", UIWidgets.Flags, enums: CompositionFlags())]
 	int m_iForceComposition;
+	[Attribute("", UIWidgets.ResourcePickerThumbnail, "Used for both the loading screen and mission preview. Recommended: 1920 x 1080 pixels (16:9 landscape).", "edds")]
+	ResourceName m_sMissionImage;
 	bool m_bMetadataOnly;
 
 	//------------------------------------------------------------------------------------------------
@@ -286,6 +288,11 @@ class GC_MissionHeaderForm
 			|| !header.SetObject("m_GC_Catalog", fields))
 		{
 			error = "The mission header could not be prepared. No file was saved.";
+			return false;
+		}
+		if (!m_sMissionImage.IsEmpty() && (!header.Set("m_sLoadingScreen", m_sMissionImage) || !header.Set("m_sPreviewImage", m_sMissionImage)))
+		{
+			error = "Could not set the loading screen and preview image.";
 			return false;
 		}
 		if (!BaseContainerTools.SaveContainer(header, "", output))
