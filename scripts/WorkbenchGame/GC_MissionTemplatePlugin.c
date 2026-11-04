@@ -63,6 +63,9 @@ class GC_MissionTemplatePlugin : WorkbenchPlugin
 			Report("The template entity names are already in use. Nothing was placed.");
 			return;
 		}
+		if (!GC_ModWorkflow.BeforeTemplate(api.GetWorld().GetSubSceneName(subscene)))
+			return;
+
 		Resource templateResource = Resource.Load(TEMPLATE);
 		Resource aiResource = Resource.Load(aiPrefab);
 		if (!templateResource || !templateResource.IsValid() || !aiResource || !aiResource.IsValid())
