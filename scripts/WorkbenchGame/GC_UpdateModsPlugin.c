@@ -63,7 +63,7 @@ class GC_ModSelection
 			names.Insert("GlobalConflictsUnits");
 		if (m_bGCMissions)
 			names.Insert("GlobalConflictsMissions");
-		return string.Join(",", names);
+		return string.Join(",", names, true);
 	}
 
 	[ButtonAttribute("Continue")]
