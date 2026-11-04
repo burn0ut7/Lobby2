@@ -12,6 +12,11 @@ class GC_MissionMetadataExport
 	protected ref map<ResourceName, ref GC_LoadoutMetadata> m_mLoadouts = new map<ResourceName, ref GC_LoadoutMetadata>();
 	protected int m_iEntityCount;
 	protected int m_iPlayableGroupCount;
+	protected BaseContainer m_TimeHandler;
+	protected bool m_bAmbiguousTime;
+	protected bool m_bAllowHeaderTime;
+	protected bool m_bRandomStart;
+	protected ref array<int> m_aStartHours = {};
 	protected string m_sError;
 	protected bool m_bComplete;
 	protected int m_iStarted;
@@ -34,6 +39,11 @@ class GC_MissionMetadataExport
 		m_mLoadouts.Clear();
 		m_iEntityCount = 0;
 		m_iPlayableGroupCount = 0;
+		m_TimeHandler = null;
+		m_bAmbiguousTime = false;
+		m_bAllowHeaderTime = false;
+		m_bRandomStart = false;
+		m_aStartHours.Clear();
 		// Flat editor enumeration omits some prefab-inherited children. Visit each root once.
 		for (int i, count = api.GetEntityCount(subscene); i < count; i++)
 		{
@@ -61,6 +71,7 @@ class GC_MissionMetadataExport
 		m_Progress = null;
 		if (!m_sError.IsEmpty())
 			return false;
+		CollectStartTime(api);
 		m_aFactions.Sort();
 		m_aConfiguredFactions.Sort();
 		m_aReferencedAddons.Sort();
@@ -94,6 +105,8 @@ class GC_MissionMetadataExport
 		if (m_Progress && m_iEntityCount % 32 == 0)
 			m_Progress.SetActionTitle(string.Format("%1 mission entities checked", m_iEntityCount));
 		typename type = source.GetClassName().ToType();
+		if (type && type.IsInherited(BaseGameMode))
+			ObserveTimeHandler(source);
 		bool vehicle = type && type.IsInherited(BaseVehicle);
 		string faction;
 		BaseContainer affiliation = FindComponent(source, FactionAffiliationComponent);
@@ -240,6 +253,81 @@ class GC_MissionMetadataExport
 			}
 			m_aPlayerSlots.Insert(slot);
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ObserveTimeHandler(IEntitySource source)
+	{
+		BaseContainer handler = FindComponent(source, SCR_TimeAndWeatherHandlerComponent);
+		if (!handler)
+			return;
+		if (m_TimeHandler && handler != m_TimeHandler)
+			m_bAmbiguousTime = true;
+		m_TimeHandler = handler;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CollectStartTime(WorldEditorAPI api)
+	{
+		// The game mode may live in a parent subscene. Use its resolved source if available.
+		BaseGameMode mode = GetGame().GetGameMode();
+		if (mode && mode.GetWorld() == api.GetWorld())
+		{
+			IEntitySource modeSource = api.EntityToSource(mode);
+			if (modeSource)
+				ObserveTimeHandler(modeSource);
+		}
+		if (m_bAmbiguousTime)
+			return;
+		int hour;
+		if (!m_TimeHandler)
+		{
+			ChimeraWorld world = ChimeraWorld.CastFrom(api.GetWorld());
+			if (!world || !world.GetTimeAndWeatherManager())
+				return;
+			IEntitySource manager = api.EntityToSource(world.GetTimeAndWeatherManager());
+			float initialHour;
+			if (manager && manager.Get("Initial Day Time", initialHour) && initialHour >= 0 && initialHour < 24)
+				m_aStartHours.Insert(Math.Floor(initialHour));
+			return;
+		}
+
+		bool presets, range;
+		m_TimeHandler.Get("m_bUsePredefineStartingTimeAndWeather", presets);
+		BaseContainerList states = m_TimeHandler.GetObjectArray("m_aStartingWeatherAndTime");
+		if (presets && states && states.Count() > 0)
+		{
+			for (int i; i < states.Count(); i++)
+			{
+				if (!states.Get(i).Get("m_iStartingHour", hour) || hour < 0 || hour > 23)
+				{
+					m_aStartHours.Clear();
+					return;
+				}
+				if (!m_aStartHours.Contains(hour))
+					m_aStartHours.Insert(hour);
+			}
+			return;
+		}
+		m_TimeHandler.Get("m_bRandomStartingDaytimeRange", range);
+		if (range)
+		{
+			int start, end, startMinute, endMinute;
+			if (!m_TimeHandler.Get("m_iRangeHoursStart", start) || !m_TimeHandler.Get("m_iRangeHoursEnd", end)
+				|| !m_TimeHandler.Get("m_iRangeMinutesStart", startMinute) || !m_TimeHandler.Get("m_iRangeMinutesEnd", endMinute)
+				|| start < 0 || end > 23 || start > end || startMinute > endMinute)
+				return;
+			// The handler passes negative hours/minutes for wrapped ranges. Their
+			// normalization is native, so omit those instead of guessing.
+			int endExclusive = Math.Max(start + 1, end);
+			for (hour = start; hour < endExclusive; hour++)
+				m_aStartHours.Insert(hour);
+			return;
+		}
+		m_TimeHandler.Get("m_bAllowHeaderSettings", m_bAllowHeaderTime);
+		m_TimeHandler.Get("m_bRandomStartingDaytime", m_bRandomStart);
+		if (!m_bRandomStart && m_TimeHandler.Get("m_iStartingHours", hour) && hour >= 0 && hour < 24)
+			m_aStartHours.Insert(hour);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -411,6 +499,14 @@ class GC_MissionMetadataExport
 			&& context.WriteValue("factions", m_aFactions)
 			&& context.WriteValue("configuredFactions", m_aConfiguredFactions)
 			&& context.WriteValue("referencedAddonIds", m_aReferencedAddons);
+		if (m_bRandomStart || !m_aStartHours.IsEmpty())
+		{
+			if (m_bRandomStart)
+				valid = context.WriteValue("randomStartTime", true) && valid;
+			else
+				valid = context.WriteValue("startHours", m_aStartHours) && valid;
+			valid = context.WriteValue("allowHeaderTime", m_bAllowHeaderTime) && valid;
+		}
 		int slotCount = m_aPlayerSlots.Count();
 		valid = context.StartArray("playerSlots", slotCount) && valid;
 		foreach (GC_MissionMetadataSlot slot : m_aPlayerSlots)

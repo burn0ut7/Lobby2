@@ -24,6 +24,10 @@
         "Lobby2",
         "TilWMissionFramework"
     ],
+    "startHours": [
+        12
+    ],
+    "allowHeaderTime": false,
     "playerSlots": [
         {
             "group": "Group 1",

@@ -13,7 +13,8 @@ class GC_SubmitMissionPlugin : WorkbenchPlugin
 			Workbench.Dialog("Submit Mission", "Open your mission in edit mode.");
 			return;
 		}
-		string world = api.GetWorld().GetSubSceneName(api.GetCurrentSubScene());
+		int subscene = api.GetCurrentSubScene();
+		string world = api.GetWorld().GetSubSceneName(subscene);
 		string path;
 		if (!world.StartsWith("$GlobalConflictsMissions:") || !Workbench.GetAbsolutePath(world, path))
 		{
@@ -23,6 +24,15 @@ class GC_SubmitMissionPlugin : WorkbenchPlugin
 		if (!editor.Save())
 		{
 			Workbench.Dialog("Submit Mission", "Save your mission and try again.");
+			return;
+		}
+		GC_MissionMetadataExport exporter = new GC_MissionMetadataExport();
+		WBProgressDialog progress = new WBProgressDialog("Refreshing mission data", editor);
+		bool collected = exporter.Collect(api, subscene, progress);
+		progress = null;
+		if (!collected || !exporter.Save(world + ".metadata.json", world))
+		{
+			Workbench.Dialog("Submit Mission", "Could not refresh mission data. " + exporter.GetError());
 			return;
 		}
 		GC_ModWorkflow.Launch(GC_ModWorkflow.ProjectArguments() + " -SubmitMission -MissionWorld \"" + path + "\"");
