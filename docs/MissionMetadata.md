@@ -6,9 +6,9 @@ Start Workbench with `-scriptAuthorizeAll` when using this workflow with trusted
 
 In World Editor, select your saved mission subscene and choose **Plugins > GC > Create Mission Data**. Fill in Name, Author, Description and Player Count. Minimum Players is directly below Player Count. Mission Type starts at Testing. Choose Objectives and Force Composition. Mechanized covers infantry operating with APCs or IFVs. Airborne covers parachute troops, helicopter operations and other crewed aviation. Drones and other support can be selected alongside any force type. The website derives Mods from non-vanilla addons referenced by the placed prefabs and their ancestors.
 
-Press **Create mission data** once. Workbench saves the world, collects its slot and asset metadata, creates and registers the standard `<world-name>_header.conf`, and writes `<world>.ent.metadata.json` beside the world. Cancel exits before saving.
+Press **Create mission data** once. Workbench saves the world, collects its slot and asset metadata, creates and registers the standard `Configs/Missions/<Author>/<Name>.conf` in the mission addon (spaces and underscores are removed from the entered mission name), and writes `<world>.ent.metadata.json` beside the world. Cancel exits before saving.
 
-Run the same command again after world edits to refresh the metadata and preserve the existing generated header. For a mission whose header lives elsewhere, choose **Refresh metadata only** in the form. Edit and save existing headers in Resource Manager.
+For an existing header, choose **Refresh metadata only** to save the world and refresh its metadata. Edit and save existing headers in Resource Manager.
 
 Editing, adding or resetting catalogue properties never requests a scan. Opening worlds and registering resources no longer request scans either. The legacy scanner component remains only to preserve existing prefab serialization; it does no work.
 

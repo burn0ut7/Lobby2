@@ -29,13 +29,14 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 			Workbench.Dialog("Create Mission Data", "Select a saved mission subscene in your addon.\n" + world);
 			return;
 		}
-		string output = FilePath.StripExtension(world) + "_header.conf";
-		string absoluteOutput;
-		if (!Workbench.GetAbsolutePath(output, absoluteOutput, false))
+		int mountEnd = world.IndexOf(":");
+		if (mountEnd < 2 || world.Substring(0, 1) != "$")
 		{
-			Workbench.Dialog("Create Mission Data", "Could not resolve the mission header destination.");
+			Workbench.Dialog("Create Mission Data", "Select a mission world in a local addon.");
 			return;
 		}
+		string configs = world.Substring(0, mountEnd + 1) + "Configs";
+		string missions = configs + "/Missions";
 		ResourceManager manager = Workbench.GetModule(ResourceManager);
 		MetaFile worldMeta;
 		if (manager)
@@ -46,26 +47,32 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 			return;
 		}
 		ResourceName worldResource = worldMeta.GetResourceID();
-		string foundPath;
-		bool existing = Workbench.GetAbsolutePath(output, foundPath);
-		if (!existing && Workbench.GetAbsolutePath(output + ".meta", foundPath))
-		{
-			Workbench.Dialog("Create Mission Data", "A resource registration exists without its header. Restore the missing file first.\n" + output);
+		GC_MissionHeaderForm form = Prompt(absoluteWorld);
+		if (!form)
 			return;
-		}
-		GC_MissionHeaderForm form;
+		string authorDir = missions + "/" + form.m_sAuthor;
+		string output = authorDir + "/" + HeaderFilename(form.m_sName);
+		string absoluteOutput;
+		string foundPath;
 		Resource resource;
-		if (!existing)
+		if (!form.m_bMetadataOnly)
 		{
+			if (Workbench.GetAbsolutePath(output, foundPath) || Workbench.GetAbsolutePath(output + ".meta", foundPath))
+			{
+				Workbench.Dialog("Create Mission Data", "This header already exists. Edit it in Resource Manager or choose Refresh metadata only.\n" + output);
+				return;
+			}
+			if (!EnsureDirectory(configs) || !EnsureDirectory(missions) || !EnsureDirectory(authorDir) || !Workbench.GetAbsolutePath(output, absoluteOutput, false))
+			{
+				Workbench.Dialog("Create Mission Data", "Could not prepare the header folder.\n" + authorDir);
+				return;
+			}
 			resource = BaseContainerTools.CreateContainer("GC_MissionHeader");
 			if (!resource || !resource.IsValid())
 			{
 				Workbench.Dialog("Create Mission Data", "Workbench could not prepare the mission header.");
 				return;
 			}
-			form = Prompt(absoluteWorld);
-			if (!form)
-				return;
 		}
 
 		if (!editor.Save())
@@ -82,7 +89,7 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 			Workbench.Dialog("Create Mission Data", "World saved. Metadata collection failed: " + exporter.GetError());
 			return;
 		}
-		if (form && !form.m_bMetadataOnly)
+		if (!form.m_bMetadataOnly)
 		{
 			string error;
 			if (!form.Create(resource.GetResource().ToBaseContainer(), worldResource, output, error))
@@ -90,12 +97,9 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 				Workbench.Dialog("Create Mission Data", "World saved. " + error);
 				return;
 			}
-		}
-		if (!form || !form.m_bMetadataOnly)
-		{
 			if (!manager.GetMetaFile(absoluteOutput) && !manager.RegisterResourceFile(absoluteOutput, true))
 			{
-					Workbench.Dialog("Create Mission Data", "World and header saved. Header registration failed. Run Create Mission Data again to retry.");
+				Workbench.Dialog("Create Mission Data", "World and header saved. Header registration failed. Register the saved file in Resource Manager: \n" + output);
 				return;
 			}
 		}
@@ -104,7 +108,52 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 			Workbench.Dialog("Create Mission Data", "World saved. Metadata export failed. Check write access to the mission folder and the Workbench console before retrying.");
 			return;
 		}
-		Workbench.Dialog("Mission Data Saved", "Mission saved and metadata refreshed for " + exporter.GetEntityCount().ToString() + " entities.");
+		string message = "Mission saved and metadata refreshed for " + exporter.GetEntityCount().ToString() + " entities.";
+		if (!form.m_bMetadataOnly)
+			message += "\nHeader: " + output;
+		Workbench.Dialog("Mission Data Saved", message);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool EnsureDirectory(string path)
+	{
+		string absolute;
+		if (Workbench.GetAbsolutePath(path, absolute))
+			return true;
+		return Workbench.GetAbsolutePath(path, absolute, false) && FileIO.MakeDirectory(absolute);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ValidPathPart(string name)
+	{
+		if (name.IsEmpty() || name.Length() > 120 || name.EndsWith(".") || name.EndsWith(" "))
+			return false;
+		string forbidden = "<>:\"/\\|?*";
+		for (int i = 0; i < name.Length(); i++)
+		{
+			string ch = name.Substring(i, 1);
+			if (ch.ToAscii() >= 0 && ch.ToAscii() < 32 || forbidden.Contains(ch))
+				return false;
+		}
+		string deviceName = name;
+		int dot = deviceName.IndexOf(".");
+		if (dot >= 0)
+			deviceName = deviceName.Substring(0, dot);
+		deviceName.ToUpper();
+		array<string> reserved = {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"};
+		if (reserved.Contains(deviceName))
+			return false;
+		if (deviceName.Length() == 4 && (deviceName.StartsWith("COM") || deviceName.StartsWith("LPT")))
+			return !"123456789".Contains(deviceName.Substring(3, 1));
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected string HeaderFilename(string missionName)
+	{
+		missionName.Replace("_", "");
+		missionName.Replace(" ", "");
+		return missionName + ".conf";
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -113,15 +162,21 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 		GC_MissionHeaderForm form = new GC_MissionHeaderForm();
 		form.m_sName = FilePath.StripExtension(FilePath.StripPath(absoluteWorld));
 		form.m_sName.Replace("_", " ");
-		string description = "World: " + FilePath.StripPath(absoluteWorld) + "\nAlready have a header elsewhere? Choose Refresh metadata only.";
+		string description = "World: " + FilePath.StripPath(absoluteWorld) + "\nHeader: Configs/Missions/<Author>/<Name>.conf";
 		while (Workbench.ScriptDialog("Create Mission Data", description, form))
 		{
 			if (form.m_bMetadataOnly)
 				return form;
-			form.m_sName.TrimInPlace();
-			if (form.m_sName.IsEmpty() || !form.HasValidPlayerRange())
+			form.m_sAuthor.TrimInPlace();
+			if (!ValidPathPart(form.m_sAuthor))
 			{
-				Workbench.Dialog("Create Mission Data", "Enter a mission name. Minimum Players must be between 1 and Player Count (maximum 10000).");
+				Workbench.Dialog("Create Mission Data", "Enter an author name that can be used as one folder name.");
+				continue;
+			}
+			form.m_sName.TrimInPlace();
+			if (form.m_sName.IsEmpty() || !ValidPathPart(FilePath.StripExtension(HeaderFilename(form.m_sName))) || !form.HasValidPlayerRange())
+			{
+				Workbench.Dialog("Create Mission Data", "Enter a mission name suitable for a filename. Minimum Players must be between 1 and Player Count (maximum 10000).");
 				continue;
 			}
 			return form;

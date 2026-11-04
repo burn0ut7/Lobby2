@@ -96,8 +96,7 @@ class GC_MissionCatalogChoices
 		choices.Insert(new ParamEnum("Armored", "Armored", "Tank units."));
 		choices.Insert(new ParamEnum("Airborne", "Airborne", "Parachute troops, helicopters and other crewed aircraft."));
 		choices.Insert(new ParamEnum("Naval", "Naval", "Boat or ship operations."));
-		choices.Insert(new ParamEnum("Mortars", "Mortars", "Mortar support."));
-		choices.Insert(new ParamEnum("Artillery", "Artillery", "Artillery support."));
+		choices.Insert(new ParamEnum("Artillery", "Artillery", "Includes mortars and other artillery support."));
 		choices.Insert(new ParamEnum("Drones", "Drones", "Uncrewed aircraft or systems."));
 		return choices;
 	}
