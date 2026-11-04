@@ -17,7 +17,7 @@ function Git([string]$root, [string[]]$arguments) {
     $output | ForEach-Object { "$_" }
 }
 
-function Get-Checkout([string]$project, [string]$guid) {
+function Get-Checkout([string]$project, [string]$guid, [ref]$desktopPending) {
     if (!$project -or !(Test-Path -LiteralPath $project -PathType Leaf)) { throw "Mod folder not found." }
     if ((Get-Content -LiteralPath $project -Raw) -notmatch ('(?m)^\s*GUID "' + $guid + '"')) { throw 'Wrong mod folder.' }
     $root = [IO.Path]::GetFullPath((Split-Path -LiteralPath $project))
@@ -25,7 +25,11 @@ function Get-Checkout([string]$project, [string]$guid) {
     if ([IO.Path]::GetFullPath($top) -ne [IO.Path]::GetFullPath($root)) { throw 'This mod is not set up for updates.' }
     foreach ($marker in 'MERGE_HEAD','CHERRY_PICK_HEAD','REVERT_HEAD','rebase-apply','rebase-merge','sequencer','BISECT_START') {
         $path = Git $root @('rev-parse','--path-format=absolute','--git-path',$marker)
-        if (Test-Path -LiteralPath $path) { throw 'Finish the other Git task first.' }
+        if (Test-Path -LiteralPath $path) {
+            if ($desktopPending) { $desktopPending.Value = $true }
+            if ($marker -eq 'MERGE_HEAD') { throw 'Finish the current merge first.' }
+            throw 'Finish the other Git task first.'
+        }
     }
     $root
 }
@@ -69,20 +73,70 @@ function Confirm-Replacement($name, [string[]]$filesToReplace) {
     } finally { $form.Dispose() }
 }
 
-function Update-Mod($addon, [ref]$filesChanged) {
-    $root = Get-Checkout $addon.Project $addon.Guid
+function Open-BranchHelp($root, $branch, $before, $incoming, [ref]$filesChanged, [ref]$desktopPending) {
+    $desktop = Get-Command github.bat -ErrorAction SilentlyContinue
+    if (!$desktop) {
+        if ((Show-Message "Your edits need review. Get GitHub Desktop?" 'YesNo') -eq 'Yes') {
+            Start-Process 'https://desktop.github.com/download/'
+        }
+        return 'Skipped. Your edits are safe.'
+    }
+    $dirty = @(Git $root @('status','--porcelain','--untracked-files=all')).Count -gt 0
+    $question = "This update conflicts with $branch. Resolve it in GitHub Desktop?"
+    if ($dirty) { $question = "Commit your edits before updating $branch. Open GitHub Desktop?" }
+    if ((Show-Message $question 'YesNo') -ne 'Yes') { return 'Skipped. Your edits are safe.' }
+    if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch -or (Git $root @('rev-parse','HEAD')) -ne $before) { throw 'Mod changed. Try again.' }
+    if (!$dirty) {
+        if (Git $root @('status','--porcelain','--untracked-files=all')) { throw 'Mod changed. Try again.' }
+        try {
+            $null = Git $root @('merge','--ff','--no-squash','--commit','--no-edit','--no-autostash','--no-overwrite-ignore',$incoming)
+            $filesChanged.Value = $true
+            return 'Updated.'
+        } catch {
+            if (!(Git $root @('ls-files','--unmerged'))) { throw }
+            $filesChanged.Value = $true
+        }
+    }
+    $desktopPending.Value = $true
+    Push-Location -LiteralPath $root
+    try {
+        $null = & $desktop.Source
+        if ($LASTEXITCODE -ne 0) { throw "Open this folder in GitHub Desktop: $root" }
+    } finally { Pop-Location }
+    if ($dirty) { return 'Commit your edits in Desktop, then update again.' }
+    return 'Finish the merge in GitHub Desktop.'
+}
+
+function Update-Mod($addon, [ref]$filesChanged, [ref]$desktopPending) {
+    $root = Get-Checkout $addon.Project $addon.Guid $desktopPending
     $branch = Git $root @('symbolic-ref','--short','HEAD')
     $url = "https://github.com/$($addon.Repo).git"
     $head = @(Git $root @('ls-remote','--symref',$url,'HEAD'))
     if ($head.Count -lt 2 -or $head[0] -notmatch '^ref: refs/heads/(.+)\s+HEAD$') { throw 'Could not check for updates.' }
-    if ($branch -cne $Matches[1]) { return "Skipped (on $branch)." }
+    $defaultBranch = $Matches[1]
+    $personal = $branch -cne $defaultBranch
     if ($head[1] -notmatch '^([0-9a-f]{40,64})\s+HEAD$') { throw 'Could not check for updates.' }
     $target = $Matches[1]
+    $incoming = $target
     $before = Git $root @('rev-parse','HEAD')
     if ($before -eq $target) { return 'Up to date.' }
-    $null = Git $root @('fetch','--quiet','--no-tags',$url,"refs/heads/$branch")
-    if ((Git $root @('merge-base',$before,$target)) -ne $before) { return 'Skipped to keep your saved work.' }
-    $merge = @('-c','core.quotePath=false','merge','--ff-only','--no-autostash','--no-overwrite-ignore','--quiet',$target)
+    $null = Git $root @('fetch','--quiet','--no-tags',$url,"refs/heads/$defaultBranch")
+    $base = Git $root @('merge-base',$before,$target)
+    if ($base -eq $target) { return 'Up to date.' }
+    if ($base -ne $before) {
+        if (!$personal) { return 'Skipped to keep your saved work.' }
+        # Merge the committed histories first, without touching the author's index or files.
+        # Advancing to the resulting two-parent commit uses the same protected update below.
+        $ErrorActionPreference = 'Continue'
+        $tree = @(& git.exe -C $root merge-tree --write-tree --no-messages $before $target 2>&1)
+        $mergeResult = $LASTEXITCODE
+        $ErrorActionPreference = 'Stop'
+        if ($mergeResult -eq 1) { return Open-BranchHelp $root $branch $before $target $filesChanged $desktopPending }
+        if ($mergeResult -ne 0 -or $tree.Count -ne 1 -or $tree[0] -notmatch '^[0-9a-f]{40,64}$') { throw 'Could not check this merge. Update Git for Windows and try again.' }
+        try { $target = Git $root @('commit-tree',$tree[0],'-p',$before,'-p',$target,'-m',"Merge $defaultBranch into $branch") }
+        catch { throw 'Could not save the merge. Check your Git name, email and signing settings.' }
+    }
+    $merge = @('-c','core.quotePath=false','merge','--ff-only','--no-squash','--no-autostash','--no-overwrite-ignore','--quiet',$target)
     if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch -or (Git $root @('rev-parse','HEAD')) -ne $before) { throw 'Mod changed. Try again.' }
     try {
         $null = Git $root $merge
@@ -101,6 +155,7 @@ function Update-Mod($addon, [ref]$filesChanged) {
             !(Git $root @('--literal-pathspecs','status','--porcelain','--untracked-files=all','--',$path)) -or
             (Test-Path -LiteralPath (Join-Path $root $path) -PathType Container)) { return 'Skipped to protect your files.' }
     }
+    if ($personal) { return Open-BranchHelp $root $branch $before $incoming $filesChanged $desktopPending }
     if (!(Confirm-Replacement $addon.Name $paths)) { return 'Skipped. Your edits are safe.' }
     $null = Get-Checkout $addon.Project $addon.Guid
     if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch -or (Git $root @('rev-parse','HEAD')) -ne $before) { throw 'Mod changed. Try again.' }
@@ -191,19 +246,20 @@ function Invoke-ModWorkflow {
         $selectedKeys = $SelectedMods -split ','
         $rows = @()
         $changed = $false
+        $desktopPending = $false
         foreach ($addon in $addons) {
             if ($addon.Key -notin $selectedKeys) { continue }
             try {
-                $result = Update-Mod $addon ([ref]$changed)
+                $result = Update-Mod $addon ([ref]$changed) ([ref]$desktopPending)
             } catch {
                 $result = $_.Exception.Message
                 if ($result.StartsWith('Git failed')) { $result = 'Could not update. Check your connection and mod folder.' }
             }
             $rows += "$($addon.Name): $result"
         }
-        if ($changed) { $rows += 'Reload Workbench to use the changes.' }
+        if ($changed -and !$desktopPending) { $rows += 'Reload Workbench to use the changes.' }
         $null = Show-Message ($rows -join [Environment]::NewLine)
-        if ($changed) { return 2 }
+        if ($changed -or $desktopPending) { return 2 }
     }
     if ($MissionWorld) {
         $missions = $addons | Where-Object Key -eq GlobalConflictsMissions
