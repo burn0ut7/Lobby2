@@ -1,5 +1,5 @@
 #ifdef WORKBENCH
-[WorkbenchPluginAttribute(name: "Update Mods", description: "Preview and optionally fast-forward clean GC addon checkouts.", wbModules: { "WorldEditor" }, category: "GC")]
+[WorkbenchPluginAttribute(name: "Update Mods", description: "Update the selected mods.", wbModules: { "WorldEditor" }, category: "GC")]
 class GC_UpdateModsPlugin : WorkbenchPlugin
 {
 	override void Run()
@@ -10,10 +10,10 @@ class GC_UpdateModsPlugin : WorkbenchPlugin
 
 class GC_TemplateGitOptions
 {
-	[Attribute("0", UIWidgets.CheckBox, "Preview available updates for the four GC addons.")]
+	[Attribute("0", UIWidgets.CheckBox, "Update selected mods.")]
 	bool m_bUpdateMods;
 
-	[Attribute("0", UIWidgets.CheckBox, "Choose a name for a new local branch in the active GC Missions checkout.")]
+	[Attribute("0", UIWidgets.CheckBox, "Start a new mission branch.")]
 	bool m_bCreateMissionBranch;
 
 	[ButtonAttribute("Continue")]
@@ -57,7 +57,7 @@ class GC_ModSelection
 		return string.Join(",", names, true);
 	}
 
-	[ButtonAttribute("Continue")]
+	[ButtonAttribute("Update")]
 	bool Confirm()
 	{
 		return true;
@@ -75,7 +75,7 @@ class GC_ModWorkflow
 	static bool BeforeTemplate(string world)
 	{
 		GC_TemplateGitOptions options = new GC_TemplateGitOptions();
-		if (!Workbench.ScriptDialog("Spawn Mission Template", "Both steps are optional. Leave them clear to place the template on your current branch.", options))
+		if (!Workbench.ScriptDialog("Spawn Mission Template", "Choose any extras for this mission.", options))
 			return false;
 
 		return Run(options.m_bUpdateMods, options.m_bCreateMissionBranch, world);
@@ -91,13 +91,13 @@ class GC_ModWorkflow
 		if (updateMods)
 		{
 			GC_ModSelection picker = new GC_ModSelection();
-			if (!Workbench.ScriptDialog("Update Mods", "Choose the mods to check for updates. If Git has no saved GitHub account, you can sign in or continue without one.", picker))
+			if (!Workbench.ScriptDialog("Update Mods", "Save your work, then choose which mods to update.", picker))
 				return false;
 
 			selected = picker.SelectedMods();
 			if (selected.IsEmpty() && !createBranch)
 			{
-				Workbench.Dialog("Update Mods", "No mods selected. No updates were requested.");
+				Workbench.Dialog("Update Mods", "No mods selected.");
 				return true;
 			}
 		}
@@ -133,13 +133,13 @@ class GC_ModWorkflow
 		string helper;
 		if (!Workbench.GetAbsolutePath("$Lobby2:tools/GC-ModLauncher.js", helper))
 		{
-			Workbench.Dialog("GC Git", "The Git helper is missing. Install the Lobby2 source checkout or continue with the optional steps off.");
+			Workbench.Dialog("GC Git", "Git tools are missing from Lobby2.");
 			return false;
 		}
 		ProcessHandle process = Workbench.RunProcess("wscript.exe //nologo //E:JScript \"" + helper + "\"" + arguments);
 		if (!process)
 		{
-			Workbench.Dialog("GC Git", "Workbench could not start the Git helper. If your Workbench launch options include -noThrow, remove it and restart Workbench. Otherwise check script authorization and Windows Script Host.");
+			Workbench.Dialog("GC Git", "Git could not start. Open Workbench without -noThrow and allow the Git helper to run.");
 			return false;
 		}
 		int result = Workbench.WaitProcess(process);
@@ -148,7 +148,7 @@ class GC_ModWorkflow
 		if (result == 73)
 			return true;
 		if (result != 74)
-			Workbench.Dialog("GC Git", "The Git workflow did not complete. Check that Windows PowerShell and Git for Windows are available.");
+			Workbench.Dialog("GC Git", "Git could not finish. Check your Git installation.");
 		return false;
 	}
 }

@@ -5,60 +5,60 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = New-Object Text.UTF8Encoding
+$env:LC_ALL = 'C'
 $env:GIT_TERMINAL_PROMPT = '0'
 $env:GCM_INTERACTIVE = 'Never'
 
 function Git([string]$root, [string[]]$arguments) {
+    $ErrorActionPreference = 'Continue'
     $output = @(& git.exe -C $root @arguments 2>&1)
-    if ($LASTEXITCODE -ne 0) { throw "Git failed ($($arguments[0])) in $root. $($output -join ' ')" }
+    if ($LASTEXITCODE -ne 0) { throw "Git failed ($($arguments[0])) in $root. $($output -join [Environment]::NewLine)" }
     $output | ForEach-Object { "$_" }
 }
 
 function Get-Checkout([string]$project, [string]$guid) {
-    if (!$project -or !(Test-Path -LiteralPath $project -PathType Leaf)) { throw "Source checkout missing. Expected $project" }
-    if ((Get-Content -LiteralPath $project -Raw) -notmatch ('(?m)^\s*GUID "' + $guid + '"')) { throw 'Unexpected addon identity.' }
+    if (!$project -or !(Test-Path -LiteralPath $project -PathType Leaf)) { throw "Mod folder not found." }
+    if ((Get-Content -LiteralPath $project -Raw) -notmatch ('(?m)^\s*GUID "' + $guid + '"')) { throw 'Wrong mod folder.' }
     $root = [IO.Path]::GetFullPath((Split-Path -LiteralPath $project))
     $top = Git $root @('rev-parse','--show-toplevel')
-    if ([IO.Path]::GetFullPath($top) -ne [IO.Path]::GetFullPath($root)) { throw 'Addon must be its own Git checkout.' }
+    if ([IO.Path]::GetFullPath($top) -ne [IO.Path]::GetFullPath($root)) { throw 'This mod is not set up for updates.' }
     foreach ($marker in 'MERGE_HEAD','CHERRY_PICK_HEAD','REVERT_HEAD','rebase-apply','rebase-merge','sequencer','BISECT_START') {
         $path = Git $root @('rev-parse','--path-format=absolute','--git-path',$marker)
-        if (Test-Path -LiteralPath $path) { throw 'Finish the current Git operation first.' }
+        if (Test-Path -LiteralPath $path) { throw 'Finish the other Git task first.' }
     }
     $root
 }
 
-function Read-LocalChanges([string]$root) {
-    Git $root @('status','--porcelain=v1','--untracked-files=all','--ignore-submodules=none')
-}
-
-function Confirm-Discard($plan) {
+function Confirm-Replacement($name, [string[]]$filesToReplace) {
     $form = New-Object Windows.Forms.Form
     try {
-        $form.Text = "Review local changes - $($plan.Addon.Name)"
+        $form.Text = "Update $name?"
         $form.StartPosition = 'CenterScreen'
         $form.ClientSize = New-Object Drawing.Size(700,460)
         $form.MinimumSize = New-Object Drawing.Size(540,380)
         $description = New-Object Windows.Forms.Label
         $description.Dock = 'Top'
-        $description.Height = 100
+        $description.Height = 52
         $description.Padding = New-Object Windows.Forms.Padding(10)
-        $description.Text = "$($plan.Root)  [$($plan.Branch)]`r`nDiscard All adds this checkout to the final confirmation. Git will save staged, unstaged and untracked files in a local stash, then clear those changes. Ignored files stay in place.`r`n`r`nFirst column: staged. Second: working copy. M modified, A added, D deleted, R renamed, ?? untracked."
+        $description.Text = "The update would replace your edits to these files. Back them up and update?"
         $files = New-Object Windows.Forms.TextBox
         $files.Multiline = $true
         $files.ReadOnly = $true
         $files.WordWrap = $false
         $files.ScrollBars = 'Both'
         $files.Dock = 'Fill'
-        $files.Lines = [string[]]$plan.Changes
+        $files.Lines = $filesToReplace
         $buttons = New-Object Windows.Forms.FlowLayoutPanel
         $buttons.Dock = 'Bottom'
         $buttons.FlowDirection = 'RightToLeft'
         $buttons.Height = 42
         $ignore = New-Object Windows.Forms.Button
-        $ignore.Text = 'Ignore'
+        $ignore.Text = 'Skip mod'
         $ignore.DialogResult = 'Cancel'
         $discard = New-Object Windows.Forms.Button
-        $discard.Text = 'Discard All'
+        $discard.Text = 'Back up and update'
+        $discard.AutoSize = $true
         $discard.DialogResult = 'Yes'
         $buttons.Controls.AddRange(@($ignore,$discard))
         $form.Controls.AddRange(@($files,$description,$buttons))
@@ -69,40 +69,53 @@ function Confirm-Discard($plan) {
     } finally { $form.Dispose() }
 }
 
-function New-UpdatePlan($addon) {
+function Update-Mod($addon, [ref]$filesChanged) {
     $root = Get-Checkout $addon.Project $addon.Guid
     $branch = Git $root @('symbolic-ref','--short','HEAD')
-    $changes = @(Read-LocalChanges $root)
     $url = "https://github.com/$($addon.Repo).git"
-    $head = Git $root @('ls-remote','--symref',$url,'HEAD')
-    if ($head[0] -notmatch '^ref: refs/heads/(.+)\s+HEAD$') { throw 'Cannot identify the upstream default branch.' }
-    $defaultBranch = $Matches[1]
-    if ($head.Count -lt 2 -or $head[1] -notmatch '^([0-9a-f]{40,64})\s+HEAD$') { throw 'Cannot identify the upstream revision.' }
+    $head = @(Git $root @('ls-remote','--symref',$url,'HEAD'))
+    if ($head.Count -lt 2 -or $head[0] -notmatch '^ref: refs/heads/(.+)\s+HEAD$') { throw 'Could not check for updates.' }
+    if ($branch -cne $Matches[1]) { return "Skipped (on $branch)." }
+    if ($head[1] -notmatch '^([0-9a-f]{40,64})\s+HEAD$') { throw 'Could not check for updates.' }
     $target = $Matches[1]
     $before = Git $root @('rev-parse','HEAD')
-    if ($branch -cne $defaultBranch) {
-        $note = "Keep working branch $branch at its current commit."
-        $target = $before
-    } elseif ($before -eq $target) {
-        $note = "$branch is current."
-    } else {
-        $null = Git $root @('fetch','--quiet','--no-tags',$url,"refs/heads/$branch")
-        $base = Git $root @('merge-base',$before,$target)
-        if ($base -ne $before) {
-            $note = "$branch contains local commits. Keep its current revision."
-            $target = $before
-        } else {
-            $note = "Update $branch to $($target.Substring(0,8))."
-        }
+    if ($before -eq $target) { return 'Up to date.' }
+    $null = Git $root @('fetch','--quiet','--no-tags',$url,"refs/heads/$branch")
+    if ((Git $root @('merge-base',$before,$target)) -ne $before) { return 'Skipped to keep your saved work.' }
+    $merge = @('-c','core.quotePath=false','merge','--ff-only','--no-autostash','--no-overwrite-ignore','--quiet',$target)
+    if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch -or (Git $root @('rev-parse','HEAD')) -ne $before) { throw 'Mod changed. Try again.' }
+    try {
+        $null = Git $root $merge
+        $filesChanged.Value = $true
+        return 'Updated.'
+    } catch {
+        # Only offer replacement for paths Git explicitly refused to overwrite.
+        $reason = $_.Exception.Message
+        if ($reason -notmatch 'would be overwritten by merge:|would be removed by merge:') { throw }
+        $paths = @([regex]::Matches($reason,'(?m)^\t([^\r\n]+)') | ForEach-Object { $_.Groups[1].Value })
+        if (!$paths.Count) { return 'Skipped to protect your files.' }
     }
-    $plan = [pscustomobject]@{ Addon=$addon; Root=$root; Branch=$branch; Before=$before; Target=$target; Changes=$changes; Note=$note }
-    if ($changes.Count) {
-        if (!(Confirm-Discard $plan)) { throw "Skipped. Kept local changes on $branch." }
-        $plan.Note = "Stash and clear the current contents of the reviewed paths on $branch. $note"
-    } elseif ($before -eq $target) { throw $note }
-    $plan
-}
+    foreach ($path in $paths) {
+        # Quoted names, folders and ignored files need manual handling.
+        if ($path.StartsWith('"') -or $path.EndsWith('/') -or
+            !(Git $root @('--literal-pathspecs','status','--porcelain','--untracked-files=all','--',$path)) -or
+            (Test-Path -LiteralPath (Join-Path $root $path) -PathType Container)) { return 'Skipped to protect your files.' }
+    }
+    if (!(Confirm-Replacement $addon.Name $paths)) { return 'Skipped. Your edits are safe.' }
+    $null = Get-Checkout $addon.Project $addon.Guid
+    if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch -or (Git $root @('rev-parse','HEAD')) -ne $before) { throw 'Mod changed. Try again.' }
 
+    $label = "GC update $([guid]::NewGuid())"
+    # A failed backup can already have changed files. Require an editor refresh.
+    $filesChanged.Value = $true
+    $null = Git $root (@('--literal-pathspecs','-c','user.name=GC Workbench','-c','user.email=workbench@localhost','stash','push','--quiet','--include-untracked','--message',$label,'--') + $paths)
+    $backup = Git $root @('stash','list','-1','--format=%h %gs')
+    if (!$backup -or !$backup.EndsWith($label)) { throw 'Backup could not be confirmed. Check the mod before retrying.' }
+    $id = $backup.Split(' ')[0]
+    try { $null = Git $root $merge }
+    catch { return "Update stopped. Your edits are in backup $id." }
+    return "Updated. Your edits are in backup $id."
+}
 function Show-Message([string]$message, [string]$buttons = 'OK') {
     [Windows.Forms.MessageBox]::Show($message,'GC Git', $buttons)
 }
@@ -118,11 +131,11 @@ function Connect-GitHub {
         $ErrorActionPreference = 'Continue'
         $null = & git.exe credential-manager github login --help 2>&1
         if ($LASTEXITCODE -eq 0) {
-            $reason = 'GitHub sign-in did not complete. You can try again the next time you run a Git action.'
+            $reason = 'Sign-in cancelled.'
             $env:GCM_INTERACTIVE = 'true'
             $null = & git.exe credential-manager github login --browser 2>&1
             if ($LASTEXITCODE -eq 0) {
-                $null = Show-Message 'Git Credential Manager completed GitHub sign-in.'
+                $null = Show-Message 'Signed in.'
                 return 0
             }
         }
@@ -140,7 +153,7 @@ function Connect-GitHub {
 function Read-MissionBranch([string]$current, [string]$world) {
     Add-Type -AssemblyName Microsoft.VisualBasic
     $slug = ([IO.Path]::GetFileNameWithoutExtension($world).ToLowerInvariant() -replace '[^a-z0-9]+','-').Trim('-')
-    [Microsoft.VisualBasic.Interaction]::InputBox("Current branch: $current`nCreate a local branch at the current commit. Cancel keeps the current branch.",'GC Mission Branch',"mission/$slug")
+    [Microsoft.VisualBasic.Interaction]::InputBox("Name your mission branch. Cancel keeps $current.",'GC Mission Branch',"mission/$slug")
 }
 
 function Invoke-ModWorkflow {
@@ -152,7 +165,7 @@ function Invoke-ModWorkflow {
         @{Name='GC Missions'; Key='GlobalConflictsMissions'; Project=$GlobalConflictsMissions; Guid='62D55563549DA97A'; Repo='Global-Conflicts-ArmA/gc-reforger-missions'}
     )
     if (!(Get-Command git.exe -ErrorAction SilentlyContinue)) {
-        if ((Show-Message 'Git for Windows is required for this action. Open the Git installer page?' 'YesNo') -eq 'Yes') {
+        if ((Show-Message 'Install Git for Windows?' 'YesNo') -eq 'Yes') {
             Start-Process 'https://git-scm.com/downloads/win'
         }
         return 2
@@ -160,7 +173,7 @@ function Invoke-ModWorkflow {
     $accounts = @()
     try { $accounts = @(& git.exe credential-manager github list 2>$null) } catch {}
     if ($LASTEXITCODE -ne 0 -or !$accounts.Count) {
-        $answer = Show-Message 'Git Credential Manager has no available GitHub account. Yes opens browser sign-in. No continues with public updates and local branch creation. Cancel stops this action.' 'YesNoCancel'
+        $answer = Show-Message 'Sign in to GitHub? Choose No to continue without signing in.' 'YesNoCancel'
         if ($answer -eq 'Cancel') { return 2 }
         if ($answer -eq 'Yes' -and (Connect-GitHub) -ne 0) { return 2 }
     }
@@ -177,61 +190,32 @@ function Invoke-ModWorkflow {
     if ($SelectedMods) {
         $selectedKeys = $SelectedMods -split ','
         $rows = @()
-        $plans = @(foreach ($addon in $addons) {
+        $changed = $false
+        foreach ($addon in $addons) {
             if ($addon.Key -notin $selectedKeys) { continue }
             try {
-                $plan = New-UpdatePlan $addon
-                $rows += "$($addon.Name): $($plan.Note)"
-                $plan
-            } catch { $rows += "$($addon.Name): $_" }
-        })
-        $summary = $rows -join [Environment]::NewLine
-        if ($plans.Count) {
-            $answer = Show-Message "$summary`n`nApply these actions to the saved files on disk? If any affected editor has unsaved changes, choose Cancel and save them first. No skips all actions." 'YesNoCancel'
-            if ($answer -eq 'Cancel') { return 2 }
-            if ($answer -eq 'Yes') {
-                $completed = @()
-                try {
-                    foreach ($plan in $plans) {
-                        $root = Get-Checkout $plan.Addon.Project $plan.Addon.Guid
-                        if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $plan.Branch -or
-                            (Git $root @('rev-parse','HEAD')) -ne $plan.Before -or
-                            ((@(Read-LocalChanges $root) -join "`n") -cne ($plan.Changes -join "`n"))) { throw "Checkout changed since review: $root" }
-                        if ($plan.Changes.Count) {
-                            $label = "GC Update Mods - $($plan.Branch) - $([guid]::NewGuid())"
-                            $null = Git $root @('-c','user.name=GC Workbench','-c','user.email=workbench@localhost','stash','push','--quiet','--include-untracked','--message',$label)
-                            $backup = Git $root @('stash','list','-1','--format=%h %gs')
-                            if (!$backup -or !$backup.EndsWith($label)) { throw "Could not verify the new stash in $root. Check git stash list before retrying." }
-                            $completed += "$($plan.Addon.Name) saved local changes in stash $($backup.Split(' ')[0])"
-                            if (Read-LocalChanges $root) { throw "Some changes remain in $root. Inspect the checkout before retrying." }
-                        }
-                        if ($plan.Before -ne $plan.Target) {
-                            $null = Git $root @('merge','--ff-only','--no-overwrite-ignore','--quiet',$plan.Target)
-                            $completed += "$($plan.Addon.Name) updated to $($plan.Target.Substring(0,8))"
-                        }
-                    }
-                } finally {
-                    if ($completed.Count) {
-                        $null = Show-Message "$($completed -join [Environment]::NewLine)`n`nRefresh the affected Workbench resources and reload scripts before starting a template."
-                    }
-                }
-                return 2
+                $result = Update-Mod $addon ([ref]$changed)
+            } catch {
+                $result = $_.Exception.Message
+                if ($result.StartsWith('Git failed')) { $result = 'Could not update. Check your connection and mod folder.' }
             }
-        } else {
-            if ((Show-Message "$summary`n`nContinue without updates?" 'OKCancel') -eq 'Cancel') { return 2 }
+            $rows += "$($addon.Name): $result"
         }
+        if ($changed) { $rows += 'Reload Workbench to use the changes.' }
+        $null = Show-Message ($rows -join [Environment]::NewLine)
+        if ($changed) { return 2 }
     }
     if ($MissionWorld) {
         $missions = $addons | Where-Object Key -eq GlobalConflictsMissions
         $root = Get-Checkout $missions.Project $missions.Guid
         $world = (Get-Item -LiteralPath $MissionWorld).FullName
-        if (!$world.StartsWith($root.TrimEnd('\','/') + '\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Select a saved world in GC Missions to create its branch.' }
+        if (!$world.StartsWith($root.TrimEnd('\','/') + '\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Save your mission in GC Missions first.' }
         $current = Git $root @('symbolic-ref','--short','HEAD')
         $branch = Read-MissionBranch $current $world
         if ($branch) {
             if ($branch -notmatch '^[a-zA-Z0-9][a-zA-Z0-9._/-]*$') { throw 'Use letters, numbers, slashes, dots, underscores or hyphens in the branch name.' }
             $null = Git $root @('check-ref-format','--branch',$branch)
-            if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $current) { throw 'The current branch changed. Try again.' }
+            if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $current) { throw 'Branch changed. Try again.' }
             $null = Git $root @('switch','--quiet','-c',$branch)
             if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $branch) { throw 'Could not verify the new branch.' }
         }
