@@ -27,22 +27,80 @@ function Get-Checkout([string]$project, [string]$guid) {
     $root
 }
 
+function Read-LocalChanges([string]$root) {
+    Git $root @('status','--porcelain=v1','--untracked-files=all','--ignore-submodules=none')
+}
+
+function Confirm-Discard($plan) {
+    $form = New-Object Windows.Forms.Form
+    try {
+        $form.Text = "Review local changes - $($plan.Addon.Name)"
+        $form.StartPosition = 'CenterScreen'
+        $form.ClientSize = New-Object Drawing.Size(700,460)
+        $form.MinimumSize = New-Object Drawing.Size(540,380)
+        $description = New-Object Windows.Forms.Label
+        $description.Dock = 'Top'
+        $description.Height = 100
+        $description.Padding = New-Object Windows.Forms.Padding(10)
+        $description.Text = "$($plan.Root)  [$($plan.Branch)]`r`nDiscard All adds this checkout to the final confirmation. Git will save staged, unstaged and untracked files in a local stash, then clear those changes. Ignored files stay in place.`r`n`r`nFirst column: staged. Second: working copy. M modified, A added, D deleted, R renamed, ?? untracked."
+        $files = New-Object Windows.Forms.TextBox
+        $files.Multiline = $true
+        $files.ReadOnly = $true
+        $files.WordWrap = $false
+        $files.ScrollBars = 'Both'
+        $files.Dock = 'Fill'
+        $files.Lines = [string[]]$plan.Changes
+        $buttons = New-Object Windows.Forms.FlowLayoutPanel
+        $buttons.Dock = 'Bottom'
+        $buttons.FlowDirection = 'RightToLeft'
+        $buttons.Height = 42
+        $ignore = New-Object Windows.Forms.Button
+        $ignore.Text = 'Ignore'
+        $ignore.DialogResult = 'Cancel'
+        $discard = New-Object Windows.Forms.Button
+        $discard.Text = 'Discard All'
+        $discard.DialogResult = 'Yes'
+        $buttons.Controls.AddRange(@($ignore,$discard))
+        $form.Controls.AddRange(@($files,$description,$buttons))
+        $form.AcceptButton = $ignore
+        $form.CancelButton = $ignore
+        $form.ActiveControl = $ignore
+        return $form.ShowDialog() -eq 'Yes'
+    } finally { $form.Dispose() }
+}
+
 function New-UpdatePlan($addon) {
     $root = Get-Checkout $addon.Project $addon.Guid
     $branch = Git $root @('symbolic-ref','--short','HEAD')
-    if (Git $root @('status','--porcelain','--untracked-files=normal')) { throw "$branch has local changes." }
+    $changes = @(Read-LocalChanges $root)
     $url = "https://github.com/$($addon.Repo).git"
     $head = Git $root @('ls-remote','--symref',$url,'HEAD')
     if ($head[0] -notmatch '^ref: refs/heads/(.+)\s+HEAD$') { throw 'Cannot identify the upstream default branch.' }
-    if ($branch -cne $Matches[1]) { throw "Keeping working branch $branch." }
+    $defaultBranch = $Matches[1]
     if ($head.Count -lt 2 -or $head[1] -notmatch '^([0-9a-f]{40,64})\s+HEAD$') { throw 'Cannot identify the upstream revision.' }
     $target = $Matches[1]
-    $null = Git $root @('fetch','--quiet','--no-tags',$url,"refs/heads/$branch")
     $before = Git $root @('rev-parse','HEAD')
-    if ($before -eq $target) { throw "$branch is current." }
-    $base = Git $root @('merge-base',$before,$target)
-    if ($base -ne $before) { throw "$branch contains local commits. Keeping current revision." }
-    [pscustomobject]@{ Addon=$addon; Root=$root; Branch=$branch; Before=$before; Target=$target }
+    if ($branch -cne $defaultBranch) {
+        $note = "Keep working branch $branch at its current commit."
+        $target = $before
+    } elseif ($before -eq $target) {
+        $note = "$branch is current."
+    } else {
+        $null = Git $root @('fetch','--quiet','--no-tags',$url,"refs/heads/$branch")
+        $base = Git $root @('merge-base',$before,$target)
+        if ($base -ne $before) {
+            $note = "$branch contains local commits. Keep its current revision."
+            $target = $before
+        } else {
+            $note = "Update $branch to $($target.Substring(0,8))."
+        }
+    }
+    $plan = [pscustomobject]@{ Addon=$addon; Root=$root; Branch=$branch; Before=$before; Target=$target; Changes=$changes; Note=$note }
+    if ($changes.Count) {
+        if (!(Confirm-Discard $plan)) { throw "Skipped. Kept local changes on $branch." }
+        $plan.Note = "Stash and clear the current contents of the reviewed paths on $branch. $note"
+    } elseif ($before -eq $target) { throw $note }
+    $plan
 }
 
 function Show-Message([string]$message, [string]$buttons = 'OK') {
@@ -112,13 +170,13 @@ function Invoke-ModWorkflow {
             if ($addon.Key -notin $selectedKeys) { continue }
             try {
                 $plan = New-UpdatePlan $addon
-                $rows += "$($addon.Name) ($($plan.Branch)): update to $($plan.Target.Substring(0,8))."
+                $rows += "$($addon.Name): $($plan.Note)"
                 $plan
             } catch { $rows += "$($addon.Name): $_" }
         })
         $summary = $rows -join [Environment]::NewLine
         if ($plans.Count) {
-            $answer = Show-Message "$summary`n`nHave you saved changes in all affected Workbench windows? Choose Yes to apply the listed updates. No skips updates. Cancel stops the workflow." 'YesNoCancel'
+            $answer = Show-Message "$summary`n`nApply these actions to the saved files on disk? If any affected editor has unsaved changes, choose Cancel and save them first. No skips all actions." 'YesNoCancel'
             if ($answer -eq 'Cancel') { return 2 }
             if ($answer -eq 'Yes') {
                 $completed = @()
@@ -127,13 +185,23 @@ function Invoke-ModWorkflow {
                         $root = Get-Checkout $plan.Addon.Project $plan.Addon.Guid
                         if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $plan.Branch -or
                             (Git $root @('rev-parse','HEAD')) -ne $plan.Before -or
-                            (Git $root @('status','--porcelain','--untracked-files=normal'))) { throw "Checkout changed: $root" }
-                        $null = Git $root @('merge','--ff-only','--no-overwrite-ignore','--quiet',$plan.Target)
-                        $completed += $plan.Addon.Name
+                            ((@(Read-LocalChanges $root) -join "`n") -cne ($plan.Changes -join "`n"))) { throw "Checkout changed since review: $root" }
+                        if ($plan.Changes.Count) {
+                            $label = "GC Update Mods - $($plan.Branch) - $([guid]::NewGuid())"
+                            $null = Git $root @('-c','user.name=GC Workbench','-c','user.email=workbench@localhost','stash','push','--quiet','--include-untracked','--message',$label)
+                            $backup = Git $root @('stash','list','-1','--format=%h %gs')
+                            if (!$backup -or !$backup.EndsWith($label)) { throw "Could not verify the new stash in $root. Check git stash list before retrying." }
+                            $completed += "$($plan.Addon.Name) saved local changes in stash $($backup.Split(' ')[0])"
+                            if (Read-LocalChanges $root) { throw "Some changes remain in $root. Inspect the checkout before retrying." }
+                        }
+                        if ($plan.Before -ne $plan.Target) {
+                            $null = Git $root @('merge','--ff-only','--no-overwrite-ignore','--quiet',$plan.Target)
+                            $completed += "$($plan.Addon.Name) updated to $($plan.Target.Substring(0,8))"
+                        }
                     }
                 } finally {
                     if ($completed.Count) {
-                        $null = Show-Message "Updated: $($completed -join ', ').`nRefresh the affected Workbench resources and reload scripts before starting a template."
+                        $null = Show-Message "$($completed -join [Environment]::NewLine)`n`nRefresh the affected Workbench resources and reload scripts before starting a template."
                     }
                 }
                 return 2
