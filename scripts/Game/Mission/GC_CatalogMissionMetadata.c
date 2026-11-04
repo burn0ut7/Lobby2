@@ -5,6 +5,8 @@ class GC_CatalogMissionMetadata
 {
 	[Attribute("1", UIWidgets.Hidden)]
 	int m_iSchemaVersion;
+	[Attribute("", UIWidgets.EditBox, "Time period, for example 1980s. Optional.")]
+	string m_sEra;
 	[Attribute("", UIWidgets.ComboBox, "Choose how people play this mission.", enums: { ParamEnum("Not set", ""), ParamEnum("CO-OP - Cooperative", "COOP"), ParamEnum("TVT - Team versus team", "TVT"), ParamEnum("COTVT - Cooperative and team versus team", "COTVT"), ParamEnum("Training", "TRNG"), ParamEnum("LOL - Non-serious mission", "LOL"), ParamEnum("Testing", "TEST"), ParamEnum("Broken", "BROKEN") })]
 	string m_sMissionType;
 	[Attribute("", UIWidgets.Hidden)]
@@ -15,8 +17,6 @@ class GC_CatalogMissionMetadata
 	int m_iMinPlayers;
 	[Attribute("0", UIWidgets.Hidden)]
 	int m_iRecommendedPlayers;
-	[Attribute("", UIWidgets.EditBox, "Time period, for example 1980s. Optional.", category: "Optional details")]
-	string m_sEra;
 	[Attribute("", UIWidgets.ComboBox, "Press + and choose equipment players can use.", enums: { ParamEnum("Not set", ""), ParamEnum("Infantry", "Infantry"), ParamEnum("Cars / light vehicles", "Cars"), ParamEnum("Trucks", "Trucks"), ParamEnum("APCs", "APCs"), ParamEnum("IFVs", "IFVs"), ParamEnum("Tanks", "Tanks"), ParamEnum("Transport helicopters", "Transport helicopters"), ParamEnum("Attack helicopters", "Attack helicopters"), ParamEnum("Aircraft", "Aircraft"), ParamEnum("Boats", "Boats"), ParamEnum("Mortars", "Mortars"), ParamEnum("Artillery", "Artillery"), ParamEnum("Drones", "Drones") })]
 	ref array<string> m_aPlayerAssets;
 	[Attribute("", UIWidgets.EditBox, "Optional mod names to show on the website. One name per entry.", category: "Optional details")]

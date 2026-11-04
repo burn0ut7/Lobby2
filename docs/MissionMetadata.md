@@ -2,6 +2,10 @@
 
 ## Author workflow
 
+For a new header, open your saved mission in World Editor, select its mission subscene and choose **Plugins > GC > Create Mission Header**. Fill in Name, Author, Description and Player Count, then expand GC Catalog for Era, Mission Type, Objectives, Player Assets and Mods. Advanced is collapsed initially and contains optional technical settings. Press **Create header** to create `<world-name>_header.conf` beside the world. Cancel writes nothing; existing output files or meta files are never replaced. Open the resulting config in Resource Manager for later edits or settings not exposed by the creation form.
+
+This is a creation helper, not a replacement config format or a general editor. It creates a normal `GC_MissionHeader` (derived from `SCR_MissionHeader`) using native container defaults and the world's registered resource ID. Unexposed settings retain their usual defaults. It does not modify the world, set the running game mode, scan entities, or change other header classes. Header creation alone does not publish a mission to the website. Existing headers elsewhere are not searched or migrated; use their normal editor instead of creating a duplicate.
+
 1. Edit the mission header: choose Mission Type, Objectives and Player Assets. The seven types are CO-OP, TVT, COTVT, Training, LOL, Testing and Broken. Player Count on the native header is the only authored capacity. Minimum/recommended counts and manual factions are hidden; factions and playable slots come from world export. Manual Tags, Map Name, Required Addon IDs and grouping fields are no longer shown; their old serialized values remain readable for compatibility.
 2. Save the header in Resource Manager. The world action does not save separate header tabs.
 3. In World Editor select the mission subscene, then choose **Plugins > GC > Save Mission and Metadata**. This saves the world first and refreshes `<world>.ent.metadata.json` beside it.
