@@ -63,7 +63,7 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 				Workbench.Dialog("Create Mission Data", "Workbench could not prepare the mission header.");
 				return;
 			}
-			form = Prompt(resource.GetResource().ToBaseContainer(), absoluteWorld);
+			form = Prompt(absoluteWorld);
 			if (!form)
 				return;
 		}
@@ -108,26 +108,20 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected GC_MissionHeaderForm Prompt(BaseContainer header, string absoluteWorld)
+	protected GC_MissionHeaderForm Prompt(string absoluteWorld)
 	{
 		GC_MissionHeaderForm form = new GC_MissionHeaderForm();
 		form.m_sName = FilePath.StripExtension(FilePath.StripPath(absoluteWorld));
 		form.m_sName.Replace("_", " ");
-		form.m_Advanced = new GC_HeaderAdvancedSettings();
-		form.m_Advanced.Read(header);
-		Resource catalogDefaults = BaseContainerTools.CreateContainer("GC_CatalogMissionMetadata");
-		if (!catalogDefaults || !catalogDefaults.IsValid())
-			return null;
-		form.m_GC_Catalog = GC_CatalogMissionMetadata.Cast(BaseContainerTools.CreateInstanceFromContainer(catalogDefaults.GetResource().ToBaseContainer()));
 		string description = "World: " + FilePath.StripPath(absoluteWorld) + "\nAlready have a header elsewhere? Choose Refresh metadata only.";
 		while (Workbench.ScriptDialog("Create Mission Data", description, form))
 		{
 			if (form.m_bMetadataOnly)
 				return form;
 			form.m_sName.TrimInPlace();
-			if (form.m_sName.IsEmpty() || form.m_iPlayerCount < 1)
+			if (form.m_sName.IsEmpty() || !form.HasValidPlayerRange())
 			{
-				Workbench.Dialog("Create Mission Data", "Enter a mission name and a player count of at least 1.");
+				Workbench.Dialog("Create Mission Data", "Enter a mission name. Minimum Players must be between 1 and Player Count (maximum 10000).");
 				continue;
 			}
 			return form;
@@ -147,11 +141,60 @@ class GC_MissionHeaderForm
 	string m_sDescription;
 	[Attribute("1", UIWidgets.EditBox, "Maximum players for the mission.")]
 	int m_iPlayerCount = 1;
-	[Attribute("", UIWidgets.Object, "Mission categories and author-provided information.", "noDetails")]
-	ref GC_CatalogMissionMetadata m_GC_Catalog;
-	[Attribute("", UIWidgets.Object, "Optional technical settings. Other settings retain their normal game defaults.", "noDetails")]
-	ref GC_HeaderAdvancedSettings m_Advanced;
+	[Attribute("1", UIWidgets.EditBox, "Fewest players needed to run the mission.")]
+	int m_iMinimumPlayers = 1;
+	[Attribute("", UIWidgets.EditBox)]
+	string m_sEra;
+	[Attribute("Testing", UIWidgets.ComboBox, enums: GC_MissionCatalogChoices.MissionTypes())]
+	string m_sMissionType = "Testing";
+	[Attribute("0", UIWidgets.Flags, enums: ObjectiveFlags())]
+	int m_iObjectives;
+	[Attribute("0", UIWidgets.Flags, enums: CompositionFlags())]
+	int m_iForceComposition;
 	bool m_bMetadataOnly;
+
+	//------------------------------------------------------------------------------------------------
+	bool HasValidPlayerRange()
+	{
+		return m_iMinimumPlayers >= 1 && m_iMinimumPlayers <= m_iPlayerCount && m_iPlayerCount <= 10000;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static ParamEnumArray ObjectiveFlags()
+	{
+		return Flags(GC_MissionCatalogChoices.Objectives());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static ParamEnumArray CompositionFlags()
+	{
+		return Flags(GC_MissionCatalogChoices.ForceComposition());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	// Entry zero is the empty choice. Bit positions exist only while the form is open.
+	protected static ParamEnumArray Flags(ParamEnumArray choices)
+	{
+		ParamEnumArray flags = new ParamEnumArray();
+		for (int i = 1; i < choices.Count(); i++)
+		{
+			int bit = 1 << (i - 1);
+			flags.Insert(new ParamEnum(choices[i].m_Key, bit.ToString(), choices[i].m_Desc));
+		}
+		return flags;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected array<string> SelectedLabels(int mask, ParamEnumArray choices)
+	{
+		array<string> labels = {};
+		for (int i = 1; i < choices.Count(); i++)
+		{
+			if (mask & (1 << (i - 1)))
+				labels.Insert(choices[i].m_Key);
+		}
+		return labels;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	bool Create(BaseContainer header, ResourceName world, string output, out string error)
@@ -163,20 +206,29 @@ class GC_MissionHeaderForm
 			error = "Nothing was replaced: this header already exists.\n" + output;
 			return false;
 		}
-		if (!header || !m_GC_Catalog || !m_Advanced || m_sName.IsEmpty() || m_iPlayerCount < 1 || world.IsEmpty())
+		if (!header || m_sName.IsEmpty() || !HasValidPlayerRange() || world.IsEmpty())
 		{
-			error = "Enter a name, valid player count, GC Catalog and Advanced settings.";
+			error = "Enter a mission name and a valid player count.";
 			return false;
 		}
-		Resource catalog = BaseContainerTools.CreateContainerFromInstance(m_GC_Catalog);
-		if (!catalog || !catalog.IsValid()
+		Resource catalog = BaseContainerTools.CreateContainer("GC_CatalogMissionMetadata");
+		if (!catalog || !catalog.IsValid())
+		{
+			error = "Could not prepare the mission categories.";
+			return false;
+		}
+		BaseContainer fields = catalog.GetResource().ToBaseContainer();
+		if (!fields.Set("m_sEra", m_sEra)
+			|| !fields.Set("m_sMissionType", m_sMissionType)
+			|| !fields.Set("m_aObjectives", SelectedLabels(m_iObjectives, GC_MissionCatalogChoices.Objectives()))
+			|| !fields.Set("m_aPlayerAssets", SelectedLabels(m_iForceComposition, GC_MissionCatalogChoices.ForceComposition()))
+			|| !fields.Set("m_iMinPlayers", m_iMinimumPlayers)
 			|| !header.Set("World", world)
 			|| !header.Set("m_sName", m_sName)
 			|| !header.Set("m_sAuthor", m_sAuthor)
 			|| !header.Set("m_sDescription", m_sDescription)
 			|| !header.Set("m_iPlayerCount", m_iPlayerCount)
-			|| !header.SetObject("m_GC_Catalog", catalog.GetResource().ToBaseContainer())
-			|| !m_Advanced.Apply(header))
+			|| !header.SetObject("m_GC_Catalog", fields))
 		{
 			error = "The mission header could not be prepared. No file was saved.";
 			return false;
@@ -212,42 +264,4 @@ class GC_MissionHeaderForm
 	}
 }
 
-[BaseContainerProps()]
-class GC_HeaderAdvancedSettings
-{
-	[Attribute("Sandbox", UIWidgets.EditBox)]
-	string m_sGameMode;
-	[Attribute("", UIWidgets.ResourceNamePicker, params: "conf")]
-	ResourceName m_sBriefingConfig;
-	[Attribute("1", UIWidgets.CheckBox)]
-	bool m_bShowInMenu;
-	[Attribute("1", UIWidgets.EditBox)]
-	float m_fXpMultiplier;
-	[Attribute("10", UIWidgets.EditBox)]
-	int m_iMarkersPerPlayer;
-	[Attribute("0", UIWidgets.CheckBox)]
-	bool m_bAllowArmavision;
-
-	//------------------------------------------------------------------------------------------------
-	void Read(BaseContainer header)
-	{
-		header.Get("m_sGameMode", m_sGameMode);
-		header.Get("m_sBriefingConfig", m_sBriefingConfig);
-		header.Get("m_bShowInScenarioMenu", m_bShowInMenu);
-		header.Get("m_fXpMultiplier", m_fXpMultiplier);
-		header.Get("m_iMapMarkerLimitPerPlayer", m_iMarkersPerPlayer);
-		header.Get("m_bIsArmavisionAllowedInMP", m_bAllowArmavision);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	bool Apply(BaseContainer header)
-	{
-		return header.Set("m_sGameMode", m_sGameMode)
-			&& header.Set("m_sBriefingConfig", m_sBriefingConfig)
-			&& header.Set("m_bShowInScenarioMenu", m_bShowInMenu)
-			&& header.Set("m_fXpMultiplier", m_fXpMultiplier)
-			&& header.Set("m_iMapMarkerLimitPerPlayer", m_iMarkersPerPlayer)
-			&& header.Set("m_bIsArmavisionAllowedInMP", m_bAllowArmavision);
-	}
-}
 #endif

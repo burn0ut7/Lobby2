@@ -4,7 +4,7 @@
 
 Start Workbench with `-scriptAuthorizeAll` when using this workflow with trusted addons. This allows Workbench scripts to write files for that session. On the tested installation, a normal launch could save the world but refused the header write.
 
-In World Editor, select your saved mission subscene and choose **Plugins > GC > Create Mission Data**. Fill in Name, Author, Description and Player Count. Expand GC Catalog for Era, Mission Type, Objectives, Player Assets and Mods. Advanced contains optional technical settings.
+In World Editor, select your saved mission subscene and choose **Plugins > GC > Create Mission Data**. Fill in Name, Author, Description and Player Count. Minimum Players is directly below Player Count. Mission Type starts at Testing. Choose Objectives and Force Composition. Mechanized covers infantry operating with APCs or IFVs. Airborne covers parachute troops, helicopter operations and other crewed aviation. Drones and other support can be selected alongside any force type. The website derives Mods from non-vanilla addons referenced by the placed prefabs and their ancestors.
 
 Press **Create mission data** once. Workbench saves the world, collects its slot and asset metadata, creates and registers the standard `<world-name>_header.conf`, and writes `<world>.ent.metadata.json` beside the world. Cancel exits before saving.
 
