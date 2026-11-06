@@ -24,7 +24,7 @@ GenericEntity marker2 {
    m_sDescription "testttt"
   }
  }
- coords 1223.647 39 2739.598
+ coords 1223.459 39 2739.611
  angles 0 144.276 0
 }
 SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {

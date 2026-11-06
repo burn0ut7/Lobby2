@@ -182,9 +182,12 @@ modded class GC_LobbyManager
 			if (result != "prepared=1")
 				return result;
 		}
+		if (m_GC_PhotoBuilding)
+			GC_TestBuildingPhotoVisible(m_GC_PhotoBuilding, false);
 		m_GC_PhotoBuilding = m_mGC_PhotoBatch.Get(resource);
 		if (!m_GC_PhotoBuilding || !m_GC_PhotoBuilding.GetChildren())
 			return "no-visual";
+		GC_TestBuildingPhotoVisible(m_GC_PhotoBuilding, true);
 		if (!m_GC_PhotoCamera)
 		{
 			m_GC_PreviousCamera = GetGame().GetCameraManager().CurrentCamera();
@@ -201,13 +204,41 @@ modded class GC_LobbyManager
 		maxs = "-1e20 -1e20 -1e20";
 		GC_TestBuildingPhotoBounds(m_GC_PhotoBuilding, mins, maxs);
 		vector center = (mins + maxs) * 0.5;
-		float distance = Math.Max(4, vector.Distance(mins, maxs) * 1.9);
-		vector position = center + Vector(-0.7, 0.3, 0.7) * distance;
 		vector transform[4];
-		Math3D.DirectionAndUpMatrix((center - position).Normalized(), "0 1 0", transform);
-		transform[3] = position;
+		Math3D.DirectionAndUpMatrix(Vector(0.7, -0.3, -0.7).Normalized(), "0 1 0", transform);
+		float width, height;
+		GetGame().GetWorkspace().GetScreenSize(width, height);
+		if (width <= 0 || height <= 0)
+			return "invalid-viewport";
+		// The website keeps the central square. Fit each visible child's bounds inside it.
+		float fov = 40;
+		float slope = Math.Tan(fov * Math.DEG2RAD * 0.5) * Math.Min(1, width / height) * 0.90;
+		float distance = 0.25;
+		IEntity child = m_GC_PhotoBuilding.GetChildren();
+		while (child)
+		{
+			vector low, high;
+			child.GetWorldBounds(low, high);
+			for (int corner; corner < 8; corner++)
+			{
+				vector point = low;
+				for (int axis; axis < 3; axis++)
+				{
+					if (corner & (1 << axis))
+						point[axis] = high[axis];
+				}
+				vector delta = point - center;
+				float across = Math.AbsFloat(vector.Dot(delta, transform[0]));
+				float up = Math.AbsFloat(vector.Dot(delta, transform[1]));
+				float depth = vector.Dot(delta, transform[2]);
+				distance = Math.Max(distance, Math.Max(0.25, Math.Max(across, up) / slope) - depth);
+			}
+			child = child.GetSibling();
+		}
+		transform[3] = center - transform[2] * distance;
 		m_GC_PhotoCamera.SetTransform(transform);
-		m_GC_PhotoCamera.SetFOVDegree(40);
+		m_GC_PhotoCamera.SetFOVDegree(fov);
+		m_GC_PhotoCamera.SetFarPlane(distance + vector.Distance(mins, maxs) + 2);
 		GetGame().GetCameraManager().SetCamera(m_GC_PhotoCamera);
 		m_GC_PhotoCamera.ApplyTransform(0);
 		GetGame().BeginPreload(GetGame().GetWorld(), center, distance * 2, 30);
@@ -275,6 +306,29 @@ modded class GC_LobbyManager
 		return "restored";
 	}
 	//------------------------------------------------------------------------------------------------
+	//! One ordered batch from the exporting profile, including long assembly/resource names.
+	string GC_TestBuildingPhotoBatchFromFile()
+	{
+		PlayerController player = GetGame().GetPlayerController();
+		if (!GC_MapExportReady() || !player || !AuthorizeAdminAction(player.GetPlayerId(), "building-photo-batch", "preview"))
+			return "denied";
+		FileHandle input = FileIO.OpenFile("$profile:GC_PhotoBatch_" + m_sGC_ExportName + ".txt", FileMode.READ);
+		if (!input)
+			return "missing-batch";
+		array<string> resources = {};
+		string line;
+		while (input.ReadLine(line) >= 0)
+		{
+			if (!line.IsEmpty())
+				resources.Insert(line);
+			if (resources.Count() > 50)
+				break;
+		}
+		input.Close();
+		return GC_TestBuildingPhotoBatch(string.Join("\n", resources, true));
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Snapshot only render objects, not simulation scripts or editor-only splines.
 	string GC_TestBuildingPhotoBatch(string resources)
 	{
@@ -285,7 +339,7 @@ modded class GC_LobbyManager
 			return "export-buildings-first";
 		array<string> requested = {};
 		resources.Split("\n", requested, true);
-		if (requested.IsEmpty() || requested.Count() > 20)
+		if (requested.IsEmpty() || requested.Count() > 50)
 			return "invalid-batch";
 		foreach (string resource : requested)
 		{
@@ -307,8 +361,9 @@ modded class GC_LobbyManager
 			source = members[0];
 			EntitySpawnParams parameters = new EntitySpawnParams();
 			parameters.TransformMode = ETransformMode.WORLD;
-			// A single row perpendicular to the camera: no models behind the subject.
-			parameters.Transform[3] = m_vGC_ExportPhoto + Vector(slot * 1024, 0, slot * 1024);
+			// Only the selected model is visible. Keep every slot near the blue studio.
+			float lateral = (slot - (requested.Count() - 1) * 0.5) * 128;
+			parameters.Transform[3] = m_vGC_ExportPhoto + Vector(lateral, 0, lateral);
 			IEntity root = GetGame().SpawnEntity(GenericEntity, GetGame().GetWorld(), parameters);
 			m_aGC_PhotoClones.Insert(root);
 			vector original[4];
@@ -327,33 +382,6 @@ modded class GC_LobbyManager
 					GC_TestBuildingPhotoClone(member, root, original);
 			}
 			m_mGC_PhotoBatch.Insert(resource, root);
-			slot++;
-		}
-		// Size spacing from the largest render bounds, including custom-map models.
-		float spacing = 1024;
-		foreach (string resource : requested)
-		{
-			vector low = "1e20 1e20 1e20";
-			vector high = "-1e20 -1e20 -1e20";
-			IEntity preview = m_mGC_PhotoBatch.Get(resource);
-			if (!preview.GetChildren())
-				continue;
-			GC_TestBuildingPhotoBounds(preview, low, high);
-			spacing = Math.Max(spacing, vector.Distance(low, high) * 8);
-		}
-		slot = 0;
-		foreach (string resource : requested)
-		{
-			IEntity preview = m_mGC_PhotoBatch.Get(resource);
-			if (preview.GetChildren())
-			{
-				vector low = "1e20 1e20 1e20";
-				vector high = "-1e20 -1e20 -1e20";
-				GC_TestBuildingPhotoBounds(preview, low, high);
-				vector center = (low + high) * 0.5;
-				vector target = m_vGC_ExportPhoto + Vector(slot * spacing, 0, slot * spacing);
-				preview.SetOrigin(preview.GetOrigin() + target - center);
-			}
 			slot++;
 		}
 		GC_AdminActionLogger.Log(player.GetPlayerId(), "building-photo-batch", "preview", "prepared=" + slot);
@@ -415,12 +443,27 @@ modded class GC_LobbyManager
 			root.AddChild(clone, -1, EAddChildFlags.RECALC_LOCAL_TRANSFORM);
 			clone.SetObject(visual, remap);
 			clone.SetFixedLOD(0);
+			clone.ClearFlags(EntityFlags.VISIBLE);
 			m_aGC_PhotoClones.Insert(clone);
 		}
 		IEntity child = source.GetChildren();
 		while (child)
 		{
 			GC_TestBuildingPhotoClone(child, root, original);
+			child = child.GetSibling();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_TestBuildingPhotoVisible(IEntity root, bool visible)
+	{
+		IEntity child = root.GetChildren();
+		while (child)
+		{
+			if (visible)
+				child.SetFlags(EntityFlags.VISIBLE);
+			else
+				child.ClearFlags(EntityFlags.VISIBLE);
 			child = child.GetSibling();
 		}
 	}

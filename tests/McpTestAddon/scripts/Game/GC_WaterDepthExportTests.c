@@ -3,6 +3,13 @@
 modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
+	string GC_TestMapOceanInfo()
+	{
+		BaseWorld world = GetGame().GetWorld();
+		return string.Format("%1\t%2\t%3", GetGame().GetWorldFile(), world.IsOcean(), world.GetOceanBaseHeight());
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string GC_TestRiverSurfaceExport()
 	{
 		PlayerController player = GetGame().GetPlayerController();
@@ -64,7 +71,7 @@ modded class GC_LobbyManager
 			if (fields.Count() == 3)
 			{
 				hint = fields[2].ToFloat();
-				if (!(hint >= -10000 && hint <= m_vGC_ExportPhoto[1]))
+				if (!(hint >= -10000 && hint <= m_fGC_MaxWaterHint))
 				{
 					input.Close();
 					return "invalid-surface-hint";
