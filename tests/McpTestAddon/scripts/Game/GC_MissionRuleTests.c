@@ -28,17 +28,17 @@ class GC_MissionRuleTests
 		rule.m_sName = flag;
 		GC_SetFlagAction action = new GC_SetFlagAction();
 		action.m_sFlagName = flag;
-		action.m_iSetTo = 1;
+		action.m_bSetTrue = true;
 		rule.m_aActions = {action};
 		GC_GameModeStateCondition state = new GC_GameModeStateCondition();
 		state.m_eGameModeState = phase;
 		if (inverse)
-			state.m_iMatch = 1;
+			state.m_bRequireOtherState = true;
 		rule.m_aConditions = {state};
 		rule.m_Advanced = new GC_RuleOptions();
 		rule.m_Advanced.m_fRandomChance = 1;
 		if (repeat)
-			rule.m_Advanced.m_iRun = 1;
+			rule.m_Advanced.m_bRepeatable = true;
 		rule.m_Advanced.m_fDelay = wait;
 		return rule;
 	}
@@ -269,7 +269,7 @@ class GC_MissionRuleTests
 		rule.m_aActions = {};
 		GC_SetFlagAction action = new GC_SetFlagAction();
 		action.m_sFlagName = output;
-		action.m_iSetTo = 1;
+		action.m_bSetTrue = true;
 		rule.m_aActions.Insert(action);
 		return rule;
 	}
@@ -306,9 +306,8 @@ class GC_MissionRuleTests
 		engine.Start({simple.BuildRule()});
 		Check(engine.GetRunCount() == 0, "disabled simple rule stays off");
 		simple.m_Advanced.m_bDisabled = false;
-		simple.m_Advanced.m_iRun = 2;
-		Check(!simple.BuildRule(), "bad repeat setting rejected");
-		simple.m_Advanced.m_iRun = 0;
+
+		simple.m_Advanced.m_bRepeatable = false;
 		simple.m_Advanced.m_fDelay = -1;
 		Check(!simple.BuildRule(), "bad delay rejected");
 		simple.m_Advanced.m_fDelay = 2;

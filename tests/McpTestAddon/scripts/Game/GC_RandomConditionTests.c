@@ -7,7 +7,7 @@ modded class GC_MissionRuleTests
 		GC_RandomChanceCondition condition = new GC_RandomChanceCondition();
 		condition.m_fCheckInterval = interval;
 		condition.m_fChance = chance;
-		condition.m_iRollBehavior = behavior;
+		condition.m_bRollOnce = behavior == 1;
 		return condition;
 	}
 
@@ -55,7 +55,7 @@ modded class GC_MissionRuleTests
 		Check(engine.GetRunCount() == 3, "Stop prevents scheduled execution");
 
 		// A single roll locks either outcome; restarting clears the held result.
-		random.m_iRollBehavior = 1;
+		random.m_bRollOnce = true;
 		rule = authoredEvent.BuildRule();
 		engine.m_iDraws = 0;
 		engine.m_fRoll = 0.5;
@@ -70,7 +70,7 @@ modded class GC_MissionRuleTests
 		Check(engine.m_iDraws == 2 && engine.GetRunCount() == 1, "fresh Start resets schedule; Roll once preserves success");
 
 		// Exact chance boundaries do not depend on the random generator's endpoints.
-		random.m_iRollBehavior = 0;
+		random.m_bRollOnce = false;
 		random.m_fChance = 0;
 		engine.m_iDraws = 0;
 		engine.Start({authoredEvent.BuildRule()}, null, SCR_EGameModeState.GAME);
@@ -78,7 +78,7 @@ modded class GC_MissionRuleTests
 		Check(engine.GetRunCount() == 0 && engine.m_iDraws == 0, "zero never passes even for zero draw");
 		random.m_fChance = 1;
 		engine.m_fRoll = 1;
-		authoredEvent.m_Advanced.m_iRun = 0;
+		authoredEvent.m_Advanced.m_bRepeatable = false;
 		engine.Start({authoredEvent.BuildRule()}, null, SCR_EGameModeState.GAME);
 		engine.Advance(60);
 		engine.Advance(120);
@@ -95,9 +95,8 @@ modded class GC_MissionRuleTests
 		random.m_fCheckInterval = 86401;
 		Check(!random.BuildCheck(), "oversized interval rejected");
 		random.m_fCheckInterval = 60;
-		random.m_iRollBehavior = 2;
-		Check(!random.BuildCheck(), "unknown behavior rejected");
-		random.m_iRollBehavior = 0;
+
+		random.m_bRollOnce = false;
 
 		// A random answer never overrides enclosing logical operators.
 		GC_MissionFlagCondition gate = new GC_MissionFlagCondition();

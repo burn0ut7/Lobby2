@@ -93,7 +93,7 @@ class GC_MissionRuleEngine
 		{
 			foreach (GC_MissionFlag flag : flags)
 			{
-				if (!flag || flag.m_sName.IsEmpty() || flag.m_iStartingValue < 0 || flag.m_iStartingValue > 1
+				if (!flag || flag.m_sName.IsEmpty()
 					|| m_mFlags.Contains(flag.m_sName) || flags.Count() > 256)
 				{
 					m_mFlags.Clear();
@@ -115,7 +115,7 @@ class GC_MissionRuleEngine
 				memory.m_bRepeatable = flag.m_bRepeatable;
 				memory.m_Condition = condition;
 				m_mFlagDefinitions.Set(flag.m_sName, memory);
-				m_mFlags.Set(flag.m_sName, flag.m_iStartingValue == 1);
+				m_mFlags.Set(flag.m_sName, flag.m_bStartsTrue);
 			}
 		}
 		if (!rules || rules.Count() > 256)
@@ -854,7 +854,7 @@ class GC_MissionRuleEngine
 		state.m_iRuns++;
 		m_iRuns++;
 		int selected = -1;
-		if (state.m_Rule.m_Random && state.m_Rule.m_Random.m_iActionSelection == 1)
+		if (state.m_Rule.m_Random && state.m_Rule.m_Random.m_bPickOneRandomAction)
 			selected = Math.Min(Math.Floor(RandomUnit() * state.m_Rule.m_aThen.Count()), state.m_Rule.m_aThen.Count() - 1);
 		foreach (int index, GC_RuleAction action : state.m_Rule.m_aThen)
 		{

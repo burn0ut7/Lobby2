@@ -3,18 +3,18 @@ class GC_MissionFlagCondition : GC_ConditionBase
 {
 	[Attribute("", UIWidgets.EditBox, "The flag to check. Use its exact name from Mission Flags.")]
 	string m_sFlagName;
-	[Attribute("0", UIWidgets.ComboBox, "Check the flag's remembered result. True means it is active. Its own conditions control activation. A repeatable flag is true during its check cycle, then resets to false.", enums: {ParamEnum("Is true", "0"), ParamEnum("Is false", "1")})]
-	int m_iMatch;
+	[Attribute("0", UIWidgets.CheckBox, "Checked: require the flag to be false. Unchecked: require true. Reads the remembered result; never rechecks the flag conditions. Repeatable flags are true only during their check cycle.")]
+	bool m_bRequireFalse;
 
 	//------------------------------------------------------------------------------------------------
 	override GC_RuleCondition BuildCheck(int depth = 0)
 	{
-		if (depth > 16 || m_sFlagName.IsEmpty() || m_iMatch < 0 || m_iMatch > 1)
+		if (depth > 16 || m_sFlagName.IsEmpty())
 			return null;
 		GC_RuleCondition check = new GC_RuleCondition();
 		check.m_iCheck = 1;
 		check.m_sFlagName = m_sFlagName;
-		check.m_bReverseAnswer = m_iMatch == 1;
+		check.m_bReverseAnswer = m_bRequireFalse;
 		return check;
 	}
 }

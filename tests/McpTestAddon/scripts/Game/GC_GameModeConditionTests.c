@@ -10,7 +10,7 @@ modded class GC_MissionRuleTests
 			{
 				GC_GameModeStateCondition condition = new GC_GameModeStateCondition();
 				condition.m_eGameModeState = target;
-				condition.m_iMatch = inverse;
+				condition.m_bRequireOtherState = inverse == 1;
 				GC_RuleCondition built = condition.BuildCheck();
 				foreach (SCR_EGameModeState current : phases)
 				{
@@ -30,8 +30,7 @@ modded class GC_MissionRuleTests
 		invalid.m_eGameModeState = -1;
 		Check(!invalid.BuildCheck(), "invalid phase rejected");
 		invalid.m_eGameModeState = SCR_EGameModeState.GAME;
-		invalid.m_iMatch = 2;
-		Check(!invalid.BuildCheck(), "invalid comparison rejected");
+
 		GC_Event match = StateRule("match", SCR_EGameModeState.GAME);
 		GC_Event outside = StateRule("outside", SCR_EGameModeState.GAME, true, true);
 		GC_Event after = StateRule("after", SCR_EGameModeState.POSTGAME);

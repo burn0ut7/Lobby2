@@ -29,11 +29,11 @@ class GC_RuleAction
 {
 	[Attribute("Test action", UIWidgets.EditBox, "A short name to help you find this action.")]
 	string m_sName;
-	[Attribute("0", UIWidgets.ComboBox, "Choose a small test action. These do not spawn units, end the game, or change player settings.", enums: {ParamEnum("Write a test message to the log", "0"), ParamEnum("Set a flag to yes or no", "1"), ParamEnum("Send a named test event", "2")})]
+	[Attribute("0", UIWidgets.ComboBox, "Choose a small test action. These do not spawn units, end the game, or change player settings.", enums: {ParamEnum("Write a test message to the log", "0"), ParamEnum("Set a flag to true or false", "1"), ParamEnum("Send a named test event", "2")})]
 	GC_ERuleAction m_eDo;
 	[Attribute("Test passed", UIWidgets.EditBox, "For a log message: the text to write. For a flag or test event: its exact name.")]
 	string m_sTextOrName;
-	[Attribute("1", UIWidgets.CheckBox, "For Set a flag: checked means yes; unchecked means no.")]
+	[Attribute("1", UIWidgets.CheckBox, "For Set a flag: checked means true; unchecked means false.")]
 	bool m_bFlagAnswer;
 	float m_fChancePercent;
 	ref array<string> m_aFlagNames;

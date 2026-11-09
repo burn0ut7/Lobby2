@@ -64,7 +64,7 @@ modded class GC_MissionRuleTests
 		rule.m_fWaitSeconds = 0;
 		GC_MissionFlag flag = new GC_MissionFlag();
 		flag.m_sName = "initial";
-		flag.m_iStartingValue = 1;
+		flag.m_bStartsTrue = true;
 		GC_CompiledMissionRule watch = EventRule("initial");
 		watch.m_eWhen = GC_ERuleEvent.FLAG_ON;
 		engine.Start({watch}, {flag});
@@ -112,7 +112,7 @@ modded class GC_MissionRuleTests
 		GC_CompiledMissionRule compiledNoFlags = noFlags.BuildRule();
 		compiledNoFlags.m_Random = new GC_RuleRandom();
 		compiledNoFlags.m_Random.m_fChancePercent = 100;
-		compiledNoFlags.m_Random.m_iActionSelection = 1;
+		compiledNoFlags.m_Random.m_bPickOneRandomAction = true;
 		engine.m_iNamedEvents = 0;
 		engine.Start({compiledNoFlags});
 		Check(engine.GetRunCount() == 1 && engine.m_iNamedEvents == 1, "random action selection works without flags");

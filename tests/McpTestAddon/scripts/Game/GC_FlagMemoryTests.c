@@ -22,7 +22,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		check.m_sFlagName = name;
 		check.m_iComparison = comparison;
 		check.m_iRequiredCount = count;
-		check.m_iCountFrom = 1;
+		check.m_bCountFlagCalls = true;
 		return check;
 	}
 
@@ -36,7 +36,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		missionEvent.m_aActions = {log};
 		missionEvent.m_Advanced = new GC_RuleOptions();
 		missionEvent.m_Advanced.m_fRandomChance = 1;
-		missionEvent.m_Advanced.m_iRun = 1;
+		missionEvent.m_Advanced.m_bRepeatable = true;
 		missionEvent.m_Advanced.m_fDelay = wait;
 		return missionEvent;
 	}
@@ -106,7 +106,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		Check(!engine.CallFlag("once") && engine.GetRunCount() == 1, "nonrepeatable rejects next call");
 		engine.SetFlag("once", false);
 		Check(!engine.CallFlag("once") && engine.GetFlagCallCount("once") == 1, "clearing state does not reset once memory");
-		once.m_iStartingValue = 1;
+		once.m_bStartsTrue = true;
 		engine.Start({}, {once}, SCR_EGameModeState.GAME);
 		Check(engine.GetFlag("once") && !engine.CallFlag("once") && engine.GetFlagCallCount("once") == 0, "starting on is memory not a counted call");
 

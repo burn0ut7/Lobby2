@@ -47,8 +47,8 @@ class GC_LivingCharacterArea
 	[Attribute("", UIWidgets.EditBox, "Exact unique world name of a Radius Area or closed Polygon Area. The area supplies only its shape. Missing or invalid areas cannot pass, even inside a None group.")]
 	string m_sName;
 
-	[Attribute("0", UIWidgets.ComboBox, "Which side contains the characters to count. Outside counts characters outside; it does not require everybody to be outside. Position checks use the character's origin.", enums: {ParamEnum("Inside", "0"), ParamEnum("Outside", "1")})]
-	int m_iSide;
+	[Attribute("0", UIWidgets.CheckBox, "Checked: count characters outside. Unchecked: count characters inside. Uses each character origin.")]
+	bool m_bOutside;
 }
 
 [BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Do not use")]

@@ -51,7 +51,7 @@ modded class GC_MissionRuleTests
 		GC_Event authored = StateRule("interaction", SCR_EGameModeState.GAME);
 		authored.m_aConditions = {condition};
 		authored.m_Advanced = new GC_RuleOptions();
-		authored.m_Advanced.m_iRun = 1;
+		authored.m_Advanced.m_bRepeatable = true;
 		GC_CompiledMissionRule rule = authored.BuildRule();
 		GC_RuleCondition leaf = rule.m_If.m_aChecks[0];
 		GC_TestInteractionEngine engine = new GC_TestInteractionEngine();

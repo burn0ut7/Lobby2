@@ -9,7 +9,7 @@ class GC_MissionInteractionComponent : ScriptComponent
 	protected string m_sActionName;
 	[Attribute("", UIWidgets.EditBox, "Optional faction keys allowed to use this interaction. Empty means all factions. Only living, conscious player-controlled characters can use it; spectators cannot.")]
 	protected ref array<string> m_aFactions;
-	[Attribute("", UIWidgets.EditBox, "Optional Mission Flag that must currently be On. Keep complex requirements on that flag in GC Lobby Manager, not on this object. Empty means no flag requirement. Available during Match only.")]
+	[Attribute("", UIWidgets.EditBox, "Optional Mission Flag that must currently be true. Keep complex requirements on that flag in GC Lobby Manager, not on this object. Empty means no flag requirement. Available during Match only.")]
 	protected string m_sRequiredFlag;
 	[Attribute("", UIWidgets.EditBox, "Optional Mission Flag to call after use. Its own conditions and repeatability still apply; a rejected flag call does not undo the interaction. Leave empty when using Interaction Condition only.")]
 	protected string m_sCallFlag;

@@ -8,7 +8,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
      m_aActions {
       GC_SetFlagAction "{7B115D5DFF7EDA02}" {
        m_sFlagName "test_ready"
-       m_iSetTo 1
+       m_bSetTrue 1
       }
      }
      m_aConditions {
@@ -27,7 +27,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
      m_aActions {
       GC_SetFlagAction "{7B115D5DFF7EDA04}" {
        m_sFlagName "test_complete"
-       m_iSetTo 1
+       m_bSetTrue 1
       }
       GC_LogMessageAction "{7B115D5DFF7EDA05}" {
        m_sMessage "Test complete. After action started this event."

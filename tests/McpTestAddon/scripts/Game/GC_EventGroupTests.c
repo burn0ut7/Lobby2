@@ -13,7 +13,7 @@ modded class GC_MissionRuleTests
 		group.m_Advanced = new GC_RuleOptions();
 		group.m_Advanced.m_fRandomChance = 1;
 		if (repeat)
-			group.m_Advanced.m_iRun = 1;
+			group.m_Advanced.m_bRepeatable = true;
 		return group;
 	}
 
@@ -90,7 +90,7 @@ modded class GC_MissionRuleTests
 		group = RandomGroup({later});
 		GC_GameModeStateCondition notPreview = new GC_GameModeStateCondition();
 		notPreview.m_eGameModeState = SCR_EGameModeState.PREGAME;
-		notPreview.m_iMatch = 1;
+		notPreview.m_bRequireOtherState = true;
 		group.m_aConditions = {notPreview};
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.SLOTTING);
 		Check(engine.GetRunCount() == 0, "empty eligible pool runs nothing");

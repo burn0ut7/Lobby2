@@ -8,7 +8,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
      m_bRepeatable 1
      m_aConditions {
       GC_ConditionCount "{71620F377D834173}" {
-       m_iCountFrom 1
+       m_bCountFlagCalls 1
        m_iComparison 1
        m_iRequiredCount 5
        m_sFlagName "wave"
@@ -33,7 +33,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
       }
      }
      m_Advanced GC_RuleOptions "{71620F377D834178}" {
-      m_iRun 1
+      m_bRepeatable 1
      }
     }
    }

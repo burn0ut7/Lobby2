@@ -20,16 +20,16 @@ class GC_RuleCondition
 	[Attribute("Check", UIWidgets.EditBox, "A short name to help you find this check.")]
 	string m_sName;
 
-	[Attribute("0", UIWidgets.ComboBox, "Choose a group of checks, a named yes/no flag, or a fixed test answer.", enums: {ParamEnum("Group of checks", "0"), ParamEnum("Flag is yes", "1"), ParamEnum("Test answer", "2")})]
+	[Attribute("0", UIWidgets.ComboBox, "Choose a group of checks, a named true/false flag, or a fixed test answer.", enums: {ParamEnum("Group of checks", "0"), ParamEnum("Flag is true", "1"), ParamEnum("Test answer", "2")})]
 	int m_iCheck;
 
 	[Attribute("0", UIWidgets.CheckBox, "Turn a passing answer into a failing answer, and a failing answer into a passing answer.")]
 	bool m_bReverseAnswer;
 
-	[Attribute("", UIWidgets.EditBox, "For Flag is yes: the exact flag name. Missing flags are no.")]
+	[Attribute("", UIWidgets.EditBox, "For Flag is true: the exact flag name. Missing flags are false.")]
 	string m_sFlagName;
 
-	[Attribute("1", UIWidgets.CheckBox, "For Test answer: checked means yes; unchecked means no.")]
+	[Attribute("1", UIWidgets.CheckBox, "For Test answer: checked means true; unchecked means false.")]
 	bool m_bTestAnswer;
 
 	[Attribute("0", UIWidgets.ComboBox, "For a group: choose how many checks must pass. All the same means all pass or all fail.", enums: {ParamEnum("All pass", "0"), ParamEnum("Any pass", "1"), ParamEnum("None pass", "2"), ParamEnum("Exactly this many pass", "3"), ParamEnum("At least this many pass", "4"), ParamEnum("At most this many pass", "5"), ParamEnum("All give the same answer", "6")})]

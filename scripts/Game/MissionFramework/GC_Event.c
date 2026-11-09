@@ -2,8 +2,8 @@
 //! Attribute defaults apply to Workbench deserialization. Script fixtures must set authored fields explicitly.
 class GC_RuleOptions
 {
-	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most events. Every time allows later matching state changes, flag calls or scheduled random checks. It does not run continuously while conditions remain true.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
-	int m_iRun;
+	[Attribute("0", UIWidgets.CheckBox, "Checked: run again on later matching notifications. Unchecked: run once. This does not run continuously while conditions are true.")]
+	bool m_bRepeatable;
 	[Attribute("0", UIWidgets.SpinBox, "Delay in seconds before running. For example, 5 means wait 5 seconds. Zero means no delay. Conditions must still pass when the delay ends.", "0 86400 0.1")]
 	float m_fDelay;
 	[Attribute("1", UIWidgets.Slider, "Chance to run this event's actions, from 0 to 1. For example, 0.8 is 80%, 1 is 100%, and 0 never runs. The default is 1; leaving this setting or Advanced unset means 100%. This does not spawn anything unless the actions do so.", "0 1 0.0001")]
@@ -39,10 +39,10 @@ class GC_EventDefinition
 		rule.m_aThen = {};
 		if (advanced)
 		{
-			if (advanced.m_iRun < 0 || advanced.m_iRun > 1 || advanced.m_fRandomChance < 0 || advanced.m_fRandomChance > 1)
+			if (advanced.m_fRandomChance < 0 || advanced.m_fRandomChance > 1)
 				return null;
 			rule.m_bEnabled = !advanced.m_bDisabled;
-			rule.m_bRunOnlyOnce = advanced.m_iRun == 0;
+			rule.m_bRunOnlyOnce = !advanced.m_bRepeatable;
 			rule.m_fWaitSeconds = advanced.m_fDelay;
 			rule.m_fChance = advanced.m_fRandomChance;
 		}

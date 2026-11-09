@@ -7,8 +7,8 @@ class GC_AreaCondition : GC_ConditionBase
 	[Attribute("", UIWidgets.EditBox, "Exact unique name of a Radius Area or closed polygon in the world. Radius Area uses a 3D distance in metres. A polygon checks its horizontal outline and ignores height, like the AO limit. Configure the shape on that area, not here.")]
 	string m_sArea;
 
-	[Attribute("0", UIWidgets.ComboBox, "Choose which side to count. By default, at least one chosen target must be on this side; Requirement can change that count or require a proportion of living characters. Checks run once per second during Match and on phase changes. Missing named targets or invalid areas cannot pass, even in a None group. Brief crossings between checks can be missed.", enums: {ParamEnum("Inside", "0"), ParamEnum("Outside", "1")})]
-	int m_iCheck;
+	[Attribute("0", UIWidgets.CheckBox, "Checked: count targets outside the area. Unchecked: count targets inside. Requirement controls how many are needed. Checked once per second; brief crossings can be missed. Missing targets or invalid areas never pass.")]
+	bool m_bOutside;
 
 	[Attribute("", UIWidgets.Object, "Choose Count, or Proportion for Players / AI. New checks default to at least one matching target on the selected side. Older saved Count settings remain in use until you choose a Requirement. Proportion 0.9 means at least 90% of all eligible living characters are on that side. No eligible living characters means false. Named Entities supports Count only.")]
 	ref GC_LivingRequirementBase m_Requirement;
@@ -22,7 +22,7 @@ class GC_AreaCondition : GC_ConditionBase
 		GC_RuleCondition condition = new GC_RuleCondition();
 		condition.m_iCheck = 10;
 		condition.m_sAreaName = m_sArea;
-		condition.m_bAreaOutside = m_iCheck == 1;
+		condition.m_bAreaOutside = m_bOutside;
 		if (!m_Targets || !m_Targets.BuildTargets(condition))
 			return null;
 		GC_LivingRequirementBase requirement = m_Requirement;
@@ -30,7 +30,7 @@ class GC_AreaCondition : GC_ConditionBase
 			requirement = m_Count;
 		if (requirement && !requirement.BuildRequirement(condition))
 			return null;
-		if (m_iCheck < 0 || m_iCheck > 1 || !condition.IsValid(depth))
+		if (!condition.IsValid(depth))
 			return null;
 		return condition;
 	}
