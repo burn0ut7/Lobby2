@@ -278,34 +278,9 @@ class GC_MissionRuleTests
 		Check(!simple.BuildRule(), "incomplete optional item does not silently pass");
 		simple.m_aConditions = {};
 
-		GC_MissionEvent trigger = new GC_MissionEvent();
-		trigger.m_sName = "ready";
-		trigger.m_eType = GC_ERuleEvent.FLAG_ON;
-		simple.m_Event = trigger;
 		simple.m_Advanced = new GC_RuleOptions();
-		simple.m_Advanced.m_iRun = 1;
-		engine.Start({simple.BuildRule()});
-		Check(engine.GetRunCount() == 0, "flag trigger waits");
-		engine.SendTestEvent("ready");
-		Check(engine.GetRunCount() == 0, "event name cannot impersonate flag change");
-		engine.SetFlag("ready", true);
-		Check(engine.GetRunCount() == 1 && engine.GetFlag("done"), "flag On fires immediately");
-		engine.SetFlag("ready", true);
-		Check(engine.GetRunCount() == 1, "unchanged flag does not retrigger");
-		engine.SetFlag("ready", false);
-		engine.SetFlag("ready", true);
-		Check(engine.GetRunCount() == 2, "Every time fires on next change");
-		trigger.m_eType = GC_ERuleEvent.FLAG_OFF;
-		engine.Start({simple.BuildRule()});
-		engine.SetFlag("ready", false);
-		Check(engine.GetRunCount() == 0, "initial Off is not a change");
-		engine.SetFlag("ready", true);
-		engine.SetFlag("ready", false);
-		Check(engine.GetRunCount() == 1, "flag Off fires");
 		simple.m_Advanced.m_bDisabled = true;
 		engine.Start({simple.BuildRule()});
-		engine.SetFlag("ready", true);
-		engine.SetFlag("ready", false);
 		Check(engine.GetRunCount() == 0, "disabled simple rule stays off");
 		simple.m_Advanced.m_bDisabled = false;
 		simple.m_Advanced.m_iRun = 2;
@@ -313,21 +288,15 @@ class GC_MissionRuleTests
 		simple.m_Advanced.m_iRun = 0;
 		simple.m_Advanced.m_fWaitSeconds = -1;
 		Check(!simple.BuildRule(), "bad delay rejected");
-		simple.m_Advanced = null;
-
-		GC_MissionEvent timer = new GC_MissionEvent();
-		timer.m_eType = GC_ERuleEvent.TIMER;
-		timer.m_fSeconds = 2;
-		simple.m_Event = timer;
+		simple.m_Advanced.m_fWaitSeconds = 2;
 		engine.Start({simple.BuildRule()});
 		engine.Advance(1);
-		Check(engine.GetRunCount() == 0, "simple timer waits");
+		Check(engine.GetRunCount() == 0, "simple wait delays actions");
 		engine.Advance(2);
-		Check(engine.GetRunCount() == 1, "simple timer fires");
+		Check(engine.GetRunCount() == 1, "simple wait completes");
 		engine.Advance(4);
-		Check(engine.GetRunCount() == 1, "simple timer defaults once");
-		timer.m_fSeconds = 0;
-		Check(!simple.BuildRule(), "bad timer rejected");
+		Check(engine.GetRunCount() == 1, "simple wait defaults once");
+		simple.m_Advanced = null;
 
 		GC_TestFixedCondition yes = new GC_TestFixedCondition();
 		yes.m_bValue = true;
@@ -361,7 +330,6 @@ class GC_MissionRuleTests
 		invert.m_aConditions = {invert};
 		Check(!invert.BuildCheck(), "None cycle is bounded");
 		invert.m_aConditions.Clear();
-		simple.m_Event = null;
 		simple.m_aActions = {};
 		Check(!simple.BuildRule(), "empty actions rejected");
 		GC_CompiledMissionRule on = EventRule("flip", false);
@@ -410,9 +378,10 @@ class GC_MissionRuleTests
 			rules.Insert(rule);
 		}
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
-		engine.Start(rules);
-		Check(engine.GetInvalidRuleCount() == 0, "simple example deserializes");
-		Check(engine.GetFlag("test_ready") && engine.GetFlag("test_complete"), "flag change starts next rule");
+		engine.Start(rules, null, SCR_EGameModeState.GAME);
+		Check(engine.GetInvalidRuleCount() == 0 && engine.GetFlag("test_ready") && !engine.GetFlag("test_complete"), "match state starts only first example");
+		engine.SetGameModeState(SCR_EGameModeState.POSTGAME);
+		Check(engine.GetFlag("test_ready") && engine.GetFlag("test_complete"), "after action state starts second example");
 		Check(engine.GetRunCount() == 2, "two simple rules run once");
 		engine.Advance(10);
 		engine.SetFlag("test_ready", false);
@@ -453,13 +422,13 @@ class GC_MissionRuleTests
 				return "FAIL: authored rule could not deserialize";
 			rules.Insert(rule);
 		}
-		Check(!rules[0].m_If, "serialized example needs no placeholder conditions");
+		Check(rules[0].m_If && rules[0].m_If.UsesGameModeState(), "serialized example uses Game Mode State");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
-		engine.Start(rules);
+		engine.Start(rules, null, SCR_EGameModeState.GAME);
 		Check(engine.GetInvalidRuleCount() == 0, "no-flags example deserializes");
-		Check(engine.GetRunCount() == 0, "no-flags timer waits");
+		Check(engine.GetRunCount() == 0, "no-flags match-start wait");
 		engine.Advance(2);
-		Check(engine.GetRunCount() == 0, "random delay starts after timer");
+		Check(engine.GetRunCount() == 0, "combined fixed and random delay has not elapsed");
 		engine.Advance(5);
 		Check(engine.GetRunCount() == 1, "no-flags random rule completes");
 		engine.Advance(100);

@@ -4,10 +4,8 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_aMissionEvents {
     GC_MissionRule "{7B115D5DFF7EDA01}" {
-     m_sName "1. Start the test"
+     m_sName "1. Match begins"
      m_Random GC_RuleRandom "{7B115D5DFF7EDA12}" {
-     }
-     m_Event GC_MissionEvent "{7B115D5DFF7EDA10}" {
      }
      m_aActions {
       GC_SetFlagAction "{7B115D5DFF7EDA02}" {
@@ -15,12 +13,18 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
        m_iSetTo 1
       }
      }
+     m_aConditions {
+      GC_GameModeStateCondition "{7B115D5DFF7EDA10}" {
+       m_eGameModeState 1
+      }
+     }
     }
     GC_MissionRule "{7B115D5DFF7EDA03}" {
-     m_sName "2. Finish the test"
-     m_Event GC_MissionEvent "{7B115D5DFF7EDA11}" {
-      m_eType 3
-      m_sName "test_ready"
+     m_sName "2. After action begins"
+     m_aConditions {
+      GC_GameModeStateCondition "{7B115D5DFF7EDA11}" {
+       m_eGameModeState 2
+      }
      }
      m_aActions {
       GC_SetFlagAction "{7B115D5DFF7EDA04}" {
@@ -28,7 +32,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
        m_iSetTo 1
       }
       GC_LogMessageAction "{7B115D5DFF7EDA05}" {
-       m_sMessage "Test complete. The flag started this rule."
+       m_sMessage "Test complete. After action started this event."
       }
      }
     }

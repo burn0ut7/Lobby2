@@ -699,3 +699,7 @@ for collection coverage and limits.
 Current debrief presentation merges transient AI counters/ammunition into faction
 and All summaries before sealing. Your stats remains personal. No separate AI
 report cache or selection is retained; the human Players count excludes AI.
+
+## Mission framework state conditions
+
+GC_LobbyManager starts its server-local mission engine from OnWorldPostProcess, observing the active Lobby2 phase. Its existing OnGameStateChanged callback supplies subsequent distinct states; there is no additional global listener or phase authority. Authored Game Mode State leaves compose through Condition Group/Count. Conditions are checked on initial observation and phase changes, with delayed actions revalidated. The framework remains alive through POSTGAME for explicit After action events and stops on shutdown or loss of mode ownership. Engine state is an observation used for evaluation, not a replicated phase store. Historical interpreter triggers remain internal; the editor has no separate Event selector.

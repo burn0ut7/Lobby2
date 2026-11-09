@@ -41,12 +41,16 @@ class GC_RuleCondition
 	[Attribute("", UIWidgets.Object, "Checks inside this group. A check may itself be another group. An empty All group passes.")]
 	ref array<ref GC_RuleCondition> m_aChecks;
 
+	SCR_EGameModeState m_eGameModeState;
+
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 2)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 3)
 			return false;
+		if (m_iCheck == 3)
+			return GC_LobbyPhase.IsValid(m_eGameModeState);
 		if (m_iCheck == 1)
 			return !m_sFlagName.IsEmpty();
 		if (m_iCheck == 2)
@@ -66,15 +70,33 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Evaluate(map<string, bool> flags)
+	bool UsesGameModeState(int depth = 0)
 	{
-		if (!IsValid())
+		if (depth > 16)
 			return false;
-		return EvaluateValid(flags);
+		if (m_iCheck == 3)
+			return true;
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child && child.UsesGameModeState(depth + 1))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool EvaluateValid(map<string, bool> flags)
+	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1)
+	{
+		if (!IsValid() || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
+			return false;
+		return EvaluateValid(flags, gameModeState);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState)
 	{
 		bool answer;
 		if (m_iCheck == 1)
@@ -82,6 +104,8 @@ class GC_RuleCondition
 			if (flags)
 				flags.Find(m_sFlagName, answer);
 		}
+		else if (m_iCheck == 3)
+			answer = gameModeState == m_eGameModeState;
 		else if (m_iCheck == 2)
 			answer = m_bTestAnswer;
 		else
@@ -93,7 +117,7 @@ class GC_RuleCondition
 				count = m_aChecks.Count();
 				foreach (GC_RuleCondition check : m_aChecks)
 				{
-					if (check.EvaluateValid(flags))
+					if (check.EvaluateValid(flags, gameModeState))
 						passed++;
 				}
 			}

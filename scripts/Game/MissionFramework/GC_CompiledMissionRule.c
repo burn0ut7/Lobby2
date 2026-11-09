@@ -4,7 +4,8 @@ enum GC_ERuleEvent
 	TIMER,
 	TEST_EVENT,
 	FLAG_ON,
-	FLAG_OFF
+	FLAG_OFF,
+	GAME_MODE_STATE
 }
 
 enum GC_ERuleAction
@@ -70,11 +71,11 @@ class GC_CompiledMissionRule
 	{
 		if (m_Random && (!m_Random.IsValid() || m_fWaitSeconds + m_Random.m_fMaximumSeconds > 86400))
 			return false;
-		if (m_eWhen < 0 || m_eWhen > GC_ERuleEvent.FLAG_OFF || m_fWaitSeconds < 0 || m_fWaitSeconds > 86400)
+		if (m_eWhen < 0 || m_eWhen > GC_ERuleEvent.GAME_MODE_STATE || m_fWaitSeconds < 0 || m_fWaitSeconds > 86400)
 			return false;
 		if (m_eWhen == GC_ERuleEvent.TIMER && (m_fEverySeconds < 0.1 || m_fEverySeconds > 86400))
 			return false;
-		if (m_eWhen >= GC_ERuleEvent.TEST_EVENT && m_sTestEventName.IsEmpty())
+		if (m_eWhen >= GC_ERuleEvent.TEST_EVENT && m_eWhen <= GC_ERuleEvent.FLAG_OFF && m_sTestEventName.IsEmpty())
 			return false;
 		if (m_If && !m_If.IsValid())
 			return false;

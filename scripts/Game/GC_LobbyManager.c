@@ -4,7 +4,7 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
-	[Attribute("", UIWidgets.Object, "Add a mission event. Choose an event and actions. Conditions are optional.", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "Add a mission event with conditions and actions. Game Mode State chooses the phase; leave Conditions empty to run at match start.", category: "Lobby2")]
 	protected ref array<ref GC_MissionRule> m_aMissionEvents;
 
 	[Attribute("", UIWidgets.Object, "Optional. Name flags and choose their starting values. Mission events do not need flags. Undeclared flags start Off.", category: "Lobby2")]
@@ -19,7 +19,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1")]
 	protected int m_iParameterLockSeconds;
 
-	[Attribute("1", UIWidgets.CheckBox, "Allow these mission events to run on the server during the match. An empty mission event list does nothing.")]
+	[Attribute("1", UIWidgets.CheckBox, "Allow these mission events to run on the server in their matching mission phases. An empty mission event list does nothing.")]
 	protected bool m_bMissionEventsEnabled;
 
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
@@ -131,7 +131,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected bool HasMissionRuleAuthority()
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
-		return !m_bShutdown && Replication.IsServer() && mode && mode == GetOwner() && mode.GetState() == SCR_EGameModeState.GAME;
+		return !m_bShutdown && Replication.IsServer() && mode && mode == GetOwner() && GC_LobbyPhase.IsValid(mode.GetState());
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -158,9 +158,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	override void OnGameModeStart()
+	protected void StartMissionRules()
 	{
-		super.OnGameModeStart();
 		if (m_bMissionRulesStarted || !m_bMissionEventsEnabled || !HasMissionRuleAuthority())
 			return;
 		m_bMissionRulesStarted = true;
@@ -176,9 +175,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				rule = definition.BuildRule();
 			runtimeRules.Insert(rule);
 		}
-		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags);
+		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase());
 		if (m_aMissionEvents && !m_aMissionEvents.IsEmpty() && m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void UpdateMissionGameState(SCR_EGameModeState state)
+	{
+		if (!HasMissionRuleAuthority() || !m_bMissionEventsEnabled || state != GetLobbyPhase())
+			return;
+		StartMissionRules();
+		if (m_MissionRuleEngine)
+			m_MissionRuleEngine.SetGameModeState(state, (GetGame().GetWorld().GetWorldTime() - m_fMissionRulesStartedAt) * 0.001);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -224,6 +233,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer() && !SCR_Global.IsEditMode())
 		{
 			StartPhaseClock(GetLobbyPhase());
+			StartMissionRules();
 		}
 	}
 
@@ -307,8 +317,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! SCR_BaseGameMode.
 	override void OnGameStateChanged(SCR_EGameModeState state)
 	{
-		if (state == SCR_EGameModeState.POSTGAME)
-			StopMissionRules();
+		UpdateMissionGameState(state);
 
 		string role = "proxy";
 		if (Replication.IsServer())

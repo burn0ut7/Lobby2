@@ -5,29 +5,41 @@ Select your game mode, then **GC_LobbyManager > Lobby2**. The top settings are *
 ## Start with one mission event
 
 1. Add a **Mission Event** and give it a name.
-2. Add its **Event**, then choose **Type** from the dropdown: Match started, Timer elapsed, Named event received, Flag turned On, or Flag turned Off. An empty Event means Match started.
-3. Add its **Actions**. They normally run in order.
-4. Leave **Conditions**, **Advanced**, and **Random** empty unless needed.
+2. In **Conditions**, add **Game Mode State**. Choose a phase and **Is in this state** or **Is not in this state**.
+3. Add **Actions**. They normally run in order.
+4. Leave **Advanced** and **Random** empty unless needed.
 
-A mission event runs once by default. **Advanced > Run > Every time** allows later matching events to run it again. **Wait Seconds** adds a fixed delay. Disabled keeps the mission event saved without running it.
+For game start, choose **Match / Is in this state**. The field order is Name, Conditions, Actions, Advanced, Random. There is no separate Event object or event-type selector.
 
-**Flags are optional.** Match-start, timer and named-event mission events work without flags, flag definitions or conditions. The no-flags example below demonstrates this.
+A mission event runs once by default. **Advanced > Run > Every time** permits a new run on each later matching state change. Staying in the same state does not repeat it. **Wait Seconds** adds a delay; Disabled keeps the event saved without running it.
+
+**Flags are optional.** They are named On/Off values remembered by the mission, not prerequisites for state-based events. Mission Flags supplies optional starting values before the first condition check. Names are exact and case-sensitive; undeclared flags start Off. Invalid or duplicate initial flags prevent startup. Setting flags does not recheck Game Mode State conditions.
+
+## Game Mode State
+
+Choose **Mission preview**, **Role selection**, **Briefing**, **Match**, or **After action**. These are the existing authoritative Lobby2 phases; this feature does not introduce another phase system.
+
+- **Is in this state** passes when that phase is active.
+- **Is not in this state** passes when a different valid phase is active.
+
+The framework checks the initial state after the world loads, then listens through GC_LobbyManager's existing OnGameStateChanged callback. Duplicate notifications and ordinary ticks do not trigger another check. A late startup observes the current state; it does not invent a transition. The initial state can satisfy an Is not in condition too.
+
+State conditions can appear anywhere inside Condition Group or Condition Count. A rule containing a state condition is checked on startup and every distinct state change. All top-level conditions must pass. A rule with no state conditions keeps the simple default: check once when Match begins.
+
+Actions waiting on a delay are rechecked when due. A state change that makes their conditions false cancels the pending run. If the conditions remain true, the original wait continues. Explicit After action conditions and their delays may run after the match; shutdown cancels everything. Conditions with no valid state context fail closed, even inside None.
 
 ## The terms
 
 | Setting | Meaning |
 | --- | --- |
-| Mission Event | An event, optional conditions, and actions to run. |
-| Event | Something that happens now and starts a mission event. It is not remembered. |
-| Condition | A requirement checked when the event happens, and again after any wait. |
+| Mission Event | A name, conditions, and actions to run when the conditions pass. |
+| Condition | A requirement checked on relevant changes, and again after a wait. |
 | Action | Something the mission event does. |
-| Flag | A named On/Off value the mission remembers. Use it only when useful. |
-
-**Mission Flags** optionally gives names starting values. Initial values are applied before Match started mission events and do not fire Flag changed events. Undeclared flags start Off and can still be set by actions. Names are exact and case-sensitive. Setting a flag to its current value does not send another event. Duplicate or invalid initial flag definitions prevent mission events from starting and report an error.
+| Flag | An optional named On/Off value the mission remembers. |
 
 ## Conditions: standard logic objects
 
-Conditions are an **object list**. Use **+** to choose **Condition Group** or **Condition Count**. Both contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
+Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
 
 **Condition Group > Match** offers four choices:
 
@@ -56,11 +68,11 @@ For **at least two out of three**, use **Greater than**, set Required Count to *
 
 For example, **Greater than 1** can contain **All [A, B]**, **None [C]**, and **D**. It passes when two or three of those branches pass. The optional script tests exercise this nested layout. Another valid layout is **Any [All [A, B], All [C, D]]**.
 
-These comparisons count **satisfied conditions**, not people or entities. Future area, faction-survival and prefab checks will decide their own true-or-false answers before the enclosing group counts them. Mission events are not condition inputs yet. The fixed **True or false value** placeholder has been removed. Script-only test inputs live in the optional test addon and are not authored as mission conditions. Until special checks arrive, leave Conditions empty for unrestricted events; empty explicit groups still fail closed.
+These comparisons count **satisfied conditions**, not people or entities. Future area, faction-survival and prefab checks will decide their own true-or-false answers before the enclosing group counts them. Mission events are not condition inputs yet. The fixed **True or false value** placeholder has been removed. Script-only test inputs live in the optional test addon and are not authored as mission conditions. Game Mode State is the first live check. Empty explicit groups still fail closed.
 
 Every condition directly under a mission event must pass, so ordinary lists do not need an extra All group. An empty event Conditions list means no restrictions. An explicit group needs at least one child. Empty groups, missing children and invalid required counts disable the event rather than becoming true under a negative operator. Nesting is limited to 16 levels and lists to 256 children.
 
-Flag On/Off condition objects have been removed from this authoring slice. Special conditions and live value sources will be added later. Existing Mission Flags, flag actions and starting-event options remain separate. Moving events, timing and randomness into conditions is also a future slice.
+Flag On/Off condition objects have been removed from this authoring slice. Area, faction, prefab, flag and timer conditions remain future slices. Mission Flags and flag actions remain available; timing and randomness have not moved into conditions yet.
 
 The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the incomplete shared base. Choose a concrete operation instead. Incomplete base entries fail closed.
 
@@ -76,23 +88,23 @@ Add **Random** only to mission events that need it:
 | Sometimes turn a flag On | Random flag action with Chance Percent. Failure sets it Off. |
 | Choose a route or several objectives | Select random flags: a list and Selection Count. Selected flags turn On; others in that list turn Off. |
 
-Chance is checked once per matching event after conditions pass. Zero never runs; 100 always runs. A failed chance waits for a new event. A delay is sampled once, added to the fixed wait, and conditions are rechecked when it ends. Events received while waiting are ignored. Repeat timers skip missed ticks instead of executing a burst.
+Chance is checked once per matching event after conditions pass. Zero never runs; 100 always runs. A failed chance waits for a new event. A delay is sampled once, added to the fixed wait, and conditions are rechecked when it ends. Matching state changes while waiting do not restart the delay.
 
 Random action selection chooses one whole action uniformly when execution begins. Random flag selection chooses distinct entries without modifying the configured list. No weighted selection or full gameplay action catalog is included yet.
 
-Use Match started plus 50% chance for an uncertain opening event; Named event received plus a random delay for a response to an earlier event; or a repeating Timer with a chance for occasional activity. Use flags only when later mission events must remember or react to a selected outcome.
+Use Match / Is in this state plus 50% chance for an uncertain opening event, or Briefing / Is in this state plus a random delay for activity during briefing. A failed chance is not retried every tick. Use flags only when a result needs to be remembered.
 
 ## Included examples
 
-- `Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et`: no flags and no conditions; it demonstrates an unrestricted timer event. After a two-second timer and a random extra 1-3 seconds, one of two test log messages runs once.
-- `tests/McpTestAddon/worlds/StandardLogicExample.ent`: optional editor-only scene for inspecting the no-flags timer example. Run runtime tests in Arland; this minimal inspector scene lacks a faction manager required by Play.
-- `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two mission events connected by a flag. First sets test_ready; second observes that change and sets test_complete.
+- `Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et`: no flags; Match / Is in this state starts a fixed two-second wait plus a random extra 1-3 seconds, after which one of two test log messages runs once.
+- `tests/McpTestAddon/worlds/StandardLogicExample.ent`: optional editor-only scene for inspecting the no-flags state example. Run runtime tests in Arland; this minimal inspector scene lacks a faction manager required by Play.
+- `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two independent state-driven mission events. Match sets test_ready; After action sets test_complete. They demonstrate optional flag actions, not flag-triggered events.
 
-Existing actions are Log message, Set flag, Send test event, Random flag, and Select random flags. Named events can be sent by the sample action or the server-side manager SendTestEvent method. No RPC or arbitrary script execution is exposed.
+Existing actions are Log message, Set flag, Send test event, Random flag, and Select random flags. Send test event remains an interpreter/testing action; this slice has no authorable named-event condition to receive it. No RPC or arbitrary script execution is exposed.
 
 ## Runtime and limits
 
-Only the authoritative active Lobby2 game mode starts mission events, after briefing at GAME. Shutdown and POSTGAME cancel pending work. Mission events/flags do not replicate as a general mission-state API. Flags reset on a fresh engine start; stopped values remain available for diagnostics. Limits are 256 mission events, initial flags, actions, or children per group; nesting is limited to 16. A bounded event queue stops runaway chains. Malformed mission events fail closed and report their index.
+Only the authoritative active Lobby2 game mode starts the framework, after world load, and supplies state observations. It uses the existing component callback with no additional global subscription. Shutdown and loss of active mode ownership stop pending work. Explicit After action conditions can run in POSTGAME; old non-state delayed/timer work is canceled there. Mission events/flags do not replicate as a general mission-state API. Flags reset on a fresh engine start; stopped values remain available for diagnostics. Limits are 256 mission events, initial flags, actions, or children per group; nesting is limited to 16. A bounded event queue stops runaway chains. Malformed mission events fail closed and report their index.
 
 ## Updating earlier prototypes
 
@@ -102,7 +114,9 @@ The old interpreter behavior remains covered by regression tests. A historical f
 
 ## Verification and provenance
 
-Workbench 1.9.0.37: 377 checks passed with zero failures in Arland (189 standard logic, 148 interpreter, 30 authoring, six serialized no-flags example and four flag-action example checks). Tests cover Boolean truth tables, count comparison boundaries, empty/malformed groups, cycles, nested groups and production execution. Known unrelated Arland world GUID and missing menu-preset diagnostics remain in this test project.
+Workbench 1.9.0.37: 479 checks passed (85 state conditions, 189 standard logic, 148 interpreter, 22 authoring, six no-flags resource, four state-example resource, five historical-fixture and 20 randomness checks). Real Lobby2 transitions were also tested through Preview -> Role selection -> Briefing -> Match -> After action: each action fired once, duplicate notifications were ignored, unauthenticated phase changes were rejected, and stopping prevented further execution. The temporary test configuration was discarded by stopping Play. Dedicated/remote-client behavior was not newly tested. Known unrelated Arland GUID and missing menu-preset diagnostics remain.
+
+Installed engine source: game/data/data007.pak/scripts/Game/GameMode/SCR_BaseGameMode.c (SHA256 c02bf603991e03e956d880ffaf643cfbde46f87a7d31f2fb1fc0918e95c16652), lines 434-465, dispatches OnGameStateChanged to components on server and clients. The manager gates mission execution to the active authoritative Lobby2 owner.
 
 
 TilW was studied as inspiration, not copied. Reference commit: 4a5300f94fb9323ce4942ef296bcffcdda922626. Its random-flag and flag-sampling initialization/actions informed the use cases. This framework also supports direct random action selection without flags and event-based random delays.
@@ -123,8 +137,14 @@ Replace the former All/Any/None/NotAll classes with Condition Group and the matc
 
 Replace separate comparison classes with Condition Count. For integer counts, >= N can become > N-1 when N is positive; <= N can become < N+1 when the new threshold remains within 0-256. Boundary cases require a deliberate equivalent group; do not enter an invalid threshold. Not-equal can be expressed as a None group containing an Equal to count. Old fixed m_fFirstNumber/m_fSecondNumber comparisons need deliberate rebuilding; they do not represent live checks automatically.
 
-The shipped no-flags example now has no conditions, preserving its timer and random action behavior without fixed Boolean placeholders. The user's empty Greater than object was renamed without changing its meaning. External resources need the same conversions before use. Removed XOR/XNOR classes require deliberate replacement; internal values 8 and 9 are rejected rather than reused. Internal legacy count modes remain for historical interpreter behavior, not as editor choices.
+The shipped no-flags example now uses a Match state condition and a fixed wait, preserving its once-only delayed random action without Boolean placeholders. The user's empty Greater than object was renamed without changing its meaning. External resources need the same conversions before use. Removed XOR/XNOR classes require deliberate replacement; internal values 8 and 9 are rejected rather than reused. Internal legacy count modes remain for historical interpreter behavior, not as editor choices.
 
 Flag On/Off authoring classes remain removed; external missions using them need a deliberate update when special conditions return. No flag check is silently converted to a fixed value.
 
 The GC_BooleanCondition authoring class has been removed. External resources using it need deliberate removal or replacement with appropriate real checks when available; do not delete a false restriction without considering how that changes the event. No saved world in the inspected project referenced this class at removal.
+
+### Migrating the former Event selector
+
+Remove the obsolete GC_MissionEvent.c file when installing a source snapshot. GC_MissionRule.m_Event and the GC_MissionEvent authoring type are removed. Match started becomes a Game Mode State condition: m_eGameModeState = 1 (GAME), m_iMatch = 0 (Is in). Invert uses m_iMatch = 1. The saved empty Match-start selector in the inspected Arland scene was converted.
+
+A once-only Timer after match start can use Match / Is in with Advanced > Wait Seconds; this is how the no-flags example is migrated. Repeating timers, named-event receivers and flag-change triggers need deliberate migration when those conditions are added; they are not silently converted to unconditional events. The old two-event flag-chain sample is deliberately replaced with independent Match and After action examples. The compiled interpreter still supports its historical triggers for regression/extension callers, but they are no longer editor options.

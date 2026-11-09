@@ -28,6 +28,7 @@ class GC_MissionRuleEngine
 	protected ref array<ref GC_MissionRuleState> m_aStates = {};
 	protected ref map<string, bool> m_mFlags = new map<string, bool>();
 	protected ref array<ref GC_MissionRuleEvent> m_aEvents = {};
+	protected SCR_EGameModeState m_eGameModeState = -1;
 	protected bool m_bRunning;
 	protected bool m_bDispatching;
 	protected float m_fNow;
@@ -36,12 +37,13 @@ class GC_MissionRuleEngine
 	protected bool m_bEventLimitReached;
 
 	//------------------------------------------------------------------------------------------------
-	void Start(array<ref GC_CompiledMissionRule> rules, array<ref GC_MissionFlag> flags = null)
+	void Start(array<ref GC_CompiledMissionRule> rules, array<ref GC_MissionFlag> flags = null, SCR_EGameModeState initialState = -1)
 	{
 		Stop();
 		m_aStates.Clear();
 		m_mFlags.Clear();
 		m_fNow = 0;
+		m_eGameModeState = -1;
 		m_iRuns = 0;
 		m_iInvalidRules = 0;
 		m_bEventLimitReached = false;
@@ -81,7 +83,37 @@ class GC_MissionRuleEngine
 			m_aStates.Insert(state);
 		}
 		m_bRunning = true;
-		m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.MATCH_BEGINS, ""));
+		if (GC_LobbyPhase.IsValid(initialState))
+			SetGameModeState(initialState);
+		else
+		{
+			// Historical interpreter callers without a live state retain match-start semantics.
+			m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.MATCH_BEGINS, ""));
+			DrainEvents();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Observe the owning mode; this never changes the engine's authoritative phase.
+	void SetGameModeState(SCR_EGameModeState state, float elapsedSeconds = -1)
+	{
+		if (!m_bRunning || !GC_LobbyPhase.IsValid(state) || state == m_eGameModeState)
+			return;
+		if (elapsedSeconds > m_fNow)
+			m_fNow = elapsedSeconds;
+		m_eGameModeState = state;
+		foreach (GC_MissionRuleState pending : m_aStates)
+		{
+			if (!pending.m_bValid || !pending.m_bPending)
+				continue;
+			GC_CompiledMissionRule rule = pending.m_Rule;
+			if ((rule.m_If && !rule.m_If.Evaluate(m_mFlags, state))
+				|| (state == SCR_EGameModeState.POSTGAME && rule.m_eWhen != GC_ERuleEvent.GAME_MODE_STATE))
+				pending.m_bPending = false;
+		}
+		m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.GAME_MODE_STATE, ""));
+		if (state == SCR_EGameModeState.GAME)
+			m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.MATCH_BEGINS, ""));
 		DrainEvents();
 	}
 
@@ -195,7 +227,7 @@ class GC_MissionRuleEngine
 				if (CanRun(state))
 					Execute(state);
 			}
-			if (state.m_Rule.m_eWhen == GC_ERuleEvent.TIMER && state.m_fNextCheck <= m_fNow)
+			if (state.m_Rule.m_eWhen == GC_ERuleEvent.TIMER && m_eGameModeState != SCR_EGameModeState.POSTGAME && state.m_fNextCheck <= m_fNow)
 			{
 				state.m_fNextCheck = m_fNow + state.m_Rule.m_fEverySeconds;
 				TryRun(state);
@@ -213,7 +245,7 @@ class GC_MissionRuleEngine
 		GC_CompiledMissionRule rule = state.m_Rule;
 		if (rule.m_bRunOnlyOnce && state.m_iRuns > 0)
 			return false;
-		return !rule.m_If || rule.m_If.Evaluate(m_mFlags);
+		return !rule.m_If || rule.m_If.Evaluate(m_mFlags, m_eGameModeState);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -324,7 +356,7 @@ class GC_MissionRuleEngine
 				if (!state.m_bValid)
 					continue;
 				GC_CompiledMissionRule rule = state.m_Rule;
-				if (rule.m_eWhen == notification.m_eKind && (notification.m_eKind == GC_ERuleEvent.MATCH_BEGINS
+				if (rule.m_eWhen == notification.m_eKind && (notification.m_eKind == GC_ERuleEvent.MATCH_BEGINS || notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE
 					|| rule.m_sTestEventName == notification.m_sName))
 					TryRun(state);
 			}
