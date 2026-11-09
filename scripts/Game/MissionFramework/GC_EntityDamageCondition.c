@@ -15,7 +15,7 @@ class GC_EntityDamageCondition : GC_ConditionBase
 	[Attribute("0", UIWidgets.ComboBox, "Destroyed checks whether the selected damage area is destroyed (dead for a character's main area). Not destroyed checks the opposite. Damage amount checks whether damage has reached Damage Needed. Repairs update the answer; the event's Advanced settings control repetition.", enums: {ParamEnum("Destroyed", "0"), ParamEnum("Not destroyed", "1"), ParamEnum("Damage amount", "2")})]
 	int m_iCheck;
 
-	[Attribute("1", UIWidgets.SpinBox, "Only used by Damage amount. Minimum damage from 0 to 1: 0.5 means at least 50% damage, 1 means all health is gone, and 0 includes an undamaged target. Use Destroyed to check the engine's actual destroyed state.", "0 1 0.01")]
+	[Attribute("1", UIWidgets.Slider, "Only used by Damage amount. Minimum damage from 0 to 1: 0.5 means at least 50% damage, 1 means all health is gone, and 0 includes an undamaged target. Use Destroyed to check the engine's actual destroyed state.", "0 1 0.01")]
 	float m_fDamageNeeded;
 
 	[Attribute("", UIWidgets.Object, "Optional specific damage area. Leave unset to check the main area using the same damage system for characters, vehicles and buildings.")]

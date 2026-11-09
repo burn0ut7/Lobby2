@@ -8,7 +8,7 @@ class GC_CasualtiesCondition : GC_ConditionBase
 	[Attribute("0", UIWidgets.ComboBox, "Choose who to count at Match start. Players includes connected players' living claimed slot characters, even while possession is catching up. AI excludes spectators and unoccupied player slots. Later spawns and respawns do not change the starting group.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
 	int m_iCount;
 
-	[Attribute("1", UIWidgets.EditBox, "Share of the starting group that must have died: 0.7 = 70%, 1 = everyone, and 0 = no deaths required. Passes when deaths reach or exceed this ratio. The group is the living characters at Match start, with their starting factions and Players/AI classification. Each death counts once; respawning does not undo it. Disconnecting or deleting a living character is not a death. An empty starting group never passes.")]
+	[Attribute("1", UIWidgets.Slider, "Share of the starting group that must have died: 0.7 = 70%, 1 = everyone, and 0 = no deaths required. Passes when deaths reach or exceed this ratio. The group is the living characters at Match start, with their starting factions and Players/AI classification. Each death counts once; respawning does not undo it. Disconnecting or deleting a living character is not a death. An empty starting group never passes.", "0 1 0.01")]
 	float m_fCasualtyRatio;
 
 	//------------------------------------------------------------------------------------------------
