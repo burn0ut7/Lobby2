@@ -9,16 +9,12 @@ class GC_MissionInteractionComponent : ScriptComponent
 	protected string m_sActionName;
 	[Attribute("", UIWidgets.EditBox, "Optional faction keys allowed to use this interaction. Empty means all factions. Only living, conscious player-controlled characters can use it; spectators cannot.")]
 	protected ref array<string> m_aFactions;
-	[Attribute("0", UIWidgets.CheckBox, "Off: one successful use for this object. On: players can use it again. Interaction Condition remembers that it has been used; each accepted use notifies the framework again.")]
-	protected bool m_bRepeatable;
 	[Attribute("", UIWidgets.EditBox, "Optional Mission Flag that must currently be On. Keep complex requirements on that flag in GC Lobby Manager, not on this object. Empty means no flag requirement. Available during Match only.")]
 	protected string m_sRequiredFlag;
 	[Attribute("", UIWidgets.EditBox, "Optional Mission Flag to call after use. Its own conditions and repeatability still apply; a rejected flag call does not undo the interaction. Leave empty when using Interaction Condition only.")]
 	protected string m_sCallFlag;
 	[RplProp()]
 	protected bool m_bAvailable;
-	[RplProp()]
-	protected int m_iUses;
 	protected bool m_bUsing;
 	protected ref ScriptInvoker m_OnUsed = new ScriptInvoker();
 
@@ -26,12 +22,6 @@ class GC_MissionInteractionComponent : ScriptComponent
 	string GetActionName()
 	{
 		return m_sActionName;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	int GetUseCount()
-	{
-		return m_iUses;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -44,11 +34,11 @@ class GC_MissionInteractionComponent : ScriptComponent
 	bool CanUse(IEntity user)
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
-		if (!manager || manager.GetLobbyPhase() != SCR_EGameModeState.GAME || m_bUsing || m_iUses == int.MAX || !GetOwner().FindComponent(RplComponent))
+		if (!manager || manager.GetLobbyPhase() != SCR_EGameModeState.GAME || m_bUsing || !GetOwner().FindComponent(RplComponent))
 			return false;
 		if (Replication.IsServer())
 			RefreshAvailability();
-		if (!m_bAvailable || (!m_bRepeatable && m_iUses > 0))
+		if (!m_bAvailable)
 			return false;
 		SCR_ChimeraCharacter character = SCR_ChimeraCharacter.Cast(user);
 		if (!character || character.FindComponent(GC_LobbySpectatorBodyComponent))
@@ -73,12 +63,10 @@ class GC_MissionInteractionComponent : ScriptComponent
 			return false;
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		m_bUsing = true;
-		m_iUses++;
 		m_OnUsed.Invoke();
 		manager.NotifyMissionInteraction(m_sCallFlag);
 		m_bUsing = false;
 		RefreshAvailability();
-		Replication.BumpMe();
 		return true;
 	}
 
@@ -89,7 +77,7 @@ class GC_MissionInteractionComponent : ScriptComponent
 			return;
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		bool available = manager && manager.AreMissionInteractionsActive() && !m_sActionName.IsEmpty()
-			&& (m_bRepeatable || m_iUses == 0) && (m_sRequiredFlag.IsEmpty() || manager.GetFlag(m_sRequiredFlag));
+			&& (m_sRequiredFlag.IsEmpty() || manager.GetFlag(m_sRequiredFlag));
 		if (available == m_bAvailable)
 			return;
 		m_bAvailable = available;

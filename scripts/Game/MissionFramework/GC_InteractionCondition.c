@@ -1,20 +1,17 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Interaction Condition")]
 class GC_InteractionCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Exact unique world name of the object carrying GC_MissionInteractionComponent. Place it before Match starts. Reuses its remembered result without performing the interaction or rechecking its availability.")]
+	[Attribute("", UIWidgets.EditBox, "Exact unique world name of the object carrying GC_MissionInteractionComponent. Place it before Match starts. True only during the framework check caused by using this object. Resets afterward even if other conditions fail. Use a Mission Flag to remember success.")]
 	string m_sEntityName;
-	[Attribute("0", UIWidgets.ComboBox, "Has been used stays true after the first accepted use, including for repeatable interactions. Each later use notifies observing events again. Missing/deleted objects never pass either choice, even in None. Event repetition stays in the event's Advanced settings.", enums: {ParamEnum("Has been used", "0"), ParamEnum("Has not been used", "1")})]
-	int m_iMatch;
 
 	//------------------------------------------------------------------------------------------------
 	override GC_RuleCondition BuildCheck(int depth = 0)
 	{
-		if (depth > 16 || m_sEntityName.IsEmpty() || m_iMatch < 0 || m_iMatch > 1)
+		if (depth > 16 || m_sEntityName.IsEmpty())
 			return null;
 		GC_RuleCondition check = new GC_RuleCondition();
 		check.m_iCheck = 11;
 		check.m_sInteractionEntity = m_sEntityName;
-		check.m_bReverseAnswer = m_iMatch == 1;
 		return check;
 	}
 }
@@ -24,6 +21,7 @@ class GC_InteractionObservation
 {
 	protected GC_MissionInteractionComponent m_Component;
 	protected bool m_bChanged;
+	protected bool m_bTriggered;
 	protected bool m_bAvailable;
 	protected bool m_bReportedMissing;
 
@@ -44,12 +42,12 @@ class GC_InteractionObservation
 		}
 		m_Component.GetOnUsed().Insert(OnUsed);
 		m_bAvailable = true;
-		m_bChanged = true;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void OnUsed()
 	{
+		m_bTriggered = true;
 		m_bChanged = true;
 	}
 
@@ -60,9 +58,9 @@ class GC_InteractionObservation
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool HasBeenUsed()
+	bool IsTriggered()
 	{
-		return m_Component && m_Component.GetUseCount() > 0;
+		return IsAvailable() && m_bTriggered;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -79,10 +77,17 @@ class GC_InteractionObservation
 	}
 
 	//------------------------------------------------------------------------------------------------
+	void ResetPulse()
+	{
+		m_bTriggered = false;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void Stop()
 	{
 		if (m_Component)
 			m_Component.GetOnUsed().Remove(OnUsed);
+		ResetPulse();
 		m_Component = null;
 		m_bAvailable = false;
 		m_bChanged = false;

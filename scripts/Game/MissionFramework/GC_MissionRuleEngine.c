@@ -401,6 +401,8 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void ResetPulses()
 	{
+		foreach (GC_RuleCondition interactionCheck, GC_InteractionObservation interaction : m_mInteractions)
+			interaction.ResetPulse();
 		foreach (string name : m_aPulseFlags)
 			m_mFlags.Set(name, false);
 		foreach (string eventName : m_aPulseEvents)

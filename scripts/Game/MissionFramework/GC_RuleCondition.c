@@ -426,7 +426,7 @@ class GC_RuleCondition
 				flags.Find(m_sFlagName, answer);
 		}
 		else if (m_iCheck == 11)
-			answer = interactions.Get(this).HasBeenUsed();
+			answer = interactions.Get(this).IsTriggered();
 		else if (m_iCheck == 10)
 			answer = areas.GetObservation(this).PassesCondition(this);
 		else if (m_iCheck == 9)

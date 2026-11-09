@@ -2,7 +2,6 @@
 class GC_TestInteractionObservation : GC_InteractionObservation
 {
 	bool m_bTestAvailable = true;
-	bool m_bTestUsed;
 	bool m_bTestChanged;
 
 	//------------------------------------------------------------------------------------------------
@@ -12,15 +11,9 @@ class GC_TestInteractionObservation : GC_InteractionObservation
 	}
 
 	//------------------------------------------------------------------------------------------------
-	override bool HasBeenUsed()
-	{
-		return m_bTestUsed;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	void Use()
 	{
-		m_bTestUsed = true;
+		m_bTriggered = true;
 		m_bTestChanged = true;
 	}
 
@@ -55,9 +48,6 @@ modded class GC_MissionRuleTests
 		Check(!check.Evaluate(null), "unresolved interaction fails closed");
 		GC_RuleCondition none = GC_ConditionBase.BuildGroup({condition}, GC_ERuleCheck.NONE, 0, 0);
 		Check(!none.Evaluate(null), "unresolved interaction under None fails closed");
-		condition.m_iMatch = 2;
-		Check(!condition.BuildCheck(), "invalid match rejected");
-		condition.m_iMatch = 0;
 		GC_Event authored = StateRule("interaction", SCR_EGameModeState.GAME);
 		authored.m_aConditions = {condition};
 		authored.m_Advanced = new GC_RuleOptions();
@@ -71,6 +61,7 @@ modded class GC_MissionRuleTests
 		observation.Use();
 		engine.NotifyInteraction("");
 		Check(engine.GetRunCount() == 1, "accepted use runs observing event");
+		Check(!observation.IsTriggered(), "successful interaction resets after dispatch");
 		engine.NotifyInteraction("");
 		Check(engine.GetRunCount() == 1, "unchanged interaction does not notify twice");
 		observation.Use();
@@ -91,9 +82,14 @@ modded class GC_MissionRuleTests
 		observation = new GC_TestInteractionObservation();
 		engine.Install(leaf, observation);
 		observation.Use();
+		engine.NotifyInteraction("");
+		Check(engine.GetRunCount() == 0 && !observation.IsTriggered(), "failed conditions reset the interaction");
+		engine.CallFlag("used");
+		Check(engine.GetRunCount() == 0, "later flag change cannot reuse a previous interaction");
+		observation.Use();
 		engine.NotifyInteraction("used");
 		Check(engine.GetRunCount() == 1, "interaction and pulse flag share one notification chain");
-		Check(engine.GetFlagCallCount("used") == 1 && !engine.GetFlag("used"), "output flag retains its normal pulse semantics");
+		Check(engine.GetFlagCallCount("used") == 2 && !engine.GetFlag("used"), "output flag retains its normal pulse semantics");
 		return string.Format("Interaction checks: %1; failures: %2", m_iChecks, m_iFailures);
 	}
 }
