@@ -1,29 +1,11 @@
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Condition")]
+//! Shared serialized type for the condition-object list. Incomplete entries fail closed.
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Choose a condition")]
 class GC_MissionCondition
 {
-	[Attribute("0", UIWidgets.ComboBox, "Choose a flag check, or combine the conditions below. All requires every condition; Any requires one; None requires none.", enums: {ParamEnum("Flag is On", "0"), ParamEnum("Flag is Off", "1"), ParamEnum("All conditions", "2"), ParamEnum("Any condition", "3"), ParamEnum("No conditions", "4"), ParamEnum("Exactly this many", "5"), ParamEnum("At least this many", "6"), ParamEnum("At most this many", "7"), ParamEnum("All conditions agree", "8")})]
-	int m_iType;
-	[Attribute("", UIWidgets.EditBox, "Used by Flag is On or Flag is Off. Leave empty for a combination of conditions. A flag that has not been set is Off.")]
-	string m_sFlagName;
-	[Attribute("", UIWidgets.Object, "Used by condition combinations. Add conditions here; each may contain another combination. Flag checks ignore this list.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
-	[Attribute("1", UIWidgets.SpinBox, "Only used by Exactly, At least and At most. How many conditions must pass.", "0 256 1", category: "Advanced")]
-	int m_iNumber;
-
 	//------------------------------------------------------------------------------------------------
 	GC_RuleCondition BuildCheck(int depth = 0)
 	{
-		if (depth > 16 || m_iType < 0 || m_iType > 8)
-			return null;
-		if (m_iType >= 2)
-			return BuildGroup(m_aConditions, m_iType - 2, m_iNumber, depth);
-		if (m_sFlagName.IsEmpty())
-			return null;
-		GC_RuleCondition check = new GC_RuleCondition();
-		check.m_iCheck = 1;
-		check.m_sFlagName = m_sFlagName;
-		check.m_bReverseAnswer = m_iType == 1;
-		return check;
+		return null;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -50,5 +32,91 @@ class GC_MissionCondition
 		if (!group.IsValid(depth))
 			return null;
 		return group;
+	}
+}
+
+[BaseContainerProps(), BaseContainerCustomStringTitleField("All conditions (AND)")]
+class GC_AllConditions : GC_MissionCondition
+{
+	[Attribute("", UIWidgets.Object, "Every condition in this list must be true. Add at least one condition.")]
+	ref array<ref GC_MissionCondition> m_aConditions;
+
+	//------------------------------------------------------------------------------------------------
+	override GC_RuleCondition BuildCheck(int depth = 0)
+	{
+		if (!m_aConditions || m_aConditions.IsEmpty())
+			return null;
+		return BuildGroup(m_aConditions, GC_ERuleCheck.ALL, 0, depth);
+	}
+}
+
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Any condition (OR)")]
+class GC_AnyCondition : GC_MissionCondition
+{
+	[Attribute("", UIWidgets.Object, "At least one condition in this list must be true. Add at least one condition.")]
+	ref array<ref GC_MissionCondition> m_aConditions;
+
+	//------------------------------------------------------------------------------------------------
+	override GC_RuleCondition BuildCheck(int depth = 0)
+	{
+		if (!m_aConditions || m_aConditions.IsEmpty())
+			return null;
+		return BuildGroup(m_aConditions, GC_ERuleCheck.ANY, 0, depth);
+	}
+}
+
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Not condition (NOT)")]
+class GC_NotCondition : GC_MissionCondition
+{
+	[Attribute("", UIWidgets.Object, "This condition must be false. For example, Not > Any means none of those conditions may be true.")]
+	ref GC_MissionCondition m_Condition;
+
+	//------------------------------------------------------------------------------------------------
+	override GC_RuleCondition BuildCheck(int depth = 0)
+	{
+		if (depth > 16 || !m_Condition)
+			return null;
+		GC_RuleCondition check = m_Condition.BuildCheck(depth + 1);
+		if (!check || !check.IsValid(depth + 1))
+			return null;
+		check.m_bReverseAnswer = !check.m_bReverseAnswer;
+		return check;
+	}
+}
+
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Flag is On condition")]
+class GC_FlagOnCondition : GC_MissionCondition
+{
+	[Attribute("", UIWidgets.EditBox, "The flag that must be On. Use the same name as the action that sets it. Flags are optional; use this condition only when needed.")]
+	string m_sFlagName;
+
+	//------------------------------------------------------------------------------------------------
+	override GC_RuleCondition BuildCheck(int depth = 0)
+	{
+		if (depth > 16 || m_sFlagName.IsEmpty())
+			return null;
+		GC_RuleCondition check = new GC_RuleCondition();
+		check.m_iCheck = 1;
+		check.m_sFlagName = m_sFlagName;
+		return check;
+	}
+}
+
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Flag is Off condition")]
+class GC_FlagOffCondition : GC_MissionCondition
+{
+	[Attribute("", UIWidgets.EditBox, "The flag that must be Off. A flag with no starting value and no earlier change is Off.")]
+	string m_sFlagName;
+
+	//------------------------------------------------------------------------------------------------
+	override GC_RuleCondition BuildCheck(int depth = 0)
+	{
+		if (depth > 16 || m_sFlagName.IsEmpty())
+			return null;
+		GC_RuleCondition check = new GC_RuleCondition();
+		check.m_iCheck = 1;
+		check.m_sFlagName = m_sFlagName;
+		check.m_bReverseAnswer = true;
+		return check;
 	}
 }

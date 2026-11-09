@@ -6,8 +6,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
     GC_MissionRule "{7B115D5DFF7EDA01}" {
      m_sName "1. Start the test"
      m_aConditions {
-      GC_MissionCondition "{7B115D5DFF7EDA13}" {
-       m_iType 1
+      GC_FlagOffCondition "{7B115D5DFF7EDA13}" {
        m_sFlagName "test_complete"
       }
      }

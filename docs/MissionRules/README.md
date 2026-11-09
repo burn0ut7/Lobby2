@@ -27,9 +27,23 @@ A rule runs once by default. **Advanced > Run > Every time** allows later matchi
 
 ## Conditions
 
-Add a **Condition**, then choose its **Type**. A normal flag condition only needs Flag Name and Flag is On/Off. For combinations, use All conditions, Any condition, or No conditions, and add the inner Conditions. All conditions agree, Exactly, At least and At most cover advanced logic. Number is used only for the three count choices.
+Conditions are an **object list**, following TilW's nested-object approach. Press the list's **+** button and choose the condition object. There is no Type dropdown inside a condition and no counting settings.
 
-Every condition directly under a rule must pass. Empty rule Conditions means no restrictions. Empty All and No combinations pass; empty Any fails. Nesting remains available, but ordinary rules need none. There is no Check Group or Test Condition choice.
+| Condition object | Settings | Meaning |
+| --- | --- | --- |
+| All conditions (AND) | Conditions list | Every child must be true. |
+| Any condition (OR) | Conditions list | At least one child must be true. |
+| Not condition (NOT) | One Condition | That condition must be false. |
+| Flag is On condition | Flag Name | The named flag must be On. |
+| Flag is Off condition | Flag Name | The named flag must be Off. |
+
+For example, add **Any condition**, then add **Flag is On: north_ready** and **Flag is On: south_ready** inside it. Either flag allows the rule. To require neither, put that Any object inside **Not condition**.
+
+Every condition directly under a rule must pass, so a normal rule does not need an extra All object. Leave the rule's Conditions list empty for no restrictions. Explicit All/Any objects need at least one child, and Not needs one child: incomplete objects disable the rule rather than accidentally allowing it to run. Nesting is optional. Flags remain optional.
+
+Exactly, At least, At most, All conditions agree and Test Condition are not offered in this authoring slice. The internal evaluator retains historical logic solely for existing regression coverage. Event selection, start/stop behavior and randomness remain separate; combining them into conditions is a future slice.
+
+The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the incomplete shared base. This is not a working condition; choose one of the five concrete types above. An incomplete base entry fails closed. Do not confuse the native object-class picker with the removed per-condition Type dropdown.
 
 ## Optional randomness
 
@@ -62,13 +76,14 @@ Only the authoritative active Lobby2 game mode starts rules, after briefing at G
 
 ## Updating earlier prototypes
 
-This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. Keep a backup. Do not combine removed prototype scripts with this version.
+This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. The preceding GC_MissionCondition + m_iType format also changed: On/Off become the named flag objects, All/Any become their list objects, and None becomes Not containing Any. Advanced count conditions are deferred; they are not silently converted. The known project example and open Arland condition were migrated. Keep a backup. Do not combine removed prototype scripts with this version.
 
 The old interpreter behavior remains covered by regression tests. A historical fixture is loaded through an isolated test-only adapter; this proves its behavior, not unchanged production resource compatibility. The original MissionFramework_v0_1.zip was unavailable, so exact archive compatibility is not claimed.
 
 ## Verification and provenance
 
-Workbench 1.9.0.37: 148 interpreter checks, 26 authoring checks, four serialized flag-example checks, five historical-fixture checks 20 random/optional-flag checks, and five serialized no-flags example checks passed in embedded Play (208 total). The Event dropdown was opened and its five entries verified through the native editor. Known unrelated Arland world GUID and missing menu-preset diagnostics remain in this test project.
+Workbench 1.9.0.37: this condition-object slice passed 30 authoring checks, four serialized flag-example checks and five serialized no-flags example checks in embedded Play (39 affected checks). Checks include nested All/Any/Not, incomplete objects and cycles. Earlier interpreter, random-selection and historical-fixture checks remain unchanged. Known unrelated Arland world GUID and missing menu-preset diagnostics remain in this test project.
+
 
 TilW was studied as inspiration, not copied. Reference commit: 4a5300f94fb9323ce4942ef296bcffcdda922626. Its random-flag and flag-sampling initialization/actions informed the use cases. This framework also supports direct random action selection without flags and event-based random delays.
 
