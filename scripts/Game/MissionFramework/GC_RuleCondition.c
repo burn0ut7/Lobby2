@@ -48,13 +48,38 @@ class GC_RuleCondition
 	float m_fRandomInterval;
 	float m_fRandomChance;
 	int m_iRandomBehavior;
+	ref array<string> m_aCasualtyFactions;
+	int m_iCasualtyCount;
+	float m_fCasualtyRatio;
+	int m_iDeathComparison;
+	int m_iRequiredDeaths;
 
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 6)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 8)
 			return false;
+		if (m_iCheck == 7 || m_iCheck == 8)
+		{
+			if (m_iCasualtyCount < 0 || m_iCasualtyCount > 2)
+				return false;
+			if (m_iCheck == 7 && !(m_fCasualtyRatio >= 0 && m_fCasualtyRatio <= 1))
+				return false;
+			if (m_iCheck == 8 && (m_iDeathComparison < 0 || m_iDeathComparison > 3 || m_iRequiredDeaths < 0 || m_iRequiredDeaths > 1000000))
+				return false;
+			if (m_aCasualtyFactions)
+			{
+				if (m_aCasualtyFactions.Count() > 256)
+					return false;
+				foreach (string faction : m_aCasualtyFactions)
+				{
+					if (faction.IsEmpty())
+						return false;
+				}
+			}
+			return true;
+		}
 		if (m_iCheck == 6)
 			return m_fRandomInterval >= 0.1 && m_fRandomInterval <= 86400 && m_fRandomChance >= 0 && m_fRandomChance <= 1 && m_iRandomBehavior >= 0 && m_iRandomBehavior <= 1;
 		if (m_iCheck == 5)
@@ -136,6 +161,24 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
+	bool UsesCasualties(int depth = 0)
+	{
+		if (depth > 16)
+			return false;
+		if (m_iCheck == 7 || m_iCheck == 8)
+			return true;
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child && child.UsesCasualties(depth + 1))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool UsesRandom(array<GC_RuleCondition> changed = null, int depth = 0)
 	{
 		if (depth > 16)
@@ -191,15 +234,15 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null)
+	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null, GC_CasualtySnapshot casualties = null)
 	{
 		if (!IsValid() || !HasEvaluationContext(events, randomResults) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
 			return false;
-		return EvaluateValid(flags, gameModeState, counts, events, randomResults);
+		return EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults)
+	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults, GC_CasualtySnapshot casualties)
 	{
 		bool answer;
 		if (m_iCheck == 1)
@@ -207,6 +250,10 @@ class GC_RuleCondition
 			if (flags)
 				flags.Find(m_sFlagName, answer);
 		}
+		else if (m_iCheck == 8)
+			answer = casualties && casualties.PassesDeathCount(m_aCasualtyFactions, m_iCasualtyCount, m_iDeathComparison, m_iRequiredDeaths);
+		else if (m_iCheck == 7)
+			answer = casualties && casualties.Passes(m_aCasualtyFactions, m_iCasualtyCount, m_fCasualtyRatio);
 		else if (m_iCheck == 6)
 			randomResults.Find(this, answer);
 		else if (m_iCheck == 5)
@@ -236,7 +283,7 @@ class GC_RuleCondition
 				count = m_aChecks.Count();
 				foreach (GC_RuleCondition check : m_aChecks)
 				{
-					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults))
+					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties))
 						passed++;
 				}
 			}

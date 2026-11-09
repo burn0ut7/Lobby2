@@ -58,6 +58,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected string m_sDefaultFormation;
 
 	protected ref GC_MissionRuleEngine m_MissionRuleEngine;
+	protected ref GC_MissionCasualtyTracker m_MissionCasualties;
 	protected float m_fMissionRulesStartedAt;
 	protected bool m_bMissionRulesStarted;
 
@@ -195,7 +196,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				rule = definition.BuildRule();
 			runtimeRules.Insert(rule);
 		}
-		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase(), eventNames);
+		CaptureMissionCasualties(GetLobbyPhase());
+		GC_CasualtySnapshot casualties;
+		if (m_MissionCasualties)
+			casualties = m_MissionCasualties.GetSnapshot();
+		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase(), eventNames, casualties);
 		if (m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
 	}
@@ -206,8 +211,20 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!HasMissionRuleAuthority() || !m_bMissionEventsEnabled || state != GetLobbyPhase())
 			return;
 		StartMissionRules();
+		CaptureMissionCasualties(state);
 		if (m_MissionRuleEngine)
 			m_MissionRuleEngine.SetGameModeState(state, (GetGame().GetWorld().GetWorldTime() - m_fMissionRulesStartedAt) * 0.001);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CaptureMissionCasualties(SCR_EGameModeState state)
+	{
+		if (state != SCR_EGameModeState.GAME || m_MissionCasualties || !HasMissionRuleAuthority())
+			return;
+		m_MissionCasualties = new GC_MissionCasualtyTracker();
+		m_MissionCasualties.Capture(this);
+		if (m_MissionRuleEngine)
+			m_MissionRuleEngine.SetCasualties(m_MissionCasualties.GetSnapshot(), false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -228,6 +245,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			GetGame().GetCallqueue().Remove(TickMissionRules);
 		if (m_MissionRuleEngine)
 			m_MissionRuleEngine.Stop();
+		m_MissionCasualties = null;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1168,9 +1186,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		IEntity victim = instigatorContextData.GetVictimEntity();
+		bool casualtyChanged = HasMissionRuleAuthority() && m_bMissionEventsEnabled && GetLobbyPhase() == SCR_EGameModeState.GAME
+			&& m_MissionRuleEngine && m_MissionRuleEngine.IsRunning() && m_MissionCasualties && m_MissionCasualties.RecordDeath(victim, this, instigatorContextData.GetVictimPlayerID());
 		GC_Slot slot = m_Roster.GetSlotByEntity(victim);
 		if (!slot)
+		{
+			if (casualtyChanged)
+				m_MissionRuleEngine.SetCasualties(m_MissionCasualties.GetSnapshot());
 			return;
+		}
 		PrintFormat("GC | Killed From | event=authority-destroyed victim=%1 killer=%2 slot=%3 phase=%4", victim, instigatorContextData.GetKillerEntity(), slot.GetID(), GetLobbyPhase());
 
 		if (GetLobbyPhase() == SCR_EGameModeState.GAME)
@@ -1200,6 +1224,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		UpdateSlot(slot);
+		// Finish the native death/slot flow before mission actions may change phase.
+		if (casualtyChanged)
+			m_MissionRuleEngine.SetCasualties(m_MissionCasualties.GetSnapshot());
 	}
 
 	override void OnControllableDeleted(IEntity entity)
@@ -1208,6 +1235,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (!Replication.IsServer())
 			return;
+
+		if (m_MissionCasualties)
+			m_MissionCasualties.ForgetEntity(entity);
 
 		GC_Slot slot = m_Roster.GetSlotByEntity(entity);
 		if (!slot)

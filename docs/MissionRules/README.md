@@ -85,7 +85,7 @@ Actions waiting on a delay are rechecked when due. A state change that makes the
 
 ## Conditions: standard logic objects
 
-Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Mission Flag Condition**, **Mission Event Condition**, **Random Chance**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
+Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Mission Flag Condition**, **Mission Event Condition**, **Random Chance**, **Casualties**, **Total Deaths**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
 
 **Condition Group > Match** offers four choices:
 
@@ -121,7 +121,7 @@ With Count From set to **Conditions that are true**, these comparisons count sat
 
 Every condition directly under a mission event must pass, so ordinary lists do not need an extra All group. **No conditions means always true:** an empty event Conditions list has no requirements to meet. Top-level events and random groups with no conditions run at match start; a child with no conditions is eligible whenever its group makes a selection. Chance, delay, disabled and run-once settings still apply. An explicit group needs at least one child. Empty groups, missing children and invalid required counts disable the event rather than becoming true under a negative operator. Nesting is limited to 16 levels and lists to 256 children.
 
-Mission Flag Condition is one condition object with Is true/Is false choices. Area, faction, prefab and general timer conditions remain future slices. Scheduled Random Chance is now available as a condition; Advanced chance remains a separate action gate.
+Mission Flag Condition is one condition object with Is true/Is false choices. Area, prefab and general timer conditions remain future slices. Casualties is now available with its own faction filter. Scheduled Random Chance is now available as a condition; Advanced chance remains a separate action gate.
 
 The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_ConditionBase**, the required shared base that lets one list hold different condition types. Its title is **Do not use**, and its description explains what to choose instead. It does not perform a check. Replace base entries with a specific condition; incomplete base entries fail closed. The class name identifies it as a base; the display-title attribute says Do not use.
 
@@ -256,3 +256,32 @@ For a 5% chance every 90 seconds, set Check Interval to `90` and Chance to `0.05
 This slice adds no weighted selection, cooldown, changing probability or shared random-result catalog. Existing Random Event Groups handle selection; optional flags can remember a result when the mission explicitly needs shared memory.
 
 Verification: production Workbench script compilation and source-level logic review. Deterministic regression scenarios are provided in the optional `GC_RandomConditionTests.c`; they were not executed in-game, in accordance with the requested verification scope.
+
+
+## Casualties condition
+
+Add **Casualties** directly to an event's Conditions, inside a group/count, or to a Mission Flag's Conditions. All casualty settings stay on this one object; there is no separate faction condition or mandatory flag.
+
+- **Factions**: an array of exact faction keys, such as US and USSR. An empty array includes every faction, including unaffiliated eligible characters. Selected factions are combined into one starting population. Duplicate keys do not double-count; blank entries are invalid.
+- **Count**: Players (default), AI, or Players and AI. Spectator bodies, characters already dead at capture, and unoccupied playable slots are excluded. Connected players' living claimed slot characters count as players even when queued possession is still catching up at Match entry. Player-controlled characters outside slots are also included. AI is discovered through the native AI-world agent registry, excluding playable groups and player/slot characters.
+- **Casualty Ratio**: a float from 0 to 1, default 1. `0.7` means at least 70% of the selected starting lives have died. `1` requires everyone; `0` requires no deaths but still requires a nonempty starting group. With ten starting lives, 0.7 passes on the seventh death. With three, 0.7 requires all three.
+
+The baseline is captured once at the authoritative manager's Match-entry callback, before its mission events execute. A framework first started during Match captures the living group at that time; it cannot reconstruct an earlier baseline. The starting faction and Players/AI classification stay fixed for each life. Respawns, reinforcements, later joins, faction switches and possession changes do not expand or reclassify that baseline. Death is remembered once; a replacement life does not undo the original death. Disconnecting, unconsciousness, and deletion without a death notification do not count as casualties. An empty matching population returns false. Ordinary All/Any/None/Not all/Count logic still applies to this answer; invalid authored settings fail closed.
+
+The existing authoritative `OnControllableDestroyed` callback records confirmed player and AI deaths, then checks casualty-dependent top-level events and flags. Player slot/death handling finishes before mission actions run. Random-group children remain filters and do not trigger their parent. No per-frame character scan, additional death listeners, client RPC, or shared global override is added. Once/Every time and flag Repeatable settings retain their existing meanings; a repeatable owner can react to later casualty notifications while its full conditions pass. The final snapshot remains readable after Match, with no new deaths recorded; shutdown clears the tracker and engine context.
+
+Installed engine evidence: `game/data/data007.pak/scripts/Game/GameMode/SCR_BaseGameMode.c`, SHA256 `c02bf603991e03e956d880ffaf643cfbde46f87a7d31f2fb1fc0918e95c16652`, lines 1347-1366 dispatches controllable destruction to game-mode components. Existing Lobby2 native player/AI discovery and slot lifecycle paths are reused. Production source was checked by Workbench script compilation and independent source review. Optional deterministic snapshot/interpreter scenarios in `GC_CasualtyConditionTests.c` were authored but not executed; no in-game tests, per the requested scope.
+
+
+## Total Deaths condition (respawn missions)
+
+**Total Deaths** counts confirmed character deaths during Match, including deaths of respawned characters, later joins and reinforcements. It does not use a starting population or a casualty-ratio field.
+
+- **Factions**: exact faction keys; empty means all. Uses faction at death, unlike Casualties which keeps each starting life's faction.
+- **Count**: Players, AI, or Players and AI. Player victims reported by the engine, claimed player-slot characters, and tracked starting player lives count as Players. Spectators and unoccupied playable AI slots are excluded. The same faction/population matching implementation serves both condition types.
+- **Comparison**: Greater than, Less than, Equal, or Not equal.
+- **Required Deaths**: a whole number. Greater than 4 means five or more deaths; default Greater than 0 means the first death.
+
+Each character life adds at most one death. Respawning creates another life whose later death counts again. A later life does not change Casualties' starting population or counted starting deaths. For example, one starting player can reach 100% Casualties after the original life dies, then accumulate five Total Deaths over five lives. Deleting a living body or disconnecting adds no death. Total Deaths starts at zero even when the initial population was empty. Equal 0 and Less than a positive threshold can therefore pass at Match start. Final totals remain readable after Match; Stop/fresh Start clears the engine context.
+
+Two objects keep the different fields clear: **Casualties** has a ratio; **Total Deaths** has a comparison and number. Both integrate into the same nested condition lists and optional mission flags, using the same authoritative death notification and tracker. There is no separate faction condition and no irrelevant ratio field on Total Deaths.
