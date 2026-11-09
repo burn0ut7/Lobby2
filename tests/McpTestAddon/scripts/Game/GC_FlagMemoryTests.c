@@ -16,12 +16,13 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		return check;
 	}
 
-	static GC_FlagCallCountCondition Calls(string name, int comparison, int count)
+	static GC_ConditionCount Calls(string name, int comparison, int count)
 	{
-		GC_FlagCallCountCondition check = new GC_FlagCallCountCondition();
+		GC_ConditionCount check = new GC_ConditionCount();
 		check.m_sFlagName = name;
 		check.m_iComparison = comparison;
-		check.m_iCount = count;
+		check.m_iRequiredCount = count;
+		check.m_iCountFrom = 1;
 		return check;
 	}
 
@@ -176,7 +177,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 
 		map<string, int> counts = new map<string, int>();
 		counts.Set("wave", 5);
-		for (int comparison; comparison < 3; comparison++)
+		for (int comparison; comparison < 4; comparison++)
 		{
 			for (int number = 4; number <= 6; number++)
 			{
@@ -187,10 +188,12 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 					expected = 5 < number;
 				if (comparison == 2)
 					expected = 5 == number;
+				if (comparison == 3)
+					expected = 5 != number;
 				Check(Calls("wave", comparison, number).BuildCheck().Evaluate(null, SCR_EGameModeState.GAME, counts) == expected, "count comparison boundaries");
 			}
 		}
-		GC_FlagCallCountCondition invalid = Calls("wave", 3, 5);
+		GC_ConditionCount invalid = Calls("wave", 4, 5);
 		Check(!invalid.BuildCheck(), "invalid comparison rejected");
 		invalid = Calls("wave", 1, -1);
 		Check(!invalid.BuildCheck(), "negative count rejected");

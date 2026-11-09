@@ -23,22 +23,22 @@ A Mission Flag has **Name**, **Starting Value**, **Repeatable**, and **Condition
 - **Repeatable on**: becomes On while dependent events and flags are checked, then resets to Off. Its count is remembered, so a later call can activate it again.
 - **Conditions**: requirements for accepting a call. No conditions means always true. Conditions are checked before increasing the count; blocked calls do not count or notify anything.
 
-For **at most five activations**, name the flag `wave`, turn on Repeatable, and add **Flag Call Count** to its Conditions: Flag Name `wave`, Comparison **Less than**, Count **5**. Counts 0 through 4 allow a call; each accepted call adds one. The fifth succeeds, and later calls are blocked.
+For **at most five activations**, name the flag `wave`, turn on Repeatable, and add **Condition Count** to its Conditions: Count From **Mission flag calls**, Flag Name `wave`, Comparison **Less than**, Required Count **5**. Counts 0 through 4 allow a call; each accepted call adds one. The fifth succeeds, and later calls are blocked.
 
 Mission events and flags can use two condition objects, nested inside the usual groups:
 
 | Condition | Meaning |
 | --- | --- |
 | Flag State | Check whether a named flag is On or Off. |
-| Flag Call Count | Compare its remembered accepted-call count using Greater than, Less than or Equal to. |
+| Condition Count | Count passing conditions or a named flag's accepted calls, then compare using Greater than, Less than, Equal or Not equal. |
 
-**Flag Call Count** counts activations. **Condition Count** counts how many child conditions are true. They serve different purposes.
+**Condition Count** handles both uses. Choose **Count From** to select what is counted. There is no separate Flag Call Count condition.
 
 When a flag changes, events and flags that reference it are checked. A flag's conditions can therefore form a chain: `second` with Flag State `first` Is On activates when `first` is called. A flag checking only its own count does not call itself; that condition limits incoming calls. A Game Mode State condition on a flag also lets a matching startup/state change call it. No conditions means no automatic trigger: call the flag with an action.
 
 Each flag can activate at most once in one check cycle, and each eligible dependent mission event gets one attempt in that cycle. This prevents circular chains from repeatedly firing. A later external call starts a fresh cycle. Repeatable flags remain On throughout the chain, then reset together; that reset does not trigger another cycle. Mission events still respect their own Once/Every time, chance and delay settings. Use **Every time** on an event that should react to successive calls.
 
-For delayed actions, conditions are rechecked when the wait ends. A repeatable flag will already be Off then, so a delayed **Flag State / Is On** condition will fail. Use its remembered **Flag Call Count** when the requirement must survive the brief pulse.
+For delayed actions, conditions are rechecked when the wait ends. A repeatable flag will already be Off then, so a delayed **Flag State / Is On** condition will fail. Use **Condition Count > Mission flag calls** when the requirement must survive the brief pulse.
 
 Starting Value supplies initial memory without adding a count or sending a notification. A non-repeatable flag starting On is already latched. All counts start at zero and reset on fresh framework startup. Flag names are case-sensitive. Unknown names read as Off/count zero, but Call Flag requires a declared Mission Flag. Invalid/duplicate definitions prevent startup.
 
@@ -68,7 +68,7 @@ Actions waiting on a delay are rechecked when due. A state change that makes the
 
 ## Conditions: standard logic objects
 
-Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Flag State**, **Flag Call Count**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
+Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Flag State**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
 
 **Condition Group > Match** offers four choices:
 
@@ -81,11 +81,13 @@ Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Fl
 
 **None replaces Not.** Any group can contain other groups. XOR and XNOR have been removed.
 
-Add one **Condition Count** object for number comparisons. It has three settings:
+Add one **Condition Count** object for number comparisons. Choose what to count, then set the comparison:
 
-1. **Comparison**: Greater than, Less than, Equal, or Not equal.
-2. **Required Count**: the number to compare against.
-3. **Conditions**: the checks being counted. Each can contain nested groups.
+1. **Count From**: Conditions that are true, or Mission flag calls.
+2. **Comparison**: Greater than, Less than, Equal, or Not equal.
+3. **Required Count**: the number to compare against.
+4. **Flag Name**: used only for Mission flag calls. Enter the exact Mission Flag name, including when checking the flag containing this condition.
+5. **Conditions**: used only for Conditions that are true. Each child can contain nested groups.
 
 | Comparison with Required Count = 2 | Passes when |
 | --- | --- |
@@ -98,7 +100,7 @@ For **at least two out of three**, use **Greater than**, set Required Count to *
 
 For example, **Greater than 1** can contain **All [A, B]**, **None [C]**, and **D**. It passes when two or three of those branches pass. The optional script tests exercise this nested layout. Another valid layout is **Any [All [A, B], All [C, D]]**.
 
-These comparisons count **satisfied conditions**, not people or entities. Future area, faction-survival and prefab checks will decide their own true-or-false answers before the enclosing group counts them. Mission events are not condition inputs yet. The fixed **True or false value** placeholder has been removed. Script-only test inputs live in the optional test addon and are not authored as mission conditions. Game Mode State is the first live check. Empty explicit groups still fail closed.
+With Count From set to **Conditions that are true**, these comparisons count satisfied conditions, not people or entities. With **Mission flag calls**, they count accepted calls remembered by the named flag. Future area, faction-survival and prefab checks will decide their own true-or-false answers before the enclosing group counts them. Mission events are not condition inputs yet. The fixed **True or false value** placeholder has been removed. Script-only test inputs live in the optional test addon and are not authored as mission conditions. Game Mode State is the first live check. Empty explicit groups still fail closed.
 
 Every condition directly under a mission event must pass, so ordinary lists do not need an extra All group. **No conditions means always true:** an empty event Conditions list has no requirements to meet. Top-level events and random groups with no conditions run at match start; a child with no conditions is eligible whenever its group makes a selection. Chance, delay, disabled and run-once settings still apply. An explicit group needs at least one child. Empty groups, missing children and invalid required counts disable the event rather than becoming true under a negative operator. Nesting is limited to 16 levels and lists to 256 children.
 
@@ -162,7 +164,7 @@ The editor label Mission Rules is now Mission Events. The project's saved list a
 The editor now uses two composite types:
 
 - **GC_ConditionGroup**: m_iMatch (0 All, 1 Any, 2 None, 3 Not all) and m_aConditions. No number field.
-- **GC_ConditionCount**: m_iComparison (0 Greater than, 1 Less than, 2 Equal, 3 Not equal), m_iRequiredCount and m_aConditions.
+- **GC_ConditionCount**: m_iCountFrom (0 true conditions, 1 mission flag calls), m_iComparison (0 Greater than, 1 Less than, 2 Equal, 3 Not equal), m_iRequiredCount, m_sFlagName and m_aConditions.
 
 Replace the former All/Any/None/NotAll classes with Condition Group and the matching mode, keeping their children. An old GC_NotCondition becomes a None group with its former m_Condition as the sole child.
 
@@ -203,3 +205,7 @@ Final verification scope: at the user's request, the action-order correction was
 The Advanced field formerly named Wait Seconds is now Delay, still measured in seconds. Saved GC_RuleOptions objects use m_fDelay instead of m_fWaitSeconds; the shipped example was migrated with the same numeric value. External saved Advanced settings need the same field rename. Internal compiled/legacy fixtures retain their original field name.
 
 Condition Count now offers Not equal (saved comparison value 3), implemented as the inverse of a validated Equal check. Existing values 0/1/2 retain their meaning. Empty or malformed condition lists still fail closed. Boundary and nested-group test cases were added; this update was verified by source-level logic review and production script compilation, without an in-game test run.
+
+### Combined Condition Count
+
+The separate GC_FlagCallCountCondition authoring class is removed. Convert saved entries to GC_ConditionCount with m_iCountFrom = 1, keep m_sFlagName and m_iComparison, and rename m_iCount to m_iRequiredCount. Preserve the former omitted defaults explicitly: comparison 1 (Less than), required count 5. The shipped FlagMemoryExample is migrated. Existing child-condition counts keep m_iCountFrom = 0 by default. Both sources support all four comparisons. Counts of true conditions retain their 0-256 threshold limit; flag-call thresholds allow 0-1000000. Settings for the unselected source are ignored. This consolidation received script compilation and source review only, as requested.
