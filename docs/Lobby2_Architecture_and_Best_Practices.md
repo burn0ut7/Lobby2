@@ -134,7 +134,7 @@ Small related value types may share a file. Large classes should not become fold
 
 ### Mission framework
 
-GC_MissionRulesComponent on the Lobby2 GameMode owns the new simple rule
+GC_LobbyManager on the Lobby2 GameMode owns the new simple rule
 framework. It delegates to a server-local GC_MissionRuleEngine during GAME,
 with Workbench-authored nested checks and small test actions. It does not modify
 TilW flags or phase ownership. The base prefab has no rules; the separate

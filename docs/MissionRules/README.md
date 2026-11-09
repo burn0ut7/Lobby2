@@ -1,21 +1,21 @@
 # Simple mission rules
 
 Lobby2 has a **Mission Framework** section on its GameMode's
-`GC_MissionRulesComponent`. Build a rule by answering three questions:
+`GC_LobbyManager`. Build a rule by answering three questions:
 
 1. **When?** The match begins, a timer ticks, or a named test event arrives.
 2. **If?** Check a flag, use a fixed test answer, or combine checks in a group.
 3. **Then?** Write a test message, set a yes/no flag, or send another test event.
 
-The base Lobby2 GameMode contains an empty component. Existing missions do not
+The base Lobby2 GameMode has an empty rule list on its lobby manager. Existing missions do not
 gain automatic test actions. The TilW dependency and adapters remain intact.
 These new rules have their own server-local flags; they do not read or write
 TilW flags.
 
 ## Set up a rule in Workbench
 
-Select your Lobby2 GameMode, select **GC_MissionRulesComponent**, then expand
-**Mission Framework > Rules**. Add a `GC_MissionRule`, give it a useful **Name**,
+Select your Lobby2 GameMode, select **GC_LobbyManager**, then expand
+**Mission Framework > Mission Rules**. Add a `GC_MissionRule`, give it a useful **Name**,
 and fill in **When**, **If**, and **Then**. Add `GC_RuleAction` entries under Then.
 The editor derives field labels from member names. Descriptions explain each
 setting through the property inspector's normal help/tooltip support.
@@ -98,8 +98,8 @@ provide local diagnostics. Clients have no authoritative flag copy.
 
 `GC_MissionRule` stores editor settings; `GC_RuleCondition` evaluates condition
 trees; `GC_MissionRuleEngine` owns per-match state and scheduling;
-`GC_MissionRulesComponent` owns lifecycle and authority. Add later event sources
-at the component boundary and later action/check types in the data classes and
+`GC_LobbyManager` owns lifecycle and authority. Add later event sources
+at the manager boundary and later action/check types in the data classes and
 interpreter. Keep gameplay permissions at the server boundary.
 
 Incomplete rules are skipped with a log message, before any action runs.
@@ -142,7 +142,7 @@ each emit a framework error diagnostic; these are expected, not compiler errors.
 deserializes its rules through the engine, and checks its three-rule sequence
 without spawning another GameMode.
 
-For lifecycle checks, start with the normal empty component in PREGAME, call
+For lifecycle checks, start with the normal empty rule list in PREGAME, call
 `GC_TestMissionRulesPrepare()`, and inspect `GC_TestMissionRulesSnapshot()`.
 Advance through real Lobby2 phase handlers. In GAME, send `live_delay` and later
 verify its flag; send `live_cancel`, end the match before ten seconds, and verify
@@ -168,3 +168,9 @@ Interpreter receipt `r5435f11c9c1549f098cfdf2e3e5276ff`; prefab
 `r885d7a5c97ce437bb2feea06706f4768`; authored-world flag
 `r71cdc9fc973c4454bb82176e26ed9cee`; empty-world snapshot
 `r77aa4b8912054e499f4c4db81b434e13`.
+
+## Manager placement update
+
+All framework settings now live on `GC_LobbyManager > Mission Framework`, alongside briefing and parameters. The separate rules component was removed. The example prefab now overrides the existing manager. If you authored rules with the previous revision, move its `m_aRules` list to the manager's `m_aMissionRules` field, copy `m_bEnabled` to `m_bMissionRulesEnabled` (including a disabled value), and remove the old component. Trusted server calls now target `GC_LobbyManager`.
+
+After the manager move, Reload succeeded and all 153 interpreter/prefab checks passed again. Live manager calls confirmed startup, timer, delay, pre/post-match rejection and cancellation after ten seconds (13 runs unchanged, cancel false). Receipts: rb4292cc34e7d467c8b9985e016bd279f, r37de76793bb840f7992028e98f6f0c00, rdb896710474046f8b88c63b1abcc7372.

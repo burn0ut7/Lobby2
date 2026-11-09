@@ -1,8 +1,8 @@
 GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
  ID "7B115D5DFF7ED994"
  components {
-  GC_MissionRulesComponent "{7B115D5DFF7ED993}" {
-   m_aRules {
+  GC_LobbyManager "{6A137A39106A4973}" {
+   m_aMissionRules {
     GC_MissionRule "{7B115D5DFF7EDA01}" {
      m_sName "1. Remember that the match began"
      m_aThen {

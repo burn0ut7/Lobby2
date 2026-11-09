@@ -48,6 +48,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1", category: "Lobby2")]
 	protected int m_iParameterLockSeconds;
 
+	[Attribute("1", UIWidgets.CheckBox, "Allow these rules to run on the server during the match. An empty rule list does nothing.", category: "Mission Framework")]
+	protected bool m_bMissionRulesEnabled;
+	[Attribute("", UIWidgets.Object, "Add rules here. Each rule has When, If, and Then settings. Rules are checked in list order.", category: "Mission Framework")]
+	protected ref array<ref GC_MissionRule> m_aMissionRules;
+	protected ref GC_MissionRuleEngine m_MissionRuleEngine;
+	protected float m_fMissionRulesStartedAt;
+	protected bool m_bMissionRulesStarted;
+
 	//! Authority-only policy for slots added after an all-slot action; -1 uses authoring.
 	protected int m_iNewSlotLockOverride = -1;
 	protected bool m_bPublishingSlotLocks;
@@ -113,6 +121,78 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref set<SCR_AIGroup> m_NativeGroupRegistrations = new set<SCR_AIGroup>();
 	protected bool m_bBriefingSpawnQueued;
 	protected bool m_bCatchUpQueued;
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HasMissionRuleAuthority()
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		return !m_bShutdown && Replication.IsServer() && mode && mode == GetOwner() && mode.GetState() == SCR_EGameModeState.GAME;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Trusted server extension point, not a player RPC or admin command.
+	bool SendTestEvent(string name)
+	{
+		if (!HasMissionRuleAuthority() || !m_bMissionRulesEnabled || !m_MissionRuleEngine)
+			return false;
+		return m_MissionRuleEngine.SendTestEvent(name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool GetFlag(string name)
+	{
+		return m_MissionRuleEngine && m_MissionRuleEngine.GetFlag(name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetRunCount()
+	{
+		if (!m_MissionRuleEngine)
+			return 0;
+		return m_MissionRuleEngine.GetRunCount();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnGameModeStart()
+	{
+		super.OnGameModeStart();
+		if (m_bMissionRulesStarted || !m_bMissionRulesEnabled || !HasMissionRuleAuthority())
+			return;
+		m_bMissionRulesStarted = true;
+		m_fMissionRulesStartedAt = GetGame().GetWorld().GetWorldTime();
+		if (!m_aMissionRules)
+			m_aMissionRules = {};
+		m_MissionRuleEngine = new GC_MissionRuleEngine();
+		m_MissionRuleEngine.Start(m_aMissionRules);
+		if (m_aMissionRules && !m_aMissionRules.IsEmpty() && m_MissionRuleEngine.IsRunning())
+			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void TickMissionRules()
+	{
+		if (!HasMissionRuleAuthority() || !m_bMissionRulesEnabled || !m_MissionRuleEngine || !m_MissionRuleEngine.IsRunning())
+		{
+			StopMissionRules();
+			return;
+		}
+		m_MissionRuleEngine.Advance((GetGame().GetWorld().GetWorldTime() - m_fMissionRulesStartedAt) * 0.001);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void StopMissionRules()
+	{
+		if (GetGame())
+			GetGame().GetCallqueue().Remove(TickMissionRules);
+		if (m_MissionRuleEngine)
+			m_MissionRuleEngine.Stop();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ~GC_LobbyManager()
+	{
+		StopMissionRules();
+	}
 
 	override void EOnInit(IEntity owner)
 	{
@@ -214,6 +294,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! SCR_BaseGameMode.
 	override void OnGameStateChanged(SCR_EGameModeState state)
 	{
+		if (state == SCR_EGameModeState.POSTGAME)
+			StopMissionRules();
+
 		string role = "proxy";
 		if (Replication.IsServer())
 			role = "authority";
@@ -4861,6 +4944,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
+		StopMissionRules();
 		GC_LobbyGameMode gameMode = GC_LobbyGameMode.Cast(GetOwner());
 		if (gameMode)
 			gameMode.StopLocalPhaseAudio();

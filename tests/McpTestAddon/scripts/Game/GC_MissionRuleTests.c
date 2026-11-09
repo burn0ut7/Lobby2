@@ -239,8 +239,8 @@ class GC_MissionRuleTests
 		for (int index; index < components.Count(); index++)
 		{
 			BaseContainer component = components.Get(index);
-			if (component.GetClassName() == "GC_MissionRulesComponent")
-				authoredRules = component.GetObjectArray("m_aRules");
+			if (component.GetClassName() == "GC_LobbyManager")
+				authoredRules = component.GetObjectArray("m_aMissionRules");
 		}
 		if (!authoredRules || authoredRules.Count() != 3)
 			return "FAIL: expected three authored rules";
@@ -268,37 +268,33 @@ class GC_MissionRuleTests
 	}
 }
 
-modded class GC_MissionRulesComponent
+modded class GC_LobbyManager
 {
 	//------------------------------------------------------------------------------------------------
 	//! Runtime-only fixture; does not save or alter the authored rule list.
-	string GC_TestPrepare()
+	string GC_TestMissionRulesPrepare()
 	{
-		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode() != GetOwner() || m_bStarted || (m_aRules && !m_aRules.IsEmpty()))
+		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode() != GetOwner() || m_bMissionRulesStarted || (m_aMissionRules && !m_aMissionRules.IsEmpty()))
 			return "UNAVAILABLE: requires authority and empty rules before match start";
-		m_aRules = {};
+		m_aMissionRules = {};
 		GC_MissionRule start = GC_MissionRuleTests.EventRule("live_start");
 		start.m_eWhen = GC_ERuleEvent.MATCH_BEGINS;
-		m_aRules.Insert(start);
+		m_aMissionRules.Insert(start);
 		GC_MissionRule pulse = GC_MissionRuleTests.EventRule("live_timer", false);
 		pulse.m_eWhen = GC_ERuleEvent.TIMER;
 		pulse.m_fEverySeconds = 0.5;
-		m_aRules.Insert(pulse);
-		m_aRules.Insert(GC_MissionRuleTests.EventRule("live_delay", true, 1));
-		m_aRules.Insert(GC_MissionRuleTests.EventRule("live_cancel", true, 10));
+		m_aMissionRules.Insert(pulse);
+		m_aMissionRules.Insert(GC_MissionRuleTests.EventRule("live_delay", true, 1));
+		m_aMissionRules.Insert(GC_MissionRuleTests.EventRule("live_cancel", true, 10));
 		return "prepared=4";
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestSnapshot()
+	string GC_TestMissionRulesSnapshot()
 	{
-		bool running = m_Engine && m_Engine.IsRunning();
-		return string.Format("server=%1 started=%2 running=%3 runs=%4 start=%5 timer=%6 delay=%7 cancel=%8", Replication.IsServer(), m_bStarted, running, GetRunCount(), GetFlag("live_start"), GetFlag("live_timer"), GetFlag("live_delay"), GetFlag("live_cancel"));
+		bool running = m_MissionRuleEngine && m_MissionRuleEngine.IsRunning();
+		return string.Format("server=%1 started=%2 running=%3 runs=%4 start=%5 timer=%6 delay=%7 cancel=%8", Replication.IsServer(), m_bMissionRulesStarted, running, GetRunCount(), GetFlag("live_start"), GetFlag("live_timer"), GetFlag("live_delay"), GetFlag("live_cancel"));
 	}
-}
-
-modded class GC_LobbyManager
-{
 	//------------------------------------------------------------------------------------------------
 	string GC_TestMissionRules()
 	{
@@ -313,27 +309,4 @@ modded class GC_LobbyManager
 		return tests.RunExample();
 	}
 
-	//------------------------------------------------------------------------------------------------
-	string GC_TestMissionRulesPrepare()
-	{
-		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
-		if (!mode)
-			return "UNAVAILABLE: no lobby mode";
-		GC_MissionRulesComponent rules = GC_MissionRulesComponent.Cast(mode.FindComponent(GC_MissionRulesComponent));
-		if (!rules)
-			return "FAIL: missing rules component";
-		return rules.GC_TestPrepare();
-	}
-
-	//------------------------------------------------------------------------------------------------
-	string GC_TestMissionRulesSnapshot()
-	{
-		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
-		if (!mode)
-			return "UNAVAILABLE: no lobby mode";
-		GC_MissionRulesComponent rules = GC_MissionRulesComponent.Cast(mode.FindComponent(GC_MissionRulesComponent));
-		if (!rules)
-			return "FAIL: missing rules component";
-		return rules.GC_TestSnapshot();
-	}
 }

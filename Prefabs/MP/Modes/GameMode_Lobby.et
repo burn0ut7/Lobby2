@@ -1,8 +1,6 @@
 GC_LobbyGameMode : "{0F307326459A1395}Prefabs/MP/Modes/GameMode_Base.et" {
  ID "56B2B479C6B96951"
  components {
-  GC_MissionRulesComponent "{7B115D5DFF7ED993}" {
-  }
   GC_LobbyEndScreenComponent "{56DEC646298AD219}" {
   }
   GC_MissionStatsComponent "{7A115D5DFF7ED991}" {
