@@ -11,7 +11,7 @@ Select your game mode, then **GC_LobbyManager > Lobby2**. The top settings are *
 
 For game start, choose **Match / Is in this state**. The field order is Name, Conditions, Actions, Advanced. There is no separate Event object or event-type selector.
 
-A mission event runs once by default. **Advanced > Run > Every time** permits a new run on each later matching state change. Staying in the same state does not repeat it. **Wait Seconds** adds a delay; Disabled keeps the event saved without running it.
+A mission event runs once by default. **Advanced > Run > Every time** permits a new run on each later matching state change. Staying in the same state does not repeat it. **Delay** adds a wait measured in seconds; Disabled keeps the event saved without running it.
 
 **Flags are optional.** Use them when a mission needs to remember something or notify other events. Each declared Mission Flag remembers its On/Off state and the number of accepted calls.
 
@@ -177,7 +177,7 @@ The GC_BooleanCondition authoring class has been removed. External resources usi
 
 Remove the obsolete GC_MissionEvent.c file when installing a source snapshot. GC_MissionRule.m_Event and the GC_MissionEvent authoring type are removed. Match started becomes a Game Mode State condition: m_eGameModeState = 1 (GAME), m_iMatch = 0 (Is in). Invert uses m_iMatch = 1. The saved empty Match-start selector in the inspected Arland scene was converted.
 
-A once-only Timer after match start can use Match / Is in with Advanced > Wait Seconds; this is how the no-flags example is migrated. Repeating timers and named-event receivers need deliberate migration when those conditions are added; they are not silently converted to unconditional events. The old two-event flag-chain sample is deliberately replaced with independent Match and After action examples. The compiled interpreter still supports its historical triggers for regression/extension callers, but they are no longer editor options.
+A once-only Timer after match start can use Match / Is in with Advanced > Delay; this is how the no-flags example is migrated. Repeating timers and named-event receivers need deliberate migration when those conditions are added; they are not silently converted to unconditional events. The old two-event flag-chain sample is deliberately replaced with independent Match and After action examples. The compiled interpreter still supports its historical triggers for regression/extension callers, but they are no longer editor options.
 
 ### Migrating regular events and randomness
 
@@ -198,3 +198,5 @@ Existing declared Mission Flags default to non-repeatable. Set flag / On now res
 Server extensions can call GC_LobbyManager.CallFlag(name) and read GetFlagCallCount(name). Calls require the active authoritative Lobby2 owner, an enabled framework and a running engine. This adds no client RPC. True from CallFlag means queued; a call queued by another action is checked again when processed. Counts are server-local, not a replicated general-purpose state API. The existing bounded queue still stops oversized event chains.
 
 Final verification scope: at the user's request, the action-order correction was checked by script compilation and source-level logic review, without another in-game run. Three added ordering regressions compiled but were not executed. The earlier 560 passing checks and manager checks predate that correction.
+
+The Advanced field formerly named Wait Seconds is now Delay, still measured in seconds. Saved GC_RuleOptions objects use m_fDelay instead of m_fWaitSeconds; the shipped example was migrated with the same numeric value. External saved Advanced settings need the same field rename. Internal compiled/legacy fixtures retain their original field name.

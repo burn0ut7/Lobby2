@@ -30,7 +30,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
       }
      }
      m_Advanced GC_RuleOptions "{7B115D5DFF7EDA25}" {
-      m_fWaitSeconds 2
+      m_fDelay 2
      }
     }
    }

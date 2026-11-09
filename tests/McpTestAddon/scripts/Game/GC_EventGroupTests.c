@@ -109,8 +109,8 @@ modded class GC_MissionRuleTests
 		engine.SetGameModeState(SCR_EGameModeState.POSTGAME, 2);
 		engine.Advance(10);
 		Check(!engine.GetFlag("delayed"), "child delay still obeys parent state condition");
-		group.m_Advanced.m_fWaitSeconds = 2;
-		a.m_Advanced.m_fWaitSeconds = 0;
+		group.m_Advanced.m_fDelay = 2;
+		a.m_Advanced.m_fDelay = 0;
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.GAME);
 		engine.Advance(1);
 		Check(engine.GetRunCount() == 0, "group delay postpones selection");
@@ -121,7 +121,7 @@ modded class GC_MissionRuleTests
 		engine.Advance(10);
 		Check(engine.GetRunCount() == 0, "stop cancels group wait");
 
-		a.m_Advanced.m_fWaitSeconds = 5;
+		a.m_Advanced.m_fDelay = 5;
 		group = RandomGroup({a});
 		group.m_aConditions = {};
 		engine.Start({group.BuildRule()});

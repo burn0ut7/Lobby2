@@ -39,7 +39,7 @@ class GC_MissionRuleTests
 		rule.m_Advanced.m_fRandomChance = 1;
 		if (repeat)
 			rule.m_Advanced.m_iRun = 1;
-		rule.m_Advanced.m_fWaitSeconds = wait;
+		rule.m_Advanced.m_fDelay = wait;
 		return rule;
 	}
 
@@ -309,9 +309,9 @@ class GC_MissionRuleTests
 		simple.m_Advanced.m_iRun = 2;
 		Check(!simple.BuildRule(), "bad repeat setting rejected");
 		simple.m_Advanced.m_iRun = 0;
-		simple.m_Advanced.m_fWaitSeconds = -1;
+		simple.m_Advanced.m_fDelay = -1;
 		Check(!simple.BuildRule(), "bad delay rejected");
-		simple.m_Advanced.m_fWaitSeconds = 2;
+		simple.m_Advanced.m_fDelay = 2;
 		engine.Start({simple.BuildRule()});
 		engine.Advance(1);
 		Check(engine.GetRunCount() == 0, "simple wait delays actions");

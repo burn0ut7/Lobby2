@@ -36,7 +36,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		missionEvent.m_Advanced = new GC_RuleOptions();
 		missionEvent.m_Advanced.m_fRandomChance = 1;
 		missionEvent.m_Advanced.m_iRun = 1;
-		missionEvent.m_Advanced.m_fWaitSeconds = wait;
+		missionEvent.m_Advanced.m_fDelay = wait;
 		return missionEvent;
 	}
 
