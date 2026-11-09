@@ -285,3 +285,12 @@ Installed engine evidence: `game/data/data007.pak/scripts/Game/GameMode/SCR_Base
 Each character life adds at most one death. Respawning creates another life whose later death counts again. A later life does not change Casualties' starting population or counted starting deaths. For example, one starting player can reach 100% Casualties after the original life dies, then accumulate five Total Deaths over five lives. Deleting a living body or disconnecting adds no death. Total Deaths starts at zero even when the initial population was empty. Equal 0 and Less than a positive threshold can therefore pass at Match start. Final totals remain readable after Match; Stop/fresh Start clears the engine context.
 
 Two objects keep the different fields clear: **Casualties** has a ratio; **Total Deaths** has a comparison and number. Both integrate into the same nested condition lists and optional mission flags, using the same authoritative death notification and tracker. There is no separate faction condition and no irrelevant ratio field on Total Deaths.
+
+
+### Spectator exclusion audit
+
+Casualties and Total Deaths reject every entity carrying `GC_LobbySpectatorBodyComponent` before faction/population selection. This applies both to the starting-life capture and the death-recording path; empty faction filters and Players and AI do not bypass it. Lobby2's dedicated spectator prefab contains that component, and the manager uses that prefab or reuses the same marked body for spectator/reconnect assignment. Following another player moves the spectator camera/body rather than adding another combat life.
+
+The actual soldier's death remains a casualty when its player subsequently becomes a spectator. Checking the controller's current spectator state instead of the victim body could wrongly suppress that legitimate death. Connected claimed slot characters awaiting Match-entry possession remain intended player lives, not spectator bodies. AI is counted only by the AI or Players and AI selection. Disconnect/delete notifications do not increment either death measure.
+
+This conclusion is based on source/prefab inspection, including an independent audit; it is not a new live spectator/respawn test. Custom spectator prefabs must retain `GC_LobbySpectatorBodyComponent`; unrelated mods' unmarked spectator characters cannot be identified reliably by this marker-based contract. The built-in Lobby2 paths inspected retain it. Only tooltip/documentation clarification was needed; death-counting behavior is unchanged.
