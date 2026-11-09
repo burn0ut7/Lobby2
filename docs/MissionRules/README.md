@@ -12,6 +12,8 @@ gain automatic test actions. The TilW dependency and adapters remain intact.
 These new rules have their own server-local flags; they do not read or write
 TilW flags.
 
+The top-level Lobby2 settings are ordered Mission Rules, Briefing Catalog, then Parameter Catalog. Mission Rules Enabled and Parameter Lock Seconds are in Unsorted.
+
 ## Set up a rule in Workbench
 
 Select your Lobby2 GameMode, select **GC_LobbyManager**, then expand

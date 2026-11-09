@@ -4,19 +4,20 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
+	[Attribute("", UIWidgets.Object, "Add rules here. Each rule has When, If, and Then settings. Rules are checked in list order.", category: "Lobby2")]
+	protected ref array<ref GC_MissionRule> m_aMissionRules;
+
 	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Lobby2")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
 
 	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values", category: "Lobby2")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
 
-	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1", category: "Lobby2")]
+	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1")]
 	protected int m_iParameterLockSeconds;
 
-	[Attribute("1", UIWidgets.CheckBox, "Allow these rules to run on the server during the match. An empty rule list does nothing.", category: "Lobby2")]
+	[Attribute("1", UIWidgets.CheckBox, "Allow these rules to run on the server during the match. An empty rule list does nothing.")]
 	protected bool m_bMissionRulesEnabled;
-	[Attribute("", UIWidgets.Object, "Add rules here. Each rule has When, If, and Then settings. Rules are checked in list order.", category: "Lobby2")]
-	protected ref array<ref GC_MissionRule> m_aMissionRules;
 
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
 	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
