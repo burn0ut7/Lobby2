@@ -1,6 +1,6 @@
 # Lobby2 mission rules
 
-Select your game mode, then **GC_LobbyManager > Lobby2**. The top settings are **Mission Rules**, **Briefing Catalog**, **Parameter Catalog**, and **Mission Flags**. Mission Rules Enabled and Parameter Lock Seconds remain in Unsorted.
+Select your game mode, then **GC_LobbyManager > Lobby2**. The top settings are **Mission Rules**, **Mission Flags**, **Briefing Catalog**, and **Parameter Catalog**. Mission Rules Enabled and Parameter Lock Seconds remain in Unsorted.
 
 ## Start with one rule
 
