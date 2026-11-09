@@ -4,8 +4,8 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
-	[Attribute("", UIWidgets.Object, "Add rules here. Each rule has When, If, and Then settings. Rules are checked in list order.", category: "Lobby2")]
-	protected ref array<ref GC_MissionRule> m_aMissionRules;
+	[Attribute("", UIWidgets.Object, "Add a mission rule. Choose an event and actions. Conditions are optional.", category: "Lobby2")]
+	protected ref array<ref GC_RuleDefinition> m_aMissionRules;
 
 	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Lobby2")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
@@ -165,7 +165,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!m_aMissionRules)
 			m_aMissionRules = {};
 		m_MissionRuleEngine = new GC_MissionRuleEngine();
-		m_MissionRuleEngine.Start(m_aMissionRules);
+		array<ref GC_MissionRule> runtimeRules = {};
+		foreach (GC_RuleDefinition definition : m_aMissionRules)
+		{
+			GC_MissionRule rule = null;
+			if (definition && m_aMissionRules.Count() <= 256)
+				rule = definition.BuildRule();
+			runtimeRules.Insert(rule);
+		}
+		m_MissionRuleEngine.Start(runtimeRules);
 		if (m_aMissionRules && !m_aMissionRules.IsEmpty() && m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
 	}

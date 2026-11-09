@@ -3,68 +3,30 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_aMissionRules {
-    GC_MissionRule "{7B115D5DFF7EDA01}" {
-     m_sName "1. Remember that the match began"
-     m_aThen {
-      GC_RuleAction "{7B115D5DFF7EDA02}" {
-       m_sName "Mark test ready"
-       m_eDo 1
-       m_sTextOrName "test_ready"
+    GC_SimpleMissionRule "{7B115D5DFF7EDA01}" {
+     m_sName "1. Start the test"
+     m_Event GC_MatchStartEvent "{7B115D5DFF7EDA10}" {
+     }
+     m_aActions {
+      GC_SetFlagAction "{7B115D5DFF7EDA02}" {
+       m_sFlagName "test_ready"
+       m_iSetTo 1
       }
      }
     }
-    GC_MissionRule "{7B115D5DFF7EDA03}" {
-     m_sName "2. Send a test event every two seconds"
-     m_eWhen 1
-     m_fEverySeconds 2
-     m_bRunOnlyOnce 0
-     m_aThen {
-      GC_RuleAction "{7B115D5DFF7EDA04}" {
-       m_sName "Send test pulse"
-       m_eDo 2
-       m_sTextOrName "test_pulse"
-      }
+    GC_SimpleMissionRule "{7B115D5DFF7EDA03}" {
+     m_sName "2. Finish the test"
+     m_Event GC_FlagChangedEvent "{7B115D5DFF7EDA11}" {
+      m_sFlagName "test_ready"
+      m_iBecomes 1
      }
-    }
-    GC_MissionRule "{7B115D5DFF7EDA05}" {
-     m_sName "3. Pass the nested test once"
-     m_eWhen 2
-     m_sTestEventName "test_pulse"
-     m_fWaitSeconds 1
-     m_If GC_RuleCondition "{7B115D5DFF7EDA06}" {
-      m_sName "Ready and either sample answer is yes"
-      m_aChecks {
-       GC_RuleCondition "{7B115D5DFF7EDA07}" {
-        m_sName "Match began"
-        m_iCheck 1
-        m_sFlagName "test_ready"
-       }
-       GC_RuleCondition "{7B115D5DFF7EDA08}" {
-        m_sName "At least one sample answer is yes"
-        m_eGroupNeeds 1
-        m_aChecks {
-         GC_RuleCondition "{7B115D5DFF7EDA09}" {
-          m_sName "Sample no"
-          m_iCheck 2
-          m_bTestAnswer 0
-         }
-         GC_RuleCondition "{7B115D5DFF7EDA0A}" {
-          m_sName "Sample yes"
-          m_iCheck 2
-         }
-        }
-       }
+     m_aActions {
+      GC_SetFlagAction "{7B115D5DFF7EDA04}" {
+       m_sFlagName "test_complete"
+       m_iSetTo 1
       }
-     }
-     m_aThen {
-      GC_RuleAction "{7B115D5DFF7EDA0B}" {
-       m_sName "Remember the success"
-       m_eDo 1
-       m_sTextOrName "test_complete"
-      }
-      GC_RuleAction "{7B115D5DFF7EDA0C}" {
-       m_sName "Write the success"
-       m_sTextOrName "Nested test passed. This line should appear only once per match."
+      GC_LogMessageAction "{7B115D5DFF7EDA05}" {
+       m_sMessage "Test complete. The flag started this rule."
       }
      }
     }

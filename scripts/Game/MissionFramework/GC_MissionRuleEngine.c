@@ -1,3 +1,16 @@
+//! Typed events keep flag changes separate from named test events.
+class GC_MissionRuleEvent
+{
+	GC_ERuleEvent m_eKind;
+	string m_sName;
+
+	void GC_MissionRuleEvent(GC_ERuleEvent kind, string name)
+	{
+		m_eKind = kind;
+		m_sName = name;
+	}
+}
+
 //! Runtime state is separate from Workbench-authored settings.
 class GC_MissionRuleState
 {
@@ -14,7 +27,7 @@ class GC_MissionRuleEngine
 {
 	protected ref array<ref GC_MissionRuleState> m_aStates = {};
 	protected ref map<string, bool> m_mFlags = new map<string, bool>();
-	protected ref array<string> m_aEvents = {};
+	protected ref array<ref GC_MissionRuleEvent> m_aEvents = {};
 	protected bool m_bRunning;
 	protected bool m_bDispatching;
 	protected float m_fNow;
@@ -53,8 +66,7 @@ class GC_MissionRuleEngine
 			m_aStates.Insert(state);
 		}
 		m_bRunning = true;
-		// Reserve the empty event name for the single match-start notification.
-		m_aEvents.Insert("");
+		m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.MATCH_BEGINS, ""));
 		DrainEvents();
 	}
 
@@ -86,8 +98,26 @@ class GC_MissionRuleEngine
 	{
 		if (!m_bRunning || name.IsEmpty())
 			return false;
+		if (GetFlag(name) == answer)
+			return true;
 		m_mFlags.Set(name, answer);
-		return true;
+		GC_ERuleEvent kind = GC_ERuleEvent.FLAG_OFF;
+		if (answer)
+			kind = GC_ERuleEvent.FLAG_ON;
+		// Existing flag-only rules must not consume the event-chain budget.
+		bool watched;
+		foreach (GC_MissionRuleState state : m_aStates)
+		{
+			if (state.m_bValid && state.m_Rule.m_bEnabled && state.m_Rule.m_eWhen == kind
+				&& state.m_Rule.m_sTestEventName == name)
+			{
+				watched = true;
+				break;
+			}
+		}
+		if (!watched)
+			return true;
+		return QueueEvent(kind, name);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -111,6 +141,12 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	bool SendTestEvent(string name)
 	{
+		return QueueEvent(GC_ERuleEvent.TEST_EVENT, name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool QueueEvent(GC_ERuleEvent kind, string name)
+	{
 		if (!m_bRunning || name.IsEmpty())
 			return false;
 		if (m_aEvents.Count() >= 256)
@@ -118,7 +154,7 @@ class GC_MissionRuleEngine
 			StopEventLoop();
 			return false;
 		}
-		m_aEvents.Insert(name);
+		m_aEvents.Insert(new GC_MissionRuleEvent(kind, name));
 		DrainEvents();
 		return m_bRunning;
 	}
@@ -218,15 +254,15 @@ class GC_MissionRuleEngine
 				StopEventLoop();
 				break;
 			}
-			string name = m_aEvents[0];
+			GC_MissionRuleEvent notification = m_aEvents[0];
 			m_aEvents.RemoveOrdered(0);
 			foreach (GC_MissionRuleState state : m_aStates)
 			{
 				if (!state.m_bValid)
 					continue;
 				GC_MissionRule rule = state.m_Rule;
-				if ((name.IsEmpty() && rule.m_eWhen == GC_ERuleEvent.MATCH_BEGINS)
-					|| (!name.IsEmpty() && rule.m_eWhen == GC_ERuleEvent.TEST_EVENT && rule.m_sTestEventName == name))
+				if (rule.m_eWhen == notification.m_eKind && (notification.m_eKind == GC_ERuleEvent.MATCH_BEGINS
+					|| rule.m_sTestEventName == notification.m_sName))
 					TryRun(state);
 			}
 		}

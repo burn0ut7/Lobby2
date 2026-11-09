@@ -2,7 +2,9 @@ enum GC_ERuleEvent
 {
 	MATCH_BEGINS,
 	TIMER,
-	TEST_EVENT
+	TEST_EVENT,
+	FLAG_ON,
+	FLAG_OFF
 }
 
 enum GC_ERuleAction
@@ -31,14 +33,14 @@ class GC_RuleAction
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
-class GC_MissionRule
+[BaseContainerProps(insertable: false), BaseContainerCustomTitleField("m_sName")]
+class GC_MissionRule : GC_RuleDefinition
 {
 	[Attribute("New rule", UIWidgets.EditBox, "Describe what this rule does, for example: Mark the test complete.")]
 	string m_sName;
 	[Attribute("1", UIWidgets.CheckBox, "Unchecked rules do nothing.")]
 	bool m_bEnabled;
-	[Attribute("0", UIWidgets.ComboBox, "When should this rule check its conditions? Match begins means after the lobby and briefing.", enums: {ParamEnum("The match begins", "0"), ParamEnum("Every few seconds", "1"), ParamEnum("A named test event arrives", "2")}, category: "When")]
+	[Attribute("0", UIWidgets.ComboBox, "When should this rule check its conditions? Match begins means after the lobby and briefing.", enums: {ParamEnum("Match started", "0"), ParamEnum("Every few seconds", "1"), ParamEnum("A named test event arrives", "2")}, category: "When")]
 	GC_ERuleEvent m_eWhen;
 	[Attribute("test", UIWidgets.EditBox, "For a named test event: use exactly the same name as the action that sends it.", category: "When")]
 	string m_sTestEventName;
@@ -54,13 +56,20 @@ class GC_MissionRule
 	float m_fWaitSeconds;
 
 	//------------------------------------------------------------------------------------------------
+	//! Preserve saved rules from the previous editor format.
+	override GC_MissionRule BuildRule()
+	{
+		return this;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
-		if (m_eWhen < 0 || m_eWhen > 2 || m_fWaitSeconds < 0 || m_fWaitSeconds > 86400)
+		if (m_eWhen < 0 || m_eWhen > GC_ERuleEvent.FLAG_OFF || m_fWaitSeconds < 0 || m_fWaitSeconds > 86400)
 			return false;
 		if (m_eWhen == GC_ERuleEvent.TIMER && (m_fEverySeconds < 0.1 || m_fEverySeconds > 86400))
 			return false;
-		if (m_eWhen == GC_ERuleEvent.TEST_EVENT && m_sTestEventName.IsEmpty())
+		if (m_eWhen >= GC_ERuleEvent.TEST_EVENT && m_sTestEventName.IsEmpty())
 			return false;
 		if (m_If && !m_If.IsValid())
 			return false;
