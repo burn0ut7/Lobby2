@@ -83,7 +83,7 @@ Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Fl
 
 Add one **Condition Count** object for number comparisons. It has three settings:
 
-1. **Comparison**: Greater than (>), Less than (<), or Equal to (=).
+1. **Comparison**: Greater than, Less than, Equal, or Not equal.
 2. **Required Count**: the number to compare against.
 3. **Conditions**: the checks being counted. Each can contain nested groups.
 
@@ -91,9 +91,10 @@ Add one **Condition Count** object for number comparisons. It has three settings
 | --- | --- |
 | Greater than | 3 or more listed conditions are true. |
 | Less than | 0 or 1 listed conditions are true. |
-| Equal to | Exactly 2 listed conditions are true. |
+| Equal | Exactly 2 listed conditions are true. |
+| Not equal | Any number except 2 listed conditions is true. |
 
-For **at least two out of three**, use **Greater than**, set Required Count to **1**, and add three conditions. Each child contributes one true-or-false answer, regardless of how many conditions it contains. For exactly two, choose Equal to and set the count to 2.
+For **at least two out of three**, use **Greater than**, set Required Count to **1**, and add three conditions. Each child contributes one true-or-false answer, regardless of how many conditions it contains. For exactly two, choose Equal and set the count to 2.
 
 For example, **Greater than 1** can contain **All [A, B]**, **None [C]**, and **D**. It passes when two or three of those branches pass. The optional script tests exercise this nested layout. Another valid layout is **Any [All [A, B], All [C, D]]**.
 
@@ -161,11 +162,11 @@ The editor label Mission Rules is now Mission Events. The project's saved list a
 The editor now uses two composite types:
 
 - **GC_ConditionGroup**: m_iMatch (0 All, 1 Any, 2 None, 3 Not all) and m_aConditions. No number field.
-- **GC_ConditionCount**: m_iComparison (0 Greater than, 1 Less than, 2 Equal to), m_iRequiredCount and m_aConditions.
+- **GC_ConditionCount**: m_iComparison (0 Greater than, 1 Less than, 2 Equal, 3 Not equal), m_iRequiredCount and m_aConditions.
 
 Replace the former All/Any/None/NotAll classes with Condition Group and the matching mode, keeping their children. An old GC_NotCondition becomes a None group with its former m_Condition as the sole child.
 
-Replace separate comparison classes with Condition Count. For integer counts, >= N can become > N-1 when N is positive; <= N can become < N+1 when the new threshold remains within 0-256. Boundary cases require a deliberate equivalent group; do not enter an invalid threshold. Not-equal can be expressed as a None group containing an Equal to count. Old fixed m_fFirstNumber/m_fSecondNumber comparisons need deliberate rebuilding; they do not represent live checks automatically.
+Replace separate comparison classes with Condition Count. For integer counts, >= N can become > N-1 when N is positive; <= N can become < N+1 when the new threshold remains within 0-256. Boundary cases require a deliberate equivalent group; do not enter an invalid threshold. Not equal is now a direct Condition Count choice; the older None group containing an Equal count remains equivalent. Old fixed m_fFirstNumber/m_fSecondNumber comparisons need deliberate rebuilding; they do not represent live checks automatically.
 
 The shipped no-flags example now uses a Match state condition and a fixed wait, using a once-only random group without Boolean placeholders. The user's empty Greater than object was renamed without changing its meaning. External resources need the same conversions before use. Removed XOR/XNOR classes require deliberate replacement; internal values 8 and 9 are rejected rather than reused. Internal legacy count modes remain for historical interpreter behavior, not as editor choices.
 
@@ -200,3 +201,5 @@ Server extensions can call GC_LobbyManager.CallFlag(name) and read GetFlagCallCo
 Final verification scope: at the user's request, the action-order correction was checked by script compilation and source-level logic review, without another in-game run. Three added ordering regressions compiled but were not executed. The earlier 560 passing checks and manager checks predate that correction.
 
 The Advanced field formerly named Wait Seconds is now Delay, still measured in seconds. Saved GC_RuleOptions objects use m_fDelay instead of m_fWaitSeconds; the shipped example was migrated with the same numeric value. External saved Advanced settings need the same field rename. Internal compiled/legacy fixtures retain their original field name.
+
+Condition Count now offers Not equal (saved comparison value 3), implemented as the inverse of a validated Equal check. Existing values 0/1/2 retain their meaning. Empty or malformed condition lists still fail closed. Boundary and nested-group test cases were added; this update was verified by source-level logic review and production script compilation, without an in-game test run.

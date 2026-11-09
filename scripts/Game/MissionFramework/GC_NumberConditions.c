@@ -2,7 +2,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Condition Count")]
 class GC_ConditionCount : GC_MissionCondition
 {
-	[Attribute("0", UIWidgets.ComboBox, "Compare the number of true conditions with Required Count. Greater than 2 needs 3 or more; Less than 2 allows 0 or 1; Equal to 2 needs exactly 2.", enums: {ParamEnum("Greater than (>)", "0"), ParamEnum("Less than (<)", "1"), ParamEnum("Equal to (=)", "2")})]
+	[Attribute("0", UIWidgets.ComboBox, "Compare the number of true conditions with Required Count. Greater than 2 needs 3 or more; Less than 2 allows 0 or 1; Equal 2 needs exactly 2; Not equal 2 allows any count except 2.", enums: {ParamEnum("Greater than", "0"), ParamEnum("Less than", "1"), ParamEnum("Equal", "2"), ParamEnum("Not equal", "3")})]
 	int m_iComparison;
 
 	[Attribute("1", UIWidgets.SpinBox, "The number to compare against. This counts true conditions, not people or entities.", "0 256 1")]
@@ -27,11 +27,15 @@ class GC_ConditionCount : GC_MissionCondition
 				operation = GC_ERuleCheck.LESS_THAN;
 				break;
 			case 2:
+			case 3:
 				operation = GC_ERuleCheck.EXACTLY;
 				break;
 			default:
 				return null;
 		}
-		return BuildGroup(m_aConditions, operation, m_iRequiredCount, depth);
+		GC_RuleCondition check = BuildGroup(m_aConditions, operation, m_iRequiredCount, depth);
+		if (check && m_iComparison == 3)
+			check.m_bReverseAnswer = true;
+		return check;
 	}
 }

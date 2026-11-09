@@ -64,11 +64,14 @@ modded class GC_MissionRuleTests
 		GC_ConditionCount less = new GC_ConditionCount();
 		less.m_iComparison = 1;
 		GC_ConditionCount greater = new GC_ConditionCount();
-		array<ref GC_MissionCondition> comparisons = {equal, less, greater};
+		GC_ConditionCount notEqual = new GC_ConditionCount();
+		notEqual.m_iComparison = 3;
+		array<ref GC_MissionCondition> comparisons = {equal, less, greater, notEqual};
 		array<ref GC_MissionCondition> counted = {};
 		equal.m_aConditions = counted;
 		less.m_aConditions = counted;
 		greater.m_aConditions = counted;
+		notEqual.m_aConditions = counted;
 		for (int passed; passed <= 3; passed++)
 		{
 			counted.Clear();
@@ -83,7 +86,8 @@ modded class GC_MissionRuleTests
 				equal.m_iRequiredCount = required;
 				less.m_iRequiredCount = required;
 				greater.m_iRequiredCount = required;
-				array<bool> answers = {passed == required, passed < required, passed > required};
+				notEqual.m_iRequiredCount = required;
+				array<bool> answers = {passed == required, passed < required, passed > required, passed != required};
 				foreach (int index, GC_MissionCondition comparison : comparisons)
 				{
 					GC_RuleCondition built = comparison.BuildCheck();
@@ -115,6 +119,8 @@ modded class GC_MissionRuleTests
 		inverse.m_aConditions = {left};
 		greater.m_iRequiredCount = 1;
 		greater.m_aConditions = {left, right, inverse};
+		notEqual.m_iRequiredCount = 1;
+		notEqual.m_aConditions = {left, right, inverse};
 		for (int mask; mask < 16; mask++)
 		{
 			a.m_bValue = (mask & 1) != 0;
@@ -125,6 +131,7 @@ modded class GC_MissionRuleTests
 			Check(inverse.BuildCheck().Evaluate(null) == ((30583 & (1 << mask)) != 0), "None reverses an entire group");
 			// Left and its inverse contribute exactly one; right decides whether two pass.
 			Check(greater.BuildCheck().Evaluate(null) == ((61440 & (1 << mask)) != 0), "two of three nested groups count each group once");
+			Check(notEqual.BuildCheck().Evaluate(null) == ((61440 & (1 << mask)) != 0), "not equal counts nested groups once");
 		}
 		GC_Event missionEvent = SimpleRule("logic_passed");
 		missionEvent.m_aConditions = {greater};
@@ -142,7 +149,7 @@ modded class GC_MissionRuleTests
 		greater.m_iRequiredCount = 1;
 		greater.m_iComparison = -1;
 		Check(!greater.BuildCheck(), "negative comparison rejected");
-		greater.m_iComparison = 3;
+		greater.m_iComparison = 4;
 		Check(!greater.BuildCheck(), "unknown comparison rejected");
 		for (int removed = 8; removed <= 9; removed++)
 		{
