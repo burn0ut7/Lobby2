@@ -7,58 +7,41 @@ class GC_LivingCharactersCondition : GC_ConditionBase
 	[Attribute("", UIWidgets.EditBox, "Optional faction keys, such as US or USSR. Empty means all factions. Selected factions are counted together, using each character's current faction.")]
 	ref array<string> m_aFactions;
 
-	[Attribute("", UIWidgets.Object, "Optional area filter. Leave unset to count living characters anywhere. Add Area to count Inside or Outside a named radius or polygon. This contains location settings only, not more conditions.")]
+	[Attribute("", UIWidgets.Hidden, "Legacy area configuration. Move this check to Area Condition; legacy area-based Living Characters checks are rejected rather than silently counting everywhere.")]
 	ref GC_LivingCharacterArea m_Area;
 
-	[Attribute("", UIWidgets.Object, "Choose Count or Proportion. Leave unset to require at least one matching living character. Proportion requires an Area and compares that side with all matching living characters everywhere. There are no child conditions here.")]
+	[Attribute("", UIWidgets.Object, "Optional living-character count anywhere in the mission. New checks default to at least one. Earlier saved count settings apply until you choose Count. For Inside/Outside or extraction proportions, use Area Condition with Players / AI targets.")]
+	ref GC_AreaCount m_Count;
+
+	[Attribute("", UIWidgets.Hidden, "Legacy Requirement reader. Count remains readable; old Proportion must move to Area Condition.")]
 	ref GC_LivingRequirementBase m_Requirement;
 
 	//------------------------------------------------------------------------------------------------
 	override GC_RuleCondition BuildCheck(int depth = 0)
 	{
+		if (m_Area || (m_Requirement && !GC_AreaCount.Cast(m_Requirement)))
+		{
+			Print("GC | Mission Framework | Move legacy Living Characters Area settings to Area Condition. This condition is disabled until migrated.", LogLevel.ERROR);
+			return null;
+		}
 		GC_RuleCondition check = new GC_RuleCondition();
 		check.m_iCheck = 10;
-		check.m_bAreaAnywhere = !m_Area;
-		if (!BuildPopulation(check, m_iWho, m_aFactions))
+		check.m_bAreaAnywhere = true;
+		if (!GC_AreaPopulation.BuildSelection(check, m_iWho, m_aFactions))
 			return null;
-		if (m_Area)
-		{
-			if (m_Area.m_iSide < 0 || m_Area.m_iSide > 1)
-				return null;
-			check.m_sAreaName = m_Area.m_sName;
-			check.m_bAreaOutside = m_Area.m_iSide == 1;
-		}
-		if (m_Requirement && !m_Requirement.BuildRequirement(check))
+		GC_AreaCount count = m_Count;
+		if (!count)
+			count = GC_AreaCount.Cast(m_Requirement);
+		if (count && !count.BuildRequirement(check))
 			return null;
 		if (!check.IsValid(depth))
 			return null;
 		return check;
 	}
 
-	//------------------------------------------------------------------------------------------------
-	//! Shared with the hidden serialized Players / AI target from the previous prototype.
-	static bool BuildPopulation(GC_RuleCondition check, int who, array<string> factions)
-	{
-		check.m_iAreaTargets = 1;
-		check.m_iAreaWho = who;
-		check.m_aAreaFactions = {};
-		if (factions)
-		{
-			if (factions.Count() > 256)
-				return false;
-			foreach (string faction : factions)
-			{
-				if (faction.IsEmpty())
-					return false;
-				if (!check.m_aAreaFactions.Contains(faction))
-					check.m_aAreaFactions.Insert(faction);
-			}
-		}
-		return who >= 0 && who <= 2;
-	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Area")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy area - migrate to Area Condition")]
 class GC_LivingCharacterArea
 {
 	[Attribute("", UIWidgets.EditBox, "Exact unique world name of a Radius Area or closed Polygon Area. The area supplies only its shape. Missing or invalid areas cannot pass, even inside a None group.")]

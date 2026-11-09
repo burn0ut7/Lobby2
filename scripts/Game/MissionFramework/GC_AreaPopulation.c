@@ -96,4 +96,25 @@ class GC_AreaPopulation
 			Print("GC | Mission Framework | Area population exceeds 4096 registered agents/characters; population checks unavailable.", LogLevel.WARNING);
 		m_bReportedLimit = true;
 	}
+	//------------------------------------------------------------------------------------------------
+	//! Shared target filters for general living counts and area conditions.
+	static bool BuildSelection(GC_RuleCondition check, int who, array<string> factions)
+	{
+		check.m_iAreaTargets = 1;
+		check.m_iAreaWho = who;
+		check.m_aAreaFactions = {};
+		if (factions)
+		{
+			if (factions.Count() > 256)
+				return false;
+			foreach (string faction : factions)
+			{
+				if (faction.IsEmpty())
+					return false;
+				if (!check.m_aAreaFactions.Contains(faction))
+					check.m_aAreaFactions.Insert(faction);
+			}
+		}
+		return who >= 0 && who <= 2;
+	}
 }
