@@ -1,6 +1,6 @@
 # Simple mission rules
 
-Lobby2 has a **Mission Framework** section on its GameMode's
+Lobby2 has a **Lobby2** section on its GameMode's
 `GC_LobbyManager`. Build a rule by answering three questions:
 
 1. **When?** The match begins, a timer ticks, or a named test event arrives.
@@ -15,7 +15,7 @@ TilW flags.
 ## Set up a rule in Workbench
 
 Select your Lobby2 GameMode, select **GC_LobbyManager**, then expand
-**Mission Framework > Mission Rules**. Add a `GC_MissionRule`, give it a useful **Name**,
+**Lobby2 > Mission Rules**. Add a `GC_MissionRule`, give it a useful **Name**,
 and fill in **When**, **If**, and **Then**. Add `GC_RuleAction` entries under Then.
 The editor derives field labels from member names. Descriptions explain each
 setting through the property inspector's normal help/tooltip support.
@@ -171,6 +171,6 @@ Interpreter receipt `r5435f11c9c1549f098cfdf2e3e5276ff`; prefab
 
 ## Manager placement update
 
-All framework settings now live on `GC_LobbyManager > Mission Framework`, alongside briefing and parameters. The separate rules component was removed. The example prefab now overrides the existing manager. If you authored rules with the previous revision, move its `m_aRules` list to the manager's `m_aMissionRules` field, copy `m_bEnabled` to `m_bMissionRulesEnabled` (including a disabled value), and remove the old component. Trusted server calls now target `GC_LobbyManager`.
+All framework settings now live on `GC_LobbyManager > Lobby2`, alongside briefing and parameters. The separate rules component was removed. The example prefab now overrides the existing manager. If you authored rules with the previous revision, move its `m_aRules` list to the manager's `m_aMissionRules` field, copy `m_bEnabled` to `m_bMissionRulesEnabled` (including a disabled value), and remove the old component. Trusted server calls now target `GC_LobbyManager`.
 
 After the manager move, Reload succeeded and all 153 interpreter/prefab checks passed again. Live manager calls confirmed startup, timer, delay, pre/post-match rejection and cancellation after ten seconds (13 runs unchanged, cancel false). Receipts: rb4292cc34e7d467c8b9985e016bd279f, r37de76793bb840f7992028e98f6f0c00, rdb896710474046f8b88c63b1abcc7372.

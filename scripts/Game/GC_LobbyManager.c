@@ -48,9 +48,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1", category: "Lobby2")]
 	protected int m_iParameterLockSeconds;
 
-	[Attribute("1", UIWidgets.CheckBox, "Allow these rules to run on the server during the match. An empty rule list does nothing.", category: "Mission Framework")]
+	[Attribute("1", UIWidgets.CheckBox, "Allow these rules to run on the server during the match. An empty rule list does nothing.", category: "Lobby2")]
 	protected bool m_bMissionRulesEnabled;
-	[Attribute("", UIWidgets.Object, "Add rules here. Each rule has When, If, and Then settings. Rules are checked in list order.", category: "Mission Framework")]
+	[Attribute("", UIWidgets.Object, "Add rules here. Each rule has When, If, and Then settings. Rules are checked in list order.", category: "Lobby2")]
 	protected ref array<ref GC_MissionRule> m_aMissionRules;
 	protected ref GC_MissionRuleEngine m_MissionRuleEngine;
 	protected float m_fMissionRulesStartedAt;
