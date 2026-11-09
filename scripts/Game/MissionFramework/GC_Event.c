@@ -2,7 +2,7 @@
 //! Attribute defaults apply to Workbench deserialization. Script fixtures must set authored fields explicitly.
 class GC_RuleOptions
 {
-	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most events. Every time allows later matching state changes or flag calls. It does not run continuously while conditions remain true.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
+	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most events. Every time allows later matching state changes, flag calls or scheduled random checks. It does not run continuously while conditions remain true.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
 	int m_iRun;
 	[Attribute("0", UIWidgets.SpinBox, "Delay in seconds before running. For example, 5 means wait 5 seconds. Zero means no delay. Conditions must still pass when the delay ends.", "0 86400 0.1")]
 	float m_fDelay;

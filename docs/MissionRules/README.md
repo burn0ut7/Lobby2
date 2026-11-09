@@ -85,7 +85,7 @@ Actions waiting on a delay are rechecked when due. A state change that makes the
 
 ## Conditions: standard logic objects
 
-Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Mission Flag Condition**, **Mission Event Condition**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
+Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Mission Flag Condition**, **Mission Event Condition**, **Random Chance**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
 
 **Condition Group > Match** offers four choices:
 
@@ -121,7 +121,7 @@ With Count From set to **Conditions that are true**, these comparisons count sat
 
 Every condition directly under a mission event must pass, so ordinary lists do not need an extra All group. **No conditions means always true:** an empty event Conditions list has no requirements to meet. Top-level events and random groups with no conditions run at match start; a child with no conditions is eligible whenever its group makes a selection. Chance, delay, disabled and run-once settings still apply. An explicit group needs at least one child. Empty groups, missing children and invalid required counts disable the event rather than becoming true under a negative operator. Nesting is limited to 16 levels and lists to 256 children.
 
-Mission Flag Condition is one condition object with Is true/Is false choices. Area, faction, prefab and timer conditions remain future slices; timing and randomness have not moved into conditions yet.
+Mission Flag Condition is one condition object with Is true/Is false choices. Area, faction, prefab and general timer conditions remain future slices. Scheduled Random Chance is now available as a condition; Advanced chance remains a separate action gate.
 
 The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_ConditionBase**, the required shared base that lets one list hold different condition types. Its title is **Do not use**, and its description explains what to choose instead. It does not perform a check. Replace base entries with a specific condition; incomplete base entries fail closed. The class name identifies it as a base; the display-title attribute says Do not use.
 
@@ -234,3 +234,25 @@ Rename saved GC_FlagStateCondition entries to GC_MissionFlagCondition; m_sFlagNa
 Design boundary: each mission event and flag owns its conditions, repeat behavior, delay and activation rules. Outside references read published results only. They never invoke the referenced object or re-evaluate its internal conditions. Duplicate-name detection includes authored entries that fail to compile, so incomplete duplicates cannot become ambiguous valid references.
 
 The former GC_MissionCondition shared base is renamed GC_ConditionBase, in GC_ConditionBase.c. Remove the old GC_MissionCondition.c when installing a source snapshot. Update script references and any saved base entries to the new name; the current project was migrated. Base entries still do not perform a check and must be replaced with a specific condition before use.
+
+
+## Scheduled Random Chance condition
+
+Add **Random Chance** inside an event or flag's Conditions list, including inside Condition Group and Condition Count.
+
+- **Check Interval**: seconds between rolls; default 60, allowed 0.1 to 86400. The first roll waits one full interval after Match starts (or after the framework starts if Match is already active). No rolls run in preview, role selection, briefing or after action.
+- **Chance**: a 0-to-1 float, default 1. `1` means 100%, `0.05` means 5%, `0.0005` means 0.05%, and `0` never produces true. Decimal entry is not limited to a one-percent spinner step.
+- **Roll Behavior**: Keep rolling (default) makes a new roll each interval. Roll once makes exactly one roll after the first interval and holds that first result for this Match, including a failed roll. It does not keep trying until success. Event Once/Every time controls action execution independently.
+- A result is held until the next scheduled roll (or until Match ends for Roll once). Reading a condition never rerolls it. Other matching flag/event changes can use that held result, so an Every time event can also run between rolls when those other conditions change.
+- Before its first roll, each random condition is false. Groups apply ordinary logic: Any may pass through another true child, and None may pass while the random answer is false. There is no hidden random requirement overriding an enclosing group. Different intervals keep their own schedules and combine their latest results. Each due roll notifies its owning event/flag even if its answer has not changed, allowing repeated successes. Multiple leaves due in the same update are rolled before owners are checked, with one eligible event attempt per notification chain.
+- Events still run once by default. Choose **Advanced > Run > Every time** for repeated activations. Flags retain their own Repeatable and accepted-call-count rules. No flag is required to use this condition.
+- All/Any/None/Not all and Condition Count combine this answer normally. A failed roll can therefore satisfy None. Invalid chance/interval values never become passing answers through inversion.
+- Delay keeps its existing meaning: latest conditions must pass when the delay ends. A later failed roll can prevent the delayed event from running. Pending events do not stack additional delayed runs. Advanced > Random Chance is a separate additional chance gate; leave it at 1 when only this condition should control probability.
+- A random condition on a Random Event Group schedules group selection. A random condition inside a child only filters that child; it does not start its parent group. All random-group eligibility rules still apply.
+- Leaving Match resets random answers to false and stops their rolls; pending actions are rechecked with normal group logic and existing phase-lifetime rules. Stop/fresh Start clears them too. Late updates roll once and schedule the next interval from that update, without replaying missed rolls in a burst. The existing manager tick supplies scheduling, with its authority/mode guard, and now also supports flag-only configurations.
+
+For a 5% chance every 90 seconds, set Check Interval to `90` and Chance to `0.05`. Set the owning event to Every time if it should continue after a successful execution. This is a fresh independent chance each interval, not a guarantee that one in every twenty intervals succeeds.
+
+This slice adds no weighted selection, cooldown, changing probability or shared random-result catalog. Existing Random Event Groups handle selection; optional flags can remember a result when the mission explicitly needs shared memory.
+
+Verification: production Workbench script compilation and source-level logic review. Deterministic regression scenarios are provided in the optional `GC_RandomConditionTests.c`; they were not executed in-game, in accordance with the requested verification scope.

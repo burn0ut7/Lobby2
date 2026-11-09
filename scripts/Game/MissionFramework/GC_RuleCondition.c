@@ -45,13 +45,18 @@ class GC_RuleCondition
 	int m_iFlagComparison;
 	int m_iFlagCount;
 	string m_sEventName;
+	float m_fRandomInterval;
+	float m_fRandomChance;
+	int m_iRandomBehavior;
 
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 5)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 6)
 			return false;
+		if (m_iCheck == 6)
+			return m_fRandomInterval >= 0.1 && m_fRandomInterval <= 86400 && m_fRandomChance >= 0 && m_fRandomChance <= 1 && m_iRandomBehavior >= 0 && m_iRandomBehavior <= 1;
 		if (m_iCheck == 5)
 			return !m_sEventName.IsEmpty();
 		if (m_iCheck == 4)
@@ -131,17 +136,54 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool HasEventContext(map<string, bool> events, int depth = 0)
+	bool UsesRandom(array<GC_RuleCondition> changed = null, int depth = 0)
 	{
 		if (depth > 16)
 			return false;
+		if (m_iCheck == 6)
+			return !changed || changed.Contains(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child && child.UsesRandom(changed, depth + 1))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void CollectRandomConditions(array<GC_RuleCondition> result, int depth = 0)
+	{
+		if (depth > 16)
+			return;
+		if (m_iCheck == 6 && !result.Contains(this))
+			result.Insert(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child)
+					child.CollectRandomConditions(result, depth + 1);
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HasEvaluationContext(map<string, bool> events, map<GC_RuleCondition, bool> randomResults, int depth = 0)
+	{
+		if (depth > 16)
+			return false;
+		if (m_iCheck == 6)
+			return randomResults && randomResults.Contains(this);
 		if (m_iCheck == 5)
 			return events && events.Contains(m_sEventName);
 		if (m_iCheck == 0 && m_aChecks)
 		{
 			foreach (GC_RuleCondition child : m_aChecks)
 			{
-				if (!child || !child.HasEventContext(events, depth + 1))
+				if (!child || !child.HasEvaluationContext(events, randomResults, depth + 1))
 					return false;
 			}
 		}
@@ -149,15 +191,15 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null)
+	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null)
 	{
-		if (!IsValid() || !HasEventContext(events) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
+		if (!IsValid() || !HasEvaluationContext(events, randomResults) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
 			return false;
-		return EvaluateValid(flags, gameModeState, counts, events);
+		return EvaluateValid(flags, gameModeState, counts, events, randomResults);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events)
+	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults)
 	{
 		bool answer;
 		if (m_iCheck == 1)
@@ -165,6 +207,8 @@ class GC_RuleCondition
 			if (flags)
 				flags.Find(m_sFlagName, answer);
 		}
+		else if (m_iCheck == 6)
+			randomResults.Find(this, answer);
 		else if (m_iCheck == 5)
 			events.Find(m_sEventName, answer);
 		else if (m_iCheck == 4)
@@ -192,7 +236,7 @@ class GC_RuleCondition
 				count = m_aChecks.Count();
 				foreach (GC_RuleCondition check : m_aChecks)
 				{
-					if (check.EvaluateValid(flags, gameModeState, counts, events))
+					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults))
 						passed++;
 				}
 			}

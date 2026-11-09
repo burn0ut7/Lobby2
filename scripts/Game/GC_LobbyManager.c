@@ -196,7 +196,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			runtimeRules.Insert(rule);
 		}
 		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase(), eventNames);
-		if (m_aMissionEvents && !m_aMissionEvents.IsEmpty() && m_MissionRuleEngine.IsRunning())
+		if (m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
 	}
 

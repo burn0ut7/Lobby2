@@ -6,6 +6,7 @@ class GC_MissionRuleEvent
 	bool m_bFlagCall;
 	bool m_bFlagClear;
 	bool m_bInitialState;
+	ref array<GC_RuleCondition> m_aRandomChecks;
 
 	void GC_MissionRuleEvent(GC_ERuleEvent kind, string name, bool flagCall = false)
 	{
@@ -53,6 +54,8 @@ class GC_MissionRuleEngine
 	protected bool m_bRunning;
 	protected bool m_bDispatching;
 	protected float m_fNow;
+	protected ref array<ref GC_RandomConditionState> m_aRandomConditions = {};
+	protected ref map<GC_RuleCondition, bool> m_mRandomResults = new map<GC_RuleCondition, bool>();
 	protected int m_iRuns;
 	protected int m_iInvalidRules;
 	protected bool m_bEventLimitReached;
@@ -62,6 +65,7 @@ class GC_MissionRuleEngine
 	{
 		Stop();
 		m_aStates.Clear();
+		m_aRandomConditions.Clear();
 		m_mFlags.Clear();
 		m_mFlagCounts.Clear();
 		m_mFlagDefinitions.Clear();
@@ -128,6 +132,7 @@ class GC_MissionRuleEngine
 			}
 		}
 		RegisterEventNames(authoredEventNames);
+		RegisterRandomConditions();
 		m_bRunning = true;
 		if (GC_LobbyPhase.IsValid(initialState))
 			SetGameModeState(initialState);
@@ -237,6 +242,7 @@ class GC_MissionRuleEngine
 			m_fNow = elapsedSeconds;
 		bool initialObservation = !GC_LobbyPhase.IsValid(m_eGameModeState);
 		m_eGameModeState = state;
+		ResetRandomConditions();
 		foreach (GC_MissionRuleState pending : m_aStates)
 		{
 			if (!pending.m_bValid || !pending.m_bPending)
@@ -261,6 +267,7 @@ class GC_MissionRuleEngine
 	void Stop()
 	{
 		m_bRunning = false;
+		m_mRandomResults.Clear();
 		m_aEvents.Clear();
 		ResetPulses();
 		foreach (GC_MissionRuleState state : m_aStates)
@@ -299,7 +306,7 @@ class GC_MissionRuleEngine
 			return false;
 		if (GetFlagCallCount(name) == int.MAX)
 			return false;
-		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults);
+		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -457,6 +464,7 @@ class GC_MissionRuleEngine
 		m_fNow = elapsedSeconds;
 		// Queue events until this pass completes, preventing reentrant timer execution.
 		m_bDispatching = true;
+		AdvanceRandomConditions();
 		foreach (GC_MissionRuleState state : m_aStates)
 		{
 			if (!m_bRunning)
@@ -480,6 +488,66 @@ class GC_MissionRuleEngine
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected void RegisterRandomConditions()
+	{
+		array<GC_RuleCondition> conditions = {};
+		foreach (GC_MissionRuleState state : m_aStates)
+		{
+			if (state.m_bValid && state.m_Rule.m_bEnabled && state.m_Rule.m_If)
+				state.m_Rule.m_If.CollectRandomConditions(conditions);
+		}
+		foreach (string name, GC_MissionFlagState memory : m_mFlagDefinitions)
+		{
+			if (memory.m_Condition)
+				memory.m_Condition.CollectRandomConditions(conditions);
+		}
+		foreach (GC_RuleCondition condition : conditions)
+		{
+			GC_RandomConditionState scheduled = new GC_RandomConditionState();
+			scheduled.m_Condition = condition;
+			m_aRandomConditions.Insert(scheduled);
+		}
+		ResetRandomConditions();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ResetRandomConditions()
+	{
+		m_mRandomResults.Clear();
+		foreach (GC_RandomConditionState scheduled : m_aRandomConditions)
+		{
+			scheduled.m_fNextCheck = m_fNow + scheduled.m_Condition.m_fRandomInterval;
+			scheduled.m_bHasRolled = false;
+			m_mRandomResults.Set(scheduled.m_Condition, false);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Roll every due leaf before notifying any owner, so nesting sees one consistent snapshot.
+	protected void AdvanceRandomConditions()
+	{
+		if (m_eGameModeState != SCR_EGameModeState.GAME || m_aRandomConditions.IsEmpty())
+			return;
+		GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.RANDOM_CHECK, "");
+		notification.m_aRandomChecks = {};
+		foreach (GC_RandomConditionState scheduled : m_aRandomConditions)
+		{
+			if (scheduled.m_fNextCheck > m_fNow || (scheduled.m_bHasRolled && scheduled.m_Condition.m_iRandomBehavior == 1))
+				continue;
+			GC_RuleCondition condition = scheduled.m_Condition;
+			float chance = condition.m_fRandomChance;
+			bool result = chance >= 1 || (chance > 0 && RandomUnit() < chance);
+			m_mRandomResults.Set(condition, result);
+			scheduled.m_bHasRolled = true;
+			// A late update rolls once, never bursts through missed intervals.
+			scheduled.m_fNextCheck = m_fNow + condition.m_fRandomInterval;
+			notification.m_aRandomChecks.Insert(condition);
+		}
+		if (!notification.m_aRandomChecks.IsEmpty())
+			m_aEvents.Insert(notification);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected bool CanRun(GC_MissionRuleState state)
 	{
 		if (!m_bRunning || !state.m_bValid || !state.m_Rule.m_bEnabled || state.m_bPending)
@@ -495,7 +563,7 @@ class GC_MissionRuleEngine
 	{
 		if (!state.m_bValid || !state.m_Rule.m_bEnabled)
 			return false;
-		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults))
+		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults))
 			return false;
 		return !state.m_Parent || ConditionsPass(state.m_Parent);
 	}
@@ -505,7 +573,7 @@ class GC_MissionRuleEngine
 	{
 		if (!CanRun(state))
 			return;
-		if (state.m_Rule.m_bObserveFlags || state.m_Rule.m_bObserveEvents)
+		if (state.m_Rule.m_bObserveFlags || state.m_Rule.m_bObserveEvents || (state.m_Rule.m_If && state.m_Rule.m_If.UsesRandom()))
 		{
 			if (m_aReactiveRuns.Contains(state))
 				return;
@@ -535,7 +603,7 @@ class GC_MissionRuleEngine
 	protected void Execute(GC_MissionRuleState state)
 	{
 		// A reactive event must not call itself again through its result in this cycle.
-		if ((state.m_Rule.m_bObserveFlags || state.m_Rule.m_bObserveEvents) && !m_aReactiveRuns.Contains(state))
+		if ((state.m_Rule.m_bObserveFlags || state.m_Rule.m_bObserveEvents || (state.m_Rule.m_If && state.m_Rule.m_If.UsesRandom())) && !m_aReactiveRuns.Contains(state))
 			m_aReactiveRuns.Insert(state);
 		if (state.m_aChoices)
 		{
@@ -661,6 +729,7 @@ class GC_MissionRuleEngine
 				AcceptFlagCall(notification.m_sName);
 				continue;
 			}
+			bool randomCheck = notification.m_eKind == GC_ERuleEvent.RANDOM_CHECK;
 			bool eventRan = notification.m_eKind == GC_ERuleEvent.EVENT_RAN;
 			bool flagChanged = notification.m_eKind == GC_ERuleEvent.FLAG_ON || notification.m_eKind == GC_ERuleEvent.FLAG_OFF;
 			foreach (string flagName, GC_MissionFlagState memory : m_mFlagDefinitions)
@@ -669,6 +738,7 @@ class GC_MissionRuleEngine
 					continue;
 				if ((flagChanged && flagName != notification.m_sName && memory.m_Condition.UsesFlag(notification.m_sName))
 					|| (eventRan && memory.m_Condition.UsesEvent(notification.m_sName))
+					|| (randomCheck && memory.m_Condition.UsesRandom(notification.m_aRandomChecks))
 					|| (notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE && memory.m_Condition.UsesGameModeState()))
 					CallFlag(flagName);
 			}
@@ -678,7 +748,8 @@ class GC_MissionRuleEngine
 					continue;
 				GC_CompiledMissionRule rule = state.m_Rule;
 				if (rule.m_If && ((flagChanged && rule.m_bObserveFlags && rule.m_If.UsesFlag(notification.m_sName))
-					|| (eventRan && rule.m_bObserveEvents && rule.m_If.UsesEvent(notification.m_sName))))
+					|| (eventRan && rule.m_bObserveEvents && rule.m_If.UsesEvent(notification.m_sName))
+					|| (randomCheck && rule.m_If.UsesRandom(notification.m_aRandomChecks))))
 				{
 					// One eligible attempt per notification chain; false checks may pass on a later notification.
 					TryRun(state);

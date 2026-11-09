@@ -6,7 +6,8 @@ enum GC_ERuleEvent
 	FLAG_ON,
 	FLAG_OFF,
 	GAME_MODE_STATE,
-	EVENT_RAN
+	EVENT_RAN,
+	RANDOM_CHECK
 }
 
 enum GC_ERuleAction
