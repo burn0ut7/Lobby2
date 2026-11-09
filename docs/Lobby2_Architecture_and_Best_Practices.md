@@ -134,6 +134,12 @@ Small related value types may share a file. Large classes should not become fold
 
 ### Mission framework
 
+GC_MissionRulesComponent on the Lobby2 GameMode owns the new simple rule
+framework. It delegates to a server-local GC_MissionRuleEngine during GAME,
+with Workbench-authored nested checks and small test actions. It does not modify
+TilW flags or phase ownership. The base prefab has no rules; the separate
+RulesExample prefab demonstrates authoring. See [simple rules](MissionRules/README.md).
+
 Lobby2 depends on the unmodified TilW Mission Framework addon
 (`61F0E6AB2D06B1C6`). The former custom flags, events, conditions, actions,
 authoring entities and runtime have been removed. Lobby2 retains its own phase,

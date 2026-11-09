@@ -1,10 +1,14 @@
 # Mission framework dependency
 
+The new, separate [simple GameMode rules](MissionRules/README.md) provide a
+When / If / Then test framework alongside the existing settings. The TilW
+integration described below remains in place for existing missions.
+
 Lobby2 requires **TilW Mission Framework**, addon GUID `61F0E6AB2D06B1C6`.
 Keep its existing addon files unchanged. The local checkout is the sibling
 `tilw-mission-framework` directory.
 
-The custom Lobby2 mission framework has been removed, including flags, events,
+The older custom Lobby2 mission framework was removed, including flags, events,
 conditions, actions, interaction prefabs, authoring entities and its test suite.
 Old `GC_Mission*` rules and the US-defeated example are no longer supported.
 The Arland example retains its lobby setup and now contains one empty TilW
