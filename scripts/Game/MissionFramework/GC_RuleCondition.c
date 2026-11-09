@@ -53,13 +53,19 @@ class GC_RuleCondition
 	float m_fCasualtyRatio;
 	int m_iDeathComparison;
 	int m_iRequiredDeaths;
+	string m_sDamageEntity;
+	string m_sDamageArea;
+	int m_iDamageCheck;
+	float m_fDamageNeeded;
 
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 8)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 9)
 			return false;
+		if (m_iCheck == 9)
+			return !m_sDamageEntity.IsEmpty() && m_iDamageCheck >= 0 && m_iDamageCheck <= 2 && (m_iDamageCheck != 2 || (m_fDamageNeeded >= 0 && m_fDamageNeeded <= 1));
 		if (m_iCheck == 7 || m_iCheck == 8)
 		{
 			if (m_iCasualtyCount < 0 || m_iCasualtyCount > 2)
@@ -161,6 +167,41 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
+	bool UsesEntityDamage(array<GC_RuleCondition> changed = null, int depth = 0)
+	{
+		if (depth > 16)
+			return false;
+		if (m_iCheck == 9)
+			return !changed || changed.Contains(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child && child.UsesEntityDamage(changed, depth + 1))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void CollectEntityDamageConditions(array<GC_RuleCondition> result, int depth = 0)
+	{
+		if (depth > 16)
+			return;
+		if (m_iCheck == 9 && !result.Contains(this))
+			result.Insert(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child)
+					child.CollectEntityDamageConditions(result, depth + 1);
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool UsesCasualties(int depth = 0)
 	{
 		if (depth > 16)
@@ -214,10 +255,15 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool HasEvaluationContext(map<string, bool> events, map<GC_RuleCondition, bool> randomResults, int depth = 0)
+	protected bool HasEvaluationContext(map<string, bool> events, map<GC_RuleCondition, bool> randomResults, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, int depth = 0)
 	{
 		if (depth > 16)
 			return false;
+		if (m_iCheck == 9)
+		{
+			GC_EntityDamageObservation observation;
+			return damage && damage.Find(this, observation) && observation && observation.IsAvailable();
+		}
 		if (m_iCheck == 6)
 			return randomResults && randomResults.Contains(this);
 		if (m_iCheck == 5)
@@ -226,7 +272,7 @@ class GC_RuleCondition
 		{
 			foreach (GC_RuleCondition child : m_aChecks)
 			{
-				if (!child || !child.HasEvaluationContext(events, randomResults, depth + 1))
+				if (!child || !child.HasEvaluationContext(events, randomResults, damage, depth + 1))
 					return false;
 			}
 		}
@@ -234,15 +280,15 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null, GC_CasualtySnapshot casualties = null)
+	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null, GC_CasualtySnapshot casualties = null, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage = null)
 	{
-		if (!IsValid() || !HasEvaluationContext(events, randomResults) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
+		if (!IsValid() || !HasEvaluationContext(events, randomResults, damage) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
 			return false;
-		return EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties);
+		return EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults, GC_CasualtySnapshot casualties)
+	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults, GC_CasualtySnapshot casualties, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage)
 	{
 		bool answer;
 		if (m_iCheck == 1)
@@ -250,6 +296,8 @@ class GC_RuleCondition
 			if (flags)
 				flags.Find(m_sFlagName, answer);
 		}
+		else if (m_iCheck == 9)
+			answer = damage.Get(this).Passes(m_iDamageCheck, m_fDamageNeeded);
 		else if (m_iCheck == 8)
 			answer = casualties && casualties.PassesDeathCount(m_aCasualtyFactions, m_iCasualtyCount, m_iDeathComparison, m_iRequiredDeaths);
 		else if (m_iCheck == 7)
@@ -283,7 +331,7 @@ class GC_RuleCondition
 				count = m_aChecks.Count();
 				foreach (GC_RuleCondition check : m_aChecks)
 				{
-					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties))
+					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage))
 						passed++;
 				}
 			}

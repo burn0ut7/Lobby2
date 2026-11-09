@@ -1,5 +1,5 @@
 //! Required shared base for all authored conditions. Do not create this type directly.
-[BaseContainerProps(description: "BASE TYPE - Do not use directly. This shared base lets the Conditions list contain different condition types. It does not perform a check. Choose Mission Flag Condition, Mission Event Condition, Game Mode State, Random Chance, Casualties, Total Deaths, Condition Group or Condition Count instead. Replace any base entry before using the event or flag.", visible: false, insertable: false), BaseContainerCustomStringTitleField("Do not use")]
+[BaseContainerProps(description: "BASE TYPE - Do not use directly. This shared base lets the Conditions list contain different condition types. It does not perform a check. Choose Mission Flag Condition, Mission Event Condition, Game Mode State, Random Chance, Casualties, Total Deaths, Entity Damage, Condition Group or Condition Count instead. Replace any base entry before using the event or flag.", visible: false, insertable: false), BaseContainerCustomStringTitleField("Do not use")]
 class GC_ConditionBase
 {
 	//------------------------------------------------------------------------------------------------
