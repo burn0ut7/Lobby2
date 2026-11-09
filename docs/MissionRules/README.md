@@ -123,7 +123,7 @@ Every condition directly under a mission event must pass, so ordinary lists do n
 
 Mission Flag Condition is one condition object with Is true/Is false choices. Area, faction, prefab and timer conditions remain future slices; timing and randomness have not moved into conditions yet.
 
-The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the incomplete shared base. Choose a concrete operation instead. Incomplete base entries fail closed.
+The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the required shared base that lets one list hold different condition types. Its title is **BASE - Do not use directly (choose a specific condition)**, and its description explains what to choose instead. It does not perform a check. Replace base entries with a specific condition; incomplete base entries fail closed. The serialized class name is retained so existing saved entries remain identifiable.
 
 ## Random chance and random groups
 

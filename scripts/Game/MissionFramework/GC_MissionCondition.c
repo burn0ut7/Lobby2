@@ -1,5 +1,5 @@
-//! Shared serialized type for the condition-object list. Incomplete entries fail closed.
-[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Choose a condition")]
+//! Required shared base for all authored conditions. Do not create this type directly.
+[BaseContainerProps(description: "BASE TYPE - Do not use directly. This shared base lets the Conditions list contain different condition types. It does not perform a check. Choose Mission Flag Condition, Mission Event Condition, Game Mode State, Condition Group or Condition Count instead. Replace any base entry before using the event or flag.", visible: false, insertable: false), BaseContainerCustomStringTitleField("BASE - Do not use directly (choose a specific condition)")]
 class GC_MissionCondition
 {
 	//------------------------------------------------------------------------------------------------
