@@ -13,7 +13,36 @@ For game start, choose **Match / Is in this state**. The field order is Name, Co
 
 A mission event runs once by default. **Advanced > Run > Every time** permits a new run on each later matching state change. Staying in the same state does not repeat it. **Wait Seconds** adds a delay; Disabled keeps the event saved without running it.
 
-**Flags are optional.** They are named On/Off values remembered by the mission, not prerequisites for state-based events. Mission Flags supplies optional starting values before the first condition check. Names are exact and case-sensitive; undeclared flags start Off. Invalid or duplicate initial flags prevent startup. Setting flags does not recheck Game Mode State conditions.
+**Flags are optional.** Use them when a mission needs to remember something or notify other events. Each declared Mission Flag remembers its On/Off state and the number of accepted calls.
+
+## Mission Flags: memory and calls
+
+A Mission Flag has **Name**, **Starting Value**, **Repeatable**, and **Conditions**. Use the **Call Flag** action with the same exact name.
+
+- **Repeatable off** (default): accepts one call, becomes On and stays On. Later calls do nothing.
+- **Repeatable on**: becomes On while dependent events and flags are checked, then resets to Off. Its count is remembered, so a later call can activate it again.
+- **Conditions**: requirements for accepting a call. No conditions means always true. Conditions are checked before increasing the count; blocked calls do not count or notify anything.
+
+For **at most five activations**, name the flag `wave`, turn on Repeatable, and add **Flag Call Count** to its Conditions: Flag Name `wave`, Comparison **Less than**, Count **5**. Counts 0 through 4 allow a call; each accepted call adds one. The fifth succeeds, and later calls are blocked.
+
+Mission events and flags can use two condition objects, nested inside the usual groups:
+
+| Condition | Meaning |
+| --- | --- |
+| Flag State | Check whether a named flag is On or Off. |
+| Flag Call Count | Compare its remembered accepted-call count using Greater than, Less than or Equal to. |
+
+**Flag Call Count** counts activations. **Condition Count** counts how many child conditions are true. They serve different purposes.
+
+When a flag changes, events and flags that reference it are checked. A flag's conditions can therefore form a chain: `second` with Flag State `first` Is On activates when `first` is called. A flag checking only its own count does not call itself; that condition limits incoming calls. A Game Mode State condition on a flag also lets a matching startup/state change call it. No conditions means no automatic trigger: call the flag with an action.
+
+Each flag can activate at most once in one check cycle, and each eligible dependent mission event gets one attempt in that cycle. This prevents circular chains from repeatedly firing. A later external call starts a fresh cycle. Repeatable flags remain On throughout the chain, then reset together; that reset does not trigger another cycle. Mission events still respect their own Once/Every time, chance and delay settings. Use **Every time** on an event that should react to successive calls.
+
+For delayed actions, conditions are rechecked when the wait ends. A repeatable flag will already be Off then, so a delayed **Flag State / Is On** condition will fail. Use its remembered **Flag Call Count** when the requirement must survive the brief pulse.
+
+Starting Value supplies initial memory without adding a count or sending a notification. A non-repeatable flag starting On is already latched. All counts start at zero and reset on fresh framework startup. Flag names are case-sensitive. Unknown names read as Off/count zero, but Call Flag requires a declared Mission Flag. Invalid/duplicate definitions prevent startup.
+
+For compatibility, **Set flag / On** calls declared flags through the same conditions/count/repeat policy. **Off** clears the state without resetting the count or rearming a used non-repeatable flag. Undeclared Set flag names retain the earlier simple On/Off behavior. Random flag actions use that same Set flag policy. Prefer Call Flag for the new workflow.
 
 ## Game Mode State
 
@@ -24,7 +53,7 @@ Choose **Mission preview**, **Role selection**, **Briefing**, **Match**, or **Af
 
 The framework checks the initial state after the world loads, then listens through GC_LobbyManager's existing OnGameStateChanged callback. Duplicate notifications and ordinary ticks do not trigger another check. A late startup observes the current state; it does not invent a transition. The initial state can satisfy an Is not in condition too.
 
-State conditions can appear anywhere inside Condition Group or Condition Count. A rule containing a state condition is checked on startup and every distinct state change. All top-level conditions must pass. A rule with no state conditions keeps the simple default: check once when Match begins.
+State conditions can appear anywhere inside Condition Group or Condition Count. A rule containing a state or flag condition is checked on startup and every distinct state change; flag-dependent rules also check when a referenced flag changes. All top-level conditions must pass. A rule with no state or flag conditions keeps the simple default: check once when Match begins.
 
 Actions waiting on a delay are rechecked when due. A state change that makes their conditions false cancels the pending run. If the conditions remain true, the original wait continues. Explicit After action conditions and their delays may run after the match; shutdown cancels everything. Conditions with no valid state context fail closed, even inside None.
 
@@ -35,11 +64,11 @@ Actions waiting on a delay are rechecked when due. A state change that makes the
 | Mission Event | A name, conditions, and actions to run when the conditions pass. |
 | Condition | A requirement checked on relevant changes, and again after a wait. |
 | Action | Something the mission event does. |
-| Flag | An optional named On/Off value the mission remembers. |
+| Flag | Optional memory: On/Off state and an accepted-call count. |
 
 ## Conditions: standard logic objects
 
-Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
+Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Flag State**, **Flag Call Count**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
 
 **Condition Group > Match** offers four choices:
 
@@ -72,7 +101,7 @@ These comparisons count **satisfied conditions**, not people or entities. Future
 
 Every condition directly under a mission event must pass, so ordinary lists do not need an extra All group. **No conditions means always true:** an empty event Conditions list has no requirements to meet. Top-level events and random groups with no conditions run at match start; a child with no conditions is eligible whenever its group makes a selection. Chance, delay, disabled and run-once settings still apply. An explicit group needs at least one child. Empty groups, missing children and invalid required counts disable the event rather than becoming true under a negative operator. Nesting is limited to 16 levels and lists to 256 children.
 
-Flag On/Off condition objects have been removed from this authoring slice. Area, faction, prefab, flag and timer conditions remain future slices. Mission Flags and flag actions remain available; timing and randomness have not moved into conditions yet.
+Flag State is one condition object with Is On/Is Off choices. Area, faction, prefab and timer conditions remain future slices; timing and randomness have not moved into conditions yet.
 
 The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the incomplete shared base. Choose a concrete operation instead. Incomplete base entries fail closed.
 
@@ -101,7 +130,7 @@ Groups contain regular events, not other random groups. Conditions still nest no
 - `tests/McpTestAddon/worlds/StandardLogicExample.ent`: optional editor-only scene for inspecting the no-flags state example. Run runtime tests in Arland; this minimal inspector scene lacks a faction manager required by Play.
 - `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two independent state-driven mission events. Match sets test_ready; After action sets test_complete. They demonstrate optional flag actions, not flag-triggered events.
 
-Existing actions are Log message, Set flag, Send test event, Random flag, and Select random flags. Send test event remains an interpreter/testing action; this slice has no authorable named-event condition to receive it. No RPC or arbitrary script execution is exposed.
+Existing actions are Log message, Call Flag, Set flag, Send test event, Random flag, and Select random flags. Send test event remains an interpreter/testing action; this slice has no authorable named-event condition to receive it. No RPC or arbitrary script execution is exposed.
 
 ## Runtime and limits
 
@@ -109,13 +138,13 @@ Only the authoritative active Lobby2 game mode starts the framework, after world
 
 ## Updating earlier prototypes
 
-This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. The preceding GC_MissionCondition + m_iType format also changed: recreate groups using Condition Group and its Match setting. Old On/Off flag checks require a deliberate update when special conditions return; they are not replaced with fixed values. Count comparisons now count satisfied child conditions. The known project example and open Arland condition were migrated. Keep a backup. Do not combine removed prototype scripts with this version.
+This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. The preceding GC_MissionCondition + m_iType format also changed: recreate groups using Condition Group and its Match setting. Old separate On/Off flag checks can be recreated using Flag State and its Is On/Is Off choice. Count comparisons now count satisfied child conditions. The known project example and open Arland condition were migrated. Keep a backup. Do not combine removed prototype scripts with this version.
 
 The old interpreter behavior remains covered by regression tests. A historical fixture is loaded through an isolated test-only adapter; this proves its behavior, not unchanged production resource compatibility. The original MissionFramework_v0_1.zip was unavailable, so exact archive compatibility is not claimed.
 
 ## Verification and provenance
 
-Workbench 1.9.0.37: 509 checks passed (30 event-group/chance, 85 state conditions, 189 standard logic, 148 interpreter, 22 authoring, six no-flags resource, four state-example resource, five historical-fixture and 20 randomness checks). Real Lobby2 transitions were also tested through Preview -> Role selection -> Briefing -> Match -> After action: each action fired once, duplicate notifications were ignored, unauthenticated phase changes were rejected, and stopping prevented further execution. The temporary test configuration was discarded by stopping Play. Dedicated/remote-client behavior was not newly tested. Known unrelated Arland GUID, missing menu-preset and Workbench tool-leak diagnostics remain.
+Workbench 1.9.0.37: 560 checks passed before the final action-order correction (48 flag memory, three serialized flag defaults, 30 event-group/chance, 85 state conditions, 189 standard logic, 148 interpreter, 22 authoring, six no-flags resource, four state-example resource, five historical-fixture and 20 randomness checks). Real Lobby2 transitions were also tested through Preview -> Role selection -> Briefing -> Match -> After action: each action fired once, duplicate notifications were ignored, unauthenticated phase changes were rejected, and stopping prevented further execution. The production manager CallFlag path also passed count/pulse and disabled/shutdown/stopped rejection checks. The temporary test configuration was discarded by stopping Play. Dedicated/remote-client behavior was not newly tested. Known unrelated Arland GUID, missing menu-preset and Workbench tool-leak diagnostics remain.
 
 Installed engine source: game/data/data007.pak/scripts/Game/GameMode/SCR_BaseGameMode.c (SHA256 c02bf603991e03e956d880ffaf643cfbde46f87a7d31f2fb1fc0918e95c16652), lines 434-465, dispatches OnGameStateChanged to components on server and clients. The manager gates mission execution to the active authoritative Lobby2 owner.
 
@@ -140,7 +169,7 @@ Replace separate comparison classes with Condition Count. For integer counts, >=
 
 The shipped no-flags example now uses a Match state condition and a fixed wait, using a once-only random group without Boolean placeholders. The user's empty Greater than object was renamed without changing its meaning. External resources need the same conversions before use. Removed XOR/XNOR classes require deliberate replacement; internal values 8 and 9 are rejected rather than reused. Internal legacy count modes remain for historical interpreter behavior, not as editor choices.
 
-Flag On/Off authoring classes remain removed; external missions using them need a deliberate update when special conditions return. No flag check is silently converted to a fixed value.
+The former separate Flag On/Off classes remain removed. Recreate them with the single Flag State condition and the matching choice.
 
 The GC_BooleanCondition authoring class has been removed. External resources using it need deliberate removal or replacement with appropriate real checks when available; do not delete a false restriction without considering how that changes the event. No saved world in the inspected project referenced this class at removal.
 
@@ -148,7 +177,7 @@ The GC_BooleanCondition authoring class has been removed. External resources usi
 
 Remove the obsolete GC_MissionEvent.c file when installing a source snapshot. GC_MissionRule.m_Event and the GC_MissionEvent authoring type are removed. Match started becomes a Game Mode State condition: m_eGameModeState = 1 (GAME), m_iMatch = 0 (Is in). Invert uses m_iMatch = 1. The saved empty Match-start selector in the inspected Arland scene was converted.
 
-A once-only Timer after match start can use Match / Is in with Advanced > Wait Seconds; this is how the no-flags example is migrated. Repeating timers, named-event receivers and flag-change triggers need deliberate migration when those conditions are added; they are not silently converted to unconditional events. The old two-event flag-chain sample is deliberately replaced with independent Match and After action examples. The compiled interpreter still supports its historical triggers for regression/extension callers, but they are no longer editor options.
+A once-only Timer after match start can use Match / Is in with Advanced > Wait Seconds; this is how the no-flags example is migrated. Repeating timers and named-event receivers need deliberate migration when those conditions are added; they are not silently converted to unconditional events. The old two-event flag-chain sample is deliberately replaced with independent Match and After action examples. The compiled interpreter still supports its historical triggers for regression/extension callers, but they are no longer editor options.
 
 ### Migrating regular events and randomness
 
@@ -159,3 +188,13 @@ Move old Random > Chance Percent into Advanced > Random Chance, dividing by 100.
 This slice's live checks include saved example deserialization, default chance when omitted, chance boundaries, filtering, distinct picks, insufficient eligible children, delays, cancellation and repeat behavior. Full native object-class picker options and dedicated/remote-client behavior were not newly verified.
 
 Script callers constructing authoring containers directly must set their fields explicitly (including Random Chance = 1). Attribute defaults apply when Workbench loads serialized containers. Compiled runtime rules default to full chance. Field initializers are intentionally avoided on attributed fields because they can overwrite serialized settings.
+
+### Flag-memory migration and example
+
+Existing declared Mission Flags default to non-repeatable. Set flag / On now respects their conditions and counts an accepted call; it no longer bypasses declared policy. If an older mission repeatedly toggles a declared flag, turn on Repeatable and account for its brief On pulse, or deliberately retain an undeclared simple memory name. Clearing a non-repeatable flag does not rearm it. No old external mission is silently assumed to need repeatable behavior.
+
+`tests/McpTestAddon/Prefabs/FlagMemoryExample.et` is an optional editor/test fixture. It demonstrates a repeatable `wave` flag limited to five calls and a regular event reacting on every accepted call. A second `remember` flag demonstrates the default non-repeatable setting. It is not installed into the user's Arland scene.
+
+Server extensions can call GC_LobbyManager.CallFlag(name) and read GetFlagCallCount(name). Calls require the active authoritative Lobby2 owner, an enabled framework and a running engine. This adds no client RPC. True from CallFlag means queued; a call queued by another action is checked again when processed. Counts are server-local, not a replicated general-purpose state API. The existing bounded queue still stops oversized event chains.
+
+Final verification scope: at the user's request, the action-order correction was checked by script compilation and source-level logic review, without another in-game run. Three added ordering regressions compiled but were not executed. The earlier 560 passing checks and manager checks predate that correction.

@@ -2,7 +2,7 @@
 //! Attribute defaults apply to Workbench deserialization. Script fixtures must set authored fields explicitly.
 class GC_RuleOptions
 {
-	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most events. Every time allows later matching state changes, not repeated execution while a state stays the same.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
+	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most events. Every time allows later matching state changes or flag calls. It does not run continuously while conditions remain true.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
 	int m_iRun;
 	[Attribute("0", UIWidgets.SpinBox, "Wait this many seconds before running. Zero means now. Conditions must still pass when the wait ends.", "0 86400 0.1")]
 	float m_fWaitSeconds;
@@ -45,7 +45,8 @@ class GC_EventDefinition
 			rule.m_If = GC_MissionCondition.BuildGroup(conditions, GC_ERuleCheck.ALL, 0, 0);
 			if (!rule.m_If)
 				return null;
-			if (rule.m_If.UsesGameModeState())
+			rule.m_bObserveFlags = rule.m_If.UsesFlag();
+			if (rule.m_If.UsesGameModeState() || rule.m_bObserveFlags)
 				rule.m_eWhen = GC_ERuleEvent.GAME_MODE_STATE;
 		}
 		return rule;

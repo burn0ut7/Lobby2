@@ -7,7 +7,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("", UIWidgets.Object, "Add a mission event with conditions and actions. No conditions means always true. Top-level events with no conditions run at match start. Add Game Mode State to require a particular phase.", category: "Lobby2")]
 	protected ref array<ref GC_EventDefinition> m_aMissionEvents;
 
-	[Attribute("", UIWidgets.Object, "Optional. Name flags and choose their starting values. Mission events do not need flags. Undeclared flags start Off.", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "Optional mission memory. Each flag remembers accepted calls. Set Repeatable and Conditions to control future calls; Call Flag notifies dependent events and flags.", category: "Lobby2")]
 	protected ref array<ref GC_MissionFlag> m_aMissionFlags;
 
 	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Lobby2")]
@@ -147,6 +147,23 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	bool GetFlag(string name)
 	{
 		return m_MissionRuleEngine && m_MissionRuleEngine.GetFlag(name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Trusted server extension point, not a player RPC.
+	bool CallFlag(string name)
+	{
+		if (!HasMissionRuleAuthority() || !m_bMissionEventsEnabled || !m_MissionRuleEngine)
+			return false;
+		return m_MissionRuleEngine.CallFlag(name);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetFlagCallCount(string name)
+	{
+		if (!m_MissionRuleEngine)
+			return 0;
+		return m_MissionRuleEngine.GetFlagCallCount(name);
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -1,0 +1,39 @@
+GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
+ ID "71620F377D834171"
+ components {
+  GC_LobbyManager "{6A137A39106A4973}" {
+   m_aMissionFlags {
+    GC_MissionFlag "{71620F377D834172}" {
+     m_sName "wave"
+     m_bRepeatable 1
+     m_aConditions {
+      GC_FlagCallCountCondition "{71620F377D834173}" {
+       m_sFlagName "wave"
+      }
+     }
+    }
+    GC_MissionFlag "{71620F377D834174}" {
+     m_sName "remember"
+    }
+   }
+   m_aMissionEvents {
+    GC_Event "{71620F377D834175}" {
+     m_sName "Each accepted wave call"
+     m_aConditions {
+      GC_FlagStateCondition "{71620F377D834176}" {
+       m_sFlagName "wave"
+      }
+     }
+     m_aActions {
+      GC_LogMessageAction "{71620F377D834177}" {
+       m_sMessage "Wave call accepted."
+      }
+     }
+     m_Advanced GC_RuleOptions "{71620F377D834178}" {
+      m_iRun 1
+     }
+    }
+   }
+  }
+ }
+}

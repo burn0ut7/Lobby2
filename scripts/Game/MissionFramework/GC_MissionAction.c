@@ -29,7 +29,7 @@ class GC_SetFlagAction : GC_MissionAction
 {
 	[Attribute("", UIWidgets.EditBox, "Give the flag a name. Other mission events can watch this same name. Mission Flags can set starting values; other flags start Off. Values reset each match.")]
 	string m_sFlagName;
-	[Attribute("1", UIWidgets.ComboBox, "Choose the new setting for this flag.", enums: {ParamEnum("On", "1"), ParamEnum("Off", "0")})]
+	[Attribute("1", UIWidgets.ComboBox, "On calls a declared Mission Flag and respects its conditions, count and Repeatable setting. Off clears its On/Off value without resetting its count. Undeclared flags keep simple On/Off behavior.", enums: {ParamEnum("On", "1"), ParamEnum("Off", "0")})]
 	int m_iSetTo;
 
 	//------------------------------------------------------------------------------------------------
@@ -97,6 +97,22 @@ class GC_SelectRandomFlagsAction : GC_MissionAction
 		if (m_aFlagNames)
 			action.m_aFlagNames.Copy(m_aFlagNames);
 		action.m_iSelectionCount = m_iSelectionCount;
+		return action;
+	}
+}
+
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Call Flag")]
+class GC_CallFlagAction : GC_MissionAction
+{
+	[Attribute("", UIWidgets.EditBox, "The exact name in Mission Flags. If its conditions pass, increase its count, turn it On and check dependent events and flags. Repeatable flags reset to Off after the check cycle.")]
+	string m_sFlagName;
+
+	//------------------------------------------------------------------------------------------------
+	override GC_RuleAction BuildAction()
+	{
+		GC_RuleAction action = new GC_RuleAction();
+		action.m_eDo = GC_ERuleAction.CALL_FLAG;
+		action.m_sTextOrName = m_sFlagName;
 		return action;
 	}
 }
