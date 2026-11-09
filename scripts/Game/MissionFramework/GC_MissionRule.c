@@ -1,85 +1,69 @@
-enum GC_ERuleEvent
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Rule options")]
+class GC_RuleOptions
 {
-	MATCH_BEGINS,
-	TIMER,
-	TEST_EVENT,
-	FLAG_ON,
-	FLAG_OFF
-}
-
-enum GC_ERuleAction
-{
-	WRITE_LOG,
-	SET_FLAG,
-	SEND_TEST_EVENT
+	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most rules. Every time runs again when the chosen event happens again.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
+	int m_iRun;
+	[Attribute("0", UIWidgets.SpinBox, "Wait this many seconds before doing the actions. Zero means now. Requirements must still be met when the wait ends.", "0 86400 0.1")]
+	float m_fWaitSeconds;
+	[Attribute("0", UIWidgets.CheckBox, "Keep this rule in the list, but do not run it.")]
+	bool m_bDisabled;
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
-class GC_RuleAction
+class GC_MissionRule
 {
-	[Attribute("Test action", UIWidgets.EditBox, "A short name to help you find this action.")]
+	[Attribute("Mission rule", UIWidgets.EditBox, "Give this rule a short name, such as Start the test.")]
 	string m_sName;
-	[Attribute("0", UIWidgets.ComboBox, "Choose a small test action. These do not spawn units, end the game, or change player settings.", enums: {ParamEnum("Write a test message to the log", "0"), ParamEnum("Set a flag to yes or no", "1"), ParamEnum("Send a named test event", "2")})]
-	GC_ERuleAction m_eDo;
-	[Attribute("Test passed", UIWidgets.EditBox, "For a log message: the text to write. For a flag or test event: its exact name.")]
-	string m_sTextOrName;
-	[Attribute("1", UIWidgets.CheckBox, "For Set a flag: checked means yes; unchecked means no.")]
-	bool m_bFlagAnswer;
+	[Attribute("", UIWidgets.Object, "The event that starts this rule. Leave empty to run when the match begins, after briefing.")]
+	ref GC_MissionEvent m_Event;
+	[Attribute("", UIWidgets.Object, "The actions to perform when this rule runs. Actions run from top to bottom.")]
+	ref array<ref GC_MissionAction> m_aActions;
+	[Attribute("", UIWidgets.Object, "Optional conditions. Leave empty for no restrictions. Every condition in this list must be met.")]
+	ref array<ref GC_MissionCondition> m_aConditions;
+	[Attribute("", UIWidgets.Object, "Optional. Change how often this rule runs, add a delay, or turn it off. Leave empty to run once, without waiting.")]
+	ref GC_RuleOptions m_Advanced;
+	[Attribute("", UIWidgets.Object, "Optional chance to run or a random extra wait. Leave empty for no randomness.")]
+	ref GC_RuleRandom m_Random;
 
 	//------------------------------------------------------------------------------------------------
-	bool IsValid()
+	GC_CompiledMissionRule BuildRule()
 	{
-		return m_eDo >= 0 && m_eDo <= 2 && !m_sTextOrName.IsEmpty();
-	}
-}
-
-[BaseContainerProps(insertable: false), BaseContainerCustomTitleField("m_sName")]
-class GC_MissionRule : GC_RuleDefinition
-{
-	[Attribute("New rule", UIWidgets.EditBox, "Describe what this rule does, for example: Mark the test complete.")]
-	string m_sName;
-	[Attribute("1", UIWidgets.CheckBox, "Unchecked rules do nothing.")]
-	bool m_bEnabled;
-	[Attribute("0", UIWidgets.ComboBox, "When should this rule check its conditions? Match begins means after the lobby and briefing.", enums: {ParamEnum("Match started", "0"), ParamEnum("Every few seconds", "1"), ParamEnum("A named test event arrives", "2")}, category: "When")]
-	GC_ERuleEvent m_eWhen;
-	[Attribute("test", UIWidgets.EditBox, "For a named test event: use exactly the same name as the action that sends it.", category: "When")]
-	string m_sTestEventName;
-	[Attribute("5", UIWidgets.SpinBox, "For Every few seconds: wait this long between checks. First check is this long after match start.", "0.1 86400 0.1", category: "When")]
-	float m_fEverySeconds;
-	[Attribute("", UIWidgets.Object, "Add a check or group of checks. Leave empty to always pass.", category: "If")]
-	ref GC_RuleCondition m_If;
-	[Attribute("", UIWidgets.Object, "Actions run in list order after the conditions pass.", category: "Then")]
-	ref array<ref GC_RuleAction> m_aThen;
-	[Attribute("1", UIWidgets.CheckBox, "Checked: this rule can run only once. Unchecked: later matching events may run it again.", category: "Then")]
-	bool m_bRunOnlyOnce;
-	[Attribute("0", UIWidgets.SpinBox, "Wait this many seconds after the conditions pass. Conditions are checked again before actions run. Extra events while waiting are ignored.", "0 86400 0.1", category: "Then")]
-	float m_fWaitSeconds;
-
-	//------------------------------------------------------------------------------------------------
-	//! Preserve saved rules from the previous editor format.
-	override GC_MissionRule BuildRule()
-	{
-		return this;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	bool IsValid()
-	{
-		if (m_eWhen < 0 || m_eWhen > GC_ERuleEvent.FLAG_OFF || m_fWaitSeconds < 0 || m_fWaitSeconds > 86400)
-			return false;
-		if (m_eWhen == GC_ERuleEvent.TIMER && (m_fEverySeconds < 0.1 || m_fEverySeconds > 86400))
-			return false;
-		if (m_eWhen >= GC_ERuleEvent.TEST_EVENT && m_sTestEventName.IsEmpty())
-			return false;
-		if (m_If && !m_If.IsValid())
-			return false;
-		if (!m_aThen || m_aThen.IsEmpty() || m_aThen.Count() > 256)
-			return false;
-		foreach (GC_RuleAction action : m_aThen)
+		GC_CompiledMissionRule rule = new GC_CompiledMissionRule();
+		rule.m_sName = m_sName;
+		rule.m_bEnabled = true;
+		rule.m_bRunOnlyOnce = true;
+		rule.m_fEverySeconds = 5;
+		rule.m_aThen = {};
+		rule.m_Random = m_Random;
+		if (m_Event && !m_Event.ApplyTo(rule))
+			return null;
+		if (m_Advanced)
 		{
-			if (!action || !action.IsValid())
-				return false;
+			if (m_Advanced.m_iRun < 0 || m_Advanced.m_iRun > 1)
+				return null;
+			rule.m_bEnabled = !m_Advanced.m_bDisabled;
+			rule.m_bRunOnlyOnce = m_Advanced.m_iRun == 0;
+			rule.m_fWaitSeconds = m_Advanced.m_fWaitSeconds;
 		}
-		return true;
+		if (!m_aActions || m_aActions.IsEmpty() || m_aActions.Count() > 256)
+			return null;
+		foreach (GC_MissionAction definition : m_aActions)
+		{
+			if (!definition)
+				return null;
+			GC_RuleAction action = definition.BuildAction();
+			if (!action || !action.IsValid())
+				return null;
+			rule.m_aThen.Insert(action);
+		}
+		if (m_aConditions && !m_aConditions.IsEmpty())
+		{
+			rule.m_If = GC_MissionCondition.BuildGroup(m_aConditions, GC_ERuleCheck.ALL, 0, 0);
+			if (!rule.m_If)
+				return null;
+		}
+		if (!rule.IsValid())
+			return null;
+		return rule;
 	}
 }

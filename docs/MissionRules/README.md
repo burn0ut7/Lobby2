@@ -1,130 +1,76 @@
-# Mission rules
+# Lobby2 mission rules
 
-Open your GameMode's **GC_LobbyManager > Lobby2 > Mission Rules**.
-Mission Rules comes first, followed by Briefing Catalog and Parameter Catalog.
-Mission Rules Enabled and Parameter Lock Seconds stay in Unsorted.
+Select your game mode, then **GC_LobbyManager > Lobby2**. The top settings are **Mission Rules**, **Briefing Catalog**, **Parameter Catalog**, and **Mission Flags**. Mission Rules Enabled and Parameter Lock Seconds remain in Unsorted.
 
-## Five clear terms
+## Start with one rule
 
-| Term | Meaning |
+1. Add a **Mission Rule** and give it a name.
+2. Add its **Event**, then choose **Type** from the dropdown: Match started, Timer elapsed, Named event received, Flag turned On, or Flag turned Off. An empty Event means Match started.
+3. Add its **Actions**. They normally run in order.
+4. Leave **Conditions**, **Advanced**, and **Random** empty unless needed.
+
+A rule runs once by default. **Advanced > Run > Every time** allows later matching events to run it again. **Wait Seconds** adds a fixed delay. Disabled keeps the rule saved without running it.
+
+**Flags are optional.** Match-start, timer and named-event rules work without flags, flag definitions or conditions. The no-flags example below demonstrates this.
+
+## The terms
+
+| Setting | Meaning |
 | --- | --- |
-| Mission rule | One event, optional conditions, and a list of actions. |
-| Event | What starts the rule: for example, the match starting. |
-| Condition | A requirement that must be met before the actions run. |
-| Action | Something the rule performs. |
-| Flag | A named On/Off value that rules can remember and check. It is not a physical flag. |
+| Mission Rule | An event, optional conditions, and actions to run. |
+| Event | Something that happens now and starts a rule. It is not remembered. |
+| Condition | A requirement checked when the event happens, and again after any wait. |
+| Action | Something the rule does. |
+| Flag | A named On/Off value the mission remembers. Use it only when useful. |
 
-## Create your first rule
+**Mission Flags** optionally gives names starting values. Initial values are applied before Match started rules and do not fire Flag changed events. Undeclared flags start Off and can still be set by actions. Names are exact and case-sensitive. Setting a flag to its current value does not send another event. Duplicate or invalid initial flag definitions prevent rules from starting and report an error.
 
-1. Add a mission rule and give it a name.
-2. In **Event**, select **Match started**.
-3. In **Actions**, add **Log message** and enter your message.
+## Conditions
 
-That is enough. Leave **Conditions** and **Advanced** empty.
-Start the match after briefing; the message appears once in the Workbench log.
-An empty Event also means Match started.
+Add a **Condition**, then choose its **Type**. A normal flag condition only needs Flag Name and Flag is On/Off. For combinations, use All conditions, Any condition, or No conditions, and add the inner Conditions. All conditions agree, Exactly, At least and At most cover advanced logic. Number is used only for the three count choices.
 
-Each choice shows only its own settings. A Log message action has one Message
-field. A Flag condition has Flag Name and Must Be (On or Off).
-You do not need to create a group for a single condition.
+Every condition directly under a rule must pass. Empty rule Conditions means no restrictions. Empty All and No combinations pass; empty Any fails. Nesting remains available, but ordinary rules need none. There is no Check Group or Test Condition choice.
 
-## Events, conditions, and actions
+## Optional randomness
 
-**Events:** Match started; Flag changed. Advanced choices include Timer elapsed
-and Test event received. A timer runs once by default. To repeat it, set
-Advanced > Run to Every time.
+Add **Random** only to rules that need it:
 
-**Conditions:** optional. Every condition directly in this list must be met.
-A Flag condition checks whether a named flag is On or Off. A flag starts Off.
-Changing a condition's flag does not itself retry a rule: select Flag changed
-as the Event when you want that change to start the rule.
+| Mission-maker intent | Setting |
+| --- | --- |
+| Sometimes run this event | Chance Percent, for example 25. |
+| Wait an unpredictable time after an event | Minimum Seconds and Maximum Seconds, for example 10–30. |
+| Pick one outcome without flags | Action Selection > One random action. |
+| Sometimes turn a flag On | Random flag action with Chance Percent. Failure sets it Off. |
+| Choose a route or several objectives | Select random flags: a list and Selection Count. Selected flags turn On; others in that list turn Off. |
 
-**Actions:** Log message; Set flag; Send test event (advanced). Actions run in
-list order. These are development examples, not gameplay objectives or player
-messages. No spawning, victory, or other gameplay catalog has been added.
+Chance is checked once per matching event after conditions pass. Zero never runs; 100 always runs. A failed chance waits for a new event. A delay is sampled once, added to the fixed wait, and conditions are rechecked when it ends. Events received while waiting are ignored. Repeat timers skip missed ticks instead of executing a burst.
 
-Use exactly the same flag or event name wherever you refer to it. Names are
-case-sensitive. Flags are remembered until the world restarts; test events are
-one-time notifications and are not remembered. They are separate even if they
-have the same name.
+Random action selection chooses one whole action uniformly when execution begins. Random flag selection chooses distinct entries without modifying the configured list. No weighted selection or full gameplay action catalog is included yet.
 
-## Example
+Use Match started plus 50% chance for an uncertain opening event; Named event received plus a random delay for a response to an earlier event; or a repeating Timer with a chance for occasional activity. Use flags only when later rules must remember or react to a selected outcome.
 
-The example prefab is `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`.
-With the optional test addon loaded, open `worlds/MissionRulesExample.ent`.
+## Included examples
 
-- **Start the test:** Event = Match started; Action = Set flag `test_ready` On.
-- **Finish the test:** Event = Flag changed, `test_ready` becomes On;
-  Actions = Set flag `test_complete` On, then Log message.
+- `Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et`: no flags or conditions. After a two-second timer and a random extra 1–3 seconds, one of two test log messages runs once.
+- `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two rules connected by a flag. First sets test_ready; second observes that change and sets test_complete.
 
-Both run once, with no conditions or advanced options needed. Around match
-start, the log prints: `Test complete. The flag started this rule.`
+Existing actions are Log message, Set flag, Send test event, Random flag, and Select random flags. Named events can be sent by the sample action or the server-side manager SendTestEvent method. No RPC or arbitrary script execution is exposed.
 
-## Advanced, only when needed
+## Runtime and limits
 
-The optional Advanced object contains Run (Once / Every time), Wait Seconds,
-and Disabled. Without it, a rule runs once with no delay.
+Only the authoritative active Lobby2 game mode starts rules, after briefing at GAME. Shutdown and POSTGAME cancel pending work. Rules/flags do not replicate as a general mission-state API. Flags reset on a fresh engine start; stopped values remain available for diagnostics. Limits are 256 rules, initial flags, actions, or children per group; nesting is limited to 16. A bounded event queue stops runaway chains. Malformed rules fail closed and report their index.
 
-Advanced condition combinations support All conditions, Any condition,
-No conditions, Exactly this many, At least this many, At most this many,
-and All conditions agree. Combinations can contain other combinations.
-The numeric choices show a Number field; the others do not. Fixed test
-conditions provide Yes/No answers for development checks.
+## Updating earlier prototypes
 
-An empty All, None, or All agree combination passes; empty Any fails.
-Numeric combinations compare zero against Number when empty.
+This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. Keep a backup. Do not combine removed prototype scripts with this version.
 
-A delayed rule checks its conditions again before actions run. Events received
-while it is waiting are ignored. Failed conditions do not consume its one run.
-Ending the match cancels delayed and repeating work. Timers skip missed ticks
-rather than replaying a burst after a stall. Timing is checked every 100 ms.
+The old interpreter behavior remains covered by regression tests. A historical fixture is loaded through an isolated test-only adapter; this proves its behavior, not unchanged production resource compatibility. The original MissionFramework_v0_1.zip was unavailable, so exact archive compatibility is not claimed.
 
-Flag changed means an actual change: setting an already-On flag On does not
-trigger it again, and an initially-Off flag does not emit an Off event.
-Changes produced by actions are queued after the current event's rules finish.
-A chain of more than 256 events stops the framework to prevent endless loops.
+## Verification and provenance
 
-## Existing missions and compatibility
+Workbench 1.9.0.37: 148 interpreter checks, 26 authoring checks, four serialized flag-example checks, five historical-fixture checks 20 random/optional-flag checks, and five serialized no-flags example checks passed in embedded Play (208 total). The Event dropdown was opened and its five entries verified through the native editor. Known unrelated Arland world GUID and missing menu-preset diagnostics remain in this test project.
 
-The normal Lobby2 GameMode has no rules, so no test actions run automatically.
-The existing TilW dependency and integration remain intact. These flags are
-local to Lobby2's server-side rule engine; they are not TilW flags or replicated
-player UI. Only the active Lobby2 manager on the server can send test events,
-and only during GAME. Public calls remain SendTestEvent, GetFlag and GetRunCount.
+TilW was studied as inspiration, not copied. Reference commit: 4a5300f94fb9323ce4942ef296bcffcdda922626. Its random-flag and flag-sampling initialization/actions informed the use cases. This framework also supports direct random action selection without flags and event-based random delays.
 
-Previously saved `GC_MissionRule` objects remain supported with their original
-fields and behavior. They retain their old editing layout; new rules use the
-simpler `GC_SimpleMissionRule` layout. The old type is not offered for new rules.
-Both formats use the same interpreter. Existing rules are not silently rewritten.
-
-For the earlier separate-component version, move its m_aRules list into the
-manager's m_aMissionRules and copy m_bEnabled to m_bMissionRulesEnabled, including
-false, before removing the old component/script.
-
-The original v0.1 archive was unavailable. Exact SMF source/API equivalence is
-not claimed. TilW was inspected for concepts only; no implementation was copied.
-Reference: https://github.com/Til-Weimann/tilw-mission-framework/tree/4a5300f94fb9323ce4942ef296bcffcdda922626
-
-## Developer verification
-
-The optional test addon runs only on explicit calls. On GC_LobbyManager:
-GC_TestMissionRules tests the original interpreter; GC_TestSimpleMissionRules
-tests simple definitions and flag events; GC_TestMissionRulesExample loads the
-new serialized example; GC_TestLegacyMissionRulesExample loads an unchanged
-old-format fixture. Intentional loop/oversized-list cases log expected errors.
-
-Limits: 256 rules, 256 actions per rule, 256 children per group, 16 condition
-edges, and at most one day for a delay or interval. Invalid definitions fail
-closed before any action runs. New editor definitions are converted once at
-match start; runtime state is kept separately.
-
-Workbench 1.9.0.37, 2026-11-09: Reload succeeded. All 183 checks passed:
-148 original interpreter, 26 simple definitions/flag events, four new prefab,
-and five legacy prefab. The example also completed through the actual Lobby2
-phase handlers; test_complete was true in GAME. Receipts:
-rf1cd8c1762f4448f921e89dc93cc0dd4, r1b46b81df2724b28b6e6b01d5a73a5ca,
-r932ab7f42a7a49639a48e7bc27237cda, r4780d16eb195453a8a1e41b6d83a8434,
-r03f5125d4092489d8beee33c77733aa5. Existing fixture/resource diagnostics remain.
-Remote-client/dedicated-server coverage remains untested.
-
-The live inspector was independently reviewed: Event, Actions, Conditions and Advanced are visible, Flag changed shows only Flag Name and Becomes, and Log message shows only Message. The scene was left open with Play stopped. Interactive creation of every advanced condition and tooltip hover were not exercised.
+- https://github.com/Til-Weimann/tilw-mission-framework/blob/4a5300f94fb9323ce4942ef296bcffcdda922626/scripts/game/TILW_Instructions.c
+- https://github.com/Til-Weimann/tilw-mission-framework/blob/4a5300f94fb9323ce4942ef296bcffcdda922626/scripts/game/TILW_MissionFrameworkEntity.c

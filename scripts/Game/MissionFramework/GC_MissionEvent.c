@@ -1,71 +1,19 @@
-[BaseContainerProps(visible: false, insertable: false)]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Mission event")]
 class GC_MissionEvent
 {
-	//------------------------------------------------------------------------------------------------
-	bool ApplyTo(GC_MissionRule rule)
-	{
-		return false;
-	}
-}
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Match started")]
-class GC_MatchStartEvent : GC_MissionEvent
-{
-	//------------------------------------------------------------------------------------------------
-	override bool ApplyTo(GC_MissionRule rule)
-	{
-		rule.m_eWhen = GC_ERuleEvent.MATCH_BEGINS;
-		return true;
-	}
-}
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Flag changed")]
-class GC_FlagChangedEvent : GC_MissionEvent
-{
-	[Attribute("", UIWidgets.EditBox, "The flag to watch. Use the same name in the action that changes it.")]
-	string m_sFlagName;
-	[Attribute("1", UIWidgets.ComboBox, "Run when this flag changes to this setting. A flag starts Off. Setting it to its current value does not run the rule again.", enums: {ParamEnum("On", "1"), ParamEnum("Off", "0")})]
-	int m_iBecomes;
-
-	//------------------------------------------------------------------------------------------------
-	override bool ApplyTo(GC_MissionRule rule)
-	{
-		if (m_sFlagName.IsEmpty() || m_iBecomes < 0 || m_iBecomes > 1)
-			return false;
-		rule.m_eWhen = GC_ERuleEvent.FLAG_OFF;
-		if (m_iBecomes == 1)
-			rule.m_eWhen = GC_ERuleEvent.FLAG_ON;
-		rule.m_sTestEventName = m_sFlagName;
-		return true;
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Timer elapsed")]
-class GC_TimerEvent : GC_MissionEvent
-{
-	[Attribute("5", UIWidgets.SpinBox, "Seconds after match start. With Advanced > Run set to Every time, this is also the time between runs.", "0.1 86400 0.1")]
+	[Attribute("0", UIWidgets.ComboBox, "Choose what starts this rule. Match started happens after briefing. Flag events happen only when a flag changes.", enums: {ParamEnum("Match started", "0"), ParamEnum("Timer elapsed", "1"), ParamEnum("Named event received", "2"), ParamEnum("Flag turned On", "3"), ParamEnum("Flag turned Off", "4")})]
+	GC_ERuleEvent m_eType;
+	[Attribute("", UIWidgets.EditBox, "For Flag or Named event: the exact name to watch. Not used by Match started or Timer elapsed.")]
+	string m_sName;
+	[Attribute("5", UIWidgets.SpinBox, "For Timer elapsed: seconds after match start. With Advanced > Run = Every time, also the time between checks. Other events ignore this setting.", "0.1 86400 0.1")]
 	float m_fSeconds;
 
 	//------------------------------------------------------------------------------------------------
-	override bool ApplyTo(GC_MissionRule rule)
+	bool ApplyTo(GC_CompiledMissionRule rule)
 	{
-		rule.m_eWhen = GC_ERuleEvent.TIMER;
+		rule.m_eWhen = m_eType;
+		rule.m_sTestEventName = m_sName;
 		rule.m_fEverySeconds = m_fSeconds;
-		return true;
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Test event received")]
-class GC_TestEvent : GC_MissionEvent
-{
-	[Attribute("", UIWidgets.EditBox, "Use the same name as the Send test event action.")]
-	string m_sEventName;
-
-	//------------------------------------------------------------------------------------------------
-	override bool ApplyTo(GC_MissionRule rule)
-	{
-		rule.m_eWhen = GC_ERuleEvent.TEST_EVENT;
-		rule.m_sTestEventName = m_sEventName;
-		return !m_sEventName.IsEmpty();
+		return m_eType >= 0 && m_eType <= GC_ERuleEvent.FLAG_OFF;
 	}
 }

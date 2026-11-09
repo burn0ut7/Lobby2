@@ -43,9 +43,9 @@ class GC_MissionRuleTests
 	}
 
 	//------------------------------------------------------------------------------------------------
-	static GC_MissionRule EventRule(string name, bool once = true, float delay = 0)
+	static GC_CompiledMissionRule EventRule(string name, bool once = true, float delay = 0)
 	{
-		GC_MissionRule rule = new GC_MissionRule();
+		GC_CompiledMissionRule rule = new GC_CompiledMissionRule();
 		rule.m_sName = name;
 		rule.m_bEnabled = true;
 		rule.m_fEverySeconds = 5;
@@ -121,7 +121,7 @@ class GC_MissionRuleTests
 	protected void CheckEvents()
 	{
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
-		GC_MissionRule rule = EventRule("finish");
+		GC_CompiledMissionRule rule = EventRule("finish");
 		rule.m_If = new GC_RuleCondition();
 		rule.m_If.m_iCheck = 1;
 		rule.m_If.m_sFlagName = "ready";
@@ -145,7 +145,7 @@ class GC_MissionRuleTests
 		engine.Start({});
 		Check(!engine.GetFlag("finish") && engine.GetRunCount() == 0, "fresh mission resets state");
 
-		GC_MissionRule delayed = EventRule("delayed", true, 2);
+		GC_CompiledMissionRule delayed = EventRule("delayed", true, 2);
 		delayed.m_If = Answer(true);
 		engine.Start({delayed});
 		engine.SendTestEvent("delayed");
@@ -167,7 +167,7 @@ class GC_MissionRuleTests
 		engine.Advance(100);
 		Check(engine.GetRunCount() == 0, "stop cancels delayed action");
 
-		GC_MissionRule timer = EventRule("timer", false);
+		GC_CompiledMissionRule timer = EventRule("timer", false);
 		timer.m_eWhen = GC_ERuleEvent.TIMER;
 		timer.m_fEverySeconds = 1;
 		engine.Start({timer});
@@ -179,23 +179,23 @@ class GC_MissionRuleTests
 		engine.Advance(19);
 		Check(engine.GetRunCount() == 2, "backward clock rejected");
 
-		GC_MissionRule start = EventRule("start");
+		GC_CompiledMissionRule start = EventRule("start");
 		start.m_eWhen = GC_ERuleEvent.MATCH_BEGINS;
 		GC_RuleAction send = new GC_RuleAction();
 		send.m_eDo = GC_ERuleAction.SEND_TEST_EVENT;
 		send.m_sTextOrName = "next";
 		start.m_aThen.Insert(send);
-		GC_MissionRule next = EventRule("next");
+		GC_CompiledMissionRule next = EventRule("next");
 		engine.Start({start, next});
 		Check(engine.GetRunCount() == 2 && engine.GetFlag("start") && engine.GetFlag("next"), "start and chained action");
 		Check(!engine.SendTestEvent(""), "reserved start event cannot be sent");
-		GC_MissionRule invalid = EventRule("invalid");
+		GC_CompiledMissionRule invalid = EventRule("invalid");
 		invalid.m_aThen.Insert(null);
 		engine.Start({invalid, next});
 		engine.SendTestEvent("invalid");
 		engine.SendTestEvent("next");
 		Check(engine.GetInvalidRuleCount() == 1 && !engine.GetFlag("invalid") && engine.GetFlag("next"), "invalid rule has no partial actions");
-		GC_MissionRule loop = EventRule("loop");
+		GC_CompiledMissionRule loop = EventRule("loop");
 		send = new GC_RuleAction();
 		send.m_eDo = GC_ERuleAction.SEND_TEST_EVENT;
 		send.m_sTextOrName = "loop";
@@ -207,7 +207,7 @@ class GC_MissionRuleTests
 		engine.Start({loop});
 		engine.SendTestEvent("loop");
 		Check(engine.EventLimitReached() && !engine.IsRunning() && engine.GetRunCount() == 256, "event loop stops safely");
-		array<ref GC_MissionRule> oversized = {};
+		array<ref GC_CompiledMissionRule> oversized = {};
 		for (int index; index < 257; index++)
 			oversized.Insert(next);
 		engine.Start(oversized);
@@ -223,9 +223,9 @@ class GC_MissionRuleTests
 	}
 
 	//------------------------------------------------------------------------------------------------
-	static GC_SimpleMissionRule SimpleRule(string output)
+	static GC_MissionRule SimpleRule(string output)
 	{
-		GC_SimpleMissionRule rule = new GC_SimpleMissionRule();
+		GC_MissionRule rule = new GC_MissionRule();
 		rule.m_sName = output;
 		rule.m_aActions = {};
 		GC_SetFlagAction action = new GC_SetFlagAction();
@@ -238,31 +238,31 @@ class GC_MissionRuleTests
 	//------------------------------------------------------------------------------------------------
 	string RunSimple()
 	{
-		GC_SimpleMissionRule simple = SimpleRule("done");
-		GC_MissionRule built = simple.BuildRule();
+		GC_MissionRule simple = SimpleRule("done");
+		GC_CompiledMissionRule built = simple.BuildRule();
 		Check(built && built.m_bEnabled && built.m_bRunOnlyOnce && !built.m_If && built.m_fWaitSeconds == 0, "simple defaults need no extra settings");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start({built});
 		Check(engine.GetFlag("done") && engine.GetRunCount() == 1, "empty trigger means match begins");
 		engine.Stop();
 
-		GC_FlagCondition required = new GC_FlagCondition();
+		GC_MissionCondition required = new GC_MissionCondition();
 		required.m_sFlagName = "ready";
-		required.m_iMustBe = 0;
+		required.m_iType = 1;
 		simple.m_aConditions = {required};
 		built = simple.BuildRule();
 		engine.Start({built});
 		Check(engine.GetFlag("done"), "Off requirement accepts a missing flag");
-		required.m_iMustBe = 1;
+		required.m_iType = 0;
 		engine.Start({simple.BuildRule()});
 		Check(!engine.GetFlag("done"), "On requirement blocks without flag");
 		simple.m_aConditions.Insert(null);
 		Check(!simple.BuildRule(), "incomplete optional item does not silently pass");
 		simple.m_aConditions = {};
 
-		GC_FlagChangedEvent trigger = new GC_FlagChangedEvent();
-		trigger.m_sFlagName = "ready";
-		trigger.m_iBecomes = 1;
+		GC_MissionEvent trigger = new GC_MissionEvent();
+		trigger.m_sName = "ready";
+		trigger.m_eType = GC_ERuleEvent.FLAG_ON;
 		simple.m_Event = trigger;
 		simple.m_Advanced = new GC_RuleOptions();
 		simple.m_Advanced.m_iRun = 1;
@@ -277,7 +277,7 @@ class GC_MissionRuleTests
 		engine.SetFlag("ready", false);
 		engine.SetFlag("ready", true);
 		Check(engine.GetRunCount() == 2, "Every time fires on next change");
-		trigger.m_iBecomes = 0;
+		trigger.m_eType = GC_ERuleEvent.FLAG_OFF;
 		engine.Start({simple.BuildRule()});
 		engine.SetFlag("ready", false);
 		Check(engine.GetRunCount() == 0, "initial Off is not a change");
@@ -297,7 +297,8 @@ class GC_MissionRuleTests
 		Check(!simple.BuildRule(), "bad delay rejected");
 		simple.m_Advanced = null;
 
-		GC_TimerEvent timer = new GC_TimerEvent();
+		GC_MissionEvent timer = new GC_MissionEvent();
+		timer.m_eType = GC_ERuleEvent.TIMER;
 		timer.m_fSeconds = 2;
 		simple.m_Event = timer;
 		engine.Start({simple.BuildRule()});
@@ -310,34 +311,40 @@ class GC_MissionRuleTests
 		timer.m_fSeconds = 0;
 		Check(!simple.BuildRule(), "bad timer rejected");
 
-		GC_TestCondition yes = new GC_TestCondition();
-		yes.m_iAnswer = 1;
-		GC_TestCondition no = new GC_TestCondition();
-		no.m_iAnswer = 0;
-		GC_CheckAny any = new GC_CheckAny();
-		any.m_aRequirements = {no, yes};
-		GC_CheckAll all = new GC_CheckAll();
-		all.m_aRequirements = {any, yes};
+		GC_MissionCondition yes = new GC_MissionCondition();
+		yes.m_sFlagName = "unset";
+		yes.m_iType = 1;
+		GC_MissionCondition no = new GC_MissionCondition();
+		no.m_sFlagName = "unset";
+		no.m_iType = 0;
+		GC_MissionCondition any = new GC_MissionCondition();
+		any.m_iType = 3;
+		any.m_aConditions = {no, yes};
+		GC_MissionCondition all = new GC_MissionCondition();
+		all.m_iType = 2;
+		all.m_aConditions = {any, yes};
 		Check(all.BuildCheck().Evaluate(null), "nested simple combinations work");
-		GC_CheckNone none = new GC_CheckNone();
-		none.m_aRequirements = {no};
+		GC_MissionCondition none = new GC_MissionCondition();
+		none.m_iType = 4;
+		none.m_aConditions = {no};
 		Check(none.BuildCheck().Evaluate(null), "None combination works");
-		GC_CheckExactly exact = new GC_CheckExactly();
+		GC_MissionCondition exact = new GC_MissionCondition();
+		exact.m_iType = 5;
 		exact.m_iNumber = 1;
-		exact.m_aRequirements = {yes, no};
+		exact.m_aConditions = {yes, no};
 		Check(exact.BuildCheck().Evaluate(null), "exact count compiles");
 		exact.m_iNumber = -1;
 		Check(!exact.BuildCheck(), "bad count rejected");
-		all.m_aRequirements = {all};
+		all.m_aConditions = {all};
 		Check(!all.BuildCheck(), "cyclic authoring is bounded");
-		all.m_aRequirements.Clear();
+		all.m_aConditions.Clear();
 		simple.m_Event = null;
 		simple.m_aActions = {};
 		Check(!simple.BuildRule(), "empty actions rejected");
-		GC_MissionRule on = EventRule("flip", false);
+		GC_CompiledMissionRule on = EventRule("flip", false);
 		on.m_eWhen = GC_ERuleEvent.FLAG_ON;
 		on.m_aThen[0].m_bFlagAnswer = false;
-		GC_MissionRule off = EventRule("flip", false);
+		GC_CompiledMissionRule off = EventRule("flip", false);
 		off.m_eWhen = GC_ERuleEvent.FLAG_OFF;
 		engine.Start({on, off});
 		engine.SetFlag("flip", true);
@@ -368,13 +375,13 @@ class GC_MissionRuleTests
 		}
 		if (!authoredRules || authoredRules.Count() != 2)
 			return "FAIL: expected two simple rules";
-		array<ref GC_MissionRule> rules = {};
+		array<ref GC_CompiledMissionRule> rules = {};
 		for (int index; index < authoredRules.Count(); index++)
 		{
-			GC_RuleDefinition definition = GC_RuleDefinition.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
+			GC_MissionRule definition = GC_MissionRule.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
 			if (!definition)
 				return "FAIL: authored definition could not deserialize";
-			GC_MissionRule rule = definition.BuildRule();
+			GC_CompiledMissionRule rule = definition.BuildRule();
 			if (!rule)
 				return "FAIL: authored rule could not deserialize";
 			rules.Insert(rule);
@@ -392,9 +399,9 @@ class GC_MissionRuleTests
 		return string.Format("MissionRulesExample: checks=%1 failures=%2", m_iChecks, m_iFailures);
 	}
 	//------------------------------------------------------------------------------------------------
-	string RunLegacyExample()
+	string RunNoFlagsExample()
 	{
-		Resource resource = Resource.Load("$Lobby2McpTests:Prefabs/MissionRulesLegacy.et");
+		Resource resource = Resource.Load("{7B115D5DFF7ED999}Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et");
 		if (!resource || !resource.IsValid())
 			return "FAIL: example resource could not load";
 		BaseContainer root = resource.GetResource().ToBaseContainer();
@@ -410,12 +417,58 @@ class GC_MissionRuleTests
 			if (component.GetClassName() == "GC_LobbyManager")
 				authoredRules = component.GetObjectArray("m_aMissionRules");
 		}
-		if (!authoredRules || authoredRules.Count() != 3)
-			return "FAIL: expected three authored rules";
-		array<ref GC_MissionRule> rules = {};
+		if (!authoredRules || authoredRules.Count() != 1)
+			return "FAIL: expected one no-flags rule";
+		array<ref GC_CompiledMissionRule> rules = {};
 		for (int index; index < authoredRules.Count(); index++)
 		{
-			GC_MissionRule rule = GC_MissionRule.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
+			GC_MissionRule definition = GC_MissionRule.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
+			if (!definition)
+				return "FAIL: authored definition could not deserialize";
+			GC_CompiledMissionRule rule = definition.BuildRule();
+			if (!rule)
+				return "FAIL: authored rule could not deserialize";
+			rules.Insert(rule);
+		}
+		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
+		engine.Start(rules);
+		Check(engine.GetInvalidRuleCount() == 0, "no-flags example deserializes");
+		Check(engine.GetRunCount() == 0, "no-flags timer waits");
+		engine.Advance(2);
+		Check(engine.GetRunCount() == 0, "random delay starts after timer");
+		engine.Advance(5);
+		Check(engine.GetRunCount() == 1, "no-flags random rule completes");
+		engine.Advance(100);
+		Check(engine.GetRunCount() == 1, "no-flags rule runs once by default");
+		engine.Stop();
+		return string.Format("NoFlagsExample: checks=%1 failures=%2", m_iChecks, m_iFailures);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string RunLegacyExample()
+	{
+		Resource resource = Resource.Load("$Lobby2McpTests:Prefabs/MissionRulesLegacy.et");
+		if (!resource || !resource.IsValid())
+			return "FAIL: example resource could not load";
+		BaseContainer root = resource.GetResource().ToBaseContainer();
+		if (!root)
+			return "FAIL: example root missing";
+		BaseContainerList components = root.GetObjectArray("components");
+		if (!components)
+			return "FAIL: example components missing";
+		BaseContainerList authoredRules;
+		for (int index; index < components.Count(); index++)
+		{
+			BaseContainer component = components.Get(index);
+			if (component.GetClassName() == "GC_LegacyRuleFixtureComponent")
+				authoredRules = component.GetObjectArray("m_aLegacyRuleFixtures");
+		}
+		if (!authoredRules || authoredRules.Count() != 3)
+			return "FAIL: expected three authored rules";
+		array<ref GC_CompiledMissionRule> rules = {};
+		for (int index; index < authoredRules.Count(); index++)
+		{
+			GC_CompiledMissionRule rule = GC_LegacyRuleFixture.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index))).BuildRule();
 			if (!rule)
 				return "FAIL: authored rule could not deserialize";
 			rules.Insert(rule);
@@ -442,19 +495,7 @@ modded class GC_LobbyManager
 	//! Runtime-only fixture; does not save or alter the authored rule list.
 	string GC_TestMissionRulesPrepare()
 	{
-		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode() != GetOwner() || m_bMissionRulesStarted || (m_aMissionRules && !m_aMissionRules.IsEmpty()))
-			return "UNAVAILABLE: requires authority and empty rules before match start";
-		m_aMissionRules = {};
-		GC_MissionRule start = GC_MissionRuleTests.EventRule("live_start");
-		start.m_eWhen = GC_ERuleEvent.MATCH_BEGINS;
-		m_aMissionRules.Insert(start);
-		GC_MissionRule pulse = GC_MissionRuleTests.EventRule("live_timer", false);
-		pulse.m_eWhen = GC_ERuleEvent.TIMER;
-		pulse.m_fEverySeconds = 0.5;
-		m_aMissionRules.Insert(pulse);
-		m_aMissionRules.Insert(GC_MissionRuleTests.EventRule("live_delay", true, 1));
-		m_aMissionRules.Insert(GC_MissionRuleTests.EventRule("live_cancel", true, 10));
-		return "prepared=4";
+		return "UNAVAILABLE: use the authored MissionRulesExample fixture";
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -489,6 +530,12 @@ modded class GC_LobbyManager
 	{
 		GC_MissionRuleTests tests = new GC_MissionRuleTests();
 		return tests.RunLegacyExample();
+	}
+
+	string GC_TestNoFlagsExample()
+	{
+		GC_MissionRuleTests tests = new GC_MissionRuleTests();
+		return tests.RunNoFlagsExample();
 	}
 
 }

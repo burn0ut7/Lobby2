@@ -5,13 +5,16 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
 	[Attribute("", UIWidgets.Object, "Add a mission rule. Choose an event and actions. Conditions are optional.", category: "Lobby2")]
-	protected ref array<ref GC_RuleDefinition> m_aMissionRules;
+	protected ref array<ref GC_MissionRule> m_aMissionRules;
 
 	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Lobby2")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
 
 	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values", category: "Lobby2")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
+
+	[Attribute("", UIWidgets.Object, "Optional. Name flags and choose their starting values. Rules do not need flags. Undeclared flags start Off.", category: "Lobby2")]
+	protected ref array<ref GC_MissionFlag> m_aMissionFlags;
 
 	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1")]
 	protected int m_iParameterLockSeconds;
@@ -165,15 +168,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!m_aMissionRules)
 			m_aMissionRules = {};
 		m_MissionRuleEngine = new GC_MissionRuleEngine();
-		array<ref GC_MissionRule> runtimeRules = {};
-		foreach (GC_RuleDefinition definition : m_aMissionRules)
+		array<ref GC_CompiledMissionRule> runtimeRules = {};
+		foreach (GC_MissionRule definition : m_aMissionRules)
 		{
-			GC_MissionRule rule = null;
+			GC_CompiledMissionRule rule = null;
 			if (definition && m_aMissionRules.Count() <= 256)
 				rule = definition.BuildRule();
 			runtimeRules.Insert(rule);
 		}
-		m_MissionRuleEngine.Start(runtimeRules);
+		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags);
 		if (m_aMissionRules && !m_aMissionRules.IsEmpty() && m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
 	}

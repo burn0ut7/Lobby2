@@ -14,7 +14,7 @@ class GC_MissionRuleEvent
 //! Runtime state is separate from Workbench-authored settings.
 class GC_MissionRuleState
 {
-	ref GC_MissionRule m_Rule;
+	ref GC_CompiledMissionRule m_Rule;
 	bool m_bValid;
 	bool m_bPending;
 	int m_iRuns;
@@ -36,7 +36,7 @@ class GC_MissionRuleEngine
 	protected bool m_bEventLimitReached;
 
 	//------------------------------------------------------------------------------------------------
-	void Start(array<ref GC_MissionRule> rules)
+	void Start(array<ref GC_CompiledMissionRule> rules, array<ref GC_MissionFlag> flags = null)
 	{
 		Stop();
 		m_aStates.Clear();
@@ -45,13 +45,28 @@ class GC_MissionRuleEngine
 		m_iRuns = 0;
 		m_iInvalidRules = 0;
 		m_bEventLimitReached = false;
+		if (flags)
+		{
+			foreach (GC_MissionFlag flag : flags)
+			{
+				if (!flag || flag.m_sName.IsEmpty() || flag.m_iStartingValue < 0 || flag.m_iStartingValue > 1
+					|| m_mFlags.Contains(flag.m_sName) || flags.Count() > 256)
+				{
+					m_mFlags.Clear();
+					m_iInvalidRules = 1;
+					Print("GC | Mission Framework | Invalid or duplicate Mission Flag; rules not started.", LogLevel.ERROR);
+					return;
+				}
+				m_mFlags.Set(flag.m_sName, flag.m_iStartingValue == 1);
+			}
+		}
 		if (!rules || rules.Count() > 256)
 		{
 			m_iInvalidRules = 1;
 			Print("GC | Mission Framework | Cannot start: the rule list is missing or contains more than 256 rules.", LogLevel.ERROR);
 			return;
 		}
-		foreach (GC_MissionRule rule : rules)
+		foreach (GC_CompiledMissionRule rule : rules)
 		{
 			GC_MissionRuleState state = new GC_MissionRuleState();
 			state.m_Rule = rule;
@@ -195,7 +210,7 @@ class GC_MissionRuleEngine
 	{
 		if (!m_bRunning || !state.m_bValid || !state.m_Rule.m_bEnabled || state.m_bPending)
 			return false;
-		GC_MissionRule rule = state.m_Rule;
+		GC_CompiledMissionRule rule = state.m_Rule;
 		if (rule.m_bRunOnlyOnce && state.m_iRuns > 0)
 			return false;
 		return !rule.m_If || rule.m_If.Evaluate(m_mFlags);
@@ -206,10 +221,18 @@ class GC_MissionRuleEngine
 	{
 		if (!CanRun(state))
 			return;
-		if (state.m_Rule.m_fWaitSeconds > 0)
+		float delay = state.m_Rule.m_fWaitSeconds;
+		GC_RuleRandom random = state.m_Rule.m_Random;
+		if (random)
+		{
+			if (!PassChance(random.m_fChancePercent))
+				return;
+			delay += random.m_fMinimumSeconds + (random.m_fMaximumSeconds - random.m_fMinimumSeconds) * RandomUnit();
+		}
+		if (delay > 0)
 		{
 			state.m_bPending = true;
-			state.m_fDue = m_fNow + state.m_Rule.m_fWaitSeconds;
+			state.m_fDue = m_fNow + delay;
 			return;
 		}
 		Execute(state);
@@ -221,8 +244,13 @@ class GC_MissionRuleEngine
 		// Commit once-only state before actions can emit another event.
 		state.m_iRuns++;
 		m_iRuns++;
-		foreach (GC_RuleAction action : state.m_Rule.m_aThen)
+		int selected = -1;
+		if (state.m_Rule.m_Random && state.m_Rule.m_Random.m_iActionSelection == 1)
+			selected = Math.Min(Math.Floor(RandomUnit() * state.m_Rule.m_aThen.Count()), state.m_Rule.m_aThen.Count() - 1);
+		foreach (int index, GC_RuleAction action : state.m_Rule.m_aThen)
 		{
+			if (selected >= 0 && index != selected)
+				continue;
 			if (!m_bRunning)
 				break;
 			switch (action.m_eDo)
@@ -236,8 +264,43 @@ class GC_MissionRuleEngine
 				case GC_ERuleAction.SEND_TEST_EVENT:
 					SendTestEvent(action.m_sTextOrName);
 					break;
+				case GC_ERuleAction.RANDOM_FLAG:
+					SetFlag(action.m_sTextOrName, PassChance(action.m_fChancePercent));
+					break;
+				case GC_ERuleAction.SELECT_FLAGS:
+					SelectFlags(action);
+					break;
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected float RandomUnit()
+	{
+		return Math.RandomFloat01();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool PassChance(float percent)
+	{
+		return percent >= 100 || (percent > 0 && RandomUnit() < percent * 0.01);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SelectFlags(GC_RuleAction action)
+	{
+		array<string> pool = {};
+		pool.Copy(action.m_aFlagNames);
+		array<string> selected = {};
+		for (int index; index < action.m_iSelectionCount; index++)
+		{
+			int pick = Math.Min(Math.Floor(RandomUnit() * pool.Count()), pool.Count() - 1);
+			selected.Insert(pool[pick]);
+			pool.RemoveOrdered(pick);
+		}
+		// Dispatch is already deferred by Execute's caller: observers see the final selection.
+		foreach (string name : action.m_aFlagNames)
+			SetFlag(name, selected.Contains(name));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -260,7 +323,7 @@ class GC_MissionRuleEngine
 			{
 				if (!state.m_bValid)
 					continue;
-				GC_MissionRule rule = state.m_Rule;
+				GC_CompiledMissionRule rule = state.m_Rule;
 				if (rule.m_eWhen == notification.m_eKind && (notification.m_eKind == GC_ERuleEvent.MATCH_BEGINS
 					|| rule.m_sTestEventName == notification.m_sName))
 					TryRun(state);

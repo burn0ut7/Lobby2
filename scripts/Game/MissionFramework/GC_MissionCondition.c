@@ -1,10 +1,29 @@
-[BaseContainerProps(visible: false, insertable: false)]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Condition")]
 class GC_MissionCondition
 {
+	[Attribute("0", UIWidgets.ComboBox, "Choose a flag check, or combine the conditions below. All requires every condition; Any requires one; None requires none.", enums: {ParamEnum("Flag is On", "0"), ParamEnum("Flag is Off", "1"), ParamEnum("All conditions", "2"), ParamEnum("Any condition", "3"), ParamEnum("No conditions", "4"), ParamEnum("Exactly this many", "5"), ParamEnum("At least this many", "6"), ParamEnum("At most this many", "7"), ParamEnum("All conditions agree", "8")})]
+	int m_iType;
+	[Attribute("", UIWidgets.EditBox, "Used by Flag is On or Flag is Off. Leave empty for a combination of conditions. A flag that has not been set is Off.")]
+	string m_sFlagName;
+	[Attribute("", UIWidgets.Object, "Used by condition combinations. Add conditions here; each may contain another combination. Flag checks ignore this list.")]
+	ref array<ref GC_MissionCondition> m_aConditions;
+	[Attribute("1", UIWidgets.SpinBox, "Only used by Exactly, At least and At most. How many conditions must pass.", "0 256 1", category: "Advanced")]
+	int m_iNumber;
+
 	//------------------------------------------------------------------------------------------------
 	GC_RuleCondition BuildCheck(int depth = 0)
 	{
-		return null;
+		if (depth > 16 || m_iType < 0 || m_iType > 8)
+			return null;
+		if (m_iType >= 2)
+			return BuildGroup(m_aConditions, m_iType - 2, m_iNumber, depth);
+		if (m_sFlagName.IsEmpty())
+			return null;
+		GC_RuleCondition check = new GC_RuleCondition();
+		check.m_iCheck = 1;
+		check.m_sFlagName = m_sFlagName;
+		check.m_bReverseAnswer = m_iType == 1;
+		return check;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -31,130 +50,5 @@ class GC_MissionCondition
 		if (!group.IsValid(depth))
 			return null;
 		return group;
-	}
-}
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Flag condition")]
-class GC_FlagCondition : GC_MissionCondition
-{
-	[Attribute("", UIWidgets.EditBox, "The flag to check. Use the same name as the action that changes it.")]
-	string m_sFlagName;
-	[Attribute("1", UIWidgets.ComboBox, "Only allow this rule while the flag has this setting. A flag that has never been changed is Off.", enums: {ParamEnum("On", "1"), ParamEnum("Off", "0")})]
-	int m_iMustBe;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (depth > 16 || m_sFlagName.IsEmpty() || m_iMustBe < 0 || m_iMustBe > 1)
-			return null;
-		GC_RuleCondition check = new GC_RuleCondition();
-		check.m_iCheck = 1;
-		check.m_sFlagName = m_sFlagName;
-		check.m_bReverseAnswer = m_iMustBe == 0;
-		return check;
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Test condition")]
-class GC_TestCondition : GC_MissionCondition
-{
-	[Attribute("1", UIWidgets.ComboBox, "For testing only. Yes allows the rule; No stops it.", enums: {ParamEnum("Yes", "1"), ParamEnum("No", "0")})]
-	int m_iAnswer;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (depth > 16 || m_iAnswer < 0 || m_iAnswer > 1)
-			return null;
-		GC_RuleCondition check = new GC_RuleCondition();
-		check.m_iCheck = 2;
-		check.m_bTestAnswer = m_iAnswer == 1;
-		return check;
-	}
-}
-
-[BaseContainerProps(visible: false, insertable: false)]
-class GC_CheckGroup : GC_MissionCondition
-{
-	[Attribute("", UIWidgets.Object, "Add the requirements for this combination.")]
-	ref array<ref GC_MissionCondition> m_aRequirements;
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("All conditions")]
-class GC_CheckAll : GC_CheckGroup
-{
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		return BuildGroup(m_aRequirements, GC_ERuleCheck.ALL, 0, depth);
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Any condition")]
-class GC_CheckAny : GC_CheckGroup
-{
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		return BuildGroup(m_aRequirements, GC_ERuleCheck.ANY, 0, depth);
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("No conditions")]
-class GC_CheckNone : GC_CheckGroup
-{
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		return BuildGroup(m_aRequirements, GC_ERuleCheck.NONE, 0, depth);
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("All conditions agree")]
-class GC_CheckSame : GC_CheckGroup
-{
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		return BuildGroup(m_aRequirements, GC_ERuleCheck.ALL_THE_SAME, 0, depth);
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Exactly this many")]
-class GC_CheckExactly : GC_CheckGroup
-{
-	[Attribute("1", UIWidgets.SpinBox, "How many requirements must be met. Zero is allowed.", "0 256 1")]
-	int m_iNumber;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		return BuildGroup(m_aRequirements, GC_ERuleCheck.EXACTLY, m_iNumber, depth);
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("At least this many")]
-class GC_CheckAtLeast : GC_CheckGroup
-{
-	[Attribute("1", UIWidgets.SpinBox, "How many requirements must be met. Zero is allowed.", "0 256 1")]
-	int m_iNumber;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		return BuildGroup(m_aRequirements, GC_ERuleCheck.AT_LEAST, m_iNumber, depth);
-	}
-}
-
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("At most this many")]
-class GC_CheckAtMost : GC_CheckGroup
-{
-	[Attribute("1", UIWidgets.SpinBox, "How many requirements must be met. Zero is allowed.", "0 256 1")]
-	int m_iNumber;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		return BuildGroup(m_aRequirements, GC_ERuleCheck.AT_MOST, m_iNumber, depth);
 	}
 }
