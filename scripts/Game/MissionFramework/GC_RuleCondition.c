@@ -8,8 +8,9 @@ enum GC_ERuleCheck
 	AT_MOST,
 	ALL_THE_SAME,
 	NOT_ALL,
-	ODD_TRUE,
-	EVEN_TRUE
+	// Values 8 and 9 belonged to removed XOR/XNOR modes; do not reuse them.
+	LESS_THAN = 10,
+	GREATER_THAN
 }
 
 //! Plain data owned by one mission; evaluation never changes flags.
@@ -50,7 +51,7 @@ class GC_RuleCondition
 			return !m_sFlagName.IsEmpty();
 		if (m_iCheck == 2)
 			return true;
-		if (m_eGroupNeeds < 0 || m_eGroupNeeds > GC_ERuleCheck.EVEN_TRUE || m_iHowMany < 0)
+		if (m_eGroupNeeds < 0 || m_eGroupNeeds > GC_ERuleCheck.GREATER_THAN || m_eGroupNeeds == 8 || m_eGroupNeeds == 9 || m_iHowMany < 0)
 			return false;
 		if (!m_aChecks)
 			return true;
@@ -122,11 +123,11 @@ class GC_RuleCondition
 				case GC_ERuleCheck.NOT_ALL:
 					answer = passed < count;
 					break;
-				case GC_ERuleCheck.ODD_TRUE:
-					answer = (passed % 2) == 1;
+				case GC_ERuleCheck.LESS_THAN:
+					answer = passed < m_iHowMany;
 					break;
-				case GC_ERuleCheck.EVEN_TRUE:
-					answer = (passed % 2) == 0;
+				case GC_ERuleCheck.GREATER_THAN:
+					answer = passed > m_iHowMany;
 					break;
 			}
 		}

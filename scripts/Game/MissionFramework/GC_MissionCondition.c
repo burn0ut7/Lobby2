@@ -35,7 +35,7 @@ class GC_MissionCondition
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("All conditions (AND)")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("All are true (AND)")]
 class GC_AllConditions : GC_MissionCondition
 {
 	[Attribute("", UIWidgets.Object, "Every condition must be true. Add at least one condition. Conditions can contain other groups.")]
@@ -50,7 +50,7 @@ class GC_AllConditions : GC_MissionCondition
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Any condition (OR)")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("At least one is true (OR)")]
 class GC_AnyCondition : GC_MissionCondition
 {
 	[Attribute("", UIWidgets.Object, "At least one condition must be true. Add at least one condition. Conditions can contain other groups.")]
@@ -65,10 +65,10 @@ class GC_AnyCondition : GC_MissionCondition
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("None of the conditions (NOR)")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("None are true (NOR)")]
 class GC_NoneConditions : GC_MissionCondition
 {
-	[Attribute("", UIWidgets.Object, "No condition may be true. With one child, this means NOT that condition. Add at least one condition. Conditions can contain other groups.")]
+	[Attribute("", UIWidgets.Object, "Every condition must be false. With one condition, this reverses its answer. Add at least one condition. Conditions can contain other groups.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
 
 	//------------------------------------------------------------------------------------------------
@@ -80,10 +80,10 @@ class GC_NoneConditions : GC_MissionCondition
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Not all conditions (NAND)")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("At least one is false (NAND)")]
 class GC_NotAllConditions : GC_MissionCondition
 {
-	[Attribute("", UIWidgets.Object, "At least one condition must be false. Add at least one condition. Conditions can contain other groups.")]
+	[Attribute("", UIWidgets.Object, "This passes unless every condition is true. Add at least one condition. Conditions can contain other groups.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
 
 	//------------------------------------------------------------------------------------------------
@@ -92,36 +92,6 @@ class GC_NotAllConditions : GC_MissionCondition
 		if (!m_aConditions || m_aConditions.IsEmpty())
 			return null;
 		return BuildGroup(m_aConditions, GC_ERuleCheck.NOT_ALL, 0, depth);
-	}
-}
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Odd number true (XOR)")]
-class GC_XorConditions : GC_MissionCondition
-{
-	[Attribute("", UIWidgets.Object, "With two conditions, exactly one must be true. With more conditions, 1, 3, 5, or another odd number must be true. Add at least one condition. Conditions can contain other groups.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (!m_aConditions || m_aConditions.IsEmpty())
-			return null;
-		return BuildGroup(m_aConditions, GC_ERuleCheck.ODD_TRUE, 0, depth);
-	}
-}
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Even number true (XNOR)")]
-class GC_XnorConditions : GC_MissionCondition
-{
-	[Attribute("", UIWidgets.Object, "With two conditions, both must give the same answer. With more conditions, 0, 2, 4, or another even number must be true. Add at least one condition. Conditions can contain other groups.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (!m_aConditions || m_aConditions.IsEmpty())
-			return null;
-		return BuildGroup(m_aConditions, GC_ERuleCheck.EVEN_TRUE, 0, depth);
 	}
 }
 

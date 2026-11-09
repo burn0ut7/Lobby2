@@ -433,7 +433,7 @@ class GC_MissionRuleTests
 				return "FAIL: authored rule could not deserialize";
 			rules.Insert(rule);
 		}
-		Check(rules[0].m_If && rules[0].m_If.m_aChecks.Count() == 1 && rules[0].m_If.m_aChecks[0].m_aChecks.Count() == 2, "serialized nested numeric conditions are present");
+		Check(rules[0].m_If && rules[0].m_If.m_aChecks.Count() == 1 && rules[0].m_If.m_aChecks[0].m_aChecks.Count() == 3 && rules[0].m_If.m_aChecks[0].m_iHowMany == 2, "serialized two-out-of-three nested conditions are present");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start(rules);
 		Check(engine.GetInvalidRuleCount() == 0, "no-flags example deserializes");
