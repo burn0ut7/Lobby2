@@ -8,14 +8,14 @@ class GC_MissionFlag
 	[Attribute("0", UIWidgets.CheckBox, "Off: accept one call and stay On. On: turn On for one check cycle, then reset to Off so a later call can activate it again. The remembered call count never resets here.")]
 	bool m_bRepeatable;
 	[Attribute("", UIWidgets.Object, "Requirements for accepting a call. No conditions means always true. Use Condition Count, choose Mission flag calls, enter this flag's name and select Less than 5 to allow five calls. Conditions are checked before increasing the count. Conditions referencing other flags can activate this flag when those flags change; a check of its own count only limits calls.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
+	ref array<ref GC_ConditionBase> m_aConditions;
 
 	//------------------------------------------------------------------------------------------------
 	GC_RuleCondition BuildConditions()
 	{
 		if (!m_aConditions || m_aConditions.IsEmpty())
 			return null;
-		return GC_MissionCondition.BuildGroup(m_aConditions, GC_ERuleCheck.ALL, 0, 0);
+		return GC_ConditionBase.BuildGroup(m_aConditions, GC_ERuleCheck.ALL, 0, 0);
 	}
 }
 

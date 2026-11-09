@@ -11,13 +11,13 @@ modded class GC_MissionRuleTests
 		none.m_iMatch = 2;
 		GC_ConditionGroup nand = new GC_ConditionGroup();
 		nand.m_iMatch = 3;
-		array<ref GC_MissionCondition> operators = {all, any, none, nand};
-		array<ref GC_MissionCondition> children = {};
+		array<ref GC_ConditionBase> operators = {all, any, none, nand};
+		array<ref GC_ConditionBase> children = {};
 		all.m_aConditions = children;
 		any.m_aConditions = children;
 		none.m_aConditions = children;
 		nand.m_aConditions = children;
-		foreach (GC_MissionCondition operation : operators)
+		foreach (GC_ConditionBase operation : operators)
 			Check(!operation.BuildCheck(), "empty explicit operator fails closed");
 		// Independent truth-table bitsets, with up to three inputs.
 		for (int inputs = 1; inputs <= 3; inputs++)
@@ -36,7 +36,7 @@ modded class GC_MissionRuleTests
 					value.m_bValue = (mask & (1 << bit)) != 0;
 					children.Insert(value);
 				}
-				foreach (int index, GC_MissionCondition operation : operators)
+				foreach (int index, GC_ConditionBase operation : operators)
 				{
 					GC_RuleCondition built = operation.BuildCheck();
 					Check(built && built.Evaluate(null) == ((expected[index] & (1 << mask)) != 0), "standard Boolean truth table");
@@ -45,7 +45,7 @@ modded class GC_MissionRuleTests
 		}
 		children.Clear();
 		children.Insert(null);
-		foreach (GC_MissionCondition operation : operators)
+		foreach (GC_ConditionBase operation : operators)
 			Check(!operation.BuildCheck(), "missing child cannot pass even under negation");
 		children.Clear();
 		children.Insert(none);
@@ -66,8 +66,8 @@ modded class GC_MissionRuleTests
 		GC_ConditionCount greater = new GC_ConditionCount();
 		GC_ConditionCount notEqual = new GC_ConditionCount();
 		notEqual.m_iComparison = 3;
-		array<ref GC_MissionCondition> comparisons = {equal, less, greater, notEqual};
-		array<ref GC_MissionCondition> counted = {};
+		array<ref GC_ConditionBase> comparisons = {equal, less, greater, notEqual};
+		array<ref GC_ConditionBase> counted = {};
 		equal.m_aConditions = counted;
 		less.m_aConditions = counted;
 		greater.m_aConditions = counted;
@@ -88,7 +88,7 @@ modded class GC_MissionRuleTests
 				greater.m_iRequiredCount = required;
 				notEqual.m_iRequiredCount = required;
 				array<bool> answers = {passed == required, passed < required, passed > required, passed != required};
-				foreach (int index, GC_MissionCondition comparison : comparisons)
+				foreach (int index, GC_ConditionBase comparison : comparisons)
 				{
 					GC_RuleCondition built = comparison.BuildCheck();
 					Check(built && built.Evaluate(null) == answers[index], "count comparison boundary");
@@ -96,10 +96,10 @@ modded class GC_MissionRuleTests
 			}
 		}
 		counted.Clear();
-		foreach (GC_MissionCondition comparison : comparisons)
+		foreach (GC_ConditionBase comparison : comparisons)
 			Check(!comparison.BuildCheck(), "empty count group fails closed");
 		counted.Insert(null);
-		foreach (GC_MissionCondition comparison : comparisons)
+		foreach (GC_ConditionBase comparison : comparisons)
 			Check(!comparison.BuildCheck(), "missing count child fails closed");
 		GC_TestFixedCondition a = new GC_TestFixedCondition();
 		GC_TestFixedCondition b = new GC_TestFixedCondition();

@@ -1,5 +1,5 @@
 //! Script-only input for logic tests. No container or editor attributes: never authored in mission resources.
-class GC_TestFixedCondition : GC_MissionCondition
+class GC_TestFixedCondition : GC_ConditionBase
 {
 	bool m_bValue;
 
@@ -340,7 +340,7 @@ class GC_MissionRuleTests
 		Check(!invert.BuildCheck().Evaluate(null), "None Any rejects a true child");
 		invert.m_aConditions = {};
 		Check(!invert.BuildCheck(), "empty None fails closed");
-		GC_MissionCondition incomplete = new GC_MissionCondition();
+		GC_ConditionBase incomplete = new GC_ConditionBase();
 		invert.m_aConditions = {incomplete};
 		Check(!invert.BuildCheck(), "None does not turn incomplete condition into true");
 		any.m_aConditions = {};

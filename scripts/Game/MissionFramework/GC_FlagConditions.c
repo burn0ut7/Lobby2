@@ -1,5 +1,5 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Mission Flag Condition")]
-class GC_MissionFlagCondition : GC_MissionCondition
+class GC_MissionFlagCondition : GC_ConditionBase
 {
 	[Attribute("", UIWidgets.EditBox, "The flag to check. Use its exact name from Mission Flags.")]
 	string m_sFlagName;

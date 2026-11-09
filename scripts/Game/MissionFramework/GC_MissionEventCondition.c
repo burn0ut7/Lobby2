@@ -1,5 +1,5 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Mission Event Condition")]
-class GC_MissionEventCondition : GC_MissionCondition
+class GC_MissionEventCondition : GC_ConditionBase
 {
 	[Attribute("", UIWidgets.EditBox, "The exact unique name of a regular mission event or random event group. Checks its result without running its actions or checking its conditions again.")]
 	string m_sEventName;

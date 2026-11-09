@@ -29,7 +29,7 @@ class GC_EventDefinition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected GC_CompiledMissionRule BuildSettings(string name, array<ref GC_MissionCondition> conditions, GC_RuleOptions advanced)
+	protected GC_CompiledMissionRule BuildSettings(string name, array<ref GC_ConditionBase> conditions, GC_RuleOptions advanced)
 	{
 		GC_CompiledMissionRule rule = new GC_CompiledMissionRule();
 		rule.m_sName = name;
@@ -48,7 +48,7 @@ class GC_EventDefinition
 		}
 		if (conditions && !conditions.IsEmpty())
 		{
-			rule.m_If = GC_MissionCondition.BuildGroup(conditions, GC_ERuleCheck.ALL, 0, 0);
+			rule.m_If = GC_ConditionBase.BuildGroup(conditions, GC_ERuleCheck.ALL, 0, 0);
 			if (!rule.m_If)
 				return null;
 			rule.m_bObserveFlags = rule.m_If.UsesFlag();
@@ -66,7 +66,7 @@ class GC_Event : GC_EventDefinition
 	[Attribute("Event", UIWidgets.EditBox, "A short name for this event.")]
 	string m_sName;
 	[Attribute("", UIWidgets.Object, "No conditions means always true: there are no requirements to meet. Otherwise, every listed condition must pass. A top-level event with no conditions runs at match start. Inside a random group, it is eligible whenever the group selects events.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
+	ref array<ref GC_ConditionBase> m_aConditions;
 	[Attribute("", UIWidgets.Object, "Actions to run, in list order.")]
 	ref array<ref GC_MissionAction> m_aActions;
 	[Attribute("", UIWidgets.Object, "Optional repeat, delay, random chance and disable settings. Unset means once, no delay, 100% chance.")]
@@ -106,7 +106,7 @@ class GC_RandomEventGroup : GC_EventDefinition
 	[Attribute("Random event group", UIWidgets.EditBox, "A short name for this random selection.")]
 	string m_sName;
 	[Attribute("", UIWidgets.Object, "No conditions means always true: there are no requirements to meet, and the group selects at match start. Otherwise, every listed condition must pass. Child conditions filter the selection; they do not trigger the group themselves.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
+	ref array<ref GC_ConditionBase> m_aConditions;
 	[Attribute("1", UIWidgets.SpinBox, "How many different events to pick from those whose conditions pass. No repeats in one selection. If fewer qualify, pick those available. Each selected event's own chance and delay still apply.", "1 255 1")]
 	int m_iPickCount;
 	[Attribute("", UIWidgets.Object, "Regular events to choose from. Disabled, already-completed once-only events, waiting events and events with failing conditions are excluded. Groups cannot be nested here; conditions can still nest normally.")]

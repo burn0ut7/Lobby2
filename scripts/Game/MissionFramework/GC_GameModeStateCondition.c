@@ -1,6 +1,6 @@
 //! Reads the active Lobby2 state supplied by its authoritative game-mode callback.
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Game Mode State")]
-class GC_GameModeStateCondition : GC_MissionCondition
+class GC_GameModeStateCondition : GC_ConditionBase
 {
 	[Attribute("1", UIWidgets.ComboBox, "Choose the mission phase. Match means active play after briefing.", enums: {ParamEnum("Mission preview", "0"), ParamEnum("Role selection", "1787356801"), ParamEnum("Briefing", "1787356802"), ParamEnum("Match", "1"), ParamEnum("After action", "2")})]
 	SCR_EGameModeState m_eGameModeState;

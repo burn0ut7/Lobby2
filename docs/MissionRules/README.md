@@ -123,7 +123,7 @@ Every condition directly under a mission event must pass, so ordinary lists do n
 
 Mission Flag Condition is one condition object with Is true/Is false choices. Area, faction, prefab and timer conditions remain future slices; timing and randomness have not moved into conditions yet.
 
-The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the required shared base that lets one list hold different condition types. Its title is **BASE - Do not use directly (choose a specific condition)**, and its description explains what to choose instead. It does not perform a check. Replace base entries with a specific condition; incomplete base entries fail closed. The serialized class name is retained so existing saved entries remain identifiable.
+The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_ConditionBase**, the required shared base that lets one list hold different condition types. Its title is **Do not use**, and its description explains what to choose instead. It does not perform a check. Replace base entries with a specific condition; incomplete base entries fail closed. The class name identifies it as a base; the display-title attribute says Do not use.
 
 ## Random chance and random groups
 
@@ -232,3 +232,5 @@ The separate GC_FlagCallCountCondition authoring class is removed. Convert saved
 Rename saved GC_FlagStateCondition entries to GC_MissionFlagCondition; m_sFlagName and m_iMatch retain their values (0 true, 1 false). The project fixture and source callers are migrated. The new GC_MissionEventCondition uses m_sEventName and m_iMatch. This slice received production script compilation and source review only; no in-game tests or project restarts were performed.
 
 Design boundary: each mission event and flag owns its conditions, repeat behavior, delay and activation rules. Outside references read published results only. They never invoke the referenced object or re-evaluate its internal conditions. Duplicate-name detection includes authored entries that fail to compile, so incomplete duplicates cannot become ambiguous valid references.
+
+The former GC_MissionCondition shared base is renamed GC_ConditionBase, in GC_ConditionBase.c. Remove the old GC_MissionCondition.c when installing a source snapshot. Update script references and any saved base entries to the new name; the current project was migrated. Base entries still do not perform a check and must be replaced with a specific condition before use.
