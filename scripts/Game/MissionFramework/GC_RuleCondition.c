@@ -6,7 +6,10 @@ enum GC_ERuleCheck
 	EXACTLY,
 	AT_LEAST,
 	AT_MOST,
-	ALL_THE_SAME
+	ALL_THE_SAME,
+	NOT_ALL,
+	ODD_TRUE,
+	EVEN_TRUE
 }
 
 //! Plain data owned by one mission; evaluation never changes flags.
@@ -47,7 +50,7 @@ class GC_RuleCondition
 			return !m_sFlagName.IsEmpty();
 		if (m_iCheck == 2)
 			return true;
-		if (m_eGroupNeeds < 0 || m_eGroupNeeds > 6 || m_iHowMany < 0)
+		if (m_eGroupNeeds < 0 || m_eGroupNeeds > GC_ERuleCheck.EVEN_TRUE || m_iHowMany < 0)
 			return false;
 		if (!m_aChecks)
 			return true;
@@ -115,6 +118,15 @@ class GC_RuleCondition
 					break;
 				case GC_ERuleCheck.ALL_THE_SAME:
 					answer = passed == 0 || passed == count;
+					break;
+				case GC_ERuleCheck.NOT_ALL:
+					answer = passed < count;
+					break;
+				case GC_ERuleCheck.ODD_TRUE:
+					answer = (passed % 2) == 1;
+					break;
+				case GC_ERuleCheck.EVEN_TRUE:
+					answer = (passed % 2) == 0;
 					break;
 			}
 		}

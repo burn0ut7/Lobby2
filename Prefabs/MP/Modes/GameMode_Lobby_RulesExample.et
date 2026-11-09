@@ -5,11 +5,6 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
    m_aMissionEvents {
     GC_MissionRule "{7B115D5DFF7EDA01}" {
      m_sName "1. Start the test"
-     m_aConditions {
-      GC_FlagOffCondition "{7B115D5DFF7EDA13}" {
-       m_sFlagName "test_complete"
-      }
-     }
      m_Random GC_RuleRandom "{7B115D5DFF7EDA12}" {
      }
      m_Event GC_MissionEvent "{7B115D5DFF7EDA10}" {

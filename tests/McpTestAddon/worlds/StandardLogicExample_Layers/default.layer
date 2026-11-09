@@ -1,0 +1,3 @@
+GC_LobbyGameMode GameMode_LogicExample : "{7B115D5DFF7ED999}Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et" {
+ coords 119 1 124
+}

@@ -25,25 +25,43 @@ A mission event runs once by default. **Advanced > Run > Every time** allows lat
 
 **Mission Flags** optionally gives names starting values. Initial values are applied before Match started mission events and do not fire Flag changed events. Undeclared flags start Off and can still be set by actions. Names are exact and case-sensitive. Setting a flag to its current value does not send another event. Duplicate or invalid initial flag definitions prevent mission events from starting and report an error.
 
-## Conditions
+## Conditions: standard logic objects
 
-Conditions are an **object list**, following TilW's nested-object approach. Press the list's **+** button and choose the condition object. There is no Type dropdown inside a condition and no counting settings.
+Conditions are an **object list**. Use **+** to choose an operation. Each group contains its own Conditions list, so groups can be nested and combined. There is no per-condition Type dropdown.
 
-| Condition object | Settings | Meaning |
-| --- | --- | --- |
-| All conditions (AND) | Conditions list | Every child must be true. |
-| Any condition (OR) | Conditions list | At least one child must be true. |
-| Not condition (NOT) | One Condition | That condition must be false. |
-| Flag is On condition | Flag Name | The named flag must be On. |
-| Flag is Off condition | Flag Name | The named flag must be Off. |
+| Condition object | Plain meaning |
+| --- | --- |
+| All conditions (AND) | Every child must be true. |
+| Any condition (OR) | At least one child must be true. |
+| None of the conditions (NOR) | Every child must be false. With one child, this is NOT. |
+| Not all conditions (NAND) | At least one child must be false. |
+| Odd number true (XOR) | An odd number of children must be true: 1, 3, 5, and so on. With two children, exactly one. |
+| Even number true (XNOR) | An even number of children must be true: 0, 2, 4, and so on. With two children, their answers must match. |
 
-For example, add **Any condition**, then add **Flag is On: north_ready** and **Flag is On: south_ready** inside it. Either flag allows the mission event. To require neither, put that Any object inside **Not condition**.
+**None replaces Not.** Put one condition inside None to reverse its answer. Put several inside None to require that none is true. A group is itself a condition, so it can go inside any other group.
 
-Every condition directly under a mission event must pass, so a normal mission event does not need an extra All object. Leave the mission event's Conditions list empty for no restrictions. Explicit All/Any objects need at least one child, and Not needs one child: incomplete objects disable the mission event rather than accidentally allowing it to run. Nesting is optional. Flags remain optional.
+**XOR is standard Boolean parity**, not a general "exactly one" counter. With three true children XOR is true, while XNOR is false. XNOR does not mean "all agree" when there are more than two children.
 
-Exactly, At least, At most, All conditions agree and Test Condition are not offered in this authoring slice. The internal evaluator retains historical logic solely for existing regression coverage. Event selection, start/stop behavior and randomness remain separate; combining them into conditions is a future slice.
+Numeric operations are separate objects with **First Number** and **Second Number**:
 
-The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the incomplete shared base. This is not a working condition; choose one of the five concrete types above. An incomplete base entry fails closed. Do not confuse the native object-class picker with the removed per-condition Type dropdown.
+| Object | Example that is true |
+| --- | --- |
+| Equal to (=) | 3 = 3 |
+| Not equal to (!=) | 3 != 4 |
+| Less than (<) | 3 < 4 |
+| Less than or equal (<=) | 3 <= 3 |
+| Greater than (>) | 4 > 3 |
+| Greater than or equal (>=) | 3 >= 3 |
+
+These inputs are **fixed numbers**, not live mission values. Decimals and negative numbers are supported, from -1 billion to 1 billion. Equality compares the entered engine float values exactly; there is no hidden tolerance. A **True or false value** object supplies a fixed Boolean input: checked = true, unchecked = false. It is not a flag.
+
+For example, an All group can contain **Greater than: 5, 3** and a **None** group containing **Less than: 5, 3**. Both branches pass. The no-flags example demonstrates this exact nested layout.
+
+Every condition directly under a mission event must pass, so ordinary lists do not need an extra All group. An empty event Conditions list means no restrictions. An explicit group needs at least one child. Empty groups, missing children and invalid numeric inputs disable the event rather than becoming true under a negative operator. Nesting is limited to 16 levels and lists to 256 children.
+
+Flag On/Off condition objects have been removed from this authoring slice. Special conditions and live value sources will be added later. Existing Mission Flags, flag actions and starting-event options remain separate. Moving events, timing and randomness into conditions is also a future slice.
+
+The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the incomplete shared base. Choose a concrete operation instead. Incomplete base entries fail closed.
 
 ## Optional randomness
 
@@ -65,7 +83,8 @@ Use Match started plus 50% chance for an uncertain opening event; Named event re
 
 ## Included examples
 
-- `Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et`: no flags or conditions. After a two-second timer and a random extra 1–3 seconds, one of two test log messages runs once.
+- `Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et`: no flags; it demonstrates nested All/None and numeric comparisons. After a two-second timer and a random extra 1–3 seconds, one of two test log messages runs once.
+- `tests/McpTestAddon/worlds/StandardLogicExample.ent`: optional editor scene for inspecting the nested numeric example.
 - `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two mission events connected by a flag. First sets test_ready; second observes that change and sets test_complete.
 
 Existing actions are Log message, Set flag, Send test event, Random flag, and Select random flags. Named events can be sent by the sample action or the server-side manager SendTestEvent method. No RPC or arbitrary script execution is exposed.
@@ -76,13 +95,13 @@ Only the authoritative active Lobby2 game mode starts mission events, after brie
 
 ## Updating earlier prototypes
 
-This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. The preceding GC_MissionCondition + m_iType format also changed: On/Off become the named flag objects, All/Any become their list objects, and None becomes Not containing Any. Advanced count conditions are deferred; they are not silently converted. The known project example and open Arland condition were migrated. Keep a backup. Do not combine removed prototype scripts with this version.
+This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. The preceding GC_MissionCondition + m_iType format also changed: All/Any become their list objects, and None becomes the None group. Old On/Off flag checks require a deliberate update when special conditions return; they are not replaced with fixed values. Specialized count conditions are deferred; they are not silently converted. The known project example and open Arland condition were migrated. Keep a backup. Do not combine removed prototype scripts with this version.
 
 The old interpreter behavior remains covered by regression tests. A historical fixture is loaded through an isolated test-only adapter; this proves its behavior, not unchanged production resource compatibility. The original MissionFramework_v0_1.zip was unavailable, so exact archive compatibility is not claimed.
 
 ## Verification and provenance
 
-Workbench 1.9.0.37: this condition-object slice passed 30 authoring checks, four serialized flag-example checks and five serialized no-flags example checks in embedded Play (39 affected checks). Checks include nested All/Any/Not, incomplete objects and cycles. Earlier interpreter, random-selection and historical-fixture checks remain unchanged. Known unrelated Arland world GUID and missing menu-preset diagnostics remain in this test project.
+Workbench 1.9.0.37: this slice passed 309 checks: 148 interpreter, 30 authoring, 121 standard-logic, four serialized flag-action example checks, and six serialized nested-logic example checks. Standard-logic checks cover every one-, two- and three-input Boolean truth table, numeric comparison outcomes, empty/malformed groups, cycles, mixed nesting and production execution. Known unrelated Arland world GUID and missing menu-preset diagnostics remain in this test project.
 
 
 TilW was studied as inspiration, not copied. Reference commit: 4a5300f94fb9323ce4942ef296bcffcdda922626. Its random-flag and flag-sampling initialization/actions informed the use cases. This framework also supports direct random action selection without flags and event-based random delays.
@@ -91,3 +110,7 @@ TilW was studied as inspiration, not copied. Reference commit: 4a5300f94fb9323ce
 - https://github.com/Til-Weimann/tilw-mission-framework/blob/4a5300f94fb9323ce4942ef296bcffcdda922626/scripts/game/TILW_MissionFrameworkEntity.c
 
 The editor label Mission Rules is now Mission Events. The project's saved list and enable fields were migrated to m_aMissionEvents and m_bMissionEventsEnabled; external resources using the old names need the same rename. Internal class names remain unchanged.
+
+### Updating the preceding condition-object slice
+
+GC_NotCondition with one m_Condition becomes GC_NoneConditions with that condition as the sole item in m_aConditions. This preserves NOT behavior. Flag On/Off authoring classes have been removed; external missions using them require a deliberate update when special conditions return. No flag check is silently converted to a fixed value. The shipped example's redundant initial flag check was removed; its match-start outcomes remain covered by tests. The user's saved Arland scene had no remaining flag or Not conditions at this update.
