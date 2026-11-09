@@ -3,10 +3,14 @@ modded class GC_MissionRuleTests
 	//------------------------------------------------------------------------------------------------
 	string RunStandardLogic()
 	{
-		GC_AllConditions all = new GC_AllConditions();
-		GC_AnyCondition any = new GC_AnyCondition();
-		GC_NoneConditions none = new GC_NoneConditions();
-		GC_NotAllConditions nand = new GC_NotAllConditions();
+		GC_ConditionGroup all = new GC_ConditionGroup();
+		all.m_iMatch = 0;
+		GC_ConditionGroup any = new GC_ConditionGroup();
+		any.m_iMatch = 1;
+		GC_ConditionGroup none = new GC_ConditionGroup();
+		none.m_iMatch = 2;
+		GC_ConditionGroup nand = new GC_ConditionGroup();
+		nand.m_iMatch = 3;
 		array<ref GC_MissionCondition> operators = {all, any, none, nand};
 		array<ref GC_MissionCondition> children = {};
 		all.m_aConditions = children;
@@ -48,20 +52,23 @@ modded class GC_MissionRuleTests
 		Check(!none.BuildCheck(), "None cycle bounded");
 		children.Clear();
 
-		GC_EqualCondition equal = new GC_EqualCondition();
-		GC_NotEqualCondition different = new GC_NotEqualCondition();
-		GC_LessThanCondition less = new GC_LessThanCondition();
-		GC_LessOrEqualCondition lessEqual = new GC_LessOrEqualCondition();
-		GC_GreaterThanCondition greater = new GC_GreaterThanCondition();
-		GC_GreaterOrEqualCondition greaterEqual = new GC_GreaterOrEqualCondition();
-		array<ref GC_MissionCondition> comparisons = {equal, different, less, lessEqual, greater, greaterEqual};
+		GC_BooleanCondition validLeaf = new GC_BooleanCondition();
+		all.m_aConditions = {validLeaf};
+		all.m_iMatch = -1;
+		Check(!all.BuildCheck(), "negative group mode rejected");
+		all.m_iMatch = 4;
+		Check(!all.BuildCheck(), "unknown group mode rejected");
+
+		GC_ConditionCount equal = new GC_ConditionCount();
+		equal.m_iComparison = 2;
+		GC_ConditionCount less = new GC_ConditionCount();
+		less.m_iComparison = 1;
+		GC_ConditionCount greater = new GC_ConditionCount();
+		array<ref GC_MissionCondition> comparisons = {equal, less, greater};
 		array<ref GC_MissionCondition> counted = {};
 		equal.m_aConditions = counted;
-		different.m_aConditions = counted;
 		less.m_aConditions = counted;
-		lessEqual.m_aConditions = counted;
 		greater.m_aConditions = counted;
-		greaterEqual.m_aConditions = counted;
 		for (int passed; passed <= 3; passed++)
 		{
 			counted.Clear();
@@ -74,12 +81,9 @@ modded class GC_MissionRuleTests
 			for (int required; required <= 4; required++)
 			{
 				equal.m_iRequiredCount = required;
-				different.m_iRequiredCount = required;
 				less.m_iRequiredCount = required;
-				lessEqual.m_iRequiredCount = required;
 				greater.m_iRequiredCount = required;
-				greaterEqual.m_iRequiredCount = required;
-				array<bool> answers = {passed == required, passed != required, passed < required, passed <= required, passed > required, passed >= required};
+				array<bool> answers = {passed == required, passed < required, passed > required};
 				foreach (int index, GC_MissionCondition comparison : comparisons)
 				{
 					GC_RuleCondition built = comparison.BuildCheck();
@@ -97,16 +101,20 @@ modded class GC_MissionRuleTests
 		GC_BooleanCondition b = new GC_BooleanCondition();
 		GC_BooleanCondition c = new GC_BooleanCondition();
 		GC_BooleanCondition d = new GC_BooleanCondition();
-		GC_AllConditions left = new GC_AllConditions();
+		GC_ConditionGroup left = new GC_ConditionGroup();
+		left.m_iMatch = 0;
 		left.m_aConditions = {a, b};
-		GC_AllConditions right = new GC_AllConditions();
+		GC_ConditionGroup right = new GC_ConditionGroup();
+		right.m_iMatch = 0;
 		right.m_aConditions = {c, d};
-		GC_AnyCondition either = new GC_AnyCondition();
+		GC_ConditionGroup either = new GC_ConditionGroup();
+		either.m_iMatch = 1;
 		either.m_aConditions = {left, right};
-		GC_NoneConditions inverse = new GC_NoneConditions();
+		GC_ConditionGroup inverse = new GC_ConditionGroup();
+		inverse.m_iMatch = 2;
 		inverse.m_aConditions = {left};
-		greaterEqual.m_iRequiredCount = 2;
-		greaterEqual.m_aConditions = {left, right, inverse};
+		greater.m_iRequiredCount = 1;
+		greater.m_aConditions = {left, right, inverse};
 		for (int mask; mask < 16; mask++)
 		{
 			a.m_bValue = (mask & 1) != 0;
@@ -116,10 +124,10 @@ modded class GC_MissionRuleTests
 			Check(either.BuildCheck().Evaluate(null) == ((63624 & (1 << mask)) != 0), "OR of two AND groups");
 			Check(inverse.BuildCheck().Evaluate(null) == ((30583 & (1 << mask)) != 0), "None reverses an entire group");
 			// Left and its inverse contribute exactly one; right decides whether two pass.
-			Check(greaterEqual.BuildCheck().Evaluate(null) == ((61440 & (1 << mask)) != 0), "two of three nested groups count each group once");
+			Check(greater.BuildCheck().Evaluate(null) == ((61440 & (1 << mask)) != 0), "two of three nested groups count each group once");
 		}
 		GC_MissionRule missionEvent = SimpleRule("logic_passed");
-		missionEvent.m_aConditions = {greaterEqual};
+		missionEvent.m_aConditions = {greater};
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start({missionEvent.BuildRule()});
 		Check(engine.GetFlag("logic_passed"), "nested count reaches production action execution");
@@ -127,10 +135,15 @@ modded class GC_MissionRuleTests
 		engine.Start({missionEvent.BuildRule()});
 		Check(!engine.GetFlag("logic_passed"), "false nested count blocks production action execution");
 		engine.Stop();
-		greaterEqual.m_iRequiredCount = -1;
-		Check(!greaterEqual.BuildCheck(), "negative required count rejected");
-		greaterEqual.m_iRequiredCount = 257;
-		Check(!greaterEqual.BuildCheck(), "oversized required count rejected");
+		greater.m_iRequiredCount = -1;
+		Check(!greater.BuildCheck(), "negative required count rejected");
+		greater.m_iRequiredCount = 257;
+		Check(!greater.BuildCheck(), "oversized required count rejected");
+		greater.m_iRequiredCount = 1;
+		greater.m_iComparison = -1;
+		Check(!greater.BuildCheck(), "negative comparison rejected");
+		greater.m_iComparison = 3;
+		Check(!greater.BuildCheck(), "unknown comparison rejected");
 		for (int removed = 8; removed <= 9; removed++)
 		{
 			GC_RuleCondition obsolete = new GC_RuleCondition();

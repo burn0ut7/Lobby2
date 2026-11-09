@@ -316,12 +316,15 @@ class GC_MissionRuleTests
 		yes.m_bValue = true;
 		GC_BooleanCondition no = new GC_BooleanCondition();
 		no.m_bValue = false;
-		GC_AnyCondition any = new GC_AnyCondition();
+		GC_ConditionGroup any = new GC_ConditionGroup();
+		any.m_iMatch = 1;
 		any.m_aConditions = {no, yes};
-		GC_AllConditions all = new GC_AllConditions();
+		GC_ConditionGroup all = new GC_ConditionGroup();
+		all.m_iMatch = 0;
 		all.m_aConditions = {any, yes};
 		Check(all.BuildCheck().Evaluate(null), "nested All and Any objects work");
-		GC_NoneConditions invert = new GC_NoneConditions();
+		GC_ConditionGroup invert = new GC_ConditionGroup();
+		invert.m_iMatch = 2;
 		invert.m_aConditions = {no};
 		Check(invert.BuildCheck().Evaluate(null), "None reverses a false condition");
 		invert.m_aConditions = {any};
@@ -433,7 +436,7 @@ class GC_MissionRuleTests
 				return "FAIL: authored rule could not deserialize";
 			rules.Insert(rule);
 		}
-		Check(rules[0].m_If && rules[0].m_If.m_aChecks.Count() == 1 && rules[0].m_If.m_aChecks[0].m_aChecks.Count() == 3 && rules[0].m_If.m_aChecks[0].m_iHowMany == 2, "serialized two-out-of-three nested conditions are present");
+		Check(rules[0].m_If && rules[0].m_If.m_aChecks.Count() == 1 && rules[0].m_If.m_aChecks[0].m_aChecks.Count() == 3 && rules[0].m_If.m_aChecks[0].m_iHowMany == 1, "serialized two-out-of-three nested conditions are present");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start(rules);
 		Check(engine.GetInvalidRuleCount() == 0, "no-flags example deserializes");

@@ -6,10 +6,10 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
     GC_MissionRule "{7B115D5DFF7EDA20}" {
      m_sName "Random test after a short wait"
      m_aConditions {
-      GC_GreaterOrEqualCondition "{7B115D5DFF7EDA40}" {
-       m_iRequiredCount 2
+      GC_ConditionCount "{7B115D5DFF7EDA40}" {
+       m_iRequiredCount 1
        m_aConditions {
-        GC_AllConditions "{7B115D5DFF7EDA41}" {
+        GC_ConditionGroup "{7B115D5DFF7EDA41}" {
          m_aConditions {
           GC_BooleanCondition "{7B115D5DFF7EDA44}" {
            m_bValue 1
@@ -19,7 +19,8 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
           }
          }
         }
-        GC_NoneConditions "{7B115D5DFF7EDA42}" {
+        GC_ConditionGroup "{7B115D5DFF7EDA42}" {
+         m_iMatch 2
          m_aConditions {
           GC_BooleanCondition "{7B115D5DFF7EDA43}" {
           }

@@ -35,10 +35,14 @@ class GC_MissionCondition
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("All are true (AND)")]
-class GC_AllConditions : GC_MissionCondition
+//! Combine child answers without a numeric threshold.
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Condition Group")]
+class GC_ConditionGroup : GC_MissionCondition
 {
-	[Attribute("", UIWidgets.Object, "Every condition must be true. Add at least one condition. Conditions can contain other groups.")]
+	[Attribute("0", UIWidgets.ComboBox, "All: every condition is true. Any: at least one is true. None: every condition is false. Not all: at least one is false.", enums: {ParamEnum("All are true (AND)", "0"), ParamEnum("Any are true (OR)", "1"), ParamEnum("None are true (NOR)", "2"), ParamEnum("Not all are true (NAND)", "3")})]
+	int m_iMatch;
+
+	[Attribute("", UIWidgets.Object, "Conditions to combine. Each entry can contain another group or a Condition Count. Add at least one condition. None with one child reverses that child's answer.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
 
 	//------------------------------------------------------------------------------------------------
@@ -46,52 +50,26 @@ class GC_AllConditions : GC_MissionCondition
 	{
 		if (!m_aConditions || m_aConditions.IsEmpty())
 			return null;
-		return BuildGroup(m_aConditions, GC_ERuleCheck.ALL, 0, depth);
-	}
-}
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("At least one is true (OR)")]
-class GC_AnyCondition : GC_MissionCondition
-{
-	[Attribute("", UIWidgets.Object, "At least one condition must be true. Add at least one condition. Conditions can contain other groups.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (!m_aConditions || m_aConditions.IsEmpty())
-			return null;
-		return BuildGroup(m_aConditions, GC_ERuleCheck.ANY, 0, depth);
-	}
-}
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("None are true (NOR)")]
-class GC_NoneConditions : GC_MissionCondition
-{
-	[Attribute("", UIWidgets.Object, "Every condition must be false. With one condition, this reverses its answer. Add at least one condition. Conditions can contain other groups.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (!m_aConditions || m_aConditions.IsEmpty())
-			return null;
-		return BuildGroup(m_aConditions, GC_ERuleCheck.NONE, 0, depth);
-	}
-}
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("At least one is false (NAND)")]
-class GC_NotAllConditions : GC_MissionCondition
-{
-	[Attribute("", UIWidgets.Object, "This passes unless every condition is true. Add at least one condition. Conditions can contain other groups.")]
-	ref array<ref GC_MissionCondition> m_aConditions;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (!m_aConditions || m_aConditions.IsEmpty())
-			return null;
-		return BuildGroup(m_aConditions, GC_ERuleCheck.NOT_ALL, 0, depth);
+		GC_ERuleCheck operation;
+		switch (m_iMatch)
+		{
+			case 0:
+				operation = GC_ERuleCheck.ALL;
+				break;
+			case 1:
+				operation = GC_ERuleCheck.ANY;
+				break;
+			case 2:
+				operation = GC_ERuleCheck.NONE;
+				break;
+			case 3:
+				operation = GC_ERuleCheck.NOT_ALL;
+				break;
+			default:
+				return null;
+		}
+		return BuildGroup(m_aConditions, operation, 0, depth);
 	}
 }
 
