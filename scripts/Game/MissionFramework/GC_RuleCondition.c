@@ -65,6 +65,9 @@ class GC_RuleCondition
 	int m_iAreaRequired;
 	string m_sAreaName;
 	bool m_bAreaOutside;
+	bool m_bAreaAnywhere;
+	bool m_bAreaProportion;
+	float m_fAreaProportion;
 
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
@@ -179,7 +182,11 @@ class GC_RuleCondition
 	//------------------------------------------------------------------------------------------------
 	protected bool ValidateAreaTargets()
 	{
-		if (m_sAreaName.IsEmpty() || m_iAreaTargets < 0 || m_iAreaTargets > 1 || m_iAreaComparison < 0 || m_iAreaComparison > 3 || m_iAreaRequired < 0 || m_iAreaRequired > 4096)
+		if ((!m_bAreaAnywhere && m_sAreaName.IsEmpty()) || m_iAreaTargets < 0 || m_iAreaTargets > 1 || m_iAreaComparison < 0 || m_iAreaComparison > 3 || m_iAreaRequired < 0 || m_iAreaRequired > 4096)
+			return false;
+		if (m_bAreaAnywhere && (m_iAreaTargets != 1 || !m_sAreaName.IsEmpty() || m_bAreaOutside))
+			return false;
+		if (m_bAreaProportion && (m_iAreaTargets != 1 || m_bAreaAnywhere || !(m_fAreaProportion >= 0 && m_fAreaProportion <= 1)))
 			return false;
 		array<string> keys = m_aAreaNames;
 		if (m_iAreaTargets == 1)
@@ -376,7 +383,7 @@ class GC_RuleCondition
 				flags.Find(m_sFlagName, answer);
 		}
 		else if (m_iCheck == 10)
-			answer = areas.GetObservation(this).Passes(m_bAreaOutside, m_iAreaComparison, m_iAreaRequired);
+			answer = areas.GetObservation(this).PassesCondition(this);
 		else if (m_iCheck == 9)
 			answer = damage.Get(this).Passes(m_iDamageCheck, m_fDamageNeeded);
 		else if (m_iCheck == 8)

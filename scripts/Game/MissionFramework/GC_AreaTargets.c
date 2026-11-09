@@ -31,7 +31,7 @@ class GC_NamedAreaTargets : GC_AreaTargetsBase
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Players / AI")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Players / AI (legacy - use Living Characters)")]
 class GC_CharacterAreaTargets : GC_AreaTargetsBase
 {
 	[Attribute("0", UIWidgets.ComboBox, "Living characters only. Players means characters currently controlled by connected players. AI means registered AI characters, excluding playable slots. Both includes both groups once. Spectators, dead characters and empty playable slots never count. Respawns and new registered AI are included on the next check.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
@@ -43,31 +43,24 @@ class GC_CharacterAreaTargets : GC_AreaTargetsBase
 	//------------------------------------------------------------------------------------------------
 	override bool BuildTargets(GC_RuleCondition check)
 	{
-		check.m_iAreaTargets = 1;
-		check.m_iAreaWho = m_iWho;
-		check.m_aAreaFactions = {};
-		if (m_aFactions)
-		{
-			if (m_aFactions.Count() > 256)
-				return false;
-			foreach (string faction : m_aFactions)
-			{
-				if (faction.IsEmpty())
-					return false;
-				if (!check.m_aAreaFactions.Contains(faction))
-					check.m_aAreaFactions.Insert(faction);
-			}
-		}
-		return true;
+		return GC_LivingCharactersCondition.BuildPopulation(check, m_iWho, m_aFactions);
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Target Count")]
-class GC_AreaCount
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Count")]
+class GC_AreaCount : GC_LivingRequirementBase
 {
 	[Attribute("0", UIWidgets.ComboBox, "Compare the number of targets on the selected side. Greater than 0 means at least one. Greater than 4 means five or more. Equal 0 means none. An empty Players / AI group has count zero; missing named targets make the whole condition unavailable.", enums: {ParamEnum("Greater than", "0"), ParamEnum("Less than", "1"), ParamEnum("Equal", "2"), ParamEnum("Not equal", "3")})]
 	int m_iComparison;
 
 	[Attribute("0", UIWidgets.SpinBox, "Number of targets to compare against. Inside counts targets inside; Outside counts targets outside. Outside does not mean all targets are outside.", "0 4096 1")]
 	int m_iRequiredCount;
+
+	//------------------------------------------------------------------------------------------------
+	override bool BuildRequirement(GC_RuleCondition check)
+	{
+		check.m_iAreaComparison = m_iComparison;
+		check.m_iAreaRequired = m_iRequiredCount;
+		return true;
+	}
 }

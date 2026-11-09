@@ -160,7 +160,7 @@ class GC_MissionAreaObservation
 	//------------------------------------------------------------------------------------------------
 	bool Matches(GC_RuleCondition other)
 	{
-		if (m_Definition.m_sAreaName != other.m_sAreaName || m_Definition.m_iAreaTargets != other.m_iAreaTargets)
+		if (m_Definition.m_bAreaAnywhere != other.m_bAreaAnywhere || m_Definition.m_sAreaName != other.m_sAreaName || m_Definition.m_iAreaTargets != other.m_iAreaTargets)
 			return false;
 		array<string> first = m_Definition.m_aAreaNames;
 		array<string> second = other.m_aAreaNames;
@@ -193,7 +193,7 @@ class GC_MissionAreaObservation
 	//------------------------------------------------------------------------------------------------
 	void Sample(GC_AreaPopulation population)
 	{
-		bool available = m_Area.IsAvailable();
+		bool available = m_Definition.m_bAreaAnywhere || (m_Area && m_Area.IsAvailable());
 		int total;
 		int inside;
 		if (m_Definition.m_iAreaTargets == 0)
@@ -222,7 +222,7 @@ class GC_MissionAreaObservation
 				if (factions && !factions.IsEmpty() && !factions.Contains(character.m_sFaction))
 					continue;
 				total++;
-				if (m_Area.ContainsEntity(character.m_Entity, character.m_vPosition))
+				if (m_Definition.m_bAreaAnywhere || m_Area.ContainsEntity(character.m_Entity, character.m_vPosition))
 					inside++;
 			}
 		}
@@ -236,7 +236,7 @@ class GC_MissionAreaObservation
 	//------------------------------------------------------------------------------------------------
 	bool IsAvailable()
 	{
-		if (!m_bAvailable || !m_Area.IsAvailable())
+		if (!m_bAvailable || (!m_Definition.m_bAreaAnywhere && (!m_Area || !m_Area.IsAvailable())))
 			return false;
 		foreach (GC_AreaEntityReference target : m_aTargets)
 		{
@@ -244,6 +244,32 @@ class GC_MissionAreaObservation
 				return false;
 		}
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool PassesCondition(GC_RuleCondition check)
+	{
+		if (!IsAvailable())
+			return false;
+		if (check.m_bAreaProportion)
+		{
+			int count = m_iInside;
+			if (check.m_bAreaOutside)
+				count = m_iTotal - m_iInside;
+			return PassesProportion(count, m_iTotal, check.m_fAreaProportion);
+		}
+		return Passes(check.m_bAreaOutside, check.m_iAreaComparison, check.m_iAreaRequired);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Divide as floats so a matching threshold uses the same representation as the ratio.
+	static bool PassesProportion(int count, int total, float required)
+	{
+		if (total <= 0 || count < 0 || count > total || !(required >= 0 && required <= 1))
+			return false;
+		float fraction = count;
+		fraction /= total;
+		return fraction >= required;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -311,7 +337,7 @@ class GC_MissionAreaTracker
 		if (m_aPairs.Count() >= 256)
 			return false;
 		GC_MissionAreaGeometry area;
-		if (!m_mAreas.Find(check.m_sAreaName, area))
+		if (!check.m_bAreaAnywhere && !m_mAreas.Find(check.m_sAreaName, area))
 		{
 			area = new GC_MissionAreaGeometry();
 			area.m_Reference = GetReference(check.m_sAreaName);
@@ -363,7 +389,7 @@ class GC_MissionAreaTracker
 			if (!initial && !observation.m_bChanged)
 				continue;
 			bool available = observation.IsAvailable();
-			bool answer = observation.Passes(check.m_bAreaOutside, check.m_iAreaComparison, check.m_iAreaRequired);
+			bool answer = observation.PassesCondition(check);
 			if (initial || !m_mAvailability.Contains(check) || m_mAvailability.Get(check) != available || m_mAnswers.Get(check) != answer)
 				changed.Insert(check);
 			m_mAvailability.Set(check, available);

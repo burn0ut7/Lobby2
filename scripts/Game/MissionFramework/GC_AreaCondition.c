@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Area Condition")]
 class GC_AreaCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.Object, "Choose Named Entities for specific world objects, or Players / AI for living characters. Only the selected target type has settings. Spectators never count as Players / AI.")]
+	[Attribute("", UIWidgets.Object, "Choose Named Entities for specific world objects. To check living players or AI, add the Living Characters condition directly to the mission event instead.")]
 	ref GC_AreaTargetsBase m_Targets;
 
 	[Attribute("", UIWidgets.EditBox, "Exact unique name of a Radius Area or closed polygon in the world. Radius Area uses a 3D distance in metres. A polygon checks its horizontal outline and ignores height, like the AO limit. Configure the shape on that area, not here.")]
