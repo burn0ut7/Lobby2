@@ -57,7 +57,12 @@ class GC_RuleCondition
 	string m_sDamageArea;
 	int m_iDamageCheck;
 	float m_fDamageNeeded;
-	string m_sAreaTarget;
+	int m_iAreaTargets;
+	ref array<string> m_aAreaNames;
+	int m_iAreaWho;
+	ref array<string> m_aAreaFactions;
+	int m_iAreaComparison;
+	int m_iAreaRequired;
 	string m_sAreaName;
 	bool m_bAreaOutside;
 
@@ -68,7 +73,7 @@ class GC_RuleCondition
 		if (depth > 16 || m_iCheck < 0 || m_iCheck > 10)
 			return false;
 		if (m_iCheck == 10)
-			return !m_sAreaTarget.IsEmpty() && !m_sAreaName.IsEmpty();
+			return ValidateAreaTargets();
 		if (m_iCheck == 9)
 			return !m_sDamageEntity.IsEmpty() && m_iDamageCheck >= 0 && m_iDamageCheck <= 2 && (m_iDamageCheck != 2 || (m_fDamageNeeded >= 0 && m_fDamageNeeded <= 1));
 		if (m_iCheck == 7 || m_iCheck == 8)
@@ -169,6 +174,33 @@ class GC_RuleCondition
 			}
 		}
 		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ValidateAreaTargets()
+	{
+		if (m_sAreaName.IsEmpty() || m_iAreaTargets < 0 || m_iAreaTargets > 1 || m_iAreaComparison < 0 || m_iAreaComparison > 3 || m_iAreaRequired < 0 || m_iAreaRequired > 4096)
+			return false;
+		array<string> keys = m_aAreaNames;
+		if (m_iAreaTargets == 1)
+		{
+			if (m_iAreaWho < 0 || m_iAreaWho > 2)
+				return false;
+			keys = m_aAreaFactions;
+		}
+		else if (!keys || keys.IsEmpty())
+			return false;
+		if (keys)
+		{
+			if (keys.Count() > 256)
+				return false;
+			foreach (string key : keys)
+			{
+				if (key.IsEmpty())
+					return false;
+			}
+		}
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -344,7 +376,7 @@ class GC_RuleCondition
 				flags.Find(m_sFlagName, answer);
 		}
 		else if (m_iCheck == 10)
-			answer = areas.GetObservation(this).Passes(m_bAreaOutside);
+			answer = areas.GetObservation(this).Passes(m_bAreaOutside, m_iAreaComparison, m_iAreaRequired);
 		else if (m_iCheck == 9)
 			answer = damage.Get(this).Passes(m_iDamageCheck, m_fDamageNeeded);
 		else if (m_iCheck == 8)

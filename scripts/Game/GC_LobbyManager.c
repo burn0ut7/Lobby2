@@ -200,7 +200,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GC_CasualtySnapshot casualties;
 		if (m_MissionCasualties)
 			casualties = m_MissionCasualties.GetSnapshot();
-		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase(), eventNames, casualties, GetGame().GetWorld());
+		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase(), eventNames, casualties, GetGame().GetWorld(), this);
 		if (m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
 	}

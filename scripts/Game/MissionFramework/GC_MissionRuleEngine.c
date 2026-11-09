@@ -68,7 +68,7 @@ class GC_MissionRuleEngine
 	protected bool m_bEventLimitReached;
 
 	//------------------------------------------------------------------------------------------------
-	void Start(array<ref GC_CompiledMissionRule> rules, array<ref GC_MissionFlag> flags = null, SCR_EGameModeState initialState = -1, array<string> authoredEventNames = null, GC_CasualtySnapshot casualties = null, BaseWorld damageWorld = null)
+	void Start(array<ref GC_CompiledMissionRule> rules, array<ref GC_MissionFlag> flags = null, SCR_EGameModeState initialState = -1, array<string> authoredEventNames = null, GC_CasualtySnapshot casualties = null, BaseWorld damageWorld = null, GC_LobbyManager areaManager = null)
 	{
 		Stop();
 		m_Casualties = casualties;
@@ -143,7 +143,7 @@ class GC_MissionRuleEngine
 		RegisterRandomConditions();
 		m_DamageWorld = damageWorld;
 		RegisterEntityDamageConditions();
-		RegisterAreaConditions(damageWorld);
+		RegisterAreaConditions(damageWorld, areaManager);
 		m_bRunning = true;
 		if (GC_LobbyPhase.IsValid(initialState))
 			SetGameModeState(initialState);
@@ -526,7 +526,7 @@ class GC_MissionRuleEngine
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void RegisterAreaConditions(BaseWorld world)
+	protected void RegisterAreaConditions(BaseWorld world, GC_LobbyManager manager)
 	{
 		array<GC_RuleCondition> conditions = {};
 		foreach (GC_MissionRuleState state : m_aStates)
@@ -541,7 +541,7 @@ class GC_MissionRuleEngine
 		}
 		if (conditions.IsEmpty())
 			return;
-		m_Areas = new GC_MissionAreaTracker(world);
+		m_Areas = new GC_MissionAreaTracker(world, manager);
 		bool overflow;
 		foreach (GC_RuleCondition condition : conditions)
 		{
@@ -549,7 +549,7 @@ class GC_MissionRuleEngine
 				overflow = true;
 		}
 		if (overflow)
-			Print("GC | Mission Framework | More than 256 unique target/area pairs. Extra area conditions cannot pass.", LogLevel.ERROR);
+			Print("GC | Mission Framework | More than 256 unique target-selection/area combinations. Extra area conditions cannot pass.", LogLevel.ERROR);
 		SampleAreas(true);
 	}
 
