@@ -17,6 +17,12 @@ class GC_RuleOptions
 class GC_EventDefinition
 {
 	//------------------------------------------------------------------------------------------------
+	//! Keep names even when an authored definition cannot compile.
+	void CollectEventNames(array<string> names)
+	{
+	}
+
+	//------------------------------------------------------------------------------------------------
 	GC_CompiledMissionRule BuildRule()
 	{
 		return null;
@@ -46,7 +52,8 @@ class GC_EventDefinition
 			if (!rule.m_If)
 				return null;
 			rule.m_bObserveFlags = rule.m_If.UsesFlag();
-			if (rule.m_If.UsesGameModeState() || rule.m_bObserveFlags)
+			rule.m_bObserveEvents = rule.m_If.UsesEvent();
+			if (rule.m_If.UsesGameModeState() || rule.m_bObserveFlags || rule.m_bObserveEvents)
 				rule.m_eWhen = GC_ERuleEvent.GAME_MODE_STATE;
 		}
 		return rule;
@@ -64,6 +71,13 @@ class GC_Event : GC_EventDefinition
 	ref array<ref GC_MissionAction> m_aActions;
 	[Attribute("", UIWidgets.Object, "Optional repeat, delay, random chance and disable settings. Unset means once, no delay, 100% chance.")]
 	ref GC_RuleOptions m_Advanced;
+
+	//------------------------------------------------------------------------------------------------
+	override void CollectEventNames(array<string> names)
+	{
+		if (!m_sName.IsEmpty())
+			names.Insert(m_sName);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	override GC_CompiledMissionRule BuildRule()
@@ -99,6 +113,20 @@ class GC_RandomEventGroup : GC_EventDefinition
 	ref array<ref GC_Event> m_aEvents;
 	[Attribute("", UIWidgets.Object, "Optional repeat, delay, chance and disable settings for the whole selection. Child events keep their own Advanced settings.")]
 	ref GC_RuleOptions m_Advanced;
+
+	//------------------------------------------------------------------------------------------------
+	override void CollectEventNames(array<string> names)
+	{
+		if (!m_sName.IsEmpty())
+			names.Insert(m_sName);
+		if (!m_aEvents)
+			return;
+		foreach (GC_Event child : m_aEvents)
+		{
+			if (child)
+				child.CollectEventNames(names);
+		}
+	}
 
 	//------------------------------------------------------------------------------------------------
 	override GC_CompiledMissionRule BuildRule()

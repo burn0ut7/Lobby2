@@ -29,20 +29,37 @@ Mission events and flags can use two condition objects, nested inside the usual 
 
 | Condition | Meaning |
 | --- | --- |
-| Flag State | Check whether a named flag is On or Off. |
+| Mission Flag Condition | Check whether a named flag is On or Off. |
 | Condition Count | Count passing conditions or a named flag's accepted calls, then compare using Greater than, Less than, Equal or Not equal. |
 
 **Condition Count** handles both uses. Choose **Count From** to select what is counted. There is no separate Flag Call Count condition.
 
-When a flag changes, events and flags that reference it are checked. A flag's conditions can therefore form a chain: `second` with Flag State `first` Is On activates when `first` is called. A flag checking only its own count does not call itself; that condition limits incoming calls. A Game Mode State condition on a flag also lets a matching startup/state change call it. No conditions means no automatic trigger: call the flag with an action.
+When a flag changes, events and flags that reference it are checked. A flag's conditions can therefore form a chain: `second` with Mission Flag Condition `first` Is true activates when `first` is called. A flag checking only its own count does not call itself; that condition limits incoming calls. A Game Mode State condition on a flag also lets a matching startup/state change call it. No conditions means no automatic trigger: call the flag with an action.
 
 Each flag can activate at most once in one check cycle, and each eligible dependent mission event gets one attempt in that cycle. This prevents circular chains from repeatedly firing. A later external call starts a fresh cycle. Repeatable flags remain On throughout the chain, then reset together; that reset does not trigger another cycle. Mission events still respect their own Once/Every time, chance and delay settings. Use **Every time** on an event that should react to successive calls.
 
-For delayed actions, conditions are rechecked when the wait ends. A repeatable flag will already be Off then, so a delayed **Flag State / Is On** condition will fail. Use **Condition Count > Mission flag calls** when the requirement must survive the brief pulse.
+For delayed actions, conditions are rechecked when the wait ends. A repeatable flag will already be Off then, so a delayed **Mission Flag Condition / Is true** condition will fail. Use **Condition Count > Mission flag calls** when the requirement must survive the brief pulse.
 
 Starting Value supplies initial memory without adding a count or sending a notification. A non-repeatable flag starting On is already latched. All counts start at zero and reset on fresh framework startup. Flag names are case-sensitive. Unknown names read as Off/count zero, but Call Flag requires a declared Mission Flag. Invalid/duplicate definitions prevent startup.
 
 For compatibility, **Set flag / On** calls declared flags through the same conditions/count/repeat policy. **Off** clears the state without resetting the count or rearming a used non-repeatable flag. Undeclared Set flag names retain the earlier simple On/Off behavior. Random flag actions use that same Set flag policy. Prefer Call Flag for the new workflow.
+
+## Referencing mission flags and mission events
+
+**Mission Flag Condition** has Flag Name and Match (**Is true** / **Is false**). It reads the flag's current result. The conditions held inside the flag control its activation; referencing it does not evaluate those conditions again or call the flag. This replaces the former Flag State name, with the same true/false behavior. Counts stay in Condition Count.
+
+**Mission Event Condition** has Event Name and the same Match choices. It reads whether the named event ran, without evaluating that event's conditions again or executing its actions:
+
+- **Advanced > Run > Once**: starts false and remembers true after running.
+- **Advanced > Run > Every time**: becomes true for the resulting check cycle, then silently resets to false. A later run sends another notification.
+
+Events are checked at initial setup and relevant state/flag/event notifications, not by continuously polling every condition. Event-only references do not recheck on unrelated phase changes; add Game Mode State when a phase change should also matter. An Is false reference can pass at initial setup, before the named event has run. Referenced events still run through their normal framework conditions, chance and delay. Scheduling a delayed event does not mark it true; executing it does. If actions queue flag calls, those calls are processed in the same notification cycle.
+
+Event names must be exact and unique across regular events, random groups and their children. Missing, duplicate or invalid event names fail closed, even under Is false or a None group. An event with a disabled setting stays false until it runs (normally never). Empty conditions still mean true conditions, but do not make an event's execution result true before it runs.
+
+A random group's result becomes true when it selects children. A selected child's result becomes true only if its own actions run; chance failure and pending delay do not count as a child run. A group with no eligible children does not publish a result.
+
+These references nest inside Condition Group and Condition Count. Flags may also contain Mission Event Condition to activate in response to an event. A dependent event gets at most one eligible attempt per notification chain, avoiding repeatable feedback loops. Pulse resets do not send a second false notification. A delayed condition that requires a repeatable event to remain true will fail after that pulse resets; use a once-only source or a non-repeatable flag when the result must persist. Stopping clears pulses, and fresh startup clears all event results.
 
 ## Game Mode State
 
@@ -53,7 +70,7 @@ Choose **Mission preview**, **Role selection**, **Briefing**, **Match**, or **Af
 
 The framework checks the initial state after the world loads, then listens through GC_LobbyManager's existing OnGameStateChanged callback. Duplicate notifications and ordinary ticks do not trigger another check. A late startup observes the current state; it does not invent a transition. The initial state can satisfy an Is not in condition too.
 
-State conditions can appear anywhere inside Condition Group or Condition Count. A rule containing a state or flag condition is checked on startup and every distinct state change; flag-dependent rules also check when a referenced flag changes. All top-level conditions must pass. A rule with no state or flag conditions keeps the simple default: check once when Match begins.
+State conditions can appear anywhere inside Condition Group or Condition Count. A rule containing a state, flag or event-reference condition is checked at initial setup. Subsequently, event-reference rules check on referenced event notifications, and on phase changes only when they also contain Game Mode State. Flag-dependent rules check on referenced flag changes; existing flag-only rules also retain phase-change checks. Rules with Game Mode State check distinct phase changes. All top-level conditions must pass. A rule with no state, flag or event-reference conditions keeps the simple default: check once when Match begins.
 
 Actions waiting on a delay are rechecked when due. A state change that makes their conditions false cancels the pending run. If the conditions remain true, the original wait continues. Explicit After action conditions and their delays may run after the match; shutdown cancels everything. Conditions with no valid state context fail closed, even inside None.
 
@@ -68,7 +85,7 @@ Actions waiting on a delay are rechecked when due. A state change that makes the
 
 ## Conditions: standard logic objects
 
-Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Flag State**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
+Conditions are an **object list**. Use **+** to choose **Game Mode State**, **Mission Flag Condition**, **Mission Event Condition**, **Condition Group**, or **Condition Count**. Group and Count contain their own Conditions list, so they can be nested inside each other. A group has no number field; a count has a numeric threshold.
 
 **Condition Group > Match** offers four choices:
 
@@ -100,11 +117,11 @@ For **at least two out of three**, use **Greater than**, set Required Count to *
 
 For example, **Greater than 1** can contain **All [A, B]**, **None [C]**, and **D**. It passes when two or three of those branches pass. The optional script tests exercise this nested layout. Another valid layout is **Any [All [A, B], All [C, D]]**.
 
-With Count From set to **Conditions that are true**, these comparisons count satisfied conditions, not people or entities. With **Mission flag calls**, they count accepted calls remembered by the named flag. Future area, faction-survival and prefab checks will decide their own true-or-false answers before the enclosing group counts them. Mission events are not condition inputs yet. The fixed **True or false value** placeholder has been removed. Script-only test inputs live in the optional test addon and are not authored as mission conditions. Game Mode State is the first live check. Empty explicit groups still fail closed.
+With Count From set to **Conditions that are true**, these comparisons count satisfied conditions, not people or entities. With **Mission flag calls**, they count accepted calls remembered by the named flag. Future area, faction-survival and prefab checks will decide their own true-or-false answers before the enclosing group counts them. Mission Event Condition can reference a named event's execution result. The fixed **True or false value** placeholder has been removed. Script-only test inputs live in the optional test addon and are not authored as mission conditions. Game Mode State is the first live check. Empty explicit groups still fail closed.
 
 Every condition directly under a mission event must pass, so ordinary lists do not need an extra All group. **No conditions means always true:** an empty event Conditions list has no requirements to meet. Top-level events and random groups with no conditions run at match start; a child with no conditions is eligible whenever its group makes a selection. Chance, delay, disabled and run-once settings still apply. An explicit group needs at least one child. Empty groups, missing children and invalid required counts disable the event rather than becoming true under a negative operator. Nesting is limited to 16 levels and lists to 256 children.
 
-Flag State is one condition object with Is On/Is Off choices. Area, faction, prefab and timer conditions remain future slices; timing and randomness have not moved into conditions yet.
+Mission Flag Condition is one condition object with Is true/Is false choices. Area, faction, prefab and timer conditions remain future slices; timing and randomness have not moved into conditions yet.
 
 The shared serialized base is marked non-insertable using the engine convention. Some Workbench class pickers may still expose **GC_MissionCondition**, the incomplete shared base. Choose a concrete operation instead. Incomplete base entries fail closed.
 
@@ -141,7 +158,7 @@ Only the authoritative active Lobby2 game mode starts the framework, after world
 
 ## Updating earlier prototypes
 
-This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. The preceding GC_MissionCondition + m_iType format also changed: recreate groups using Condition Group and its Match setting. Old separate On/Off flag checks can be recreated using Flag State and its Is On/Is Off choice. Count comparisons now count satisfied child conditions. The known project example and open Arland condition were migrated. Keep a backup. Do not combine removed prototype scripts with this version.
+This cleanup changes the saved authoring schema. It is **not** a drop-in deserializer for unchanged older resources. The supplied project example and the user's open example layer were migrated. External resources using GC_SimpleMissionRule, GC_RuleDefinition, old GC_MissionRule fields, specialized event classes, or old condition classes need conversion/recreation before use. The preceding GC_MissionCondition + m_iType format also changed: recreate groups using Condition Group and its Match setting. Old separate On/Off flag checks can be recreated using Mission Flag Condition and its Is true/Is false choice. Count comparisons now count satisfied child conditions. The known project example and open Arland condition were migrated. Keep a backup. Do not combine removed prototype scripts with this version.
 
 The old interpreter behavior remains covered by regression tests. A historical fixture is loaded through an isolated test-only adapter; this proves its behavior, not unchanged production resource compatibility. The original MissionFramework_v0_1.zip was unavailable, so exact archive compatibility is not claimed.
 
@@ -172,7 +189,7 @@ Replace separate comparison classes with Condition Count. For integer counts, >=
 
 The shipped no-flags example now uses a Match state condition and a fixed wait, using a once-only random group without Boolean placeholders. The user's empty Greater than object was renamed without changing its meaning. External resources need the same conversions before use. Removed XOR/XNOR classes require deliberate replacement; internal values 8 and 9 are rejected rather than reused. Internal legacy count modes remain for historical interpreter behavior, not as editor choices.
 
-The former separate Flag On/Off classes remain removed. Recreate them with the single Flag State condition and the matching choice.
+The former separate Flag On/Off classes remain removed. Recreate them with the single Mission Flag Condition condition and the matching choice.
 
 The GC_BooleanCondition authoring class has been removed. External resources using it need deliberate removal or replacement with appropriate real checks when available; do not delete a false restriction without considering how that changes the event. No saved world in the inspected project referenced this class at removal.
 
@@ -209,3 +226,9 @@ Condition Count now offers Not equal (saved comparison value 3), implemented as 
 ### Combined Condition Count
 
 The separate GC_FlagCallCountCondition authoring class is removed. Convert saved entries to GC_ConditionCount with m_iCountFrom = 1, keep m_sFlagName and m_iComparison, and rename m_iCount to m_iRequiredCount. Preserve the former omitted defaults explicitly: comparison 1 (Less than), required count 5. The shipped FlagMemoryExample is migrated. Existing child-condition counts keep m_iCountFrom = 0 by default. Both sources support all four comparisons. Counts of true conditions retain their 0-256 threshold limit; flag-call thresholds allow 0-1000000. Settings for the unselected source are ignored. This consolidation received script compilation and source review only, as requested.
+
+### Named-reference migration
+
+Rename saved GC_FlagStateCondition entries to GC_MissionFlagCondition; m_sFlagName and m_iMatch retain their values (0 true, 1 false). The project fixture and source callers are migrated. The new GC_MissionEventCondition uses m_sEventName and m_iMatch. This slice received production script compilation and source review only; no in-game tests or project restarts were performed.
+
+Design boundary: each mission event and flag owns its conditions, repeat behavior, delay and activation rules. Outside references read published results only. They never invoke the referenced object or re-evaluate its internal conditions. Duplicate-name detection includes authored entries that fail to compile, so incomplete duplicates cannot become ambiguous valid references.

@@ -185,14 +185,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_aMissionEvents = {};
 		m_MissionRuleEngine = new GC_MissionRuleEngine();
 		array<ref GC_CompiledMissionRule> runtimeRules = {};
+		array<string> eventNames = {};
 		foreach (GC_EventDefinition definition : m_aMissionEvents)
 		{
 			GC_CompiledMissionRule rule = null;
+			if (definition)
+				definition.CollectEventNames(eventNames);
 			if (definition && m_aMissionEvents.Count() <= 256)
 				rule = definition.BuildRule();
 			runtimeRules.Insert(rule);
 		}
-		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase());
+		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags, GetLobbyPhase(), eventNames);
 		if (m_aMissionEvents && !m_aMissionEvents.IsEmpty() && m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
 	}

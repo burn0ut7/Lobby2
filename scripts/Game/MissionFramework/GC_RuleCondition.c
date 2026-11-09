@@ -44,13 +44,16 @@ class GC_RuleCondition
 	SCR_EGameModeState m_eGameModeState;
 	int m_iFlagComparison;
 	int m_iFlagCount;
+	string m_sEventName;
 
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 4)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 5)
 			return false;
+		if (m_iCheck == 5)
+			return !m_sEventName.IsEmpty();
 		if (m_iCheck == 4)
 			return !m_sFlagName.IsEmpty() && m_iFlagComparison >= 0 && m_iFlagComparison <= 2 && m_iFlagCount >= 0 && m_iFlagCount <= 1000000;
 		if (m_iCheck == 3)
@@ -110,15 +113,51 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null)
+	bool UsesEvent(string name = "", int depth = 0)
 	{
-		if (!IsValid() || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
+		if (depth > 16)
 			return false;
-		return EvaluateValid(flags, gameModeState, counts);
+		if (m_iCheck == 5)
+			return name.IsEmpty() || m_sEventName == name;
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child && child.UsesEvent(name, depth + 1))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts)
+	protected bool HasEventContext(map<string, bool> events, int depth = 0)
+	{
+		if (depth > 16)
+			return false;
+		if (m_iCheck == 5)
+			return events && events.Contains(m_sEventName);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (!child || !child.HasEventContext(events, depth + 1))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null)
+	{
+		if (!IsValid() || !HasEventContext(events) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
+			return false;
+		return EvaluateValid(flags, gameModeState, counts, events);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events)
 	{
 		bool answer;
 		if (m_iCheck == 1)
@@ -126,6 +165,8 @@ class GC_RuleCondition
 			if (flags)
 				flags.Find(m_sFlagName, answer);
 		}
+		else if (m_iCheck == 5)
+			events.Find(m_sEventName, answer);
 		else if (m_iCheck == 4)
 		{
 			int calls;
@@ -151,7 +192,7 @@ class GC_RuleCondition
 				count = m_aChecks.Count();
 				foreach (GC_RuleCondition check : m_aChecks)
 				{
-					if (check.EvaluateValid(flags, gameModeState, counts))
+					if (check.EvaluateValid(flags, gameModeState, counts, events))
 						passed++;
 				}
 			}

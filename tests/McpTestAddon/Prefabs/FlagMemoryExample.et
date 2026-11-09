@@ -23,7 +23,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
     GC_Event "{71620F377D834175}" {
      m_sName "Each accepted wave call"
      m_aConditions {
-      GC_FlagStateCondition "{71620F377D834176}" {
+      GC_MissionFlagCondition "{71620F377D834176}" {
        m_sFlagName "wave"
       }
      }

@@ -1,9 +1,9 @@
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Flag State")]
-class GC_FlagStateCondition : GC_MissionCondition
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Mission Flag Condition")]
+class GC_MissionFlagCondition : GC_MissionCondition
 {
 	[Attribute("", UIWidgets.EditBox, "The flag to check. Use its exact name from Mission Flags.")]
 	string m_sFlagName;
-	[Attribute("0", UIWidgets.ComboBox, "On means the flag is active. A repeatable flag stays On only while its call is being handled, then resets to Off.", enums: {ParamEnum("Is On", "0"), ParamEnum("Is Off", "1")})]
+	[Attribute("0", UIWidgets.ComboBox, "Check the flag's remembered result. True means it is active. Its own conditions control activation. A repeatable flag is true during its check cycle, then resets to false.", enums: {ParamEnum("Is true", "0"), ParamEnum("Is false", "1")})]
 	int m_iMatch;
 
 	//------------------------------------------------------------------------------------------------

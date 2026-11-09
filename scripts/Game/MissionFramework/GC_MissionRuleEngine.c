@@ -5,6 +5,7 @@ class GC_MissionRuleEvent
 	string m_sName;
 	bool m_bFlagCall;
 	bool m_bFlagClear;
+	bool m_bInitialState;
 
 	void GC_MissionRuleEvent(GC_ERuleEvent kind, string name, bool flagCall = false)
 	{
@@ -44,7 +45,9 @@ class GC_MissionRuleEngine
 	protected ref map<string, ref GC_MissionFlagState> m_mFlagDefinitions = new map<string, ref GC_MissionFlagState>();
 	protected ref array<string> m_aCalledFlags = {};
 	protected ref array<string> m_aPulseFlags = {};
-	protected ref array<GC_MissionRuleState> m_aFlagRuns = {};
+	protected ref map<string, bool> m_mEventResults = new map<string, bool>();
+	protected ref array<string> m_aPulseEvents = {};
+	protected ref array<GC_MissionRuleState> m_aReactiveRuns = {};
 	protected ref array<ref GC_MissionRuleEvent> m_aEvents = {};
 	protected SCR_EGameModeState m_eGameModeState = -1;
 	protected bool m_bRunning;
@@ -55,13 +58,14 @@ class GC_MissionRuleEngine
 	protected bool m_bEventLimitReached;
 
 	//------------------------------------------------------------------------------------------------
-	void Start(array<ref GC_CompiledMissionRule> rules, array<ref GC_MissionFlag> flags = null, SCR_EGameModeState initialState = -1)
+	void Start(array<ref GC_CompiledMissionRule> rules, array<ref GC_MissionFlag> flags = null, SCR_EGameModeState initialState = -1, array<string> authoredEventNames = null)
 	{
 		Stop();
 		m_aStates.Clear();
 		m_mFlags.Clear();
 		m_mFlagCounts.Clear();
 		m_mFlagDefinitions.Clear();
+		m_mEventResults.Clear();
 		m_fNow = 0;
 		m_eGameModeState = -1;
 		m_iRuns = 0;
@@ -123,6 +127,7 @@ class GC_MissionRuleEngine
 				Print("GC | Mission Framework | Incomplete or invalid event skipped.", LogLevel.ERROR);
 			}
 		}
+		RegisterEventNames(authoredEventNames);
 		m_bRunning = true;
 		if (GC_LobbyPhase.IsValid(initialState))
 			SetGameModeState(initialState);
@@ -132,6 +137,73 @@ class GC_MissionRuleEngine
 			m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.MATCH_BEGINS, ""));
 			DrainEvents();
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RegisterEventNames(array<string> authoredEventNames)
+	{
+		array<string> suppliedNames = authoredEventNames;
+		if (!suppliedNames)
+		{
+			suppliedNames = {};
+			foreach (GC_MissionRuleState state : m_aStates)
+			{
+				if (state.m_Rule)
+					suppliedNames.Insert(state.m_Rule.m_sName);
+			}
+		}
+		map<string, int> names = new map<string, int>();
+		foreach (string name : suppliedNames)
+		{
+			if (name.IsEmpty())
+				continue;
+			int count;
+			names.Find(name, count);
+			names.Set(name, count + 1);
+		}
+		foreach (GC_MissionRuleState state : m_aStates)
+		{
+			if (state.m_bValid && !state.m_Rule.m_sName.IsEmpty() && names.Get(state.m_Rule.m_sName) == 1)
+				m_mEventResults.Set(state.m_Rule.m_sName, false);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool GetEventResult(string name)
+	{
+		bool result;
+		m_mEventResults.Find(name, result);
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PublishEventResult(GC_MissionRuleState state)
+	{
+		string name = state.m_Rule.m_sName;
+		if (!m_bRunning || !m_mEventResults.Contains(name))
+			return;
+		m_mEventResults.Set(name, true);
+		if (!state.m_Rule.m_bRunOnlyOnce && !m_aPulseEvents.Contains(name))
+			m_aPulseEvents.Insert(name);
+		bool watched;
+		foreach (GC_MissionRuleState observer : m_aStates)
+		{
+			if (!observer.m_Parent && observer.m_bValid && observer.m_Rule.m_bObserveEvents && observer.m_Rule.m_If && observer.m_Rule.m_If.UsesEvent(name))
+				watched = true;
+		}
+		foreach (string flagName, GC_MissionFlagState memory : m_mFlagDefinitions)
+		{
+			if (memory.m_Condition && memory.m_Condition.UsesEvent(name))
+				watched = true;
+		}
+		if (!watched)
+			return;
+		if (m_aEvents.Count() >= 256)
+		{
+			StopEventLoop();
+			return;
+		}
+		m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.EVENT_RAN, name));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -163,6 +235,7 @@ class GC_MissionRuleEngine
 			return;
 		if (elapsedSeconds > m_fNow)
 			m_fNow = elapsedSeconds;
+		bool initialObservation = !GC_LobbyPhase.IsValid(m_eGameModeState);
 		m_eGameModeState = state;
 		foreach (GC_MissionRuleState pending : m_aStates)
 		{
@@ -176,7 +249,9 @@ class GC_MissionRuleEngine
 				|| (state == SCR_EGameModeState.POSTGAME && rule.m_eWhen != GC_ERuleEvent.GAME_MODE_STATE))
 				pending.m_bPending = false;
 		}
-		m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.GAME_MODE_STATE, ""));
+		GC_MissionRuleEvent observation = new GC_MissionRuleEvent(GC_ERuleEvent.GAME_MODE_STATE, "");
+		observation.m_bInitialState = initialObservation;
+		m_aEvents.Insert(observation);
 		if (state == SCR_EGameModeState.GAME)
 			m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.MATCH_BEGINS, ""));
 		DrainEvents();
@@ -224,7 +299,7 @@ class GC_MissionRuleEngine
 			return false;
 		if (GetFlagCallCount(name) == int.MAX)
 			return false;
-		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts);
+		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -265,9 +340,12 @@ class GC_MissionRuleEngine
 	{
 		foreach (string name : m_aPulseFlags)
 			m_mFlags.Set(name, false);
+		foreach (string eventName : m_aPulseEvents)
+			m_mEventResults.Set(eventName, false);
+		m_aPulseEvents.Clear();
 		m_aPulseFlags.Clear();
 		m_aCalledFlags.Clear();
-		m_aFlagRuns.Clear();
+		m_aReactiveRuns.Clear();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -417,7 +495,7 @@ class GC_MissionRuleEngine
 	{
 		if (!state.m_bValid || !state.m_Rule.m_bEnabled)
 			return false;
-		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts))
+		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults))
 			return false;
 		return !state.m_Parent || ConditionsPass(state.m_Parent);
 	}
@@ -427,6 +505,12 @@ class GC_MissionRuleEngine
 	{
 		if (!CanRun(state))
 			return;
+		if (state.m_Rule.m_bObserveFlags || state.m_Rule.m_bObserveEvents)
+		{
+			if (m_aReactiveRuns.Contains(state))
+				return;
+			m_aReactiveRuns.Insert(state);
+		}
 		float chance = state.m_Rule.m_fChance;
 		if (chance <= 0 || (chance < 1 && RandomUnit() >= chance))
 			return;
@@ -450,6 +534,9 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void Execute(GC_MissionRuleState state)
 	{
+		// A reactive event must not call itself again through its result in this cycle.
+		if ((state.m_Rule.m_bObserveFlags || state.m_Rule.m_bObserveEvents) && !m_aReactiveRuns.Contains(state))
+			m_aReactiveRuns.Insert(state);
 		if (state.m_aChoices)
 		{
 			ExecuteRandomGroup(state);
@@ -489,6 +576,7 @@ class GC_MissionRuleEngine
 					break;
 			}
 		}
+		PublishEventResult(state);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -515,6 +603,7 @@ class GC_MissionRuleEngine
 		group.m_iRuns++;
 		foreach (GC_MissionRuleState chosen : selected)
 			TryRun(chosen);
+		PublishEventResult(group);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -572,12 +661,14 @@ class GC_MissionRuleEngine
 				AcceptFlagCall(notification.m_sName);
 				continue;
 			}
+			bool eventRan = notification.m_eKind == GC_ERuleEvent.EVENT_RAN;
 			bool flagChanged = notification.m_eKind == GC_ERuleEvent.FLAG_ON || notification.m_eKind == GC_ERuleEvent.FLAG_OFF;
 			foreach (string flagName, GC_MissionFlagState memory : m_mFlagDefinitions)
 			{
 				if (!memory.m_Condition)
 					continue;
 				if ((flagChanged && flagName != notification.m_sName && memory.m_Condition.UsesFlag(notification.m_sName))
+					|| (eventRan && memory.m_Condition.UsesEvent(notification.m_sName))
 					|| (notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE && memory.m_Condition.UsesGameModeState()))
 					CallFlag(flagName);
 			}
@@ -586,16 +677,17 @@ class GC_MissionRuleEngine
 				if (state.m_Parent || !state.m_bValid)
 					continue;
 				GC_CompiledMissionRule rule = state.m_Rule;
-				if (flagChanged && rule.m_bObserveFlags && rule.m_If && rule.m_If.UsesFlag(notification.m_sName))
+				if (rule.m_If && ((flagChanged && rule.m_bObserveFlags && rule.m_If.UsesFlag(notification.m_sName))
+					|| (eventRan && rule.m_bObserveEvents && rule.m_If.UsesEvent(notification.m_sName))))
 				{
-					// One eligible attempt per flag chain; false checks may pass after another flag changes.
-					if (!m_aFlagRuns.Contains(state) && CanRun(state))
-					{
-						m_aFlagRuns.Insert(state);
-						TryRun(state);
-					}
+					// One eligible attempt per notification chain; false checks may pass on a later notification.
+					TryRun(state);
 					continue;
 				}
+				// An event-result reference does not subscribe to unrelated phase changes.
+				if (notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE && !notification.m_bInitialState
+					&& rule.m_bObserveEvents && rule.m_If && !rule.m_If.UsesGameModeState())
+					continue;
 				if (rule.m_eWhen == notification.m_eKind && (notification.m_eKind == GC_ERuleEvent.MATCH_BEGINS || notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE
 					|| rule.m_sTestEventName == notification.m_sName))
 					TryRun(state);

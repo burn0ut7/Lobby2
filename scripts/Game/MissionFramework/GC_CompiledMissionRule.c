@@ -5,7 +5,8 @@ enum GC_ERuleEvent
 	TEST_EVENT,
 	FLAG_ON,
 	FLAG_OFF,
-	GAME_MODE_STATE
+	GAME_MODE_STATE,
+	EVENT_RAN
 }
 
 enum GC_ERuleAction
@@ -61,6 +62,7 @@ class GC_CompiledMissionRule
 	ref GC_RuleRandom m_Random;
 	float m_fChance = 1;
 	bool m_bObserveFlags;
+	bool m_bObserveEvents;
 	int m_iPickCount;
 	ref array<ref GC_CompiledMissionRule> m_aChoices;
 	string m_sName;

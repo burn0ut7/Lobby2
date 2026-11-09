@@ -9,9 +9,9 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		return flag;
 	}
 
-	static GC_FlagStateCondition On(string name)
+	static GC_MissionFlagCondition On(string name)
 	{
-		GC_FlagStateCondition check = new GC_FlagStateCondition();
+		GC_MissionFlagCondition check = new GC_MissionFlagCondition();
 		check.m_sFlagName = name;
 		return check;
 	}
