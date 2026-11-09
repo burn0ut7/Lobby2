@@ -66,6 +66,9 @@ class GC_MissionRuleEngine
 	protected ref map<GC_RuleCondition, ref GC_EntityDamageObservation> m_mDamage = new map<GC_RuleCondition, ref GC_EntityDamageObservation>();
 	ref ScriptInvoker m_OnStateChanged = new ScriptInvoker();
 	protected ref map<GC_RuleCondition, ref GC_InteractionObservation> m_mInteractions = new map<GC_RuleCondition, ref GC_InteractionObservation>();
+	protected ref map<GC_RuleCondition, bool> m_mDamageAnswers = new map<GC_RuleCondition, bool>();
+	protected ref map<GC_RuleCondition, bool> m_mDamageAvailability = new map<GC_RuleCondition, bool>();
+	protected ref array<GC_RuleCondition> m_aDamageConditions = {};
 	protected int m_iRuns;
 	protected int m_iInvalidRules;
 	protected bool m_bEventLimitReached;
@@ -295,7 +298,7 @@ class GC_MissionRuleEngine
 				m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.CASUALTIES_CHANGED, ""));
 		}
 		if (state == SCR_EGameModeState.GAME)
-			QueueEntityDamageChanges();
+			QueueInitialEntityDamageChecks();
 		QueueInteractionChanges();
 		DrainEvents();
 	}
@@ -307,8 +310,14 @@ class GC_MissionRuleEngine
 		m_mRandomResults.Clear();
 		m_Casualties = null;
 		foreach (GC_RuleCondition check, GC_EntityDamageObservation observation : m_mDamage)
+		{
+			observation.GetOnChanged().Remove(OnEntityDamageChanged);
 			observation.Stop();
+		}
 		m_mDamage.Clear();
+		m_mDamageAnswers.Clear();
+		m_mDamageAvailability.Clear();
+		m_aDamageConditions.Clear();
 		foreach (GC_RuleCondition interactionCheck, GC_InteractionObservation interaction : m_mInteractions)
 			interaction.Stop();
 		m_mInteractions.Clear();
@@ -514,7 +523,6 @@ class GC_MissionRuleEngine
 		AdvanceRandomConditions();
 		if (m_eGameModeState == SCR_EGameModeState.GAME && m_fNow >= m_fNextAreaCheck)
 			SampleAreas();
-		QueueEntityDamageChanges();
 		QueueInteractionChanges();
 		foreach (GC_MissionRuleState state : m_aStates)
 		{
@@ -626,44 +634,95 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void RegisterEntityDamageConditions()
 	{
-		array<GC_RuleCondition> conditions = {};
 		foreach (GC_MissionRuleState state : m_aStates)
 		{
 			if (state.m_bValid && state.m_Rule.m_bEnabled && state.m_Rule.m_If)
-				state.m_Rule.m_If.CollectEntityDamageConditions(conditions);
+				state.m_Rule.m_If.CollectEntityDamageConditions(m_aDamageConditions);
 		}
 		foreach (string name, GC_MissionFlagState memory : m_mFlagDefinitions)
 		{
 			if (memory.m_Condition)
-				memory.m_Condition.CollectEntityDamageConditions(conditions);
+				memory.m_Condition.CollectEntityDamageConditions(m_aDamageConditions);
 		}
-		foreach (GC_RuleCondition condition : conditions)
-			m_mDamage.Set(condition, new GC_EntityDamageObservation());
 		BindEntityDamageConditions();
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Startup and Match-entry resolution only. Conditions on the same native hit zone share one listener.
 	protected void BindEntityDamageConditions()
 	{
-		foreach (GC_RuleCondition condition, GC_EntityDamageObservation observation : m_mDamage)
+		foreach (GC_RuleCondition condition : m_aDamageConditions)
+		{
+			GC_EntityDamageObservation observation = m_mDamage.Get(condition);
+			if (!observation)
+				observation = new GC_EntityDamageObservation();
 			observation.Bind(m_DamageWorld, condition);
+			if (observation.GetHitZone())
+			{
+				foreach (GC_RuleCondition otherCheck, GC_EntityDamageObservation existing : m_mDamage)
+				{
+					if (existing != observation && existing.GetHitZone() == observation.GetHitZone())
+					{
+						observation.Stop();
+						observation = existing;
+						break;
+					}
+				}
+			}
+			observation.AddCondition(condition);
+			// Remove before insert so Match-entry retries never duplicate this callback.
+			observation.GetOnChanged().Remove(OnEntityDamageChanged);
+			observation.GetOnChanged().Insert(OnEntityDamageChanged);
+			m_mDamage.Set(condition, observation);
+			RememberDamageAnswer(condition, observation);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Coalesce health/state callbacks so the complete tree sees the latest settled damage values.
-	protected void QueueEntityDamageChanges()
+	protected bool RememberDamageAnswer(GC_RuleCondition check, GC_EntityDamageObservation observation)
 	{
-		if (m_eGameModeState != SCR_EGameModeState.GAME || m_mDamage.IsEmpty())
+		bool available = observation.IsAvailable();
+		bool answer = observation.Passes(check.m_iDamageCheck, check.m_fDamageNeeded);
+		bool changed = !m_mDamageAvailability.Contains(check) || m_mDamageAvailability.Get(check) != available || m_mDamageAnswers.Get(check) != answer;
+		m_mDamageAvailability.Set(check, available);
+		m_mDamageAnswers.Set(check, answer);
+		return changed;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Runs on the registered native health/state callback, never on Advance or a delayed call.
+	protected void OnEntityDamageChanged(GC_EntityDamageObservation observation)
+	{
+		if (!m_bRunning || m_eGameModeState != SCR_EGameModeState.GAME)
 			return;
 		GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.ENTITY_DAMAGE_CHANGED, "");
 		notification.m_aDamageChecks = {};
-		foreach (GC_RuleCondition condition, GC_EntityDamageObservation observation : m_mDamage)
+		foreach (GC_RuleCondition check : observation.GetConditions())
 		{
-			if (observation.ConsumeChange())
-				notification.m_aDamageChecks.Insert(condition);
+			if (m_mDamage.Get(check) == observation && RememberDamageAnswer(check, observation))
+				notification.m_aDamageChecks.Insert(check);
 		}
-		if (!notification.m_aDamageChecks.IsEmpty())
-			m_aEvents.Insert(notification);
+		if (notification.m_aDamageChecks.IsEmpty())
+			return;
+		if (m_aEvents.Count() >= 256)
+		{
+			StopEventLoop();
+			return;
+		}
+		m_aEvents.Insert(notification);
+		DrainEvents();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! One-time Match-entry evaluation, including conditions already true before gameplay starts.
+	protected void QueueInitialEntityDamageChecks()
+	{
+		if (m_eGameModeState != SCR_EGameModeState.GAME || m_aDamageConditions.IsEmpty())
+			return;
+		GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.ENTITY_DAMAGE_CHANGED, "");
+		notification.m_aDamageChecks = {};
+		notification.m_aDamageChecks.Copy(m_aDamageConditions);
+		m_aEvents.Insert(notification);
 	}
 
 	//------------------------------------------------------------------------------------------------

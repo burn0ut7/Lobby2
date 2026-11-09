@@ -1,5 +1,5 @@
-//! One runtime observation per condition. Entity/hit-zone references are weak.
-//! Callbacks only mark changes; the authoritative framework processes them on its existing tick.
+//! One runtime observation per resolved hit zone. Entity/hit-zone references are weak.
+//! Native callbacks refresh the shared snapshot and immediately notify its owning framework.
 class GC_EntityDamageObservation
 {
 	protected IEntity m_Entity;
@@ -8,7 +8,8 @@ class GC_EntityDamageObservation
 	protected bool m_bAvailable;
 	protected bool m_bDestroyed;
 	protected float m_fDamage;
-	protected bool m_bChanged;
+	protected ref ScriptInvoker m_OnChanged = new ScriptInvoker();
+	protected ref array<GC_RuleCondition> m_aConditions = {};
 	protected bool m_bReportedMissing;
 
 	//------------------------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ class GC_EntityDamageObservation
 		m_bBound = true;
 		m_HitZone.GetOnHealthChanged().Insert(OnHealthChanged);
 		m_HitZone.GetOnDamageStateChanged().Insert(OnDamageStateChanged);
-		Refresh();
+		Refresh(false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -57,14 +58,18 @@ class GC_EntityDamageObservation
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void Refresh()
+	protected void Refresh(bool notify = true)
 	{
 		if (!m_Entity || !m_HitZone)
 			return;
+		bool destroyed = m_HitZone.GetDamageState() == EDamageState.DESTROYED;
+		float damage = Math.Clamp(1 - m_HitZone.GetHealthScaled(), 0, 1);
+		bool changed = !m_bAvailable || destroyed != m_bDestroyed || damage != m_fDamage;
 		m_bAvailable = true;
-		m_bDestroyed = m_HitZone.GetDamageState() == EDamageState.DESTROYED;
-		m_fDamage = Math.Clamp(1 - m_HitZone.GetHealthScaled(), 0, 1);
-		m_bChanged = true;
+		m_bDestroyed = destroyed;
+		m_fDamage = damage;
+		if (notify && changed)
+			m_OnChanged.Invoke(this);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -93,16 +98,28 @@ class GC_EntityDamageObservation
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool ConsumeChange()
+	ScriptInvoker GetOnChanged()
 	{
-		if (m_bAvailable && !IsAvailable())
-		{
-			m_bAvailable = false;
-			m_bChanged = true;
-		}
-		bool changed = m_bChanged;
-		m_bChanged = false;
-		return changed;
+		return m_OnChanged;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	SCR_HitZone GetHitZone()
+	{
+		return m_HitZone;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void AddCondition(GC_RuleCondition check)
+	{
+		if (!m_aConditions.Contains(check))
+			m_aConditions.Insert(check);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	array<GC_RuleCondition> GetConditions()
+	{
+		return m_aConditions;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -118,6 +135,6 @@ class GC_EntityDamageObservation
 		m_bAvailable = false;
 		m_bBound = false;
 		m_bDestroyed = false;
-		m_bChanged = false;
+		m_aConditions.Clear();
 	}
 }
