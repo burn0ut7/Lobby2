@@ -57,7 +57,7 @@ class GC_Event : GC_EventDefinition
 {
 	[Attribute("Event", UIWidgets.EditBox, "A short name for this event.")]
 	string m_sName;
-	[Attribute("", UIWidgets.Object, "Every condition must pass. Game Mode State checks at startup and on state changes. At the top level, an empty list runs at match start. Inside a random group, an empty list adds no restriction.")]
+	[Attribute("", UIWidgets.Object, "No conditions means always true: there are no requirements to meet. Otherwise, every listed condition must pass. A top-level event with no conditions runs at match start. Inside a random group, it is eligible whenever the group selects events.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
 	[Attribute("", UIWidgets.Object, "Actions to run, in list order.")]
 	ref array<ref GC_MissionAction> m_aActions;
@@ -90,7 +90,7 @@ class GC_RandomEventGroup : GC_EventDefinition
 {
 	[Attribute("Random event group", UIWidgets.EditBox, "A short name for this random selection.")]
 	string m_sName;
-	[Attribute("", UIWidgets.Object, "Decides when to select events. Every condition must pass. Leave empty to select at match start. Child conditions filter the selection; they do not trigger the group themselves.")]
+	[Attribute("", UIWidgets.Object, "No conditions means always true: there are no requirements to meet, and the group selects at match start. Otherwise, every listed condition must pass. Child conditions filter the selection; they do not trigger the group themselves.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
 	[Attribute("1", UIWidgets.SpinBox, "How many different events to pick from those whose conditions pass. No repeats in one selection. If fewer qualify, pick those available. Each selected event's own chance and delay still apply.", "1 255 1")]
 	int m_iPickCount;

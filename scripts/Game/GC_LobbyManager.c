@@ -4,7 +4,7 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
-	[Attribute("", UIWidgets.Object, "Add a mission event with conditions and actions. Game Mode State chooses the phase; leave Conditions empty to run at match start.", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "Add a mission event with conditions and actions. No conditions means always true. Top-level events with no conditions run at match start. Add Game Mode State to require a particular phase.", category: "Lobby2")]
 	protected ref array<ref GC_EventDefinition> m_aMissionEvents;
 
 	[Attribute("", UIWidgets.Object, "Optional. Name flags and choose their starting values. Mission events do not need flags. Undeclared flags start Off.", category: "Lobby2")]
