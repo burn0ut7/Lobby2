@@ -129,6 +129,35 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected bool m_bCatchUpQueued;
 
 	//------------------------------------------------------------------------------------------------
+	protected static ref ScriptInvoker s_MissionStateChanged = new ScriptInvoker();
+
+	//------------------------------------------------------------------------------------------------
+	static ScriptInvoker GetMissionStateChanged()
+	{
+		return s_MissionStateChanged;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void PublishMissionStateChanged()
+	{
+		s_MissionStateChanged.Invoke();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool AreMissionInteractionsActive()
+	{
+		return HasMissionRuleAuthority() && m_bMissionEventsEnabled && GetLobbyPhase() == SCR_EGameModeState.GAME
+			&& m_MissionRuleEngine && m_MissionRuleEngine.IsRunning();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void NotifyMissionInteraction(string callFlag)
+	{
+		if (AreMissionInteractionsActive())
+			m_MissionRuleEngine.NotifyInteraction(callFlag);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected bool HasMissionRuleAuthority()
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
@@ -185,6 +214,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!m_aMissionEvents)
 			m_aMissionEvents = {};
 		m_MissionRuleEngine = new GC_MissionRuleEngine();
+		m_MissionRuleEngine.m_OnStateChanged.Insert(PublishMissionStateChanged);
 		array<ref GC_CompiledMissionRule> runtimeRules = {};
 		array<string> eventNames = {};
 		foreach (GC_EventDefinition definition : m_aMissionEvents)
@@ -244,7 +274,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (GetGame())
 			GetGame().GetCallqueue().Remove(TickMissionRules);
 		if (m_MissionRuleEngine)
+		{
 			m_MissionRuleEngine.Stop();
+			m_MissionRuleEngine.m_OnStateChanged.Remove(PublishMissionStateChanged);
+		}
 		m_MissionCasualties = null;
 	}
 

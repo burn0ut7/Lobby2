@@ -68,13 +68,16 @@ class GC_RuleCondition
 	bool m_bAreaAnywhere;
 	bool m_bAreaProportion;
 	float m_fAreaProportion;
+	string m_sInteractionEntity;
 
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 10)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 11)
 			return false;
+		if (m_iCheck == 11)
+			return !m_sInteractionEntity.IsEmpty();
 		if (m_iCheck == 10)
 			return ValidateAreaTargets();
 		if (m_iCheck == 9)
@@ -246,6 +249,41 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
+	bool UsesInteraction(array<GC_RuleCondition> changed = null, int depth = 0)
+	{
+		if (depth > 16)
+			return false;
+		if (m_iCheck == 11)
+			return !changed || changed.Contains(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child && child.UsesInteraction(changed, depth + 1))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void CollectInteractionConditions(array<GC_RuleCondition> result, int depth = 0)
+	{
+		if (depth > 16)
+			return;
+		if (m_iCheck == 11 && !result.Contains(this))
+			result.Insert(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child)
+					child.CollectInteractionConditions(result, depth + 1);
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool UsesEntityDamage(array<GC_RuleCondition> changed = null, int depth = 0)
 	{
 		if (depth > 16)
@@ -334,10 +372,15 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool HasEvaluationContext(map<string, bool> events, map<GC_RuleCondition, bool> randomResults, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas, int depth = 0)
+	protected bool HasEvaluationContext(map<string, bool> events, map<GC_RuleCondition, bool> randomResults, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas, map<GC_RuleCondition, ref GC_InteractionObservation> interactions, int depth = 0)
 	{
 		if (depth > 16)
 			return false;
+		if (m_iCheck == 11)
+		{
+			GC_InteractionObservation interaction;
+			return interactions && interactions.Find(this, interaction) && interaction && interaction.IsAvailable();
+		}
 		if (m_iCheck == 10)
 		{
 			GC_MissionAreaObservation area;
@@ -358,7 +401,7 @@ class GC_RuleCondition
 		{
 			foreach (GC_RuleCondition child : m_aChecks)
 			{
-				if (!child || !child.HasEvaluationContext(events, randomResults, damage, areas, depth + 1))
+				if (!child || !child.HasEvaluationContext(events, randomResults, damage, areas, interactions, depth + 1))
 					return false;
 			}
 		}
@@ -366,15 +409,15 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null, GC_CasualtySnapshot casualties = null, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage = null, GC_MissionAreaTracker areas = null)
+	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null, GC_CasualtySnapshot casualties = null, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage = null, GC_MissionAreaTracker areas = null, map<GC_RuleCondition, ref GC_InteractionObservation> interactions = null)
 	{
-		if (!IsValid() || !HasEvaluationContext(events, randomResults, damage, areas) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
+		if (!IsValid() || !HasEvaluationContext(events, randomResults, damage, areas, interactions) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
 			return false;
-		return EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas);
+		return EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas, interactions);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults, GC_CasualtySnapshot casualties, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas)
+	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults, GC_CasualtySnapshot casualties, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas, map<GC_RuleCondition, ref GC_InteractionObservation> interactions)
 	{
 		bool answer;
 		if (m_iCheck == 1)
@@ -382,6 +425,8 @@ class GC_RuleCondition
 			if (flags)
 				flags.Find(m_sFlagName, answer);
 		}
+		else if (m_iCheck == 11)
+			answer = interactions.Get(this).HasBeenUsed();
 		else if (m_iCheck == 10)
 			answer = areas.GetObservation(this).PassesCondition(this);
 		else if (m_iCheck == 9)
@@ -419,7 +464,7 @@ class GC_RuleCondition
 				count = m_aChecks.Count();
 				foreach (GC_RuleCondition check : m_aChecks)
 				{
-					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas))
+					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas, interactions))
 						passed++;
 				}
 			}

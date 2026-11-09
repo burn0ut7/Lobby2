@@ -1,0 +1,30 @@
+GenericEntity {
+ ID "95C9B85A05A34FD8"
+ components {
+  GC_MissionInteractionComponent "{DCEC291493734CD4}" {
+  }
+  ActionsManagerComponent "{ADA66F0D5EA84AC2}" {
+   ActionContexts {
+    UserActionContext "{2E0FE192CFC14805}" {
+     ContextName "MissionInteraction"
+     Position PointInfo "{6A5E45532F2649F1}" {
+     }
+     Radius 2
+    }
+   }
+   additionalActions {
+    GC_MissionInteractionAction "{4F65BF8AFE944D18}" {
+     ParentContextList {
+      "MissionInteraction"
+     }
+     ActionTitle "MissionInteraction"
+     Duration 1
+    }
+   }
+  }
+  RplComponent "{4D41DD504E094996}" {
+  }
+  Hierarchy "{E7A35F87849446C0}" {
+  }
+ }
+}
