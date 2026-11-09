@@ -4,10 +4,10 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
-	[Attribute("", UIWidgets.Object, "Add a mission rule. Choose an event and actions. Conditions are optional.", category: "Lobby2")]
-	protected ref array<ref GC_MissionRule> m_aMissionRules;
+	[Attribute("", UIWidgets.Object, "Add a mission event. Choose an event and actions. Conditions are optional.", category: "Lobby2")]
+	protected ref array<ref GC_MissionRule> m_aMissionEvents;
 
-	[Attribute("", UIWidgets.Object, "Optional. Name flags and choose their starting values. Rules do not need flags. Undeclared flags start Off.", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "Optional. Name flags and choose their starting values. Mission events do not need flags. Undeclared flags start Off.", category: "Lobby2")]
 	protected ref array<ref GC_MissionFlag> m_aMissionFlags;
 
 	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Lobby2")]
@@ -19,8 +19,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1")]
 	protected int m_iParameterLockSeconds;
 
-	[Attribute("1", UIWidgets.CheckBox, "Allow these rules to run on the server during the match. An empty rule list does nothing.")]
-	protected bool m_bMissionRulesEnabled;
+	[Attribute("1", UIWidgets.CheckBox, "Allow these mission events to run on the server during the match. An empty mission event list does nothing.")]
+	protected bool m_bMissionEventsEnabled;
 
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
 	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
@@ -138,7 +138,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! Trusted server extension point, not a player RPC or admin command.
 	bool SendTestEvent(string name)
 	{
-		if (!HasMissionRuleAuthority() || !m_bMissionRulesEnabled || !m_MissionRuleEngine)
+		if (!HasMissionRuleAuthority() || !m_bMissionEventsEnabled || !m_MissionRuleEngine)
 			return false;
 		return m_MissionRuleEngine.SendTestEvent(name);
 	}
@@ -161,30 +161,30 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	override void OnGameModeStart()
 	{
 		super.OnGameModeStart();
-		if (m_bMissionRulesStarted || !m_bMissionRulesEnabled || !HasMissionRuleAuthority())
+		if (m_bMissionRulesStarted || !m_bMissionEventsEnabled || !HasMissionRuleAuthority())
 			return;
 		m_bMissionRulesStarted = true;
 		m_fMissionRulesStartedAt = GetGame().GetWorld().GetWorldTime();
-		if (!m_aMissionRules)
-			m_aMissionRules = {};
+		if (!m_aMissionEvents)
+			m_aMissionEvents = {};
 		m_MissionRuleEngine = new GC_MissionRuleEngine();
 		array<ref GC_CompiledMissionRule> runtimeRules = {};
-		foreach (GC_MissionRule definition : m_aMissionRules)
+		foreach (GC_MissionRule definition : m_aMissionEvents)
 		{
 			GC_CompiledMissionRule rule = null;
-			if (definition && m_aMissionRules.Count() <= 256)
+			if (definition && m_aMissionEvents.Count() <= 256)
 				rule = definition.BuildRule();
 			runtimeRules.Insert(rule);
 		}
 		m_MissionRuleEngine.Start(runtimeRules, m_aMissionFlags);
-		if (m_aMissionRules && !m_aMissionRules.IsEmpty() && m_MissionRuleEngine.IsRunning())
+		if (m_aMissionEvents && !m_aMissionEvents.IsEmpty() && m_MissionRuleEngine.IsRunning())
 			GetGame().GetCallqueue().CallLater(TickMissionRules, 100, true);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void TickMissionRules()
 	{
-		if (!HasMissionRuleAuthority() || !m_bMissionRulesEnabled || !m_MissionRuleEngine || !m_MissionRuleEngine.IsRunning())
+		if (!HasMissionRuleAuthority() || !m_bMissionEventsEnabled || !m_MissionRuleEngine || !m_MissionRuleEngine.IsRunning())
 		{
 			StopMissionRules();
 			return;

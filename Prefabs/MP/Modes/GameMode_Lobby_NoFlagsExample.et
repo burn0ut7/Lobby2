@@ -2,7 +2,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
  ID "7B115D5DFF7ED998"
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
-   m_aMissionRules {
+   m_aMissionEvents {
     GC_MissionRule "{7B115D5DFF7EDA20}" {
      m_sName "Random test after a short wait"
      m_Event GC_MissionEvent "{7B115D5DFF7EDA21}" {

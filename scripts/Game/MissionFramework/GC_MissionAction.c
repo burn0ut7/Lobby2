@@ -27,7 +27,7 @@ class GC_LogMessageAction : GC_MissionAction
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Set flag")]
 class GC_SetFlagAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Give the flag a name. Other rules can watch this same name. Mission Flags can set starting values; other flags start Off. Values reset each match.")]
+	[Attribute("", UIWidgets.EditBox, "Give the flag a name. Other mission events can watch this same name. Mission Flags can set starting values; other flags start Off. Values reset each match.")]
 	string m_sFlagName;
 	[Attribute("1", UIWidgets.ComboBox, "Choose the new setting for this flag.", enums: {ParamEnum("On", "1"), ParamEnum("Off", "0")})]
 	int m_iSetTo;
@@ -48,7 +48,7 @@ class GC_SetFlagAction : GC_MissionAction
 [BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Send test event")]
 class GC_SendTestEventAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Rules waiting for this event name will run. An event is sent once; it is not remembered like a flag.")]
+	[Attribute("", UIWidgets.EditBox, "Mission events waiting for this event name will run. An event is sent once; it is not remembered like a flag.")]
 	string m_sEventName;
 
 	//------------------------------------------------------------------------------------------------

@@ -1,26 +1,26 @@
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Rule options")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Mission event options")]
 class GC_RuleOptions
 {
-	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most rules. Every time runs again when the chosen event happens again.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
+	[Attribute("0", UIWidgets.ComboBox, "Once is enough for most mission events. Every time runs again when the chosen event happens again.", enums: {ParamEnum("Once", "0"), ParamEnum("Every time", "1")})]
 	int m_iRun;
 	[Attribute("0", UIWidgets.SpinBox, "Wait this many seconds before doing the actions. Zero means now. Requirements must still be met when the wait ends.", "0 86400 0.1")]
 	float m_fWaitSeconds;
-	[Attribute("0", UIWidgets.CheckBox, "Keep this rule in the list, but do not run it.")]
+	[Attribute("0", UIWidgets.CheckBox, "Keep this mission event in the list, but do not run it.")]
 	bool m_bDisabled;
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
 class GC_MissionRule
 {
-	[Attribute("Mission rule", UIWidgets.EditBox, "Give this rule a short name, such as Start the test.")]
+	[Attribute("Mission event", UIWidgets.EditBox, "Give this mission event a short name, such as Start the test.")]
 	string m_sName;
-	[Attribute("", UIWidgets.Object, "The event that starts this rule. Leave empty to run when the match begins, after briefing.")]
+	[Attribute("", UIWidgets.Object, "The event that starts this mission event. Leave empty to run when the match begins, after briefing.")]
 	ref GC_MissionEvent m_Event;
-	[Attribute("", UIWidgets.Object, "The actions to perform when this rule runs. Actions run from top to bottom.")]
+	[Attribute("", UIWidgets.Object, "The actions to perform when this mission event runs. Actions run from top to bottom.")]
 	ref array<ref GC_MissionAction> m_aActions;
 	[Attribute("", UIWidgets.Object, "Optional conditions. Leave empty for no restrictions. Every condition in this list must be met.")]
 	ref array<ref GC_MissionCondition> m_aConditions;
-	[Attribute("", UIWidgets.Object, "Optional. Change how often this rule runs, add a delay, or turn it off. Leave empty to run once, without waiting.")]
+	[Attribute("", UIWidgets.Object, "Optional. Change how often this mission event runs, add a delay, or turn it off. Leave empty to run once, without waiting.")]
 	ref GC_RuleOptions m_Advanced;
 	[Attribute("", UIWidgets.Object, "Optional chance to run or a random extra wait. Leave empty for no randomness.")]
 	ref GC_RuleRandom m_Random;

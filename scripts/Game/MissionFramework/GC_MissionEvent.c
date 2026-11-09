@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Mission event")]
 class GC_MissionEvent
 {
-	[Attribute("0", UIWidgets.ComboBox, "Choose what starts this rule. Match started happens after briefing. Flag events happen only when a flag changes.", enums: {ParamEnum("Match started", "0"), ParamEnum("Timer elapsed", "1"), ParamEnum("Named event received", "2"), ParamEnum("Flag turned On", "3"), ParamEnum("Flag turned Off", "4")})]
+	[Attribute("0", UIWidgets.ComboBox, "Choose what starts this mission event. Match started happens after briefing. Flag events happen only when a flag changes.", enums: {ParamEnum("Match started", "0"), ParamEnum("Timer elapsed", "1"), ParamEnum("Named event received", "2"), ParamEnum("Flag turned On", "3"), ParamEnum("Flag turned Off", "4")})]
 	GC_ERuleEvent m_eType;
 	[Attribute("", UIWidgets.EditBox, "For Flag or Named event: the exact name to watch. Not used by Match started or Timer elapsed.")]
 	string m_sName;

@@ -374,7 +374,7 @@ class GC_MissionRuleTests
 		{
 			BaseContainer component = components.Get(index);
 			if (component.GetClassName() == "GC_LobbyManager")
-				authoredRules = component.GetObjectArray("m_aMissionRules");
+				authoredRules = component.GetObjectArray("m_aMissionEvents");
 		}
 		if (!authoredRules || authoredRules.Count() != 2)
 			return "FAIL: expected two simple rules";
@@ -418,7 +418,7 @@ class GC_MissionRuleTests
 		{
 			BaseContainer component = components.Get(index);
 			if (component.GetClassName() == "GC_LobbyManager")
-				authoredRules = component.GetObjectArray("m_aMissionRules");
+				authoredRules = component.GetObjectArray("m_aMissionEvents");
 		}
 		if (!authoredRules || authoredRules.Count() != 1)
 			return "FAIL: expected one no-flags rule";
