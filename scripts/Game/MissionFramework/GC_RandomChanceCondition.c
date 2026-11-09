@@ -1,5 +1,5 @@
 //! Scheduled chance with a stable result between rolls; evaluation never rerolls it.
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Random Chance")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Random Chance Condition")]
 class GC_RandomChanceCondition : GC_ConditionBase
 {
 	[Attribute("60", UIWidgets.SpinBox, "Seconds between random checks during Match. For example, 90 checks every 90 seconds. The first check waits one full interval after Match starts. No checks run before or after Match.", "0.1 86400 0.1")]

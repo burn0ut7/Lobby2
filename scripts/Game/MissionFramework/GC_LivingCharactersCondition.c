@@ -1,4 +1,4 @@
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Living Characters")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Living Characters Condition")]
 class GC_LivingCharactersCondition : GC_ConditionBase
 {
 	[Attribute("0", UIWidgets.ComboBox, "Count living characters: connected players, registered AI, or both. Spectators, dead characters and empty playable slots never count. Unconscious living characters count. Updated once per second during Match and on phase changes.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]

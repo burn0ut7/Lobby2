@@ -1,5 +1,5 @@
 //! One count comparison for child conditions or remembered mission-flag calls.
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Condition Count")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Count Condition")]
 class GC_ConditionCount : GC_ConditionBase
 {
 	[Attribute("0", UIWidgets.ComboBox, "Choose what to count: conditions that are true, or accepted calls to a mission flag.", enums: {ParamEnum("Conditions that are true", "0"), ParamEnum("Mission flag calls", "1")})]

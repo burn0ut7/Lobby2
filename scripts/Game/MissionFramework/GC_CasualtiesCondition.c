@@ -1,5 +1,5 @@
 //! One complete casualty check; faction selection belongs to this condition.
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Casualties")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Casualties Condition")]
 class GC_CasualtiesCondition : GC_ConditionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave the list empty to include every faction. Selected factions are counted together, not checked separately.")]

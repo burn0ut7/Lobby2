@@ -1,5 +1,5 @@
 //! Counts every confirmed death during Match, including replacement lives after respawn.
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Total Deaths")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Total Deaths Condition")]
 class GC_TotalDeathsCondition : GC_ConditionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave empty for every faction. Deaths from selected factions are added together. Uses the character's faction when it dies.")]

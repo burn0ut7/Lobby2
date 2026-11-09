@@ -1,5 +1,5 @@
 //! Required shared base for all authored conditions. Do not create this type directly.
-[BaseContainerProps(description: "BASE TYPE - Do not use directly. This shared base lets the Conditions list contain different condition types. It does not perform a check. Choose Mission Flag Condition, Mission Event Condition, Game Mode State, Random Chance, Casualties, Total Deaths, Entity Damage, Area Condition, Condition Group or Condition Count instead. Replace any base entry before using the event or flag.", visible: false, insertable: false), BaseContainerCustomStringTitleField("Do not use")]
+[BaseContainerProps(description: "BASE TYPE - Do not use directly. This shared base lets the Conditions list contain different condition types. It does not perform a check. Choose Mission Flag Condition, Mission Event Condition, Game Mode State Condition, Random Chance Condition, Casualties Condition, Total Deaths Condition, Entity Damage Condition, Living Characters Condition, Area Condition, Group Condition or Count Condition instead. Replace any base entry before using the event or flag.", visible: false, insertable: false), BaseContainerCustomStringTitleField("Do not use")]
 class GC_ConditionBase
 {
 	//------------------------------------------------------------------------------------------------
@@ -36,13 +36,13 @@ class GC_ConditionBase
 }
 
 //! Combine child answers without a numeric threshold.
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Condition Group")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Group Condition")]
 class GC_ConditionGroup : GC_ConditionBase
 {
 	[Attribute("0", UIWidgets.ComboBox, "All: every condition is true. Any: at least one is true. None: every condition is false. Not all: at least one is false.", enums: {ParamEnum("All are true (AND)", "0"), ParamEnum("Any are true (OR)", "1"), ParamEnum("None are true (NOR)", "2"), ParamEnum("Not all are true (NAND)", "3")})]
 	int m_iMatch;
 
-	[Attribute("", UIWidgets.Object, "Conditions to combine. Each entry can contain another group or a Condition Count. Add at least one condition. None with one child reverses that child's answer.")]
+	[Attribute("", UIWidgets.Object, "Conditions to combine. Each entry can contain another group or a Count Condition. Add at least one condition. None with one child reverses that child's answer.")]
 	ref array<ref GC_ConditionBase> m_aConditions;
 
 	//------------------------------------------------------------------------------------------------
