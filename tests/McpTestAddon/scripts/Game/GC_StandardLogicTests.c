@@ -32,7 +32,7 @@ modded class GC_MissionRuleTests
 				children.Clear();
 				for (int bit; bit < inputs; bit++)
 				{
-					GC_BooleanCondition value = new GC_BooleanCondition();
+					GC_TestFixedCondition value = new GC_TestFixedCondition();
 					value.m_bValue = (mask & (1 << bit)) != 0;
 					children.Insert(value);
 				}
@@ -52,7 +52,7 @@ modded class GC_MissionRuleTests
 		Check(!none.BuildCheck(), "None cycle bounded");
 		children.Clear();
 
-		GC_BooleanCondition validLeaf = new GC_BooleanCondition();
+		GC_TestFixedCondition validLeaf = new GC_TestFixedCondition();
 		all.m_aConditions = {validLeaf};
 		all.m_iMatch = -1;
 		Check(!all.BuildCheck(), "negative group mode rejected");
@@ -74,7 +74,7 @@ modded class GC_MissionRuleTests
 			counted.Clear();
 			for (int child; child < 3; child++)
 			{
-				GC_BooleanCondition leaf = new GC_BooleanCondition();
+				GC_TestFixedCondition leaf = new GC_TestFixedCondition();
 				leaf.m_bValue = child < passed;
 				counted.Insert(leaf);
 			}
@@ -97,10 +97,10 @@ modded class GC_MissionRuleTests
 		counted.Insert(null);
 		foreach (GC_MissionCondition comparison : comparisons)
 			Check(!comparison.BuildCheck(), "missing count child fails closed");
-		GC_BooleanCondition a = new GC_BooleanCondition();
-		GC_BooleanCondition b = new GC_BooleanCondition();
-		GC_BooleanCondition c = new GC_BooleanCondition();
-		GC_BooleanCondition d = new GC_BooleanCondition();
+		GC_TestFixedCondition a = new GC_TestFixedCondition();
+		GC_TestFixedCondition b = new GC_TestFixedCondition();
+		GC_TestFixedCondition c = new GC_TestFixedCondition();
+		GC_TestFixedCondition d = new GC_TestFixedCondition();
 		GC_ConditionGroup left = new GC_ConditionGroup();
 		left.m_iMatch = 0;
 		left.m_aConditions = {a, b};

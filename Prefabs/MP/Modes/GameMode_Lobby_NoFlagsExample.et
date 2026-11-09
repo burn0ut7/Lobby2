@@ -5,32 +5,6 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
    m_aMissionEvents {
     GC_MissionRule "{7B115D5DFF7EDA20}" {
      m_sName "Random test after a short wait"
-     m_aConditions {
-      GC_ConditionCount "{7B115D5DFF7EDA40}" {
-       m_iRequiredCount 1
-       m_aConditions {
-        GC_ConditionGroup "{7B115D5DFF7EDA41}" {
-         m_aConditions {
-          GC_BooleanCondition "{7B115D5DFF7EDA44}" {
-           m_bValue 1
-          }
-          GC_BooleanCondition "{7B115D5DFF7EDA45}" {
-           m_bValue 1
-          }
-         }
-        }
-        GC_ConditionGroup "{7B115D5DFF7EDA42}" {
-         m_iMatch 2
-         m_aConditions {
-          GC_BooleanCondition "{7B115D5DFF7EDA43}" {
-          }
-         }
-        }
-        GC_BooleanCondition "{7B115D5DFF7EDA46}" {
-        }
-       }
-      }
-     }
      m_Event GC_MissionEvent "{7B115D5DFF7EDA21}" {
       m_eType 1
       m_fSeconds 2

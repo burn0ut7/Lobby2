@@ -72,21 +72,3 @@ class GC_ConditionGroup : GC_MissionCondition
 		return BuildGroup(m_aConditions, operation, 0, depth);
 	}
 }
-
-[BaseContainerProps(), BaseContainerCustomStringTitleField("True or false value")]
-class GC_BooleanCondition : GC_MissionCondition
-{
-	[Attribute("0", UIWidgets.CheckBox, "Checked means true; unchecked means false. This is a fixed logic value, not a mission flag or a live game check.")]
-	bool m_bValue;
-
-	//------------------------------------------------------------------------------------------------
-	override GC_RuleCondition BuildCheck(int depth = 0)
-	{
-		if (depth > 16)
-			return null;
-		GC_RuleCondition check = new GC_RuleCondition();
-		check.m_iCheck = 2;
-		check.m_bTestAnswer = m_bValue;
-		return check;
-	}
-}

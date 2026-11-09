@@ -1,3 +1,20 @@
+//! Script-only input for logic tests. No container or editor attributes: never authored in mission resources.
+class GC_TestFixedCondition : GC_MissionCondition
+{
+	bool m_bValue;
+
+	//------------------------------------------------------------------------------------------------
+	override GC_RuleCondition BuildCheck(int depth = 0)
+	{
+		if (depth > 16)
+			return null;
+		GC_RuleCondition check = new GC_RuleCondition();
+		check.m_iCheck = 2;
+		check.m_bTestAnswer = m_bValue;
+		return check;
+	}
+}
+
 //! Explicit tests only. Loading this addon never starts or configures rules.
 class GC_MissionRuleTests
 {
@@ -246,13 +263,13 @@ class GC_MissionRuleTests
 		Check(engine.GetFlag("done") && engine.GetRunCount() == 1, "empty trigger means match begins");
 		engine.Stop();
 
-		GC_BooleanCondition required = new GC_BooleanCondition();
+		GC_TestFixedCondition required = new GC_TestFixedCondition();
 		required.m_bValue = true;
 		simple.m_aConditions = {required};
 		built = simple.BuildRule();
 		engine.Start({built});
 		Check(engine.GetFlag("done"), "true value allows execution");
-		GC_BooleanCondition requiredOn = new GC_BooleanCondition();
+		GC_TestFixedCondition requiredOn = new GC_TestFixedCondition();
 		requiredOn.m_bValue = false;
 		simple.m_aConditions = {requiredOn};
 		engine.Start({simple.BuildRule()});
@@ -312,9 +329,9 @@ class GC_MissionRuleTests
 		timer.m_fSeconds = 0;
 		Check(!simple.BuildRule(), "bad timer rejected");
 
-		GC_BooleanCondition yes = new GC_BooleanCondition();
+		GC_TestFixedCondition yes = new GC_TestFixedCondition();
 		yes.m_bValue = true;
-		GC_BooleanCondition no = new GC_BooleanCondition();
+		GC_TestFixedCondition no = new GC_TestFixedCondition();
 		no.m_bValue = false;
 		GC_ConditionGroup any = new GC_ConditionGroup();
 		any.m_iMatch = 1;
@@ -436,7 +453,7 @@ class GC_MissionRuleTests
 				return "FAIL: authored rule could not deserialize";
 			rules.Insert(rule);
 		}
-		Check(rules[0].m_If && rules[0].m_If.m_aChecks.Count() == 1 && rules[0].m_If.m_aChecks[0].m_aChecks.Count() == 3 && rules[0].m_If.m_aChecks[0].m_iHowMany == 1, "serialized two-out-of-three nested conditions are present");
+		Check(!rules[0].m_If, "serialized example needs no placeholder conditions");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start(rules);
 		Check(engine.GetInvalidRuleCount() == 0, "no-flags example deserializes");
