@@ -22,6 +22,28 @@ class GC_MissionRuleTests
 	protected int m_iFailures;
 
 	//------------------------------------------------------------------------------------------------
+	static GC_Event StateRule(string flag, SCR_EGameModeState phase, bool inverse = false, bool repeat = false, float wait = 0)
+	{
+		GC_Event rule = new GC_Event();
+		rule.m_sName = flag;
+		GC_SetFlagAction action = new GC_SetFlagAction();
+		action.m_sFlagName = flag;
+		action.m_iSetTo = 1;
+		rule.m_aActions = {action};
+		GC_GameModeStateCondition state = new GC_GameModeStateCondition();
+		state.m_eGameModeState = phase;
+		if (inverse)
+			state.m_iMatch = 1;
+		rule.m_aConditions = {state};
+		rule.m_Advanced = new GC_RuleOptions();
+		rule.m_Advanced.m_fRandomChance = 1;
+		if (repeat)
+			rule.m_Advanced.m_iRun = 1;
+		rule.m_Advanced.m_fWaitSeconds = wait;
+		return rule;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void Check(bool passed, string label)
 	{
 		m_iChecks++;
@@ -240,9 +262,9 @@ class GC_MissionRuleTests
 	}
 
 	//------------------------------------------------------------------------------------------------
-	static GC_MissionRule SimpleRule(string output)
+	static GC_Event SimpleRule(string output)
 	{
-		GC_MissionRule rule = new GC_MissionRule();
+		GC_Event rule = new GC_Event();
 		rule.m_sName = output;
 		rule.m_aActions = {};
 		GC_SetFlagAction action = new GC_SetFlagAction();
@@ -255,7 +277,7 @@ class GC_MissionRuleTests
 	//------------------------------------------------------------------------------------------------
 	string RunSimple()
 	{
-		GC_MissionRule simple = SimpleRule("done");
+		GC_Event simple = SimpleRule("done");
 		GC_CompiledMissionRule built = simple.BuildRule();
 		Check(built && built.m_bEnabled && built.m_bRunOnlyOnce && !built.m_If && built.m_fWaitSeconds == 0, "simple defaults need no extra settings");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
@@ -279,6 +301,7 @@ class GC_MissionRuleTests
 		simple.m_aConditions = {};
 
 		simple.m_Advanced = new GC_RuleOptions();
+		simple.m_Advanced.m_fRandomChance = 1;
 		simple.m_Advanced.m_bDisabled = true;
 		engine.Start({simple.BuildRule()});
 		Check(engine.GetRunCount() == 0, "disabled simple rule stays off");
@@ -369,7 +392,7 @@ class GC_MissionRuleTests
 		array<ref GC_CompiledMissionRule> rules = {};
 		for (int index; index < authoredRules.Count(); index++)
 		{
-			GC_MissionRule definition = GC_MissionRule.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
+			GC_EventDefinition definition = GC_EventDefinition.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
 			if (!definition)
 				return "FAIL: authored definition could not deserialize";
 			GC_CompiledMissionRule rule = definition.BuildRule();
@@ -414,7 +437,7 @@ class GC_MissionRuleTests
 		array<ref GC_CompiledMissionRule> rules = {};
 		for (int index; index < authoredRules.Count(); index++)
 		{
-			GC_MissionRule definition = GC_MissionRule.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
+			GC_EventDefinition definition = GC_EventDefinition.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredRules.Get(index)));
 			if (!definition)
 				return "FAIL: authored definition could not deserialize";
 			GC_CompiledMissionRule rule = definition.BuildRule();
@@ -427,9 +450,9 @@ class GC_MissionRuleTests
 		engine.Start(rules, null, SCR_EGameModeState.GAME);
 		Check(engine.GetInvalidRuleCount() == 0, "no-flags example deserializes");
 		Check(engine.GetRunCount() == 0, "no-flags match-start wait");
+		engine.Advance(1);
+		Check(engine.GetRunCount() == 0, "group fixed delay has not elapsed");
 		engine.Advance(2);
-		Check(engine.GetRunCount() == 0, "combined fixed and random delay has not elapsed");
-		engine.Advance(5);
 		Check(engine.GetRunCount() == 1, "no-flags random rule completes");
 		engine.Advance(100);
 		Check(engine.GetRunCount() == 1, "no-flags rule runs once by default");

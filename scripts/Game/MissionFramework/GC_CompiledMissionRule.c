@@ -56,6 +56,9 @@ class GC_RuleAction
 class GC_CompiledMissionRule
 {
 	ref GC_RuleRandom m_Random;
+	float m_fChance = 1;
+	int m_iPickCount;
+	ref array<ref GC_CompiledMissionRule> m_aChoices;
 	string m_sName;
 	bool m_bEnabled;
 	GC_ERuleEvent m_eWhen;
@@ -67,8 +70,10 @@ class GC_CompiledMissionRule
 	float m_fWaitSeconds;
 
 	//------------------------------------------------------------------------------------------------
-	bool IsValid()
+	bool IsValid(int depth = 0)
 	{
+		if (depth > 1 || m_fChance < 0 || m_fChance > 1)
+			return false;
 		if (m_Random && (!m_Random.IsValid() || m_fWaitSeconds + m_Random.m_fMaximumSeconds > 86400))
 			return false;
 		if (m_eWhen < 0 || m_eWhen > GC_ERuleEvent.GAME_MODE_STATE || m_fWaitSeconds < 0 || m_fWaitSeconds > 86400)
@@ -79,6 +84,17 @@ class GC_CompiledMissionRule
 			return false;
 		if (m_If && !m_If.IsValid())
 			return false;
+		if (m_aChoices)
+		{
+			if (depth > 0 || m_aChoices.IsEmpty() || m_aChoices.Count() > 255 || m_iPickCount < 1 || m_iPickCount > m_aChoices.Count() || (m_aThen && !m_aThen.IsEmpty()))
+				return false;
+			foreach (GC_CompiledMissionRule child : m_aChoices)
+			{
+				if (!child || !child.IsValid(depth + 1))
+					return false;
+			}
+			return true;
+		}
 		if (!m_aThen || m_aThen.IsEmpty() || m_aThen.Count() > 256)
 			return false;
 		foreach (GC_RuleAction action : m_aThen)

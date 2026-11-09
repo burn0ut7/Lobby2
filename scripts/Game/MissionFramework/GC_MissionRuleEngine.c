@@ -15,6 +15,8 @@ class GC_MissionRuleEvent
 class GC_MissionRuleState
 {
 	ref GC_CompiledMissionRule m_Rule;
+	GC_MissionRuleState m_Parent;
+	ref array<ref GC_MissionRuleState> m_aChoices;
 	bool m_bValid;
 	bool m_bPending;
 	int m_iRuns;
@@ -68,19 +70,26 @@ class GC_MissionRuleEngine
 			Print("GC | Mission Framework | Cannot start: the rule list is missing or contains more than 256 rules.", LogLevel.ERROR);
 			return;
 		}
+		int total = rules.Count();
+		foreach (GC_CompiledMissionRule countedRule : rules)
+		{
+			if (countedRule && countedRule.m_aChoices)
+				total += countedRule.m_aChoices.Count();
+		}
+		if (total > 256)
+		{
+			m_iInvalidRules = 1;
+			Print("GC | Mission Framework | More than 256 total events including group children; not started.", LogLevel.ERROR);
+			return;
+		}
 		foreach (GC_CompiledMissionRule rule : rules)
 		{
-			GC_MissionRuleState state = new GC_MissionRuleState();
-			state.m_Rule = rule;
-			state.m_bValid = rule && rule.IsValid();
+			GC_MissionRuleState state = CreateState(rule);
 			if (!state.m_bValid)
 			{
 				m_iInvalidRules++;
-				PrintFormat("GC | Mission Framework | Rule %1 is incomplete or invalid; skipped.", m_aStates.Count() + 1);
+				Print("GC | Mission Framework | Incomplete or invalid event skipped.", LogLevel.ERROR);
 			}
-			else
-				state.m_fNextCheck = rule.m_fEverySeconds;
-			m_aStates.Insert(state);
 		}
 		m_bRunning = true;
 		if (GC_LobbyPhase.IsValid(initialState))
@@ -91,6 +100,27 @@ class GC_MissionRuleEngine
 			m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.MATCH_BEGINS, ""));
 			DrainEvents();
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected GC_MissionRuleState CreateState(GC_CompiledMissionRule rule, GC_MissionRuleState parent = null)
+	{
+		GC_MissionRuleState state = new GC_MissionRuleState();
+		state.m_Rule = rule;
+		state.m_Parent = parent;
+		state.m_bValid = rule && rule.IsValid();
+		m_aStates.Insert(state);
+		if (state.m_bValid)
+		{
+			state.m_fNextCheck = rule.m_fEverySeconds;
+			if (rule.m_aChoices)
+			{
+				state.m_aChoices = {};
+				foreach (GC_CompiledMissionRule child : rule.m_aChoices)
+					state.m_aChoices.Insert(CreateState(child, state));
+			}
+		}
+		return state;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -107,7 +137,10 @@ class GC_MissionRuleEngine
 			if (!pending.m_bValid || !pending.m_bPending)
 				continue;
 			GC_CompiledMissionRule rule = pending.m_Rule;
-			if ((rule.m_If && !rule.m_If.Evaluate(m_mFlags, state))
+			// Selected children inherit the parent event's match-end lifetime.
+			if (pending.m_Parent)
+				rule = pending.m_Parent.m_Rule;
+			if (!ConditionsPass(pending)
 				|| (state == SCR_EGameModeState.POSTGAME && rule.m_eWhen != GC_ERuleEvent.GAME_MODE_STATE))
 				pending.m_bPending = false;
 		}
@@ -155,7 +188,7 @@ class GC_MissionRuleEngine
 		bool watched;
 		foreach (GC_MissionRuleState state : m_aStates)
 		{
-			if (state.m_bValid && state.m_Rule.m_bEnabled && state.m_Rule.m_eWhen == kind
+			if (!state.m_Parent && state.m_bValid && state.m_Rule.m_bEnabled && state.m_Rule.m_eWhen == kind
 				&& state.m_Rule.m_sTestEventName == name)
 			{
 				watched = true;
@@ -227,7 +260,7 @@ class GC_MissionRuleEngine
 				if (CanRun(state))
 					Execute(state);
 			}
-			if (state.m_Rule.m_eWhen == GC_ERuleEvent.TIMER && m_eGameModeState != SCR_EGameModeState.POSTGAME && state.m_fNextCheck <= m_fNow)
+			if (!state.m_Parent && state.m_Rule.m_eWhen == GC_ERuleEvent.TIMER && m_eGameModeState != SCR_EGameModeState.POSTGAME && state.m_fNextCheck <= m_fNow)
 			{
 				state.m_fNextCheck = m_fNow + state.m_Rule.m_fEverySeconds;
 				TryRun(state);
@@ -245,13 +278,26 @@ class GC_MissionRuleEngine
 		GC_CompiledMissionRule rule = state.m_Rule;
 		if (rule.m_bRunOnlyOnce && state.m_iRuns > 0)
 			return false;
-		return !rule.m_If || rule.m_If.Evaluate(m_mFlags, m_eGameModeState);
+		return ConditionsPass(state);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ConditionsPass(GC_MissionRuleState state)
+	{
+		if (!state.m_bValid || !state.m_Rule.m_bEnabled)
+			return false;
+		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState))
+			return false;
+		return !state.m_Parent || ConditionsPass(state.m_Parent);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected void TryRun(GC_MissionRuleState state)
 	{
 		if (!CanRun(state))
+			return;
+		float chance = state.m_Rule.m_fChance;
+		if (chance <= 0 || (chance < 1 && RandomUnit() >= chance))
 			return;
 		float delay = state.m_Rule.m_fWaitSeconds;
 		GC_RuleRandom random = state.m_Rule.m_Random;
@@ -273,6 +319,11 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void Execute(GC_MissionRuleState state)
 	{
+		if (state.m_aChoices)
+		{
+			ExecuteRandomGroup(state);
+			return;
+		}
 		// Commit once-only state before actions can emit another event.
 		state.m_iRuns++;
 		m_iRuns++;
@@ -304,6 +355,32 @@ class GC_MissionRuleEngine
 					break;
 			}
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ExecuteRandomGroup(GC_MissionRuleState group)
+	{
+		array<GC_MissionRuleState> pool = {};
+		foreach (GC_MissionRuleState child : group.m_aChoices)
+		{
+			if (CanRun(child))
+				pool.Insert(child);
+		}
+		// No eligible events: keep a once-only group available for a later notification.
+		if (pool.IsEmpty())
+			return;
+		array<GC_MissionRuleState> selected = {};
+		int picks = Math.Min(group.m_Rule.m_iPickCount, pool.Count());
+		for (int i; i < picks; i++)
+		{
+			int index = Math.Min(Math.Floor(RandomUnit() * pool.Count()), pool.Count() - 1);
+			selected.Insert(pool[index]);
+			pool.RemoveOrdered(index);
+		}
+		// Commit selection once before child actions can emit another notification.
+		group.m_iRuns++;
+		foreach (GC_MissionRuleState chosen : selected)
+			TryRun(chosen);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -353,7 +430,7 @@ class GC_MissionRuleEngine
 			m_aEvents.RemoveOrdered(0);
 			foreach (GC_MissionRuleState state : m_aStates)
 			{
-				if (!state.m_bValid)
+				if (state.m_Parent || !state.m_bValid)
 					continue;
 				GC_CompiledMissionRule rule = state.m_Rule;
 				if (rule.m_eWhen == notification.m_eKind && (notification.m_eKind == GC_ERuleEvent.MATCH_BEGINS || notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE

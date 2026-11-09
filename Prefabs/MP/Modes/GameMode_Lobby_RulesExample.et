@@ -3,10 +3,8 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_aMissionEvents {
-    GC_MissionRule "{7B115D5DFF7EDA01}" {
+    GC_Event "{7B115D5DFF7EDA01}" {
      m_sName "1. Match begins"
-     m_Random GC_RuleRandom "{7B115D5DFF7EDA12}" {
-     }
      m_aActions {
       GC_SetFlagAction "{7B115D5DFF7EDA02}" {
        m_sFlagName "test_ready"
@@ -19,7 +17,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
       }
      }
     }
-    GC_MissionRule "{7B115D5DFF7EDA03}" {
+    GC_Event "{7B115D5DFF7EDA03}" {
      m_sName "2. After action begins"
      m_aConditions {
       GC_GameModeStateCondition "{7B115D5DFF7EDA11}" {

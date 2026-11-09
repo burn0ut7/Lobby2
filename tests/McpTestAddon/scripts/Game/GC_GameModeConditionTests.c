@@ -1,27 +1,6 @@
 modded class GC_MissionRuleTests
 {
 	//------------------------------------------------------------------------------------------------
-	static GC_MissionRule StateRule(string flag, SCR_EGameModeState phase, bool inverse = false, bool repeat = false, float wait = 0)
-	{
-		GC_MissionRule rule = new GC_MissionRule();
-		rule.m_sName = flag;
-		GC_SetFlagAction action = new GC_SetFlagAction();
-		action.m_sFlagName = flag;
-		action.m_iSetTo = 1;
-		rule.m_aActions = {action};
-		GC_GameModeStateCondition state = new GC_GameModeStateCondition();
-		state.m_eGameModeState = phase;
-		if (inverse)
-			state.m_iMatch = 1;
-		rule.m_aConditions = {state};
-		rule.m_Advanced = new GC_RuleOptions();
-		if (repeat)
-			rule.m_Advanced.m_iRun = 1;
-		rule.m_Advanced.m_fWaitSeconds = wait;
-		return rule;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	string RunGameModeConditions()
 	{
 		array<SCR_EGameModeState> phases = {SCR_EGameModeState.PREGAME, SCR_EGameModeState.SLOTTING, SCR_EGameModeState.BRIEFING, SCR_EGameModeState.GAME, SCR_EGameModeState.POSTGAME};
@@ -53,9 +32,9 @@ modded class GC_MissionRuleTests
 		invalid.m_eGameModeState = SCR_EGameModeState.GAME;
 		invalid.m_iMatch = 2;
 		Check(!invalid.BuildCheck(), "invalid comparison rejected");
-		GC_MissionRule match = StateRule("match", SCR_EGameModeState.GAME);
-		GC_MissionRule outside = StateRule("outside", SCR_EGameModeState.GAME, true, true);
-		GC_MissionRule after = StateRule("after", SCR_EGameModeState.POSTGAME);
+		GC_Event match = StateRule("match", SCR_EGameModeState.GAME);
+		GC_Event outside = StateRule("outside", SCR_EGameModeState.GAME, true, true);
+		GC_Event after = StateRule("after", SCR_EGameModeState.POSTGAME);
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start({match.BuildRule(), outside.BuildRule(), after.BuildRule()}, null, SCR_EGameModeState.PREGAME);
 		Check(engine.GetRunCount() == 1 && engine.GetFlag("outside") && !engine.GetFlag("match"), "initial snapshot checks state without inventing match start");
@@ -77,12 +56,12 @@ modded class GC_MissionRuleTests
 		engine.SetGameModeState(SCR_EGameModeState.GAME);
 		Check(engine.GetRunCount() == 6, "stopped engine ignores callbacks");
 
-		GC_MissionRule delayed = StateRule("delayed", SCR_EGameModeState.GAME, false, true, 5);
+		GC_Event delayed = StateRule("delayed", SCR_EGameModeState.GAME, false, true, 5);
 		engine.Start({delayed.BuildRule()}, null, SCR_EGameModeState.GAME);
 		engine.SetGameModeState(SCR_EGameModeState.POSTGAME, 2);
 		engine.Advance(10);
 		Check(!engine.GetFlag("delayed"), "state exit cancels pending actions");
-		GC_MissionRule delayedAfter = StateRule("delayed_after", SCR_EGameModeState.POSTGAME, false, false, 2);
+		GC_Event delayedAfter = StateRule("delayed_after", SCR_EGameModeState.POSTGAME, false, false, 2);
 		engine.Start({delayedAfter.BuildRule()}, null, SCR_EGameModeState.GAME);
 		engine.SetGameModeState(SCR_EGameModeState.POSTGAME, 5);
 		engine.Advance(6);

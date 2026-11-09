@@ -126,7 +126,7 @@ modded class GC_MissionRuleTests
 			// Left and its inverse contribute exactly one; right decides whether two pass.
 			Check(greater.BuildCheck().Evaluate(null) == ((61440 & (1 << mask)) != 0), "two of three nested groups count each group once");
 		}
-		GC_MissionRule missionEvent = SimpleRule("logic_passed");
+		GC_Event missionEvent = SimpleRule("logic_passed");
 		missionEvent.m_aConditions = {greater};
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start({missionEvent.BuildRule()});
