@@ -1685,3 +1685,7 @@ and paired operation receipts are retained under Art/References/forced-clothing.
 ## Time and weather action checks
 
 With this optional addon loaded, open World Editor > Plugins > GC Tests > Check time and weather action. Eight checks exercise production action defaults, validation, separate/combined changes and loaded-map preset enumeration without changing the world. All passed on Arland after reload on 2026-11-10 (logs_2026-11-10_04-29-14, lines 22183-22191). Plugins > GC > List weather presets was also verified to show Clear, Cloudy, Overcast and Rainy. No Play tests were run.
+
+## Marker and vehicle action checks
+
+World Editor > Plugins > GC Tests > Check marker and vehicle actions runs 23 editor-only checks against production BuildAction/IsValid and marker audience/catalog code. All passed on 2026-11-10; logs_2026-11-10_04-29-14 lines 22605-22628. Reload 41603c8f8ea5436f8d719ffe381563a4 compiled with zero script errors. No Play tests or world mutations. Actual component effects and marker network serialization remain untested at runtime.

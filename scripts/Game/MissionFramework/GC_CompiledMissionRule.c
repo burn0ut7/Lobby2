@@ -34,7 +34,9 @@ enum GC_ERuleAction
 	ASSIGN_WAYPOINTS,
 	WEATHER,
 	TIMER_CONTROL,
-	RESPAWN_WAVE
+	RESPAWN_WAVE,
+	VEHICLE,
+	MARKER_VISIBILITY
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -58,6 +60,11 @@ class GC_RuleAction
 	float m_fTimerSeconds;
 	string m_sMessageTitle;
 	bool m_bRandomOrder;
+	ref array<ref GC_MarkerFactionVisibility> m_aMarkerFactions;
+	bool m_bChangeFuel;
+	float m_fFuelRatio;
+	bool m_bChangeSupplies;
+	bool m_bRepair;
 	bool m_bChangeWeather = true;
 	bool m_bChangeTime;
 	int m_iHours;
@@ -82,6 +89,25 @@ class GC_RuleAction
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.MARKER_VISIBILITY)
+		{
+			if (!m_aFlagNames || m_aFlagNames.IsEmpty() || !ValidTargetNames(m_aFlagNames)
+				|| !m_aMarkerFactions || m_aMarkerFactions.Count() > GC_BriefingMarker.MAX_FACTION_KEYS)
+				return false;
+			array<string> factions = {};
+			foreach (GC_MarkerFactionVisibility visibility : m_aMarkerFactions)
+			{
+				if (!visibility || visibility.m_sFaction.IsEmpty() || factions.Contains(visibility.m_sFaction))
+					return false;
+				factions.Insert(visibility.m_sFaction);
+			}
+			return true;
+		}
+		if (m_eDo == GC_ERuleAction.VEHICLE)
+			return m_aFlagNames && !m_aFlagNames.IsEmpty() && ValidTargetNames(m_aFlagNames)
+				&& (m_bChangeFuel || m_bChangeSupplies || m_bRepair)
+				&& (!m_bChangeFuel || (m_fFuelRatio >= 0 && m_fFuelRatio <= 1))
+				&& (!m_bChangeSupplies || (m_iAmount >= 0 && m_iAmount <= 1000000));
 		if (m_eDo == GC_ERuleAction.RESPAWN_WAVE)
 			return m_iAmount >= 0 && m_iAmount <= 1000000 && ValidTargetNames(m_aFlagNames);
 		if (m_eDo == GC_ERuleAction.TIMER_CONTROL)

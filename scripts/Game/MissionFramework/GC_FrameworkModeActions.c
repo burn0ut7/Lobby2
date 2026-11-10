@@ -11,6 +11,10 @@ modded class GC_LobbyManager
 		{
 			case GC_ERuleAction.RESPAWN_WAVE:
 				return GC_RespawnWave(action.m_aFlagNames, action.m_iAmount, action.m_bFlagAnswer, action.m_bRandomOrder) >= 0;
+			case GC_ERuleAction.MARKER_VISIBILITY:
+				return GC_ChangeFrameworkMarkerVisibility(action);
+			case GC_ERuleAction.VEHICLE:
+				return GC_ChangeFrameworkVehicles(action);
 			case GC_ERuleAction.WEATHER:
 				return GC_ChangeFrameworkWeather(action);
 			case GC_ERuleAction.DELETE_ENTITIES:
@@ -27,6 +31,88 @@ modded class GC_LobbyManager
 				return GC_ChangeFrameworkTickets(action);
 		}
 		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Called only after the framework's authority and active-engine checks.
+	protected bool GC_ChangeFrameworkVehicles(GC_RuleAction action)
+	{
+		bool supported;
+		array<IEntity> visited = {};
+		foreach (string name : action.m_aFlagNames)
+		{
+			IEntity entity = GetGame().GetWorld().FindEntityByName(name);
+			if (!entity || visited.Contains(entity))
+				continue;
+			visited.Insert(entity);
+			if (action.m_bChangeFuel)
+			{
+				array<SCR_FuelManagerComponent> fuelManagers = {};
+				SCR_FuelManagerComponent.GetAllFuelManagers(entity, fuelManagers);
+				if (!fuelManagers.IsEmpty())
+				{
+					SCR_FuelManagerComponent.SetTotalFuelPercentageOfFuelManagers(fuelManagers, action.m_fFuelRatio);
+					supported = true;
+				}
+			}
+			if (action.m_bChangeSupplies)
+			{
+				SCR_ResourceComponent resources = SCR_ResourceComponent.FindResourceComponent(entity, false);
+				SCR_ResourceContainer container;
+				if (resources && resources.GetContainer(EResourceType.SUPPLIES, container))
+				{
+					container.SetResourceValue(action.m_iAmount);
+					supported = true;
+				}
+			}
+			if (action.m_bRepair)
+			{
+				SCR_DamageManagerComponent damage = SCR_DamageManagerComponent.Cast(entity.FindComponent(SCR_DamageManagerComponent));
+				if (damage)
+				{
+					damage.FullHeal();
+					supported = true;
+				}
+			}
+		}
+		return supported;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Reuse the catalog's revision, reliable update and join-in-progress snapshot paths.
+	protected bool GC_ChangeFrameworkMarkerVisibility(GC_RuleAction action)
+	{
+		FactionManager factions = GetGame().GetFactionManager();
+		foreach (GC_MarkerFactionVisibility visibility : action.m_aMarkerFactions)
+		{
+			if (!factions || !factions.GetFactionByKey(visibility.m_sFaction))
+				return false;
+		}
+		array<ref GC_BriefingMarker> updates = {};
+		array<string> visited = {};
+		foreach (string name : action.m_aFlagNames)
+		{
+			GC_BriefingMarker marker = GetBriefingMarker(name);
+			if (!marker || visited.Contains(name))
+				continue;
+			visited.Insert(name);
+			GC_BriefingMarker update = new GC_BriefingMarker();
+			update.CopyFrom(marker);
+			update.SetFactionVisibility("", action.m_bFlagAnswer);
+			foreach (GC_MarkerFactionVisibility visibility : action.m_aMarkerFactions)
+				update.SetFactionVisibility(visibility.m_sFaction, visibility.m_bVisible);
+			if (!ValidateBriefingMarker(update))
+				return false;
+			updates.Insert(update);
+		}
+		if (updates.IsEmpty())
+			return false;
+		foreach (GC_BriefingMarker update : updates)
+		{
+			if (!UpsertBriefingMarker(update))
+				return false;
+		}
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

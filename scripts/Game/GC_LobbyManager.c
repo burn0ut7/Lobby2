@@ -4463,10 +4463,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!marker || marker.IsVisible() == visible)
             return marker != null;
 
-        return SetBriefingMarker(marker.GetName(), marker.GetImage(), marker.GetHighlightImage(), marker.GetQuadName(),
-            marker.GetWorldPosition(), marker.GetRotation(), marker.IsWorldScale(), marker.GetSize(),
-            marker.GetMinSize(), marker.GetDescription(), marker.GetFactionKeys(), marker.GetShowAtGameModeState(),
-            marker.IsGameModeStateInverted(), visible, marker.GetColor());
+        GC_BriefingMarker update = new GC_BriefingMarker();
+        update.CopyFrom(marker);
+        update.SetVisible(visible);
+        return UpsertBriefingMarker(update);
     }
 
     bool RemoveBriefingMarker(string markerName)

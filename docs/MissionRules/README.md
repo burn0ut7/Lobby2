@@ -517,7 +517,7 @@ This cleanup changes catalog visibility, wording and the example, not flag evalu
 
 ## Action catalog migration
 
-The production action catalog includes: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Respawn Wave Action**, **Reset Random Chance Action**, **Spawn Action**, **Delete Entities Action**, **Assign Waypoints Action**, **Time and Weather Action**, **Timer Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; its optional Title changes the popup heading without changing the Mission source.
+The production action catalog includes: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Respawn Wave Action**, **Reset Random Chance Action**, **Spawn Action**, **Delete Entities Action**, **Assign Waypoints Action**, **Time and Weather Action**, **Map Marker Visibility Action**, **Vehicle Fuel, Supplies and Repair Action**, **Timer Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; its optional Title changes the popup heading without changing the Mission source.
 
 Flag Action already includes Call, Set count, Add, Subtract, Reset to zero and Restore starting count. Random selection stays with Random Chance Condition and Random Event Group because it needs probability/pool settings rather than the same single-flag arithmetic fields. End Mission stays separate from Message because outcome/faction settings are unrelated to message text and warning presentation.
 
@@ -576,3 +576,7 @@ Only connected players with claimed KIA slots qualify. A dead player waiting in 
 Example: create a repeatable event with a Timer Condition named `reinforcement_wave`, starting in Match, with Seconds = 60. Add Respawn Wave Action (chosen factions, Maximum Players = 10, Use Tickets checked), followed by Timer Action targeting `reinforcement_wave` with Restart. The timer schedules the next attempt; the wave action itself does not repeat or add delays between players. Existing parameter-based respawn intervals are independent triggers: set them to zero for factions whose waves should be controlled only by this event.
 
 Verification: the optional test addon's **GC Tests > Check respawn wave action** checks production authoring defaults, compiled settings, scope copying and invalid input without starting Play or changing the world. Actual spawning, possession, ticket refund during an engine failure and multiplayer timing require an in-game test; those were not exercised for this slice.
+
+## Map marker and vehicle actions
+
+Map Marker Visibility Action changes existing Lobby2 marker visibility by faction and for players without a faction. Vehicle Fuel, Supplies and Repair Action independently sets fuel, sets supplies and repairs named entities. See [settings, TilW coverage and verification](MarkerVehicleActions.md).

@@ -21,6 +21,10 @@ class GC_BriefingMarker
 	protected bool m_bInvertGameModeState;
 	protected bool m_bVisible = true;
 	protected int m_iRevision;
+	// Explicit audiences distinguish nobody from the authored empty-list meaning of everybody.
+	protected bool m_bExplicitAudience;
+	protected bool m_bExcludeFactionKeys;
+	protected bool m_bVisibleWithoutFaction;
 
 	string GetName() { return m_sName; }
 	ResourceName GetImage() { return m_sImage; }
@@ -45,6 +49,9 @@ class GC_BriefingMarker
 		SCR_EGameModeState showAtGameModeState = SCR_EGameModeState.GAME,
 		bool invertGameModeState = false, bool visible = true, int color = Color.WHITE)
 	{
+		m_bExplicitAudience = false;
+		m_bExcludeFactionKeys = false;
+		m_bVisibleWithoutFaction = false;
 		m_sName = name;
 		m_sImage = image;
 		m_sHighlightImage = highlightImage;
@@ -77,26 +84,55 @@ class GC_BriefingMarker
 		if (!m_bVisible || !stateMatches)
 			return false;
 
+		string key;
+		if (faction)
+			key = faction.GetFactionKey();
+		return IsVisibleToFactionKey(key);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsVisibleToFactionKey(string key)
+	{
+		if (m_bExplicitAudience)
+		{
+			if (key.IsEmpty())
+				return m_bVisibleWithoutFaction;
+			bool listed = m_aFactionKeys.Contains(key);
+			if (m_bExcludeFactionKeys)
+				return !listed;
+			return listed;
+		}
 		if (m_aFactionKeys.IsEmpty())
 			return true;
-
-		FactionKey playerFactionKey;
-		if (faction)
-			playerFactionKey = faction.GetFactionKey();
-
-		bool hasFactionRestriction;
-		foreach (string allowedFactionKey : m_aFactionKeys)
-		{
-			if (allowedFactionKey.IsEmpty())
-				continue;
-
-			hasFactionRestriction = true;
-			if (faction && allowedFactionKey == playerFactionKey)
-				return true;
-		}
-
-		return !hasFactionRestriction;
+		return !key.IsEmpty() && m_aFactionKeys.Contains(key);
 	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Mutate a detached snapshot, then publish it through UpsertBriefingMarker.
+	void SetFactionVisibility(string key, bool visible)
+	{
+		if (!m_bExplicitAudience)
+		{
+			m_bExcludeFactionKeys = m_aFactionKeys.IsEmpty();
+			m_bVisibleWithoutFaction = m_bExcludeFactionKeys;
+			m_bExplicitAudience = true;
+		}
+		if (key.IsEmpty())
+		{
+			m_bVisibleWithoutFaction = visible;
+			return;
+		}
+		bool shouldList = visible;
+		if (m_bExcludeFactionKeys)
+			shouldList = !visible;
+		int index = m_aFactionKeys.Find(key);
+		if (shouldList && index < 0)
+			m_aFactionKeys.Insert(key);
+		else if (!shouldList && index >= 0)
+			m_aFactionKeys.RemoveOrdered(index);
+	}
+
+	void SetVisible(bool visible) { m_bVisible = visible; }
 
 	void CopyFrom(GC_BriefingMarker source)
 	{
@@ -108,6 +144,9 @@ class GC_BriefingMarker
 			source.m_aFactionKeys, source.m_eShowAtGameModeState,
 			source.m_bInvertGameModeState, source.m_bVisible, source.m_iColor);
 		m_iRevision = source.m_iRevision;
+		m_bExplicitAudience = source.m_bExplicitAudience;
+		m_bExcludeFactionKeys = source.m_bExcludeFactionKeys;
+		m_bVisibleWithoutFaction = source.m_bVisibleWithoutFaction;
 	}
 
 	bool RplSave(ScriptBitWriter writer)
@@ -131,6 +170,9 @@ class GC_BriefingMarker
 		writer.WriteBool(m_bInvertGameModeState);
 		writer.WriteBool(m_bVisible);
 		writer.WriteInt(m_iRevision);
+		writer.WriteBool(m_bExplicitAudience);
+		writer.WriteBool(m_bExcludeFactionKeys);
+		writer.WriteBool(m_bVisibleWithoutFaction);
 		return true;
 	}
 
@@ -162,7 +204,9 @@ class GC_BriefingMarker
 		if (!reader.ReadInt(showAtGameModeState) || !GC_LobbyPhase.IsValid(showAtGameModeState))
 			return false;
 		m_eShowAtGameModeState = showAtGameModeState;
-		if (!reader.ReadBool(m_bInvertGameModeState) || !reader.ReadBool(m_bVisible) || !reader.ReadInt(m_iRevision))
+		if (!reader.ReadBool(m_bInvertGameModeState) || !reader.ReadBool(m_bVisible) || !reader.ReadInt(m_iRevision)
+			|| !reader.ReadBool(m_bExplicitAudience) || !reader.ReadBool(m_bExcludeFactionKeys)
+			|| !reader.ReadBool(m_bVisibleWithoutFaction))
 			return false;
 
 		return true;
@@ -199,6 +243,9 @@ class GC_BriefingMarker
 		snapshot.SerializeBool(instance.m_bInvertGameModeState);
 		snapshot.SerializeBool(instance.m_bVisible);
 		snapshot.SerializeInt(instance.m_iRevision);
+		snapshot.SerializeBool(instance.m_bExplicitAudience);
+		snapshot.SerializeBool(instance.m_bExcludeFactionKeys);
+		snapshot.SerializeBool(instance.m_bVisibleWithoutFaction);
 		return true;
 	}
 
@@ -239,6 +286,9 @@ class GC_BriefingMarker
 		snapshot.SerializeBool(instance.m_bInvertGameModeState);
 		snapshot.SerializeBool(instance.m_bVisible);
 		snapshot.SerializeInt(instance.m_iRevision);
+		snapshot.SerializeBool(instance.m_bExplicitAudience);
+		snapshot.SerializeBool(instance.m_bExcludeFactionKeys);
+		snapshot.SerializeBool(instance.m_bVisibleWithoutFaction);
 		return true;
 	}
 
@@ -260,6 +310,9 @@ class GC_BriefingMarker
 		snapshot.EncodeBool(packet);
 		snapshot.EncodeBool(packet);
 		snapshot.EncodeInt(packet);
+		snapshot.EncodeBool(packet);
+		snapshot.EncodeBool(packet);
+		snapshot.EncodeBool(packet);
 	}
 
 	static bool Decode(ScriptBitSerializer packet, ScriptCtx ctx, SSnapSerializerBase snapshot)
@@ -280,6 +333,9 @@ class GC_BriefingMarker
 		snapshot.DecodeBool(packet);
 		snapshot.DecodeBool(packet);
 		snapshot.DecodeInt(packet);
+		snapshot.DecodeBool(packet);
+		snapshot.DecodeBool(packet);
+		snapshot.DecodeBool(packet);
 		return true;
 	}
 
@@ -299,7 +355,8 @@ class GC_BriefingMarker
 			if (!lhs.CompareStringSnapshots(rhs)) return false;
 		}
 		return lhs.CompareSnapshots(rhs, 4) && lhs.CompareSnapshots(rhs, 4)
-			&& lhs.CompareSnapshots(rhs, 4) && lhs.CompareSnapshots(rhs, 4);
+			&& lhs.CompareSnapshots(rhs, 4) && lhs.CompareSnapshots(rhs, 4)
+			&& lhs.CompareSnapshots(rhs, 4) && lhs.CompareSnapshots(rhs, 4) && lhs.CompareSnapshots(rhs, 4);
 	}
 
 	static bool PropCompare(GC_BriefingMarker instance, SSnapSerializerBase snapshot, ScriptCtx ctx)
@@ -329,6 +386,9 @@ class GC_BriefingMarker
 		return snapshot.CompareInt(instance.m_eShowAtGameModeState)
 			&& snapshot.CompareBool(instance.m_bInvertGameModeState)
 			&& snapshot.CompareBool(instance.m_bVisible)
-			&& snapshot.CompareInt(instance.m_iRevision);
+			&& snapshot.CompareInt(instance.m_iRevision)
+			&& snapshot.CompareBool(instance.m_bExplicitAudience)
+			&& snapshot.CompareBool(instance.m_bExcludeFactionKeys)
+			&& snapshot.CompareBool(instance.m_bVisibleWithoutFaction);
 	}
 }
