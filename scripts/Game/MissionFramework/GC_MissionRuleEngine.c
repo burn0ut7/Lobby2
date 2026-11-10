@@ -758,6 +758,7 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void RegisterRandomConditions()
 	{
+		m_mRandomResults.Clear();
 		array<GC_RuleCondition> conditions = {};
 		foreach (GC_MissionRuleState state : m_aStates)
 		{
@@ -781,9 +782,23 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void ResetRandomConditions()
 	{
-		m_mRandomResults.Clear();
 		foreach (GC_RandomConditionState scheduled : m_aRandomConditions)
 		{
+			GC_RuleCondition condition = scheduled.m_Condition;
+			if (condition.m_iCheck == 12)
+			{
+				if (!m_mRandomResults.Contains(condition))
+					m_mRandomResults.Set(condition, false);
+				if (!scheduled.m_bTimerStarted && m_eGameModeState == condition.m_eGameModeState)
+				{
+					float duration = condition.m_fRandomInterval;
+					if (condition.m_fTimerMaximum > duration)
+						duration += RandomUnit() * (condition.m_fTimerMaximum - duration);
+					scheduled.m_fNextCheck = m_fNow + duration;
+					scheduled.m_bTimerStarted = true;
+				}
+				continue;
+			}
 			scheduled.m_fNextCheck = m_fNow + scheduled.m_Condition.m_fRandomInterval;
 			scheduled.m_bHasRolled = false;
 			m_mRandomResults.Set(scheduled.m_Condition, false);
@@ -794,17 +809,20 @@ class GC_MissionRuleEngine
 	//! Roll every due leaf before notifying any owner, so nesting sees one consistent snapshot.
 	protected void AdvanceRandomConditions()
 	{
-		if (m_eGameModeState != SCR_EGameModeState.GAME || m_aRandomConditions.IsEmpty())
+		if (m_aRandomConditions.IsEmpty())
 			return;
 		GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.RANDOM_CHECK, "");
 		notification.m_aRandomChecks = {};
 		foreach (GC_RandomConditionState scheduled : m_aRandomConditions)
 		{
-			if (scheduled.m_fNextCheck > m_fNow || (scheduled.m_bHasRolled && scheduled.m_Condition.m_iRandomBehavior == 1))
-				continue;
 			GC_RuleCondition condition = scheduled.m_Condition;
+			bool timer = condition.m_iCheck == 12;
+			if ((timer && !scheduled.m_bTimerStarted) || (!timer && m_eGameModeState != SCR_EGameModeState.GAME))
+				continue;
+			if (scheduled.m_fNextCheck > m_fNow || (scheduled.m_bHasRolled && (timer || condition.m_iRandomBehavior == 1)))
+				continue;
 			float chance = condition.m_fRandomChance;
-			bool result = chance >= 1 || (chance > 0 && RandomUnit() < chance);
+			bool result = timer || chance >= 1 || (chance > 0 && RandomUnit() < chance);
 			m_mRandomResults.Set(condition, result);
 			scheduled.m_bHasRolled = true;
 			// A late update rolls once, never bursts through missed intervals.

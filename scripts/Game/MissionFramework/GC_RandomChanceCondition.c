@@ -35,4 +35,5 @@ class GC_RandomConditionState
 	ref GC_RuleCondition m_Condition;
 	float m_fNextCheck;
 	bool m_bHasRolled;
+	bool m_bTimerStarted;
 }

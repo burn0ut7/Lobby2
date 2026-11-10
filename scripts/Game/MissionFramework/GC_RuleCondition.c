@@ -47,6 +47,7 @@ class GC_RuleCondition
 	string m_sEventName;
 	string m_sRandomResetName;
 	float m_fRandomInterval;
+	float m_fTimerMaximum;
 	float m_fRandomChance;
 	int m_iRandomBehavior;
 	ref array<string> m_aCasualtyFactions;
@@ -75,8 +76,11 @@ class GC_RuleCondition
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 11)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 12)
 			return false;
+		if (m_iCheck == 12)
+			return GC_LobbyPhase.IsValid(m_eGameModeState) && m_fRandomInterval >= 0.1
+				&& m_fTimerMaximum >= m_fRandomInterval && m_fTimerMaximum <= 86400;
 		if (m_iCheck == 11)
 			return !m_sInteractionEntity.IsEmpty();
 		if (m_iCheck == 10)
@@ -134,7 +138,7 @@ class GC_RuleCondition
 	{
 		if (depth > 16)
 			return false;
-		if (m_iCheck == 3)
+		if (m_iCheck == 3 || m_iCheck == 12)
 			return true;
 		if (m_iCheck == 0 && m_aChecks)
 		{
@@ -342,7 +346,7 @@ class GC_RuleCondition
 	{
 		if (depth > 16)
 			return false;
-		if (m_iCheck == 6)
+		if (m_iCheck == 6 || m_iCheck == 12)
 			return !changed || changed.Contains(this);
 		if (m_iCheck == 0 && m_aChecks)
 		{
@@ -360,7 +364,7 @@ class GC_RuleCondition
 	{
 		if (depth > 16)
 			return;
-		if (m_iCheck == 6 && !result.Contains(this))
+		if ((m_iCheck == 6 || m_iCheck == 12) && !result.Contains(this))
 			result.Insert(this);
 		if (m_iCheck == 0 && m_aChecks)
 		{
@@ -394,7 +398,7 @@ class GC_RuleCondition
 			GC_EntityDamageObservation observation;
 			return damage && damage.Find(this, observation) && observation && observation.IsAvailable();
 		}
-		if (m_iCheck == 6)
+		if (m_iCheck == 6 || m_iCheck == 12)
 			return randomResults && randomResults.Contains(this);
 		if (m_iCheck == 5)
 			return events && events.Contains(m_sEventName);
@@ -436,7 +440,7 @@ class GC_RuleCondition
 			answer = casualties && casualties.PassesDeathCount(m_aCasualtyFactions, m_iCasualtyCount, m_iDeathComparison, m_iRequiredDeaths);
 		else if (m_iCheck == 7)
 			answer = casualties && casualties.Passes(m_aCasualtyFactions, m_iCasualtyCount, m_fCasualtyRatio);
-		else if (m_iCheck == 6)
+		else if (m_iCheck == 6 || m_iCheck == 12)
 			randomResults.Find(this, answer);
 		else if (m_iCheck == 5)
 			events.Find(m_sEventName, answer);

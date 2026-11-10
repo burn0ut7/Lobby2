@@ -556,4 +556,4 @@ Weather Action changes a named weather preset, with Transition Seconds and an Al
 
 ## Timer condition
 
-Timer Condition becomes true after a configured number of seconds from Match start and stays true for that Match. See [timing, nesting and repeatability](TimerCondition.md).
+Timer Condition starts in a selected game state, waits a fixed or randomly chosen duration, then stays true until the framework restarts. See [timing, nesting and repeatability](TimerCondition.md).
