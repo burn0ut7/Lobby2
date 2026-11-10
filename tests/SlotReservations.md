@@ -1,5 +1,22 @@
 # Slot reservations
 
+## Deep-module extraction - 2026-11-09
+
+`GC_SlotReservationDocument` now owns document handling; the manager retains
+authorization and validates the complete live batch before mutation. In the
+current Arland world, `GC_TestModuleReservations()` passed export/import with
+24 authored slots (4 runtime-only slots excluded), invalid-final-UID rejection
+without partial claims, duplicate UID rejection, unresolved-requester rejection,
+idempotency, blank-UID preservation, export roundtrip and cleanup.
+Receipt: `r6d29389e025345529ff963fbc2ee3a06`.
+
+After removing the embedded host's admin roles, its production controller
+reservation request was rejected and all 28 slots remained unclaimed
+(`rfbc5aab4200240908e172d80f7deceab`). Accepted and rejected actions were observed
+in `logs_2026-11-09_21-18-15/console.log`, beginning at line 20944.
+This pass did not rerun remote authenticated import or reconnect scenarios;
+the earlier evidence below is historical, not a new verification claim.
+
 ## Admin workflow
 
 1. Sign in as an administrator and open the normal slotting screen.

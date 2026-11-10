@@ -64,14 +64,27 @@ native `StartGameMode()`. Group ordering and commander selection are unchanged.
 
 ## Slot lotteries
 
-`GC_LobbyManager` owns independent 30-second draws over empty slots resolved from
-native group/faction references. Each draw has one entrant pool; the authority
-randomizes entrants and eligible roles, then uses the canonical slot assignment
-handler. Owner-controller requests derive player identity server-side. Reliable
-broadcasts and JIP snapshots carry the same draw state. Phase transitions cancel
-draws, and shutdown removes their callbacks. `/join` selects the newest open draw;
-the native chat override delegates unchanged outside the active Lobby2 mode.
+`GC_SlotLotteryRuntime` owns independent 30-second draws, their collection,
+deadlines, entrant pools, cancellation and snapshot application. The manager owns
+authenticated entry points, native scope resolution, slot admission policy and
+the canonical assignment transaction. The runtime rechecks eligibility at draw
+time and submits winners through that transaction. Owner-controller requests
+derive player identity server-side. Phase transitions cancel draws; slot purges
+cancel overlapping draws; shutdown removes their callbacks. The manager keeps
+the existing RPCs, UI invokers and JIP stream ordering. `/join` selects the newest
+open draw; the native chat override delegates unchanged outside active Lobby2.
 See [slot lottery behavior and tests](../tests/SlotLottery.md).
+
+## Reservation documents
+
+`GC_SlotReservationDocument` owns version 1 import/export, stable authored keys,
+normalization, document limits and duplicate checks. It receives a synchronous
+snapshot of slots and the same saved authored group anchors used by spawning.
+It produces proposed rows without changing claims or native membership.
+`GC_LobbyManager` checks every proposed row against live claim policy before
+applying any reservation, then queues connected-player catch-up. Blank UIDs
+remain no-ops. Attributes, nested editor schemas and prefab component identities
+remain on the existing manager. See [reservation checks](../tests/SlotReservations.md).
 
 ## Architectural principles
 

@@ -3,12 +3,13 @@ modded class GC_AdminMessagePopupComponent
 {
 	static string GC_TestWarningState()
 	{
-		if (!s_wPopup || !s_CurrentMessage)
+		if (s_aVisible.IsEmpty())
 			return "UNAVAILABLE popup";
-		return string.Format("warning=%1 icon=%2 accent=%3 soundValid=%4 playing=%5 title=%6", s_CurrentMessage.m_bWarning,
-			s_wPopup.FindAnyWidget("AdminWarningIcon").IsVisible(), s_wPopup.FindAnyWidget("AdminWarningAccent").IsVisible(),
-			s_Sound != AudioHandle.Invalid, AudioSystem.IsSoundPlayed(s_Sound),
-			TextWidget.Cast(s_wPopup.FindAnyWidget("AdminMessageTitle")).GetText());
+		GC_AdminMessagePopupComponent popup = s_aVisible[s_aVisible.Count() - 1];
+		return string.Format("warning=%1 icon=%2 accent=%3 soundValid=%4 playing=%5 title=%6", popup.m_Message.m_bWarning,
+			popup.m_wRoot.FindAnyWidget("AdminWarningIcon").IsVisible(), popup.m_wRoot.FindAnyWidget("AdminWarningAccent").IsVisible(),
+			popup.m_Sound != AudioHandle.Invalid, AudioSystem.IsSoundPlayed(popup.m_Sound),
+			TextWidget.Cast(popup.m_wRoot.FindAnyWidget("AdminMessageTitle")).GetText());
 	}
 }
 

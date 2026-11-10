@@ -4,16 +4,16 @@ modded class GC_AdminMessagePopupComponent
 	//------------------------------------------------------------------------------------------------
 	static string GC_TestQueueSnapshot()
 	{
-		if (!s_CurrentMessage)
-			return "active=0";
-		string rendered;
-		if (s_wPopup)
+		string result = string.Format("active=%1 waiting=%2", s_aVisible.Count(), s_aWaiting.Count());
+		foreach (GC_AdminMessagePopupComponent popup : s_aVisible)
 		{
-			TextWidget body = TextWidget.Cast(s_wPopup.FindAnyWidget("AdminMessageText"));
+			string rendered;
+			TextWidget body = TextWidget.Cast(popup.m_wRoot.FindAnyWidget("AdminMessageText"));
 			if (body)
 				rendered = body.GetText();
+			result += string.Format(" [current=%1 rendered=%2]", popup.m_Message.m_sText, rendered);
 		}
-		return string.Format("active=1 current=%1 rendered=%2", s_CurrentMessage.m_sText, rendered);
+		return result;
 	}
 }
 

@@ -1,5 +1,34 @@
 # Slot lotteries
 
+## Deep-module extraction - 2026-11-09
+
+`GC_SlotLotteryRuntime` owns draw state, scheduling, cancellation and snapshot
+mechanics. Manager authorization, canonical slot assignment, RPC signatures and
+snapshot field order remain in place. The optional `GC_DeepModuleTests.c` calls
+production handlers without granting permissions or shortening deadlines.
+
+In embedded Arland Play, the real 30-second draw assigned the host and native
+group membership was verified (`r1da67e9d3c8b43d2ab0720c908565d43`). Overlap,
+direct-slot-claim, duplicate-entry and stale-request guards passed. Purging an
+affected group cancelled its draw and left the slot locked/unclaimed
+(`rdbf96360fa864965a4921751f0871149`); a phase transition cancelled all draws
+(`rcdda03efc79e4d77abe5c4b480c43afc`). A subsequent snapshot after their deadlines
+showed no active draws or claims (`rc007975ab5c244b6a7aa78ec17f29c2a`). Both an
+unresolved requester and the actually logged-out host were denied without
+mutation. Audit output includes the accepted draw and rejected requests in
+`logs_2026-11-09_21-18-15/console.log`, lines 20956 onward.
+
+Multiplayer/JIP replay was not rerun in this pass. The installed Workbench 1.9
+MCP profile reports multiplayer operations unsupported. Source comparison of
+the unchanged transport contracts is not a live peer verification. No shared
+base-game override or player-facing UI was changed by this extraction.
+
+Final Reload `5e8bc5c3eacf4408bcbb7cbba6ba5306` succeeded with no compilation
+errors. The log retains Arland resource/menu diagnostics and engine
+`PacejkaPlotTool`/`BlockListApi` leak messages; this was not a clean engine log.
+Static comparison confirmed all 12 manager attributes/fields and 16 RPC
+declarations unchanged. Independent implementation review approved the changes.
+
 An authenticated admin right-clicks a faction, group or empty slot and chooses
 **Start lottery (30 seconds)** during SLOTTING or BRIEFING. Each start creates an
 independent draw. Faction/group starts use one entrant pool across their currently

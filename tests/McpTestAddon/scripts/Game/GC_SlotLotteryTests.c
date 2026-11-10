@@ -9,8 +9,8 @@ modded class GC_LobbyManager
 		if (local)
 			playerId = local.GetPlayerId();
 		string result = string.Format("phase=%1 local=%2 admin=%3 active=%4", GetLobbyPhase(), playerId,
-			SCR_Global.IsAdmin(playerId), m_aSlotLotteries.Count());
-		foreach (GC_SlotLottery lottery : m_aSlotLotteries)
+			SCR_Global.IsAdmin(playerId), GetLotteryRuntime().GetSnapshot().Count());
+		foreach (GC_SlotLottery lottery : GetLotteryRuntime().GetSnapshot())
 		{
 			result += string.Format("\nlottery=%1 label=%2 remaining=%3 slots=%4 entrants=%5",
 				lottery.m_iId, lottery.m_sLabel, lottery.GetSecondsRemaining(), lottery.m_aSlotIds.Count(), lottery.m_aEntrants.Count());
@@ -65,7 +65,7 @@ modded class GC_LobbyManager
 	string GC_TestLotteryFive()
 	{
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-		if (!controller || !m_aSlotLotteries.IsEmpty())
+		if (!controller || !GetLotteryRuntime().GetSnapshot().IsEmpty())
 			return "UNAVAILABLE controller or existing lotteries";
 		int count;
 		foreach (GC_Slot slot : GetSlots())
@@ -85,10 +85,9 @@ modded class GC_LobbyManager
 	{
 		if (!Replication.IsServer() || SCR_Global.IsAdmin(requesterId) || GetSlots().IsEmpty())
 			return "UNAVAILABLE authority/non-admin/slots";
-		int before = m_aSlotLotteries.Count();
-		int sequence = m_iLotterySequence;
+		int before = GetLotteryRuntime().GetSnapshot().Count();
 		string result = StartSlotLottery(requesterId, "", RplId.Invalid(), GetSlots()[0].GetID());
-		if (before != m_aSlotLotteries.Count() || sequence != m_iLotterySequence || result != "You must be logged in as an admin.")
+		if (before != GetLotteryRuntime().GetSnapshot().Count() || result != "You must be logged in as an admin.")
 			return "FAIL authorization changed lottery state";
 		return "PASS unauthorized start rejected without mutation";
 	}
@@ -101,10 +100,10 @@ modded class GC_LobbyManager
 		if (!lottery || !controller || !Replication.IsServer() || lottery.GetSecondsRemaining() < 5)
 			return "UNAVAILABLE active lottery/local authority";
 		int playerId = controller.GetPlayerId();
-		int count = m_aSlotLotteries.Count();
+		int count = GetLotteryRuntime().GetSnapshot().Count();
 		int slotId = lottery.m_aSlotIds[0];
 		string overlap = StartSlotLottery(playerId, "", RplId.Invalid(), slotId);
-		if (overlap != "This selection overlaps a running lottery." || count != m_aSlotLotteries.Count())
+		if (overlap != "This selection overlaps a running lottery." || count != GetLotteryRuntime().GetSnapshot().Count())
 			return "FAIL overlapping start";
 		if (TryAssignPlayerToSlot(playerId, slotId))
 			return "FAIL direct claim during lottery";

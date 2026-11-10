@@ -11,9 +11,9 @@ class GC_TestDamageObservation : GC_EntityDamageObservation
 	}
 
 	//------------------------------------------------------------------------------------------------
-	override bool Passes(int kind, float needed)
+	override bool Passes(int kind, float damageNeeded)
 	{
-		return Matches(true, m_bTestDestroyed, m_fTestDamage, kind, needed);
+		return Matches(true, m_bTestDestroyed, m_fTestDamage, kind, damageNeeded);
 	}
 
 	//------------------------------------------------------------------------------------------------

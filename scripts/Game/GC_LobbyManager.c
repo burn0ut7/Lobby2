@@ -77,8 +77,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref map<int, float> m_mPriorityVoiceExpiry = new map<int, float>();
 	protected ref map<int, float> m_mAdminMessageTimes = new map<int, float>();
 	protected int m_iAdminMessageSequence;
-	protected ref array<ref GC_SlotLottery> m_aSlotLotteries = {};
-	protected int m_iLotterySequence;
+	protected ref GC_SlotLotteryRuntime m_SlotLotteries;
 	ref ScriptInvoker m_OnSlotLotteriesChanged = new ScriptInvoker();
 	protected ref GC_AdminBanService m_AdminBanService;
 	//! 0 follows the phase, 1 locks faction switching, 2 permits switching.
@@ -293,6 +292,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyManager()
 	{
+		if (m_SlotLotteries)
+			m_SlotLotteries.Stop();
 		StopMissionRules();
 	}
 
@@ -409,16 +410,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			StartPhaseClock(state);
 
 		if (Replication.IsServer())
-		{
-			GetGame().GetCallqueue().Remove(FinishSlotLottery);
-			while (!m_aSlotLotteries.IsEmpty())
-			{
-				ref GC_SlotLottery lottery = m_aSlotLotteries[0];
-				GC_AdminActionLogger.Log(lottery.m_iRequesterId, "lottery-cancel", lottery.m_sLabel, "phase-changed");
-				ClearSlotLottery(lottery);
-				AnnounceSlotLottery(lottery, string.Format("%1 lottery cancelled because the mission phase changed.", lottery.m_sLabel));
-			}
-		}
+			GetLotteryRuntime().CancelAllForPhase();
 
 		if (Replication.IsServer() && state == SCR_EGameModeState.BRIEFING)
 		{
@@ -1105,7 +1097,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! Resolves the authored group for a slot without trusting a transient live
 	//! pointer. The replicated RplId remains stable across the briefing spawn
 	//! queue and is resolved through the roster's authoritative group index.
-	protected SCR_AIGroup ResolveSlotGroup(GC_Slot slot)
+	SCR_AIGroup ResolveSlotGroup(GC_Slot slot)
 	{
 		if (!slot)
 			return null;
@@ -1714,12 +1706,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			writer.WriteString(acknowledgement.m_sIdentity);
 		}
 
-		writer.WriteInt(m_aSlotLotteries.Count());
-		foreach (GC_SlotLottery lottery : m_aSlotLotteries)
-		{
-			if (!lottery.Save(writer))
-				return false;
-		}
+		if (!GetLotteryRuntime().Save(writer))
+			return false;
 		writer.WriteInt(m_ClockPhase);
 		writer.Write(m_PhaseStartedAt, 64);
 		PrintFormat("GC | JIP save complete: groups=%1 slots=%2", groups.Count(), slots.Count());
@@ -1824,17 +1812,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			m_mFactionReadiness.Set(factionKey, new GC_FactionReadiness(slotId, playerId, identity));
 		}
 		m_OnFactionReadinessChanged.Invoke(m_iFactionReadinessRevision);
-		int lotteryCount;
-		if (!reader.ReadInt(lotteryCount) || lotteryCount < 0 || lotteryCount > 64)
+		if (!GetLotteryRuntime().Load(reader))
 			return false;
-		m_aSlotLotteries.Clear();
-		for (int lotteryIndex; lotteryIndex < lotteryCount; lotteryIndex++)
-		{
-			ref GC_SlotLottery lottery = new GC_SlotLottery();
-			if (!lottery.Load(reader))
-				return false;
-			m_aSlotLotteries.Insert(lottery);
-		}
 		if (!reader.ReadInt(m_ClockPhase) || !reader.Read(m_PhaseStartedAt, 64))
 			return false;
 
@@ -2294,155 +2273,49 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Stable keys derive from authored group geometry, never runtime callsigns or IDs.
-	protected string GetReservationGroupKey(GC_Slot slot)
+	//! One synchronous snapshot of authored anchors; never a new slot authority.
+	protected GC_SlotReservationDocument CreateReservationDocument()
 	{
-		SCR_AIGroup group = ResolveSlotGroup(slot);
-		if (!group || !group.GetFaction() || !group.GetPrefabData() || slot.GetGroupSlotIndex() < 0 || slot.GetAdminSpawnPoint())
-			return "";
-		GC_PlayerGroupSpawnTransform transform = FindGroupSpawnTransform(group);
-		if (!transform)
-			return "";
-		string source = string.Format("%1|%2|%3|%4|%5", GetGame().GetWorldFile(),
-			group.GetPrefabData().GetPrefabName(), transform.GetOrigin(), transform.GetAngles(), group.GetFaction().GetFactionKey());
-		return UUID.GenV8(UUID.NAMESPACE_URL, source);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected string GetReservationSlotKey(GC_Slot slot)
-	{
-		string groupKey = GetReservationGroupKey(slot);
-		if (groupKey.IsEmpty())
-			return "";
-		return UUID.GenV8(UUID.NAMESPACE_URL, string.Format("%1|%2|%3", groupKey, slot.GetGroupSlotIndex(), slot.GetAuthoredPrefab()));
+		GC_SlotReservationDocument document = new GC_SlotReservationDocument(GetGame().GetWorldFile());
+		foreach (GC_Slot slot : GetSlots())
+		{
+			SCR_AIGroup group = ResolveSlotGroup(slot);
+			document.AddSlot(slot, group, FindGroupSpawnTransform(group));
+		}
+		return document;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	protected string ExportSlotReservations(out string output)
 	{
-		array<ref map<string, string>> rows = {};
-		array<string> keys = {};
-		int excluded;
-		foreach (GC_Slot slot : GetSlots())
-		{
-			string key = GetReservationSlotKey(slot);
-			if (key.IsEmpty())
-			{
-				excluded++;
-				continue;
-			}
-			if (keys.Contains(key))
-				return "Export rejected: authored slots have ambiguous locations and roles.";
-			keys.Insert(key);
-			SCR_AIGroup group = ResolveSlotGroup(slot);
-			GC_PlayerGroupSpawnTransform transform = FindGroupSpawnTransform(group);
-			map<string, string> row = new map<string, string>();
-			row.Set("slotKey", key);
-			row.Set("slotNumber", slot.GetID().ToString());
-			row.Set("teamKey", group.GetFaction().GetFactionKey());
-			row.Set("teamName", WidgetManager.Translate(group.GetFaction().GetFactionName()));
-			row.Set("groupKey", GetReservationGroupKey(slot));
-			row.Set("groupName", GC_GroupCallsignHelper.GetDisplayName(group));
-			row.Set("groupPrefab", group.GetPrefabData().GetPrefabName());
-			row.Set("groupPosition", transform.GetOrigin().ToString());
-			row.Set("unitIndex", slot.GetGroupSlotIndex().ToString());
-			row.Set("rolePrefab", slot.GetAuthoredPrefab());
-			SCR_UIInfo role = GC_Slot.GetPrefabRoleInfo(slot.GetAuthoredPrefab());
-			if (role)
-			{
-				row.Set("roleNameKey", role.GetName());
-				row.Set("roleName", WidgetManager.Translate(role.GetName()));
-			}
-			else
-				row.Set("roleName", "Unit " + (slot.GetGroupSlotIndex() + 1).ToString());
-			row.Set("playerName", slot.GetCachedPlayerName());
-			row.Set("armaUid", slot.GetUUID());
-			rows.Insert(row);
-		}
-		JsonSaveContext context = new JsonSaveContext();
-		if (!context.WriteValue("version", 1) || !context.WriteValue("world", GetGame().GetWorldFile()) || !context.WriteValue("slots", rows))
-			return "The roster could not be serialized.";
-		output = context.SaveToString();
-		if (output.Length() > 32768 || rows.Count() > 128)
-		{
-			output = "";
-			return "This roster exceeds the transfer limit of 128 slots / 32 KiB.";
-		}
-		return string.Format("Exported %1 authored slots. %2 runtime-only slots excluded. Copy the text to save it.", rows.Count(), excluded);
+		return CreateReservationDocument().Export(output);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Descriptive metadata is an export snapshot; only stable keys select live slots.
-	//! Validate all claims first. Blank UIDs are no-ops, never a bulk removal request.
+	//! Validate the entire proposed batch against live claims before any mutation.
 	protected string ImportSlotReservations(string input)
 	{
-		if (input.IsEmpty() || input.Length() > 32768)
-			return "Paste a reservation export of 32 KiB or less.";
-		JsonLoadContext context = new JsonLoadContext(false);
-		int version;
-		string world;
-		array<ref map<string, string>> rows;
-		if (!context.LoadFromString(input) || !context.ReadValue("version", version) || version != 1
-			|| !context.ReadValue("world", world) || !context.ReadValue("slots", rows) || !rows)
-			return "Invalid reservation document. Use a version 1 Lobby2 export.";
-		if (world != GetGame().GetWorldFile())
-			return "This export belongs to a different scenario.";
-		if (rows.Count() > 128)
-			return "Import supports at most 128 slots.";
-
-		map<string, GC_Slot> currentSlots = new map<string, GC_Slot>();
-		foreach (GC_Slot existing : GetSlots())
+		array<ref GC_SlotReservationClaim> claims;
+		string error = CreateReservationDocument().Parse(input, claims);
+		if (!error.IsEmpty())
+			return error;
+		array<ref GC_SlotReservationClaim> pending = {};
+		foreach (GC_SlotReservationClaim claim : claims)
 		{
-			string currentKey = GetReservationSlotKey(existing);
-			if (currentKey.IsEmpty())
-				continue;
-			if (currentSlots.Contains(currentKey))
-				return "Import rejected: authored slot locations are ambiguous.";
-			currentSlots.Set(currentKey, existing);
-		}
-		array<GC_Slot> pending = {};
-		array<string> identities = {};
-		array<string> names = {};
-		array<string> seenKeys = {};
-		array<string> seenIdentities = {};
-		foreach (map<string, string> row : rows)
-		{
-			string key;
-			string value;
-			if (!row || !row.Find("slotKey", key) || !row.Find("armaUid", value))
-				return "Each slot needs slotKey and armaUid fields. No reservations were changed.";
-			GC_Slot slot = currentSlots.Get(key);
-			if (!slot || seenKeys.Contains(key))
-				return "A slot is missing, changed, or repeated. Export the current scenario again.";
-			seenKeys.Insert(key);
-			value.TrimInPlace();
-			value.ToLower();
-			if (value.IsEmpty())
-				continue;
-			if (seenIdentities.Contains(value))
-				return "The same Arma UID appears more than once. No reservations were changed.";
-			seenIdentities.Insert(value);
-			string error = ValidateSlotReservation(slot, value);
+			error = ValidateSlotReservation(claim.m_Slot, claim.m_sIdentity);
 			if (!error.IsEmpty())
-				return string.Format("Slot %1: %2 No reservations were changed.", slot.GetID(), error);
-			string playerName = row.Get("playerName");
-			playerName.TrimInPlace();
-			if (playerName.Length() > 128 || playerName.Contains("\n") || playerName.Contains("\r"))
-				return "Player names must be 128 characters or fewer on one line. No reservations were changed.";
-			GC_Slot existingClaim = m_Roster.GetSlotByUUID(value);
-			if (existingClaim && existingClaim != slot)
+				return string.Format("Slot %1: %2 No reservations were changed.", claim.m_Slot.GetID(), error);
+			GC_Slot existingClaim = m_Roster.GetSlotByUUID(claim.m_sIdentity);
+			if (existingClaim && existingClaim != claim.m_Slot)
 				return "An imported player already occupies another slot. Use manual assignment to move them.";
-			if (existingClaim == slot)
-				continue;
-			pending.Insert(slot);
-			identities.Insert(value);
-			names.Insert(playerName);
+			if (existingClaim != claim.m_Slot)
+				pending.Insert(claim);
 		}
-		foreach (int index, GC_Slot reserved : pending)
-			reserved.ReserveIdentity(identities[index], names[index]);
-		foreach (string identity : identities)
+		foreach (GC_SlotReservationClaim reservation : pending)
+			reservation.m_Slot.ReserveIdentity(reservation.m_sIdentity, reservation.m_sPlayerName);
+		foreach (GC_SlotReservationClaim accepted : pending)
 		{
-			int playerId = GetConnectedPlayerIdByIdentity(identity);
+			int playerId = GetConnectedPlayerIdByIdentity(accepted.m_sIdentity);
 			if (playerId > 0)
 				QueuePlayerCatchUp(playerId);
 		}
@@ -2453,24 +2326,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! Zero selects the most recently started open draw for /join.
 	GC_SlotLottery GetSlotLottery(int lotteryId = 0)
 	{
-		for (int i = m_aSlotLotteries.Count() - 1; i >= 0; i--)
-		{
-			ref GC_SlotLottery lottery = m_aSlotLotteries[i];
-			if (lotteryId == lottery.m_iId || (lotteryId == 0 && lottery.GetSecondsRemaining() > 0))
-				return lottery;
-		}
-		return null;
+		return GetLotteryRuntime().GetSlotLottery(lotteryId);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_SlotLottery GetLotteryForSlot(int slotId)
 	{
-		foreach (GC_SlotLottery lottery : m_aSlotLotteries)
-		{
-			if (lottery.m_aSlotIds.Contains(slotId))
-				return lottery;
-		}
-		return null;
+		return GetLotteryRuntime().GetLotteryForSlot(slotId);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -2501,59 +2363,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		string target = string.Format("faction=%1 group=%2 slot=%3", factionKey, groupId, slotId);
 		if (!AuthorizeAdminAction(requesterId, "lottery-start", target))
 			return "You must be logged in as an admin.";
-		string outcome;
-		SCR_EGameModeState phase = GetLobbyPhase();
-		array<int> slots = {};
-		CollectLotterySlots(factionKey, groupId, slotId, slots);
-		bool overlap;
-		foreach (int selectedSlotId : slots)
-		{
-			if (GetLotteryForSlot(selectedSlotId))
-				overlap = true;
-		}
-		if (overlap)
-			outcome = "This selection overlaps a running lottery.";
-		else if (m_aSlotLotteries.Count() >= 64)
-			outcome = "The maximum number of simultaneous lotteries is running.";
-		else if (phase != SCR_EGameModeState.SLOTTING && phase != SCR_EGameModeState.BRIEFING)
-			outcome = "Lotteries are available during slotting and briefing.";
-		else if (slots.IsEmpty())
-			outcome = "There are no empty slots in this selection.";
-		else if (slots.Count() > 512)
-			outcome = "A lottery supports up to 512 slots. Select a smaller group.";
-		else
-		{
-			GC_Slot firstSlot = GetSlot(slots[0]);
-			SCR_AIGroup group = ResolveSlotGroup(firstSlot);
-			string label = WidgetManager.Translate(group.GetFaction().GetFactionName());
-			if (slotId >= 0)
-			{
-				string roleName = string.Format("Slot %1", slotId);
-				SCR_UIInfo role = GC_Slot.GetPrefabRoleInfo(firstSlot.GetAuthoredPrefab());
-				if (role && !role.GetName().IsEmpty())
-					roleName = WidgetManager.Translate(role.GetName());
-				label = string.Format("%1 - %2 - %3", label, GC_GroupCallsignHelper.GetDisplayName(group), roleName);
-			}
-			else if (groupId != RplId.Invalid())
-			{
-				label = string.Format("%1 - %2", label, GC_GroupCallsignHelper.GetDisplayName(group));
-			}
-			ref GC_SlotLottery lottery = new GC_SlotLottery();
-			m_iLotterySequence++;
-			lottery.m_iId = m_iLotterySequence;
-			lottery.m_sLabel = label;
-			lottery.m_aSlotIds.Copy(slots);
-			lottery.m_aEntrants.Clear();
-			ChimeraWorld world = GetGame().GetWorld();
-			lottery.m_StartedAt = world.GetServerTimestamp();
-			lottery.m_iRequesterId = requesterId;
-			m_aSlotLotteries.Insert(lottery);
-			PublishSlotLottery(lottery);
-			GetGame().GetCallqueue().CallLater(FinishSlotLottery, 30000, false, lottery.m_iId);
-			outcome = string.Format("%1\n\nType /join to enter the latest lottery.\nOr right-click a lottery slot and choose Enter lottery.", label);
-			AnnounceSlotLottery(lottery, outcome);
-			outcome = "started";
-		}
+		string outcome = GetLotteryRuntime().StartSlotLottery(requesterId, factionKey, groupId, slotId);
 		GC_AdminActionLogger.Log(requesterId, "lottery-start", target, outcome);
 		return outcome;
 	}
@@ -2561,102 +2371,45 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	bool CanEnterSlotLottery(int playerId, int lotteryId)
 	{
-		ref GC_SlotLottery lottery = GetSlotLottery(lotteryId);
-		if (GetManager() != this || !lottery || lottery.m_aSlotIds.IsEmpty() || lottery.GetSecondsRemaining() <= 0)
-			return false;
-		foreach (int slotId : lottery.m_aSlotIds)
-		{
-			GC_Slot slot = GetSlot(slotId);
-			if (slot && !slot.HasClaim() && CanPlayerUseSlot(playerId, slot, true))
-				return true;
-		}
-		return false;
+		return GetLotteryRuntime().CanEnterSlotLottery(playerId, lotteryId);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	string EnterSlotLottery(int playerId, int expectedId, bool enter)
 	{
+		return GetLotteryRuntime().EnterSlotLottery(playerId, expectedId, enter);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected GC_SlotLotteryRuntime GetLotteryRuntime()
+	{
+		if (!m_SlotLotteries)
+		{
+			m_SlotLotteries = new GC_SlotLotteryRuntime(this);
+			m_SlotLotteries.m_OnChanged.Insert(PublishSlotLottery);
+			m_SlotLotteries.m_OnAnnouncement.Insert(AnnounceSlotLottery);
+		}
+		return m_SlotLotteries;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Shared admission policy for previews and delayed draws; no claim is made here.
+	bool CanUseLotterySlot(int playerId, int slotId)
+	{
+		GC_Slot slot = GetSlot(slotId);
+		return GetManager() == this && slot && !slot.HasClaim() && CanPlayerUseSlot(playerId, slot, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! The runtime may select a winner, but only this canonical transaction assigns it.
+	bool TryAssignLotteryWinner(int playerId, int lotteryId, int slotId)
+	{
+		GC_SlotLottery lottery = GetLotteryForSlot(slotId);
 		if (!Replication.IsServer() || GetManager() != this || m_bShutdown
-			|| !GetGame().GetPlayerManager().IsPlayerConnected(playerId))
-			return "Lottery entry is unavailable.";
-		ref GC_SlotLottery lottery = GetSlotLottery(expectedId);
-		if (!lottery || lottery.m_aSlotIds.IsEmpty()
-			|| lottery.GetSecondsRemaining() <= 0)
-			return "This lottery has closed.";
-		string identity = GetPlayerVoiceIdentity(playerId);
-		if (identity.IsEmpty())
-			return "Your player identity is not available yet.";
-		if (!enter)
-		{
-			lottery.m_aEntrants.RemoveItem(identity);
-			PublishSlotLottery(lottery);
-			return "You have left the lottery.";
-		}
-		if (lottery.m_aEntrants.Contains(identity))
-			return "You are already entered in this lottery.";
-		if (!CanEnterSlotLottery(playerId, lottery.m_iId))
-			return "You are not eligible for the slots in this lottery.";
-		if (lottery.m_aEntrants.Count() >= 256)
-			return "This lottery has reached its entry limit.";
-		lottery.m_aEntrants.Insert(identity);
-		PublishSlotLottery(lottery);
-		return string.Format("Entered %1 lottery. Your role will be chosen randomly.", lottery.m_sLabel);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected void FinishSlotLottery(int lotteryId)
-	{
-		ref GC_SlotLottery lottery = GetSlotLottery(lotteryId);
-		if (!Replication.IsServer() || GetManager() != this || m_bShutdown || !lottery || lottery.m_aSlotIds.IsEmpty())
-			return;
-		if (lottery.GetSecondsRemaining() > 0)
-		{
-			GetGame().GetCallqueue().CallLater(FinishSlotLottery, 1000, false, lotteryId);
-			return;
-		}
-		array<int> slots = {};
-		slots.Copy(lottery.m_aSlotIds);
-		array<string> entrants = {};
-		entrants.Copy(lottery.m_aEntrants);
-		int assigned;
-		// Random removal samples both lists without replacement. No entry carries a chosen role.
-		while (!entrants.IsEmpty() && !slots.IsEmpty())
-		{
-			int entrantIndex = Math.RandomInt(0, entrants.Count());
-			string identity = entrants[entrantIndex];
-			entrants.Remove(entrantIndex);
-			int playerId = GetConnectedPlayerIdByIdentity(identity);
-			if (playerId <= 0)
-				continue;
-			array<int> eligible = {};
-			foreach (int slotId : slots)
-			{
-				GC_Slot slot = GetSlot(slotId);
-				if (slot && !slot.HasClaim() && CanPlayerUseSlot(playerId, slot, true))
-					eligible.Insert(slotId);
-			}
-			if (eligible.IsEmpty())
-				continue;
-			int selectedSlotId = eligible[Math.RandomInt(0, eligible.Count())];
-			slots.RemoveItem(selectedSlotId);
-			bool applied = ApplyPlayerSlotAssignment(playerId, GetSlot(selectedSlotId), false, false);
-			GC_AdminActionLogger.Log(lottery.m_iRequesterId, "lottery-draw",
-				string.Format("lottery=%1 player=%2 slot=%3", lottery.m_iId, playerId, selectedSlotId), applied.ToString());
-			if (applied)
-				assigned++;
-		}
-		string result = string.Format("%1 lottery finished: %2 player(s) assigned.", lottery.m_sLabel, assigned);
-		ClearSlotLottery(lottery);
-		AnnounceSlotLottery(lottery, result);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected void ClearSlotLottery(GC_SlotLottery lottery)
-	{
-		m_aSlotLotteries.RemoveItem(lottery);
-		lottery.m_aSlotIds.Clear();
-		lottery.m_aEntrants.Clear();
-		PublishSlotLottery(lottery);
+			|| !lottery || lottery.m_iId != lotteryId || lottery.GetSecondsRemaining() > 0
+			|| !lottery.m_aEntrants.Contains(GetPlayerVoiceIdentity(playerId)) || !CanUseLotterySlot(playerId, slotId))
+			return false;
+		return ApplyPlayerSlotAssignment(playerId, GetSlot(slotId), false, false);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -2687,25 +2440,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		if (Replication.IsServer() || GetManager() != this || m_bShutdown)
 			return;
-		ref GC_SlotLottery lottery = GetSlotLottery(id);
-		if (slots.IsEmpty())
-		{
-			if (lottery)
-				m_aSlotLotteries.RemoveItem(lottery);
-		}
-		else if (!lottery)
-		{
-			lottery = new GC_SlotLottery();
-			m_aSlotLotteries.Insert(lottery);
-		}
-		if (!lottery)
-			return;
-		lottery.m_iId = id;
-		lottery.m_StartedAt = startedAt;
-		lottery.m_sLabel = label;
-		lottery.m_aSlotIds.Copy(slots);
-		lottery.m_aEntrants.Copy(entrants);
-		m_OnSlotLotteriesChanged.Invoke();
+		if (GetLotteryRuntime().ApplySnapshot(id, startedAt, label, slots, entrants))
+			m_OnSlotLotteriesChanged.Invoke();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -3763,14 +3499,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (purge)
 			{
 				// A pending draw must not reclaim slots after this purge locks them.
-				foreach (int lotterySlotId : slotIds)
-				{
-					ref GC_SlotLottery lottery = GetLotteryForSlot(lotterySlotId);
-					if (!lottery)
-						continue;
-					ClearSlotLottery(lottery);
-					AnnounceSlotLottery(lottery, string.Format("%1 lottery cancelled because its slots were purged.", lottery.m_sLabel));
-				}
+				GetLotteryRuntime().CancelForSlots(slotIds);
 				int failed;
 				foreach (int slotId : slotIds)
 				{
@@ -5062,8 +4791,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GC_LobbyGameMode gameMode = GC_LobbyGameMode.Cast(GetOwner());
 		if (gameMode)
 			gameMode.StopLocalPhaseAudio();
-		GetGame().GetCallqueue().Remove(FinishSlotLottery);
-		m_aSlotLotteries.Clear();
+		if (m_SlotLotteries)
+		{
+			m_SlotLotteries.Stop();
+			m_SlotLotteries.m_OnChanged.Remove(PublishSlotLottery);
+			m_SlotLotteries.m_OnAnnouncement.Remove(AnnounceSlotLottery);
+		}
 		m_mFactionReadiness.Clear();
 		m_aFactionUnlockedIdentities.Clear();
 		if (m_AdminBanService)
