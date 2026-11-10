@@ -31,7 +31,8 @@ enum GC_ERuleAction
 	RESPAWN_TICKETS,
 	SPAWN,
 	DELETE_ENTITIES,
-	ASSIGN_WAYPOINTS
+	ASSIGN_WAYPOINTS,
+	WEATHER
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -51,6 +52,7 @@ class GC_RuleAction
 	int m_iOperation;
 	int m_iAmount;
 	ref GC_PrefabSpawn m_Spawn;
+	float m_fTransitionSeconds;
 
 	//------------------------------------------------------------------------------------------------
 	static bool ValidTargetNames(array<string> names)
@@ -70,6 +72,8 @@ class GC_RuleAction
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.WEATHER)
+			return !m_sTextOrName.IsEmpty() && m_fTransitionSeconds >= 0 && m_fTransitionSeconds <= 86400;
 		if (m_eDo == GC_ERuleAction.DELETE_ENTITIES)
 			return m_aFlagNames && !m_aFlagNames.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames);
 		if (m_eDo == GC_ERuleAction.ASSIGN_WAYPOINTS)

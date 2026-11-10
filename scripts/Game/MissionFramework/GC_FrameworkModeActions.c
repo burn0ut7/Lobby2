@@ -9,6 +9,8 @@ modded class GC_LobbyManager
 			return false;
 		switch (action.m_eDo)
 		{
+			case GC_ERuleAction.WEATHER:
+				return GC_ChangeFrameworkWeather(action);
 			case GC_ERuleAction.DELETE_ENTITIES:
 				return GC_DeleteFrameworkEntities(action);
 			case GC_ERuleAction.ASSIGN_WAYPOINTS:
@@ -21,6 +23,28 @@ modded class GC_LobbyManager
 				return GC_EndFrameworkMission(action);
 			case GC_ERuleAction.RESPAWN_TICKETS:
 				return GC_ChangeFrameworkTickets(action);
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool GC_ChangeFrameworkWeather(GC_RuleAction action)
+	{
+		ChimeraWorld world = ChimeraWorld.CastFrom(GetGame().GetWorld());
+		if (!world)
+			return false;
+		TimeAndWeatherManagerEntity weather = world.GetTimeAndWeatherManager();
+		if (!weather || !weather.GetTransitionManager())
+			return false;
+		array<ref WeatherState> states = {};
+		weather.GetWeatherStatesList(states);
+		foreach (WeatherState state : states)
+		{
+			if (!state || state.GetStateName() != action.m_sTextOrName)
+				continue;
+			// Native API uses hours and owns transitions, looping and network updates.
+			weather.ForceWeatherTo(!action.m_bFlagAnswer, action.m_sTextOrName, action.m_fTransitionSeconds / 3600.0);
+			return true;
 		}
 		return false;
 	}
