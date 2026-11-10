@@ -21,12 +21,12 @@ class GC_FlagAction : GC_ActionBase
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Event Control Action")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Event Action")]
 class GC_EventControlAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Unique mission event or random event group name. A child event still belongs to its group: these controls never select or run a child directly.")]
+	[Attribute("", UIWidgets.EditBox, "Name of the mission event or random event group to control. All event operations use this same name. A child event must still be selected by its group; Check now cannot run a child directly.")]
 	string m_sEventName;
-	[Attribute("0", UIWidgets.ComboBox, "Enable allows future checks. Disable cancels pending actions without erasing whether the event ran. Reset clears its run history and pending delay, but leaves enabled/disabled unchanged. Check now tests conditions, chance and delay normally. Resetting a group does not reset its children's run history. Flags and random rolls are unchanged.", enums: {ParamEnum("Enable", "0"), ParamEnum("Disable", "1"), ParamEnum("Reset", "2"), ParamEnum("Check now", "3")})]
+	[Attribute("0", UIWidgets.ComboBox, "Enable: allow future checks. Disable: stop future checks and cancel its pending delay. Reset: forget that it ran and cancel its delay; this does not enable it or run it. Check now: try to run using its normal conditions, chance and delay. Resetting a group does not reset its children. These operations do not change flags or random-condition results.", enums: {ParamEnum("Enable", "0"), ParamEnum("Disable", "1"), ParamEnum("Reset", "2"), ParamEnum("Check now", "3")})]
 	int m_iOperation;
 
 	//------------------------------------------------------------------------------------------------
