@@ -561,3 +561,7 @@ Timer Condition starts in a selected game state, waits a fixed or randomly chose
 ## Event and flag field order
 
 Regular events declare Name, Conditions, Actions, then Advanced (Repeatable, Delay, Random Chance, Disabled). Random groups declare Name, Conditions, Pick Count, Events, then Advanced. Flags declare Name, Conditions, then Advanced (Start Call Count, Repeatable); flags do not gain an Actions list. Advanced attributes live on the concrete event classes so inherited fields no longer precede the main settings. Serialized names, types and defaults are unchanged; compilation uses one shared settings builder. Reload compilation passed; rendered editor ordering was not independently verified.
+
+## Current Advanced objects
+
+The former inline Advanced categories are now optional collapsible objects on regular events, random groups and flags, after their main fields. Events use GC_EventOptions; flags use GC_FlagOptions. Empty objects retain the normal defaults. See [settings, migration and verification](AdvancedOptions.md). This supersedes the earlier category-only layout described above.

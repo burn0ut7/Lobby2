@@ -4,8 +4,9 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 	static GC_MissionFlag Memory(string name, bool repeat = true)
 	{
 		GC_MissionFlag flag = new GC_MissionFlag();
+		flag.m_Advanced = new GC_FlagOptions();
 		flag.m_sName = name;
-		flag.m_bRepeatable = repeat;
+		flag.m_Advanced.m_bRepeatable = repeat;
 		return flag;
 	}
 
@@ -29,14 +30,15 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 	static GC_Event Watch(string name, float wait = 0)
 	{
 		GC_Event missionEvent = new GC_Event();
-		missionEvent.m_fRandomChance = 1;
+		missionEvent.m_Advanced = new GC_EventOptions();
+		missionEvent.m_Advanced.m_fRandomChance = 1;
 		missionEvent.m_sName = name;
 		missionEvent.m_aConditions = {On(name)};
 		GC_LogMessageAction log = new GC_LogMessageAction();
 		log.m_sMessage = "Flag memory test";
 		missionEvent.m_aActions = {log};
-		missionEvent.m_bRepeatable = true;
-		missionEvent.m_fDelay = wait;
+		missionEvent.m_Advanced.m_bRepeatable = true;
+		missionEvent.m_Advanced.m_fDelay = wait;
 		return missionEvent;
 	}
 
@@ -65,7 +67,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		}
 		if (flags.Count() != 2 || events.Count() != 1 || !flags[0] || !flags[1] || !events[0])
 			return "FAIL: flag fixture deserialize";
-		Check(flags[0].m_bRepeatable && !flags[1].m_bRepeatable, "saved repeatable and default nonrepeatable");
+		Check(flags[0].IsRepeatable() && !flags[1].IsRepeatable(), "saved repeatable and default nonrepeatable");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		engine.Start(events, flags, SCR_EGameModeState.GAME);
 		for (int n; n < 6; n++)
@@ -111,7 +113,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		Check(!engine.ResetFlag(""), "blank reset rejected");
 		Check(engine.ResetFlag("missing") && !engine.GetFlag("missing") && engine.GetFlagCallCount("missing") == 0, "unknown reset is a harmless no-op");
 
-		once.m_iStartCallCount = 1;
+		once.m_Advanced.m_iStartCallCount = 1;
 		GC_CompiledMissionRule initialCallObserver = EventRule("once");
 		initialCallObserver.m_eWhen = GC_ERuleEvent.FLAG_ON;
 		engine.Start({initialCallObserver}, {once}, SCR_EGameModeState.GAME);
@@ -119,7 +121,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		Check(!engine.CallFlag("once"), "positive start consumes nonrepeatable activation");
 		engine.ResetFlag("once");
 		Check(!engine.GetFlag("once") && engine.GetFlagCallCount("once") == 0 && engine.CallFlag("once"), "reset clears seeded memory and rearms");
-		limited.m_iStartCallCount = 4;
+		limited.m_Advanced.m_iStartCallCount = 4;
 		engine.Start({}, {limited}, SCR_EGameModeState.GAME);
 		Check(engine.CallFlag("wave") && engine.GetFlagCallCount("wave") == 5 && !engine.CallFlag("wave"), "starting count participates in call limits");
 		engine.ResetFlag("wave");
@@ -127,14 +129,14 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		engine.Start({}, {limited}, SCR_EGameModeState.GAME);
 		Check(engine.GetFlagCallCount("wave") == 4 && engine.GetFlag("wave"), "fresh start reapplies configured count");
 		GC_MissionFlag invalidStart = Memory("bad-start");
-		invalidStart.m_iStartCallCount = -1;
+		invalidStart.m_Advanced.m_iStartCallCount = -1;
 		engine.Start({}, {once, invalidStart}, SCR_EGameModeState.GAME);
 		Check(!engine.IsRunning() && !engine.GetFlag("once") && engine.GetFlagCallCount("once") == 0, "negative count rejects startup without partial seeded memory");
-		invalidStart.m_iStartCallCount = 1000001;
+		invalidStart.m_Advanced.m_iStartCallCount = 1000001;
 		engine.Start({}, {invalidStart}, SCR_EGameModeState.GAME);
 		Check(!engine.IsRunning(), "oversized starting count rejected");
-		once.m_iStartCallCount = 0;
-		limited.m_iStartCallCount = 0;
+		once.m_Advanced.m_iStartCallCount = 0;
+		limited.m_Advanced.m_iStartCallCount = 0;
 
 		GC_MissionFlag first = Memory("first");
 		GC_MissionFlag second = Memory("second");
@@ -179,7 +181,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		Check(engine.GetRunCount() == 1, "remembered count supports delayed conditions");
 
 		watch = Watch("wave");
-		watch.m_fRandomChance = 0;
+		watch.m_Advanced.m_fRandomChance = 0;
 		engine.Start({watch.BuildRule()}, {limited}, SCR_EGameModeState.GAME);
 		engine.CallFlag("wave");
 		Check(engine.GetRunCount() == 0 && engine.GetFlagCallCount("wave") == 1 && engine.GetFlag("wave"), "missionEvent chance does not undo accepted flag call");

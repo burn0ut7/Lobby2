@@ -25,7 +25,8 @@ class GC_MissionRuleTests
 	static GC_Event StateRule(string flag, SCR_EGameModeState phase, bool inverse = false, bool repeat = false, float wait = 0)
 	{
 		GC_Event rule = new GC_Event();
-		rule.m_fRandomChance = 1;
+		rule.m_Advanced = new GC_EventOptions();
+		rule.m_Advanced.m_fRandomChance = 1;
 		rule.m_sName = flag;
 		GC_TestSetFlagAction action = new GC_TestSetFlagAction();
 		action.m_sFlagName = flag;
@@ -37,8 +38,8 @@ class GC_MissionRuleTests
 			state.m_bRequireOtherState = true;
 		rule.m_aConditions = {state};
 		if (repeat)
-			rule.m_bRepeatable = true;
-		rule.m_fDelay = wait;
+			rule.m_Advanced.m_bRepeatable = true;
+		rule.m_Advanced.m_fDelay = wait;
 		return rule;
 	}
 
@@ -264,7 +265,8 @@ class GC_MissionRuleTests
 	static GC_Event SimpleRule(string output)
 	{
 		GC_Event rule = new GC_Event();
-		rule.m_fRandomChance = 1;
+		rule.m_Advanced = new GC_EventOptions();
+		rule.m_Advanced.m_fRandomChance = 1;
 		rule.m_sName = output;
 		rule.m_aActions = {};
 		GC_TestSetFlagAction action = new GC_TestSetFlagAction();
@@ -300,16 +302,16 @@ class GC_MissionRuleTests
 		Check(!simple.BuildRule(), "incomplete optional item does not silently pass");
 		simple.m_aConditions = {};
 
-		simple.m_fRandomChance = 1;
-		simple.m_bDisabled = true;
+		simple.m_Advanced.m_fRandomChance = 1;
+		simple.m_Advanced.m_bDisabled = true;
 		engine.Start({simple.BuildRule()});
 		Check(engine.GetRunCount() == 0, "disabled simple rule stays off");
-		simple.m_bDisabled = false;
+		simple.m_Advanced.m_bDisabled = false;
 
-		simple.m_bRepeatable = false;
-		simple.m_fDelay = -1;
+		simple.m_Advanced.m_bRepeatable = false;
+		simple.m_Advanced.m_fDelay = -1;
 		Check(!simple.BuildRule(), "bad delay rejected");
-		simple.m_fDelay = 2;
+		simple.m_Advanced.m_fDelay = 2;
 		engine.Start({simple.BuildRule()});
 		engine.Advance(1);
 		Check(engine.GetRunCount() == 0, "simple wait delays actions");
@@ -317,10 +319,10 @@ class GC_MissionRuleTests
 		Check(engine.GetRunCount() == 1, "simple wait completes");
 		engine.Advance(4);
 		Check(engine.GetRunCount() == 1, "simple wait defaults once");
-		simple.m_bRepeatable = false;
-		simple.m_bDisabled = false;
-		simple.m_fDelay = 0;
-		simple.m_fRandomChance = 1;
+		simple.m_Advanced.m_bRepeatable = false;
+		simple.m_Advanced.m_bDisabled = false;
+		simple.m_Advanced.m_fDelay = 0;
+		simple.m_Advanced.m_fRandomChance = 1;
 
 		GC_TestFixedCondition yes = new GC_TestFixedCondition();
 		yes.m_bValue = true;

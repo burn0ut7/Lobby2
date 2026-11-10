@@ -78,6 +78,7 @@ modded class GC_MissionRuleTests
 		engine.SetFlag("allow", true);
 		Check(engine.GetRunCount() == 1, "flag notification uses current casualty answer");
 		GC_MissionFlag memory = new GC_MissionFlag();
+		memory.m_Advanced = new GC_FlagOptions();
 		memory.m_sName = "heavy_losses";
 		memory.m_aConditions = {condition};
 		engine.Start({}, {memory}, SCR_EGameModeState.GAME, null, snapshot);

@@ -29,7 +29,9 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
        }
       }
      }
-     m_fDelay 2
+     m_Advanced GC_EventOptions {
+      m_fDelay 2
+     }
     }
    }
   }

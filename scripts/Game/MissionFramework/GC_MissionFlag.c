@@ -6,10 +6,22 @@ class GC_MissionFlag
 	[Attribute("", UIWidgets.Object, "Requirements for accepting a call. No conditions means every otherwise eligible call is allowed; Start Call Count determines its initial true/false value. Failed conditions change neither its count nor its value. Use Count Condition, check Count Flag Calls, enter this flag's name and select Less than 5 to accept calls while the remembered count is below five. Call checks conditions before increasing the count. Direct count edits from Flag Action do not check these activation conditions. Conditions referencing other flags can activate this flag when those flags change; a check of its own count only limits calls.")]
 	ref array<ref GC_ConditionBase> m_aConditions;
 
-	[Attribute("0", UIWidgets.SpinBox, "Start with this remembered call count. Flag Action can change it later. Default 0 means false; 1 or more means true. This does not perform a call. A positive count uses a non-repeatable flag's activation; enable Repeatable to accept more calls. Conditions control future calls. Flag Action > Reset to zero clears to zero, not this starting count.", "0 1000000 1", category: "Advanced")]
-	int m_iStartCallCount;
-	[Attribute("0", UIWidgets.CheckBox, "Unchecked: accept one successful call until Flag Action > Reset to zero is used. Checked: accept more calls, increasing the count and notifying dependent events each time. A remembered count of zero means false; one or more means true.", category: "Advanced")]
-	bool m_bRepeatable;
+	[Attribute("", UIWidgets.Object, "Optional advanced settings. Leave empty to start at zero calls (false) and accept one successful call. Expand to set a starting count or allow repeated calls.")]
+	ref GC_FlagOptions m_Advanced;
+
+	//------------------------------------------------------------------------------------------------
+	int GetStartCallCount()
+	{
+		if (!m_Advanced)
+			return 0;
+		return m_Advanced.m_iStartCallCount;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsRepeatable()
+	{
+		return m_Advanced && m_Advanced.m_bRepeatable;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_RuleCondition BuildConditions()

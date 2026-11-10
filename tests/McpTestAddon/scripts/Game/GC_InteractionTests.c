@@ -50,7 +50,7 @@ modded class GC_MissionRuleTests
 		Check(!none.Evaluate(null), "unresolved interaction under None fails closed");
 		GC_Event authored = StateRule("interaction", SCR_EGameModeState.GAME);
 		authored.m_aConditions = {condition};
-		authored.m_bRepeatable = true;
+		authored.m_Advanced.m_bRepeatable = true;
 		GC_CompiledMissionRule rule = authored.BuildRule();
 		GC_RuleCondition leaf = rule.m_If.m_aChecks[0];
 		GC_TestInteractionEngine engine = new GC_TestInteractionEngine();
@@ -70,8 +70,9 @@ modded class GC_MissionRuleTests
 		engine.NotifyInteraction("");
 		Check(engine.GetRunCount() == 2, "stopped engine ignores interaction");
 		GC_MissionFlag flag = new GC_MissionFlag();
+		flag.m_Advanced = new GC_FlagOptions();
 		flag.m_sName = "used";
-		flag.m_bRepeatable = true;
+		flag.m_Advanced.m_bRepeatable = true;
 		GC_MissionFlagCondition flagCondition = new GC_MissionFlagCondition();
 		flagCondition.m_sFlagName = "used";
 		authored.m_aConditions = {condition, flagCondition};

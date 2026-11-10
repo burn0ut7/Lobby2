@@ -78,7 +78,7 @@ modded class GC_MissionRuleTests
 		Check(engine.GetRunCount() == 0 && engine.m_iDraws == 0, "zero never passes even for zero draw");
 		random.m_fChance = 1;
 		engine.m_fRoll = 1;
-		authoredEvent.m_bRepeatable = false;
+		authoredEvent.m_Advanced.m_bRepeatable = false;
 		engine.Start({authoredEvent.BuildRule()}, null, SCR_EGameModeState.GAME);
 		engine.Advance(60);
 		engine.Advance(120);
@@ -145,7 +145,7 @@ modded class GC_MissionRuleTests
 		engine.Advance(120);
 		engine.Advance(150);
 		Check(engine.GetRunCount() == 0, "later failed roll prevents delayed execution");
-		authoredEvent.m_fDelay = 10;
+		authoredEvent.m_Advanced.m_fDelay = 10;
 		engine.m_fRoll = 0;
 		engine.Start({authoredEvent.BuildRule()}, null, SCR_EGameModeState.GAME);
 		engine.Advance(60);
@@ -155,8 +155,9 @@ modded class GC_MissionRuleTests
 
 		// Flags own repeat/count policy, including when no mission events are configured.
 		GC_MissionFlag flag = new GC_MissionFlag();
+		flag.m_Advanced = new GC_FlagOptions();
 		flag.m_sName = "random_flag";
-		flag.m_bRepeatable = true;
+		flag.m_Advanced.m_bRepeatable = true;
 		random.m_fChance = 1;
 		flag.m_aConditions = {random};
 		engine.Start({}, {flag}, SCR_EGameModeState.GAME);

@@ -63,6 +63,7 @@ modded class GC_MissionRuleTests
 		rule.m_Random = null;
 		rule.m_fWaitSeconds = 0;
 		GC_MissionFlag flag = new GC_MissionFlag();
+		flag.m_Advanced = new GC_FlagOptions();
 		flag.m_sName = "initial";
 		GC_CompiledMissionRule watch = EventRule("initial");
 		watch.m_eWhen = GC_ERuleEvent.FLAG_ON;
@@ -102,7 +103,8 @@ modded class GC_MissionRuleTests
 		Check(!select.IsValid(), "oversized selection rejected");
 		// No flag definitions, conditions or flag actions are needed for random selection.
 		GC_Event noFlags = new GC_Event();
-		noFlags.m_fRandomChance = 1;
+		noFlags.m_Advanced = new GC_EventOptions();
+		noFlags.m_Advanced.m_fRandomChance = 1;
 		noFlags.m_sName = "No flags";
 		GC_TestSendEventAction first = new GC_TestSendEventAction();
 		first.m_sEventName = "first";

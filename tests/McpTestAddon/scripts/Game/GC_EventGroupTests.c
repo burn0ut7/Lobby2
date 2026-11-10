@@ -4,7 +4,8 @@ modded class GC_MissionRuleTests
 	static GC_RandomEventGroup RandomGroup(array<ref GC_Event> children, int picks = 1, bool repeat = false)
 	{
 		GC_RandomEventGroup group = new GC_RandomEventGroup();
-		group.m_fRandomChance = 1;
+		group.m_Advanced = new GC_EventOptions();
+		group.m_Advanced.m_fRandomChance = 1;
 		group.m_sName = "Selection test";
 		group.m_iPickCount = picks;
 		group.m_aEvents = children;
@@ -12,7 +13,7 @@ modded class GC_MissionRuleTests
 		match.m_eGameModeState = SCR_EGameModeState.GAME;
 		group.m_aConditions = {match};
 		if (repeat)
-			group.m_bRepeatable = true;
+			group.m_Advanced.m_bRepeatable = true;
 		return group;
 	}
 
@@ -22,24 +23,24 @@ modded class GC_MissionRuleTests
 		GC_MissionRandomTestEngine engine = new GC_MissionRandomTestEngine();
 		GC_Event basic = SimpleRule("chance");
 		Check(basic.BuildRule().m_fChance == 1, "direct event settings retain full chance default");
-		basic.m_fRandomChance = 0;
+		basic.m_Advanced.m_fRandomChance = 0;
 		engine.m_fRoll = 0;
 		engine.Start({basic.BuildRule()});
 		Check(engine.GetRunCount() == 0, "zero float chance never runs");
-		basic.m_fRandomChance = 0.8;
+		basic.m_Advanced.m_fRandomChance = 0.8;
 		engine.m_fRoll = 0.79;
 		engine.Start({basic.BuildRule()});
 		Check(engine.GetFlag("chance"), "0.8 accepts a draw below 80 percent");
 		engine.m_fRoll = 0.8;
 		engine.Start({basic.BuildRule()});
 		Check(!engine.GetFlag("chance"), "0.8 rejects the upper boundary");
-		basic.m_fRandomChance = 1;
+		basic.m_Advanced.m_fRandomChance = 1;
 		engine.m_fRoll = 1;
 		engine.Start({basic.BuildRule()});
 		Check(engine.GetFlag("chance"), "one always runs even at upper draw endpoint");
-		basic.m_fRandomChance = -0.1;
+		basic.m_Advanced.m_fRandomChance = -0.1;
 		Check(!basic.BuildRule(), "negative chance rejected");
-		basic.m_fRandomChance = 1.1;
+		basic.m_Advanced.m_fRandomChance = 1.1;
 		Check(!basic.BuildRule(), "chance above one rejected");
 
 		GC_Event a = StateRule("A", SCR_EGameModeState.GAME);
@@ -63,17 +64,17 @@ modded class GC_MissionRuleTests
 		engine.m_fRoll = 0;
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.GAME);
 		Check(engine.GetFlag("A") && !engine.GetFlag("B") && engine.GetFlag("C"), "failing child conditions excluded before selection");
-		c.m_bDisabled = true;
+		c.m_Advanced.m_bDisabled = true;
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.GAME);
 		Check(engine.GetRunCount() == 1 && engine.GetFlag("A"), "fewer eligible than requested selects available only");
-		a.m_fRandomChance = 0;
+		a.m_Advanced.m_fRandomChance = 0;
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.GAME);
 		Check(engine.GetRunCount() == 0, "selected child's chance still applies");
-		a.m_fRandomChance = 1;
-		group.m_fRandomChance = 0;
+		a.m_Advanced.m_fRandomChance = 1;
+		group.m_Advanced.m_fRandomChance = 0;
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.GAME);
 		Check(engine.GetRunCount() == 0, "group chance gates whole selection");
-		group.m_fRandomChance = 1;
+		group.m_Advanced.m_fRandomChance = 1;
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.BRIEFING);
 		Check(engine.GetRunCount() == 0, "matching child cannot bypass group condition");
 
@@ -107,8 +108,8 @@ modded class GC_MissionRuleTests
 		engine.SetGameModeState(SCR_EGameModeState.POSTGAME, 2);
 		engine.Advance(10);
 		Check(!engine.GetFlag("delayed"), "child delay still obeys parent state condition");
-		group.m_fDelay = 2;
-		a.m_fDelay = 0;
+		group.m_Advanced.m_fDelay = 2;
+		a.m_Advanced.m_fDelay = 0;
 		engine.Start({group.BuildRule()}, null, SCR_EGameModeState.GAME);
 		engine.Advance(1);
 		Check(engine.GetRunCount() == 0, "group delay postpones selection");
@@ -119,7 +120,7 @@ modded class GC_MissionRuleTests
 		engine.Advance(10);
 		Check(engine.GetRunCount() == 0, "stop cancels group wait");
 
-		a.m_fDelay = 5;
+		a.m_Advanced.m_fDelay = 5;
 		group = RandomGroup({a});
 		group.m_aConditions = {};
 		engine.Start({group.BuildRule()});

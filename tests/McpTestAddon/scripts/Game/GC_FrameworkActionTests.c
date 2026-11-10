@@ -17,7 +17,7 @@ class GC_FrameworkActionTests : GC_MissionRuleTests
 	{
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
 		GC_MissionFlag flag = GC_FlagMemoryTests.Memory("memory", false);
-		flag.m_iStartCallCount = 5;
+		flag.m_Advanced.m_iStartCallCount = 5;
 		engine.Start({}, {flag}, SCR_EGameModeState.GAME);
 		engine.QueueFrameworkAction(Command(GC_ERuleAction.FLAG_CONTROL, "memory"));
 		Check(engine.GetFlagCallCount("memory") == 5, "Call respects nonrepeatable positive starting count");

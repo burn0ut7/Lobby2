@@ -98,7 +98,7 @@ class GC_MissionRuleEngine
 		{
 			foreach (GC_MissionFlag flag : flags)
 			{
-				if (!flag || flag.m_sName.IsEmpty() || flag.m_iStartCallCount < 0 || flag.m_iStartCallCount > 1000000
+				if (!flag || flag.m_sName.IsEmpty() || flag.GetStartCallCount() < 0 || flag.GetStartCallCount() > 1000000
 					|| m_mFlags.Contains(flag.m_sName) || flags.Count() > 256)
 				{
 					m_mFlags.Clear();
@@ -120,12 +120,12 @@ class GC_MissionRuleEngine
 				}
 				GC_MissionFlagState memory = new GC_MissionFlagState();
 				memory.m_sName = flag.m_sName;
-				memory.m_iStartCount = flag.m_iStartCallCount;
-				memory.m_bRepeatable = flag.m_bRepeatable;
+				memory.m_iStartCount = flag.GetStartCallCount();
+				memory.m_bRepeatable = flag.IsRepeatable();
 				memory.m_Condition = condition;
 				m_mFlagDefinitions.Set(flag.m_sName, memory);
-				m_mFlagCounts.Set(flag.m_sName, flag.m_iStartCallCount);
-				m_mFlags.Set(flag.m_sName, flag.m_iStartCallCount > 0);
+				m_mFlagCounts.Set(flag.m_sName, flag.GetStartCallCount());
+				m_mFlags.Set(flag.m_sName, flag.GetStartCallCount() > 0);
 			}
 		}
 		if (!rules || rules.Count() > 256)
