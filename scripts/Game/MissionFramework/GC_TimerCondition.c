@@ -1,7 +1,9 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Timer Condition")]
 class GC_TimerCondition : GC_ConditionBase
 {
-	[Attribute("1", UIWidgets.ComboBox, "Start once when the mission enters this state. If the framework starts in this state, start then. The timer continues through later states and stays true once finished, until the framework restarts.", enums: {ParamEnum("Mission preview", "0"), ParamEnum("Role selection", "1787356801"), ParamEnum("Briefing", "1787356802"), ParamEnum("Match", "1"), ParamEnum("After action", "2")})]
+	[Attribute("", UIWidgets.EditBox, "Optional unique name for Timer Action. Leave empty if this timer does not need controlling. Names must be unique across all event and flag conditions, including nested groups.")]
+	string m_sTimerName;
+	[Attribute("1", UIWidgets.ComboBox, "Start once when the mission enters this state, unless Timer Action already started it. If the framework starts in this state, start then. It continues through later states and stays true once finished unless changed by Timer Action or a framework restart.", enums: {ParamEnum("Mission preview", "0"), ParamEnum("Role selection", "1787356801"), ParamEnum("Briefing", "1787356802"), ParamEnum("Match", "1"), ParamEnum("After action", "2")})]
 	SCR_EGameModeState m_eStartState;
 	[Attribute("60", UIWidgets.EditBox, "Duration in seconds; decimals are allowed, for example 2.5. Enter 0.1 to 86400. If Random Max Seconds is filled in, choose one duration between the two values. Reversed values are automatically ordered. Event Repeatable and Reset do not restart this timer.", precision: 3)]
 	float m_fSeconds;
@@ -18,6 +20,8 @@ class GC_TimerCondition : GC_ConditionBase
 		// One shared scheduler; timer duration is sampled on state entry, never during evaluation.
 		GC_RuleCondition check = new GC_RuleCondition();
 		check.m_iCheck = 12;
+		check.m_sTimerName = m_sTimerName;
+		check.m_sTimerName.TrimInPlace();
 		check.m_eGameModeState = m_eStartState;
 		check.m_fRandomInterval = m_fSeconds;
 		check.m_fTimerMaximum = m_fSeconds;

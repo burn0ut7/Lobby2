@@ -791,10 +791,7 @@ class GC_MissionRuleEngine
 					m_mRandomResults.Set(condition, false);
 				if (!scheduled.m_bTimerStarted && m_eGameModeState == condition.m_eGameModeState)
 				{
-					float duration = condition.m_fRandomInterval;
-					if (condition.m_fTimerMaximum > duration)
-						duration += RandomUnit() * (condition.m_fTimerMaximum - duration);
-					scheduled.m_fNextCheck = m_fNow + duration;
+					scheduled.m_fNextCheck = m_fNow + ChooseTimerDuration(condition);
 					scheduled.m_bTimerStarted = true;
 				}
 				continue;
@@ -817,7 +814,7 @@ class GC_MissionRuleEngine
 		{
 			GC_RuleCondition condition = scheduled.m_Condition;
 			bool timer = condition.m_iCheck == 12;
-			if ((timer && !scheduled.m_bTimerStarted) || (!timer && m_eGameModeState != SCR_EGameModeState.GAME))
+			if ((timer && (!scheduled.m_bTimerStarted || scheduled.m_bTimerPaused)) || (!timer && m_eGameModeState != SCR_EGameModeState.GAME))
 				continue;
 			if (scheduled.m_fNextCheck > m_fNow || (scheduled.m_bHasRolled && (timer || condition.m_iRandomBehavior == 1)))
 				continue;
@@ -1140,6 +1137,9 @@ class GC_MissionRuleEngine
 			case GC_ERuleAction.RESET_RANDOM:
 				accepted = ApplyRandomReset(action.m_sTextOrName);
 				break;
+			case GC_ERuleAction.TIMER_CONTROL:
+				accepted = ApplyTimerControl(action);
+				break;
 			default:
 				accepted = m_ActionManager && m_ActionManager.GC_ExecuteFrameworkAction(this, action);
 				break;
@@ -1235,6 +1235,85 @@ class GC_MissionRuleEngine
 			return true;
 		}
 		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected float ChooseTimerDuration(GC_RuleCondition condition)
+	{
+		float duration = condition.m_fRandomInterval;
+		if (condition.m_fTimerMaximum > duration)
+			duration += RandomUnit() * (condition.m_fTimerMaximum - duration);
+		return duration;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool ApplyTimerControl(GC_RuleAction action)
+	{
+		// Resolve fully before mutation: an ambiguous name must never change either timer.
+		GC_RandomConditionState target;
+		foreach (GC_RandomConditionState scheduled : m_aRandomConditions)
+		{
+			if (scheduled.m_Condition.m_iCheck != 12 || scheduled.m_Condition.m_sTimerName != action.m_sTextOrName)
+				continue;
+			if (target)
+			{
+				PrintFormat("GC | Mission Framework | Duplicate Timer Name: %1", action.m_sTextOrName, level: LogLevel.WARNING);
+				return false;
+			}
+			target = scheduled;
+		}
+		if (!target)
+			return false;
+		int operation = action.m_iOperation;
+		if (!target.m_bTimerStarted && operation != 0 && operation != 3)
+			return false;
+		bool before = m_mRandomResults.Get(target.m_Condition);
+		float remaining;
+		if (target.m_bTimerStarted && !before)
+		{
+			remaining = Math.Max(0, target.m_fNextCheck - m_fNow);
+			if (target.m_bTimerPaused)
+				remaining = target.m_fTimerRemaining;
+		}
+		bool paused = target.m_bTimerPaused;
+		switch (operation)
+		{
+			case 0:
+				remaining = ChooseTimerDuration(target.m_Condition);
+				paused = false;
+				break;
+			case 1:
+				paused = true;
+				break;
+			case 2:
+				paused = false;
+				break;
+			case 3:
+				remaining = action.m_fTimerSeconds;
+				break;
+			case 4:
+				remaining += action.m_fTimerSeconds;
+				break;
+			case 5:
+				remaining = Math.Max(0, remaining - action.m_fTimerSeconds);
+				break;
+		}
+		if (!(remaining >= 0 && remaining <= 86400))
+			return false;
+		bool finished = remaining == 0;
+		target.m_bTimerStarted = true;
+		target.m_bTimerPaused = paused && !finished;
+		target.m_fTimerRemaining = remaining;
+		target.m_fNextCheck = m_fNow + remaining;
+		target.m_bHasRolled = finished;
+		m_mRandomResults.Set(target.m_Condition, finished);
+		if (before != finished)
+		{
+			GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.RANDOM_CHECK, "");
+			notification.m_aRandomChecks = {target.m_Condition};
+			m_aEvents.Insert(notification);
+		}
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

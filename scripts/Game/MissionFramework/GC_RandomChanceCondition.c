@@ -36,4 +36,6 @@ class GC_RandomConditionState
 	float m_fNextCheck;
 	bool m_bHasRolled;
 	bool m_bTimerStarted;
+	bool m_bTimerPaused;
+	float m_fTimerRemaining;
 }

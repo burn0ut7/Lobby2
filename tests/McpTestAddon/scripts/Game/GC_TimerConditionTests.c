@@ -32,6 +32,7 @@ class GC_TimerConditionTests : GC_MissionRuleTests
 		Check(engine.GetRunCount() == 1, "Late update expires once without catch-up burst");
 		engine.Stop();
 		CheckPhaseAndRange();
+		CheckTimerActions();
 
 		GC_RuleCondition gate = new GC_RuleCondition();
 		gate.m_iCheck = 1;
@@ -51,6 +52,61 @@ class GC_TimerConditionTests : GC_MissionRuleTests
 		timer.m_fSeconds = 86401;
 		Check(!timer.BuildCheck(), "Duration over one day rejected");
 		return string.Format("TimerConditions: checks=%1 failures=%2", m_iChecks, m_iFailures);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CheckTimerActions()
+	{
+		GC_TimerCondition timer = new GC_TimerCondition();
+		timer.m_sTimerName = "extraction";
+		timer.m_eStartState = SCR_EGameModeState.GAME;
+		timer.m_fSeconds = 10;
+		GC_CompiledMissionRule rule = EventRule("controlled");
+		rule.m_If = timer.BuildCheck();
+		GC_TimerTestEngine engine = new GC_TimerTestEngine();
+		engine.Start({rule}, null, SCR_EGameModeState.BRIEFING);
+		engine.ControlTimer("extraction", 3, 20);
+		engine.Advance(5);
+		engine.ControlTimer("extraction", 1);
+		engine.Advance(100);
+		Check(!engine.TimerResult(rule.m_If), "Pause freezes timer before configured start state");
+		engine.ControlTimer("extraction", 4, 5);
+		engine.ControlTimer("extraction", 5, 2.5);
+		engine.ControlTimer("extraction", 2);
+		engine.SetGameModeState(SCR_EGameModeState.GAME, 100);
+		engine.Advance(117.4);
+		Check(!engine.TimerResult(rule.m_If), "Resume preserves adjusted decimal remaining time; phase does not restart");
+		engine.Advance(117.5);
+		Check(engine.TimerResult(rule.m_If), "Adjusted timer expires");
+		engine.ControlTimer("extraction", 4, 3);
+		Check(!engine.TimerResult(rule.m_If), "Adding time reopens a finished timer");
+		engine.ControlTimer("extraction", 5, 100);
+		Check(engine.TimerResult(rule.m_If), "Remove clamps to zero and finishes immediately");
+		engine.ControlTimer("extraction", 0);
+		Check(!engine.TimerResult(rule.m_If) && engine.m_iDraws == 0, "Restart clears result without drawing for fixed timer");
+		engine.ControlTimer("extraction", 3, 86400);
+		engine.ControlTimer("extraction", 4, 1);
+		engine.Advance(86517.5);
+		Check(engine.TimerResult(rule.m_If), "Excessive addition rejected without extending deadline");
+		Check(!engine.ControlTimer("extraction", 3, -1), "Negative time rejected at action boundary");
+		engine.Stop();
+
+		timer.m_fRandomMaxSeconds = 20;
+		rule.m_If = timer.BuildCheck();
+		engine.Start({rule}, null, SCR_EGameModeState.GAME);
+		int draws = engine.m_iDraws;
+		engine.ControlTimer("extraction", 0);
+		Check(engine.m_iDraws == draws + 1, "Random restart draws exactly once");
+		engine.ControlTimer("missing", 0);
+		Check(engine.m_iDraws == draws + 1, "Missing name changes nothing");
+		engine.Stop();
+
+		GC_CompiledMissionRule other = EventRule("other");
+		other.m_If = timer.BuildCheck();
+		engine.Start({rule, other}, null, SCR_EGameModeState.GAME);
+		engine.ControlTimer("extraction", 3, 0);
+		Check(!engine.TimerResult(rule.m_If) && !engine.TimerResult(other.m_If), "Duplicate names change neither timer");
+		engine.Stop();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -105,6 +161,22 @@ class GC_TimerConditionTests : GC_MissionRuleTests
 class GC_TimerTestEngine : GC_MissionRuleEngine
 {
 	int m_iDraws;
+
+	//------------------------------------------------------------------------------------------------
+	bool ControlTimer(string name, int operation, float seconds = 0)
+	{
+		GC_TimerAction action = new GC_TimerAction();
+		action.m_sTimerName = name;
+		action.m_iOperation = operation;
+		action.m_fSeconds = seconds;
+		return QueueFrameworkAction(action.BuildAction());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool TimerResult(GC_RuleCondition condition)
+	{
+		return m_mRandomResults.Get(condition);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	override protected float RandomUnit()
