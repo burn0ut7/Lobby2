@@ -2,15 +2,6 @@
 [BaseContainerProps(visible: false, insertable: false)]
 class GC_EventDefinition
 {
-	[Attribute("0", UIWidgets.CheckBox, "Checked: run again on later matching notifications. Unchecked: run once. This does not run continuously while conditions are true.", category: "Advanced")]
-	bool m_bRepeatable;
-	[Attribute("0", UIWidgets.SpinBox, "Delay in seconds before running. For example, 5 means wait 5 seconds. Zero means no delay. Conditions must still pass when the delay ends.", "0 86400 0.1", category: "Advanced")]
-	float m_fDelay;
-	[Attribute("1", UIWidgets.Slider, "Chance to run this event's actions, from 0 to 1. For example, 0.8 is 80%, 1 is 100%, and 0 never runs. The default is 1; the default setting means 100%. This does not spawn anything unless the actions do so.", "0 1 0.0001", category: "Advanced")]
-	float m_fRandomChance;
-	[Attribute("0", UIWidgets.CheckBox, "Keep this event in the list without running it.", category: "Advanced")]
-	bool m_bDisabled;
-
 	//------------------------------------------------------------------------------------------------
 	//! Keep names even when an authored definition cannot compile.
 	void CollectEventNames(array<string> names)
@@ -24,7 +15,7 @@ class GC_EventDefinition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected GC_CompiledMissionRule BuildSettings(string name, array<ref GC_ConditionBase> conditions)
+	protected GC_CompiledMissionRule BuildSettings(string name, array<ref GC_ConditionBase> conditions, bool repeatable, float delay, float chance, bool disabled)
 	{
 		GC_CompiledMissionRule rule = new GC_CompiledMissionRule();
 		rule.m_sName = name;
@@ -32,12 +23,12 @@ class GC_EventDefinition
 		rule.m_bRunOnlyOnce = true;
 		rule.m_fEverySeconds = 5;
 		rule.m_aThen = {};
-		if (m_fRandomChance < 0 || m_fRandomChance > 1)
+		if (chance < 0 || chance > 1)
 			return null;
-		rule.m_bEnabled = !m_bDisabled;
-		rule.m_bRunOnlyOnce = !m_bRepeatable;
-		rule.m_fWaitSeconds = m_fDelay;
-		rule.m_fChance = m_fRandomChance;
+		rule.m_bEnabled = !disabled;
+		rule.m_bRunOnlyOnce = !repeatable;
+		rule.m_fWaitSeconds = delay;
+		rule.m_fChance = chance;
 
 		if (conditions && !conditions.IsEmpty())
 		{
@@ -63,6 +54,15 @@ class GC_Event : GC_EventDefinition
 	[Attribute("", UIWidgets.Object, "Actions to run, in list order.")]
 	ref array<ref GC_ActionBase> m_aActions;
 
+	[Attribute("0", UIWidgets.CheckBox, "Checked: run again on later matching notifications. Unchecked: run once. This does not run continuously while conditions are true.", category: "Advanced")]
+	bool m_bRepeatable;
+	[Attribute("0", UIWidgets.SpinBox, "Delay in seconds before running. For example, 5 means wait 5 seconds. Zero means no delay. Conditions must still pass when the delay ends.", "0 86400 0.1", category: "Advanced")]
+	float m_fDelay;
+	[Attribute("1", UIWidgets.Slider, "Chance to run this event's actions, from 0 to 1. For example, 0.8 is 80%, 1 is 100%, and 0 never runs. The default is 1; the default setting means 100%. This does not spawn anything unless the actions do so.", "0 1 0.0001", category: "Advanced")]
+	float m_fRandomChance;
+	[Attribute("0", UIWidgets.CheckBox, "Keep this event in the list without running it.", category: "Advanced")]
+	bool m_bDisabled;
+
 	//------------------------------------------------------------------------------------------------
 	override void CollectEventNames(array<string> names)
 	{
@@ -73,7 +73,7 @@ class GC_Event : GC_EventDefinition
 	//------------------------------------------------------------------------------------------------
 	override GC_CompiledMissionRule BuildRule()
 	{
-		GC_CompiledMissionRule rule = BuildSettings(m_sName, m_aConditions);
+		GC_CompiledMissionRule rule = BuildSettings(m_sName, m_aConditions, m_bRepeatable, m_fDelay, m_fRandomChance, m_bDisabled);
 		if (!rule || !m_aActions || m_aActions.IsEmpty() || m_aActions.Count() > 256)
 			return null;
 		foreach (GC_ActionBase definition : m_aActions)
@@ -103,6 +103,15 @@ class GC_RandomEventGroup : GC_EventDefinition
 	[Attribute("", UIWidgets.Object, "Regular events to choose from. Disabled, already-completed once-only events, waiting events and events with failing conditions are excluded. Groups cannot be nested here; conditions can still nest normally.")]
 	ref array<ref GC_Event> m_aEvents;
 
+	[Attribute("0", UIWidgets.CheckBox, "Checked: run again on later matching notifications. Unchecked: run once. This does not run continuously while conditions are true.", category: "Advanced")]
+	bool m_bRepeatable;
+	[Attribute("0", UIWidgets.SpinBox, "Delay in seconds before running. For example, 5 means wait 5 seconds. Zero means no delay. Conditions must still pass when the delay ends.", "0 86400 0.1", category: "Advanced")]
+	float m_fDelay;
+	[Attribute("1", UIWidgets.Slider, "Chance to run this event's actions, from 0 to 1. For example, 0.8 is 80%, 1 is 100%, and 0 never runs. The default is 1; the default setting means 100%. This does not spawn anything unless the actions do so.", "0 1 0.0001", category: "Advanced")]
+	float m_fRandomChance;
+	[Attribute("0", UIWidgets.CheckBox, "Keep this event in the list without running it.", category: "Advanced")]
+	bool m_bDisabled;
+
 	//------------------------------------------------------------------------------------------------
 	override void CollectEventNames(array<string> names)
 	{
@@ -120,7 +129,7 @@ class GC_RandomEventGroup : GC_EventDefinition
 	//------------------------------------------------------------------------------------------------
 	override GC_CompiledMissionRule BuildRule()
 	{
-		GC_CompiledMissionRule rule = BuildSettings(m_sName, m_aConditions);
+		GC_CompiledMissionRule rule = BuildSettings(m_sName, m_aConditions, m_bRepeatable, m_fDelay, m_fRandomChance, m_bDisabled);
 		if (!rule || !m_aEvents || m_aEvents.IsEmpty() || m_aEvents.Count() > 255 || m_iPickCount < 1 || m_iPickCount > m_aEvents.Count())
 			return null;
 		rule.m_iPickCount = m_iPickCount;

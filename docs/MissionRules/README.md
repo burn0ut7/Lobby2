@@ -557,3 +557,7 @@ Weather Action changes a named weather preset, with Transition Seconds and an Al
 ## Timer condition
 
 Timer Condition starts in a selected game state, waits a fixed or randomly chosen duration, then stays true until the framework restarts. See [timing, nesting and repeatability](TimerCondition.md).
+
+## Event and flag field order
+
+Regular events declare Name, Conditions, Actions, then Advanced (Repeatable, Delay, Random Chance, Disabled). Random groups declare Name, Conditions, Pick Count, Events, then Advanced. Flags declare Name, Conditions, then Advanced (Start Call Count, Repeatable); flags do not gain an Actions list. Advanced attributes live on the concrete event classes so inherited fields no longer precede the main settings. Serialized names, types and defaults are unchanged; compilation uses one shared settings builder. Reload compilation passed; rendered editor ordering was not independently verified.
