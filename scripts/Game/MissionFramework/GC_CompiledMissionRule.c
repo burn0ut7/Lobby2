@@ -33,7 +33,8 @@ enum GC_ERuleAction
 	DELETE_ENTITIES,
 	ASSIGN_WAYPOINTS,
 	WEATHER,
-	TIMER_CONTROL
+	TIMER_CONTROL,
+	RESPAWN_WAVE
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -56,6 +57,7 @@ class GC_RuleAction
 	float m_fTransitionSeconds;
 	float m_fTimerSeconds;
 	string m_sMessageTitle;
+	bool m_bRandomOrder;
 
 	//------------------------------------------------------------------------------------------------
 	static bool ValidTargetNames(array<string> names)
@@ -75,6 +77,8 @@ class GC_RuleAction
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.RESPAWN_WAVE)
+			return m_iAmount >= 0 && m_iAmount <= 1000000 && ValidTargetNames(m_aFlagNames);
 		if (m_eDo == GC_ERuleAction.TIMER_CONTROL)
 			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5
 				&& (m_iOperation < 3 || (m_fTimerSeconds >= 0 && m_fTimerSeconds <= 86400));

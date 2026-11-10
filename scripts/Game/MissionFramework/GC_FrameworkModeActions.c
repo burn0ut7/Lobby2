@@ -9,6 +9,8 @@ modded class GC_LobbyManager
 			return false;
 		switch (action.m_eDo)
 		{
+			case GC_ERuleAction.RESPAWN_WAVE:
+				return GC_RespawnWave(action.m_aFlagNames, action.m_iAmount, action.m_bFlagAnswer, action.m_bRandomOrder) >= 0;
 			case GC_ERuleAction.WEATHER:
 				return GC_ChangeFrameworkWeather(action);
 			case GC_ERuleAction.DELETE_ENTITIES:
