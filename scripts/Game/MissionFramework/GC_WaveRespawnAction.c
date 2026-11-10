@@ -1,4 +1,4 @@
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Wave Respawn Action")]
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Respawn Wave Action")]
 class GC_WaveRespawnAction : GC_ActionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Faction keys whose dead players may respawn. Empty means all factions. Only connected players with a claimed KIA slot qualify, including those waiting in spectator after death. Unassigned spectators, AI and living players are excluded. Players return to their slot's saved starting position.")]

@@ -1,6 +1,6 @@
 #ifdef WORKBENCH
 //! Explicit, non-gameplay checks of the production action's authoring and validation path.
-[WorkbenchPluginAttribute(name: "Check wave respawn action", wbModules: {"WorldEditor"}, category: "GC Tests")]
+[WorkbenchPluginAttribute(name: "Check respawn wave action", wbModules: {"WorldEditor"}, category: "GC Tests")]
 class GC_WaveRespawnActionChecks : WorkbenchPlugin
 {
 	//------------------------------------------------------------------------------------------------
