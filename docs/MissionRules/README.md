@@ -44,7 +44,7 @@ For delayed actions, conditions are rechecked when the delay ends. Flag memory r
 
 Fresh framework startup restores each flag's Start Call Count. Reset Flag always clears to zero. Flag names are case-sensitive. Unknown names read false/count zero; Call Flag requires a declared flag. Invalid/duplicate definitions prevent startup.
 
-The legacy Set Flag object is hidden from new selections. Saved Set True requests still call declared flags through their conditions/count policy; Set False now means Reset Flag and clears the count. Legacy undeclared Set True remains idempotent and records count one. Random flag failure and unselected random flags also reset their counts. New missions should declare flags and use Flag Action. The old Call Flag / Reset Flag classes remain readable for saved missions but are hidden from new authoring.
+Use Flag Action for calls and memory edits. The duplicate legacy action classes have been removed from production, rather than relying on picker visibility metadata. See Action catalog migration below for older external resources. The old compiled interpreter operations remain available to regression tests.
 
 ## Framework and game-mode actions
 
@@ -54,7 +54,7 @@ Add these objects directly to a mission event's Actions. Actions enter the exist
 | --- | --- |
 | **Flag Action** | Flag Name, Operation, Amount. **Call** checks the flag's conditions/repeatability and adds one only when accepted. **Set count**, **Add**, **Subtract**, **Reset to zero**, and **Restore starting count** directly edit its memory. Amount is used only by Set/Add/Subtract. Subtract stops at zero; overflow is rejected. Zero is false; any positive count is true. Count edits bypass activation conditions and notify when the count actually changes, even positive-to-positive. They do not reset events. |
 | **Event Control Action** | Event Name and Operation. **Enable** permits future checks; it does not run the event. **Disable** cancels pending actions and preserves whether it ran. **Reset** clears run history and pending delay, retaining enabled/disabled state. **Check now** applies normal conditions, chance, once/repeatable and delay. It never forces actions through a failed condition. |
-| **Mission Message Action** | Message, optional Factions, Warning checkbox. Empty factions means all connected players, including spectators. Faction keys are validated before delivery and recipients are deduplicated. Maximum 512 characters; markup is rejected. Uses the shared admin notification display with a Mission/Mission Warning label. It does not impersonate an authenticated admin or add a client command. |
+| **Message Action** | Message, optional Factions, Warning checkbox. Empty factions means all connected players, including spectators. Faction keys are validated before delivery and recipients are deduplicated. Maximum 512 characters; markup is rejected. Uses the shared admin notification display with a Mission/Mission Warning label. It does not impersonate an authenticated admin or add a client command. |
 | **Reset Random Chance Action** | Reset Name. Add the matching unique **Advanced > Reset Name** to a Random Chance Condition. The action clears its answer to false and restarts its full Check Interval. Roll Once may roll again. An unknown or duplicate name is rejected. Leave the condition's name empty when no reset is needed. Flags, event completion and random groups remain unchanged. A changed answer is combined through the normal enclosing logic; for example, None may become true when a roll is cleared. |
 | **End Mission Action** | Result and Faction. Choose Mission complete, Faction victory, Faction defeat or Faction draw. Faction is required only for faction results. Uses Lobby2's existing authoritative Match-to-After-action transition; invalid factions and attempts outside Match are rejected. |
 | **Respawn Tickets Action** | Faction, Set/Add/Subtract, Amount. Changes remaining tickets through Lobby2's existing ticket owner. Subtract stops at zero and overflow is rejected. No player is respawned by this action. Invalid factions, clients, inactive Lobby2 and After action are rejected. |
@@ -63,7 +63,7 @@ Event names must be unique. Controls can enable, disable or reset a random-group
 
 **Shared notification stack:** admin and mission notices never replace one another. Up to three fit on screen together; longer messages reduce the number that fit. Additional notices wait in arrival order, with at most 100 waiting. Each starts its own 15-second lifetime when displayed, fades in, fades out during the final second, and the remaining notices move into the gap. No per-frame framework polling is added; the native UI animation system handles animation. Extreme text overflow gets a shortened popup preview; the received message remains intact in owner-local history (the existing history retains its newest 100 messages). If the waiting queue is full, a new notice stays in history and a diagnostic is logged; visible messages are not evicted. Mode shutdown clears widgets, sounds, waiting messages, animation and expiry callbacks. Messages are not replayed to players who join later.
 
-**Compatibility:** old Call Flag, Reset Flag, Set Flag, Random Flag, Select Random Flags and Send Test Event containers still load with their existing behavior, but are hidden from new authoring. In particular, old random-flag failures/unselected flags still clear counts; they are not silently converted to random groups. New missions use Random Chance Condition / Random Event Group plus Flag Action. Log Message remains a separate diagnostic action.
+**Compatibility:** duplicate legacy authoring classes were removed in the action-catalog cleanup below. Current Lobby2 resources were checked after saving the open scene; none referenced those classes. External resources from earlier revisions require migration. The compiled legacy interpreter operations and explicit test fixtures remain intact. New missions use Random Chance Condition / Random Event Group plus Flag Action. Log Message remains a separate diagnostic action.
 
 **Verification for this slice:** production scripts and the optional regression fixtures are compiled through Workbench Reload. Source-level logic review covers ordering, count semantics, event rearming, legacy observers and reset scheduling. The new `GC_TestFrameworkActions()` fixture is explicit and has not been executed: the available runtime helper requires embedded Play, which the user excluded. Simultaneous-message rendering, animation, network delivery and actual game-ending/ticket effects likewise remain untested in-game.
 
@@ -173,7 +173,7 @@ Groups contain regular events, not other random groups. Conditions still nest no
 - `tests/McpTestAddon/worlds/StandardLogicExample.ent`: optional editor-only scene for inspecting the no-flags state example. Run runtime tests in Arland; this minimal inspector scene lacks a faction manager required by Play.
 - `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two independent state-driven mission events. Match calls the declared test_ready flag; After action calls the declared test_complete flag. Both use Flag Action > Call. They demonstrate optional flag memory, not flag-triggered events.
 
-Use the current **Framework and game-mode actions** catalog above. Log Message Action remains available for debugging. Old Call Flag, Reset Flag, Set Flag, Send Test Event, Random Flag and Select Random Flags are hidden compatibility types. Send Test Event has no authorable named-event condition to receive it. These actions expose no client request RPC or arbitrary script execution.
+Use the current **Framework and game-mode actions** catalog above. Log Message Action remains available for debugging. Old Call Flag, Reset Flag, Set Flag, Send Test Event, Random Flag and Select Random Flags are no longer production authoring types. Send Test Event has no authorable named-event condition to receive it. These actions expose no client request RPC or arbitrary script execution.
 
 ## Runtime and limits
 
@@ -460,13 +460,13 @@ Verification: script compilation/reload and independent source review. Optional 
 
 ### True/false checkbox settings
 
-Two-choice framework settings now use checkboxes. Flags default to false with zero successful calls; Start Call Count can initialize remembered calls. Flag Action owns calls and count changes; saved Call Flag and Reset Flag actions remain supported. **Require False** checked matches false; unchecked matches true. **Repeatable** checked allows repeated activations; unchecked allows one. **Outside** checked selects outside; unchecked selects inside. **Require Other State** checked matches another phase; unchecked matches the selected phase. **Roll Once** checked keeps the first roll; unchecked keeps rolling. **Count Flag Calls** checked uses the named flag count; unchecked counts true child conditions. **Pick One Random Action** checked picks one; unchecked runs the list.
+Two-choice framework settings now use checkboxes. Flags default to false with zero successful calls; Start Call Count can initialize remembered calls. Flag Action owns calls and count changes; older Call Flag and Reset Flag objects require migration. **Require False** checked matches false; unchecked matches true. **Repeatable** checked allows repeated activations; unchecked allows one. **Outside** checked selects outside; unchecked selects inside. **Require Other State** checked matches another phase; unchecked matches the selected phase. **Roll Once** checked keeps the first roll; unchecked keeps rolling. **Count Flag Calls** checked uses the named flag count; unchecked counts true child conditions. **Pick One Random Action** checked picks one; unchecked runs the list.
 
 These are boolean fields, as required by the engine checkbox widget. Saved external configurations must rename the following fields on the specified classes, retaining numeric values 0/1 and omitted defaults except the removed starting-value fields. Project examples and script consumers were updated. Invalid old numeric values are not boolean settings and must be corrected before conversion.
 
 | Class | Previous field | Checkbox field |
 | --- | --- | --- |
-| GC_MissionFlag | m_iStartingValue / m_bStartsTrue | Removed; use an initial Call Flag action |
+| GC_MissionFlag | m_iStartingValue / m_bStartsTrue | Removed; use Start Call Count or Flag Action > Call |
 | GC_SetFlagAction | m_iSetTo | m_bSetTrue |
 | GC_MissionFlagCondition, GC_MissionEventCondition | m_iMatch | m_bRequireFalse |
 | GC_GameModeStateCondition | m_iMatch | m_bRequireOtherState |
@@ -510,6 +510,27 @@ The supported flag vocabulary is deliberately small:
 - **Count Condition** reads the remembered count, including starting values and direct edits. A separate flag-state or flag-call-count condition would duplicate these.
 - Random chance, casualties, total deaths, entity damage, area and interaction remain **conditions**, not extra flag types. Put them inside a Mission Flag only when persistent memory or a reusable named result is needed.
 
-Legacy Set/Call/Reset Flag actions, Random Flag, Select Random Flags and GC_RuleRandom remain available to load saved data and compatibility fixtures, but are hidden from new authoring. Deleting their classes would break saved references. Their original behavior is retained, including old random actions clearing unsuccessful/unselected flags. The example prefab now declares its two flags and uses the unified Flag Action. Existing user-authored worlds are not rewritten.
+The follow-up action-catalog cleanup removes duplicate legacy action classes from production. GC_RuleRandom remains a separate legacy compiled-settings reader, not an action choice. The example declares its two flags and uses Flag Action. Current saved resources contain no removed action types; unrelated user-authored scene settings are preserved.
 
 This cleanup changes catalog visibility, wording and the example, not flag evaluation or execution. Workbench compilation and source review are used; no in-game test is run.
+
+## Action catalog migration
+
+There are seven concrete production action types: **Flag Action**, **Message Action**, **Event Control Action**, **End Mission Action**, **Respawn Tickets Action**, **Reset Random Chance Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; the popup still identifies its source as Mission.
+
+Flag Action already includes Call, Set count, Add, Subtract, Reset to zero and Restore starting count. Random selection stays with Random Chance Condition and Random Event Group because it needs probability/pool settings rather than the same single-flag arithmetic fields. End Mission stays separate from Message because outcome/faction settings are unrelated to message text and warning presentation.
+
+The previous `visible/insertable` metadata was insufficient to establish that legacy subclasses disappear from this Workbench picker. The duplicate production classes have therefore been removed. Two script-only legacy interpreter inputs live in the optional test addon, without container/field attributes. They are not production actions. Runtime flags, action ordering and network/message behavior are unchanged.
+
+For resources maintained outside this checkout, migrate before loading:
+
+| Old class | Replacement |
+| --- | --- |
+| GC_CallFlagAction | GC_FlagAction, m_iOperation 0 (Call), same m_sFlagName |
+| GC_ResetFlagAction | GC_FlagAction, m_iOperation 4 (Reset to zero), same name |
+| GC_SetFlagAction | Declared flag: true maps to Call; false maps to Reset to zero. Old undeclared Set True was idempotent: declare that flag and use Set count (operation 1), amount 1 to preserve that behavior. |
+| GC_RandomFlagAction / GC_SelectRandomFlagsAction | Redesign explicitly with random conditions/groups and Flag Action. Old failure/unselected paths cleared flags; preserve those resets explicitly if needed. Do not blindly rename these objects. |
+| GC_SendTestEventAction | Interpreter/testing only; no normal authoring replacement. Use flags or Event Control for new mission logic. |
+| GC_MissionMessageAction | GC_MessageAction; message/factions/warning fields unchanged |
+
+The open scene was saved before scanning all local .et/.conf/.layer/.ent files; no removed or renamed concrete action class occurred. Production scripts and updated optional test inputs compiled through Reload. No Play tests were run. The MCP direct array-add operation is not ported to Workbench 1.9, so the rendered class-picker contents were not independently verified; source removal, reference scanning and compilation establish the catalog change.

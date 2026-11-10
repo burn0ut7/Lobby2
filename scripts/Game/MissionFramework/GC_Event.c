@@ -61,7 +61,7 @@ class GC_Event : GC_EventDefinition
 	[Attribute("", UIWidgets.Object, "No conditions means always true: there are no requirements to meet. Otherwise, every listed condition must pass. A top-level event with no conditions runs at match start. Inside a random group, it is eligible whenever the group selects events.")]
 	ref array<ref GC_ConditionBase> m_aConditions;
 	[Attribute("", UIWidgets.Object, "Actions to run, in list order.")]
-	ref array<ref GC_MissionAction> m_aActions;
+	ref array<ref GC_ActionBase> m_aActions;
 
 	//------------------------------------------------------------------------------------------------
 	override void CollectEventNames(array<string> names)
@@ -76,7 +76,7 @@ class GC_Event : GC_EventDefinition
 		GC_CompiledMissionRule rule = BuildSettings(m_sName, m_aConditions);
 		if (!rule || !m_aActions || m_aActions.IsEmpty() || m_aActions.Count() > 256)
 			return null;
-		foreach (GC_MissionAction definition : m_aActions)
+		foreach (GC_ActionBase definition : m_aActions)
 		{
 			if (!definition)
 				return null;

@@ -27,7 +27,7 @@ class GC_MissionRuleTests
 		GC_Event rule = new GC_Event();
 		rule.m_fRandomChance = 1;
 		rule.m_sName = flag;
-		GC_SetFlagAction action = new GC_SetFlagAction();
+		GC_TestSetFlagAction action = new GC_TestSetFlagAction();
 		action.m_sFlagName = flag;
 		action.m_bSetTrue = true;
 		rule.m_aActions = {action};
@@ -267,7 +267,7 @@ class GC_MissionRuleTests
 		rule.m_fRandomChance = 1;
 		rule.m_sName = output;
 		rule.m_aActions = {};
-		GC_SetFlagAction action = new GC_SetFlagAction();
+		GC_TestSetFlagAction action = new GC_TestSetFlagAction();
 		action.m_sFlagName = output;
 		action.m_bSetTrue = true;
 		rule.m_aActions.Insert(action);

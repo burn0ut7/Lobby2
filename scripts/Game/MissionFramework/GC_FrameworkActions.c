@@ -1,6 +1,6 @@
-//! Related operations share one action. Existing serialized action classes remain readable.
+//! Current authoring catalog: related operations share one action. Older action types require migration.
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Flag Action")]
-class GC_FlagAction : GC_MissionAction
+class GC_FlagAction : GC_ActionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Exact name in Mission Flags.")]
 	string m_sFlagName;
@@ -22,7 +22,7 @@ class GC_FlagAction : GC_MissionAction
 }
 
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Event Control Action")]
-class GC_EventControlAction : GC_MissionAction
+class GC_EventControlAction : GC_ActionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Unique mission event or random event group name. A child event still belongs to its group: these controls never select or run a child directly.")]
 	string m_sEventName;
@@ -40,8 +40,8 @@ class GC_EventControlAction : GC_MissionAction
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Mission Message Action")]
-class GC_MissionMessageAction : GC_MissionAction
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Message Action")]
+class GC_MessageAction : GC_ActionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Message shown to connected players using the same notification stack as admin messages. Maximum 512 characters. Messages wait their turn when the stack is full; joining later does not replay them.")]
 	string m_sMessage;
@@ -66,7 +66,7 @@ class GC_MissionMessageAction : GC_MissionAction
 }
 
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Reset Random Chance Action")]
-class GC_ResetRandomChanceAction : GC_MissionAction
+class GC_ResetRandomChanceAction : GC_ActionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Unique Reset Name on a Random Chance Condition. Clears its answer to false and waits its full Check Interval before rolling again. Also allows Roll Once to roll again. Does not reset flags, events or random groups.")]
 	string m_sResetName;
@@ -82,7 +82,7 @@ class GC_ResetRandomChanceAction : GC_MissionAction
 }
 
 [BaseContainerProps(), BaseContainerCustomStringTitleField("End Mission Action")]
-class GC_EndMissionAction : GC_MissionAction
+class GC_EndMissionAction : GC_ActionBase
 {
 	[Attribute("0", UIWidgets.ComboBox, "Ends the active Match and opens the after-action phase. Has no effect before Match or after the mission has ended.", enums: {ParamEnum("Mission complete", "0"), ParamEnum("Faction victory", "1"), ParamEnum("Faction defeat", "2"), ParamEnum("Faction draw", "3")})]
 	int m_iResult;
@@ -101,7 +101,7 @@ class GC_EndMissionAction : GC_MissionAction
 }
 
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Respawn Tickets Action")]
-class GC_RespawnTicketsAction : GC_MissionAction
+class GC_RespawnTicketsAction : GC_ActionBase
 {
 	[Attribute("", UIWidgets.EditBox, "Faction key whose remaining respawn tickets will change. This action does not respawn anyone.")]
 	string m_sFaction;

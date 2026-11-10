@@ -148,7 +148,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		engine.CallFlag("first");
 		Check(engine.GetRunCount() == 2 && engine.GetFlagCallCount("second") == 2, "later external call starts fresh chain");
 
-		GC_CallFlagAction again = new GC_CallFlagAction();
+		GC_FlagAction again = new GC_FlagAction();
 		again.m_sFlagName = "first";
 		GC_Event loop = Watch("first");
 		loop.m_aActions = {again, again};
@@ -211,7 +211,8 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		engine.SendTestEvent("ordered");
 		Check(engine.GetFlag("legacy") && engine.GetFlagCallCount("legacy") == 1, "fresh legacy set reset set preserves action order");
 
-		GC_ResetFlagAction reset = new GC_ResetFlagAction();
+		GC_FlagAction reset = new GC_FlagAction();
+		reset.m_iOperation = 4;
 		Check(!reset.BuildAction().IsValid(), "reset requires a flag name");
 		reset.m_sFlagName = "once";
 		Check(reset.BuildAction().IsValid(), "named reset action is valid");

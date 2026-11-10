@@ -104,9 +104,9 @@ modded class GC_MissionRuleTests
 		GC_Event noFlags = new GC_Event();
 		noFlags.m_fRandomChance = 1;
 		noFlags.m_sName = "No flags";
-		GC_SendTestEventAction first = new GC_SendTestEventAction();
+		GC_TestSendEventAction first = new GC_TestSendEventAction();
 		first.m_sEventName = "first";
-		GC_SendTestEventAction second = new GC_SendTestEventAction();
+		GC_TestSendEventAction second = new GC_TestSendEventAction();
 		second.m_sEventName = "second";
 		noFlags.m_aActions = {first, second};
 		GC_CompiledMissionRule compiledNoFlags = noFlags.BuildRule();
