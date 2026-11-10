@@ -7,5 +7,6 @@ class GC_AdminMessage
 	string m_sText;
 	bool m_bPreserveLineBreaks;
 	bool m_bWarning;
+	bool m_bMission;
 	GC_EAdminMessageAudience m_eAudience;
 }

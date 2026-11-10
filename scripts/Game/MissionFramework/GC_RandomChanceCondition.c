@@ -11,11 +11,15 @@ class GC_RandomChanceCondition : GC_ConditionBase
 	[Attribute("0", UIWidgets.CheckBox, "Checked: roll once after Check Interval and keep that result, true or false, for this Match. Unchecked: keep rolling every Check Interval. Event Repeatable controls its actions separately.")]
 	bool m_bRollOnce;
 
+	[Attribute("", UIWidgets.EditBox, "Optional unique name used by Reset Random Chance Action. Leave empty if this condition never needs resetting.", category: "Advanced")]
+	string m_sResetName;
+
 	//------------------------------------------------------------------------------------------------
 	override GC_RuleCondition BuildCheck(int depth = 0)
 	{
 		GC_RuleCondition check = new GC_RuleCondition();
 		check.m_iCheck = 6;
+		check.m_sRandomResetName = m_sResetName;
 		check.m_fRandomInterval = m_fCheckInterval;
 		check.m_fRandomChance = m_fChance;
 		check.m_iRandomBehavior = m_bRollOnce;

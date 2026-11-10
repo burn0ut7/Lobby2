@@ -45,6 +45,7 @@ class GC_RuleCondition
 	int m_iFlagComparison;
 	int m_iFlagCount;
 	string m_sEventName;
+	string m_sRandomResetName;
 	float m_fRandomInterval;
 	float m_fRandomChance;
 	int m_iRandomBehavior;

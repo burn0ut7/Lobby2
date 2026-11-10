@@ -22,7 +22,13 @@ enum GC_ERuleAction
 	RANDOM_FLAG,
 	SELECT_FLAGS,
 	CALL_FLAG,
-	RESET_FLAG
+	RESET_FLAG,
+	FLAG_CONTROL,
+	EVENT_CONTROL,
+	MISSION_MESSAGE,
+	RESET_RANDOM,
+	END_MISSION,
+	RESPAWN_TICKETS
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -39,10 +45,38 @@ class GC_RuleAction
 	float m_fChancePercent;
 	ref array<string> m_aFlagNames;
 	int m_iSelectionCount;
+	int m_iOperation;
+	int m_iAmount;
 
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.FLAG_CONTROL)
+			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5 && m_iAmount >= 0 && m_iAmount <= 1000000;
+		if (m_eDo == GC_ERuleAction.EVENT_CONTROL)
+			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 3;
+		if (m_eDo == GC_ERuleAction.RESET_RANDOM)
+			return !m_sTextOrName.IsEmpty();
+		if (m_eDo == GC_ERuleAction.END_MISSION)
+			return m_iOperation >= 0 && m_iOperation <= 3 && (m_iOperation == 0 || !m_sTextOrName.IsEmpty());
+		if (m_eDo == GC_ERuleAction.RESPAWN_TICKETS)
+			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 2 && m_iAmount >= 0 && m_iAmount <= 1000000;
+		if (m_eDo == GC_ERuleAction.MISSION_MESSAGE)
+		{
+			if (m_sTextOrName.IsEmpty() || m_sTextOrName.Length() > 512 || m_sTextOrName.Contains("<") || m_sTextOrName.Contains(">"))
+				return false;
+			if (m_aFlagNames)
+			{
+				if (m_aFlagNames.Count() > 256)
+					return false;
+				foreach (string faction : m_aFlagNames)
+				{
+					if (faction.IsEmpty())
+						return false;
+				}
+			}
+			return true;
+		}
 		if (m_eDo == GC_ERuleAction.CALL_FLAG || m_eDo == GC_ERuleAction.RESET_FLAG)
 			return !m_sTextOrName.IsEmpty();
 		if (m_eDo == GC_ERuleAction.RANDOM_FLAG)

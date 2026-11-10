@@ -8,7 +8,7 @@ class GC_MissionAction
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Log message")]
+[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Log Message Action")]
 class GC_LogMessageAction : GC_MissionAction
 {
 	[Attribute("Test complete", UIWidgets.EditBox, "The message to write to the Workbench log. This is a test message, not a message shown to players.")]
@@ -24,7 +24,7 @@ class GC_LogMessageAction : GC_MissionAction
 	}
 }
 
-[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Set Flag - use Call Flag or Reset Flag")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Set Flag - use Flag Action")]
 class GC_SetFlagAction : GC_MissionAction
 {
 	[Attribute("", UIWidgets.EditBox, "Give the flag a name. Other mission events can watch this same name. Declared flags use Start Call Count; undeclared flags default to false with zero calls. Fresh startup restores configured starting counts.")]
@@ -43,7 +43,7 @@ class GC_SetFlagAction : GC_MissionAction
 	}
 }
 
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Send test event")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Test Event")]
 class GC_SendTestEventAction : GC_MissionAction
 {
 	[Attribute("", UIWidgets.EditBox, "Mission events waiting for this event name will run. An event is sent once; it is not remembered like a flag.")]
@@ -59,7 +59,7 @@ class GC_SendTestEventAction : GC_MissionAction
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Random flag")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Random Flag")]
 class GC_RandomFlagAction : GC_MissionAction
 {
 	[Attribute("", UIWidgets.EditBox, "The flag to set. Success sets it true; failure resets its count to zero and makes it false.")]
@@ -78,7 +78,7 @@ class GC_RandomFlagAction : GC_MissionAction
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Select random flags")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Select Random Flags")]
 class GC_SelectRandomFlagsAction : GC_MissionAction
 {
 	[Attribute("", UIWidgets.EditBox, "Possible flag names, such as route_north and route_south. Names must be unique. Selected flags turn true; the others reset their counts to zero and become false.")]
@@ -99,7 +99,7 @@ class GC_SelectRandomFlagsAction : GC_MissionAction
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Call Flag")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Call Flag - use Flag Action")]
 class GC_CallFlagAction : GC_MissionAction
 {
 	[Attribute("", UIWidgets.EditBox, "The exact name in Mission Flags. If its conditions pass, increase its count, turn it true and check dependent events and flags. The flag stays true until Reset Flag clears its count.")]
@@ -115,7 +115,7 @@ class GC_CallFlagAction : GC_MissionAction
 	}
 }
 
-[BaseContainerProps(), BaseContainerCustomStringTitleField("Reset Flag")]
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Reset Flag - use Flag Action")]
 class GC_ResetFlagAction : GC_MissionAction
 {
 	[Attribute("", UIWidgets.EditBox, "Exact Mission Flag name. Clears successful calls to zero, making the flag false and allowing it to activate again. Notifies dependent events when it changes. Does not reset mission events. The same flag can still activate only once per notification chain.")]
