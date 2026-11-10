@@ -553,3 +553,7 @@ Delete Entities and Assign Waypoints are separate actions. See [settings, exampl
 ## Weather action
 
 Weather Action changes a named weather preset, with Transition Seconds and an Allow Natural Changes checkbox. See [settings and engine behavior](WeatherAction.md).
+
+## Timer condition
+
+Timer Condition becomes true after a configured number of seconds from Match start and stays true for that Match. See [timing, nesting and repeatability](TimerCondition.md).
