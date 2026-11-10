@@ -28,7 +28,8 @@ enum GC_ERuleAction
 	MISSION_MESSAGE,
 	RESET_RANDOM,
 	END_MISSION,
-	RESPAWN_TICKETS
+	RESPAWN_TICKETS,
+	SPAWN
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -47,10 +48,13 @@ class GC_RuleAction
 	int m_iSelectionCount;
 	int m_iOperation;
 	int m_iAmount;
+	ref GC_PrefabSpawn m_Spawn;
 
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.SPAWN)
+			return m_Spawn && m_Spawn.IsValid();
 		if (m_eDo == GC_ERuleAction.FLAG_CONTROL)
 			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5 && m_iAmount >= 0 && m_iAmount <= 1000000;
 		if (m_eDo == GC_ERuleAction.EVENT_CONTROL)

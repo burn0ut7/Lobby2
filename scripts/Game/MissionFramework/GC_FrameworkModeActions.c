@@ -9,6 +9,8 @@ modded class GC_LobbyManager
 			return false;
 		switch (action.m_eDo)
 		{
+			case GC_ERuleAction.SPAWN:
+				return action.m_Spawn.Execute();
 			case GC_ERuleAction.MISSION_MESSAGE:
 				return GC_SendMissionMessage(action);
 			case GC_ERuleAction.END_MISSION:

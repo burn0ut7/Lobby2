@@ -516,7 +516,7 @@ This cleanup changes catalog visibility, wording and the example, not flag evalu
 
 ## Action catalog migration
 
-There are seven concrete production action types: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Reset Random Chance Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; the popup still identifies its source as Mission.
+There are eight concrete production action types: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Reset Random Chance Action**, **Spawn Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; the popup still identifies its source as Mission.
 
 Flag Action already includes Call, Set count, Add, Subtract, Reset to zero and Restore starting count. Random selection stays with Random Chance Condition and Random Event Group because it needs probability/pool settings rather than the same single-flag arithmetic fields. End Mission stays separate from Message because outcome/faction settings are unrelated to message text and warning presentation.
 
@@ -540,3 +540,8 @@ The open scene was saved before scanning all local .et/.conf/.layer/.ent files; 
 Event Action contains all controls for a named mission event or random group: Enable, Disable, Reset and Check now. Its serialized class remains `GC_EventControlAction` so existing resources continue loading. There are no separate enable-event, disable-event, reset-event or run-event action objects. Check now never bypasses conditions.
 
 Flag Action groups flag operations; Respawn Tickets Action groups ticket arithmetic. Message Action sends player information. Reset Random Chance targets a named condition, not an event, and remains separate so event controls do not acquire unrelated reset-name fields. End Mission is separate because it changes the game-mode phase and needs an outcome/faction. Log Message Action remains an Advanced diagnostic with no player-audience fields. No action behavior changed in this naming/description review.
+
+
+## Spawning prototype
+
+Spawn Action contains Prefab, AI Group and Crewed Vehicle setups. See [spawning settings, examples and limitations](Spawning.md).
