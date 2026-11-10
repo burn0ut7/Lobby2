@@ -93,10 +93,12 @@ class GC_MissionRuleEngine
 		{
 			foreach (GC_MissionFlag flag : flags)
 			{
-				if (!flag || flag.m_sName.IsEmpty()
+				if (!flag || flag.m_sName.IsEmpty() || flag.m_iStartCallCount < 0 || flag.m_iStartCallCount > 1000000
 					|| m_mFlags.Contains(flag.m_sName) || flags.Count() > 256)
 				{
 					m_mFlags.Clear();
+					m_mFlagCounts.Clear();
+					m_mFlagDefinitions.Clear();
 					m_iInvalidRules = 1;
 					Print("GC | Mission Framework | Invalid or duplicate Mission Flag; rules not started.", LogLevel.ERROR);
 					return;
@@ -105,6 +107,7 @@ class GC_MissionRuleEngine
 				if (flag.m_aConditions && !flag.m_aConditions.IsEmpty() && !condition)
 				{
 					m_mFlags.Clear();
+					m_mFlagCounts.Clear();
 					m_mFlagDefinitions.Clear();
 					m_iInvalidRules = 1;
 					Print("GC | Mission Framework | Invalid flag conditions; not started.", LogLevel.ERROR);
@@ -115,7 +118,8 @@ class GC_MissionRuleEngine
 				memory.m_bRepeatable = flag.m_bRepeatable;
 				memory.m_Condition = condition;
 				m_mFlagDefinitions.Set(flag.m_sName, memory);
-				m_mFlags.Set(flag.m_sName, false);
+				m_mFlagCounts.Set(flag.m_sName, flag.m_iStartCallCount);
+				m_mFlags.Set(flag.m_sName, flag.m_iStartCallCount > 0);
 			}
 		}
 		if (!rules || rules.Count() > 256)

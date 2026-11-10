@@ -3,9 +3,11 @@ class GC_MissionFlag
 {
 	[Attribute("", UIWidgets.EditBox, "A name for a fact your mission remembers, such as radio_destroyed. Use this same name in events, conditions and actions.")]
 	string m_sName;
+	[Attribute("0", UIWidgets.SpinBox, "Remember this many successful calls when the framework starts. Default 0 means false; 1 or more means true. This does not perform a call. A positive count uses a non-repeatable flag's activation; enable Repeatable to accept more calls. Conditions control future calls. Reset Flag clears to zero, not this starting count.", "0 1000000 1")]
+	int m_iStartCallCount;
 	[Attribute("0", UIWidgets.CheckBox, "Unchecked: accept one successful call until Reset Flag is used. Checked: accept more calls, increasing the count and notifying dependent events each time. Zero successful calls means false; one or more means true.")]
 	bool m_bRepeatable;
-	[Attribute("", UIWidgets.Object, "Requirements for accepting a call. No conditions means every otherwise eligible call is allowed; the flag still starts false with zero calls. Failed conditions change neither its count nor its value. Use Count Condition, check Count Flag Calls, enter this flag's name and select Less than 5 to allow five calls. Conditions are checked before increasing the count. Conditions referencing other flags can activate this flag when those flags change; a check of its own count only limits calls.")]
+	[Attribute("", UIWidgets.Object, "Requirements for accepting a call. No conditions means every otherwise eligible call is allowed; Start Call Count determines its initial true/false value. Failed conditions change neither its count nor its value. Use Count Condition, check Count Flag Calls, enter this flag's name and select Less than 5 to allow five calls. Conditions are checked before increasing the count. Conditions referencing other flags can activate this flag when those flags change; a check of its own count only limits calls.")]
 	ref array<ref GC_ConditionBase> m_aConditions;
 
 	//------------------------------------------------------------------------------------------------

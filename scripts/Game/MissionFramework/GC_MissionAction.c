@@ -27,7 +27,7 @@ class GC_LogMessageAction : GC_MissionAction
 [BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Legacy Set Flag - use Call Flag or Reset Flag")]
 class GC_SetFlagAction : GC_MissionAction
 {
-	[Attribute("", UIWidgets.EditBox, "Give the flag a name. Other mission events can watch this same name. All flags start false with zero successful calls. Values reset each match.")]
+	[Attribute("", UIWidgets.EditBox, "Give the flag a name. Other mission events can watch this same name. Declared flags use Start Call Count; undeclared flags default to false with zero calls. Fresh startup restores configured starting counts.")]
 	string m_sFlagName;
 	[Attribute("1", UIWidgets.CheckBox, "Checked: set true, calling a declared flag with its conditions and count rules. Unchecked: reset count to zero and make false.")]
 	bool m_bSetTrue;

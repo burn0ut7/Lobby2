@@ -17,7 +17,7 @@ A mission event runs once by default. **Advanced > Repeatable (checked)** permit
 
 ## Mission Flags: memory and calls
 
-A Mission Flag has **Name**, **Repeatable**, and **Conditions**. Its value is determined by successful calls: **zero = false; one or more = true**. Every flag starts at zero. Checking a flag does not call it. Use the **Call Flag** action with the same exact name.
+A Mission Flag has **Name**, **Start Call Count**, **Repeatable**, and **Conditions**. Its value is determined by successful calls: **zero = false; one or more = true**. Start Call Count defaults to zero; a positive value starts the flag true. Checking a flag does not call it. Use the **Call Flag** action with the same exact name.
 
 - **Repeatable unchecked** (default): accepts one call, becomes true and stays true. Later calls do nothing until Reset Flag is used.
 - **Repeatable checked**: accepts later calls, increasing its count and notifying dependent events each time. It stays true until Reset Flag clears the count.
@@ -42,7 +42,7 @@ Each flag can activate at most once in one notification chain, and each eligible
 
 For delayed actions, conditions are rechecked when the delay ends. Flag memory remains true after an accepted call, including for repeatable flags, unless Reset Flag clears it. Conditions on the flag govern acceptance of future calls; becoming false later does not undo earlier calls.
 
-All counts reset on fresh framework startup. Flag names are case-sensitive. Unknown names read false/count zero; Call Flag requires a declared flag. Invalid/duplicate definitions prevent startup.
+Fresh framework startup restores each flag's Start Call Count. Reset Flag always clears to zero. Flag names are case-sensitive. Unknown names read false/count zero; Call Flag requires a declared flag. Invalid/duplicate definitions prevent startup.
 
 The legacy Set Flag object is hidden from new selections. Saved Set True requests still call declared flags through their conditions/count policy; Set False now means Reset Flag and clears the count. Legacy undeclared Set True remains idempotent and records count one. Random flag failure and unselected random flags also reset their counts. New missions should declare flags and use Call Flag / Reset Flag.
 
@@ -213,7 +213,7 @@ Script callers constructing authoring containers directly must set their fields 
 
 ### Flag-memory migration and example
 
-Existing declared Mission Flags default to non-repeatable. Repeatable flags now keep true and their successful-call count until reset; they no longer produce temporary pulses. Set False resets the count and rearms the flag. To initialize a flag true, call it from an initial mission event; that counts as one successful call and respects its conditions. Remove old m_bStartsTrue (or m_iStartingValue) fields from external resources. No such saved fields were found in current project resources. This intentionally changes earlier prototype behavior.
+Existing declared Mission Flags default to non-repeatable. Repeatable flags now keep true and their successful-call count until reset; they no longer produce temporary pulses. Set False resets the count and rearms the flag. To initialize a flag true, set Start Call Count to 1 or more. Initialization records memory without making a call or checking activation conditions. Initial framework condition checks can observe it. Remove old m_bStartsTrue (or m_iStartingValue) fields from external resources. No such saved fields were found in current project resources. This intentionally changes earlier prototype behavior.
 
 `tests/McpTestAddon/Prefabs/FlagMemoryExample.et` is an optional editor/test fixture. It demonstrates a repeatable `wave` flag limited to five calls and a regular event reacting on every accepted call. A second `remember` flag demonstrates the default non-repeatable setting. It is not installed into the user's Arland scene.
 
@@ -439,7 +439,7 @@ Verification: script compilation/reload and independent source review. Optional 
 
 ### True/false checkbox settings
 
-Two-choice framework settings now use checkboxes. Flags always start false with zero successful calls. Call Flag and Reset Flag own changes. **Require False** checked matches false; unchecked matches true. **Repeatable** checked allows repeated activations; unchecked allows one. **Outside** checked selects outside; unchecked selects inside. **Require Other State** checked matches another phase; unchecked matches the selected phase. **Roll Once** checked keeps the first roll; unchecked keeps rolling. **Count Flag Calls** checked uses the named flag count; unchecked counts true child conditions. **Pick One Random Action** checked picks one; unchecked runs the list.
+Two-choice framework settings now use checkboxes. Flags default to false with zero successful calls; Start Call Count can initialize remembered calls. Call Flag and Reset Flag own changes. **Require False** checked matches false; unchecked matches true. **Repeatable** checked allows repeated activations; unchecked allows one. **Outside** checked selects outside; unchecked selects inside. **Require Other State** checked matches another phase; unchecked matches the selected phase. **Roll Once** checked keeps the first roll; unchecked keeps rolling. **Count Flag Calls** checked uses the named flag count; unchecked counts true child conditions. **Pick One Random Action** checked picks one; unchecked runs the list.
 
 These are boolean fields, as required by the engine checkbox widget. Saved external configurations must rename the following fields on the specified classes, retaining numeric values 0/1 and omitted defaults except the removed starting-value fields. Project examples and script consumers were updated. Invalid old numeric values are not boolean settings and must be corrected before conversion.
 
@@ -461,7 +461,7 @@ Group operators and selectors with three or more choices retain dropdowns. Runti
 
 ### Successful-call flag verification
 
-This update adds Reset Flag and makes counts authoritative for flag values. Source review covers zero/one/multiple calls, rejected calls, repeatability, ordered reset, same-chain loop guards and manager authority checks. Optional regression fixtures were updated for persistent memory and reset; they were not run in-game. Interaction and repeatable mission-event signals retain their own temporary behavior. Startup flags do not become true merely because their Conditions list is empty.
+This update adds Reset Flag and makes counts authoritative for flag values. Source review covers zero/one/multiple calls, rejected calls, repeatability, ordered reset, same-chain loop guards and manager authority checks. Optional regression fixtures were updated for persistent memory and reset; they were not run in-game. Interaction and repeatable mission-event signals retain their own temporary behavior. Startup flags do not become true merely because their Conditions list is empty; their Start Call Count determines the initial value.
 
 
 ### Advanced event category
@@ -473,3 +473,8 @@ Workbench controls category expansion. The installed Attribute declaration suppo
 Migration: remove the `m_Advanced GC_RuleOptions { ... }` wrapper and move its `m_bRepeatable`, `m_fDelay`, `m_fRandomChance`, and `m_bDisabled` fields directly into the owning `GC_Event` or `GC_RandomEventGroup`. Preserve all values, including zero chance. Omitted fields retain their attribute defaults. The two saved project fixtures were converted; an empty local test-world options object was removed while preserving other local edits. No configured event options objects remained in the active Arland resources after the save/reload check. External prefabs with inherited Advanced overrides must migrate both parent and child resources. `GC_RuleOptions` is removed. Entity Damage's separate options are unaffected.
 
 Script-created event fixtures must explicitly set `m_fRandomChance = 1` for full chance; script construction does not apply Workbench Attribute defaults. The optional fixtures were updated and source-reviewed, not executed. Native Attribute evidence: installed core scripts/Core/generated/Attributes/Attribute.c constructor (line 81), catalogue c52648a62fcb4229ad089610d060ea44, source hash e280dd320dea17bf88126507f257d4b4f449e0e86e6388624b2db6c47459c4a4.
+
+
+### Start Call Count
+
+Start Call Count is an integer from 0 to 1,000,000, default 0. Zero starts false; any positive value starts true. It seeds remembered successful calls without emitting a call notification. Normal startup checks still see the seeded value. A non-repeatable flag with a positive count cannot accept another call until Reset Flag; repeatable flags can accept more if their conditions pass. For example, starting at 4 with a count limit Less than 5 permits one additional call. Failed calls leave both count and value unchanged. Reset Flag clears to zero; restarting the framework restores the configured starting count. Existing saved flags omit this field and retain the zero default. Optional fixtures cover seeded memory, call limits, reset/restart and invalid values; no in-game tests were run.

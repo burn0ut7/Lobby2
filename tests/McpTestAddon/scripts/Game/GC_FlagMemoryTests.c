@@ -111,6 +111,31 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		Check(!engine.ResetFlag(""), "blank reset rejected");
 		Check(engine.ResetFlag("missing") && !engine.GetFlag("missing") && engine.GetFlagCallCount("missing") == 0, "unknown reset is a harmless no-op");
 
+		once.m_iStartCallCount = 1;
+		GC_CompiledMissionRule initialCallObserver = EventRule("once");
+		initialCallObserver.m_eWhen = GC_ERuleEvent.FLAG_ON;
+		engine.Start({initialCallObserver}, {once}, SCR_EGameModeState.GAME);
+		Check(engine.GetFlag("once") && engine.GetFlagCallCount("once") == 1 && engine.GetRunCount() == 0, "positive starting count sets memory without a call notification");
+		Check(!engine.CallFlag("once"), "positive start consumes nonrepeatable activation");
+		engine.ResetFlag("once");
+		Check(!engine.GetFlag("once") && engine.GetFlagCallCount("once") == 0 && engine.CallFlag("once"), "reset clears seeded memory and rearms");
+		limited.m_iStartCallCount = 4;
+		engine.Start({}, {limited}, SCR_EGameModeState.GAME);
+		Check(engine.CallFlag("wave") && engine.GetFlagCallCount("wave") == 5 && !engine.CallFlag("wave"), "starting count participates in call limits");
+		engine.ResetFlag("wave");
+		Check(engine.GetFlagCallCount("wave") == 0, "reset uses zero rather than starting count");
+		engine.Start({}, {limited}, SCR_EGameModeState.GAME);
+		Check(engine.GetFlagCallCount("wave") == 4 && engine.GetFlag("wave"), "fresh start reapplies configured count");
+		GC_MissionFlag invalidStart = Memory("bad-start");
+		invalidStart.m_iStartCallCount = -1;
+		engine.Start({}, {once, invalidStart}, SCR_EGameModeState.GAME);
+		Check(!engine.IsRunning() && !engine.GetFlag("once") && engine.GetFlagCallCount("once") == 0, "negative count rejects startup without partial seeded memory");
+		invalidStart.m_iStartCallCount = 1000001;
+		engine.Start({}, {invalidStart}, SCR_EGameModeState.GAME);
+		Check(!engine.IsRunning(), "oversized starting count rejected");
+		once.m_iStartCallCount = 0;
+		limited.m_iStartCallCount = 0;
+
 		GC_MissionFlag first = Memory("first");
 		GC_MissionFlag second = Memory("second");
 		second.m_aConditions = {On("first")};
