@@ -71,7 +71,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		engine.Start(events, flags, SCR_EGameModeState.GAME);
 		for (int n; n < 6; n++)
 			engine.CallFlag("wave");
-		Check(engine.GetRunCount() == 5 && engine.GetFlagCallCount("wave") == 5 && !engine.GetFlag("wave"), "serialized defaults less than five and full event chance");
+		Check(engine.GetRunCount() == 5 && engine.GetFlagCallCount("wave") == 5 && engine.GetFlag("wave"), "serialized defaults less than five and full event chance");
 		engine.CallFlag("remember");
 		Check(engine.GetFlag("remember") && !engine.CallFlag("remember"), "serialized default nonrepeatable memory");
 		return string.Format("FlagMemoryResource: checks=%1 failures=%2", m_iChecks, m_iFailures);
@@ -89,7 +89,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		{
 			Check(engine.CallFlag("wave"), "call accepted below limit");
 			Check(engine.GetFlagCallCount("wave") == i && engine.GetRunCount() == i, "one count and action per call");
-			Check(!engine.GetFlag("wave"), "repeatable pulse resets after observers");
+			Check(engine.GetFlag("wave"), "repeatable flag keeps successful-call memory");
 		}
 		Check(!engine.CallFlag("wave") && engine.GetFlagCallCount("wave") == 5 && engine.GetRunCount() == 5, "sixth call rejected without count or actions");
 		Check(!engine.CallFlag("missing"), "unknown call rejected");
@@ -104,11 +104,13 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		engine.Start({Watch("once").BuildRule()}, {once}, SCR_EGameModeState.GAME);
 		Check(engine.CallFlag("once") && engine.GetFlag("once") && engine.GetFlagCallCount("once") == 1, "nonrepeatable remains on");
 		Check(!engine.CallFlag("once") && engine.GetRunCount() == 1, "nonrepeatable rejects next call");
-		engine.SetFlag("once", false);
-		Check(!engine.CallFlag("once") && engine.GetFlagCallCount("once") == 1, "clearing state does not reset once memory");
-		once.m_bStartsTrue = true;
+		Check(engine.ResetFlag("once") && !engine.GetFlag("once") && engine.GetFlagCallCount("once") == 0, "reset clears count and value");
+		Check(engine.CallFlag("once") && engine.GetFlagCallCount("once") == 1, "reset rearms nonrepeatable flag");
 		engine.Start({}, {once}, SCR_EGameModeState.GAME);
-		Check(engine.GetFlag("once") && !engine.CallFlag("once") && engine.GetFlagCallCount("once") == 0, "starting on is memory not a counted call");
+		Check(!engine.GetFlag("once") && engine.GetFlagCallCount("once") == 0, "empty conditions and zero calls start false");
+		Check(engine.CallFlag("once") && engine.GetFlag("once"), "first call without conditions becomes true");
+		Check(!engine.ResetFlag(""), "blank reset rejected");
+		Check(engine.ResetFlag("missing") && !engine.GetFlag("missing") && engine.GetFlagCallCount("missing") == 0, "unknown reset is a harmless no-op");
 
 		GC_MissionFlag first = Memory("first");
 		GC_MissionFlag second = Memory("second");
@@ -117,8 +119,8 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		both.m_aConditions = {On("first"), On("second")};
 		engine.Start({both.BuildRule()}, {first, second}, SCR_EGameModeState.GAME);
 		engine.CallFlag("first");
-		Check(engine.GetFlagCallCount("first") == 1 && engine.GetFlagCallCount("second") == 1 && engine.GetRunCount() == 1, "automatic chain sees both pulses");
-		Check(!engine.GetFlag("first") && !engine.GetFlag("second"), "whole chain resets pulses");
+		Check(engine.GetFlagCallCount("first") == 1 && engine.GetFlagCallCount("second") == 1 && engine.GetRunCount() == 1, "automatic chain sees both remembered calls");
+		Check(engine.GetFlag("first") && engine.GetFlag("second"), "whole chain preserves flag memory");
 		engine.CallFlag("first");
 		Check(engine.GetRunCount() == 2 && engine.GetFlagCallCount("second") == 2, "later external call starts fresh chain");
 
@@ -145,7 +147,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		engine.Start({watch.BuildRule()}, {limited}, SCR_EGameModeState.GAME);
 		engine.CallFlag("wave");
 		engine.Advance(2);
-		Check(engine.GetRunCount() == 0, "delayed On check does not keep expired pulse alive");
+		Check(engine.GetRunCount() == 1, "delayed flag check reads persistent successful call");
 		watch.m_aConditions = {Calls("wave", 0, 0)};
 		engine.Start({watch.BuildRule()}, {limited}, SCR_EGameModeState.GAME);
 		engine.CallFlag("wave");
@@ -156,7 +158,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		watch.m_Advanced.m_fRandomChance = 0;
 		engine.Start({watch.BuildRule()}, {limited}, SCR_EGameModeState.GAME);
 		engine.CallFlag("wave");
-		Check(engine.GetRunCount() == 0 && engine.GetFlagCallCount("wave") == 1 && !engine.GetFlag("wave"), "missionEvent chance does not undo accepted flag call");
+		Check(engine.GetRunCount() == 0 && engine.GetFlagCallCount("wave") == 1 && engine.GetFlag("wave"), "missionEvent chance does not undo accepted flag call");
 		engine.SetFlag("wave", true);
 		Check(engine.GetFlagCallCount("wave") == 2, "Set On routes declared flag through call policy");
 
@@ -165,7 +167,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		GC_MissionFlag orderedFlag = Memory("ordered_flag", false);
 		engine.Start({ordered}, {orderedFlag}, SCR_EGameModeState.GAME);
 		engine.SendTestEvent("ordered");
-		Check(!engine.GetFlag("ordered_flag") && engine.GetFlagCallCount("ordered_flag") == 1, "declared On then Off preserves action order");
+		Check(!engine.GetFlag("ordered_flag") && engine.GetFlagCallCount("ordered_flag") == 0, "call then reset clears count in action order");
 		ordered.m_aThen = {FlagAction("ordered_flag", false), FlagAction("ordered_flag", true)};
 		engine.Start({ordered}, {orderedFlag}, SCR_EGameModeState.GAME);
 		engine.SendTestEvent("ordered");
@@ -174,6 +176,43 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		engine.Start({ordered}, {first, second}, SCR_EGameModeState.GAME);
 		engine.SendTestEvent("ordered");
 		Check(engine.GetFlagCallCount("first") == 1 && engine.GetFlagCallCount("second") == 1, "later queued call sees earlier accepted call");
+
+		ordered.m_aThen = {FlagAction("legacy", false), FlagAction("legacy", true)};
+		engine.Start({ordered}, null, SCR_EGameModeState.GAME);
+		engine.SetFlag("legacy", true);
+		engine.SendTestEvent("ordered");
+		Check(engine.GetFlag("legacy") && engine.GetFlagCallCount("legacy") == 1, "legacy reset then set preserves final true");
+		ordered.m_aThen = {FlagAction("legacy", true), FlagAction("legacy", false), FlagAction("legacy", true)};
+		engine.Start({ordered}, null, SCR_EGameModeState.GAME);
+		engine.SendTestEvent("ordered");
+		Check(engine.GetFlag("legacy") && engine.GetFlagCallCount("legacy") == 1, "fresh legacy set reset set preserves action order");
+
+		GC_ResetFlagAction reset = new GC_ResetFlagAction();
+		Check(!reset.BuildAction().IsValid(), "reset requires a flag name");
+		reset.m_sFlagName = "once";
+		Check(reset.BuildAction().IsValid(), "named reset action is valid");
+		ordered.m_aThen = {reset.BuildAction()};
+		engine.Start({ordered}, {once}, SCR_EGameModeState.GAME);
+		engine.CallFlag("once");
+		engine.SendTestEvent("ordered");
+		Check(!engine.GetFlag("once") && engine.GetFlagCallCount("once") == 0, "reset action executes production handler");
+		Check(engine.CallFlag("once"), "reset action rearms next external call");
+		GC_Event zero = Watch("once");
+		zero.m_aConditions = {Calls("once", 2, 0)};
+		engine.Start({zero.BuildRule()}, {once}, SCR_EGameModeState.GAME);
+		int before = engine.GetRunCount();
+		engine.CallFlag("once");
+		engine.ResetFlag("once");
+		Check(engine.GetRunCount() == before + 1, "reset notifies count observers");
+		engine.ResetFlag("once");
+		Check(engine.GetRunCount() == before + 1, "resetting zero does not notify again");
+		reset.m_sFlagName = "first";
+		loop.m_aActions = {reset, again};
+		engine.Start({loop.BuildRule()}, {first}, SCR_EGameModeState.GAME);
+		engine.CallFlag("first");
+		Check(engine.IsRunning() && !engine.EventLimitReached() && engine.GetFlagCallCount("first") == 0, "reset cannot bypass same-chain call guard");
+		engine.Stop();
+		Check(!engine.ResetFlag("first"), "stopped engine rejects reset");
 
 		map<string, int> counts = new map<string, int>();
 		counts.Set("wave", 5);
@@ -231,17 +270,19 @@ modded class GC_LobbyManager
 		m_aMissionFlags = {GC_FlagMemoryTests.Memory("authority")};
 		m_aMissionEvents = {GC_FlagMemoryTests.Watch("authority")};
 		StartMissionRules();
-		if (!CallFlag("authority") || GetFlagCallCount("authority") != 1 || GetRunCount() != 1 || GetFlag("authority"))
-			return "FAIL: production call/count/pulse";
+		if (!CallFlag("authority") || GetFlagCallCount("authority") != 1 || GetRunCount() != 1 || !GetFlag("authority"))
+			return "FAIL: production call/count/memory";
 		m_bMissionEventsEnabled = false;
 		bool disabledAccepted = CallFlag("authority");
+		bool disabledReset = ResetFlag("authority");
 		m_bMissionEventsEnabled = true;
 		m_bShutdown = true;
 		bool shutdownAccepted = CallFlag("authority");
+		bool shutdownReset = ResetFlag("authority");
 		m_bShutdown = false;
 		StopMissionRules();
-		if (disabledAccepted || shutdownAccepted || CallFlag("authority") || GetFlagCallCount("authority") != 1)
-			return "FAIL: disabled/shutdown/stopped call accepted";
-		return "PASS: manager call, count, pulse, disabled/shutdown/stopped rejection";
+		if (disabledAccepted || shutdownAccepted || disabledReset || shutdownReset || CallFlag("authority") || ResetFlag("authority") || GetFlagCallCount("authority") != 1)
+			return "FAIL: disabled/shutdown/stopped call or reset accepted";
+		return "PASS: manager call, count, memory, disabled/shutdown/stopped rejection";
 	}
 }

@@ -64,11 +64,10 @@ modded class GC_MissionRuleTests
 		rule.m_fWaitSeconds = 0;
 		GC_MissionFlag flag = new GC_MissionFlag();
 		flag.m_sName = "initial";
-		flag.m_bStartsTrue = true;
 		GC_CompiledMissionRule watch = EventRule("initial");
 		watch.m_eWhen = GC_ERuleEvent.FLAG_ON;
 		engine.Start({watch}, {flag});
-		Check(engine.GetFlag("initial") && engine.GetRunCount() == 0, "initial flags do not emit changes");
+		Check(!engine.GetFlag("initial") && engine.GetFlagCallCount("initial") == 0 && engine.GetRunCount() == 0, "flags start false without notifications");
 		engine.SetFlag("initial", false);
 		engine.SetFlag("initial", true);
 		Check(engine.GetRunCount() == 1, "later flag changes emit events");

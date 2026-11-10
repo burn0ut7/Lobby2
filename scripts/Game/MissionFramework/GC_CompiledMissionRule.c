@@ -21,7 +21,8 @@ enum GC_ERuleAction
 	SEND_TEST_EVENT,
 	RANDOM_FLAG,
 	SELECT_FLAGS,
-	CALL_FLAG
+	CALL_FLAG,
+	RESET_FLAG
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -42,7 +43,7 @@ class GC_RuleAction
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
-		if (m_eDo == GC_ERuleAction.CALL_FLAG)
+		if (m_eDo == GC_ERuleAction.CALL_FLAG || m_eDo == GC_ERuleAction.RESET_FLAG)
 			return !m_sTextOrName.IsEmpty();
 		if (m_eDo == GC_ERuleAction.RANDOM_FLAG)
 			return !m_sTextOrName.IsEmpty() && m_fChancePercent >= 0 && m_fChancePercent <= 100;

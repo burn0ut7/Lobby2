@@ -189,6 +189,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Trusted server extension point, not a player RPC.
+	bool ResetFlag(string name)
+	{
+		if (!HasMissionRuleAuthority() || !m_bMissionEventsEnabled || !m_MissionRuleEngine)
+			return false;
+		return m_MissionRuleEngine.ResetFlag(name);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	int GetFlagCallCount(string name)
 	{
 		if (!m_MissionRuleEngine)

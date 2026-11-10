@@ -88,8 +88,8 @@ modded class GC_MissionRuleTests
 		Check(engine.GetRunCount() == 0, "later flag change cannot reuse a previous interaction");
 		observation.Use();
 		engine.NotifyInteraction("used");
-		Check(engine.GetRunCount() == 1, "interaction and pulse flag share one notification chain");
-		Check(engine.GetFlagCallCount("used") == 2 && !engine.GetFlag("used"), "output flag retains its normal pulse semantics");
+		Check(engine.GetRunCount() == 1, "interaction and flag call share one notification chain");
+		Check(engine.GetFlagCallCount("used") == 2 && engine.GetFlag("used"), "output flag remembers accepted calls");
 		return string.Format("Interaction checks: %1; failures: %2", m_iChecks, m_iFailures);
 	}
 }

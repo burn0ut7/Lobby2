@@ -5,6 +5,7 @@ class GC_MissionRuleEvent
 	string m_sName;
 	bool m_bFlagCall;
 	bool m_bFlagClear;
+	bool m_bLegacyFlagSet;
 	bool m_bInitialState;
 	ref array<GC_RuleCondition> m_aRandomChecks;
 	ref array<GC_RuleCondition> m_aDamageChecks;
@@ -48,7 +49,6 @@ class GC_MissionRuleEngine
 	protected ref map<string, int> m_mFlagCounts = new map<string, int>();
 	protected ref map<string, ref GC_MissionFlagState> m_mFlagDefinitions = new map<string, ref GC_MissionFlagState>();
 	protected ref array<string> m_aCalledFlags = {};
-	protected ref array<string> m_aPulseFlags = {};
 	protected ref map<string, bool> m_mEventResults = new map<string, bool>();
 	protected ref array<string> m_aPulseEvents = {};
 	protected ref array<GC_MissionRuleState> m_aReactiveRuns = {};
@@ -115,7 +115,7 @@ class GC_MissionRuleEngine
 				memory.m_bRepeatable = flag.m_bRepeatable;
 				memory.m_Condition = condition;
 				m_mFlagDefinitions.Set(flag.m_sName, memory);
-				m_mFlags.Set(flag.m_sName, flag.m_bStartsTrue);
+				m_mFlags.Set(flag.m_sName, false);
 			}
 		}
 		if (!rules || rules.Count() > 256)
@@ -339,9 +339,7 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	bool GetFlag(string name)
 	{
-		bool answer;
-		m_mFlags.Find(name, answer);
-		return answer;
+		return GetFlagCallCount(name) > 0;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -358,7 +356,7 @@ class GC_MissionRuleEngine
 		GC_MissionFlagState memory;
 		if (!m_bRunning || !m_mFlagDefinitions.Find(name, memory) || m_aCalledFlags.Contains(name))
 			return false;
-		if (!memory.m_bRepeatable && (GetFlag(name) || GetFlagCallCount(name) > 0))
+		if (!memory.m_bRepeatable && GetFlagCallCount(name) > 0)
 			return false;
 		if (GetFlagCallCount(name) == int.MAX)
 			return false;
@@ -389,12 +387,9 @@ class GC_MissionRuleEngine
 	{
 		if (!CanCallFlag(name))
 			return;
-		GC_MissionFlagState memory = m_mFlagDefinitions.Get(name);
 		m_aCalledFlags.Insert(name);
 		m_mFlagCounts.Set(name, GetFlagCallCount(name) + 1);
 		m_mFlags.Set(name, true);
-		if (memory.m_bRepeatable)
-			m_aPulseFlags.Insert(name);
 		m_aEvents.Insert(new GC_MissionRuleEvent(GC_ERuleEvent.FLAG_ON, name));
 	}
 
@@ -403,12 +398,9 @@ class GC_MissionRuleEngine
 	{
 		foreach (GC_RuleCondition interactionCheck, GC_InteractionObservation interaction : m_mInteractions)
 			interaction.ResetPulse();
-		foreach (string name : m_aPulseFlags)
-			m_mFlags.Set(name, false);
 		foreach (string eventName : m_aPulseEvents)
 			m_mEventResults.Set(eventName, false);
 		m_aPulseEvents.Clear();
-		m_aPulseFlags.Clear();
 		m_aCalledFlags.Clear();
 		m_aReactiveRuns.Clear();
 	}
@@ -418,10 +410,29 @@ class GC_MissionRuleEngine
 	{
 		if (!m_bRunning || name.IsEmpty())
 			return false;
-		if (!m_mFlagDefinitions.Contains(name))
-			return ApplyFlagValue(name, answer);
-		if (answer)
+		if (!answer)
+			return ResetFlag(name);
+		if (m_mFlagDefinitions.Contains(name))
 			return CallFlag(name);
+		// Legacy undeclared flags retain idempotent Set True, represented by count one.
+		if (m_aEvents.Count() >= 256)
+		{
+			StopEventLoop();
+			return false;
+		}
+		GC_MissionRuleEvent assignment = new GC_MissionRuleEvent(GC_ERuleEvent.FLAG_ON, name);
+		assignment.m_bLegacyFlagSet = true;
+		m_aEvents.Insert(assignment);
+		DrainEvents();
+		return m_bRunning;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Reset is queued in action order. Per-chain call guards remain intact to prevent feedback loops.
+	bool ResetFlag(string name)
+	{
+		if (!m_bRunning || name.IsEmpty())
+			return false;
 		if (m_aEvents.Count() >= 256)
 		{
 			StopEventLoop();
@@ -441,7 +452,12 @@ class GC_MissionRuleEngine
 			return false;
 		if (GetFlag(name) == answer)
 			return true;
-		m_mFlags.Set(name, answer);
+		// Evaluation receives a boolean projection; the successful-call count owns the value.
+		if (answer)
+			m_mFlagCounts.Set(name, 1);
+		else
+			m_mFlagCounts.Set(name, 0);
+		m_mFlags.Set(name, GetFlagCallCount(name) > 0);
 		GC_ERuleEvent kind = GC_ERuleEvent.FLAG_OFF;
 		if (answer)
 			kind = GC_ERuleEvent.FLAG_ON;
@@ -867,6 +883,9 @@ class GC_MissionRuleEngine
 				case GC_ERuleAction.WRITE_LOG:
 					PrintFormat("GC | Mission Framework | %1: %2", state.m_Rule.m_sName, action.m_sTextOrName);
 					break;
+				case GC_ERuleAction.RESET_FLAG:
+					ResetFlag(action.m_sTextOrName);
+					break;
 				case GC_ERuleAction.CALL_FLAG:
 					CallFlag(action.m_sTextOrName);
 					break;
@@ -975,6 +994,11 @@ class GC_MissionRuleEngine
 			}
 			GC_MissionRuleEvent notification = m_aEvents[0];
 			m_aEvents.RemoveOrdered(0);
+			if (notification.m_bLegacyFlagSet)
+			{
+				ApplyFlagValue(notification.m_sName, true);
+				continue;
+			}
 			if (notification.m_bFlagClear)
 			{
 				ApplyFlagValue(notification.m_sName, false);

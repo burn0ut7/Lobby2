@@ -162,7 +162,7 @@ modded class GC_MissionRuleTests
 		engine.Start({}, {flag}, SCR_EGameModeState.GAME);
 		engine.Advance(60);
 		engine.Advance(120);
-		Check(engine.GetFlagCallCount("random_flag") == 2 && !engine.GetFlag("random_flag"), "random checks call repeatable flag then reset pulse");
+		Check(engine.GetFlagCallCount("random_flag") == 2 && engine.GetFlag("random_flag"), "random checks increment repeatable flag and retain memory");
 		engine.Stop();
 		return string.Format("Random condition checks: %1; failures: %2", m_iChecks, m_iFailures);
 	}

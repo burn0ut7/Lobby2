@@ -3,11 +3,9 @@ class GC_MissionFlag
 {
 	[Attribute("", UIWidgets.EditBox, "A name for a fact your mission remembers, such as radio_destroyed. Use this same name in events, conditions and actions.")]
 	string m_sName;
-	[Attribute("0", UIWidgets.CheckBox, "Checked: the flag starts true. Unchecked: it starts false. Applied before match-start events, without sending a flag-change notification.")]
-	bool m_bStartsTrue;
-	[Attribute("0", UIWidgets.CheckBox, "Unchecked: accept one call and stay true. Checked: become true for one check cycle, then reset to false so a later call can activate it again. The remembered call count never resets here.")]
+	[Attribute("0", UIWidgets.CheckBox, "Unchecked: accept one successful call until Reset Flag is used. Checked: accept more calls, increasing the count and notifying dependent events each time. Zero successful calls means false; one or more means true.")]
 	bool m_bRepeatable;
-	[Attribute("", UIWidgets.Object, "Requirements for accepting a call. No conditions means always true. Use Count Condition, check Count Flag Calls, enter this flag's name and select Less than 5 to allow five calls. Conditions are checked before increasing the count. Conditions referencing other flags can activate this flag when those flags change; a check of its own count only limits calls.")]
+	[Attribute("", UIWidgets.Object, "Requirements for accepting a call. No conditions means every otherwise eligible call is allowed; the flag still starts false with zero calls. Failed conditions change neither its count nor its value. Use Count Condition, check Count Flag Calls, enter this flag's name and select Less than 5 to allow five calls. Conditions are checked before increasing the count. Conditions referencing other flags can activate this flag when those flags change; a check of its own count only limits calls.")]
 	ref array<ref GC_ConditionBase> m_aConditions;
 
 	//------------------------------------------------------------------------------------------------
