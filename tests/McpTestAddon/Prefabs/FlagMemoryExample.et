@@ -32,9 +32,7 @@ GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
        m_sMessage "Wave call accepted."
       }
      }
-     m_Advanced GC_RuleOptions "{71620F377D834178}" {
-      m_bRepeatable 1
-     }
+     m_bRepeatable 1
     }
    }
   }

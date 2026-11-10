@@ -7,9 +7,9 @@ Select your game mode, then **GC_LobbyManager > Lobby2**. The top settings are *
 1. Add a **GC_Event** and give it a name.
 2. In **Conditions**, add **Game Mode State**. Choose a phase. Leave **Require Other State** unchecked to match it; check it to match other phases.
 3. Add **Actions**. They normally run in order.
-4. Leave **Advanced** empty unless needed.
+4. Leave the **Advanced** category at its defaults unless needed.
 
-For game start, choose **Match** with **Require Other State** unchecked. The field order is Name, Conditions, Actions, Advanced. There is no separate Event object or event-type selector.
+For game start, choose **Match** with **Require Other State** unchecked. Name, Conditions and Actions remain event settings; additional controls are grouped under Advanced. There is no separate Event object or event-type selector.
 
 A mission event runs once by default. **Advanced > Repeatable (checked)** permits a new run on each later matching state change. Staying in the same state does not repeat it. **Delay** adds a wait measured in seconds; Disabled keeps the event saved without running it.
 
@@ -129,14 +129,14 @@ The shared serialized base is marked non-insertable using the engine convention.
 
 ## Random chance and random groups
 
-**Advanced > Random Chance** is a number from 0 to 1: **0.8 means 80%**, **1 means 100%**, and **0 means never**. The default is 1. Leaving Advanced unset or omitting the saved chance value means 100%. Chance controls whether actions run; it only spawns something if an action does so. The old separate Random object is removed.
+**Advanced > Random Chance** is a number from 0 to 1: **0.8 means 80%**, **1 means 100%**, and **0 means never**. The default is 1. Omitting the saved chance value uses its 100% Workbench attribute default. Chance controls whether actions run; it only spawns something if an action does so. The old separate Random object is removed.
 
 Chance is checked once after conditions pass, before the wait. A failed chance waits for a new matching state change; it is not retried every tick. Conditions are checked again after the wait.
 
 In **Mission Events**, choose either **GC_Event** or **GC_RandomEventGroup**:
 
-- **GC_Event**: Name, Conditions, Actions, Advanced.
-- **GC_RandomEventGroup**: Name, Conditions, Pick Count, Events, Advanced.
+- **GC_Event**: Name, Conditions and Actions, plus the Advanced category.
+- **GC_RandomEventGroup**: Name, Conditions, Pick Count and Events, plus the Advanced category.
 
 A random group chooses the requested number of different child events whose conditions currently pass. Disabled, waiting and completed once-only children are excluded. If fewer qualify, it picks those available. It never picks the same list entry twice in one selection. If none qualify, a once-only group stays available for a later matching state change.
 
@@ -221,7 +221,7 @@ Server extensions can call GC_LobbyManager.CallFlag(name) and read GetFlagCallCo
 
 Final verification scope: at the user's request, the action-order correction was checked by script compilation and source-level logic review, without another in-game run. Three added ordering regressions compiled but were not executed. The earlier 560 passing checks and manager checks predate that correction.
 
-The Advanced field formerly named Wait Seconds is now Delay, still measured in seconds. Saved GC_RuleOptions objects use m_fDelay instead of m_fWaitSeconds; the shipped example was migrated with the same numeric value. External saved Advanced settings need the same field rename. Internal compiled/legacy fixtures retain their original field name.
+The Advanced field formerly named Wait Seconds is now Delay, still measured in seconds. Current events store m_fDelay directly. Older GC_RuleOptions objects require flattening into the owning event, with m_fWaitSeconds renamed to m_fDelay where applicable. Internal compiled/legacy fixtures retain their original field name.
 
 Count Condition now offers Not equal (saved comparison value 3), implemented as the inverse of a validated Equal check. Existing values 0/1/2 retain their meaning. Empty or malformed condition lists still fail closed. Boundary and nested-group test cases were added; this update was verified by source-level logic review and production script compilation, without an in-game test run.
 
@@ -449,7 +449,7 @@ These are boolean fields, as required by the engine checkbox widget. Saved exter
 | GC_SetFlagAction | m_iSetTo | m_bSetTrue |
 | GC_MissionFlagCondition, GC_MissionEventCondition | m_iMatch | m_bRequireFalse |
 | GC_GameModeStateCondition | m_iMatch | m_bRequireOtherState |
-| GC_RuleOptions | m_iRun | m_bRepeatable |
+| GC_Event / GC_RandomEventGroup (formerly GC_RuleOptions) | m_iRun | m_bRepeatable |
 | GC_RandomChanceCondition | m_iRollBehavior | m_bRollOnce |
 | GC_ConditionCount | m_iCountFrom | m_bCountFlagCalls |
 | GC_AreaCondition | m_iCheck | m_bOutside |
@@ -462,3 +462,14 @@ Group operators and selectors with three or more choices retain dropdowns. Runti
 ### Successful-call flag verification
 
 This update adds Reset Flag and makes counts authoritative for flag values. Source review covers zero/one/multiple calls, rejected calls, repeatability, ordered reset, same-chain loop guards and manager authority checks. Optional regression fixtures were updated for persistent memory and reset; they were not run in-game. Interaction and repeatable mission-event signals retain their own temporary behavior. Startup flags do not become true merely because their Conditions list is empty.
+
+
+### Advanced event category
+
+Every regular event, including children of random groups, and every Random Event Group has an **Advanced** category directly on the event. It contains Repeatable, Delay (seconds), Random Chance (0–1 slider) and Disabled. There is no separate Advanced object to add or select. Defaults remain one activation, no delay, 100% chance and enabled.
+
+Workbench controls category expansion. The installed Attribute declaration supports category grouping but exposes no default-collapsed setting; this update does not force collapse or change global editor preferences. Category expansion and remembered layout are editor-owned. Live picker/layout verification is not claimed: the available Workbench 1.9 MCP entity-inspection operation reports unsupported. Compilation/reload passed; no in-game tests were run.
+
+Migration: remove the `m_Advanced GC_RuleOptions { ... }` wrapper and move its `m_bRepeatable`, `m_fDelay`, `m_fRandomChance`, and `m_bDisabled` fields directly into the owning `GC_Event` or `GC_RandomEventGroup`. Preserve all values, including zero chance. Omitted fields retain their attribute defaults. The two saved project fixtures were converted; an empty local test-world options object was removed while preserving other local edits. No configured event options objects remained in the active Arland resources after the save/reload check. External prefabs with inherited Advanced overrides must migrate both parent and child resources. `GC_RuleOptions` is removed. Entity Damage's separate options are unaffected.
+
+Script-created event fixtures must explicitly set `m_fRandomChance = 1` for full chance; script construction does not apply Workbench Attribute defaults. The optional fixtures were updated and source-reviewed, not executed. Native Attribute evidence: installed core scripts/Core/generated/Attributes/Attribute.c constructor (line 81), catalogue c52648a62fcb4229ad089610d060ea44, source hash e280dd320dea17bf88126507f257d4b4f449e0e86e6388624b2db6c47459c4a4.

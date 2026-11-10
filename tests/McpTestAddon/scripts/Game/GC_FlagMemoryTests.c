@@ -29,15 +29,14 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 	static GC_Event Watch(string name, float wait = 0)
 	{
 		GC_Event missionEvent = new GC_Event();
+		missionEvent.m_fRandomChance = 1;
 		missionEvent.m_sName = name;
 		missionEvent.m_aConditions = {On(name)};
 		GC_LogMessageAction log = new GC_LogMessageAction();
 		log.m_sMessage = "Flag memory test";
 		missionEvent.m_aActions = {log};
-		missionEvent.m_Advanced = new GC_RuleOptions();
-		missionEvent.m_Advanced.m_fRandomChance = 1;
-		missionEvent.m_Advanced.m_bRepeatable = true;
-		missionEvent.m_Advanced.m_fDelay = wait;
+		missionEvent.m_bRepeatable = true;
+		missionEvent.m_fDelay = wait;
 		return missionEvent;
 	}
 
@@ -155,7 +154,7 @@ class GC_FlagMemoryTests : GC_MissionRuleTests
 		Check(engine.GetRunCount() == 1, "remembered count supports delayed conditions");
 
 		watch = Watch("wave");
-		watch.m_Advanced.m_fRandomChance = 0;
+		watch.m_fRandomChance = 0;
 		engine.Start({watch.BuildRule()}, {limited}, SCR_EGameModeState.GAME);
 		engine.CallFlag("wave");
 		Check(engine.GetRunCount() == 0 && engine.GetFlagCallCount("wave") == 1 && engine.GetFlag("wave"), "missionEvent chance does not undo accepted flag call");

@@ -102,6 +102,7 @@ modded class GC_MissionRuleTests
 		Check(!select.IsValid(), "oversized selection rejected");
 		// No flag definitions, conditions or flag actions are needed for random selection.
 		GC_Event noFlags = new GC_Event();
+		noFlags.m_fRandomChance = 1;
 		noFlags.m_sName = "No flags";
 		GC_SendTestEventAction first = new GC_SendTestEventAction();
 		first.m_sEventName = "first";

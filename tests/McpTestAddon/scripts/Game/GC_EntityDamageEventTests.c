@@ -74,8 +74,7 @@ modded class GC_MissionRuleTests
 		most.m_fDamageNeeded = 0.8;
 		GC_Event authored = StateRule("damage", SCR_EGameModeState.GAME);
 		authored.m_aConditions = {half, most};
-		authored.m_Advanced = new GC_RuleOptions();
-		authored.m_Advanced.m_bRepeatable = true;
+		authored.m_bRepeatable = true;
 		GC_CompiledMissionRule rule = authored.BuildRule();
 		GC_TestDamageEngine engine = new GC_TestDamageEngine();
 		engine.Start({rule}, null, SCR_EGameModeState.GAME);
