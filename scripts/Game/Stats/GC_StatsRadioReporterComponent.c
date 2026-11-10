@@ -34,7 +34,7 @@ class GC_StatsRadioReporterComponent : ScriptComponent
 	protected void SampleVoice(GC_LobbyGameMode mode, PlayerController controller)
 	{
 		IEntity body;
-		if (mode && mode.GetState() == SCR_EGameModeState.GAME)
+		if (mode && mode.IsPlaybackTelemetryEnabled() && mode.GetState() == SCR_EGameModeState.GAME)
 			body = controller.GetControlledEntity();
 		if (body && body.FindComponent(GC_LobbySpectatorBodyComponent))
 			body = null;
@@ -75,7 +75,7 @@ class GC_StatsRadioReporterComponent : ScriptComponent
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		PlayerController controller = PlayerController.Cast(GetOwner());
-		if (!Replication.IsServer() || !mode || mode.GetState() != SCR_EGameModeState.GAME || !controller || mask < 0 || mask > 3)
+		if (!Replication.IsServer() || !mode || !mode.IsPlaybackTelemetryEnabled() || mode.GetState() != SCR_EGameModeState.GAME || !controller || mask < 0 || mask > 3)
 			return;
 		IEntity body = controller.GetControlledEntity();
 		if (!body || bodyId == RplId.Invalid() || Replication.FindItemId(body) != bodyId)
@@ -113,7 +113,7 @@ class GC_StatsRadioReporterComponent : ScriptComponent
 		if (GetGame().GetPlayerController() != owner)
 			return;
 		SampleVoice(mode, PlayerController.Cast(owner));
-		if (!mode)
+		if (!mode || !mode.IsCollectionEnabled())
 			return;
 		if (mode.GetState() == SCR_EGameModeState.POSTGAME && !m_bSentFinal)
 		{

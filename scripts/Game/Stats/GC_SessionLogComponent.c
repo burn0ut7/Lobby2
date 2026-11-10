@@ -38,7 +38,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	static GC_SessionLogComponent GetInstance()
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
-		if (!mode)
+		if (!mode || !mode.IsCollectionEnabled())
 			return null;
 		return GC_SessionLogComponent.Cast(mode.FindComponent(GC_SessionLogComponent));
 	}
@@ -64,6 +64,9 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	string GetTelemetryReport()
 	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (mode && !mode.IsPlaybackTelemetryEnabled())
+			return "Telemetry disabled by startup collection settings.";
 		if (m_Telemetry)
 			return m_Telemetry.Report();
 		if (m_bTelemetryEnabled && !m_bClosed)
@@ -92,6 +95,11 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		}
 		if (enabled)
 		{
+			if (!GC_LobbyGameMode.GetGameMode().IsPlaybackTelemetryEnabled())
+			{
+				GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "rejected-startup-settings");
+				return false;
+			}
 			if (GC_LobbyGameMode.GetGameMode().GetState() == SCR_EGameModeState.POSTGAME)
 			{
 				GC_AdminActionLogger.Log(requester, "telemetry", enabled.ToString(), "rejected-postgame");
@@ -121,7 +129,7 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		if (!Replication.IsServer() || GetInstance() != this || !mode || mode.GetState() != SCR_EGameModeState.GAME
-			|| !m_bTelemetryEnabled || m_bClosed || m_sSessionId.IsEmpty() || (m_Telemetry && !m_Telemetry.IsSealed()))
+			|| !mode.IsPlaybackTelemetryEnabled() || !m_bTelemetryEnabled || m_bClosed || m_sSessionId.IsEmpty() || (m_Telemetry && !m_Telemetry.IsSealed()))
 			return;
 		m_Telemetry = new GC_TelemetryRecorder();
 		m_Telemetry.Start(this, m_iTelemetryQuotaMiB);

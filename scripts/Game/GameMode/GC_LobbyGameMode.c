@@ -6,6 +6,12 @@ class GC_LobbyGameModeClass : SCR_BaseGameModeClass
 
 class GC_LobbyGameMode : SCR_BaseGameMode
 {
+	[Attribute("1", UIWidgets.CheckBox, "Collect Lobby2 statistics, session history and playback. Disable for a full collection-off performance run. Set before starting the world.", category: "Lobby2 Collection")]
+	protected bool m_bCollectionEnabled = true;
+
+	[Attribute("1", UIWidgets.CheckBox, "Record playback telemetry, including turret direction. Requires Collection Enabled. Disable to compare playback cost while retaining statistics. Set before starting the world.", category: "Lobby2 Collection")]
+	protected bool m_bPlaybackTelemetryEnabled = true;
+
 	protected bool m_bStartupLogged;
 	protected bool m_bOwnsLobbySfxMute;
 	protected bool m_bPhaseAudioStopped;
@@ -16,6 +22,18 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 
 	protected ref GC_MapShapeSystem m_MapShapes;
 	protected ref GC_BoundaryAdmin m_BoundaryAdmin;
+
+	//------------------------------------------------------------------------------------------------
+	bool IsCollectionEnabled()
+	{
+		return m_bCollectionEnabled;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool IsPlaybackTelemetryEnabled()
+	{
+		return m_bCollectionEnabled && m_bPlaybackTelemetryEnabled;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_BoundaryRuntime GetBoundaries()

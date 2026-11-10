@@ -290,7 +290,7 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 	static GC_MissionStatsComponent GetInstance()
 	{
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
-		if (!mode)
+		if (!mode || !mode.IsCollectionEnabled())
 			return null;
 		return GC_MissionStatsComponent.Cast(mode.FindComponent(GC_MissionStatsComponent));
 	}

@@ -54,7 +54,8 @@ modded class GC_LobbyManager
 	override void OnWorldPostProcess(World world)
 	{
 		super.OnWorldPostProcess(world);
-		if (Replication.IsServer() && GetManager() == this && !SCR_Global.IsEditMode())
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (Replication.IsServer() && GetManager() == this && mode && mode.IsCollectionEnabled())
 		{
 			m_GC_PlayerHistory = new GC_PlayerHistory();
 			m_GC_PlayerHistory.Start(this);

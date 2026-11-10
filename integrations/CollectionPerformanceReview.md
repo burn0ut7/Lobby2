@@ -64,6 +64,22 @@ The moving recording sealed with 143 batches, 5,843,006 binary bytes and 109.416
 
 ## Acceptance gate
 
+### Startup comparison switches
+
+On the scenario's `GC_LobbyGameMode` entity, use the **Lobby2 Collection** properties before starting the world. Both default to enabled; existing scenarios retain collection without edits. Restart the scenario between comparisons and distribute the same authored scenario to server and clients.
+
+| Collection Enabled | Playback Telemetry Enabled | Result |
+|---|---|---|
+| On | On | Normal statistics, session/mission history and playback, including turrets. |
+| On | Off | Statistics and session/mission history remain; no playback recorder or playback voice reports. |
+| Off | Either | No collection session, statistics sampling, damage trackers, playback recorder, history polling or collection voice/radio reports. |
+
+The full-off run has no new debrief statistics, combat event history or database-derived new-player highlighting. Gameplay, voice communication, administrative authorization and console audit logging remain active. Existing files and the separately running importer are untouched; drain its backlog or control its workload separately for comparable measurements. Empty component containers and disabled-path guards still exist: this is collection off, not an addon-free baseline.
+
+These are startup settings, not live switches. The existing authenticated `SetTelemetry` entry point cannot override a disabled startup policy. For fair comparison, use equivalent missions and exclude startup/shutdown work consistently.
+
+Workbench 1.9 native startup checks passed for unchanged defaults, statistics-only and all-off through the production phase transitions. Defaults started both collectors; statistics-only retained session/history and statistics without a recorder; all-off retained an empty session ID, zero event sequence/queue and no history, stats collection or recorder. An authenticated playback enable request under the disabled startup policy returned false with `rejected-startup-settings` audit output. The optional `GC_CollectionSettingsTests.c` fixture applies test settings before initialization and ships inactive (`-1`). Workbench 1.9's MCP entity-property operation is unsupported, so this checks runtime startup behavior rather than checkbox editing/persistence. Remote-client traffic and dedicated-server comparisons remain unmeasured.
+
 On intended dedicated hardware/storage, run equivalent telemetry-off/on workloads for at least one hour and a two-hour endurance pass. Include 128 clients, representative AI/vehicles, firefights, turret motion, gear changes, voice and spectators. Measure frame-time p50/p95/p99/max, all collector work including callbacks/checkpoints, process memory, sample cadence, gaps/drops, disk growth/free space and importer lag. Include startup/JIP and mission-end bursts.
 
 Choose an explicit acceptable frame-time regression before calling the impact negligible. If writes consume too much frame budget, prioritize incremental snapshots and publication scheduling while preserving retry and completeness semantics. Keep current bounded failure behavior until a replacement is proven. Contract tests and zero drops in a short native fixture are not production capacity certification.
