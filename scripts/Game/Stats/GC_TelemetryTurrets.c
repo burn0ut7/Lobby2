@@ -75,6 +75,24 @@ class GC_TelemetryTurrets
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Compare native observations before allocating a JSON serialization tree.
+	bool Matches(GC_TelemetryTurrets previous)
+	{
+		if (!previous || m_bAvailable != previous.m_bAvailable || m_aTurrets.Count() != previous.m_aTurrets.Count())
+			return false;
+		foreach (int index, GC_TelemetryTurretState state : m_aTurrets)
+		{
+			GC_TelemetryTurretState old = previous.m_aTurrets[index];
+			if (state.m_iManager != old.m_iManager || state.m_iSlot != old.m_iSlot || state.m_iSeat != old.m_iSeat
+				|| state.m_iType != old.m_iType || state.m_bAvailable != old.m_bAvailable || state.m_bHasWeapon != old.m_bHasWeapon)
+				return false;
+			if (state.m_bAvailable && vector.DistanceSq(state.m_vDirection, old.m_vDirection) > 0.000000000001)
+				return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void Write(JsonSaveContext context)
 	{
 		context.WriteValue("available", m_bAvailable);

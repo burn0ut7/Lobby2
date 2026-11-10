@@ -29,8 +29,26 @@ class GC_TelemetryActor
 	protected int m_iVoiceMask;
 	protected int m_iVoicePlayer;
 	protected float m_fVoiceUntil;
-	protected string m_sTurrets;
+	protected ref GC_TelemetryTurrets m_Turrets;
 	protected float m_fLastTurrets = -5000;
+	protected int m_iDamageEventSequence;
+	protected int m_iDamageSequence;
+
+	//------------------------------------------------------------------------------------------------
+	//! Cache the session owner's retained meaningful hit for this recorded life only.
+	void RememberDamage(int eventSequence, int sequence)
+	{
+		m_iDamageEventSequence = eventSequence;
+		m_iDamageSequence = sequence;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	int GetDamageSequence(int eventSequence)
+	{
+		if (eventSequence <= 0 || eventSequence != m_iDamageEventSequence)
+			return 0;
+		return m_iDamageSequence;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	//! Server-timed, owner-reported capture transitions and bounded renewals.
@@ -253,18 +271,14 @@ class GC_TelemetryActor
 			m_Recorder.Stop("overflow");
 			return;
 		}
-		JsonSaveContext comparison = new JsonSaveContext();
-		comparison.SetMaxDecimalPlaces(6);
-		snapshot.Write(comparison);
-		string state = comparison.SaveToString();
-		if (state == m_sTurrets && now - m_fLastTurrets < 5000)
+		if (snapshot.Matches(m_Turrets) && now - m_fLastTurrets < 5000)
 			return;
 		JsonSaveContext context = m_Recorder.BeginRecord("turret-state");
 		context.WriteValue("entity", m_sId);
 		snapshot.Write(context);
 		if (m_Recorder.CommitRecord(context) > 0)
 		{
-			m_sTurrets = state;
+			m_Turrets = snapshot;
 			m_fLastTurrets = now;
 		}
 	}

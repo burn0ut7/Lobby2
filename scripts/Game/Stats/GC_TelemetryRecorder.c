@@ -26,6 +26,9 @@ class GC_TelemetryRecorder
 	protected int m_iMaxCaptureMs;
 	protected int m_iWriteMs;
 	protected int m_iMaxWriteMs;
+	protected int m_iTickMs;
+	protected int m_iMaxTickMs;
+	protected int m_iFlushes;
 	protected float m_fFrom;
 	protected float m_fLastDiscovery = -1000;
 	protected float m_fLastFlush;
@@ -43,7 +46,6 @@ class GC_TelemetryRecorder
 	protected ref array<ref GC_TelemetryProjectile> m_aProjectileOrder = {};
 	protected int m_iProjectileCursor;
 	protected int m_iProjectileSequence;
-	protected ref map<int, int> m_mDamageSequences = new map<int, int>();
 	static const string OUTBOX = "$profile:Lobby2Telemetry";
 	static const int MAX_QUEUED_BYTES = 131072;
 
@@ -87,6 +89,7 @@ class GC_TelemetryRecorder
 	{
 		return string.Format("recording=%1 running=%2 sealed=%3 records=%4 batches=%5 bytes=%6 dropped=%7 actors=%8", m_sRecordingId, m_bRunning, m_bSealed, m_iSequence, m_iRevision, m_fBytes, m_iDropped, m_aActors.Count())
 			+ string.Format(" steps=%1 captureMs=%2 maxCaptureMs=%3 writeMs=%4 maxWriteMs=%5 stop=%6", m_iSteps, m_iCaptureMs, m_iMaxCaptureMs, m_iWriteMs, m_iMaxWriteMs, m_sStopReason)
+			+ string.Format(" tickMs=%1 maxTickMs=%2 flushes=%3", m_iTickMs, m_iMaxTickMs, m_iFlushes)
 			+ " quotaMiB=" + (m_fByteLimit / 1048576.0);
 	}
 
@@ -355,8 +358,9 @@ class GC_TelemetryRecorder
 		WriteVector(context, "position", damage.hitPosition);
 		context.WriteValue("sessionEventSequence", entry.m_iSequence);
 		int sequence = CommitRecord(context);
-		if (m_mDamageSequences.Count() < 8192)
-			m_mDamageSequences.Set(entry.m_iSequence, sequence);
+		// Session logs own which hit survives bleed notifications and delayed death credit.
+		if (sequence > 0 && m_Logs.GetLastMeaningfulDamage(victim) == entry)
+			victimActor.RememberDamage(entry.m_iSequence, sequence);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -378,7 +382,7 @@ class GC_TelemetryRecorder
 		JsonSaveContext context = BeginRecord("death");
 		context.WriteValue("entity", victimId);
 		context.WriteValue("killer", killerId);
-		context.WriteValue("damageSequence", m_mDamageSequences.Get(entry.m_iDamageEventSequence));
+		context.WriteValue("damageSequence", victimActor.GetDamageSequence(entry.m_iDamageEventSequence));
 		context.WriteValue("sessionEventSequence", entry.m_iSequence);
 		string cause = entry.m_sDeathCause;
 		if (cause.IsEmpty())
@@ -467,6 +471,10 @@ class GC_TelemetryRecorder
 		m_iMaxCaptureMs = Math.Max(m_iMaxCaptureMs, elapsed);
 		if (!m_bRunning || m_sRecords.Length() + m_Binary.GetNumericBytes() >= 65536 || m_iRecordCount >= 384 || now - m_fLastFlush >= 5000)
 			Flush();
+		// Includes envelope serialization and synchronous publication; capture alone is not total cost.
+		int tickMs = System.GetTickCount(started);
+		m_iTickMs += tickMs;
+		m_iMaxTickMs = Math.Max(m_iMaxTickMs, tickMs);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -474,6 +482,7 @@ class GC_TelemetryRecorder
 	{
 		if (m_bSealed || (m_bRunning && m_iRecordCount == 0))
 			return;
+		m_iFlushes++;
 		if (m_sPending.IsEmpty())
 		{
 			JsonSaveContext context = new JsonSaveContext();

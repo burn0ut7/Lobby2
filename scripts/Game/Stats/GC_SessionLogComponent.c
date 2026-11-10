@@ -437,10 +437,21 @@ class GC_SessionLogComponent : SCR_BaseGameModeComponent
 		}
 		m_bWriteFailure = false;
 		m_iRevision++;
-		for (int index; index < m_iPendingCount; index++)
-			m_aQueued.RemoveOrdered(0);
+		DrainPublishedEvents();
 		m_sPendingPayload = string.Empty;
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Compact once after successful publication; retries retain the identical prefix.
+	protected void DrainPublishedEvents()
+	{
+		if (m_iPendingCount == 0)
+			return;
+		int remaining = m_aQueued.Count() - m_iPendingCount;
+		for (int index; index < remaining; index++)
+			m_aQueued[index] = m_aQueued[index + m_iPendingCount];
+		m_aQueued.Resize(remaining);
 	}
 
 	//------------------------------------------------------------------------------------------------
