@@ -643,6 +643,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		if (mode && mode.GetJip())
 			mode.GetJip().Disconnected(playerId);
+		if (Replication.IsServer() && mode && mode.GetBoundaries())
+			mode.GetBoundaries().ForgetPlayer(playerId);
 		const KickCauseGroup2 causeGroup = KickCauseCodeAPI.GetGroup(cause);
 		bool isShutdown = causeGroup == RplKickCauseGroup.REPLICATION && KickCauseCodeAPI.GetReason(cause) == RplError.SHUTDOWN;
 		if (Replication.IsServer() && !isShutdown)
@@ -1567,6 +1569,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		{
 			RefreshPlayerRadio(playerId);
 			m_OnPlayerAffiliationChanged.Invoke(playerId);
+			GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+			if (Replication.IsServer() && mode && mode.GetBoundaries())
+				mode.GetBoundaries().Observe(playerId);
 		}
 		foreach (Faction faction : m_sPendingFactionPresentation)
 			m_OnFactionPresentationChanged.Invoke(faction);

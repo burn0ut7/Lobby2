@@ -56,10 +56,10 @@ modded class GC_MapShapeOverlay
 modded class GC_AOLimitSystem
 {
 	//------------------------------------------------------------------------------------------------
-	override protected void Evaluate()
+	override void EvaluatePlayers(array<int> players)
 	{
 		int start = System.GetTickCount();
-		super.Evaluate();
+		super.EvaluatePlayers(players);
 		if (GC_BoundaryPerformanceProbe.s_bActive)
 			GC_BoundaryPerformanceProbe.Record(3, start);
 	}
@@ -68,10 +68,10 @@ modded class GC_AOLimitSystem
 modded class GC_SetupZoneEntity
 {
 	//------------------------------------------------------------------------------------------------
-	override protected void Evaluate()
+	override void EvaluatePlayers(array<int> players)
 	{
 		int start = System.GetTickCount();
-		super.Evaluate();
+		super.EvaluatePlayers(players);
 		if (GC_BoundaryPerformanceProbe.s_bActive)
 			GC_BoundaryPerformanceProbe.Record(4, start);
 	}

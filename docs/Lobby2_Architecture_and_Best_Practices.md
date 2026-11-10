@@ -145,6 +145,23 @@ Small related value types may share a file. Large classes should not become fold
 
 ## Module map
 
+### Boundary detection and enforcement
+
+`GC_BoundaryRuntime` owns lifecycle, configuration snapshots, targeted validation,
+active violations and bounded audits. `GC_BoundaryDetectionController` observes
+only its local controlled body and submits body-identity hints. Existing AO and
+setup entities retain all authored attributes, filters and policy. AO continues
+to own combined-limit precedence and validated vehicle return history; setup
+continues to own enrollment and release deadlines. Server-native inventory and
+compartment notifications refresh stationary eligibility changes. Boundary walls
+refresh geometry on configuration changes and audience entries after targeted
+observation, rather than independently polling every player per wall.
+
+See [the boundary authority and sampling contract](../tests/AOLimits.md#client-detection-and-authority),
+including the deliberate first-entry observation limitation. Do not introduce
+client-supplied teleport destinations or restore full-roster high-frequency
+polling as a fallback.
+
 ### Mission framework
 
 GC_LobbyManager on the Lobby2 GameMode owns the new simple rule

@@ -19,6 +19,7 @@ class GC_BoundaryWallComponent : ScriptComponent
 	protected ref array<vector> m_aPolygon = {};
 	[RplProp()]
 	protected ref array<RplId> m_aAudience = {};
+	protected ref map<int, RplId> m_mAudiencePlayers = new map<int, RplId>();
 	protected GC_SetupZoneEntity m_Setup;
 	protected GC_AOLimitEntity m_AO;
 	protected IEntity m_Wall;
@@ -47,12 +48,16 @@ class GC_BoundaryWallComponent : ScriptComponent
 		m_Color = Color.FromInt(color);
 		ClearMesh();
 		Replication.BumpMe();
+		RefreshAuthority();
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void RefreshAuthority()
+	void RefreshAuthority()
 	{
+		if (!Replication.IsServer())
+			return;
+		m_mAudiencePlayers.Clear();
 		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
 		array<RplId> audience = {};
 		array<vector> polygon = {};
@@ -80,7 +85,11 @@ class GC_BoundaryWallComponent : ScriptComponent
 				else if (m_AO && !(freeze && freeze.AffectsPlayer(playerId)))
 					applies = m_AO.AppliesTo(playerId, character, CompartmentAccessComponent.GetVehicleIn(character));
 				if (applies)
-					audience.Insert(Replication.FindItemId(character));
+				{
+					RplId id = Replication.FindItemId(character);
+					audience.Insert(id);
+					m_mAudiencePlayers.Set(playerId, id);
+				}
 			}
 		}
 		bool changed = audience.Count() != m_aAudience.Count();
@@ -105,6 +114,44 @@ class GC_BoundaryWallComponent : ScriptComponent
 			m_aAudience.Copy(audience);
 		if (changed || geometryChanged)
 			Replication.BumpMe();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Targeted eligibility refresh after authority observes this body.
+	void RefreshPlayer(int playerId)
+	{
+		if (!Replication.IsServer())
+			return;
+		RplId previous = RplId.Invalid();
+		m_mAudiencePlayers.Find(playerId, previous);
+		RplId current = RplId.Invalid();
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
+		IEntity body;
+		if (controller)
+			body = controller.GetControlledEntity();
+		if (m_bEnabled && mode && mode.GetState() == SCR_EGameModeState.GAME && m_aPolygon.Count() >= 3
+			&& controller && controller.GetLobbyPlayerState() == GC_ELobbyPlayerState.PLAYING && body && SCR_AIDamageHandling.IsAlive(body))
+		{
+			bool applies;
+			GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+			if (m_Setup)
+				applies = controller.GC_GetSetupZone() == m_Setup;
+			else if (m_AO && !(freeze && freeze.AffectsPlayer(playerId)))
+				applies = m_AO.AppliesTo(playerId, body, CompartmentAccessComponent.GetVehicleIn(body));
+			if (applies)
+				current = Replication.FindItemId(body);
+		}
+		if (current == previous)
+			return;
+		m_aAudience.RemoveItem(previous);
+		m_mAudiencePlayers.Remove(playerId);
+		if (current != RplId.Invalid())
+		{
+			m_aAudience.Insert(current);
+			m_mAudiencePlayers.Set(playerId, current);
+		}
+		Replication.BumpMe();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -347,7 +394,7 @@ class GC_BoundaryWallComponent : ScriptComponent
 			m_fHeight = Math.Clamp(m_fHeight, 0.5, 20);
 			m_iColor = m_Color.PackToInt();
 			Replication.BumpMe();
-			GetGame().GetCallqueue().CallLater(RefreshAuthority, 250, true);
+			RefreshAuthority();
 		}
 		if (!System.IsConsoleApp())
 			SetEventMask(owner, EntityEvent.FRAME);

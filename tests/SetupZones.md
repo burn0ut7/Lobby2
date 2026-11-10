@@ -35,11 +35,13 @@ a physical collision mesh; author compatible zones and keep their edges clear.
 
 The setup countdown is owner-only, continuously visible as a compact top-center
 bar. A soft violation shows an AO-style "RETURN TO SETUP" death countdown below
-it. An active AO warning occupies its own row below any setup warning. State updates
-arrive at 10 Hz; local time only presents the countdown. Death, changed possession,
-phase exit, zone removal, release and mode shutdown end the local restriction/HUD.
-Missing owner updates expire local presentation after 1.5 seconds. Authority
-continues enforcement. This is not an anti-cheat boundary.
+it. An active AO warning occupies its own row below any setup warning. State changes
+are sent only when their values change; the owner presents the authoritative
+deadline locally. Death, changed possession, phase exit, zone removal, release
+and mode shutdown end the local restriction/HUD. Zone release uses a cancellable
+server deadline, rescheduled on extension. Spatial detection and targeted
+authority validation share the [AO scheduling contract](AOLimits.md#client-detection-and-authority).
+This is not an anti-cheat boundary.
 
 AO enforcement continues during setup; both return deadlines remain independent.
 Admin freeze still suspends AO for its affected players. The AO entity and its

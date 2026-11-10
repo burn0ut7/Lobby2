@@ -113,6 +113,8 @@ class GC_LobbyFreezeComponent : ScriptComponent
 			}
 			Replication.BumpMe();
 		}
+		if (outcome == "applied" && GC_LobbyGameMode.GetGameMode().GetBoundaries())
+			GC_LobbyGameMode.GetGameMode().GetBoundaries().Changed();
 		context += string.Format(" selectedOnly=%1 players=%2", m_bSelectedPlayersOnly, m_aSelectedPlayers);
 		GC_AdminActionLogger.Log(requesterId, "mission-freeze", context, outcome);
 		return outcome;
@@ -354,6 +356,8 @@ class GC_LobbyFreezeComponent : ScriptComponent
 		{
 			m_mSafePositions.Clear();
 			GC_AdminActionLogger.Log(0, "mission-freeze", "countdown", "expired");
+			if (GC_LobbyGameMode.GetGameMode().GetBoundaries())
+				GC_LobbyGameMode.GetGameMode().GetBoundaries().Changed();
 		}
 		Replication.BumpMe();
 		OnStateChanged();

@@ -243,6 +243,7 @@ modded class GC_LobbyPlayerController
 		m_bGC_SetupSent = false;
 		m_bGC_AOSent = false;
 		m_bGC_AnnouncementSent = false;
+		GC_RpcAskBoundaryDetection();
 	}
 
 	//------------------------------------------------------------------------------------------------

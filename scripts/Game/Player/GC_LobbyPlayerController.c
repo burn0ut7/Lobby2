@@ -2723,5 +2723,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 
 		m_eLobbyPlayerState = state;
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (Replication.IsServer() && mode && mode.GetBoundaries())
+			mode.GetBoundaries().Observe(GetPlayerId());
 	}
 }

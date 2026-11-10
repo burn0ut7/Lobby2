@@ -12,8 +12,16 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	protected float m_fPreviousSfxVolume;
 	protected ref GC_MapPlans m_MapPlans;
 	protected ref GC_AOLimitSystem m_AOLimits;
+	protected ref GC_BoundaryRuntime m_Boundaries;
+
 	protected ref GC_MapShapeSystem m_MapShapes;
 	protected ref GC_BoundaryAdmin m_BoundaryAdmin;
+
+	//------------------------------------------------------------------------------------------------
+	GC_BoundaryRuntime GetBoundaries()
+	{
+		return m_Boundaries;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	GC_BoundaryAdmin GetBoundaryAdmin()
@@ -68,6 +76,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 			m_MapShapes = new GC_MapShapeSystem();
 			m_MapPlans = new GC_MapPlans();
 			m_MapPlans.Start(this);
+			m_Boundaries = new GC_BoundaryRuntime(this);
 			m_AOLimits = new GC_AOLimitSystem();
 			m_AOLimits.Start(this);
 		}
@@ -81,6 +90,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		super.OnGameStateChanged();
 		UpdateDayAdvancement();
 		UpdateLocalPhaseAudio();
+		if (m_Boundaries)
+			m_Boundaries.Changed();
 		GC_SessionLogComponent logs = GC_SessionLogComponent.GetInstance();
 		if (logs)
 			logs.RecordPhase();
@@ -92,6 +103,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		UpdateLocalPhasePresentation(null, "game-state-changed");
 		// A countdown RPC can arrive before the phase replication that permits its HUD.
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		if (controller)
+			controller.GC_UpdateBoundaryDetection();
 		if (GetState() == SCR_EGameModeState.GAME && controller)
 			controller.GC_RequestBoundaryPresentation();
 	}
@@ -284,6 +297,8 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 	void ~GC_LobbyGameMode()
 	{
 		StopLocalPhaseAudio();
+		if (m_Boundaries && GetGame())
+			m_Boundaries.Stop();
 		if (m_BoundaryAdmin && GetGame())
 			m_BoundaryAdmin.Stop();
 		if (m_MapShapes)

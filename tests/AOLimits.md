@@ -11,6 +11,37 @@ filters. An unenrolled unit receives neither an AO warning nor its boundary wall
 A replacement spawned unit is evaluated afresh. Setup zones retain their separate
 start-inside-only enrollment; entering a setup area later does not enroll a unit.
 
+## Client detection and authority
+
+The owning client samples only its controlled body at 100 ms while enabled
+boundary geometry exists in GAME. Polygon-side/proximity transitions and movement
+of at least five metres within 15 metres of an edge notify authority. Geometry is
+sent on configuration changes and owner readiness, not each sample. Hints contain
+only the current body's replication ID: no client position, destination, deadline
+or eligibility decision is accepted. Two bounded 250 ms follow-ups accommodate
+movement replication arriving after a crossing hint; stationary clients do not
+send a recurring heartbeat.
+
+`GC_BoundaryRuntime` schedules targeted server validation, including native
+occupants of the affected vehicle. Only unresolved violations receive 100 ms
+server observation. An independent audit visits at most four roster entries per
+250 ms slice, with at least eight seconds between cycles. Small populations sleep
+between cycles; 128 entries take approximately eight seconds before scheduler
+latency. No AO/setup system periodically evaluates the entire roster at 10 Hz.
+Phase/configuration changes may reconcile the roster once. Native inventory and
+compartment events, affiliation changes, possession and admin-freeze changes
+refresh eligibility without waiting for a crossing.
+
+Authority still owns enrollment, eligibility, grace clocks, damage and verified
+return poses. Hard returns use the last server-observed safe pose, which may be
+older than under the former full-roster sampler. A malicious or stalled client
+can delay discovery until the audit. In particular, an initially exempt unit
+that enters and leaves entirely between authority observations can remain
+unenrolled if its reports are suppressed. Preserving first-entry enrollment
+without continuous server spatial monitoring cannot prove that missed crossing.
+This is a gameplay boundary with authoritative consequences, not a guarantee
+against every manipulated movement/report stream.
+
 ## Workbench polygon authoring
 
 Select one AO limit in an unlocked layer of the active subscene, then choose **Tools > Map / AO Polygon**. Set **Sides** (3–128), **Radius** (centre-to-vertex metres), and **Rotation** (0–360°), then press **Generate polygon**. Five sides and a 100 m radius make a regular pentagon with every vertex 100 m from the entity origin. Zero rotation places its first point along local +Z; positive rotation goes toward local +X. The entity's own transform applies afterward.
@@ -25,13 +56,13 @@ All applicable limits combine as restrictions, not a union of safe areas. Two no
 
 The trusted behavior API is `SetBehavior(behavior, graceSeconds, priority)`. The former Order argument and AO attribute are removed; external scripts must remove the fourth argument and custom AO resources should remove obsolete `m_iOrder` entries. Briefing order is unrelated and unchanged.
 
-Hard return uses the moving body's last observed transform that satisfies all applicable hard limits for connected occupants. `GC_SetBoundaryTransform` uses native body movement with owner routing and linear/angular velocity reset, without Game Master teleport feedback or a black-screen fade. Characters keep their current facing direction. A named Return Entity can supply a safe transform for an on-foot character when no history exists (changed geometry or eligibility after enrollment). Author that anchor at a clear, supported location. Vehicles require their own observed safe pose; a generic marker is not a verified parking location. Every destination is checked against all applicable hard limits. Each 100 ms sample corrects a current violation, including when continued movement crosses the edge again between samples; enforcement does not require an intervening inside sample. Unavailable destinations or rejected native moves are logged once per failure episode and reevaluated on later samples. Polygon enforcement is not a physical collision surface.
+Hard return uses the moving body's last observed transform that satisfies all applicable hard limits for connected occupants. `GC_SetBoundaryTransform` uses native body movement with owner routing and linear/angular velocity reset, without Game Master teleport feedback or a black-screen fade. Characters keep their current facing direction. A named Return Entity can supply a safe transform for an on-foot character when no history exists (changed geometry or eligibility after enrollment). Author that anchor at a clear, supported location. Vehicles require their own observed safe pose; a generic marker is not a verified parking location. Every destination is checked against all applicable hard limits. Each active-violation sample corrects a current violation, including when continued movement crosses the edge again between samples; enforcement does not require an intervening inside sample. Unavailable destinations or rejected native moves are logged once per failure episode and reevaluated on later samples. Polygon enforcement is not a physical collision surface.
 
 Limits apply to living, playing characters in Lobby2 GAME. Staging freeze takes precedence and suspends AO clocks and history. Death, possession changes, disconnect, phase exit, disabling/removal and mode shutdown clean up clocks/HUD. No shared base-game overrides are introduced.
 
 Trusted server mission scripts can spawn/delete the prefab and call `SetEnabled`, `SetBehavior`, `SetPolygon` (world-space points, inversion, named return anchor), and `SetEligibility`. They return success/failure. Geometry/policy/filter changes restart that limit's countdown; these are trusted mission APIs, not client/admin request endpoints. Future admin UI must authenticate before calling them. Initial registration occurs after entity initialization; configure a newly spawned instance after that callback. Live runtime polygon changes do not edit the saved world or editor points.
 
-The owner-only warning displays seconds and three milliseconds (`20.000`), adding minutes only when nonzero (`1:05.250`). It is input-transparent. Authority supplies remaining time at 10 Hz; local updates interpolate for smooth display, never kill. This is a visual countdown, not millisecond-precision enforcement: actual expiry follows server evaluation and transport latency. Missing updates expire the HUD after 1.5 seconds; server enforcement remains authoritative.
+The owner-only warning displays seconds and three milliseconds (`20.000`), adding minutes only when nonzero (`1:05.250`). It is input-transparent. Authority sends a deadline when warning state changes; local updates present smooth remaining time and never kill. This is a visual countdown, not millisecond-precision enforcement: actual expiry follows server evaluation and transport latency. The HUD closes at its deadline or on authoritative clear, death, possession loss or phase exit; it does not require heartbeat packets.
 
 ## Map shapes
 
@@ -52,3 +83,47 @@ For map checks use Arland_Lobby's `GameMode_Lobby2`; Empty_Lobby has no map enti
 Set **Warning Text** on each AO limit to replace RETURN TO AO. The selected warning uses that limit’s text, including when priority changes. Use a short heading for the compact HUD; blank text hides only the heading.
 
 Boundary wall height is a local vertical band centered on the current view altitude. Polygon elevation and corner terrain heights do not anchor the visual. The horizontal 10-meter default range and fade still follow the character; climbing, descending and camera-height changes move the existing mesh vertically without rebuilding it. Terrain and other solid objects still occlude the wall normally.
+
+## Client detection validation � 2026-11-10
+
+Workbench 1.9.0.37, optional test addon, embedded authority/local owner in the
+existing Arland example. Production attributes were compared with HEAD: all 13
+AO, six setup, four wall, 12 manager, one freeze and two controller attributes
+remain unchanged. No world/prefab authoring migration is required.
+
+- With boundaries stopped through authenticated admin panic, counters remained
+  at zero for samples, hints, audits and observations.
+- A stationary enabled AO recorded 315 local samples, zero hints and four
+  single-player audit observations, with no active fast callback. These are
+  invocation counts, not an FPS or 128-player benchmark.
+- Hard-return character and occupied M1025 crossings returned to a server-observed
+  safe pose. Disabling client detection still allowed the audit to catch and
+  return an already-enrolled violator.
+- Soft exit started the authority clock/active observer; re-entry cleared both.
+  Invalid body identity was rejected without entering the observer.
+- Switching from driver to passenger outside a passenger-only AO started the
+  clock with client detection disabled. Dropping both exemption field dressings
+  while stationary outside a HAS_NONE AO also started the clock: zero local
+  samples, zero hints and zero audits since reset, with remaining time 29.7674 s.
+  Receipts: `a928afb252e04f27ad014c1369f1018c` (native removal),
+  `1c7df6e1b5934d6384ca063e1dfa6690` (clock),
+  `ed08fc5fc4db488a922723dfb34a9c3c` (observer counters).
+- Setup hard return corrected a 40 m excursion. Freeze corrected a 5 m displacement;
+  a ten-second extension rescheduled release. Expiry cleared movement restriction,
+  HUD and detection polygons, leaving no active fast callback.
+
+- Soft expiry killed the original character (`dead=1`) and normal lifecycle
+  assigned a spectator body; the AO state and fast observer cleared. Evidence:
+  Workbench session `logs_2026-11-09_21-18-15`, console line 23986, at
+  `2026-11-10 01:04:21` local time. POSTGAME transitioned through the production
+  authenticated handler and cleared all detection polygons and scheduled work.
+
+Optional `GC_BoundaryDetectionTests.c` wraps production calls for counters and
+can explicitly disable the local detector for audit/native-event tests. Existing
+AO/setup/admin/native-compartment fixtures supply the rest of the scenarios.
+
+The Workbench 1.9 native profile reports peer operations unsupported, so remote
+JIP/packet-ordering, conflicting multi-player vehicle occupants and a 128-player
+load run remain unverified. The shared global overrides were not changed in this
+slice; an addon-free mode-switch comparison was not run. Existing Arland resource,
+menu-preset, missing-loadout-manager and BlockListApi diagnostics remain.

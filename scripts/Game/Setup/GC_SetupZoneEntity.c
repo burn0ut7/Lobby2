@@ -51,9 +51,12 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		if (!Replication.IsServer())
 			return false;
 		m_bFinished = true;
+		GetGame().GetCallqueue().Remove(Expire);
 		ReleasePlayers();
 		if (m_Mode && m_Mode.GetMapShapes())
 			m_Mode.GetMapShapes().Changed();
+		if (m_Mode && m_Mode.GetBoundaries())
+			m_Mode.GetBoundaries().Changed();
 		return true;
 	}
 
@@ -71,6 +74,9 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 			m_fDeadline += seconds;
 		else
 			m_fDuration += seconds;
+		ScheduleExpiry();
+		if (m_Mode)
+			m_Mode.GetBoundaries().Changed();
 		return true;
 	}
 
@@ -144,6 +150,8 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		m_bValid = Validate();
 		if (m_Mode && m_Mode.GetMapShapes())
 			m_Mode.GetMapShapes().Changed();
+		if (m_Mode)
+			m_Mode.GetBoundaries().Changed();
 		return m_bValid;
 	}
 
@@ -177,7 +185,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void Evaluate()
+	void EvaluatePlayers(array<int> players)
 	{
 		if (!Replication.IsServer() || !m_bValid || m_bFinished)
 			return;
@@ -194,6 +202,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 			m_bStarted = true;
 			m_fDeadline = now + Math.Max(0, m_fDuration - m_Mode.GetElapsedTime());
 			m_Mode.GetMapShapes().Changed();
+			ScheduleExpiry();
 		}
 		if (now >= m_fDeadline)
 		{
@@ -204,8 +213,6 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (!manager)
 			return;
-		array<int> players = {};
-		GetGame().GetPlayerManager().GetPlayers(players);
 		array<IEntity> corrected = {};
 		foreach (int playerId : players)
 		{
@@ -284,6 +291,39 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
+	bool IsEvaluating()
+	{
+		return m_bValid && !m_bFinished;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool NeedsObservation(int playerId, IEntity mover)
+	{
+		GC_SetupPlayerState state = m_mPlayers.Get(playerId);
+		if (!IsEvaluating() || !state || !state.m_bEnrolled)
+			return false;
+		if (!Contains(mover.GetOrigin()))
+			return true;
+		return m_eBehavior == GC_ESetupBehavior.FREEZE && vector.DistanceSq(mover.GetOrigin(), state.m_aTransform[3]) > 0.0025;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ScheduleExpiry()
+	{
+		GetGame().GetCallqueue().Remove(Expire);
+		if (m_bStarted && !m_bFinished)
+			GetGame().GetCallqueue().CallLater(Expire, Math.Max(1, (m_fDeadline - GetWorld().GetWorldTime() * 0.001) * 1000));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void Expire()
+	{
+		if (m_Mode != GC_LobbyGameMode.GetGameMode())
+			return;
+		EndSetup();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void Initialize()
 	{
 		m_Mode = GC_LobbyGameMode.GetGameMode();
@@ -299,7 +339,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		}
 		if (!m_bValid)
 			PrintFormat("GC | Setup | invalid polygon or settings: %1", GetName(), level: LogLevel.ERROR);
-		GetGame().GetCallqueue().CallLater(Evaluate, 100, true);
+		m_Mode.GetBoundaries().RegisterSetup(this);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -321,10 +361,12 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		if (!GetGame())
 			return;
 		GetGame().GetCallqueue().Remove(Initialize);
-		GetGame().GetCallqueue().Remove(Evaluate);
+		GetGame().GetCallqueue().Remove(Expire);
 		if (Replication.IsServer())
 			ReleasePlayers();
 		if (m_Mode && m_Mode.GetBoundaryAdmin())
 			m_Mode.GetBoundaryAdmin().Unregister(this);
+		if (m_Mode && m_Mode.GetBoundaries())
+			m_Mode.GetBoundaries().UnregisterSetup(this);
 	}
 }

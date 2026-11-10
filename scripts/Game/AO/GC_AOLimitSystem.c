@@ -2,6 +2,7 @@
 class GC_AOPlayerState
 {
 	IEntity m_Character;
+	IEntity m_Mover;
 	ref map<GC_AOLimitEntity, float> m_mDeadlines = new map<GC_AOLimitEntity, float>();
 	GC_AOLimitEntity m_Selected;
 	float m_fDeadline;
@@ -16,7 +17,7 @@ class GC_AOReturnState
 	bool m_bFailed;
 }
 
-//! One server-owned evaluator. Limits never independently teleport or kill players.
+//! Targeted authority validation. Scheduling and client hints belong to GC_BoundaryRuntime.
 class GC_AOLimitSystem
 {
 	protected GC_LobbyGameMode m_Mode;
@@ -30,13 +31,95 @@ class GC_AOLimitSystem
 	void Start(GC_LobbyGameMode mode)
 	{
 		m_Mode = mode;
-		GetGame().GetCallqueue().CallLater(Evaluate, 100, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void GetDetectionPolygons(array<int> counts, array<vector> points)
+	{
+		foreach (GC_AOLimitEntity limit : m_aLimits)
+		{
+			if (!limit || !limit.IsEnabled())
+				continue;
+			array<vector> polygon = {};
+			limit.GetMapPolygon(polygon);
+			counts.Insert(polygon.Count());
+			points.InsertAll(polygon);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool NeedsObservation(int playerId, IEntity character, IEntity vehicle)
+	{
+		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
+		if (freeze && freeze.AffectsPlayer(playerId))
+			return false;
+		IEntity mover = character;
+		if (vehicle)
+			mover = vehicle;
+		foreach (GC_AOLimitEntity limit : m_aLimits)
+		{
+			if (limit && limit.AppliesTo(playerId, character, vehicle)
+				&& !limit.Permits(mover.GetOrigin()))
+				return true;
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RefreshWalls()
+	{
+		foreach (GC_AOLimitEntity limit : m_aLimits)
+		{
+			GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(limit.FindComponent(GC_BoundaryWallComponent));
+			if (wall)
+				wall.RefreshAuthority();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void RefreshPlayerWalls(int playerId)
+	{
+		foreach (GC_AOLimitEntity limit : m_aLimits)
+		{
+			GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(limit.FindComponent(GC_BoundaryWallComponent));
+			if (wall)
+				wall.RefreshPlayer(playerId);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void ForgetPlayer(int playerId)
+	{
+		GC_AOPlayerState state = m_mPlayers.Get(playerId);
+		if (state)
+		{
+			SendWarning(playerId, state.m_Character, -1);
+			ReleaseHistory(playerId, state.m_Mover);
+		}
+		m_mPlayers.Remove(playerId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ReleaseHistory(int playerId, IEntity mover)
+	{
+		foreach (int otherId, GC_AOPlayerState other : m_mPlayers)
+		{
+			if (otherId != playerId && other.m_Mover == mover)
+				return;
+		}
+		m_mReturns.Remove(mover);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void OnPhaseChanged()
+	{
+		if (m_Mode.GetState() != SCR_EGameModeState.GAME)
+			ClearPlayers();
 	}
 
 	//------------------------------------------------------------------------------------------------
 	void Stop()
 	{
-		GetGame().GetCallqueue().Remove(Evaluate);
 		ClearPlayers();
 		m_aLimits.Clear();
 		m_Mode = null;
@@ -49,6 +132,7 @@ class GC_AOLimitSystem
 			return false;
 		if (!m_aLimits.Contains(limit))
 			m_aLimits.Insert(limit);
+		m_Mode.GetBoundaries().Changed();
 		return true;
 	}
 
@@ -57,6 +141,8 @@ class GC_AOLimitSystem
 	{
 		ResetLimit(limit);
 		m_aLimits.RemoveItem(limit);
+		if (m_Mode)
+			m_Mode.GetBoundaries().Changed();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -73,6 +159,8 @@ class GC_AOLimitSystem
 		}
 		if (m_Mode && m_Mode.GetMapShapes())
 			m_Mode.GetMapShapes().Changed();
+		if (m_Mode)
+			m_Mode.GetBoundaries().Changed();
 		// Retain history: every destination is revalidated against current rules.
 		// Removing a rule must not lose the return point needed by another rule.
 		foreach (IEntity mover, GC_AOReturnState returnState : m_mReturns)
@@ -118,6 +206,7 @@ class GC_AOLimitSystem
 		GC_AOPlayerState state;
 		if (!m_mPlayers.Find(playerId, state) || state.m_Character != character)
 		{
+			ForgetPlayer(playerId);
 			state = new GC_AOPlayerState();
 			state.m_Character = character;
 		}
@@ -127,6 +216,9 @@ class GC_AOLimitSystem
 		IEntity mover = character;
 		if (vehicle)
 			mover = vehicle;
+		if (state.m_Mover != mover)
+			ReleaseHistory(playerId, state.m_Mover);
+		state.m_Mover = mover;
 		foreach (GC_AOLimitEntity limit : m_aLimits)
 		{
 			if (!limit || !limit.AppliesTo(playerId, character, vehicle) || limit.Permits(mover.GetOrigin()))
@@ -246,7 +338,7 @@ class GC_AOLimitSystem
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void Evaluate()
+	void EvaluatePlayers(array<int> players)
 	{
 		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode() != m_Mode || !GC_LobbyManager.GetManager()
 			|| m_Mode.GetState() != SCR_EGameModeState.GAME)
@@ -256,19 +348,25 @@ class GC_AOLimitSystem
 		}
 		GC_LobbyFreezeComponent freeze = GC_LobbyFreezeComponent.GetInstance();
 		float now = m_Mode.GetWorld().GetWorldTime() * 0.001;
-		array<int> players = {};
-		GetGame().GetPlayerManager().GetPlayers(players);
-		map<int, ref GC_AOPlayerState> currentPlayers = new map<int, ref GC_AOPlayerState>();
+		// The caller includes native vehicle occupants, never the whole roster.
+		if (m_aLimits.IsEmpty())
+			return;
 		map<IEntity, GC_AOLimitEntity> movers = new map<IEntity, GC_AOLimitEntity>();
 		m_mOccupants.Clear();
 		foreach (int playerId : players)
 		{
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 			if (!controller || controller.GetLobbyPlayerState() != GC_ELobbyPlayerState.PLAYING)
+			{
+				ForgetPlayer(playerId);
 				continue;
+			}
 			ChimeraCharacter character = ChimeraCharacter.Cast(controller.GetControlledEntity());
 			if (!character || !SCR_AIDamageHandling.IsAlive(character))
+			{
+				ForgetPlayer(playerId);
 				continue;
+			}
 			IEntity vehicle = CompartmentAccessComponent.GetVehicleIn(character);
 			foreach (GC_AOLimitEntity limit : m_aLimits)
 			{
@@ -276,9 +374,12 @@ class GC_AOLimitSystem
 					limit.ObserveCharacter(character, vehicle);
 			}
 			if (freeze && freeze.AffectsPlayer(playerId))
+			{
+				ForgetPlayer(playerId);
 				continue;
+			}
 			GC_AOPlayerState state = EvaluatePlayer(playerId, character, vehicle, now);
-			currentPlayers.Set(playerId, state);
+			m_mPlayers.Set(playerId, state);
 			IEntity mover = character;
 			if (vehicle)
 				mover = vehicle;
@@ -296,21 +397,13 @@ class GC_AOLimitSystem
 			}
 			occupants.Insert(playerId);
 		}
-		foreach (int oldPlayerId, GC_AOPlayerState oldState : m_mPlayers)
-		{
-			if (!currentPlayers.Contains(oldPlayerId))
-				SendWarning(oldPlayerId, oldState.m_Character, -1);
-		}
-		m_mPlayers = currentPlayers;
-		map<IEntity, ref GC_AOReturnState> currentReturns = new map<IEntity, ref GC_AOReturnState>();
 		foreach (IEntity movingEntity, GC_AOLimitEntity selectedLimit : movers)
 		{
 			GC_AOReturnState returnState;
 			if (!m_mReturns.Find(movingEntity, returnState))
 				returnState = new GC_AOReturnState();
 			EvaluateReturn(movingEntity, selectedLimit, returnState);
-			currentReturns.Set(movingEntity, returnState);
+			m_mReturns.Set(movingEntity, returnState);
 		}
-		m_mReturns = currentReturns;
 	}
 }
