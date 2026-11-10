@@ -156,6 +156,10 @@ continues to own enrollment and release deadlines. Server-native inventory and
 compartment notifications refresh stationary eligibility changes. Boundary walls
 refresh geometry on configuration changes and audience entries after targeted
 observation, rather than independently polling every player per wall.
+Walls register directly with the boundary runtime, which owns configuration,
+player-observation and disconnect notifications for both setup and AO walls.
+Each wall uses one audience eligibility resolver for full and targeted refreshes;
+disconnect removal never depends on a controller still being available.
 
 See [the boundary authority and sampling contract](../tests/AOLimits.md#client-detection-and-authority),
 including the deliberate first-entry observation limitation. Do not introduce

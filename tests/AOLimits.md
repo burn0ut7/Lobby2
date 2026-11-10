@@ -127,3 +127,29 @@ JIP/packet-ordering, conflicting multi-player vehicle occupants and a 128-player
 load run remain unverified. The shared global overrides were not changed in this
 slice; an addon-free mode-switch comparison was not run. Existing Arland resource,
 menu-preset, missing-loadout-manager and BlockListApi diagnostics remain.
+
+## Wall lifecycle consolidation - 2026-11-10
+
+The boundary runtime now routes AO and setup wall refreshes through one wall
+registration lifecycle. Full and targeted wall refreshes share one audience
+eligibility resolver; disconnect cleanup removes cached entries explicitly.
+No attributes, RPC schemas, enforcement policies or rendering code changed.
+
+Workbench 1.9.0.37 embedded Arland checks after reload
+`fd42b6a8061c4c2cbdc55db4f5d78716`:
+
+- The two authored walls remained registered. Spawning either fixture increased
+  the count to three; deleting it returned the count to two.
+- An enabled AO wall had audience 1; production ForgetPlayer reduced it to 0,
+  and targeted Observe restored it to 1. A US-only filter excluded the USSR
+  player and cleared the audience.
+- The setup wall also passed audience 1 -> ForgetPlayer 0 -> Observe 1.
+  A 40 m hard-boundary excursion returned the player to the original position.
+- POSTGAME cleared the setup audience; deleting the fixture left zero detection
+  polygons and active cases.
+
+The explicit optional test helper exercises the production cleanup handler while
+its player controller still exists. This proves cleanup does not depend on
+controller destruction; it is not a remote-disconnect or replication test.
+Remote peer coverage remains unavailable on the current Workbench profile.
+Existing resource/menu diagnostics remain; no new compilation errors occurred.

@@ -27,8 +27,8 @@ modded class GC_BoundaryRuntime
 
 	string GC_TestDetectionState()
 	{
-		return string.Format("polygons=%1 active=%2 fastScheduled=%3 auditCursor=%4 auditRoster=%5 stopped=%6",
-			m_aCounts.Count(), m_aActive.Count(), m_bActiveScheduled, m_iAuditCursor, m_aAudit.Count(), m_bStopped);
+		return string.Format("polygons=%1 active=%2 fastScheduled=%3 auditCursor=%4 auditRoster=%5 stopped=%6 walls=%7",
+			m_aCounts.Count(), m_aActive.Count(), m_bActiveScheduled, m_iAuditCursor, m_aAudit.Count(), m_bStopped, m_aWalls.Count());
 	}
 }
 
@@ -112,6 +112,11 @@ modded class GC_LobbyManager
 			return player.GC_TestBoundaryClient(true);
 		if (action == "reject")
 			return "invalidBodyRejected=" + player.GC_TestRejectBoundaryBody();
+		// Exercise cleanup while the controller still exists, without a full rebuild.
+		if (action == "forget")
+			mode.GetBoundaries().ForgetPlayer(player.GetPlayerId());
+		if (action == "observe")
+			mode.GetBoundaries().Observe(player.GetPlayerId());
 		return mode.GetBoundaries().GC_TestDetectionState() + string.Format(" observations=%1 bodies=%2 maxBatch=%3 clientSamples=%4 hints=%5 audits=%6",
 			GC_BoundaryDetectionProbe.s_iObservations, GC_BoundaryDetectionProbe.s_iBodies, GC_BoundaryDetectionProbe.s_iMaximumBatch,
 			GC_BoundaryDetectionProbe.s_iClientSamples, GC_BoundaryDetectionProbe.s_iHints, GC_BoundaryDetectionProbe.s_iAudits);

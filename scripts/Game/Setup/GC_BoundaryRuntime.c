@@ -5,6 +5,7 @@ class GC_BoundaryRuntime
 	static const float APPROACH_METRES = 75;
 	protected GC_LobbyGameMode m_Mode;
 	protected ref array<GC_SetupZoneEntity> m_aSetups = {};
+	protected ref array<GC_BoundaryWallComponent> m_aWalls = {};
 	protected ref array<int> m_aActive = {};
 	protected ref array<int> m_aAudit = {};
 	protected int m_iAuditCursor;
@@ -54,6 +55,21 @@ class GC_BoundaryRuntime
 	{
 		m_aSetups.RemoveItem(zone);
 		Changed();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Walls register presentation only; setup and AO retain their enforcement policy.
+	void RegisterWall(GC_BoundaryWallComponent wall)
+	{
+		if (m_bStopped || m_aWalls.Contains(wall))
+			return;
+		m_aWalls.Insert(wall);
+		wall.RefreshAuthority();
+	}
+
+	void UnregisterWall(GC_BoundaryWallComponent wall)
+	{
+		m_aWalls.RemoveItem(wall);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -109,13 +125,8 @@ class GC_BoundaryRuntime
 			if (!m_aCounts.IsEmpty())
 				Observe(playerId);
 		}
-		m_Mode.GetAOLimits().RefreshWalls();
-		foreach (GC_SetupZoneEntity setup : m_aSetups)
-		{
-			GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(setup.FindComponent(GC_BoundaryWallComponent));
-			if (wall)
-				wall.RefreshAuthority();
-		}
+		foreach (GC_BoundaryWallComponent wall : m_aWalls)
+			wall.RefreshAuthority();
 		if (!m_aCounts.IsEmpty())
 			GetGame().GetCallqueue().CallLater(Audit, 250);
 	}
@@ -229,13 +240,8 @@ class GC_BoundaryRuntime
 				m_aActive.Insert(playerId);
 			else if (!observe)
 				m_aActive.RemoveItem(playerId);
-			m_Mode.GetAOLimits().RefreshPlayerWalls(playerId);
-			foreach (GC_SetupZoneEntity source : m_aSetups)
-			{
-				GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(source.FindComponent(GC_BoundaryWallComponent));
-				if (wall)
-					wall.RefreshPlayer(playerId);
-			}
+			foreach (GC_BoundaryWallComponent wall : m_aWalls)
+				wall.RefreshPlayer(playerId);
 		}
 		if (m_aActive.IsEmpty())
 		{
@@ -254,6 +260,8 @@ class GC_BoundaryRuntime
 	{
 		m_aActive.RemoveItem(playerId);
 		m_Mode.GetAOLimits().ForgetPlayer(playerId);
+		foreach (GC_BoundaryWallComponent wall : m_aWalls)
+			wall.ForgetPlayer(playerId);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -265,5 +273,6 @@ class GC_BoundaryRuntime
 		GetGame().GetCallqueue().Remove(ObserveActive);
 		m_aActive.Clear();
 		m_aSetups.Clear();
+		m_aWalls.Clear();
 	}
 }

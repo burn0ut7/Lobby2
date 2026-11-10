@@ -66,28 +66,6 @@ class GC_AOLimitSystem
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void RefreshWalls()
-	{
-		foreach (GC_AOLimitEntity limit : m_aLimits)
-		{
-			GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(limit.FindComponent(GC_BoundaryWallComponent));
-			if (wall)
-				wall.RefreshAuthority();
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------
-	void RefreshPlayerWalls(int playerId)
-	{
-		foreach (GC_AOLimitEntity limit : m_aLimits)
-		{
-			GC_BoundaryWallComponent wall = GC_BoundaryWallComponent.Cast(limit.FindComponent(GC_BoundaryWallComponent));
-			if (wall)
-				wall.RefreshPlayer(playerId);
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------
 	void ForgetPlayer(int playerId)
 	{
 		GC_AOPlayerState state = m_mPlayers.Get(playerId);
