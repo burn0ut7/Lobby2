@@ -382,11 +382,15 @@ class GC_MissionRuleTests
 		if (!components)
 			return "FAIL: example components missing";
 		BaseContainerList authoredRules;
+		BaseContainerList authoredFlags;
 		for (int index; index < components.Count(); index++)
 		{
 			BaseContainer component = components.Get(index);
 			if (component.GetClassName() == "GC_LobbyManager")
+			{
 				authoredRules = component.GetObjectArray("m_aMissionEvents");
+				authoredFlags = component.GetObjectArray("m_aMissionFlags");
+			}
 		}
 		if (!authoredRules || authoredRules.Count() != 2)
 			return "FAIL: expected two simple rules";
@@ -401,8 +405,19 @@ class GC_MissionRuleTests
 				return "FAIL: authored rule could not deserialize";
 			rules.Insert(rule);
 		}
+		if (!authoredFlags || authoredFlags.Count() != 2)
+			return "FAIL: expected two declared flags";
+		array<ref GC_MissionFlag> flags = {};
+		for (int flagIndex; flagIndex < authoredFlags.Count(); flagIndex++)
+		{
+			GC_MissionFlag flag = GC_MissionFlag.Cast(BaseContainerTools.CreateInstanceFromContainer(authoredFlags.Get(flagIndex)));
+			if (!flag)
+				return "FAIL: example flag could not deserialize";
+			flags.Insert(flag);
+		}
+		Check(rules[0].m_aThen[0].m_eDo == GC_ERuleAction.FLAG_CONTROL && rules[1].m_aThen[0].m_eDo == GC_ERuleAction.FLAG_CONTROL, "example teaches unified Flag Action");
 		GC_MissionRuleEngine engine = new GC_MissionRuleEngine();
-		engine.Start(rules, null, SCR_EGameModeState.GAME);
+		engine.Start(rules, flags, SCR_EGameModeState.GAME);
 		Check(engine.GetInvalidRuleCount() == 0 && engine.GetFlag("test_ready") && !engine.GetFlag("test_complete"), "match state starts only first example");
 		engine.SetGameModeState(SCR_EGameModeState.POSTGAME);
 		Check(engine.GetFlag("test_ready") && engine.GetFlag("test_complete"), "after action state starts second example");

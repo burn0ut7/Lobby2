@@ -2,13 +2,13 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Count Condition")]
 class GC_ConditionCount : GC_ConditionBase
 {
-	[Attribute("0", UIWidgets.CheckBox, "Checked: count accepted calls to Mission Flag Name. Unchecked: count true entries in Conditions. Only the selected source is used.")]
+	[Attribute("0", UIWidgets.CheckBox, "Checked: read the remembered count of Mission Flag Name, including Start Call Count and Flag Action edits. Unchecked: count true entries in Conditions. Only the selected source is used.")]
 	bool m_bCountFlagCalls;
 
 	[Attribute("0", UIWidgets.ComboBox, "Compare the chosen count with Required Count. Greater than 2 needs 3 or more; Less than 2 allows 0 or 1; Equal 2 needs exactly 2; Not equal 2 allows any count except 2.", enums: {ParamEnum("Greater than", "0"), ParamEnum("Less than", "1"), ParamEnum("Equal", "2"), ParamEnum("Not equal", "3")})]
 	int m_iComparison;
 
-	[Attribute("1", UIWidgets.SpinBox, "The number to compare against. For conditions, use 0 to 256. For flag calls, use 0 to 1000000. Less than 5 on a repeatable flag allows five accepted calls.", "0 1000000 1")]
+	[Attribute("1", UIWidgets.SpinBox, "The number to compare against. For conditions, use 0 to 256. For flag calls, use 0 to 1000000. Less than 5 permits calls while the remembered count is below five.", "0 1000000 1")]
 	int m_iRequiredCount;
 
 	[Attribute("", UIWidgets.EditBox, "Only used when Count Flag Calls is checked. Enter the exact name from Mission Flags. To limit the flag containing this condition, enter that flag's name.")]

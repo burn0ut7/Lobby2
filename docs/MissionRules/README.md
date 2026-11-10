@@ -13,11 +13,11 @@ For game start, choose **Match** with **Require Other State** unchecked. Name, C
 
 A mission event runs once by default. **Advanced > Repeatable (checked)** permits a new run on each later matching state change. Staying in the same state does not repeat it. **Delay** adds a wait measured in seconds; Disabled keeps the event saved without running it.
 
-**Flags are optional.** Use them when a mission needs to remember something or notify other events. Each declared Mission Flag remembers its true/false state and the number of accepted calls.
+**Flags are optional.** Use them when a mission needs to remember something or notify other events. Each declared Mission Flag holds a remembered call count; zero means false and a positive count means true. Starting values and Flag Action count edits are included.
 
 ## Mission Flags: memory and calls
 
-A Mission Flag has **Name**, **Start Call Count**, **Repeatable**, and **Conditions**. Its value is determined by successful calls: **zero = false; one or more = true**. Start Call Count defaults to zero; a positive value starts the flag true. Checking a flag does not call it. Use **Flag Action > Call** with the same exact name.
+A Mission Flag has **Name**, **Start Call Count**, **Repeatable**, and **Conditions**. Its value is determined by its remembered call count: **zero = false; one or more = true**. Start Call Count defaults to zero; a positive value starts the flag true. Checking a flag does not call it. Use **Flag Action > Call** with the same exact name.
 
 - **Repeatable unchecked** (default): accepts one call, becomes true and stays true. Later calls do nothing until Reset Flag is used.
 - **Repeatable checked**: accepts later calls, increasing its count and notifying dependent events each time. It stays true until Reset Flag clears the count.
@@ -30,7 +30,7 @@ Mission events and flags can use two condition objects, nested inside the usual 
 | Condition | Meaning |
 | --- | --- |
 | Mission Flag Condition | Check whether a named flag is true or false. |
-| Count Condition | Count passing conditions or a named flag's accepted calls, then compare using Greater than, Less than, Equal or Not equal. |
+| Count Condition | Count passing conditions or read a named flag's remembered count, then compare using Greater than, Less than, Equal or Not equal. |
 
 **Count Condition** handles both uses. Check **Count Flag Calls** to count flag calls; leave it unchecked to count true child conditions. There is no separate Flag Call Count condition.
 
@@ -171,9 +171,9 @@ Groups contain regular events, not other random groups. Conditions still nest no
 
 - `Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et`: no flags; Match / Require Other State unchecked starts a random group with a fixed two-second wait and Pick Count 1, selecting one of two regular test-log events. There is no extra random delay.
 - `tests/McpTestAddon/worlds/StandardLogicExample.ent`: optional editor-only scene for inspecting the no-flags state example. Run runtime tests in Arland; this minimal inspector scene lacks a faction manager required by Play.
-- `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two independent state-driven mission events. Match sets test_ready; After action sets test_complete. They demonstrate optional flag actions, not flag-triggered events.
+- `Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et`: two independent state-driven mission events. Match calls the declared test_ready flag; After action calls the declared test_complete flag. Both use Flag Action > Call. They demonstrate optional flag memory, not flag-triggered events.
 
-Existing actions are Log message, Call Flag, Reset Flag, Send test event, Random flag, and Select random flags. Send test event remains an interpreter/testing action; this slice has no authorable named-event condition to receive it. No RPC or arbitrary script execution is exposed.
+Use the current **Framework and game-mode actions** catalog above. Log Message Action remains available for debugging. Old Call Flag, Reset Flag, Set Flag, Send Test Event, Random Flag and Select Random Flags are hidden compatibility types. Send Test Event has no authorable named-event condition to receive it. These actions expose no client request RPC or arbitrary script execution.
 
 ## Runtime and limits
 
@@ -499,3 +499,17 @@ Script-created event fixtures must explicitly set `m_fRandomChance = 1` for full
 ### Start Call Count
 
 Start Call Count is an integer from 0 to 1,000,000, default 0. Zero starts false; any positive value starts true. It seeds remembered successful calls without emitting a call notification. Normal startup checks still see the seeded value. A non-repeatable flag with a positive count cannot accept another call until Reset Flag; repeatable flags can accept more if their conditions pass. For example, starting at 4 with a count limit Less than 5 permits one additional call. Failed calls leave both count and value unchanged. Reset Flag clears to zero; restarting the framework restores the configured starting count. Existing saved flags omit this field and retain the zero default. Optional fixtures cover seeded memory, call limits, reset/restart and invalid values; no in-game tests were run.
+
+## Flag catalog review
+
+The supported flag vocabulary is deliberately small:
+
+- **Mission Flag** owns remembered count and activation requirements. Keep it optional.
+- **Flag Action** changes that memory or requests an activation.
+- **Mission Flag Condition** reads true/false without changing anything.
+- **Count Condition** reads the remembered count, including starting values and direct edits. A separate flag-state or flag-call-count condition would duplicate these.
+- Random chance, casualties, total deaths, entity damage, area and interaction remain **conditions**, not extra flag types. Put them inside a Mission Flag only when persistent memory or a reusable named result is needed.
+
+Legacy Set/Call/Reset Flag actions, Random Flag, Select Random Flags and GC_RuleRandom remain available to load saved data and compatibility fixtures, but are hidden from new authoring. Deleting their classes would break saved references. Their original behavior is retained, including old random actions clearing unsuccessful/unselected flags. The example prefab now declares its two flags and uses the unified Flag Action. Existing user-authored worlds are not rewritten.
+
+This cleanup changes catalog visibility, wording and the example, not flag evaluation or execution. Workbench compilation and source review are used; no in-game test is run.
