@@ -186,7 +186,7 @@ class GC_TelemetryRecorder
 	//------------------------------------------------------------------------------------------------
 	GC_TelemetryActor Track(IEntity entity, bool wasPlayer = false, string identity = "", bool deathEvent = false)
 	{
-		if (!m_bRunning || !entity || !entity.GetPrefabData() || (!ChimeraCharacter.Cast(entity) && !Vehicle.Cast(entity)) || entity.FindComponent(GC_LobbySpectatorBodyComponent))
+		if (!m_bRunning || !entity || !entity.GetPrefabData() || (!ChimeraCharacter.Cast(entity) && !Vehicle.Cast(entity) && !Turret.Cast(entity)) || entity.FindComponent(GC_LobbySpectatorBodyComponent))
 			return null;
 		GC_TelemetryActor actor = m_mActors.Get(entity.GetID());
 		if (actor && actor.GetEntity() == entity)

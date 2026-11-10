@@ -29,6 +29,8 @@ class GC_TelemetryActor
 	protected int m_iVoiceMask;
 	protected int m_iVoicePlayer;
 	protected float m_fVoiceUntil;
+	protected string m_sTurrets;
+	protected float m_fLastTurrets = -5000;
 
 	//------------------------------------------------------------------------------------------------
 	//! Server-timed, owner-reported capture transitions and bounded renewals.
@@ -100,7 +102,7 @@ class GC_TelemetryActor
 		if (playerId > 0)
 			m_sIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(playerId);
 		string kind = "ai";
-		if (Vehicle.Cast(entity))
+		if (Vehicle.Cast(entity) || Turret.Cast(entity))
 			kind = "vehicle";
 		else if (playerId > 0 || wasPlayer)
 			kind = "player";
@@ -229,13 +231,41 @@ class GC_TelemetryActor
 			m_fLastWritten = now;
 		}
 		if (!character)
+		{
+			SampleTurrets(now);
 			return;
+		}
 		SampleEquipment(character);
 		SampleSeat(character);
 		if (now - m_fLastAppearance >= 5000)
 		{
 			m_fLastAppearance = now;
 			SampleAppearance(finalState);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SampleTurrets(float now)
+	{
+		GC_TelemetryTurrets snapshot = new GC_TelemetryTurrets();
+		if (!snapshot.Capture(m_Entity))
+		{
+			m_Recorder.Stop("overflow");
+			return;
+		}
+		JsonSaveContext comparison = new JsonSaveContext();
+		comparison.SetMaxDecimalPlaces(6);
+		snapshot.Write(comparison);
+		string state = comparison.SaveToString();
+		if (state == m_sTurrets && now - m_fLastTurrets < 5000)
+			return;
+		JsonSaveContext context = m_Recorder.BeginRecord("turret-state");
+		context.WriteValue("entity", m_sId);
+		snapshot.Write(context);
+		if (m_Recorder.CommitRecord(context) > 0)
+		{
+			m_sTurrets = state;
+			m_fLastTurrets = now;
 		}
 	}
 

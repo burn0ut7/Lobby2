@@ -61,6 +61,31 @@ public static class TelemetryContract
     {
         switch (type)
         {
+            case "turret-state":
+                if (version != 2) Fail();
+                Entity(data);
+                var available = data.GetProperty("available").GetBoolean();
+                var turrets = data.GetProperty("turrets");
+                if (turrets.GetArrayLength() > 64 || (!available && turrets.GetArrayLength() != 0)) Fail();
+                var slots = new HashSet<(int, int)>();
+                foreach (var turret in turrets.EnumerateArray())
+                {
+                    UniqueFields(turret);
+                    var managerId = Integer(turret, "managerId", int.MinValue);
+                    var slotId = Integer(turret, "slotId", 0);
+                    if (!slots.Add((managerId, slotId))) Fail();
+                    Integer(turret, "seatIndex", 0);
+                    Integer(turret, "compartmentType", 0);
+                    turret.GetProperty("hasWeapon").GetBoolean();
+                    if (turret.GetProperty("directionAvailable").GetBoolean())
+                    {
+                        Vector(turret, "direction");
+                        var lengthSquared = turret.GetProperty("direction").EnumerateArray().Sum(v => v.GetDouble() * v.GetDouble());
+                        if (Math.Abs(lengthSquared - 1) > 0.001) Fail();
+                    }
+                    else if (turret.TryGetProperty("direction", out _)) Fail();
+                }
+                break;
             case "voice-start":
             case "voice-refresh":
             case "voice-stop":
