@@ -1,17 +1,19 @@
-# Weather Action
+# Time and Weather Action
 
-Add **Weather Action** to a mission event's Actions list.
+Add **Time and Weather Action** to an event's Actions list. Use **Change Weather** and **Change Time** independently, or check both. At least one must be checked.
 
-- **Weather Preset:** the exact name of a preset available in the map's weather configuration. For example, `Clear`, `Cloudy` or `Overcast` where supported. Default: `Clear`.
-- **Transition Seconds:** how long the weather transition takes on the game's weather timeline. Default `0` changes immediately. The engine uses hours internally; this action converts seconds to hours. Time acceleration may change the real elapsed duration.
-- **Allow Natural Changes:** unchecked by default, keeping the requested weather until another system changes it. Checked allows normal weather progression afterward. The native default state duration is retained (0.001 hours); this is not a guaranteed long hold at the selected preset.
+- **Change Weather:** checked by default, preserving existing weather actions.
+- **Weather Preset:** exact preset name, default `Clear`. Open the mission world and choose **Plugins > GC > List weather presets** to see every name from its Time and Weather Manager. Names are also printed to the editor log. Copy a name into this field. Nested action fields do not have a verified live dropdown; no external helper is required.
+- **Transition Seconds:** weather transition duration on the game's weather timeline, from 0 to 86400. Zero changes immediately. Time acceleration can affect real elapsed duration. This does not delay the clock change.
+- **Allow Natural Changes:** unchecked keeps the requested weather until another system changes it. Checked allows normal weather progression afterward. The engine's default state duration is retained (0.001 hours); this does not guarantee a long hold at that preset.
+- **Change Time:** unchecked by default. Check to set **Hours** (0–23), **Minutes** (0–59), and **Seconds** (0–59). For example, 18:30:00 means 6:30 PM. Date and normal time progression stay unchanged.
 
-The event's conditions and Delay decide when the action starts. Transition Seconds controls the weather change itself. This action does not change the time of day, choose a random preset or add a second weather simulation.
+Unchecked sections are ignored, including their unused values. Invalid enabled settings reject the action. An unavailable weather preset rejects a combined action before the clock changes. The framework requests changes through the existing server-authoritative engine manager; it adds no polling, global override or custom replication. Other controllers and mission-start resets can still supersede the result.
 
-Example: choose `Overcast`, Transition Seconds `120`, and leave Allow Natural Changes unchecked to request a two-minute weather-timeline transition to persistent overcast.
+The event's conditions and Delay decide when this action starts. A weather transition uses the engine's hours-based API after converting seconds to hours. Clock changes use SetHoursMinutesSeconds. The weather call has no success return, so accepted dispatch does not establish visual completion.
 
-The manager validates the exact preset against the loaded weather-state list before calling the engine's server-only `ForceWeatherTo`. Missing managers, unknown names and invalid durations are rejected. Valid durations are 0 through 86400 seconds. Native weather owns the transition and networking; the action adds no polling, callbacks, global override or custom replication. Other weather controllers or mission-start resets can still supersede it. The native call has no success return; dispatch is not proof that a visible transition completed.
+Compatibility: the serialized class remains GC_WeatherAction and existing weather fields retain their names. Existing missions change weather only unless Change Time is enabled.
 
-Reference: TilW `TILW_ChangeWeatherInstruction`, commit `4a5300f94fb9323ce4942ef296bcffcdda922626`. Installed catalogue `c52648a62fcb4229ad089610d060ea44`: `scripts/GameCode/World/TimeAndWeatherManagerEntity.c:257-327` for server authority, transition creation, looping and notifications; `scripts/Game/Editor/Containers/Attributes/SCR_AutomatedWeatherEditorAttribute.c:21-24,79-85` for state enumeration and seconds-to-hours conversion.
+Sources: installed catalogue c52648a62fcb4229ad089610d060ea44, TimeAndWeatherManagerEntity.c (ForceWeatherTo), BaseWeatherManagerEntity.c (SetHoursMinutesSeconds and GetWeatherStatesList), and SCR_AutomatedWeatherEditorAttribute.c (state enumeration and seconds-to-hours conversion).
 
-Verification: source/logic review and Workbench script compilation/reload. No in-game tests were run, as requested. Actual transition timing, appearance, multiplayer delivery and picker presentation remain untested.
+Verification: Workbench compilation/reload and explicit editor-only production BuildAction/IsValid checks cover defaults, separate and combined changes, ignored inactive fields, invalid input and live preset enumeration. No in-game tests were run; visible transitions, clock replication and multiplayer delivery remain untested.

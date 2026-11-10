@@ -1681,3 +1681,7 @@ remote replication/denial/teardown. Grant survived a new controlled character;
 full death/respawn possession was not conclusively observed. No dedicated or
 physical input-device coverage. Local concept, final screenshots, validation notes
 and paired operation receipts are retained under Art/References/forced-clothing.
+
+## Time and weather action checks
+
+With this optional addon loaded, open World Editor > Plugins > GC Tests > Check time and weather action. Eight checks exercise production action defaults, validation, separate/combined changes and loaded-map preset enumeration without changing the world. All passed on Arland after reload on 2026-11-10 (logs_2026-11-10_04-29-14, lines 22183-22191). Plugins > GC > List weather presets was also verified to show Clear, Cloudy, Overcast and Rainy. No Play tests were run.

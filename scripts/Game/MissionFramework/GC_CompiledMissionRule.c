@@ -58,6 +58,11 @@ class GC_RuleAction
 	float m_fTimerSeconds;
 	string m_sMessageTitle;
 	bool m_bRandomOrder;
+	bool m_bChangeWeather = true;
+	bool m_bChangeTime;
+	int m_iHours;
+	int m_iMinutes;
+	int m_iSeconds;
 
 	//------------------------------------------------------------------------------------------------
 	static bool ValidTargetNames(array<string> names)
@@ -83,7 +88,9 @@ class GC_RuleAction
 			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5
 				&& (m_iOperation < 3 || (m_fTimerSeconds >= 0 && m_fTimerSeconds <= 86400));
 		if (m_eDo == GC_ERuleAction.WEATHER)
-			return !m_sTextOrName.IsEmpty() && m_fTransitionSeconds >= 0 && m_fTransitionSeconds <= 86400;
+			return (m_bChangeWeather || m_bChangeTime)
+				&& (!m_bChangeWeather || (!m_sTextOrName.IsEmpty() && m_fTransitionSeconds >= 0 && m_fTransitionSeconds <= 86400))
+				&& (!m_bChangeTime || (m_iHours >= 0 && m_iHours <= 23 && m_iMinutes >= 0 && m_iMinutes <= 59 && m_iSeconds >= 0 && m_iSeconds <= 59));
 		if (m_eDo == GC_ERuleAction.DELETE_ENTITIES)
 			return m_aFlagNames && !m_aFlagNames.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames);
 		if (m_eDo == GC_ERuleAction.ASSIGN_WAYPOINTS)

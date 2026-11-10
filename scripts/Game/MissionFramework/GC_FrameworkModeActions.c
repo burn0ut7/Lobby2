@@ -36,19 +36,20 @@ modded class GC_LobbyManager
 		if (!world)
 			return false;
 		TimeAndWeatherManagerEntity weather = world.GetTimeAndWeatherManager();
-		if (!weather || !weather.GetTransitionManager())
+		if (!weather)
 			return false;
-		array<ref WeatherState> states = {};
-		weather.GetWeatherStatesList(states);
-		foreach (WeatherState state : states)
+		// Validate all requested changes before mutation. Time-only actions do not need a weather preset.
+		if (action.m_bChangeWeather)
 		{
-			if (!state || state.GetStateName() != action.m_sTextOrName)
-				continue;
-			// Native API uses hours and owns transitions, looping and network updates.
-			weather.ForceWeatherTo(!action.m_bFlagAnswer, action.m_sTextOrName, action.m_fTransitionSeconds / 3600.0);
-			return true;
+			if (!weather.GetTransitionManager() || !GC_WeatherAction.GetPresetNames(world).Contains(action.m_sTextOrName))
+				return false;
 		}
-		return false;
+		if (action.m_bChangeTime && !weather.SetHoursMinutesSeconds(action.m_iHours, action.m_iMinutes, action.m_iSeconds))
+			return false;
+		// Native API uses hours and owns transitions, looping and network updates.
+		if (action.m_bChangeWeather)
+			weather.ForceWeatherTo(!action.m_bFlagAnswer, action.m_sTextOrName, action.m_fTransitionSeconds / 3600.0);
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

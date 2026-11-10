@@ -517,7 +517,7 @@ This cleanup changes catalog visibility, wording and the example, not flag evalu
 
 ## Action catalog migration
 
-The production action catalog includes: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Respawn Wave Action**, **Reset Random Chance Action**, **Spawn Action**, **Delete Entities Action**, **Assign Waypoints Action**, **Weather Action**, **Timer Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; its optional Title changes the popup heading without changing the Mission source.
+The production action catalog includes: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Respawn Wave Action**, **Reset Random Chance Action**, **Spawn Action**, **Delete Entities Action**, **Assign Waypoints Action**, **Time and Weather Action**, **Timer Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; its optional Title changes the popup heading without changing the Mission source.
 
 Flag Action already includes Call, Set count, Add, Subtract, Reset to zero and Restore starting count. Random selection stays with Random Chance Condition and Random Event Group because it needs probability/pool settings rather than the same single-flag arithmetic fields. End Mission stays separate from Message because outcome/faction settings are unrelated to message text and warning presentation.
 
@@ -553,7 +553,7 @@ Delete Entities and Assign Waypoints are separate actions. See [settings, exampl
 
 ## Weather action
 
-Weather Action changes a named weather preset, with Transition Seconds and an Allow Natural Changes checkbox. See [settings and engine behavior](WeatherAction.md).
+Time and Weather Action changes the clock, a named weather preset, or both. Independent Change Time and Change Weather checkboxes select the changes. World Editor > Plugins > GC > List weather presets shows every preset in the loaded map. See [settings and engine behavior](WeatherAction.md).
 
 ## Timer condition
 
