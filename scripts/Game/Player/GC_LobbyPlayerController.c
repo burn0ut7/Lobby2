@@ -580,17 +580,23 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void DeliverAdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message, bool preserveLineBreaks = false, bool warning = false, bool missionMessage = false)
+	void DeliverAdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message, bool preserveLineBreaks = false, bool warning = false, bool missionMessage = false, string title = "")
 	{
 		if (Replication.IsServer() && GC_LobbyManager.GetManager())
-			Rpc(RpcDo_AdminMessage, messageId, senderId, senderName, audience, message, preserveLineBreaks, warning, missionMessage);
+		{
+			// Keep title and body in one delivery within the engine's eight-argument RPC limit.
+			array<string> content = {message, title};
+			Rpc(RpcDo_AdminMessage, messageId, senderId, senderName, audience, content, preserveLineBreaks, warning, missionMessage);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
-	protected void RpcDo_AdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, string message, bool preserveLineBreaks, bool warning, bool missionMessage)
+	protected void RpcDo_AdminMessage(int messageId, int senderId, string senderName, GC_EAdminMessageAudience audience, array<string> content, bool preserveLineBreaks, bool warning, bool missionMessage)
 	{
 		if (!GC_LobbyManager.GetManager() || GetGame().GetPlayerController() != this)
+			return;
+		if (!content || content.Count() != 2)
 			return;
 		if (audience == GC_EAdminMessageAudience.ADMINS && !SCR_Global.IsAdmin(GetPlayerId()))
 			return;
@@ -598,7 +604,8 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		entry.m_iMessageId = messageId;
 		entry.m_iSenderId = senderId;
 		entry.m_sSenderName = senderName;
-		entry.m_sText = message;
+		entry.m_sText = content[0];
+		entry.m_sTitle = content[1];
 		entry.m_bPreserveLineBreaks = preserveLineBreaks;
 		entry.m_bWarning = warning;
 		entry.m_bMission = missionMessage;

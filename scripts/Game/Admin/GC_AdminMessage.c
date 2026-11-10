@@ -5,6 +5,7 @@ class GC_AdminMessage
 	int m_iSenderId;
 	string m_sSenderName;
 	string m_sText;
+	string m_sTitle;
 	bool m_bPreserveLineBreaks;
 	bool m_bWarning;
 	bool m_bMission;

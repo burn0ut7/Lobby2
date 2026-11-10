@@ -43,11 +43,13 @@ class GC_EventControlAction : GC_ActionBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Message Action")]
 class GC_MessageAction : GC_ActionBase
 {
+	[Attribute("", UIWidgets.EditBox, "Heading shown above the message. Maximum 80 characters. Leave empty to use Mission, or Mission Warning when Warning is checked.")]
+	string m_sTitle;
 	[Attribute("", UIWidgets.EditBox, "Message shown to connected players using the same notification stack as admin messages. Maximum 512 characters. Messages wait their turn when the stack is full; joining later does not replay them.")]
 	string m_sMessage;
 	[Attribute("", UIWidgets.EditBox, "Faction keys receiving the message. Empty means everyone, including spectators. Multiple matching factions never send a player duplicate messages.")]
 	ref array<string> m_aFactions;
-	[Attribute("0", UIWidgets.CheckBox, "Checked: show a Mission Warning with the warning icon and sound. Unchecked: show a normal Mission message.")]
+	[Attribute("0", UIWidgets.CheckBox, "Checked: use the warning icon, color and sound. Your Title stays the same. With no Title, the heading is Mission Warning instead of Mission.")]
 	bool m_bWarning;
 
 	//------------------------------------------------------------------------------------------------
@@ -55,6 +57,11 @@ class GC_MessageAction : GC_ActionBase
 	{
 		GC_RuleAction action = new GC_RuleAction();
 		action.m_eDo = GC_ERuleAction.MISSION_MESSAGE;
+		action.m_sMessageTitle = m_sTitle;
+		action.m_sMessageTitle.Replace("\r", " ");
+		action.m_sMessageTitle.Replace("\n", " ");
+		action.m_sMessageTitle.Replace("\t", " ");
+		action.m_sMessageTitle.TrimInPlace();
 		action.m_sTextOrName = m_sMessage;
 		action.m_sTextOrName.TrimInPlace();
 		action.m_bFlagAnswer = m_bWarning;

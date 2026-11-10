@@ -55,6 +55,7 @@ class GC_RuleAction
 	ref GC_PrefabSpawn m_Spawn;
 	float m_fTransitionSeconds;
 	float m_fTimerSeconds;
+	string m_sMessageTitle;
 
 	//------------------------------------------------------------------------------------------------
 	static bool ValidTargetNames(array<string> names)
@@ -98,6 +99,8 @@ class GC_RuleAction
 			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 2 && m_iAmount >= 0 && m_iAmount <= 1000000;
 		if (m_eDo == GC_ERuleAction.MISSION_MESSAGE)
 		{
+			if (m_sMessageTitle.Length() > 80 || m_sMessageTitle.Contains("<") || m_sMessageTitle.Contains(">"))
+				return false;
 			if (m_sTextOrName.IsEmpty() || m_sTextOrName.Length() > 512 || m_sTextOrName.Contains("<") || m_sTextOrName.Contains(">"))
 				return false;
 			if (m_aFlagNames)

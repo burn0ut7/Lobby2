@@ -105,7 +105,7 @@ modded class GC_LobbyManager
 		{
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(recipient));
 			if (controller)
-				controller.DeliverAdminMessage(m_iAdminMessageSequence, 0, "Mission", audience, action.m_sTextOrName, true, action.m_bFlagAnswer, true);
+				controller.DeliverAdminMessage(m_iAdminMessageSequence, 0, "Mission", audience, action.m_sTextOrName, true, action.m_bFlagAnswer, true, action.m_sMessageTitle);
 		}
 		return true;
 	}

@@ -83,6 +83,8 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 			heading = "Mission";
 			if (message.m_bWarning)
 				heading = "Mission Warning";
+			if (!message.m_sTitle.IsEmpty())
+				heading = message.m_sTitle;
 		}
 		title.SetText(heading);
 		if (message.m_bWarning)
