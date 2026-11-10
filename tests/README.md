@@ -1689,3 +1689,7 @@ With this optional addon loaded, open World Editor > Plugins > GC Tests > Check 
 ## Marker and vehicle action checks
 
 World Editor > Plugins > GC Tests > Check marker and vehicle actions runs 23 editor-only checks against production BuildAction/IsValid and marker audience/catalog code. All passed on 2026-11-10; logs_2026-11-10_04-29-14 lines 22605-22628. Reload 41603c8f8ea5436f8d719ffe381563a4 compiled with zero script errors. No Play tests or world mutations. Actual component effects and marker network serialization remain untested at runtime.
+
+## JIP action checks
+
+World Editor > Plugins > GC Tests > Check JIP action checks the production editor default, all three supported modes, and rejection of invalid modes without changing the world. All five passed on 2026-11-10; logs_2026-11-10_04-29-14 lines 22838-22843. Reload 928c7ef853bf4538b3d1eb818e313b2b compiled with no script errors (existing resource/menu diagnostics remain). No Play tests; actual late-join offers and teleport behavior were not exercised.

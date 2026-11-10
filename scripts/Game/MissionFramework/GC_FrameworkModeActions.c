@@ -11,6 +11,9 @@ modded class GC_LobbyManager
 		{
 			case GC_ERuleAction.RESPAWN_WAVE:
 				return GC_RespawnWave(action.m_aFlagNames, action.m_iAmount, action.m_bFlagAnswer, action.m_bRandomOrder) >= 0;
+			case GC_ERuleAction.JIP:
+				GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+				return mode && mode.SetJipMode(action.m_iOperation);
 			case GC_ERuleAction.MARKER_VISIBILITY:
 				return GC_ChangeFrameworkMarkerVisibility(action);
 			case GC_ERuleAction.VEHICLE:

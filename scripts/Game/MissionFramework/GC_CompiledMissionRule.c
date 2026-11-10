@@ -36,7 +36,8 @@ enum GC_ERuleAction
 	TIMER_CONTROL,
 	RESPAWN_WAVE,
 	VEHICLE,
-	MARKER_VISIBILITY
+	MARKER_VISIBILITY,
+	JIP
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -89,6 +90,8 @@ class GC_RuleAction
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.JIP)
+			return GC_JipSystem.IsValidMode(m_iOperation);
 		if (m_eDo == GC_ERuleAction.MARKER_VISIBILITY)
 		{
 			if (!m_aFlagNames || m_aFlagNames.IsEmpty() || !ValidTargetNames(m_aFlagNames)

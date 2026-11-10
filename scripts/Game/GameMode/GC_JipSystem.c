@@ -24,6 +24,12 @@ class GC_JipSystem
 	static const float MINIMUM_JOIN_SECONDS = 120;
 
 	//------------------------------------------------------------------------------------------------
+	static bool IsValidMode(int mode)
+	{
+		return mode == GC_EJipMode.MANUAL || mode == GC_EJipMode.AUTO || mode == GC_EJipMode.DISABLED;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void Start(GC_LobbyGameMode mode)
 	{
 		m_Mode = mode;

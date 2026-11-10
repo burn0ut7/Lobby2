@@ -24,6 +24,16 @@ modded class GC_LobbyGameMode
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Policy remains server-owned. Existing eligibility and cutoff rules are not reset.
+	bool SetJipMode(GC_EJipMode mode)
+	{
+		if (!Replication.IsServer() || GC_LobbyGameMode.GetGameMode() != this || !GC_JipSystem.IsValidMode(mode))
+			return false;
+		m_eJipMode = mode;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	int GetJipDenySeconds()
 	{
 		return m_iJipDenySeconds;
