@@ -97,14 +97,14 @@ class GC_AIGroupSpawn : GC_PrefabSpawn
 	//------------------------------------------------------------------------------------------------
 	override bool IsValid()
 	{
-		return super.IsValid() && GC_SpawnAttempt.ValidNames(m_aWaypoints);
+		return super.IsValid() && GC_RuleAction.ValidTargetNames(m_aWaypoints);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override protected bool Prepare(IEntitySource source)
 	{
 		return super.Prepare(source) && source.GetClassName().ToType().IsInherited(AIGroup)
-			&& GC_SpawnAttempt.CheckWaypoints(m_aWaypoints);
+			&& GC_WaypointOrders.Check(m_aWaypoints);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -113,8 +113,7 @@ class GC_AIGroupSpawn : GC_PrefabSpawn
 		AIGroup group = AIGroup.Cast(entity);
 		if (!group)
 			return false;
-		GC_SpawnAttempt.AddWaypoints(group, m_aWaypoints);
-		return true;
+		return GC_WaypointOrders.Apply(group, m_aWaypoints);
 	}
 }
 
@@ -200,14 +199,14 @@ class GC_SpawnCrewGroup
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
-		return (m_bDriver || m_bGunners || m_bPassengers) && GC_SpawnAttempt.ValidNames(m_aWaypoints)
+		return (m_bDriver || m_bGunners || m_bPassengers) && GC_RuleAction.ValidTargetNames(m_aWaypoints)
 			&& (!m_aCharacters || m_aCharacters.Count() <= 128);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	bool Prepare()
 	{
-		if (!GC_SpawnAttempt.CheckWaypoints(m_aWaypoints))
+		if (!GC_WaypointOrders.Check(m_aWaypoints))
 			return false;
 		if (m_aCharacters)
 		{
@@ -263,7 +262,7 @@ class GC_SpawnCrewGroup
 			}
 		}
 		if (group)
-			GC_SpawnAttempt.AddWaypoints(group, m_aWaypoints);
+			return GC_WaypointOrders.Apply(group, m_aWaypoints);
 		return true;
 	}
 }
@@ -304,40 +303,4 @@ class GC_SpawnAttempt
 		}
 	}
 
-	//------------------------------------------------------------------------------------------------
-	static bool ValidNames(array<string> names)
-	{
-		if (!names)
-			return true;
-		if (names.Count() > 128)
-			return false;
-		foreach (string name : names)
-		{
-			if (name.IsEmpty())
-				return false;
-		}
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	static bool CheckWaypoints(array<string> names)
-	{
-		if (!names)
-			return true;
-		foreach (string name : names)
-		{
-			if (!AIWaypoint.Cast(GetGame().GetWorld().FindEntityByName(name)))
-				return false;
-		}
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	static void AddWaypoints(AIGroup group, array<string> names)
-	{
-		if (!names)
-			return;
-		foreach (string name : names)
-			group.AddWaypoint(AIWaypoint.Cast(GetGame().GetWorld().FindEntityByName(name)));
-	}
 }

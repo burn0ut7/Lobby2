@@ -9,6 +9,10 @@ modded class GC_LobbyManager
 			return false;
 		switch (action.m_eDo)
 		{
+			case GC_ERuleAction.DELETE_ENTITIES:
+				return GC_DeleteFrameworkEntities(action);
+			case GC_ERuleAction.ASSIGN_WAYPOINTS:
+				return GC_WaypointOrders.Apply(AIGroup.Cast(GetGame().GetWorld().FindEntityByName(action.m_sTextOrName)), action.m_aFlagNames, action.m_bFlagAnswer);
 			case GC_ERuleAction.SPAWN:
 				return action.m_Spawn.Execute();
 			case GC_ERuleAction.MISSION_MESSAGE:
@@ -19,6 +23,34 @@ modded class GC_LobbyManager
 				return GC_ChangeFrameworkTickets(action);
 		}
 		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool GC_DeleteFrameworkEntities(GC_RuleAction action)
+	{
+		array<IEntity> targets = {};
+		foreach (string name : action.m_aFlagNames)
+		{
+			IEntity target = GetGame().GetWorld().FindEntityByName(name);
+			if (!target || targets.Contains(target))
+				continue;
+			// Reject the entire list before mutation if it would destroy this action's owner.
+			IEntity ancestor = GetOwner();
+			while (ancestor)
+			{
+				if (ancestor == target)
+					return false;
+				ancestor = ancestor.GetParent();
+			}
+			targets.Insert(target);
+		}
+		foreach (IEntity entity : targets)
+		{
+			// An earlier parent deletion may already have removed this target.
+			if (entity)
+				SCR_EntityHelper.DeleteEntityAndChildren(entity);
+		}
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

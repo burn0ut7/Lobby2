@@ -29,7 +29,9 @@ enum GC_ERuleAction
 	RESET_RANDOM,
 	END_MISSION,
 	RESPAWN_TICKETS,
-	SPAWN
+	SPAWN,
+	DELETE_ENTITIES,
+	ASSIGN_WAYPOINTS
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -51,8 +53,28 @@ class GC_RuleAction
 	ref GC_PrefabSpawn m_Spawn;
 
 	//------------------------------------------------------------------------------------------------
+	static bool ValidTargetNames(array<string> names)
+	{
+		if (!names)
+			return true;
+		if (names.Count() > 128)
+			return false;
+		foreach (string name : names)
+		{
+			if (name.IsEmpty())
+				return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.DELETE_ENTITIES)
+			return m_aFlagNames && !m_aFlagNames.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames);
+		if (m_eDo == GC_ERuleAction.ASSIGN_WAYPOINTS)
+			return !m_sTextOrName.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames)
+				&& (m_bFlagAnswer || (m_aFlagNames && !m_aFlagNames.IsEmpty()));
 		if (m_eDo == GC_ERuleAction.SPAWN)
 			return m_Spawn && m_Spawn.IsValid();
 		if (m_eDo == GC_ERuleAction.FLAG_CONTROL)

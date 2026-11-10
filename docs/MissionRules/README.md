@@ -516,7 +516,7 @@ This cleanup changes catalog visibility, wording and the example, not flag evalu
 
 ## Action catalog migration
 
-There are eight concrete production action types: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Reset Random Chance Action**, **Spawn Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; the popup still identifies its source as Mission.
+There are ten concrete production action types: **Flag Action**, **Message Action**, **Event Action**, **End Mission Action**, **Respawn Tickets Action**, **Reset Random Chance Action**, **Spawn Action**, **Delete Entities Action**, **Assign Waypoints Action**, and **Log Message Action** (Advanced/debugging). The shared base is now `GC_ActionBase`, explicitly labeled **Action Base - Do not use**, rather than the misleading empty GC_MissionAction. Message Action's concrete class is `GC_MessageAction`; the popup still identifies its source as Mission.
 
 Flag Action already includes Call, Set count, Add, Subtract, Reset to zero and Restore starting count. Random selection stays with Random Chance Condition and Random Event Group because it needs probability/pool settings rather than the same single-flag arithmetic fields. End Mission stays separate from Message because outcome/faction settings are unrelated to message text and warning presentation.
 
@@ -545,3 +545,7 @@ Flag Action groups flag operations; Respawn Tickets Action groups ticket arithme
 ## Spawning prototype
 
 Spawn Action contains Prefab, AI Group and Crewed Vehicle setups. See [spawning settings, examples and limitations](Spawning.md).
+
+## Entity and waypoint actions
+
+Delete Entities and Assign Waypoints are separate actions. See [settings, examples and validation limits](EntityActions.md).
