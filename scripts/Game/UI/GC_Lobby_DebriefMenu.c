@@ -10,6 +10,7 @@ class GC_DebriefPlayerRow
 class GC_Lobby_DebriefMenu : ChimeraMenuBase
 {
 	protected GC_LobbyPlayerController m_Controller;
+	protected ref GC_LobbyMenuChat m_MenuChat;
 	protected ref map<SCR_ButtonBaseComponent, string> m_mSelections = new map<SCR_ButtonBaseComponent, string>();
 	protected ref map<SCR_ButtonBaseComponent, string> m_mRows = new map<SCR_ButtonBaseComponent, string>();
 	protected ref array<SCR_ButtonBaseComponent> m_aActions = {};
@@ -40,6 +41,8 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	override void OnMenuOpen()
 	{
 		super.OnMenuOpen();
+		m_MenuChat = new GC_LobbyMenuChat();
+		m_MenuChat.Start(this);
 		Widget root = GetRootWidget();
 		m_Controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
 		GC_HeaderComponent header = GC_HeaderComponent.Cast(root.FindAnyWidget("MenuBar").FindHandler(GC_HeaderComponent));
@@ -748,8 +751,35 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
+	override void OnMenuUpdate(float tDelta)
+	{
+		super.OnMenuUpdate(tDelta);
+		if (m_MenuChat)
+			m_MenuChat.Update(tDelta);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnMenuFocusGained()
+	{
+		super.OnMenuFocusGained();
+		if (m_MenuChat)
+			m_MenuChat.Show();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnMenuFocusLost()
+	{
+		if (m_MenuChat)
+			m_MenuChat.Hide();
+		super.OnMenuFocusLost();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override void OnMenuClose()
 	{
+		if (m_MenuChat)
+			m_MenuChat.Stop();
+		m_MenuChat = null;
 		if (m_Controller)
 			m_Controller.m_GC_OnReportPage.Remove(OnPage);
 		m_Sort.m_OnFilterChanged.Remove(OnSort);

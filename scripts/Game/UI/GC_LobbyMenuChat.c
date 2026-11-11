@@ -102,7 +102,7 @@ modded class SCR_ChatHud
 		if (GC_LobbyManager.GetManager())
 		{
 			MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
-			if (GC_Lobby_PreviewMenu.Cast(menu) || GC_Lobby_SlottingMenu.Cast(menu) || GC_Lobby_SpectatorMenu.Cast(menu))
+			if (GC_Lobby_PreviewMenu.Cast(menu) || GC_Lobby_SlottingMenu.Cast(menu) || GC_Lobby_SpectatorMenu.Cast(menu) || GC_Lobby_DebriefMenu.Cast(menu))
 				return;
 		}
 		super.Callback_OnToggleAction();
@@ -122,7 +122,7 @@ modded class SCR_ChatPanelManager
 			return;
 
 		MenuBase menu = GetGame().GetMenuManager().GetTopMenu();
-		if (!GC_Lobby_PreviewMenu.Cast(menu) && !GC_Lobby_SlottingMenu.Cast(menu) && !GC_Lobby_SpectatorMenu.Cast(menu))
+		if (!GC_Lobby_PreviewMenu.Cast(menu) && !GC_Lobby_SlottingMenu.Cast(menu) && !GC_Lobby_SpectatorMenu.Cast(menu) && !GC_Lobby_DebriefMenu.Cast(menu))
 			return;
 
 		Widget root = menu.GetRootWidget();

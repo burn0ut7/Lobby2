@@ -10,7 +10,7 @@ ScriptedChatEntity {
   Scale 3
  }
  Channels {
-  BaseChatChannel "{6A63000000000004}" {
+  GC_LobbyGlobalChatChannel "{6A63000000000004}" {
    "Channel name" "Global"
   }
   GC_LobbyFactionChatChannel "{6A63000000000005}" {
@@ -31,9 +31,6 @@ ScriptedChatEntity {
   GC_LobbySpectatorChatChannel "{6A6300000000000A}" {
    "Channel name" "Spectator"
   }
- }
- "Whisper channel" PrivateMessageChannel "{6A6300000000000B}" {
-  "Channel name" "Whisper"
  }
  "Default channel" "Global"
 }

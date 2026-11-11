@@ -268,15 +268,23 @@ controller. Delivery checks current authorization/deadline; receiving never rene
 access and no earlier messages are backfilled. This session-local permission does
 not grant any admin tool rights. Sends use the central audit logger without content.
 
-Spectator chat checks current Lobby2 spectator state on send and delivery.
-Spectators can participate in ordinary Global/Faction/Group/Vehicle/Local channels;
-Admin's receive rule and native Whisper privacy remain independent. Playing players
-retain faction/group/local routing through their inherited native channels. Vehicle
-chat uses native compartment occupancy directly because the engine Vehicle channel
-rejects non-occupants even when the script callbacks allow spectators. Slot joins,
-leaves and reconnect catch-up publish their native group membership to the base
-player faction/group components; these components remain the state queried by native
-chat. Authored groups receive IDs, frequency claims and registration through the
+Channel eligibility uses the authoritative game phase and current Lobby2 player
+state for both sending and delivery. Preview, Slotting and Briefing expose Global,
+Faction and Admin (Faction requires native affiliation). During GAME, playing
+players have Admin only; spectators have Global and Admin. POSTGAME exposes Global
+and Admin to everyone, including surviving players. Global is the same channel
+across all eligible states; there is no separate spectator conversation. Faction
+retains native same-faction routing, with no spectator bypass. Existing history
+is retained; losing eligibility prevents new messages rather than deleting history.
+
+Group, Vehicle, Local and the retired Spectator slots retain their serialized
+identities/numeric positions but reject selection, sending and delivery. No Whisper
+channel is configured: the native private-message transport bypasses channel
+callbacks, so callback denial cannot enforce the requested scope. Native input,
+commands and history remain in use; the panel rechecks its active channel when
+phase or player state changes. Slot joins, leaves and reconnect catch-up publish
+native membership to the base player faction/group components.
+Authored groups receive IDs, frequency claims and registration through the
 native groups manager; unset frequencies use its standard frequency allocator
 before member radio tuning is enabled.
 While Lobby2 is active, that manager's automatic faction-change squad creation is
@@ -284,7 +292,7 @@ suppressed because the explicit slot workflow already chooses the group; the nat
 callback remains unchanged outside Lobby2. Announcement popups remain a separate admin
 tool for all or selected players; the old ADMINS announcement audience is rejected.
 
-`GC_LobbyMenuChat` integrates native chat into Preview/Briefing and Slotting.
+`GC_LobbyMenuChat` integrates native chat into Preview/Briefing, Slotting and Debrief.
 Spectator uses its inherited native menu chat lifecycle with a deferred open.
 The gameplay HUD yields ChatToggle to these menus, including while the spectator
 interface is hidden, so an invisible input cannot consume subsequent actions.

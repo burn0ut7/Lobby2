@@ -1,4 +1,4 @@
-//! Keep native input, history, transport and commands. Only Lobby2 channel styles differ.
+//! Keep native input, history, transport and commands. Lobby2 eligibility is rechecked as the active phase or player state changes.
 modded class SCR_ChatPanel
 {
 	protected ref SCR_ChatMessageStyle m_GC_AdminChannelStyle;
@@ -19,6 +19,14 @@ modded class SCR_ChatPanel
 	}
 
 	//------------------------------------------------------------------------------------------------
+	override void OnUpdateChat(float timeSlice)
+	{
+		if (GC_LobbyManager.GetManager() && m_ActiveChannel && GetChatComponent() && !m_ActiveChannel.IsAvailable(GetChatComponent()))
+			CycleChannels(true);
+		super.OnUpdateChat(timeSlice);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	override protected SCR_ChatMessageStyle GetChannelStyle(BaseChatChannel channel)
 	{
 		if (!channel || !GC_LobbyManager.GetManager())
@@ -26,6 +34,8 @@ modded class SCR_ChatPanel
 
 		switch (channel.Type())
 		{
+			case GC_LobbyGlobalChatChannel:
+				return m_GlobalChannelStyle;
 			case GC_LobbyFactionChatChannel:
 				return m_FactionChannelStyle;
 			case GC_LobbyGroupChatChannel:

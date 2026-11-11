@@ -352,5 +352,16 @@ ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.la
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ActivityNewer" Slot FrameWidgetSlot { Anchor .025 .84 .095 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "ActivityOlder" Slot FrameWidgetSlot { Anchor .105 .84 .18 .885 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 
+ FrameWidgetClass : "{D89BBA18F99053D6}UI/layouts/HUD/Chat/ChatHud.layout" {
+  Name "Chat"
+  Slot FrameWidgetSlot {
+   Anchor 0 0 1 1
+   OffsetLeft 8
+   OffsetTop 80
+   OffsetRight 8
+   OffsetBottom 0
+  }
+ }
+
  }
 }

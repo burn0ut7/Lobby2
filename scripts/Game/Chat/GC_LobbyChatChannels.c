@@ -27,6 +27,49 @@ class GC_LobbyChatMembership
 		GC_LobbyPlayerController player = GetPlayer(component);
 		return player && player.GetLobbyPlayerState() == GC_ELobbyPlayerState.SPECTATOR;
 	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool CanUseGlobalChat(BaseChatComponent component)
+	{
+		if (!GetPlayer(component))
+			return false;
+
+		SCR_EGameModeState phase = GC_LobbyManager.GetManager().GetLobbyPhase();
+		return phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING
+			|| phase == SCR_EGameModeState.BRIEFING || phase == SCR_EGameModeState.POSTGAME
+			|| (phase == SCR_EGameModeState.GAME && IsSpectator(component));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static bool CanUseFactionChat(BaseChatComponent component)
+	{
+		if (!GetPlayer(component))
+			return false;
+
+		SCR_EGameModeState phase = GC_LobbyManager.GetManager().GetLobbyPhase();
+		return phase == SCR_EGameModeState.PREGAME || phase == SCR_EGameModeState.SLOTTING || phase == SCR_EGameModeState.BRIEFING;
+	}
+}
+
+class GC_LobbyGlobalChatChannel : BaseChatChannel
+{
+	//------------------------------------------------------------------------------------------------
+	override bool IsAvailable(BaseChatComponent sender)
+	{
+		return GC_LobbyChatMembership.CanUseGlobalChat(sender);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool ProcessMessage(BaseChatComponent sender, string message, bool isAuthority)
+	{
+		return IsAvailable(sender);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool IsDelivering(BaseChatComponent sender, BaseChatComponent receiver)
+	{
+		return IsAvailable(sender) && IsAvailable(receiver);
+	}
 }
 
 class GC_LobbyAdminChatChannel : BaseChatChannel
@@ -69,97 +112,67 @@ class GC_LobbyAdminChatChannel : BaseChatChannel
 	}
 }
 
-class GC_LobbySpectatorChatChannel : BaseChatChannel
-{
-	//------------------------------------------------------------------------------------------------
-	override bool IsAvailable(BaseChatComponent sender)
-	{
-		return GC_LobbyChatMembership.IsSpectator(sender);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	override bool ProcessMessage(BaseChatComponent sender, string message, bool isAuthority)
-	{
-		return GC_LobbyChatMembership.IsSpectator(sender);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	override bool IsDelivering(BaseChatComponent sender, BaseChatComponent receiver)
-	{
-		return GC_LobbyChatMembership.IsSpectator(sender) && GC_LobbyChatMembership.IsSpectator(receiver);
-	}
-}
-
 class GC_LobbyFactionChatChannel : FactionChatChannel
 {
 	//------------------------------------------------------------------------------------------------
 	override bool IsAvailable(BaseChatComponent sender)
 	{
-		return GC_LobbyChatMembership.IsSpectator(sender) || super.IsAvailable(sender);
+		return GC_LobbyChatMembership.CanUseFactionChat(sender) && super.IsAvailable(sender);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool ProcessMessage(BaseChatComponent sender, string message, bool isAuthority)
+	{
+		return IsAvailable(sender);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override bool IsDelivering(BaseChatComponent sender, BaseChatComponent receiver)
 	{
-		if (GC_LobbyChatMembership.IsSpectator(sender) || GC_LobbyChatMembership.IsSpectator(receiver))
-			return true;
-
-		return super.IsDelivering(sender, receiver);
+		return IsAvailable(sender) && IsAvailable(receiver) && super.IsDelivering(sender, receiver);
 	}
 }
 
+//! Retain serialized channel identities and numeric prefixes, but disable unused routes.
 class GC_LobbyGroupChatChannel : GroupChatChannel
 {
 	//------------------------------------------------------------------------------------------------
 	override bool IsAvailable(BaseChatComponent sender)
 	{
-		return GC_LobbyChatMembership.IsSpectator(sender) || super.IsAvailable(sender);
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool ProcessMessage(BaseChatComponent sender, string message, bool isAuthority)
+	{
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override bool IsDelivering(BaseChatComponent sender, BaseChatComponent receiver)
 	{
-		if (GC_LobbyChatMembership.IsSpectator(sender) || GC_LobbyChatMembership.IsSpectator(receiver))
-			return true;
-
-		return super.IsDelivering(sender, receiver);
+		return false;
 	}
 }
 
-//! Native VehicleChatChannel transport rejects non-occupants despite these callbacks.
-//! Use native compartment membership directly so spectators can participate.
 class GC_LobbyVehicleChatChannel : BaseChatChannel
 {
 	//------------------------------------------------------------------------------------------------
-	protected IEntity GetVehicle(BaseChatComponent component)
+	override bool IsAvailable(BaseChatComponent sender)
 	{
-		GC_LobbyPlayerController player = GC_LobbyChatMembership.GetPlayer(component);
-		if (!player)
-			return null;
-		ChimeraCharacter character = ChimeraCharacter.Cast(player.GetControlledEntity());
-		if (!character || !character.IsInVehicle())
-			return null;
-		CompartmentAccessComponent access = character.GetCompartmentAccessComponent();
-		if (!access)
-			return null;
-
-		return access.GetVehicleIn(character);
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	override bool IsAvailable(BaseChatComponent sender)
+	override bool ProcessMessage(BaseChatComponent sender, string message, bool isAuthority)
 	{
-		return GC_LobbyChatMembership.IsSpectator(sender) || GetVehicle(sender) != null;
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override bool IsDelivering(BaseChatComponent sender, BaseChatComponent receiver)
 	{
-		if (GC_LobbyChatMembership.IsSpectator(sender) || GC_LobbyChatMembership.IsSpectator(receiver))
-			return true;
-
-		IEntity senderVehicle = GetVehicle(sender);
-		return senderVehicle && senderVehicle == GetVehicle(receiver);
+		return false;
 	}
 }
 
@@ -168,15 +181,39 @@ class GC_LobbyLocalChatChannel : LocalChatChannel
 	//------------------------------------------------------------------------------------------------
 	override bool IsAvailable(BaseChatComponent sender)
 	{
-		return GC_LobbyChatMembership.IsSpectator(sender) || super.IsAvailable(sender);
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool ProcessMessage(BaseChatComponent sender, string message, bool isAuthority)
+	{
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override bool IsDelivering(BaseChatComponent sender, BaseChatComponent receiver)
 	{
-		if (GC_LobbyChatMembership.IsSpectator(sender) || GC_LobbyChatMembership.IsSpectator(receiver))
-			return true;
+		return false;
+	}
+}
 
-		return super.IsDelivering(sender, receiver);
+class GC_LobbySpectatorChatChannel : BaseChatChannel
+{
+	//------------------------------------------------------------------------------------------------
+	override bool IsAvailable(BaseChatComponent sender)
+	{
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool ProcessMessage(BaseChatComponent sender, string message, bool isAuthority)
+	{
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool IsDelivering(BaseChatComponent sender, BaseChatComponent receiver)
+	{
+		return false;
 	}
 }

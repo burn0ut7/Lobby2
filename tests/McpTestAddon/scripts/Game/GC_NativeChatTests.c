@@ -71,6 +71,7 @@ class GC_NativeChatTest
 				panel = SCR_ChatPanel.Cast(panelWidget.FindHandler(SCR_ChatPanel));
 		}
 		string result = string.Format("player=%1 admin=%2 channels=%3 panel=%4 spectator=%5", controller.GetPlayerId(), SCR_Global.IsAdmin(controller.GetPlayerId()), chat.GetChannelsCount(), panel != null, GC_LobbyChatMembership.IsSpectator(component));
+		result += string.Format(" phase=%1 whisperConfigured=%2", GC_LobbyManager.GetPhaseName(GC_LobbyManager.GetManager().GetLobbyPhase()), chat.GetWhisperChannel() != null);
 		SCR_PlayerControllerGroupComponent groupComponent = SCR_PlayerControllerGroupComponent.Cast(controller.FindComponent(SCR_PlayerControllerGroupComponent));
 		Faction faction = SCR_FactionManager.SGetPlayerFaction(controller.GetPlayerId());
 		if (groupComponent)
@@ -97,6 +98,8 @@ class GC_NativeChatTest
 		{
 			BaseChatChannel channel = chat.GetChannel(i);
 			result += string.Format(" [%1:%2 available=%3]", i, channel.GetName(), channel.IsAvailable(component));
+			if (Replication.IsServer())
+				result += " receivesSelf=" + channel.IsDelivering(component, component).ToString();
 			if (action == "raw-send" && channel.GetName() == channelName)
 				component.SendMessage(text, i);
 		}
