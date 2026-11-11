@@ -14,6 +14,8 @@ class GC_MissionHistory
 	protected string m_sStatus = "pregame";
 	protected string m_sOutcome = "unknown";
 	protected int m_iEndReason = -1;
+	protected string m_sEndMessage;
+	protected string m_sEndTitle;
 	protected int m_iStartedAt;
 	protected int m_iEndedAt;
 	protected int m_iRevision;
@@ -211,6 +213,10 @@ class GC_MissionHistory
 		if (data)
 		{
 			m_iEndReason = data.GetEndReason();
+			m_sEndTitle = GC_MissionResult.Title(data);
+			GC_LobbyManager manager = GC_LobbyManager.GetManager();
+			if (manager)
+				m_sEndMessage = manager.GetEndMessage();
 			array<int> factionIds = {};
 			data.GetFactionWinnerIds(factionIds);
 			foreach (int factionId : factionIds)
@@ -232,6 +238,13 @@ class GC_MissionHistory
 				|| m_iEndReason == EGameOverTypes.EDITOR_FACTION_DRAW || m_iEndReason == EGameOverTypes.COMBATPATROL_DRAW
 				|| m_iEndReason == EGameOverTypes.DEATHMATCH_DRAW)
 				m_sOutcome = "draw";
+			else if (m_iEndReason == EGameOverTypes.LOOSE)
+				m_sOutcome = "failed";
+			else if (m_iEndReason == EGameOverTypes.EDITOR_FACTION_DEFEAT
+				|| m_iEndReason == EGameOverTypes.FACTION_DEFEAT_SCORE || m_iEndReason == EGameOverTypes.FACTION_DEFEAT_TIME)
+				m_sOutcome = "defeat";
+			else if (m_iEndReason == EGameOverTypes.EDITOR_NEUTRAL)
+				m_sOutcome = "complete";
 			else if (m_iEndReason == EGameOverTypes.SERVER_RESTART)
 				m_sStatus = "interrupted";
 		}
@@ -292,6 +305,8 @@ class GC_MissionHistory
 		context.WriteValue("status", m_sStatus);
 		context.WriteValue("outcome", m_sOutcome);
 		context.WriteValue("endReason", m_iEndReason);
+		context.WriteValue("endTitle", m_sEndTitle);
+		context.WriteValue("endMessage", m_sEndMessage);
 		context.WriteValue("resultFactions", m_aResultFactions);
 		context.WriteValue("winningFactions", m_aWinningFactions);
 		context.WriteValue("closed", m_bClosed);

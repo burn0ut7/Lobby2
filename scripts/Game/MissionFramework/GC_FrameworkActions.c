@@ -91,10 +91,14 @@ class GC_ResetRandomChanceAction : GC_ActionBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("End Mission Action")]
 class GC_EndMissionAction : GC_ActionBase
 {
-	[Attribute("0", UIWidgets.ComboBox, "Ends the active Match and opens the after-action phase. Has no effect before Match or after the mission has ended.", enums: {ParamEnum("Mission complete", "0"), ParamEnum("Faction victory", "1"), ParamEnum("Faction defeat", "2"), ParamEnum("Faction draw", "3")})]
+	[Attribute("0", UIWidgets.ComboBox, "Ends the active Match and opens the after-action phase. Has no effect before Match or after the mission has ended.", enums: {ParamEnum("Mission complete", "0"), ParamEnum("Faction victory", "1"), ParamEnum("Faction defeat", "2"), ParamEnum("Faction draw", "3"), ParamEnum("Mission failed", "4")})]
 	int m_iResult;
-	[Attribute("", UIWidgets.EditBox, "Faction key for a faction result. Leave empty for Mission complete.")]
+	[Attribute("", UIWidgets.EditBox, "Primary faction for a faction result; also counts as a winner for Victory. Leave empty for Mission complete or Mission failed.")]
 	string m_sFaction;
+	[Attribute("", UIWidgets.EditComboBox, "Additional winning factions for Victory only. The primary faction is included automatically. Up to 16 additional entries; duplicates count once.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
+	ref array<string> m_aWinningFactions;
+	[Attribute("", UIWidgets.EditBox, "Optional ending description, up to 512 characters. Shown beneath the result heading in a notification and retained in the debrief and mission history. Blank means no notification.")]
+	string m_sMessage;
 
 	//------------------------------------------------------------------------------------------------
 	override GC_RuleAction BuildAction()
@@ -103,6 +107,11 @@ class GC_EndMissionAction : GC_ActionBase
 		action.m_eDo = GC_ERuleAction.END_MISSION;
 		action.m_iOperation = m_iResult;
 		action.m_sTextOrName = m_sFaction;
+		action.m_sEndMessage = m_sMessage;
+		action.m_sEndMessage.TrimInPlace();
+		action.m_aFlagNames = {};
+		if (m_aWinningFactions)
+			action.m_aFlagNames.Copy(m_aWinningFactions);
 		return action;
 	}
 }

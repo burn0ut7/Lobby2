@@ -217,7 +217,8 @@ SELECT DISTINCT ON (mission_id) mission_id, revision,
        (payload->>'closed')::boolean AS closed,
        ((payload->>'complete')::boolean AND
         (SELECT count(*) FROM lobby2.mission_history_batches b WHERE b.mission_id = h.mission_id) = revision::bigint + 1) AS complete,
-       payload, received_at
+       payload, received_at,
+       payload->>'endTitle' AS end_title, payload->>'endMessage' AS end_message
 FROM lobby2.mission_history_batches h
 ORDER BY mission_id, revision DESC;
 

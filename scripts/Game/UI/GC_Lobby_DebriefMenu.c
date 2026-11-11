@@ -45,6 +45,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		GC_HeaderComponent header = GC_HeaderComponent.Cast(root.FindAnyWidget("MenuBar").FindHandler(GC_HeaderComponent));
 		if (header)
 			header.SetActiveState(4);
+		AddSelection("Mission result", "ending");
 		AddSelection("All", "all");
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		if (manager)
@@ -80,7 +81,8 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		GetGame().GetInputManager().AddActionListener("MenuBack", EActionTrigger.DOWN, OnBack);
 		if (m_Controller)
 			m_Controller.m_GC_OnReportPage.Insert(OnPage);
-		ShowOverview();
+		m_sFaction = "ending";
+		ShowEnding();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -125,12 +127,24 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		m_sFaction = m_mSelections.Get(selected);
 		m_sSubject = "";
 		m_sTitle = TextWidget.Cast(selected.GetRootWidget().FindAnyWidget("Cell1")).GetText();
-		if (m_sFaction == "players")
+		if (m_sFaction == "ending")
+			ShowEnding();
+		else if (m_sFaction == "players")
 			ShowPlayers();
 		else if (m_sFaction == "activity")
 			ShowCombat();
 		else
 			ShowOverview();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ShowEnding()
+	{
+		m_sView = "ending";
+		SetStatus("Loading…");
+		Refresh();
+		if (m_Controller)
+			m_Controller.GC_RequestReport("ending");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -207,7 +221,24 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 	//------------------------------------------------------------------------------------------------
 	protected void OnPage(string key, GC_DebriefPage page)
 	{
-		if (key.IndexOf("players|") == 0)
+		if (key == "ending||0|0")
+		{
+			if (page.m_aRows.Count() == 4)
+			{
+				string text = page.m_aRows[0];
+				if (!page.m_aRows[1].IsEmpty())
+					text += "\n\n" + page.m_aRows[1];
+				if (!page.m_aRows[2].IsEmpty())
+					text += "\n\n" + page.m_aRows[3] + "\n" + page.m_aRows[2];
+				TextWidget result = TextWidget.Cast(GetRootWidget().FindAnyWidget("MissionResultText"));
+				result.SetText(text);
+				GetGame().GetCallqueue().Remove(ResizeResult);
+				GetGame().GetCallqueue().CallLater(ResizeResult, 0);
+			}
+			if (m_sView == "ending")
+				SetStatus(page.m_sStatus);
+		}
+		else if (key.IndexOf("players|") == 0)
 		{
 			m_sPlayerStatus = page.m_sStatus;
 			// Request keys contain an empty subject; extract cursor from the stable suffix.
@@ -365,8 +396,9 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		root.FindAnyWidget("StatsScroll").SetVisible(overview);
 		root.FindAnyWidget("AmmoHeading").SetVisible(overview);
 		root.FindAnyWidget("AmmoScroll").SetVisible(overview);
-		root.FindAnyWidget("ReportTable").SetVisible(!overview);
-		root.FindAnyWidget("ReportTableHeader").SetVisible(!overview);
+		root.FindAnyWidget("MissionResultScroll").SetVisible(m_sView == "ending");
+		root.FindAnyWidget("ReportTable").SetVisible(players || combat);
+		root.FindAnyWidget("ReportTableHeader").SetVisible(players || combat);
 		root.FindAnyWidget("ReportSort").SetVisible(players);
 		root.FindAnyWidget("ReportDirection").SetVisible(players);
 		root.FindAnyWidget("ReportSortArrow").SetVisible(players);
@@ -399,11 +431,11 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 			RenderPlayers();
 		else if (combat)
 			RenderCombat();
-		else
+		else if (overview)
 			RenderOverview();
 		RenderHeroes();
 		GetGame().GetCallqueue().Remove(AlignReportHeader);
-		if (!overview)
+		if (players || combat)
 			GetGame().GetCallqueue().CallLater(AlignReportHeader, 0);
 		if (!focusedRow.IsEmpty())
 		{
@@ -474,6 +506,16 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		GetGame().GetCallqueue().CallLater(ResizeAmmo, 0);
 	}
 
+	protected void ResizeResult()
+	{
+		GetRootWidget().Update();
+		float width, height;
+		TextWidget result = TextWidget.Cast(GetRootWidget().FindAnyWidget("MissionResultText"));
+		result.GetTextSize(width, height);
+		SizeLayoutWidget.Cast(result.GetParent()).SetHeightOverride(height + 32);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void ResizeAmmo()
 	{
 		GetRootWidget().Update();
@@ -721,6 +763,7 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		GetGame().GetCallqueue().Remove(Close);
 		GetGame().GetCallqueue().Remove(Refresh);
 		GetGame().GetCallqueue().Remove(ResizeAmmo);
+		GetGame().GetCallqueue().Remove(ResizeResult);
 		GetGame().GetCallqueue().Remove(AlignReportHeader);
 		GetGame().GetCallqueue().Remove(ContinuePlayers);
 		GetGame().GetCallqueue().Remove(ContinueCombat);

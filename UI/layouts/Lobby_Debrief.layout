@@ -14,6 +14,29 @@ TextWidgetClass {
  "Ignore Cursor" 1
 }
 ScrollLayoutWidgetClass {
+ Name "MissionResultScroll"
+ Slot FrameWidgetSlot { Anchor .22 .10 .97 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ "Scrollbar Always Visible" 0
+ {
+  SizeLayoutWidgetClass {
+   Name "MissionResultSize"
+   Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 }
+   AllowHeightOverride 1
+   HeightOverride 800
+   {
+    TextWidgetClass {
+     Name "MissionResultText"
+     Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
+     Text ""
+     "Font Size" 28
+     Wrap 1
+     "Ignore Cursor" 1
+    }
+   }
+  }
+ }
+}
+ScrollLayoutWidgetClass {
  Name "StatsScroll"
  Slot FrameWidgetSlot { Anchor .22 .285 .71 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
  "Scrollbar Always Visible" 0

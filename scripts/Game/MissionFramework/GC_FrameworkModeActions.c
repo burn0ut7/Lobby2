@@ -209,7 +209,7 @@ modded class GC_LobbyManager
 			return false;
 		int factionIndex = -1;
 		EGameOverTypes reason = EGameOverTypes.EDITOR_NEUTRAL;
-		if (action.m_iOperation > 0)
+		if (action.m_iOperation > 0 && action.m_iOperation < 4)
 		{
 			FactionManager factions = GetGame().GetFactionManager();
 			Faction faction = factions.GetFactionByKey(action.m_sTextOrName);
@@ -229,7 +229,34 @@ modded class GC_LobbyManager
 					break;
 			}
 		}
-		return EnterPostGame(SCR_GameModeEndData.CreateSimple(reason, -1, factionIndex));
+		if (action.m_iOperation == 4)
+			reason = EGameOverTypes.LOOSE;
+		array<int> results = {};
+		if (factionIndex >= 0)
+			results.Insert(factionIndex);
+		if (action.m_aFlagNames)
+		{
+			foreach (string key : action.m_aFlagNames)
+			{
+				Faction winner = GetGame().GetFactionManager().GetFactionByKey(key);
+				if (!winner)
+					return false;
+				int index = GetGame().GetFactionManager().GetFactionIndex(winner);
+				if (!results.Contains(index))
+					results.Insert(index);
+			}
+		}
+		ref SCR_GameModeEndData data = SCR_GameModeEndData.Create(reason, null, results);
+		if (!EnterPostGame(data, action.m_sEndMessage))
+			return false;
+		if (!action.m_sEndMessage.IsEmpty())
+		{
+			GC_RuleAction notification = new GC_RuleAction();
+			notification.m_sTextOrName = action.m_sEndMessage;
+			notification.m_sMessageTitle = GC_MissionResult.Title(data);
+			GC_SendMissionMessage(notification);
+		}
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

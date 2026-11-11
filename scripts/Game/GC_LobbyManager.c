@@ -22,6 +22,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("1", UIWidgets.CheckBox, "Allow these mission events to run on the server in their matching mission phases. An empty mission event list does nothing.")]
 	protected bool m_bMissionEventsEnabled;
 
+	protected string m_sEndMessage;
+
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
 	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
 	protected const string DEFAULT_FORMATION_NAME = "File";
@@ -558,8 +560,15 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		return true;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	string GetEndMessage()
+	{
+		return m_sEndMessage;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Shared authority entry point for admin overrides and normal mission logic.
-	bool EnterPostGame(SCR_GameModeEndData endData)
+	bool EnterPostGame(SCR_GameModeEndData endData, string message = "")
 	{
 		if (m_bShutdown)
 		{
@@ -599,9 +608,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			resolvedEndData = SCR_GameModeEndData.CreateSimple();
 
 		PrintFormat("GC | Phase | invoking native EndGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
+		m_sEndMessage = message;
 		gameMode.EndGameMode(resolvedEndData);
 		if (gameMode.GetState() != SCR_EGameModeState.POSTGAME)
 		{
+			m_sEndMessage = "";
 			PrintFormat("GC | Phase | native EndGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
 			return false;
 		}

@@ -60,6 +60,7 @@ class GC_RuleAction
 	float m_fTransitionSeconds;
 	float m_fTimerSeconds;
 	string m_sMessageTitle;
+	string m_sEndMessage;
 	bool m_bRandomOrder;
 	ref array<ref GC_MarkerFactionVisibility> m_aMarkerFactions;
 	bool m_bChangeFuel;
@@ -134,7 +135,11 @@ class GC_RuleAction
 		if (m_eDo == GC_ERuleAction.RESET_RANDOM)
 			return !m_sTextOrName.IsEmpty();
 		if (m_eDo == GC_ERuleAction.END_MISSION)
-			return m_iOperation >= 0 && m_iOperation <= 3 && (m_iOperation == 0 || !m_sTextOrName.IsEmpty());
+			return m_iOperation >= 0 && m_iOperation <= 4
+				&& (m_iOperation == 0 || m_iOperation == 4 || !m_sTextOrName.IsEmpty())
+				&& m_sEndMessage.Length() <= 512 && !m_sEndMessage.Contains("<") && !m_sEndMessage.Contains(">")
+				&& ValidTargetNames(m_aFlagNames) && (!m_aFlagNames || m_aFlagNames.Count() <= 16)
+				&& (m_iOperation == 1 || !m_aFlagNames || m_aFlagNames.IsEmpty());
 		if (m_eDo == GC_ERuleAction.RESPAWN_TICKETS)
 			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 2 && m_iAmount >= 0 && m_iAmount <= 1000000;
 		if (m_eDo == GC_ERuleAction.MISSION_MESSAGE)

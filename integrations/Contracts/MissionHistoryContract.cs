@@ -20,8 +20,10 @@ public static class MissionHistoryContract
         var status = Text(root, "status", 32);
         if (status is not ("pregame" or "running" or "completed" or "interrupted")) Fail();
         var outcome = Text(root, "outcome", 32);
-        if (outcome is not ("unknown" or "victory" or "draw")) Fail();
+        if (outcome is not ("unknown" or "victory" or "draw" or "failed" or "defeat" or "complete")) Fail();
         root.GetProperty("endReason").GetInt32();
+        if (root.TryGetProperty("endTitle", out _)) Text(root, "endTitle", 256);
+        if (root.TryGetProperty("endMessage", out _)) Text(root, "endMessage", 512);
         var closed = root.GetProperty("closed").GetBoolean();
         root.GetProperty("complete").GetBoolean();
         if ((closed || status is "completed" or "interrupted") && ended == 0) Fail();

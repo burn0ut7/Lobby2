@@ -7,6 +7,8 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 {
 	protected ref GC_MissionStatsBatch m_Batch;
 	protected ref GC_StatsDebrief m_AllReport;
+	protected ref SCR_GameModeEndData m_EndData;
+	protected string m_sEndMessage;
 	protected ref GC_MissionStatsAI m_AIStats = new GC_MissionStatsAI();
 	protected ref map<string, ref GC_StatsPlayer> m_mPlayers = new map<string, ref GC_StatsPlayer>();
 	protected ref map<string, ref GC_StatsCharacterTracker> m_mTrackers = new map<string, ref GC_StatsCharacterTracker>();
@@ -791,6 +793,10 @@ class GC_MissionStatsComponent : SCR_BaseGameModeComponent
 		super.OnGameModeEnd(data);
 		if (!IsCollecting())
 			return;
+		m_EndData = data;
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (manager)
+			m_sEndMessage = manager.GetEndMessage();
 		Sample();
 		Stop();
 		m_bAwaitingFinal = true;

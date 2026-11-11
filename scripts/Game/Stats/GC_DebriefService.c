@@ -64,6 +64,28 @@ modded class GC_MissionStatsComponent
 		if (!GetGame().GetPlayerManager().GetPlayerController(requester) || cursor < 0)
 			return;
 		status = string.Empty;
+		if (kind == "ending")
+		{
+			rows.Insert(GC_MissionResult.Title(m_EndData));
+			rows.Insert(m_sEndMessage);
+			string factions;
+			if (m_EndData)
+			{
+				array<int> ids = {};
+				m_EndData.GetFactionWinnerIds(ids);
+				foreach (int id : ids)
+				{
+					Faction faction = GetGame().GetFactionManager().GetFactionByIndex(id);
+					if (faction)
+						factions += GC_DebriefText.Short(WidgetManager.Translate(faction.GetFactionName())) + "\n";
+				}
+			}
+			rows.Insert(factions);
+			rows.Insert("Result factions");
+			if (m_EndData && GC_MissionResult.Reason(m_EndData.GetEndReason()) == "Victory")
+				rows[3] = "Winning factions";
+			return;
+		}
 		if (kind == "players")
 		{
 			if (cursor > m_Batch.m_aPlayers.Count())
