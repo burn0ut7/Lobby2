@@ -251,71 +251,91 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			previousPicker = m_From;
 		else if (previousTool == 3 || previousTool == 11)
 			previousPicker = m_MessagePlayers;
-		if (name == "ToolHeal")
-			m_iTool = 0;
-		else if (name == "ToolGear")
-			m_iTool = 13;
-		else if (name == "ToolForcedClothing")
-			m_iTool = 14;
-		else if (name == "ToolFreeze")
-			m_iTool = 8;
-		else if (name == "ToolUnstuck")
-			m_iTool = 10;
-		else if (name == "ToolWarn")
-			m_iTool = 11;
-		else if (name == "ToolServerStatus")
-			m_iTool = 12;
-		else if (name == "ToolLogs")
-			m_iTool = 9;
-		else if (name == "ToolTeleport")
-			m_iTool = 1;
-		else if (name == "ToolMessage" || name == "MessageNormal")
-			m_iTool = 3;
-		else if (name == "ToolReservations")
-			m_iTool = 4;
-		else if (name == "ToolBoundaries")
-			m_iTool = 7;
-		else if (name == "ToolEndMatch")
-			m_iTool = 15;
-		else if (name == "ToolMissions" || name == "MissionBrowse")
-			m_iTool = 16;
-		else if (name == "ToolMapPlans")
-			m_iTool = 6;
-		else if (name == "ToolModeration")
+		switch (name)
 		{
-			m_iTool = 5;
-			m_Moderation.Open();
-		}
-		else if (name == "MessageSelected")
-			m_eMessageAudience = GC_EAdminMessageAudience.SELECTED_PLAYERS;
-		else if (name == "MessageEveryone")
-			m_eMessageAudience = GC_EAdminMessageAudience.ALL_PLAYERS;
-		else if (name == "MessageFaction")
-		{
-			m_eMessageAudience = GC_EAdminMessageAudience.FACTION;
-			RebuildFactions();
-		}
-		else if (name == "ScopeSelected")
-			m_eScope = GC_EAdminHealScope.SELECTED;
-		else if (name == "ScopeEveryone")
-			m_eScope = GC_EAdminHealScope.EVERYONE;
-		else if (name == "ScopeNearby")
-			m_eScope = GC_EAdminHealScope.NEARBY;
-		else if (name == "ScopeFaction")
-		{
-			m_eScope = GC_EAdminHealScope.FACTION;
-			RebuildFactions();
-		}
-		else if (name == "TeleportPlayer")
-		{
-			m_iTool = 1;
-			m_bTeleportFaction = false;
-		}
-		else if (name == "TeleportFaction")
-		{
-			m_iTool = 1;
-			m_bTeleportFaction = true;
-			RebuildFactions();
+			case "ToolHeal":
+				m_iTool = 0;
+				break;
+			case "ToolGear":
+				m_iTool = 13;
+				break;
+			case "ToolForcedClothing":
+				m_iTool = 14;
+				break;
+			case "ToolFreeze":
+				m_iTool = 8;
+				break;
+			case "ToolUnstuck":
+				m_iTool = 10;
+				break;
+			case "ToolWarn":
+				m_iTool = 11;
+				break;
+			case "ToolServerStatus":
+				m_iTool = 12;
+				break;
+			case "ToolLogs":
+				m_iTool = 9;
+				break;
+			case "ToolTeleport":
+				m_iTool = 1;
+				break;
+			case "ToolMessage":
+			case "MessageNormal":
+				m_iTool = 3;
+				break;
+			case "ToolReservations":
+				m_iTool = 4;
+				break;
+			case "ToolBoundaries":
+				m_iTool = 7;
+				break;
+			case "ToolEndMatch":
+				m_iTool = 15;
+				break;
+			case "ToolMissions":
+			case "MissionBrowse":
+				m_iTool = 16;
+				break;
+			case "ToolMapPlans":
+				m_iTool = 6;
+				break;
+			case "ToolModeration":
+				m_iTool = 5;
+				m_Moderation.Open();
+				break;
+			case "MessageSelected":
+				m_eMessageAudience = GC_EAdminMessageAudience.SELECTED_PLAYERS;
+				break;
+			case "MessageEveryone":
+				m_eMessageAudience = GC_EAdminMessageAudience.ALL_PLAYERS;
+				break;
+			case "MessageFaction":
+				m_eMessageAudience = GC_EAdminMessageAudience.FACTION;
+				RebuildFactions();
+				break;
+			case "ScopeSelected":
+				m_eScope = GC_EAdminHealScope.SELECTED;
+				break;
+			case "ScopeEveryone":
+				m_eScope = GC_EAdminHealScope.EVERYONE;
+				break;
+			case "ScopeNearby":
+				m_eScope = GC_EAdminHealScope.NEARBY;
+				break;
+			case "ScopeFaction":
+				m_eScope = GC_EAdminHealScope.FACTION;
+				RebuildFactions();
+				break;
+			case "TeleportPlayer":
+				m_iTool = 1;
+				m_bTeleportFaction = false;
+				break;
+			case "TeleportFaction":
+				m_iTool = 1;
+				m_bTeleportFaction = true;
+				RebuildFactions();
+				break;
 		}
 		if (previousTool != m_iTool)
 		{
