@@ -25,7 +25,7 @@ class GC_RadiusAreaEntity : GenericEntity
 	override void _WB_AfterWorldUpdate(float timeSlice)
 	{
 		super._WB_AfterWorldUpdate(timeSlice);
-		if (m_fRadius > 0 && SCR_Global.IsEditMode())
+		if (m_fRadius > 0 && GC_MapShapePreview.IsSelected(this))
 			Shape.CreateSphere(0x663399FF, ShapeFlags.TRANSP | ShapeFlags.WIREFRAME | ShapeFlags.NOZWRITE | ShapeFlags.ONCE, GetOrigin(), m_fRadius);
 	}
 #endif

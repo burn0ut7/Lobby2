@@ -118,7 +118,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Runtime geometry is world-space. The caller owns safe, non-self-intersecting authoring.
+	//! Runtime geometry is world-space; reject crossed, overlapping or degenerate outlines.
 	bool SetPolygon(array<vector> worldPoints, bool inverted, string returnEntity)
 	{
 		if (!Replication.IsServer() || !m_System || !ValidatePolygon(worldPoints) || !ValidateSettings())
@@ -139,16 +139,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	//------------------------------------------------------------------------------------------------
 	protected bool ValidatePolygon(array<vector> points)
 	{
-		if (!points || points.Count() < 3)
-			return false;
-		float twiceArea;
-		for (int i; i < points.Count(); i++)
-		{
-			vector first = points[i];
-			vector second = points[(i + 1) % points.Count()];
-			twiceArea += first[0] * second[2] - second[0] * first[2];
-		}
-		return Math.AbsFloat(twiceArea) > 0.01;
+		return GC_MapPolygon.IsValid(points);
 	}
 
 	//------------------------------------------------------------------------------------------------

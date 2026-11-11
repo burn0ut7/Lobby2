@@ -1,5 +1,5 @@
 #ifdef WORKBENCH
-[WorkbenchPluginAttribute(name: "Spawn Mission Template", description: "Place the GC co-op template and the loaded terrain's AI world in the active mission layer. One undo action; does not save.", wbModules: { "WorldEditor" }, category: "GC", awesomeFontCode: 0xF1B3)]
+[WorkbenchPluginAttribute(name: "Spawn Mission Template", description: "Place the GC co-op template and the loaded terrain's AI world in the active mission layer. One undo action; does not save.", wbModules: { "WorldEditor" }, category: "GC", awesomeFontCode: 0xF14E)]
 class GC_MissionTemplatePlugin : WorkbenchPlugin
 {
 	protected static const ResourceName TEMPLATE = "{A79C4E0A43DEB821}Prefabs/Templates/GC_MissionTemplate_Coop.et";

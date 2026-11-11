@@ -26,9 +26,7 @@ class GC_MissionAreaGeometry
 {
 	ref GC_AreaEntityReference m_Reference;
 	protected IEntity m_CachedEntity;
-	protected ref array<vector> m_aLocalPoints = {};
 	protected ref array<vector> m_aWorldPoints = {};
-	protected vector m_aTransform[4];
 	protected vector m_vMinimum;
 	protected vector m_vMaximum;
 	protected float m_fRadiusSquared;
@@ -64,61 +62,46 @@ class GC_MissionAreaGeometry
 		}
 		else
 		{
+			array<vector> points = {};
+			GC_AOLimitEntity limit = GC_AOLimitEntity.Cast(entity);
 			PolylineShapeEntity polygon = PolylineShapeEntity.Cast(entity);
-			if (!polygon || !polygon.IsClosed())
-				m_bValid = false;
-			else
+			if (limit)
+				limit.GetMapPolygon(points);
+			else if (polygon && polygon.IsClosed())
 			{
-				vector transform[4];
-				entity.GetWorldTransform(transform);
-				bool rebuild = m_CachedEntity != entity;
-				if (rebuild)
-				{
-					m_aLocalPoints.Clear();
-					polygon.GetPointsPositions(m_aLocalPoints);
-				}
-				for (int axis; axis < 4; axis++)
-				{
-					if (m_aTransform[axis] != transform[axis])
-						rebuild = true;
-					m_aTransform[axis] = transform[axis];
-				}
-				if (rebuild)
-					BuildPolygon(entity);
+				polygon.GetPointsPositions(points);
+				for (int index = 0; index < points.Count(); index++)
+					points[index] = entity.CoordToParent(points[index]);
+			}
+			if (m_CachedEntity != entity || !GC_MapPolygon.SamePoints(points, m_aWorldPoints))
+			{
+				m_aWorldPoints.Copy(points);
+				BuildPolygon();
 			}
 		}
 		m_CachedEntity = entity;
 		if (!m_bValid && !m_bReportedInvalid)
 		{
-			Print("GC | Mission Framework | Invalid area '" + m_Reference.m_sName + "'. Use Radius Area or a closed polygon with nonzero horizontal area with 3-128 points.", LogLevel.WARNING);
+			Print("GC | Mission Framework | Invalid area '" + m_Reference.m_sName + "'. Use Radius Area or a closed, non-intersecting polygon with nonzero horizontal area and 3-128 points.", LogLevel.WARNING);
 			m_bReportedInvalid = true;
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void BuildPolygon(IEntity entity)
+	protected void BuildPolygon()
 	{
-		m_bValid = false;
-		m_aWorldPoints.Clear();
-		if (m_aLocalPoints.Count() < 3 || m_aLocalPoints.Count() > 128)
+		m_bValid = GC_MapPolygon.IsValid(m_aWorldPoints);
+		if (!m_bValid)
 			return;
-		foreach (vector localPoint : m_aLocalPoints)
-			m_aWorldPoints.Insert(entity.CoordToParent(localPoint));
 		m_vMinimum = m_aWorldPoints[0];
 		m_vMaximum = m_vMinimum;
-		float twiceArea;
-		for (int i; i < m_aWorldPoints.Count(); i++)
+		foreach (vector point : m_aWorldPoints)
 		{
-			vector point = m_aWorldPoints[i];
-			vector a = point - m_aWorldPoints[0];
-			vector b = m_aWorldPoints[(i + 1) % m_aWorldPoints.Count()] - m_aWorldPoints[0];
-			twiceArea += a[0] * b[2] - b[0] * a[2];
 			m_vMinimum[0] = Math.Min(m_vMinimum[0], point[0]);
 			m_vMinimum[2] = Math.Min(m_vMinimum[2], point[2]);
 			m_vMaximum[0] = Math.Max(m_vMaximum[0], point[0]);
 			m_vMaximum[2] = Math.Max(m_vMaximum[2], point[2]);
 		}
-		m_bValid = Math.AbsFloat(twiceArea) > 0.01;
 	}
 
 	//------------------------------------------------------------------------------------------------

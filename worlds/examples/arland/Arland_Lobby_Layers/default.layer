@@ -43,7 +43,7 @@ GenericEntity marker2 {
    m_sDescription "testttt"
   }
  }
- coords 1234.14 38.324 2783.142
+ coords 1236.589 38.272 2786.247
  angles 0 103.487 0
 }
 SCR_AIGroup Group_USSR_ManeuverGroup_1 : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
@@ -102,7 +102,7 @@ GC_AOLimitEntity AOLimit_1 : "{8F470B543A20D944}Prefabs/Logic/Mission/AOLimit.et
    m_FillColor 0 0 0 0.606
   }
  }
- coords 1204.989 39 2720.105
+ coords 1274.445 33.274 2790.678
  Points {
   ShapePoint "{6AB24B946E978D9E}" {
    Position -50.822 0 18.791

@@ -101,16 +101,7 @@ class GC_MapShapeComponent : ScriptComponent
 	//------------------------------------------------------------------------------------------------
 	protected bool ValidPolygon(array<vector> points)
 	{
-		if (!points || points.Count() < 3 || points.Count() > 128)
-			return false;
-		float area;
-		for (int i; i < points.Count(); i++)
-		{
-			vector a = points[i] - points[0];
-			vector b = points[(i + 1) % points.Count()] - points[0];
-			area += a[0] * b[2] - b[0] * a[2];
-		}
-		return Math.AbsFloat(area) > 0.01;
+		return GC_MapPolygon.IsValid(points);
 	}
 
 	//------------------------------------------------------------------------------------------------
