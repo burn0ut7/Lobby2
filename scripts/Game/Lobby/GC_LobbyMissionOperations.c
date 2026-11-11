@@ -6,7 +6,7 @@ modded class GC_LobbyManager
 	protected ref map<string, ref GC_RespawnLocation> m_mGC_RespawnLocations = new map<string, ref GC_RespawnLocation>();
 
 	//------------------------------------------------------------------------------------------------
-	//! Current server mission policy; null means original slot positions.
+	//! Current server mission policy; null preserves each caller's normal original/current fallback.
 	GC_RespawnLocation GC_GetRespawnLocation(FactionKey factionKey)
 	{
 		if (!Replication.IsServer() || GetManager() != this || m_bShutdown)
@@ -119,32 +119,20 @@ modded class GC_LobbyManager
 			int tickets = m_mGC_FactionRespawnTickets.Get(factionKey);
 			if (useTickets && tickets <= 0)
 				continue;
-			SCR_AIGroup group = ResolveSlotGroup(slot);
 			GC_RespawnLocation destination = location;
 			if (!destination)
 				destination = m_mGC_RespawnLocations.Get(factionKey);
-			EntitySpawnParams parameters;
+			int locationIndex;
 			if (destination)
 			{
-				int locationIndex = locationIndices.Get(destination);
+				locationIndex = locationIndices.Get(destination);
 				locationIndices.Set(destination, locationIndex + 1);
-				if (!destination.Resolve(GetGame().GetWorld(), slot, locationIndex, parameters))
-				{
-					PrintFormat("GC | Respawn wave | slot=%1 rejected: destination unavailable", slot.GetID(), level: LogLevel.WARNING);
-					continue;
-				}
-			}
-			// Do not substitute the group's current location when the original anchor is unavailable.
-			if (!parameters && !slot.GetAdminSpawnPoint() && !FindGroupSpawnTransform(group))
-			{
-				PrintFormat("GC | Respawn tickets | slot=%1 rejected: original spawn unavailable", slot.GetID(), level: LogLevel.WARNING);
-				continue;
 			}
 
 			attemptedPlayers.Insert(slot.GetPlayerId());
 			if (useTickets)
 				m_mGC_FactionRespawnTickets.Set(factionKey, tickets - 1);
-			string result = RespawnAdminSlot(slot, false, parameters);
+			string result = RespawnAdminSlot(slot, false, destination, locationIndex);
 			if (result == "applied")
 			{
 				respawned++;

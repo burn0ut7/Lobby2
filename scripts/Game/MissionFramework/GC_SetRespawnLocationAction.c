@@ -3,7 +3,7 @@ class GC_SetRespawnLocationAction : GC_ActionBase
 {
 	[Attribute("", UIWidgets.EditComboBox, "Factions whose future default respawn destination changes. At least one faction is required. Does not move living players or respawn anyone.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
-	[Attribute("", UIWidgets.Object, "Destination for automatic waves and respawn actions without their own location. Empty restores original slot positions. Named destinations follow their entities as they move. Later actions replace this setting.")]
+	[Attribute("", UIWidgets.Object, "Default destination for all replacement-character respawns, including individual heal-and-respawn and automatic/scripted waves. An explicit location choice overrides it. Empty restores each caller's normal original/current fallback. Named destinations follow their entities as they move. Later actions replace this setting.")]
 	ref GC_RespawnLocation m_Location;
 
 	//------------------------------------------------------------------------------------------------

@@ -1267,7 +1267,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			{
 				slot.SetState(GC_SlotState.RESERVED);
 				if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
-					SpawnSlotEntity(slot, false);
+					RespawnBriefingSlot(slot);
 			}
 		}
 
@@ -1323,11 +1323,22 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			{
 				slot.SetState(GC_SlotState.RESERVED);
 				if (GetLobbyPhase() == SCR_EGameModeState.BRIEFING)
-					SpawnSlotEntity(slot, false);
+					RespawnBriefingSlot(slot);
 			}
 		}
 
 		UpdateSlot(slot);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! A lost briefing body is a replacement, not an initial deployment. Failed locations remain KIA
+	//! so initial-spawn catch-up cannot silently bypass the configured destination.
+	protected void RespawnBriefingSlot(GC_Slot slot)
+	{
+		slot.MarkKIA();
+		string outcome = RespawnAdminSlot(slot, false);
+		if (outcome != "applied")
+			PrintFormat("GC | Briefing respawn | slot=%1 outcome=%2", slot.GetID(), outcome, level: LogLevel.WARNING);
 	}
 
     void RegisterGroup(SCR_AIGroup group, bool createAuthoredSlots = true)
@@ -3341,9 +3352,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				Rpc(RpcDo_RemoveAdminSlot, slot.GetID());
 				return "applied";
 			case GC_EAdminSlotAction.RESPAWN_ORIGINAL:
-				return RespawnAdminSlot(slot, false);
+				return RespawnAdminSlot(slot, false, new GC_RespawnLocation());
 			case GC_EAdminSlotAction.RESPAWN_CURRENT:
-				return RespawnAdminSlot(slot, true);
+				return RespawnAdminSlot(slot, true, new GC_CurrentRespawnLocation());
 			case GC_EAdminSlotAction.HEAL_OR_RESPAWN:
 				if (GetLobbyPhase() == SCR_EGameModeState.POSTGAME)
 					return "rejected-respawn-state";
@@ -3388,8 +3399,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	//! Stage a replacement before changing the claim or deleting the old body.
 	//! A failed spawn/possession keeps the original slot and character intact.
-	protected string RespawnAdminSlot(GC_Slot slot, bool atCurrentPosition, EntitySpawnParams destination = null)
+	//! All replacement-character paths resolve their destination here before changing the slot.
+	//! Explicit location policies override the faction default; current/original are fallback positions only.
+	protected string RespawnAdminSlot(GC_Slot slot, bool atCurrentPosition, GC_RespawnLocation location = null, int locationIndex = 0)
 	{
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown || !slot || locationIndex < 0)
+			return "rejected-respawn-state";
 		int playerId = slot.GetPlayerId();
 		SCR_AIGroup group = ResolveSlotGroup(slot);
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
@@ -3397,8 +3412,20 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			|| (playerId > 0 && (!controller || !GetGame().GetPlayerManager().IsPlayerConnected(playerId))))
 			return "rejected-respawn-state";
 		IEntity previous = slot.GetEntity();
+		GC_RespawnLocation destination = location;
+		if (!destination && group.GetFaction())
+			destination = GC_LobbyManager.Cast(this).GC_GetRespawnLocation(group.GetFaction().GetFactionKey());
+		EntitySpawnParams spawnOverride;
+		if (destination)
+		{
+			if (!destination.IsValid() || !destination.Resolve(GetGame().GetWorld(), slot, locationIndex, spawnOverride))
+				return "rejected-respawn-location";
+			atCurrentPosition = false;
+		}
 		if (atCurrentPosition && !previous)
 			return "rejected-no-current-character";
+		if (!spawnOverride && !atCurrentPosition && !slot.GetAdminSpawnPoint() && !FindGroupSpawnTransform(group))
+			return "rejected-original-spawn-unavailable";
 
 		GC_Slot replacement = new GC_Slot();
 		replacement.SetID(slot.GetID());
@@ -3412,7 +3439,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (prefab.IsEmpty())
 			return "failed-prefab-resolution";
 		replacement.SetResolvedPrefab(prefab);
-		EntitySpawnParams spawnOverride = destination;
 		if (atCurrentPosition)
 		{
 			spawnOverride = new EntitySpawnParams();

@@ -16,6 +16,22 @@ class GC_RespawnLocation
 	}
 }
 
+[BaseContainerProps(), BaseContainerCustomStringTitleField("Current character position")]
+class GC_CurrentRespawnLocation : GC_RespawnLocation
+{
+	//------------------------------------------------------------------------------------------------
+	override bool Resolve(BaseWorld world, GC_Slot slot, int index, out EntitySpawnParams parameters)
+	{
+		parameters = null;
+		if (!world || !slot || index < 0 || !slot.GetEntity())
+			return false;
+		parameters = new EntitySpawnParams();
+		parameters.TransformMode = ETransformMode.WORLD;
+		slot.GetEntity().GetWorldTransform(parameters.Transform);
+		return true;
+	}
+}
+
 [BaseContainerProps(visible: false, insertable: false)]
 class GC_PlacedRespawnLocation : GC_RespawnLocation
 {
