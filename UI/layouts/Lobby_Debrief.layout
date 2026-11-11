@@ -13,28 +13,13 @@ TextWidgetClass {
  Wrap 1
  "Ignore Cursor" 1
 }
-ScrollLayoutWidgetClass {
- Name "MissionResultScroll"
- Slot FrameWidgetSlot { Anchor .22 .10 .97 .93 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
- "Scrollbar Always Visible" 0
- {
-  SizeLayoutWidgetClass {
-   Name "MissionResultSize"
-   Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 }
-   AllowHeightOverride 1
-   HeightOverride 800
-   {
-    TextWidgetClass {
-     Name "MissionResultText"
-     Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 }
-     Text ""
-     "Font Size" 28
-     Wrap 1
-     "Ignore Cursor" 1
-    }
-   }
-  }
- }
+TextWidgetClass {
+ Name "MissionResultTitle"
+ Slot FrameWidgetSlot { Anchor .22 .075 .97 .13 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ "Font Size" 36
+ Wrap 0
+ "Ignore Cursor" 0
+ Tooltip GC_AdminCellTooltip { m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf" m_sPresetTag "Cell" }
 }
 ScrollLayoutWidgetClass {
  Name "StatsScroll"
