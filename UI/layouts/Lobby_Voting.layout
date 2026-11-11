@@ -1,8 +1,7 @@
 FrameWidgetClass {
  Name "VotingRoot"
  {
-  BlurWidgetClass { Name "VotingBlur" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color .305 .305 .305 1 Intensity .8 "Ignore Cursor" 1 }
-  PanelWidgetClass { Name "VotingSurface" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 .5 style full "Ignore Cursor" 1 }
+ FrameWidgetClass : "{E37A21004D950004}UI/layouts/Lobby_PostmatchBackground.layout" { Name "PostmatchBackground" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   FrameWidgetClass : "{A27941092D1EA761}UI/layouts/Lobby_MenuBar.layout" { Name "MenuBar" Slot FrameWidgetSlot { Anchor 0 0 1 .065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   TextWidgetClass { Name "VotingTitle" Slot FrameWidgetSlot { Anchor .04 .09 .6 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "#GC-Vote_Title" "Font Size" 48 "Ignore Cursor" 1 }
   TextWidgetClass { Name "VotingClock" Slot FrameWidgetSlot { Anchor .6 .10 .96 .16 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } "Font Size" 28 "Horizontal Alignment" Right "Ignore Cursor" 1 }
