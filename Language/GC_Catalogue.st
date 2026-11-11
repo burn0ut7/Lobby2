@@ -213,5 +213,28 @@ StringTable {
   CustomStringTableItem "{6B02000100000009}" { Id "GC-Jip_Pending" Target_en_us "Your JIP move is already pending." }
   CustomStringTableItem "{6B0200010000000A}" { Id "GC-Jip_VehicleFull" Target_en_us "Your group's vehicle has no available seat. Double-press J to try again in a little while." }
   CustomStringTableItem "{6B0200010000000B}" { Id "GC-Jip_Retry" Target_en_us "Unable to board your group's vehicle. Double-press J to try again." }
+  CustomStringTableItem "{E37A21004D951000}" { Id "GC-Vote_NotConfigured" Target_en_us "Mission voting is not configured" }
+  CustomStringTableItem "{E37A21004D951001}" { Id "GC-Vote_InvalidConfig" Target_en_us "Mission voting configuration is invalid" }
+  CustomStringTableItem "{E37A21004D951002}" { Id "GC-Vote_Loading" Target_en_us "Loading mission choices…" }
+  CustomStringTableItem "{E37A21004D951003}" { Id "GC-Vote_Unavailable" Target_en_us "Mission catalog unavailable" }
+  CustomStringTableItem "{E37A21004D951004}" { Id "GC-Vote_InvalidResponse" Target_en_us "Mission catalog response is invalid" }
+  CustomStringTableItem "{E37A21004D951005}" { Id "GC-Vote_Limit" Target_en_us "Mission catalog exceeds voting limit" }
+  CustomStringTableItem "{E37A21004D951006}" { Id "GC-Vote_Choose" Target_en_us "Choose the next mission" }
+  CustomStringTableItem "{E37A21004D951007}" { Id "GC-Vote_Empty" Target_en_us "No installed missions are available for voting" }
+  CustomStringTableItem "{E37A21004D951008}" { Id "GC-Vote_EndedEmpty" Target_en_us "Voting ended — no mission available" }
+  CustomStringTableItem "{E37A21004D951009}" { Id "GC-Vote_LoadingWinner" Target_en_us "Winner selected — loading next mission…" }
+  CustomStringTableItem "{E37A21004D95100A}" { Id "GC-Vote_LoadFailed" Target_en_us "The server could not load the winning mission" }
+  CustomStringTableItem "{E37A21004D95100B}" { Id "GC-Vote_Continue" Target_en_us "Continue to debrief  >" }
+  CustomStringTableItem "{E37A21004D95100C}" { Id "GC-Vote_Closed" Target_en_us "Voting closed" }
+  CustomStringTableItem "{E37A21004D95100D}" { Id "GC-Vote_Rules" Target_en_us "Most votes wins. Ties are decided randomly. You can change your vote." }
+  CustomStringTableItem "{E37A21004D95100E}" { Id "GC-Vote_Selected" Target_en_us "Your vote" }
+  CustomStringTableItem "{E37A21004D95100F}" { Id "GC-Vote_Winner" Target_en_us "Winner" }
+  CustomStringTableItem "{E37A21004D951010}" { Id "GC-Vote_Title" Target_en_us "Next mission" }
+  CustomStringTableItem "{E37A21004D951011}" { Id "GC-Vote_NoPreview" Target_en_us "Preview unavailable" }
+  CustomStringTableItem "{E37A21004D951012}" { Id "GC-Vote_Clock" Target_en_us "Voting closes in %1:%2" }
+  CustomStringTableItem "{E37A21004D951013}" { Id "GC-Vote_Votes" Target_en_us "%1 votes" }
+  CustomStringTableItem "{E37A21004D951014}" { Id "GC-Vote_OneVote" Target_en_us "1 vote" }
+  CustomStringTableItem "{E37A21004D951015}" { Id "GC-Vote_History" Target_en_us "%1 plays" }
+  CustomStringTableItem "{E37A21004D951016}" { Id "GC-Vote_Never" Target_en_us "Never played" }
  }
 }

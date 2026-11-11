@@ -1,0 +1,9 @@
+OverlayWidgetClass {
+ Name "VoteTag"
+ Slot LayoutSlot { Padding 0 0 8 0 }
+ "Ignore Cursor" 1
+ {
+  PanelWidgetClass { Slot OverlayWidgetSlot { HorizontalAlign 3 VerticalAlign 3 } Color 1 1 1 .10 style full "Ignore Cursor" 1 }
+  TextWidgetClass { Name "Label" Slot OverlayWidgetSlot { Padding 10 2 10 2 } "Font Size" 18 Color .85 .85 .85 1 "Ignore Cursor" 1 }
+ }
+}

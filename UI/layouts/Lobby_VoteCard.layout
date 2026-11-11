@@ -1,0 +1,73 @@
+ButtonWidgetClass {
+ Name "VoteCard"
+ Color 1 1 1 0
+ components {
+  GC_AdminTableRowComponent {
+   m_fAnimationTime 0.05
+   m_bCanBeToggled 0
+   m_BackgroundDefault 0.025 0.025 0.025 0.55
+   m_BackgroundHovered 1 1 1 0.12
+   m_BackgroundSelected 0.9 0.68 0.27 0.22
+   m_BackgroundSelectedHovered 0.9 0.68 0.27 0.3
+   m_BackgroundClicked 0.9 0.68 0.27 0.4
+  }
+ }
+ {
+  FrameWidgetClass {
+   Slot ButtonWidgetSlot { HorizontalAlign 3 VerticalAlign 3 }
+   "Ignore Cursor" 1
+   {
+    PanelWidgetClass { Name "TableBackground" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.025 0.025 0.025 0.55 style full "Ignore Cursor" 1 }
+    PanelWidgetClass { Name "TableFocus" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 1 1 1 0.08 style full "Ignore Cursor" 1 }
+    FrameWidgetClass {
+     Name "ThumbnailFrame"
+     Slot FrameWidgetSlot { Anchor 0 0 1 .65 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Clipping True
+     "Ignore Cursor" 1
+     {
+      ScaleWidgetClass {
+       Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+       "Scale Mode" "Scale to fill"
+       "Ignore Cursor" 1
+       { ImageWidgetClass { Name "Thumbnail" Slot AlignableSlot { HorizontalAlign 1 VerticalAlign 1 } "Ignore Cursor" 1 } }
+      }
+      PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0 0 0 .32 style full "Ignore Cursor" 1 }
+     }
+    }
+    TextWidgetClass { Name "NoThumbnail" Slot FrameWidgetSlot { Anchor 0 .2 1 .5 OffsetLeft 12 OffsetTop 0 OffsetRight 12 OffsetBottom 0 } Text "#GC-Vote_NoPreview" "Font Size" 22 Color .7 .7 .7 1 "Horizontal Alignment" Center "Vertical Alignment" Center "Ignore Cursor" 1 }
+    TextWidgetClass {
+     Name "MissionName"
+     Slot FrameWidgetSlot { Anchor 0 .03 .77 .25 OffsetLeft 14 OffsetTop 0 OffsetRight 8 OffsetBottom 0 }
+     "Font Size" 30 Wrap 1 "Ignore Cursor" 0
+     Tooltip GC_AdminCellTooltip { m_sPresetsConfig "{D271A640B8000100}Configs/UI/AdminTableTooltips.conf" m_sPresetTag "Cell" }
+    }
+    TextWidgetClass { Name "Votes" Slot FrameWidgetSlot { Anchor .77 .04 1 .18 OffsetLeft 0 OffsetTop 0 OffsetRight 14 OffsetBottom 0 } "Font Size" 23 "Horizontal Alignment" Right "Ignore Cursor" 1 }
+    TextWidgetClass { Name "History" Slot FrameWidgetSlot { Anchor 0 .50 1 .64 OffsetLeft 14 OffsetTop 0 OffsetRight 14 OffsetBottom 0 } "Font Size" 19 "Horizontal Alignment" Right "Vertical Alignment" Center Wrap 1 "Ignore Cursor" 1 }
+    ScrollLayoutWidgetClass {
+     Name "DescriptionScroll"
+     Slot FrameWidgetSlot { Anchor 0 .69 1 .85 OffsetLeft 14 OffsetTop 0 OffsetRight 14 OffsetBottom 0 }
+     "Scrollbar Always Visible" 0
+     {
+      SizeLayoutWidgetClass {
+       Name "DescriptionSize"
+       Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 0 }
+       AllowHeightOverride 1
+       HeightOverride 64
+       {
+        TextWidgetClass { Name "Description" Slot AlignableSlot { HorizontalAlign 3 VerticalAlign 3 } "Font Size" 23 Wrap 1 "Ignore Cursor" 1 }
+       }
+      }
+     }
+    }
+    ScrollLayoutWidgetClass {
+     Name "TagsScroll"
+     Slot FrameWidgetSlot { Anchor 0 .88 1 .99 OffsetLeft 14 OffsetTop 0 OffsetRight 14 OffsetBottom 0 }
+     ScrollDirection Horizontal
+     "Scrollbar Always Visible" 0
+     { HorizontalLayoutWidgetClass { Name "Tags" Slot AlignableSlot { HorizontalAlign 0 VerticalAlign 0 } } }
+    }
+    PanelWidgetClass { Name "SelectionEdge" Slot FrameWidgetSlot { Anchor 0 0 0 1 OffsetLeft 0 OffsetTop 0 OffsetRight -4 OffsetBottom 0 } Color .9 .68 .27 1 style full "Is Visible" 0 "Ignore Cursor" 1 }
+   }
+  }
+ }
+}

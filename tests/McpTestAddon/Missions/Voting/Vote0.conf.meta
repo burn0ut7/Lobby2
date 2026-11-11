@@ -1,0 +1,11 @@
+MetaFileClass {
+ Name "{E37A21004D950010}Missions/Voting/Vote0.conf"
+ Configurations {
+  MissionHeaderResourceClass PC {}
+  MissionHeaderResourceClass XBOX_ONE : PC {}
+  MissionHeaderResourceClass XBOX_SERIES : PC {}
+  MissionHeaderResourceClass PS4 : PC {}
+  MissionHeaderResourceClass PS5 : PC {}
+  MissionHeaderResourceClass HEADLESS : PC {}
+ }
+}

@@ -281,6 +281,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		if (phase != SCR_EGameModeState.POSTGAME)
 		{
 			menuManager.CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_DebriefMenu);
+			menuManager.CloseMenuByPreset(ChimeraMenuPreset.GC_Lobby_VotingMenu);
 			GC_LobbyPlayerController statsController = GC_LobbyPlayerController.Cast(localController);
 			if (statsController)
 				statsController.GC_ClearDebriefCache();
@@ -293,7 +294,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		else if (phase == SCR_EGameModeState.SLOTTING)
 			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_SlottingMenu, 0, true);
 		else if (phase == SCR_EGameModeState.POSTGAME)
-			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_DebriefMenu, 0, true);
+			openedMenu = menuManager.OpenMenu(ChimeraMenuPreset.GC_Lobby_VotingMenu, 0, true);
 		else if (phase == SCR_EGameModeState.BRIEFING)
 		{
 			GC_LobbyManager lobbyManager = GC_LobbyManager.Cast(FindComponent(GC_LobbyManager));

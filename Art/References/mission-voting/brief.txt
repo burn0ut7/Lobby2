@@ -1,0 +1,16 @@
+Active concept: concept.png, generated with the built-in image tool, 2026-11-11.
+Illustrative scenery, mission names and counts; not game or backend evidence.
+Six thumbnail cards in a 3-by-2 grid. Charcoal translucent panels, neutral text,
+yellow selection edge. Existing DEBRIEF header only. Continue to debrief at bottom
+right; stats Back returns to voting. Voting opens automatically at POSTGAME and
+closes 120 seconds after phase entry, independent of the displayed menu.
+Production uses native Lobby2 header and fonts, absolute UTC last-played times,
+native thumbnail resources, and native button focus/hover. No artificial images
+or mission data enter production. Earlier navigation concept retained separately.
+
+User revision, 2026-11-11: title overlays thumbnail top-left; votes top-right;
+play count and last-played bottom-right on thumbnail. Description below image,
+compact neutral tag badges beneath description. Remove "Your vote" and idle
+rules sentence. Retain yellow selected edge/fill. Use native ScaleWidget fill
+with source image size for aspect-preserving crop, never stretch the image.
+This supersedes the earlier concept's card text arrangement.

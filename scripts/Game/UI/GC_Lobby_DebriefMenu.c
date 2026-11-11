@@ -747,7 +747,10 @@ class GC_Lobby_DebriefMenu : ChimeraMenuBase
 		else if (m_sFaction == "players" && m_sView != "players")
 			ShowPlayers();
 		else
-			GetGame().GetCallqueue().CallLater(Close, 0);
+		{
+			Close();
+			GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_Lobby_VotingMenu, 0, true);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------
