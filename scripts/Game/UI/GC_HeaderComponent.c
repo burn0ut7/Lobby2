@@ -195,8 +195,6 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
             return;
 
         RefreshButtonStates();
-		if (GC_UIEventDiagnostics.ENABLED)
-			TraceButtonStates("role-event");
     }
 
     protected void RegisterButton(string buttonName)
@@ -245,22 +243,6 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
 
             if (!interactive)
                 button.SetHeaderHovered(false);
-        }
-    }
-
-    protected void TraceButtonStates(string source)
-    {
-        SCR_EGameModeState phase = -1;
-        if (m_LobbyManager)
-            phase = m_LobbyManager.GetLobbyPhase();
-
-        foreach (GC_HeaderButtonComponent button : m_aButtons)
-        {
-            if (!button)
-                continue;
-
-            bool selected = button.GetHeaderState() == m_iActiveState;
-            PrintFormat("GC | Admin Trace | header button state: source=%1 playerAdmin=%2 phase=%3 activeView=%4 buttonView=%5 selected=%6 interactive=%7", source, IsLocalAdmin(), GC_LobbyManager.GetPhaseName(phase), m_iActiveState, button.GetHeaderState(), selected, IsButtonInteractive(button.GetHeaderState(), selected));
         }
     }
 
@@ -359,8 +341,6 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         int view = button.GetHeaderState();
         bool selected = view == m_iActiveState;
         bool interactive = IsButtonInteractive(view, selected);
-		if (GC_UIEventDiagnostics.ENABLED)
-			PrintFormat("GC | Admin Trace | header click dispatched: playerAdmin=%1 phase=%2 activeView=%3 buttonView=%4 selected=%5 interactive=%6", IsLocalAdmin(), GC_LobbyManager.GetPhaseName(m_LobbyManager.GetLobbyPhase()), m_iActiveState, view, selected, interactive);
         if (!interactive)
             return;
 

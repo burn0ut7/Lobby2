@@ -4,7 +4,7 @@ SCR_AIWorld SCR_AIWorld_Arland_1 : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arl
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  coords 1195.314 39 2720.544
 }
-GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
+GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/Templates/GC_MissionSettings_US_USSR.et" {
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_aMissionEvents {
@@ -16,8 +16,12 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_
     }
    }
   }
-  SCR_TimeAndWeatherHandlerComponent "{6B71E9A8B1A8C501}" {
-   m_bOverrideEnvironment 1
+  SCR_RespawnSystemComponent "{56B2B4793051E7C9}" {
+   m_SpawnLogic SCR_SpawnLogic "{6A1418033F1AD000}" {
+    m_eDisconnectPlayerControllerBehaviour NOTHING
+    m_eDisconnectCharacterBehaviour NOTHING
+   }
+   m_sLoadingLayout ""
   }
  }
  coords 1194.457 39 2723.129
@@ -33,14 +37,14 @@ GenericEntity marker2 {
   GC_BriefingMarkerComponent "{6A208289DCAA4649}" {
    m_sImageSetOrImage "{E23427CAC80DA8B7}UI/Textures/Icons/icons_mapMarkersUI.imageset"
    m_sHighlightImageSet "{67B3A6DC2D712B52}UI/Textures/Icons/icons_mapMarkersUI-glow.imageset"
-   m_sQuadName "circle-2"
-   m_fSize 50
-   m_Color 1 0 0 1
+   m_sQuadName "attack"
+   m_fSize 100
+   m_Color 0 0.125 0.502 1
    m_sDescription "testttt"
   }
  }
- coords 1223.459 39 2739.611
- angles 0 144.276 0
+ coords 1234.14 38.324 2783.142
+ angles 0 103.487 0
 }
 SCR_AIGroup Group_USSR_ManeuverGroup_1 : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
  coords 1198.979 39 2734.366
@@ -61,7 +65,7 @@ $grp GC_RadiusAreaEntity : "{2C4447C53A1E450B}Prefabs/Logic/Mission/RadiusArea.e
 SCR_ChimeraCharacter Character_Base_1 : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  coords 1197.622 38.853 2682.345
 }
-GC_SetupZoneEntity SetupZone_1 : "{6A4D831C2E5079B3}Prefabs/Logic/Setup/SetupZone.et" {
+GC_SetupZoneEntity SetupZone_1 : "{6A4D831C2E5079B3}Prefabs/Logic/Mission/SetupZone.et" {
  components {
   GC_BoundaryWallComponent "{6A4D831C2E5079C0}" {
    m_Color 0.402 0 0 0.35
@@ -86,7 +90,7 @@ GC_SetupZoneEntity SetupZone_1 : "{6A4D831C2E5079B3}Prefabs/Logic/Setup/SetupZon
 SCR_ChimeraCharacter Character_Spectator_1 : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
  coords 1194.502 38.827 2679.399
 }
-GC_AOLimitEntity AOLimit_1 : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
+GC_AOLimitEntity AOLimit_1 : "{8F470B543A20D944}Prefabs/Logic/Mission/AOLimit.et" {
  components {
   GC_BoundaryWallComponent "{6A4D831C2E5079C1}" {
    m_bEnabled 1
@@ -204,7 +208,7 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
   coords 1202.769 38.688 2775.924
  }
  Group_US_AmmoTeam_6 {
-  coords 1174.875 38.817 2766.863
+  coords 1176.437 38.817 2765.858
  }
  Group_US_AmmoTeam_7 {
   coords 1145.004 38 2778.242

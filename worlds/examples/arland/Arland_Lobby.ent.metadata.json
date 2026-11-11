@@ -324,7 +324,7 @@
             ]
         },
         {
-            "prefab": "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et",
+            "prefab": "{6A4D100000000010}Prefabs/Templates/GC_MissionSettings_US_USSR.et",
             "entityClass": "GC_LobbyGameMode",
             "faction": "",
             "asset": "",

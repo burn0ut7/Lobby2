@@ -1,9 +1,5 @@
 GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
  ID "A79C4E0A43DEB822"
- components {
-  GC_MissionMetadataScannerComponent "{A79C4E0A43DEB860}" {
-  }
- }
  coords 0 0 0
  {
   SCR_FactionManager GC_MissionFactions : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {

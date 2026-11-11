@@ -1,5 +1,5 @@
 MetaFileClass {
- Name "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et"
+ Name "{A36B8E17D92F40C5}Prefabs/AI/GC_LobbyFormationSource.et"
  Configurations {
   EntityTemplateResourceClass PC {
   }
@@ -15,4 +15,3 @@ MetaFileClass {
   }
  }
 }
-

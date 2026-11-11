@@ -43,9 +43,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected bool m_bPublishNetworkCamera;
 	protected float m_fNextNetworkCameraSampleTime;
 	protected int m_iNetworkCameraSequence;
-	protected bool m_bNetworkCameraDiagnosticsInitialized;
-	protected bool m_bNetworkCameraDiagnosticsADS;
-	protected int m_iNetworkCameraDiagnosticsSightState;
 	protected MenuBase m_SpectatorMenu;
 	protected ref GC_SpectatorMarkerOverlay m_SpectatorMarkerOverlay;
 	protected SCR_EditorManagerEntity m_EditorManager;
@@ -1835,7 +1832,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			enabled = false;
 
 		m_bPublishNetworkCamera = enabled;
-		m_bNetworkCameraDiagnosticsInitialized = false;
 		m_fNextNetworkCameraSampleTime = 0;
 	}
 
@@ -1927,13 +1923,6 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			snapshotPosition = relativeCamera[3];
 		}
 		m_iNetworkCameraSequence++;
-		bool diagnosticStateChanged = !m_bNetworkCameraDiagnosticsInitialized || m_bNetworkCameraDiagnosticsADS != isADS || m_iNetworkCameraDiagnosticsSightState != sightState;
-		if (diagnosticStateChanged || isADS && m_iNetworkCameraSequence % GC_SpectatorCameraDiagnostics.SAMPLE_INTERVAL == 0)
-			GC_SpectatorCameraDiagnostics.LogSnapshot("owner", m_iNetworkCameraSequence, controlledEntity, cameraTransform, cameraTransform[3] - controlledEntity.GetOrigin(), lensState[0], lensState[1], lensState[2], isADS, sightState);
-
-		m_bNetworkCameraDiagnosticsInitialized = true;
-		m_bNetworkCameraDiagnosticsADS = isADS;
-		m_iNetworkCameraDiagnosticsSightState = sightState;
 		sample.m_iSequence = m_iNetworkCameraSequence;
 		sample.m_vCameraOffset = snapshotPosition;
 		sample.m_vCameraForward = snapshotForward;

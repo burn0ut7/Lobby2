@@ -90,37 +90,5 @@ modded class SCR_VoNComponent : VoNComponent
 			PrintFormat("GC | Voice path | received talker=%1 radio=%2 frequency=%3 quality=%4 editor=%5 component=%6 state=%7 %8",
 				playerId, receiver != null, frequency, quality, isSenderEditor, this, localController.GetLobbyPlayerState(), localController.GC_GetSpectatorVoiceDiagnostics());
 		}
-		if (!lobbyManager || !GC_UIEventDiagnostics.ENABLED)
-			return;
-
-		GC_VoiceChannelAssignment assignment = lobbyManager.GetPlayerVoiceAssignment(playerId);
-		if (!assignment)
-			return;
-
-		string channelName;
-		switch (assignment.GetChannelType())
-		{
-			case GC_VoiceChannelType.GLOBAL:
-				channelName = "GLOBAL";
-				break;
-			case GC_VoiceChannelType.FACTION:
-				channelName = "FACTION";
-				break;
-			case GC_VoiceChannelType.GROUP:
-				channelName = "GROUP";
-				break;
-			case GC_VoiceChannelType.PERSONAL:
-				channelName = "PERSONAL";
-				break;
-		}
-		
-		PrintFormat(
-			"GC | Voice receive | talker=%1 channel=%2 faction=%3 group=%4 personalOwner=%5",
-			playerId,
-			channelName,
-			assignment.GetFactionKey(),
-			assignment.GetGroupRplId(),
-			assignment.GetPersonalOwnerIdentity()
-		);
 	}
 }

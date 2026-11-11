@@ -1,5 +1,5 @@
 MetaFileClass {
- Name "{7B115D5DFF7ED999}Prefabs/MP/Modes/GameMode_Lobby_NoFlagsExample.et"
+ Name "{6A4D100000000010}Prefabs/Templates/GC_MissionSettings_US_USSR.et"
  Configurations {
   EntityTemplateResourceClass PC {
   }
@@ -15,3 +15,4 @@ MetaFileClass {
   }
  }
 }
+

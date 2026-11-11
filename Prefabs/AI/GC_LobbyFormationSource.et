@@ -1,4 +1,4 @@
-SCR_AIWorld {
+SCR_AIWorld : "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et" {
  ID "50B2B8F35661FB44"
  Formations {
   AIFormationDefinition "{6A227A14C2413BA1}" {

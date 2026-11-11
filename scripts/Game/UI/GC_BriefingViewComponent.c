@@ -1,6 +1,5 @@
 class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
 {
-    protected static const string ACTION_DEBUG_PRINT = "debug_print";
     protected static const string ACTION_TAG_PREFIX = "<action id=\"";
     protected static const string ACTION_TAG_CLOSE = "</action>";
     protected static const string MARKER_TAG_PREFIX = "<marker name=\"";

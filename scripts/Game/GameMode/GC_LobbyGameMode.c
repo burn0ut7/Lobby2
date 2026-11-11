@@ -231,9 +231,6 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 
 		super.OnPlayerRoleChange(playerId, roleFlags);
 
-		if (GC_UIEventDiagnostics.ENABLED)
-			PrintFormat("GC | Admin Trace | game-mode role callback: server=%1 changedPlayer=%2 roleFlags=%3 queriedAdmin=%4", Replication.IsServer(), playerId, roleFlags, SCR_Global.IsAdmin(playerId));
-
 		if (!Replication.IsServer())
 			return;
 

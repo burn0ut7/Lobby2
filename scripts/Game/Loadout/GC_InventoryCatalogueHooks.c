@@ -33,6 +33,7 @@ modded class SCR_InventoryMenuUI
 	protected bool m_bGCDragged;
 	protected SCR_InputButtonComponent m_GCFilesButton;
 	protected BaseInventoryStorageComponent m_GCShownGearCrate;
+	protected SCR_InventoryOpenedStorageUI m_GCOwnedGearCrateUI;
 	protected bool m_bGCOpenedGearCrate;
 	protected float m_fGCCrateResolveTime;
 
@@ -75,9 +76,10 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	override protected void Action_SelectItem()
 	{
-		if (m_GCCataloguePanel && (m_GCGestureItem || m_GCCataloguePanel.EntryAt(WidgetManager.GetWidgetUnderCursor())))
+		bool catalogueActive = m_GCCataloguePanel && GC_GearSession.IsActive(m_Player);
+		if (catalogueActive && (m_GCGestureItem || m_GCCataloguePanel.EntryAt(WidgetManager.GetWidgetUnderCursor())))
 			return;
-		if (m_GCCataloguePanel && GC_GearSession.IsActive(m_Player) && GetCanInteract())
+		if (catalogueActive && GetCanInteract())
 			GC_FilterCatalogueSlot(m_pFocusedSlotUI);
 		super.Action_SelectItem();
 	}
@@ -129,8 +131,9 @@ modded class SCR_InventoryMenuUI
 	{
 		if (!m_bGCOpenedGearCrate)
 			return;
-		for (int i = m_aOpenedStoragesUI.Count() - 1; i >= 0; i--)
-			RemoveOpenStorage(m_aOpenedStoragesUI[i]);
+		if (m_GCOwnedGearCrateUI && m_aOpenedStoragesUI.Contains(m_GCOwnedGearCrateUI))
+			RemoveOpenStorage(m_GCOwnedGearCrateUI);
+		m_GCOwnedGearCrateUI = null;
 		m_GCShownGearCrate = null;
 		m_bGCOpenedGearCrate = false;
 	}
@@ -171,7 +174,8 @@ modded class SCR_InventoryMenuUI
 		// Use the native container owner, refresh events and scrolling grid in the right host.
 		OpenStorageAsContainer(storage, false, true);
 		m_GCShownGearCrate = storage;
-		m_bGCOpenedGearCrate = true;
+		m_GCOwnedGearCrateUI = GetOpenedStorage(storage);
+		m_bGCOpenedGearCrate = m_GCOwnedGearCrateUI != null;
 		m_GCCataloguePanel.HideCrateCapacityIndicator();
 	}
 
@@ -227,6 +231,8 @@ modded class SCR_InventoryMenuUI
 	protected void GC_OnFilesClicked(SCR_ButtonBaseComponent button)
 	{
 #ifdef WORKBENCH
+		if (!GC_PrefabAuthoringSession.IsAvailable(m_Player))
+			return;
 		// Clicking the footer is explicit navigation even while the search field owns typing.
 		if (GetGame().GetMenuManager().FindMenuByPreset(ChimeraMenuPreset.GC_LoadoutFilesMenu))
 			return;
@@ -311,6 +317,8 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	void GC_PrepareCatalogueRefresh()
 	{
+		if (!GC_GearSession.IsActive(m_Player))
+			return;
 		GC_CancelCatalogueDrag();
 		// Native completion rebuilds equipment widgets. Do not preserve a pointer into the removed tree.
 		Action_DeselectItem();
@@ -420,7 +428,7 @@ modded class SCR_InventoryMenuUI
 	//! Native drag input, threshold and cursor preview; catalogue items have no live source slot.
 	override void Action_DragDown()
 	{
-		if (m_GCCataloguePanel && SCR_ConfigurableDialogUi.GetCurrentDialog())
+		if (m_GCCataloguePanel && GC_GearSession.IsActive(m_Player) && SCR_ConfigurableDialogUi.GetCurrentDialog())
 			return;
 		m_bGCDragged = false;
 		m_GCExistingGestureSlot = null;
@@ -457,14 +465,16 @@ modded class SCR_InventoryMenuUI
 		if (!m_GCGestureItem)
 		{
 			// Retain the pressed source while native code owns preview, highlights and drag state.
-			SCR_InventorySlotUI focused = m_pFocusedSlotUI;
 			if (m_GCExistingGestureSlot && !m_bDraggingEnabled && GC_GearSession.IsActive(m_Player))
 			{
+				SCR_InventorySlotUI focused = m_pFocusedSlotUI;
 				m_pFocusedSlotUI = m_GCExistingGestureSlot;
 				m_pSelectedSlotUI = m_GCExistingGestureSlot;
+				super.Action_OnDrag();
+				m_pFocusedSlotUI = focused;
+				return;
 			}
 			super.Action_OnDrag();
-			m_pFocusedSlotUI = focused;
 			return;
 		}
 		if (!GC_GearSession.IsActive(m_Player))
@@ -591,7 +601,8 @@ modded class SCR_InventoryMenuUI
 	//------------------------------------------------------------------------------------------------
 	override void OnMenuClose()
 	{
-		GC_GearSession.Close();
+		if (GC_GearSession.IsAdmin(m_Player))
+			GC_GearSession.Close();
 #ifdef WORKBENCH
 		GC_WorkbenchItemBrowser.OnInventoryClosed(m_Player);
 #endif

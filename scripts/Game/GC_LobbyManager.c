@@ -25,10 +25,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected string m_sEndMessage;
 
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
-	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
+	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{A36B8E17D92F40C5}Prefabs/AI/GC_LobbyFormationSource.et";
 	protected const string DEFAULT_FORMATION_NAME = "File";
-	protected const bool FORMATION_DEBUG_LOGGING = false;
-	protected const int FORMATION_DEBUG_LOG_LIMIT = 64;
 	protected const int JIP_REFERENCE_RETRY_MS = 1000;
 	protected const int PLAYER_CATCHUP_RETRY_MS = 250;
 	protected const int PLAYER_CATCHUP_MAX_RETRIES = 8;
@@ -53,7 +51,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("1", UIWidgets.CheckBox, "Start lobby slots locked. Admins can unlock all slots with the padlock in Lobby.")]
 	protected bool m_bSlotsStartLocked;
 
-	[Attribute("{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et", UIWidgets.ResourcePickerThumbnail, "AI world resource used only as a formation-data source", params: "et")]
+	[Attribute("{A36B8E17D92F40C5}Prefabs/AI/GC_LobbyFormationSource.et", UIWidgets.ResourcePickerThumbnail, "AI world resource used only as a formation-data source", params: "et")]
 	protected ResourceName m_sFormationSource;
 
 	[Attribute("File", UIWidgets.EditBox, "Formation name used when a group formation is unavailable")]
@@ -113,7 +111,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected bool m_bShutdown;
 	protected bool m_bFormationDefaultLogged;
 	protected bool m_bFormationFallbackLogged;
-	protected int m_iFormationDebugLogCount;
 	protected ref map<int, IEntity> m_mLobbySpectators = new map<int, IEntity>();
 	protected ref map<UUID, IEntity> m_mReservedSpectators = new map<UUID, IEntity>();
 	protected ref array<GC_Slot> m_aPendingBriefingSpawns = {};
@@ -1018,22 +1015,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		EntitySpawnParams params = new EntitySpawnParams();
 		params.TransformMode = ETransformMode.WORLD;
 		vector groupOriginDirect;
-		vector groupAngles;
 		if (groupSpawnTransform)
 		{
 			groupSpawnTransform.ApplyRotation(params);
 			groupOriginDirect = groupSpawnTransform.GetOrigin();
-			groupAngles = groupSpawnTransform.GetAngles();
 		}
 		else
 		{
 			group.GetWorldTransform(params.Transform);
 			groupOriginDirect = group.GetOrigin();
-			groupAngles = group.GetAngles();
 			PrintFormat("GC | Formation | authored group transform unavailable; using current transform: slot=%1 group=%2", slot.GetID(), Replication.FindItemId(group), level: LogLevel.WARNING);
 		}
 		EnsureFormationCatalog();
-		string formationName = ResolveGroupFormationName(group);
 		vector offset = ResolveGroupMemberOffset(group, slot.GetGroupSlotIndex());
 		// Formation offsets are local to the group. CoordToParent applies the
 		// group's authored rotation before the world-space spawn position is set.
@@ -1052,14 +1045,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			terrainPosition[1] = GetGame().GetWorld().GetSurfaceY(terrainPosition[0], terrainPosition[2]);
 		params.Transform[3] = terrainPosition;
 
-		bool debugThisSpawn = FORMATION_DEBUG_LOGGING && m_iFormationDebugLogCount < FORMATION_DEBUG_LOG_LIMIT;
-		if (debugThisSpawn)
-		{
-			m_iFormationDebugLogCount++;
-			PrintFormat("GC | Formation | debug anchor slot=%1 authoredOrigin=%2 currentGroupOrigin=%3 groupAngles=%4", slot.GetID(), groupOriginDirect, group.GetOrigin(), groupAngles);
-			PrintFormat("GC | Formation | debug spawn slot=%1 index=%2 formation=%3 originMode=%4 snapToTerrain=%5 localOffset=%6 transformed=%7 final=%8", slot.GetID(), slot.GetGroupSlotIndex(), formationName, isExactGroupOrigin, snapToTerrain, offset, formationWorldPosition, terrainPosition);
-		}
-
 		GC_SlotSpawnPoint adminSpawnPoint = slot.GetAdminSpawnPoint();
 		if (adminSpawnPoint)
 			params = adminSpawnPoint.CreateParams();
@@ -1071,9 +1056,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			PrintFormat("GC | Lifecycle | slot spawn returned null: slot=%1 force=%2", slot.GetID(), force, level: LogLevel.ERROR);
 			return false;
 		}
-
-		if (debugThisSpawn)
-			PrintFormat("GC | Formation | debug spawned slot=%1 entityOrigin=%2 entityAngles=%3", slot.GetID(), entity.GetOrigin(), entity.GetAngles());
 
 		Faction faction = group.GetFaction();
 		if (faction)
@@ -1146,8 +1128,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			group = m_Roster.GetGroupByRplId(groupRplId);
 			if (group)
 			{
-				if (FORMATION_DEBUG_LOGGING && slot.GetGroup() != group)
-					PrintFormat("GC | Formation | repaired slot group slot=%1 rpl=%2 origin=%3 angles=%4", slot.GetID(), groupRplId, group.GetOrigin(), group.GetAngles());
 				return group;
 			}
 		}
@@ -1356,8 +1336,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         if (!group)
             return;
 
-		if (FORMATION_DEBUG_LOGGING)
-			PrintFormat("GC | Formation | registered group rpl=%1 origin=%2 angles=%3 formation=%4 snapToTerrain=%5", Replication.FindItemId(group), group.GetOrigin(), group.GetAngles(), ResolveGroupFormationName(group), group.GC_ShouldSnapMembersToTerrain());
         
         bool wasEmpty;
         if (!m_Roster.AddGroup(group, wasEmpty))
@@ -2034,9 +2012,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			if (voiceController)
 				voiceController.RevokeLobbyAdminVoice();
 		}
-		if (GC_UIEventDiagnostics.ENABLED)
-			PrintFormat("GC | Admin Trace | role publish: player=%1 expectedAdmin=%2", playerId, expectedAdmin);
-
 		QueuePlayerRolePresentation(playerId, roleFlags);
 		Rpc(RpcDo_PlayerRoleChanged, playerId, roleFlags);
 	}
@@ -2047,8 +2022,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (Replication.IsServer())
 			return;
 
-		if (GC_UIEventDiagnostics.ENABLED)
-			PrintFormat("GC | Admin Trace | role broadcast received: player=%1 expectedRoles=%2", playerId, expectedRoles);
 		QueuePlayerRolePresentation(playerId, expectedRoles);
 	}
 
@@ -2075,11 +2048,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			EPlayerRole queriedRoles = GetGame().GetPlayerManager().GetPlayerRoles(playerId);
 			if (queriedRoles == expectedRoles || attempts >= ROLE_PRESENTATION_MAX_RETRIES)
 			{
-				if (GC_UIEventDiagnostics.ENABLED && attempts >= ROLE_PRESENTATION_MAX_RETRIES && queriedRoles != expectedRoles)
-					PrintFormat("GC | Admin Trace | role convergence timed out: player=%1 expectedRoles=%2 queriedRoles=%3", playerId, expectedRoles, queriedRoles, level: LogLevel.WARNING);
-				else if (GC_UIEventDiagnostics.ENABLED)
-					PrintFormat("GC | Admin Trace | role converged: player=%1 roles=%2 attempts=%3", playerId, queriedRoles, attempts);
-
 				GetAdminSelectedPlayer();
 				m_OnAdminSelectionChanged.Invoke();
 				m_OnPlayerRoleChanged.Invoke(playerId);
@@ -4635,14 +4603,6 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		int slotId = targetSlot.GetID();
         int occupyingPlayerId = targetSlot.GetPlayerId();
 		SCR_AIGroup targetGroup = ResolveSlotGroup(targetSlot);
-
-		if (FORMATION_DEBUG_LOGGING)
-		{
-			vector slotOrigin = Vector(0, 0, 0);
-			if (targetSlot.GetGroup())
-				slotOrigin = targetSlot.GetGroup().GetOrigin();
-			PrintFormat("GC | Formation | slot assignment slot=%1 targetOrigin=%2 targetAngles=%3 slotOrigin=%4 sameGroup=%5", slotId, targetGroup.GetOrigin(), targetGroup.GetAngles(), slotOrigin, targetSlot.GetGroup() == targetGroup);
-		}
 
 		SCR_GroupsManagerComponent groupsManager = SCR_GroupsManagerComponent.GetInstance();
         if (!groupsManager)

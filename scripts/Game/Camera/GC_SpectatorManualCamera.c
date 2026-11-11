@@ -92,9 +92,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected float m_fNetworkPIPFOV = -1;
 	protected float m_fNetworkFromPIPFOV = -1;
 	protected float m_fNetworkToPIPFOV = -1;
-	protected float m_fNetworkSightFOV = -1;
-	protected float m_fNetworkFromSightFOV = -1;
-	protected float m_fNetworkToSightFOV = -1;
 	protected BaseWeaponComponent m_NetworkSightsWeapon;
 	protected int m_iNetworkPresentedSightsIndex = -1;
 	protected int m_iNetworkPreviousSightsIndex = -1;
@@ -108,10 +105,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 	protected vector m_vNetworkToPosition;
 	protected vector m_vNetworkToForward;
 	protected vector m_vNetworkToUp;
-	protected bool m_bNetworkDiagnosticsInitialized;
-	protected bool m_bNetworkDiagnosticsADS;
-	protected int m_iNetworkDiagnosticsSightState;
-	protected bool m_bNetworkDiagnosticsPending;
 
 	//------------------------------------------------------------------------------------------------
 	//! Preserve stock zoom consumers: the base lookup matches exact types only.
@@ -291,8 +284,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_bNetworkSnapshotReceived = false;
 			m_iNetworkLastSequence = -1;
 			m_fNetworkInterpolationElapsed = 0;
-			m_bNetworkDiagnosticsInitialized = false;
-			m_bNetworkDiagnosticsPending = false;
 			m_fNetworkSnapshotRate = localController.GetNetworkCameraUpdateRate();
 			m_fNetworkInterpolationDuration = 1.0 / m_fNetworkSnapshotRate;
 			m_fNetworkStreamAge = 0;
@@ -428,11 +419,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_fNetworkPIPFOV = -1;
 		m_fNetworkFromPIPFOV = -1;
 		m_fNetworkToPIPFOV = -1;
-		m_fNetworkSightFOV = -1;
-		m_fNetworkFromSightFOV = -1;
-		m_fNetworkToSightFOV = -1;
-		m_bNetworkDiagnosticsInitialized = false;
-		m_bNetworkDiagnosticsPending = false;
 	}
 
 	protected void RestoreMirrorSightPresentation()
@@ -750,7 +736,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		float fov = lensState[0];
 		m_bNetworkIsADS = isADS;
 		m_fNetworkPIPFOV = lensState[1];
-		m_fNetworkSightFOV = lensState[2];
 		if (isADS)
 		{
 			m_iNetworkSightsIndex = sightState / GC_LobbyPlayerController.NETWORK_CAMERA_SIGHT_STATE_SCALE - 1;
@@ -761,13 +746,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_iNetworkSightsIndex = -1;
 			m_iNetworkZoomIndex = -1;
 		}
-		bool diagnosticStateChanged = !m_bNetworkDiagnosticsInitialized || m_bNetworkDiagnosticsADS != isADS || m_iNetworkDiagnosticsSightState != sightState;
-		if (diagnosticStateChanged || isADS && sequence % GC_SpectatorCameraDiagnostics.SAMPLE_INTERVAL == 0)
-			m_bNetworkDiagnosticsPending = true;
-
-		m_bNetworkDiagnosticsInitialized = true;
-		m_bNetworkDiagnosticsADS = isADS;
-		m_iNetworkDiagnosticsSightState = sightState;
 		if (m_bNetworkSnapshotReceived && m_iNetworkSightsIndex != previousSightsIndex)
 			m_bNetworkSnapshotReceived = false;
 
@@ -778,7 +756,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 			m_vNetworkFromUp = up;
 			m_fNetworkFromFOV = fov;
 			m_fNetworkFromPIPFOV = m_fNetworkPIPFOV;
-			m_fNetworkFromSightFOV = m_fNetworkSightFOV;
 			m_bNetworkSnapshotReceived = true;
 		}
 		else
@@ -794,10 +771,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 				m_fNetworkFromPIPFOV = Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend);
 			else
 				m_fNetworkFromPIPFOV = m_fNetworkPIPFOV;
-			if (m_fNetworkFromSightFOV > 0 && m_fNetworkToSightFOV > 0 && m_fNetworkSightFOV > 0)
-				m_fNetworkFromSightFOV = Math.Lerp(m_fNetworkFromSightFOV, m_fNetworkToSightFOV, blend);
-			else
-				m_fNetworkFromSightFOV = m_fNetworkSightFOV;
 		}
 
 		m_vNetworkToPosition = position;
@@ -805,7 +778,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		m_vNetworkToUp = up;
 		m_fNetworkToFOV = fov;
 		m_fNetworkToPIPFOV = m_fNetworkPIPFOV;
-		m_fNetworkToSightFOV = m_fNetworkSightFOV;
 		m_fNetworkInterpolationElapsed = 0;
 	}
 
@@ -860,7 +832,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 		float renderedFOV = Math.Lerp(m_fNetworkFromFOV, m_fNetworkToFOV, blend);
 		float renderedPIPFOV = Math.Lerp(m_fNetworkFromPIPFOV, m_fNetworkToPIPFOV, blend);
-		float renderedSightFOV = Math.Lerp(m_fNetworkFromSightFOV, m_fNetworkToSightFOV, blend);
 		SetVerticalFOV(renderedFOV);
 		// Convert only rotation into the native parent's frame. Position has
 		// remained in model space throughout, including sight-relative ADS.
@@ -871,15 +842,6 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 		// component update ran before this network presentation update.
 		ApplyTransform(timeSlice);
 		GetWorldCameraTransform(m_aNetworkLastWorldView);
-		if (m_bNetworkDiagnosticsPending)
-		{
-			vector targetWorldTransform[4];
-			m_Target.GetWorldTransform(targetWorldTransform);
-			vector cameraWorldTransform[4];
-			Math3D.MatrixMultiply4(targetWorldTransform, cameraTransform, cameraWorldTransform);
-			GC_SpectatorCameraDiagnostics.LogSnapshot("spectator", m_iNetworkLastSequence, m_Target, cameraWorldTransform, localPosition.Multiply3(targetTransform), renderedFOV, renderedPIPFOV, renderedSightFOV, m_bNetworkIsADS, m_iNetworkDiagnosticsSightState);
-			m_bNetworkDiagnosticsPending = false;
-		}
 
 		if (m_MirrorPIPSights && m_MirrorPIPSights.IsPIPEnabled())
 			m_MirrorPIPSights.GC_UpdateSpectatorPIP(timeSlice, renderedPIPFOV,

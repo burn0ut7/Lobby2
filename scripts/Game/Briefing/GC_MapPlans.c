@@ -10,6 +10,7 @@ class GC_MapPlans
 	protected string m_sRecoveryStatus = "Recovery has not started.";
 	protected static bool s_bSameLastMission;
 	static const string LAST_MISSION_FILE = "$profile:Lobby2LastMission.txt";
+	static const string INACTIVE_MISSION = "<inactive>";
 	static const string RECOVERY_FILE = "$profile:Lobby2MapRecovery";
 	static const int RECOVERY_SECONDS = 7200;
 
@@ -19,8 +20,18 @@ class GC_MapPlans
 	static void NoteMission()
 	{
 		string previous;
+		bool hasPrevious = GC_MapPlanData.ReadFile(LAST_MISSION_FILE, previous);
+		s_bSameLastMission = false;
+		if (!GC_LobbyGameMode.GetGameMode())
+		{
+			// Only release our prior recovery eligibility. Unrelated missions do
+			// not create a Lobby2 profile file or have their world recorded here.
+			if (hasPrevious && previous != INACTIVE_MISSION && !GC_MapPlanData.WriteFile(LAST_MISSION_FILE, INACTIVE_MISSION))
+				Print("GC | Map recovery | Could not invalidate prior mission recovery.", LogLevel.ERROR);
+			return;
+		}
 		string world = GetGame().GetWorldFile();
-		s_bSameLastMission = GC_MapPlanData.ReadFile(LAST_MISSION_FILE, previous) && previous == world;
+		s_bSameLastMission = hasPrevious && previous == world;
 		if (!GC_MapPlanData.WriteFile(LAST_MISSION_FILE, world))
 		{
 			s_bSameLastMission = false;

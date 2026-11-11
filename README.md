@@ -11,6 +11,20 @@ Requires Arma Reforger and TilW Mission Framework (`61F0E6AB2D06B1C6`).
 - `worlds/examples`: authoring examples, including the Arland scenario.
 - `addon.gproj`: addon identity, dependencies and localization.
 
+`Prefabs/MP/Modes/GameMode_Lobby.et` is the single canonical game mode.
+Save mission-specific settings and compositions as inherited prefabs under
+`Prefabs/Templates` (or in the mission's own addon), rather than adding another
+game mode. `GC_MissionSettings_US_USSR.et` supplies faction-specific parameters;
+`GC_MissionTemplate_Coop.et` supplies the supporting mission managers. Both
+inherit the same game mode. Their resource GUIDs are preserved.
+
+Shared script hooks must preserve inherited behavior unless the active mode is
+`GC_LobbyGameMode`. The formation source is a separate Lobby2 prefab, not an
+override of the game's AI world. The bullet-base override adds only a telemetry
+callback; recording requires the active Lobby2 session on the server.
+Outside Lobby2, the recovery observer only invalidates an existing Lobby2
+last-mission record so an intervening mission cannot restore an old map plan.
+
 Open `addon.gproj` to work on the production addon. Create a mission in its own
 addon, inherit a supported terrain, and use **Plugins > GC > Spawn Mission Template**.
 Configure playable groups, briefing, mission events and a mission header before publishing.

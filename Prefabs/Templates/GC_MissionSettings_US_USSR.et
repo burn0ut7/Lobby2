@@ -1,0 +1,114 @@
+GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
+ ID "6A4D100000000011"
+ components {
+  GC_LobbyManager "{6A137A39106A4973}" {
+   m_BriefingCatalog GC_LobbyBriefingCatalog "{6A4D100000000012}" {
+    m_aBriefings {
+     GC_Briefing "{6A42000000000015}" {
+      m_iOrder 1
+      m_sTitle "SCENARIO"
+      m_sContent "<scenario />"
+     }
+    }
+   }
+   m_ParameterCatalog GC_LobbyParameterCatalog "{6A4D100000000015}" {
+    m_aDefinitions {
+     GC_LobbyIntegerParameterDefinition "{6A4D200000000001}" {
+      m_sOwnerFactionKey "US"
+      m_sLabel "Respawn budget"
+      m_sDescription "Extra lives for this side. 0 = one life. In play, changes adjust unspent tickets."
+      m_eEffect RESPAWN_BUDGET
+      m_iDefaultValue 0
+      m_iMinimum 0
+      m_iMaximum 200
+      m_iStep 1
+      m_ePresentation SPIN_BOX
+     }
+     GC_LobbyIntegerParameterDefinition "{6A4D200000000002}" {
+      m_sOwnerFactionKey "US"
+      m_sLabel "Wave interval (min)"
+      m_sDescription "Respawn eligible casualties at their starting positions. 0 = mission-controlled waves."
+      m_eEffect RESPAWN_INTERVAL
+      m_iDefaultValue 0
+      m_iMinimum 0
+      m_iMaximum 60
+      m_iStep 1
+      m_ePresentation SPIN_BOX
+     }
+     GC_LobbyStringParameterDefinition "{6A4D200000000003}" {
+      m_sOwnerFactionKey "US"
+      m_sLabel "Callsign"
+      m_sDescription "Command callsign for the briefing."
+      m_sDefaultValue "HQ"
+      m_iMaximumLength 40
+     }
+     GC_LobbyStringParameterDefinition "{6A4D200000000004}" {
+      m_sOwnerFactionKey "US"
+      m_sLabel "Mission orders"
+      m_sDescription "Player instructions; does not create or alter scripted objectives."
+      m_sDefaultValue "Follow the mission briefing."
+      m_iMaximumLength 256
+     }
+     GC_LobbySelectionParameterDefinition "{6A4D200000000005}" {
+      m_sOwnerFactionKey "US"
+      m_sLabel "Rules of engagement"
+      m_sDescription "Orders for players; firing is not mechanically restricted."
+      m_sDefaultKey "briefing"
+      m_aOptions {
+       GC_LobbyParameterOption "{6A4D200000000100}" { m_sLabel "As briefed" m_sKey "briefing" }
+       GC_LobbyParameterOption "{6A4D200000000101}" { m_sLabel "Return fire only" m_sKey "return_fire" }
+       GC_LobbyParameterOption "{6A4D200000000102}" { m_sLabel "Engage identified hostiles" m_sKey "identified" }
+      }
+     }
+     GC_LobbyIntegerParameterDefinition "{6A4D200000000101}" {
+      m_sOwnerFactionKey "USSR"
+      m_sLabel "Respawn budget"
+      m_sDescription "Extra lives for this side. 0 = one life. In play, changes adjust unspent tickets."
+      m_eEffect RESPAWN_BUDGET
+      m_iDefaultValue 0
+      m_iMinimum 0
+      m_iMaximum 200
+      m_iStep 1
+      m_ePresentation SPIN_BOX
+     }
+     GC_LobbyIntegerParameterDefinition "{6A4D200000000102}" {
+      m_sOwnerFactionKey "USSR"
+      m_sLabel "Wave interval (min)"
+      m_sDescription "Respawn eligible casualties at their starting positions. 0 = mission-controlled waves."
+      m_eEffect RESPAWN_INTERVAL
+      m_iDefaultValue 0
+      m_iMinimum 0
+      m_iMaximum 60
+      m_iStep 1
+      m_ePresentation SPIN_BOX
+     }
+     GC_LobbyStringParameterDefinition "{6A4D200000000103}" {
+      m_sOwnerFactionKey "USSR"
+      m_sLabel "Callsign"
+      m_sDescription "Command callsign for the briefing."
+      m_sDefaultValue "HQ"
+      m_iMaximumLength 40
+     }
+     GC_LobbyStringParameterDefinition "{6A4D200000000104}" {
+      m_sOwnerFactionKey "USSR"
+      m_sLabel "Mission orders"
+      m_sDescription "Player instructions; does not create or alter scripted objectives."
+      m_sDefaultValue "Follow the mission briefing."
+      m_iMaximumLength 256
+     }
+     GC_LobbySelectionParameterDefinition "{6A4D200000000105}" {
+      m_sOwnerFactionKey "USSR"
+      m_sLabel "Rules of engagement"
+      m_sDescription "Orders for players; firing is not mechanically restricted."
+      m_sDefaultKey "briefing"
+      m_aOptions {
+       GC_LobbyParameterOption "{6A4D200000001100}" { m_sLabel "As briefed" m_sKey "briefing" }
+       GC_LobbyParameterOption "{6A4D200000001101}" { m_sLabel "Return fire only" m_sKey "return_fire" }
+       GC_LobbyParameterOption "{6A4D200000001102}" { m_sLabel "Engage identified hostiles" m_sKey "identified" }
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,5 +1,5 @@
 MetaFileClass {
- Name "{7B115D5DFF7ED995}Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et"
+ Name "{A79C4E0A43DEB821}Prefabs/Templates/GC_MissionTemplate_Coop.et"
  Configurations {
   EntityTemplateResourceClass PC {
   }
