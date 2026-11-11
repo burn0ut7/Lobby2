@@ -592,6 +592,9 @@ modded class SCR_InventoryMenuUI
 	override void OnMenuClose()
 	{
 		GC_GearSession.Close();
+#ifdef WORKBENCH
+		GC_WorkbenchItemBrowser.OnInventoryClosed(m_Player);
+#endif
 		GC_ReleaseFilesButton();
 		GC_ReleaseCatalogue();
 		super.OnMenuClose();

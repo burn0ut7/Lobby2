@@ -57,6 +57,14 @@ class GC_WorkbenchItemBrowser
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! An old character's inventory may close after LoadPrefab has opened a new session.
+	static void OnInventoryClosed(IEntity owner)
+	{
+		if (owner == s_Owner)
+			Disable();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static ResourceName GetEditingPrefab()
 	{
 		return GC_PrefabAuthoringSession.GetEditingPrefab();

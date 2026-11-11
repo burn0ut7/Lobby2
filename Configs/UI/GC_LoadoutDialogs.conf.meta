@@ -1,0 +1,11 @@
+MetaFileClass {
+ Name "{DC391DA320AE5000}Configs/UI/GC_LoadoutDialogs.conf"
+ Configurations {
+  ResourceClass PC {}
+  ResourceClass XBOX_ONE : PC {}
+  ResourceClass XBOX_SERIES : PC {}
+  ResourceClass PS4 : PC {}
+  ResourceClass PS5 : PC {}
+  ResourceClass HEADLESS : PC {}
+ }
+}
