@@ -1319,7 +1319,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		foreach (int order, Widget stockRow : rows)
 			stockRow.SetZOrder(order * 10);
 
-		m_wPauseAdminButton = CreatePauseRow(buttonParent, "PauseAdminTools", "Admin Tools", "settings", root.FindAnyWidget("EditorUnlimitedClose").GetZOrder() + 1);
+		m_wPauseAdminButton = CreatePauseRow(buttonParent, "PauseAdminTools", "Admin Tools", "admin", root.FindAnyWidget("EditorUnlimitedClose").GetZOrder() + 1);
 		m_PauseAdminButton = SCR_ButtonTextComponent.Cast(m_wPauseAdminButton.FindHandler(SCR_ButtonTextComponent));
 		m_PauseAdminButton.m_OnClicked.Insert(OnPauseAdminToolsClicked);
 
