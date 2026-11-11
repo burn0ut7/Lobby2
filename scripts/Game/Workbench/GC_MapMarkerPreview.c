@@ -123,6 +123,8 @@ class GC_MapMarkerPreview
 		parameters.Insert("ReceiveShadow", "0");
 		parameters.Insert("BlendMode", "AlphaBlend");
 		parameters.Insert("ZWrite", "0");
+		// Match the editor direction indicator: sorting alone still tests terrain depth.
+		parameters.Insert("ZEnable", "0");
 		parameters.Insert("Sort", "overall");
 		parameters.Insert("DisablePrexposure", "1");
 		s_iMaterialId++;
