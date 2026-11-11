@@ -1,6 +1,27 @@
 #ifdef WORKBENCH
 modded class GC_LobbyManager
 {
+	string GC_TestAdminEnding(int result, string faction, string message, int seconds, bool immediate, bool stale)
+	{
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		int revision = GC_LobbyGameMode.GetGameMode().GetBoundaryAdmin().GC_TestEndingRevision();
+		if (stale)
+			revision--;
+		controller.GC_RequestMissionEnding(revision, result, faction, message, seconds, immediate, controller.ReserveAdminPlayerToolRequest());
+		return GC_TestEndingSnapshot();
+	}
+
+	string GC_TestEndingForm()
+	{
+		Widget root = GetGame().GetMenuManager().GetTopMenu().GetRootWidget();
+		GC_AdminSearchFilter result = GC_AdminSearchFilter.Cast(root.FindAnyWidget("EndResult").FindHandler(GC_AdminSearchFilter));
+		GC_AdminSearchFilter faction = GC_AdminSearchFilter.Cast(root.FindAnyWidget("EndFaction").FindHandler(GC_AdminSearchFilter));
+		result.SetCurrentItem(2, false, false, true);
+		faction.SetCurrentItem(1, false, false, true);
+		MultilineEditBoxWidget.Cast(root.FindAnyWidget("EndMessage")).SetText("U.S. Army secured the objectives.");
+		return "Form filled through native choice events";
+	}
+
 	//! Explicit test-only configuration; production authority and action dispatch remain intact.
 	string GC_TestEndingPrepare()
 	{

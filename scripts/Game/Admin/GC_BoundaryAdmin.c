@@ -85,6 +85,8 @@ class GC_BoundaryAdmin
 	//------------------------------------------------------------------------------------------------
 	protected void ClearAnnouncement()
 	{
+		if (m_PendingEndData)
+			m_iEndingRevision++;
 		m_fAnnouncementDeadline = 0;
 		m_sAnnouncement = string.Empty;
 		m_aAnnouncementFactions.Clear();
@@ -183,6 +185,48 @@ class GC_BoundaryAdmin
 
 	//------------------------------------------------------------------------------------------------
 	//! The only admin mutation entry point. Authority rechecks the authenticated requester.
+	string ExecuteEnding(int playerId, int revision, int result, string faction, string message, int seconds, bool immediate)
+	{
+		string outcome;
+		message.TrimInPlace();
+		if (!HasAccess(playerId))
+			outcome = "Rejected: administrator access required.";
+		else if (m_Mode.GetState() != SCR_EGameModeState.GAME || revision != m_iEndingRevision)
+			outcome = "Not applied: the match or ending changed. Refresh and try again.";
+		else if (message.Length() > 512 || message.Contains("<") || message.Contains(">") || seconds < 1 || seconds > 3600)
+			outcome = "Use 1-3600 seconds and a plain-text message up to 512 characters.";
+		else
+		{
+			array<string> winners = {};
+			ref SCR_GameModeEndData data = GC_MissionResult.Build(result, faction, winners);
+			if (!data)
+				outcome = "Choose a valid result and a current faction.";
+			else
+			{
+				ClearAnnouncement();
+				if (StartMissionEnding(data, message))
+				{
+					m_fAnnouncementDeadline = GetGame().GetWorld().GetWorldTime() * 0.001 + seconds;
+					UpdateAnnouncement();
+					outcome = "Mission ending scheduled: " + GC_MissionResult.Title(data);
+					if (immediate)
+					{
+						if (ForceMissionEnd())
+						outcome = "Mission ended: " + GC_MissionResult.Title(data);
+						else
+							outcome = "Mission could not end; the countdown was cancelled.";
+					}
+				}
+				else
+					outcome = "Mission ending is unavailable.";
+			}
+		}
+		GC_AdminActionLogger.Log(playerId, "mission-ending", faction + " result=" + result.ToString(), outcome);
+		return outcome;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Existing zone and timer actions share the same authority and pending ending.
 	string Execute(int playerId, string action, string key, string title, int seconds, array<string> requestedFactions)
 	{
 		array<string> factions = {};

@@ -8,31 +8,16 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
    m_aMissionEvents {
-    GC_Event "{6AD4976D04FE67E5}" {
+    GC_Event "{6AD676FFD390E88B}" {
      m_aConditions {
-      GC_CasualtiesCondition "{6AD540E9B5E0CD27}" {
-       m_aFactions {
-        "zxzvzvzv"
-       }
-      }
-     }
-     m_aActions {
-      GC_FlagAction "{6AD497603979F20D}" {
-      }
-      GC_EndMissionAction "{6AD6536B8DC8ECF6}" {
+      GC_TimerCondition "{6AD676FFD740FE02}" {
       }
      }
     }
    }
-   m_aMissionFlags {
-    GC_MissionFlag "{6AD497606CEEFC0B}" {
-     m_sName "Test Flag"
-     m_aConditions {
-      GC_AreaCondition "{6AD49760634974AF}" {
-      }
-     }
-    }
-   }
+  }
+  SCR_TimeAndWeatherHandlerComponent "{6B71E9A8B1A8C501}" {
+   m_bOverrideEnvironment 1
   }
  }
  coords 1194.457 39 2723.129

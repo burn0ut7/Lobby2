@@ -1,0 +1,15 @@
+FrameWidgetClass { Name "EndingPanel" Slot FrameWidgetSlot { Anchor 0 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminEndingComponent {} } {
+TextWidgetClass { Name "EndCountdown" Slot FrameWidgetSlot { Anchor 0 0 1 .08 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "No mission ending scheduled" "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
+TextWidgetClass { Name "EndResultLabel" Slot FrameWidgetSlot { Anchor 0 .13 .48 .18 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "RESULT" "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
+TextWidgetClass { Name "EndFactionLabel" Slot FrameWidgetSlot { Anchor  .52 .13 1 .18 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "FACTION" "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminSearchFilter.layout" { Name "EndResult" Slot FrameWidgetSlot { Anchor 0 .19 .48 .27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+SizeLayoutWidgetClass : "{D271A640B8000300}UI/layouts/Admin/Lobby_AdminSearchFilter.layout" { Name "EndFaction" Slot FrameWidgetSlot { Anchor .52 .19 1 .27 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+TextWidgetClass { Name "EndMessageLabel" Slot FrameWidgetSlot { Anchor 0 .32 1 .37 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "DEBRIEF MESSAGE" "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
+MultilineEditBoxWidgetClass : "{E341A258BC700002}UI/layouts/Admin/Lobby_AdminMultilineEditBox.layout" { Name "EndMessage" Slot FrameWidgetSlot { Anchor 0 .39 1 .61 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+TextWidgetClass { Name "EndSecondsLabel" Slot FrameWidgetSlot { Anchor 0 .66 .4 .71 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "COUNTDOWN (SECONDS)" "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
+EditBoxWidgetClass : "{E341A258BC700001}UI/layouts/Admin/Lobby_AdminEditBox.layout" { Name "EndSeconds" Slot FrameWidgetSlot { Anchor 0 .73 .2 .80 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "EndStart" Slot FrameWidgetSlot { Anchor .24 .73 .55 .80 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "EndCancel" Slot FrameWidgetSlot { Anchor .58 .73 .80 .80 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "EndNow" Slot FrameWidgetSlot { Anchor .76 .86 1 .94 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+TextWidgetClass { Name "EndStatus" Slot FrameWidgetSlot { Anchor 0 .95 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "" "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }
+} }

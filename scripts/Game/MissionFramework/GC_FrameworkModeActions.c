@@ -247,46 +247,9 @@ modded class GC_LobbyManager
 	{
 		if (GetLobbyPhase() != SCR_EGameModeState.GAME)
 			return false;
-		int factionIndex = -1;
-		EGameOverTypes reason = EGameOverTypes.EDITOR_NEUTRAL;
-		if (action.m_iOperation > 0 && action.m_iOperation < 4)
-		{
-			FactionManager factions = GetGame().GetFactionManager();
-			Faction faction = factions.GetFactionByKey(action.m_sTextOrName);
-			if (!faction)
-				return false;
-			factionIndex = factions.GetFactionIndex(faction);
-			switch (action.m_iOperation)
-			{
-				case 1:
-					reason = EGameOverTypes.EDITOR_FACTION_VICTORY;
-					break;
-				case 2:
-					reason = EGameOverTypes.EDITOR_FACTION_DEFEAT;
-					break;
-				case 3:
-					reason = EGameOverTypes.EDITOR_FACTION_DRAW;
-					break;
-			}
-		}
-		if (action.m_iOperation == 4)
-			reason = EGameOverTypes.LOOSE;
-		array<int> results = {};
-		if (factionIndex >= 0)
-			results.Insert(factionIndex);
-		if (action.m_aFlagNames)
-		{
-			foreach (string key : action.m_aFlagNames)
-			{
-				Faction winner = GetGame().GetFactionManager().GetFactionByKey(key);
-				if (!winner)
-					return false;
-				int index = GetGame().GetFactionManager().GetFactionIndex(winner);
-				if (!results.Contains(index))
-					results.Insert(index);
-			}
-		}
-		ref SCR_GameModeEndData data = SCR_GameModeEndData.Create(reason, null, results);
+		ref SCR_GameModeEndData data = GC_MissionResult.Build(action.m_iOperation, action.m_sTextOrName, action.m_aFlagNames);
+		if (!data)
+			return false;
 		return EnterPostGame(data, action.m_sEndMessage);
 	}
 

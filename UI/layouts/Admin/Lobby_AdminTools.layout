@@ -100,6 +100,8 @@ FrameWidgetClass {
    }
   }
 ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolBoundaries" Slot FrameWidgetSlot { Anchor 0.018 0.51 0.2 0.56 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolEndMatch" Slot FrameWidgetSlot { Anchor 0.018 .73 .2 .775 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+FrameWidgetClass : "{E37A21004D960001}UI/layouts/Admin/Lobby_AdminEnding.layout" { Name "EndingPanel" Slot FrameWidgetSlot { Anchor .24 .18 .98 .98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" { Name "BoundaryPanel" Slot FrameWidgetSlot { Anchor 0.24 0.12 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
    Name "ToolFreeze"

@@ -35,27 +35,9 @@ class GC_MissionVote
 	{
 		if (!IsCurrent())
 			return;
-		FileHandle file = FileIO.OpenFile("$profile:Lobby2Voting.json", FileMode.READ);
-		if (!file)
+		m_Context = GC_MissionServerConnection.Open(m_sStatus);
+		if (!m_Context)
 			return;
-		string payload;
-		file.Read(payload, 8192);
-		file.Close();
-		JsonLoadContext json = new JsonLoadContext(false);
-		string url, key;
-		if (!json.LoadFromString(payload) || !json.ReadValue("url", url) || !json.ReadValue("apiKey", key)
-			|| key.Length() < 32 || key.Contains(",") || key.Contains("\n") || key.Contains("\r")
-			|| url.Contains("@") || url.Contains("?") || url.Contains("#") || url.Contains("\n") || url.Contains("\r")
-			|| (!url.StartsWith("https://") && !url.StartsWith("http://127.0.0.1:")))
-		{
-			m_sStatus = "#GC-Vote_InvalidConfig";
-			return;
-		}
-		if (!url.EndsWith("/"))
-			url += "/";
-		m_Context = GetGame().GetRestApi().GetContext(url);
-		m_Context.SetHeaders("Authorization,Bearer " + key + ",Content-Type,application/json");
-		m_Context.SetTimeout(15);
 		m_Callback = new RestCallback();
 		m_Callback.SetOnSuccess(OnCatalog);
 		m_Callback.SetOnError(OnError);

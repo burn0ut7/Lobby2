@@ -12,6 +12,41 @@ modded class GC_LobbyPlayerController
 	protected int m_iGC_AnnouncementDisplayed = -1;
 
 	//------------------------------------------------------------------------------------------------
+	void GC_RequestMissionEnding(int revision, int result, string faction, string message, int seconds, bool immediate, int requestId)
+	{
+		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())
+			return;
+		if (Replication.IsServer())
+			GC_RpcAskMissionEnding(revision, result, faction, message, seconds, immediate, requestId);
+		else
+			Rpc(GC_RpcAskMissionEnding, revision, result, faction, message, seconds, immediate, requestId);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void GC_RpcAskMissionEnding(int revision, int result, string faction, string message, int seconds, bool immediate, int requestId)
+	{
+		if (!Replication.IsServer())
+			return;
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		string outcome, snapshot;
+		if (mode && mode.GetBoundaryAdmin())
+		{
+			outcome = mode.GetBoundaryAdmin().ExecuteEnding(GetPlayerId(), revision, result, faction, message, seconds, immediate);
+			snapshot = mode.GetBoundaryAdmin().Snapshot(GetPlayerId());
+		}
+		else
+		{
+			outcome = "Mission controls unavailable in this mode.";
+			GC_AdminActionLogger.Log(GetPlayerId(), "mission-ending", "", "rejected-inactive-mode");
+		}
+		if (GetGame().GetPlayerController() == this)
+			GC_RpcDoBoundaryResult(requestId, outcome, snapshot);
+		else
+			Rpc(GC_RpcDoBoundaryResult, requestId, outcome, snapshot);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void GC_RequestBoundary(string action, string key, string title, int seconds, array<string> factions, int requestId)
 	{
 		if (GetGame().GetPlayerController() != this || !GC_LobbyGameMode.GetGameMode())

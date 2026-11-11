@@ -8,6 +8,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 	protected GC_AdminReservationsComponent m_Reservations;
 	protected GC_AdminMapPlansComponent m_MapPlans;
 	protected GC_AdminBoundariesComponent m_Boundaries;
+	protected GC_AdminEndingComponent m_Ending;
 	protected GC_AdminPlayerPicker m_From;
 	protected GC_AdminPlayerPicker m_To;
 	protected GC_AdminModerationComponent m_Moderation;
@@ -166,6 +167,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("ToolReservations", "Reservations", "server-locked");
 		Bind("ToolMapPlans", "Markers", "pinPlay");
 		Bind("ToolBoundaries", "Boundaries", "ruler");
+		Bind("ToolEndMatch", "End match", "pause");
+		m_Ending = GC_AdminEndingComponent.Cast(w.FindAnyWidget("EndingPanel").FindHandler(GC_AdminEndingComponent));
 		m_Boundaries = GC_AdminBoundariesComponent.Cast(w.FindAnyWidget("BoundaryPanel").FindHandler(GC_AdminBoundariesComponent));
 		m_MapPlans = GC_AdminMapPlansComponent.Cast(w.FindAnyWidget("MapPlanPanel").FindHandler(GC_AdminMapPlansComponent));
 		m_Reservations = GC_AdminReservationsComponent.Cast(w.FindAnyWidget("ReservationPanel").FindHandler(GC_AdminReservationsComponent));
@@ -268,6 +271,8 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_iTool = 4;
 		else if (name == "ToolBoundaries")
 			m_iTool = 7;
+		else if (name == "ToolEndMatch")
+			m_iTool = 15;
 		else if (name == "ToolMapPlans")
 			m_iTool = 6;
 		else if (name == "ToolModeration")
@@ -431,6 +436,9 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		SCR_ButtonTextComponent.GetButtonText("MessageNormal", m_wRoot).SetToggled(message, false, false);
 		bool reservations = m_iTool == 4;
 		bool boundaries = m_iTool == 7;
+		bool ending = m_iTool == 15;
+		m_Ending.SetActive(ending);
+		SCR_ButtonTextComponent.GetButtonText("ToolEndMatch", m_wRoot).SetToggled(ending, false, false);
 		m_wRoot.FindAnyWidget("BoundariesSelectedBar").SetVisible(boundaries);
 		m_Boundaries.SetActive(boundaries);
 		m_wRoot.FindAnyWidget("ToolDescription").SetVisible(!boundaries);
@@ -446,9 +454,9 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool moderation = m_iTool == 5;
 		m_wRoot.FindAnyWidget("ModerationSelectedBar").SetVisible(moderation);
 		m_wRoot.FindAnyWidget("ModerationFields").SetVisible(moderation);
-		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!gearHome && !moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
+		m_wRoot.FindAnyWidget("ToolApply").SetVisible(!ending && !gearHome && !moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
 		m_wRoot.FindAnyWidget("ToolSummary").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
-		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
+		m_wRoot.FindAnyWidget("ToolStatus").SetVisible(!ending && !moderation && !reservations && !mapPlans && !boundaries && !logs && !serverStatus);
 		bool factionTarget = (playerScope && m_eScope == GC_EAdminHealScope.FACTION) || (teleport && m_bTeleportFaction);
 		bool selectedMessage = warn || (message && m_eMessageAudience == GC_EAdminMessageAudience.SELECTED_PLAYERS);
 		m_wRoot.FindAnyWidget("MessageFields").SetVisible(message || warn);
@@ -669,6 +677,11 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		if (serverStatus)
 		{
 			title = "Status";
+			description = "";
+		}
+		if (ending)
+		{
+			title = "End match";
 			description = "";
 		}
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolTitle")).SetText(title);
