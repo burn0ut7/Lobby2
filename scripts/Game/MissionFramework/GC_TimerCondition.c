@@ -1,9 +1,11 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Timer Condition")]
 class GC_TimerCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Optional unique name for Timer Action. Leave empty if this timer does not need controlling. Names must be unique across all event and flag conditions, including nested groups.")]
+	static const int START_BY_ACTION = -1;
+
+	[Attribute("", UIWidgets.EditBox, "Unique name used by Timer Action. Required for Wait for Timer Action; optional for an automatic phase start. Names must be unique across all event and flag conditions, including nested groups.")]
 	string m_sTimerName;
-	[Attribute("1", UIWidgets.ComboBox, "Start once when the mission enters this state, unless Timer Action already started it. If the framework starts in this state, start then. It continues through later states and stays true once finished unless changed by Timer Action or a framework restart.", enums: {ParamEnum("Mission preview", "0"), ParamEnum("Role selection", "1787356801"), ParamEnum("Briefing", "1787356802"), ParamEnum("Match", "1"), ParamEnum("After action", "2")})]
+	[Attribute("1", UIWidgets.ComboBox, "Wait for Timer Action: stay stopped until an event runs Timer Action > Start / Restart or Set time for this Timer Name. Otherwise start once on the selected phase, unless already started by an action. Other conditions do not start the timer. Once started, it continues across phases.", enums: {ParamEnum("Wait for Timer Action", "-1"), ParamEnum("Mission preview", "0"), ParamEnum("Role selection", "1787356801"), ParamEnum("Briefing", "1787356802"), ParamEnum("Match", "1"), ParamEnum("After action", "2")})]
 	SCR_EGameModeState m_eStartState;
 	[Attribute("60", UIWidgets.EditBox, "Duration in seconds; decimals are allowed, for example 2.5. Enter 0.1 to 86400. If Random Max Seconds is filled in, choose one duration between the two values. Reversed values are automatically ordered. Event Repeatable and Reset do not restart this timer.", precision: 3)]
 	float m_fSeconds;
@@ -17,7 +19,7 @@ class GC_TimerCondition : GC_ConditionBase
 		if (!(m_fSeconds >= 0.1 && m_fSeconds <= 86400)
 			|| !(m_fRandomMaxSeconds == 0 || (m_fRandomMaxSeconds >= 0.1 && m_fRandomMaxSeconds <= 86400)))
 			return null;
-		// One shared scheduler; timer duration is sampled on state entry, never during evaluation.
+		// One shared scheduler; timer duration is sampled on start, never during evaluation.
 		GC_RuleCondition check = new GC_RuleCondition();
 		check.m_iCheck = 12;
 		check.m_sTimerName = m_sTimerName;

@@ -33,6 +33,7 @@ class GC_TimerConditionTests : GC_MissionRuleTests
 		engine.Stop();
 		CheckPhaseAndRange();
 		CheckTimerActions();
+		CheckActionStart();
 
 		GC_RuleCondition gate = new GC_RuleCondition();
 		gate.m_iCheck = 1;
@@ -52,6 +53,52 @@ class GC_TimerConditionTests : GC_MissionRuleTests
 		timer.m_fSeconds = 86401;
 		Check(!timer.BuildCheck(), "Duration over one day rejected");
 		return string.Format("TimerConditions: checks=%1 failures=%2", m_iChecks, m_iFailures);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void CheckActionStart()
+	{
+		GC_TimerCondition timer = new GC_TimerCondition();
+		timer.m_eStartState = GC_TimerCondition.START_BY_ACTION;
+		timer.m_fSeconds = 10;
+		Check(!timer.BuildCheck(), "Action-start timer requires a name");
+		timer.m_sTimerName = "  ";
+		Check(!timer.BuildCheck(), "Whitespace-only timer name rejected");
+		timer.m_sTimerName = "deadline";
+		timer.m_fRandomMaxSeconds = 20;
+		GC_CompiledMissionRule elapsed = EventRule("elapsed");
+		GC_RuleCondition leaf = timer.BuildCheck();
+		GC_RuleCondition group = new GC_RuleCondition();
+		group.m_aChecks = {leaf, Answer(true)};
+		elapsed.m_If = group;
+		GC_TimerAction start = new GC_TimerAction();
+		start.m_sTimerName = "deadline";
+		start.m_iOperation = 0;
+		GC_CompiledMissionRule trigger = EventRule("external_trigger");
+		trigger.m_aThen = {start.BuildAction()};
+		GC_TimerTestEngine engine = new GC_TimerTestEngine();
+		engine.Start({elapsed, trigger}, null, SCR_EGameModeState.PREGAME);
+		array<SCR_EGameModeState> phases = {SCR_EGameModeState.SLOTTING, SCR_EGameModeState.BRIEFING, SCR_EGameModeState.GAME, SCR_EGameModeState.POSTGAME};
+		foreach (SCR_EGameModeState phase : phases)
+		{
+			engine.SetGameModeState(phase, 100);
+			engine.Advance(100);
+		}
+		Check(!engine.TimerResult(leaf) && engine.m_iDraws == 0 && engine.GetRunCount() == 0, "Action-start timer ignores every automatic phase");
+		engine.SendTestEvent("external_trigger");
+		Check(engine.m_iDraws == 1 && !engine.TimerResult(leaf), "Event action starts nested timer and samples once");
+		engine.Advance(114.9);
+		Check(!engine.GetFlag("elapsed"), "Event-start timer waits its full duration");
+		engine.Advance(115);
+		Check(engine.GetFlag("elapsed") && engine.TimerResult(leaf), "Event-start timer expires through existing notifications");
+		engine.Start({elapsed, trigger}, null, SCR_EGameModeState.GAME);
+		Check(!engine.TimerResult(leaf) && engine.m_iDraws == 1, "Framework restart returns action-start timer to waiting");
+		engine.ControlTimer("deadline", 3, 2.5);
+		engine.Advance(2.5);
+		Check(engine.TimerResult(leaf), "Set time also starts an action-only timer");
+		engine.Stop();
+		timer.m_eStartState = -2;
+		Check(!timer.BuildCheck(), "Other invalid start values remain rejected");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -157,6 +204,17 @@ class GC_TimerConditionTests : GC_MissionRuleTests
 		engine.Stop();
 	}
 }
+
+#ifdef WORKBENCH
+modded class GC_LobbyManager
+{
+	string GC_TestTimerConditions()
+	{
+		GC_TimerConditionTests tests = new GC_TimerConditionTests();
+		return tests.RunTimerChecks();
+	}
+}
+#endif
 
 class GC_TimerTestEngine : GC_MissionRuleEngine
 {

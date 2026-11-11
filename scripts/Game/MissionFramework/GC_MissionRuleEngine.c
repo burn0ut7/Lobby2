@@ -959,7 +959,8 @@ class GC_MissionRuleEngine
 			{
 				if (!m_mRandomResults.Contains(condition))
 					m_mRandomResults.Set(condition, false);
-				if (!scheduled.m_bTimerStarted && m_eGameModeState == condition.m_eGameModeState)
+				if (!scheduled.m_bTimerStarted && condition.m_eGameModeState != GC_TimerCondition.START_BY_ACTION
+					&& m_eGameModeState == condition.m_eGameModeState)
 				{
 					scheduled.m_fNextCheck = m_fNow + ChooseTimerDuration(condition);
 					scheduled.m_bTimerStarted = true;

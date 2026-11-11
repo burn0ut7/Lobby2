@@ -560,7 +560,7 @@ Time and Weather Action changes the clock, a named weather preset, or both. Inde
 
 ## Timer condition
 
-Timer Condition starts in a selected game state, waits a fixed or randomly chosen duration, then stays true until the framework restarts. See [timing, nesting and repeatability](TimerCondition.md).
+Timer Condition starts in a selected game state or waits for a named Timer Action, counts a fixed or randomly chosen duration, then stays true until Timer Action changes it or the framework restarts. See [timing, nesting and repeatability](TimerCondition.md).
 
 ## Event and flag field order
 

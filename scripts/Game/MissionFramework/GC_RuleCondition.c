@@ -92,7 +92,9 @@ class GC_RuleCondition
 		if (m_iCheck == 13)
 			return m_Script && m_Script.IsValid();
 		if (m_iCheck == 12)
-			return GC_LobbyPhase.IsValid(m_eGameModeState) && m_fRandomInterval >= 0.1
+			return (GC_LobbyPhase.IsValid(m_eGameModeState)
+				|| (m_eGameModeState == GC_TimerCondition.START_BY_ACTION && !m_sTimerName.IsEmpty()))
+				&& m_fRandomInterval >= 0.1
 				&& m_fTimerMaximum >= m_fRandomInterval && m_fTimerMaximum <= 86400;
 		if (m_iCheck == 11)
 			return !m_sInteractionEntity.IsEmpty();
