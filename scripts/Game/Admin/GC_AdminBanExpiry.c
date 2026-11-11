@@ -8,7 +8,7 @@ class GC_AdminBanExpiry
 			return false;
 		for (int index; index < value.Length(); index++)
 		{
-			if (!"0123456789".Contains(value.Substring(index, 1)))
+			if (!value.IsDigitAt(index))
 				return false;
 		}
 		number = value.ToInt();
@@ -34,28 +34,19 @@ class GC_AdminBanExpiry
 		if (value.Length() != 16 || value.Substring(4, 1) != "-" || value.Substring(7, 1) != "-"
 			|| value.Substring(10, 1) != " " || value.Substring(13, 1) != ":")
 			return false;
-		int year, month, day, hour, minute;
-		if (!ParseNumber(value.Substring(0, 4), year) || !ParseNumber(value.Substring(5, 2), month)
-			|| !ParseNumber(value.Substring(8, 2), day) || !ParseNumber(value.Substring(11, 2), hour)
-			|| !ParseNumber(value.Substring(14, 2), minute))
+		int year;
+		if (!ParseNumber(value.Substring(0, 4), year) || year < 1970 || year > 2037)
 			return false;
-		if (year < 1970 || year > 2037 || month < 1 || month > 12 || hour > 23 || minute > 59)
+
+		string iso = value;
+		iso.Replace(" ", "T");
+		iso += ":00.000Z";
+		Timestamp parsed = Timestamp.FromIsoString(iso);
+		// Reject invalid or normalized input; the epoch itself remains a valid date.
+		if (parsed.ToIsoString() != iso)
 			return false;
-		array<int> monthDays = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-		if (SCR_DateTimeHelper.IsLeapYear(year))
-			monthDays[1] = 29;
-		if (day < 1 || day > monthDays[month - 1])
-			return false;
-		int days = day - 1;
-		for (int priorYear = 1970; priorYear < year; priorYear++)
-		{
-			days += 365;
-			if (SCR_DateTimeHelper.IsLeapYear(priorYear))
-				days++;
-		}
-		for (int priorMonth; priorMonth < month - 1; priorMonth++)
-			days += monthDays[priorMonth];
-		timestamp = days * 86400 + hour * 3600 + minute * 60;
+
+		timestamp = parsed.ToEpochSeconds();
 		return true;
 	}
 }

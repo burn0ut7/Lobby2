@@ -8,6 +8,8 @@ Use `$reforger` for game research, coding, UI and MCP testing workflows. See [re
 
 Base-game APIs/events own factions, groups, membership and character affiliation. Lobby2 owns slot selection, reservations, locks and presentation metadata. Reference authoritative IDs and re-query ownership rather than maintaining shadow relationships. Discuss a new ownership source before introducing one.
 
+Prefer supported engine and base-game capabilities over custom helpers. Retain custom complexity only for a concrete feature, policy or compatibility gap; verify behavior and preserve features before replacing it. Line-count reduction alone is not a reason to change a contract.
+
 Keep one canonical implementation per responsibility. Prefer the smallest coherent change; discuss changes to the phase model or multiplayer ownership.
 
 ## Framework independence
