@@ -132,6 +132,10 @@ class GC_MapShapeComponent : ScriptComponent
 			if (!m_Shape.IsClosed())
 				return;
 			m_Shape.GetPointsPositions(polygon);
+			// The shared polygon contract rejects larger shapes. Check before
+			// transforming every point of an invalid authored polyline.
+			if (polygon.Count() > 128)
+				return;
 			for (int i; i < polygon.Count(); i++)
 				polygon[i] = m_Shape.CoordToParent(polygon[i]);
 		}

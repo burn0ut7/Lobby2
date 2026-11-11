@@ -247,15 +247,18 @@ class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEnti
 		return true;
 	}
 
+	void SetFocused(bool focused)
+	{
+		m_bFocused = focused;
+		if (focused && m_wSelectedIcon)
+			m_wSelectedIcon.SetVisible(true);
+	}
+
 	protected void RefreshHealthBar()
 	{
 		if (!m_wHealthBar || !m_Entity)
 			return;
 		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
-		int playerId = GC_LobbyPlayerController.GC_GetSpectatorEntityPlayer(m_Entity.GetOwner());
-		m_bFocused = controller && playerId > 0 && controller.GC_GetFocusedPlayer() == playerId;
-		if (m_bFocused && m_wSelectedIcon)
-			m_wSelectedIcon.SetVisible(true);
 		bool visible = controller && controller.GC_AreWorldHealthBarsEnabled();
 		if (!visible)
 		{
@@ -828,7 +831,7 @@ class GC_SpectatorEditableEntityMarker
 		m_bScreenPositionInitialized = false;
 	}
 
-	void RefreshPresentation()
+	void RefreshPresentation(bool focused)
 	{
 		if (!m_Slot || !m_wSlotWidget)
 			return;
@@ -840,7 +843,10 @@ class GC_SpectatorEditableEntityMarker
 		}
 
 		if (m_CharacterUI)
+		{
+			m_CharacterUI.SetFocused(focused);
 			m_CharacterUI.UpdateDistancePresentation(m_fVisibilityDistance, m_fMaxDistance);
+		}
 		else if (m_GroupUI)
 			m_GroupUI.UpdateDistancePresentation(m_fVisibilityDistance, m_fMaxDistance);
 	}
@@ -909,6 +915,8 @@ class GC_SpectatorMarkerOverlay
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mCharacterShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 	protected ref map<SCR_EditableEntityComponent, ref array<IEntity>> m_mVehicleShooters = new map<SCR_EditableEntityComponent, ref array<IEntity>>();
 	protected ref map<SCR_EditableEntityComponent, CharacterWeaponManagerComponent> m_mCharacterWeaponManagers = new map<SCR_EditableEntityComponent, CharacterWeaponManagerComponent>();
+	//! Rebuilt from the roster for this presentation pass; never an ownership cache.
+	protected ref map<IEntity, int> m_mPresentationPlayers = new map<IEntity, int>();
 
 	bool Start(float projectileTraceDuration, bool projectileTracersEnabled, GC_KilledFromSnapshot killedFromSnapshot, bool killedFromEnabled)
 	{
@@ -969,6 +977,7 @@ class GC_SpectatorMarkerOverlay
 
 	void Destroy()
 	{
+		m_mPresentationPlayers.Clear();
 		if (m_EditableEntityCore)
 		{
 			m_EditableEntityCore.Event_OnEntityRegistered.Remove(OnEntityRegistered);
@@ -1170,6 +1179,25 @@ class GC_SpectatorMarkerOverlay
 		vector cameraPosition = cameraTransform[3];
 		int screenWidth = m_Workspace.DPIUnscale(m_Workspace.GetWidth());
 		int screenHeight = m_Workspace.DPIUnscale(m_Workspace.GetHeight());
+		GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		int focusedPlayer;
+		if (controller)
+			focusedPlayer = controller.GC_GetFocusedPlayer();
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		m_mPresentationPlayers.Clear();
+		if (focusedPlayer > 0 && manager)
+		{
+			// Preserve GetSlotByEntity's first-slot precedence, including player ID 0.
+			// One roster pass replaces one full search per visible character.
+			foreach (GC_Slot slot : manager.GetSlots())
+			{
+				if (!slot)
+					continue;
+				IEntity owner = slot.GetEntity();
+				if (owner && !m_mPresentationPlayers.Contains(owner))
+					m_mPresentationPlayers.Insert(owner, slot.GetPlayerId());
+			}
+		}
 
 		foreach (SCR_EditableEntityComponent entity, GC_SpectatorEditableEntityMarker marker : m_mMarkers)
 		{
@@ -1183,7 +1211,19 @@ class GC_SpectatorMarkerOverlay
 			if (shouldBeActive && marker.IsActive())
 			{
 				marker.Update(screenPosition);
-				marker.RefreshPresentation();
+				bool focused;
+				if (focusedPlayer > 0 && manager && entity.GetEntityType() == EEditableEntityType.CHARACTER)
+				{
+					IEntity owner = entity.GetOwner();
+					if (owner && !owner.FindComponent(GC_LobbySpectatorBodyComponent))
+					{
+						int playerId;
+						if (!m_mPresentationPlayers.Find(owner, playerId))
+							playerId = GetGame().GetPlayerManager().GetPlayerIdFromControlledEntity(owner);
+						focused = playerId == focusedPlayer;
+					}
+				}
+				marker.RefreshPresentation(focused);
 			}
 		}
 	}

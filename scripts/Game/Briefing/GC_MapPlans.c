@@ -7,6 +7,7 @@ class GC_MapPlans
 	protected bool m_bReplacing;
 	protected bool m_bRecoveryBlocked;
 	protected int m_iGeneration;
+	protected int m_iContentRevision;
 	protected string m_sRecoveryStatus = "Recovery has not started.";
 	protected static bool s_bSameLastMission;
 	static const string LAST_MISSION_FILE = "$profile:Lobby2LastMission.txt";
@@ -104,10 +105,17 @@ class GC_MapPlans
 	//------------------------------------------------------------------------------------------------
 	void Changed()
 	{
+		m_iContentRevision++;
 		if (!IsActive() || !m_bReady || m_bReplacing)
 			return;
 		GetGame().GetCallqueue().Remove(SaveChanged);
 		GetGame().GetCallqueue().CallLater(SaveChanged, 0);
+	}
+
+	//! Changes include replacement operations, even while recovery saves are suppressed.
+	int GetContentRevision()
+	{
+		return m_iContentRevision;
 	}
 
 	//------------------------------------------------------------------------------------------------

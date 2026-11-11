@@ -105,8 +105,8 @@ modded class GC_LobbyManager
 			int previous = m_mGC_LastParameterWave.Get(factionKey);
 			if (elapsed - previous < value.GetIntValue() * 60)
 				continue;
-			m_mGC_LastParameterWave.Set(factionKey, elapsed);
-			GC_RespawnFactionSlots(factionKey);
+			if (GC_QueueFactionRespawns(factionKey))
+				m_mGC_LastParameterWave.Set(factionKey, elapsed);
 		}
 	}
 

@@ -14,7 +14,7 @@ modded class GC_LobbyManager
 				bool result;
 				return GC_RunFrameworkScript(source, action.m_Script, result) && result;
 			case GC_ERuleAction.RESPAWN_WAVE:
-				return GC_RespawnWave(action.m_aFlagNames, action.m_iAmount, action.m_bFlagAnswer, action.m_bRandomOrder, action.m_RespawnLocation) >= 0;
+				return GC_QueueRespawnWave(action.m_aFlagNames, action.m_iAmount, action.m_bFlagAnswer, action.m_bRandomOrder, action.m_RespawnLocation, source);
 			case GC_ERuleAction.RESPAWN_LOCATION:
 				return GC_SetRespawnLocation(action.m_aFlagNames, action.m_RespawnLocation);
 			case GC_ERuleAction.JIP:
@@ -43,7 +43,7 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool GC_HasFrameworkSource(GC_MissionRuleEngine source)
+	bool GC_HasFrameworkSource(GC_MissionRuleEngine source)
 	{
 		return HasMissionRuleAuthority() && m_bMissionEventsEnabled && source && source == m_MissionRuleEngine && source.IsRunning();
 	}

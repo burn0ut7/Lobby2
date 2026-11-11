@@ -115,6 +115,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref map<UUID, IEntity> m_mReservedSpectators = new map<UUID, IEntity>();
 	protected ref array<GC_Slot> m_aPendingBriefingSpawns = {};
 	protected ref array<int> m_aPendingPlayerCatchUps = {};
+	protected ref array<int> m_aRetryPlayerCatchUps = {};
 	protected ref map<int, int> m_mPlayerCatchUpAttempts = new map<int, int>();
 	//! Transport-convergence hints only. Never consulted for authorization or UI state.
 	protected ref map<int, EPlayerRole> m_mPendingRoles = new map<int, EPlayerRole>();
@@ -125,6 +126,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected ref set<SCR_AIGroup> m_NativeGroupRegistrations = new set<SCR_AIGroup>();
 	protected bool m_bBriefingSpawnQueued;
 	protected bool m_bCatchUpQueued;
+	protected bool m_bStartGamePending;
+	protected bool m_bStartRequiresReadiness;
+	protected int m_iStartRequester;
+	protected UUID m_sStartRequesterIdentity;
 
 	//------------------------------------------------------------------------------------------------
 	protected static ref ScriptInvoker s_MissionStateChanged = new ScriptInvoker();
@@ -397,6 +402,16 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//! SCR_BaseGameMode.
 	override void OnGameStateChanged(SCR_EGameModeState state)
 	{
+		if (state != SCR_EGameModeState.BRIEFING)
+		{
+			m_bStartGamePending = false;
+			m_bBriefingSpawnQueued = false;
+			m_aPendingBriefingSpawns.Clear();
+			GetGame().GetCallqueue().Remove(ProcessBriefingSlotSpawns);
+			GetGame().GetCallqueue().Remove(CompleteLobbyGameStart);
+		}
+		if (state != SCR_EGameModeState.GAME)
+			GC_LobbyManager.Cast(this).GC_CancelRespawnWaves();
 		UpdateMissionGameState(state);
 
 		string role = "proxy";
@@ -510,13 +525,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				return false;
 			}
 
-			if (!StartLobbyGame())
+			if (!StartLobbyGame(playerId))
 			{
 				GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "rejected-transition-failed");
 				return false;
 			}
 
-			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "succeeded");
+			GC_AdminActionLogger.Log(playerId, "advance-phase", requestedPhaseName, "queued");
 			return true;
 		}
 
@@ -535,7 +550,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Shared start operation for authenticated admin requests and CO readiness.
-	protected bool StartLobbyGame()
+	protected bool StartLobbyGame(int requesterId = 0, bool requireReadiness = false)
 	{
 		if (!Replication.IsServer() || GetManager() != this || m_bShutdown)
 			return false;
@@ -544,18 +559,57 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!gameMode || gameMode.GetState() != SCR_EGameModeState.BRIEFING)
 			return false;
 
+		if (m_bStartGamePending)
+			return false;
+		m_bStartGamePending = true;
+		m_iStartRequester = requesterId;
+		m_sStartRequesterIdentity = string.Empty;
+		if (requesterId > 0)
+			m_sStartRequesterIdentity = SCR_PlayerIdentityUtils.GetPlayerIdentityId(requesterId);
+		m_bStartRequiresReadiness = requireReadiness;
+		QueueBriefingSlotSpawns();
+		if (!m_bBriefingSpawnQueued)
+		{
+			m_bBriefingSpawnQueued = true;
+			GetGame().GetCallqueue().CallLater(ProcessBriefingSlotSpawns, 1);
+		}
+		return true;
+	}
+
+	//! The existing briefing phase remains active until all staged attempts finish.
+	protected void CompleteLobbyGameStart()
+	{
+		if (!m_bStartGamePending)
+			return;
+		m_bStartGamePending = false;
+		GC_LobbyGameMode gameMode = GC_LobbyGameMode.GetGameMode();
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown || !gameMode
+			|| gameMode.GetState() != SCR_EGameModeState.BRIEFING)
+			return;
+		if (m_iStartRequester > 0)
+		{
+			if (m_sStartRequesterIdentity != SCR_PlayerIdentityUtils.GetPlayerIdentityId(m_iStartRequester))
+			{
+				GC_AdminActionLogger.Log(m_iStartRequester, "advance-phase", "GAME", "rejected-requester-changed");
+				return;
+			}
+			if (!AuthorizeAdminAction(m_iStartRequester, "advance-phase", "GAME"))
+				return;
+		}
+		if (m_bStartRequiresReadiness && !AreBriefingCommandersReady())
+			return;
 		// A failed prefab does not block the mission; the affected player remains
 		// a spectator and the existing spawn handler logs the failure.
-		ForceSpawnClaimedSlots();
 		PrintFormat("GC | Phase | invoking native StartGameMode: lobby=%1 base=%2", GetPhaseName(GetLobbyPhase()), GetBaseStateName(gameMode.GetState()));
 		gameMode.StartGameMode();
+		string result = "succeeded";
 		if (gameMode.GetState() != SCR_EGameModeState.GAME)
 		{
 			PrintFormat("GC | Phase | native StartGameMode failed: base=%1", GetBaseStateName(gameMode.GetState()), level: LogLevel.ERROR);
-			return false;
+			result = "rejected-transition-failed";
 		}
-
-		return true;
+		if (m_iStartRequester > 0)
+			GC_AdminActionLogger.Log(m_iStartRequester, "advance-phase", "GAME", result);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -911,7 +965,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (!Replication.IsServer() || playerId <= 0 || m_bShutdown)
 			return;
 
-		if (!m_aPendingPlayerCatchUps.Contains(playerId))
+		if (!m_aPendingPlayerCatchUps.Contains(playerId) && !m_aRetryPlayerCatchUps.Contains(playerId))
 			m_aPendingPlayerCatchUps.Insert(playerId);
 
 		if (m_bCatchUpQueued)
@@ -923,18 +977,21 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected void ProcessPlayerCatchUps()
 	{
-		m_bCatchUpQueued = false;
-		if (m_bShutdown || !Replication.IsServer())
+		if (m_bShutdown || !Replication.IsServer() || GetManager() != this)
 		{
+			m_bCatchUpQueued = false;
 			m_aPendingPlayerCatchUps.Clear();
+			m_aRetryPlayerCatchUps.Clear();
 			m_mPlayerCatchUpAttempts.Clear();
 			return;
 		}
 
-		array<int> retry = {};
 		PrintFormat("GC | Lifecycle | processing catch-up queue: count=%1", m_aPendingPlayerCatchUps.Count());
-		foreach (int playerId : m_aPendingPlayerCatchUps)
+		int started = System.GetTickCount();
+		for (int processed; processed < BRIEFING_SPAWN_BATCH_SIZE && !m_aPendingPlayerCatchUps.IsEmpty() && (processed == 0 || System.GetTickCount(started) < 2); processed++)
 		{
+			int playerId = m_aPendingPlayerCatchUps[0];
+			m_aPendingPlayerCatchUps.RemoveOrdered(0);
 			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerManager().GetPlayerController(playerId));
 			if (!controller)
 			{
@@ -942,7 +999,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 				if (attempts < PLAYER_CATCHUP_MAX_RETRIES)
 				{
 					m_mPlayerCatchUpAttempts.Set(playerId, attempts);
-					retry.Insert(playerId);
+					m_aRetryPlayerCatchUps.Insert(playerId);
 				}
 				else
 				{
@@ -956,11 +1013,17 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			CatchUpPlayer(playerId);
 		}
 
-		m_aPendingPlayerCatchUps = retry;
+		int delay = 1;
+		if (m_aPendingPlayerCatchUps.IsEmpty())
+		{
+			m_aPendingPlayerCatchUps.Copy(m_aRetryPlayerCatchUps);
+			m_aRetryPlayerCatchUps.Clear();
+			delay = PLAYER_CATCHUP_RETRY_MS;
+		}
+		m_bCatchUpQueued = !m_aPendingPlayerCatchUps.IsEmpty();
 		if (!m_aPendingPlayerCatchUps.IsEmpty())
 		{
-			m_bCatchUpQueued = true;
-			GetGame().GetCallqueue().CallLater(ProcessPlayerCatchUps, PLAYER_CATCHUP_RETRY_MS);
+			GetGame().GetCallqueue().CallLater(ProcessPlayerCatchUps, delay);
 		}
 	}
 
@@ -1177,6 +1240,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		}
 
 		GetGame().GetCallqueue().Remove(ProcessBriefingSlotSpawns);
+		m_bBriefingSpawnQueued = false;
 		if (!m_aPendingBriefingSpawns.IsEmpty())
 		{
 			m_bBriefingSpawnQueued = true;
@@ -1186,35 +1250,32 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	protected void ProcessBriefingSlotSpawns()
 	{
-		if (m_bShutdown || GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
+		if (m_bShutdown || !Replication.IsServer() || GetManager() != this || GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
 		{
 			m_aPendingBriefingSpawns.Clear();
 			m_bBriefingSpawnQueued = false;
+			m_bStartGamePending = false;
 			return;
 		}
 
 		int count;
-		while (count < BRIEFING_SPAWN_BATCH_SIZE && !m_aPendingBriefingSpawns.IsEmpty())
+		int started = System.GetTickCount();
+		while (count < BRIEFING_SPAWN_BATCH_SIZE && !m_aPendingBriefingSpawns.IsEmpty() && (count == 0 || System.GetTickCount(started) < 2))
 		{
 			GC_Slot slot = m_aPendingBriefingSpawns[0];
 			m_aPendingBriefingSpawns.Remove(0);
-			if (slot && slot.HasClaim() && !slot.IsKIA() && !slot.GetEntity())
-				SpawnSlotEntity(slot, false);
+			if (slot && m_Roster.ContainsSlot(slot) && slot.HasClaim() && !slot.IsKIA() && !slot.GetEntity())
+				SpawnSlotEntity(slot, m_bStartGamePending);
 			count++;
 		}
 
 		if (!m_aPendingBriefingSpawns.IsEmpty())
-			GetGame().GetCallqueue().CallLater(ProcessBriefingSlotSpawns, 0);
+			GetGame().GetCallqueue().CallLater(ProcessBriefingSlotSpawns, 1);
 		else
-			m_bBriefingSpawnQueued = false;
-	}
-
-	protected void ForceSpawnClaimedSlots()
-	{
-		foreach (GC_Slot slot : m_Roster.GetSlots())
 		{
-			if (slot && slot.HasClaim() && !slot.IsKIA() && !slot.GetEntity())
-				SpawnSlotEntity(slot, true);
+			m_bBriefingSpawnQueued = false;
+			if (m_bStartGamePending)
+				GetGame().GetCallqueue().CallLater(CompleteLobbyGameStart, 1);
 		}
 	}
 
@@ -4450,6 +4511,11 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return m_BriefingCatalog.GetMarkers();
     }
 
+	int GetBriefingMarkerRevision()
+	{
+		return m_BriefingCatalog.GetMarkerRevision();
+	}
+
     array<ref GC_BriefingMarker> GetBriefingMarkersForPlayer(int playerId)
     {
         return m_BriefingCatalog.GetMarkersFor(GetPlayerFaction(playerId), GetLobbyPhase());
@@ -4810,6 +4876,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return;
 
 		m_bShutdown = true;
+		m_bStartGamePending = false;
+		GC_LobbyManager.Cast(this).GC_CancelRespawnWaves();
+		GetGame().GetCallqueue().Remove(CompleteLobbyGameStart);
 		StopMissionRules();
 		GC_LobbyGameMode gameMode = GC_LobbyGameMode.Cast(GetOwner());
 		if (gameMode)
@@ -4851,6 +4920,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		GetGame().GetCallqueue().Remove(ProcessPlayerCatchUps);
 		m_aPendingBriefingSpawns.Clear();
 		m_aPendingPlayerCatchUps.Clear();
+		m_aRetryPlayerCatchUps.Clear();
 		m_mPlayerCatchUpAttempts.Clear();
 		m_mPendingRoles.Clear();
 		m_mPendingRoleAttempts.Clear();
@@ -4995,6 +5065,14 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			|| GetLobbyPhase() != SCR_EGameModeState.BRIEFING)
 			return;
 
+		if (!AreBriefingCommandersReady())
+			return;
+		Print("GC | Readiness | all commanding officers ready; starting session");
+		StartLobbyGame(0, true);
+	}
+
+	protected bool AreBriefingCommandersReady()
+	{
 		ReconcileFactionReadiness();
 		bool hasCommandSlot;
 		foreach (Faction faction : GetRegisteredFactions())
@@ -5005,14 +5083,10 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 			hasCommandSlot = true;
 			if (!IsFactionReady(factionKey))
-				return;
+				return false;
 		}
 
-		if (!hasCommandSlot)
-			return;
-
-		Print("GC | Readiness | all commanding officers ready; starting session");
-		StartLobbyGame();
+		return hasCommandSlot;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -6,6 +6,12 @@ class GC_TelemetryBinaryBatch
 	protected ref array<float> m_aStates = {};
 	protected ref array<int> m_aVehicleIds = {};
 	protected ref array<float> m_aVehicles = {};
+	protected ref FileHandle m_File;
+	protected int m_iSaveStep;
+	protected int m_iWritten;
+	protected int m_iCompared;
+	protected ref array<int> m_aReadInts;
+	protected ref array<float> m_aReadFloats;
 	static const int MAGIC = 1112814156;
 
 	//------------------------------------------------------------------------------------------------
@@ -54,59 +60,126 @@ class GC_TelemetryBinaryBatch
 	//! A ready marker may only follow this successful, byte-counted readback.
 	bool SaveVerified(string path, string header, string cold)
 	{
+		int result;
+		while (result == 0)
+			result = SaveVerifiedStep(path, header, cold);
+		return result > 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! One bounded table/string IO step. The caller must keep this batch and its
+	//! envelope immutable until completion. 0 = pending, 1 = verified, -1 = failed.
+	int SaveVerifiedStep(string path, string header, string cold)
+	{
 		array<int> prefix = {MAGIC, 1, header.Length(), cold.Length(), m_aStateIds.Count() / 4, m_aVehicleIds.Count() / 3};
 		int expected = 24 + header.Length() + cold.Length() + GetNumericBytes();
-		FileHandle file = FileIO.OpenFile(path, FileMode.WRITE);
-		if (!file)
-			return false;
-		int written = file.WriteArray(prefix);
-		written += file.Write(header);
-		written += file.Write(cold);
-		written += file.WriteArray(m_aStateIds);
-		written += file.WriteArray(m_aStates);
-		written += file.WriteArray(m_aVehicleIds);
-		written += file.WriteArray(m_aVehicles);
-		file.Close();
-		if (written != expected)
-			return false;
-		file = FileIO.OpenFile(path, FileMode.READ);
-		if (!file)
-			return false;
-		bool valid = file.GetLength() == expected && VerifyInts(file, prefix);
+		bool valid = true;
+		int compared = 1;
 		string actual;
-		valid = valid && file.Read(actual, header.Length()) == header.Length() && actual == header;
-		valid = valid && file.Read(actual, cold.Length()) == cold.Length() && actual == cold;
-		valid = valid && VerifyInts(file, m_aStateIds) && VerifyFloats(file, m_aStates);
-		valid = valid && VerifyInts(file, m_aVehicleIds) && VerifyFloats(file, m_aVehicles);
-		file.Close();
-		return valid;
+		switch (m_iSaveStep)
+		{
+			case 0:
+				m_File = FileIO.OpenFile(path, FileMode.WRITE);
+				valid = m_File != null;
+				m_iWritten = 0;
+				break;
+			case 1: m_iWritten += m_File.WriteArray(prefix); break;
+			case 2: m_iWritten += m_File.Write(header); break;
+			case 3: m_iWritten += m_File.Write(cold); break;
+			case 4: m_iWritten += m_File.WriteArray(m_aStateIds); break;
+			case 5: m_iWritten += m_File.WriteArray(m_aStates); break;
+			case 6: m_iWritten += m_File.WriteArray(m_aVehicleIds); break;
+			case 7: m_iWritten += m_File.WriteArray(m_aVehicles); break;
+			case 8:
+				m_File.Close();
+				m_File = null;
+				valid = m_iWritten == expected;
+				break;
+			case 9:
+				m_File = FileIO.OpenFile(path, FileMode.READ);
+				valid = m_File && m_File.GetLength() == expected;
+				break;
+			case 10: compared = VerifyInts(m_File, prefix); break;
+			case 11: valid = m_File.Read(actual, header.Length()) == header.Length() && actual == header; break;
+			case 12: valid = m_File.Read(actual, cold.Length()) == cold.Length() && actual == cold; break;
+			case 13: compared = VerifyInts(m_File, m_aStateIds); break;
+			case 14: compared = VerifyFloats(m_File, m_aStates); break;
+			case 15: compared = VerifyInts(m_File, m_aVehicleIds); break;
+			case 16: compared = VerifyFloats(m_File, m_aVehicles); break;
+			case 17:
+				ResetSave();
+				return 1;
+		}
+		if (!valid || compared < 0)
+		{
+			ResetSave();
+			return -1;
+		}
+		if (compared == 0)
+			return 0;
+		m_iSaveStep++;
+		return 0;
+	}
+
+	protected void ResetSave()
+	{
+		if (m_File)
+			m_File.Close();
+		m_File = null;
+		m_iSaveStep = 0;
+		m_iCompared = 0;
+		m_aReadInts = null;
+		m_aReadFloats = null;
+	}
+
+	void ~GC_TelemetryBinaryBatch()
+	{
+		ResetSave();
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool VerifyInts(FileHandle file, array<int> expected)
+	protected int VerifyInts(FileHandle file, array<int> expected)
 	{
-		array<int> actual = {};
-		if (file.ReadArray(actual, 4, expected.Count()) != expected.Count() * 4 || actual.Count() != expected.Count())
-			return false;
-		for (int i; i < expected.Count(); i++)
+		if (!m_aReadInts)
 		{
-			if (actual[i] != expected[i])
-				return false;
+			m_aReadInts = {};
+			if (file.ReadArray(m_aReadInts, 4, expected.Count()) != expected.Count() * 4 || m_aReadInts.Count() != expected.Count())
+				return -1;
+			m_iCompared = 0;
+			return 0;
 		}
-		return true;
+		int end = Math.Min(expected.Count(), m_iCompared + 256);
+		for (; m_iCompared < end; m_iCompared++)
+		{
+			if (m_aReadInts[m_iCompared] != expected[m_iCompared])
+				return -1;
+		}
+		if (m_iCompared < expected.Count())
+			return 0;
+		m_aReadInts = null;
+		return 1;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool VerifyFloats(FileHandle file, array<float> expected)
+	protected int VerifyFloats(FileHandle file, array<float> expected)
 	{
-		array<float> actual = {};
-		if (file.ReadArray(actual, 4, expected.Count()) != expected.Count() * 4 || actual.Count() != expected.Count())
-			return false;
-		for (int i; i < expected.Count(); i++)
+		if (!m_aReadFloats)
 		{
-			if (actual[i] != expected[i])
-				return false;
+			m_aReadFloats = {};
+			if (file.ReadArray(m_aReadFloats, 4, expected.Count()) != expected.Count() * 4 || m_aReadFloats.Count() != expected.Count())
+				return -1;
+			m_iCompared = 0;
+			return 0;
 		}
-		return true;
+		int end = Math.Min(expected.Count(), m_iCompared + 256);
+		for (; m_iCompared < end; m_iCompared++)
+		{
+			if (m_aReadFloats[m_iCompared] != expected[m_iCompared])
+				return -1;
+		}
+		if (m_iCompared < expected.Count())
+			return 0;
+		m_aReadFloats = null;
+		return 1;
 	}
 }

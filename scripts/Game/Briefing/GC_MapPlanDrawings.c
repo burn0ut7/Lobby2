@@ -14,6 +14,12 @@ class GC_MapPlanDrawings
 	{
 	}
 
+	//! Read one encoded drawing without constructing the complete collection.
+	bool CaptureRow(int index, out array<int> row)
+	{
+		return false;
+	}
+
 	//------------------------------------------------------------------------------------------------
 	bool Validate(array<ref array<int>> drawings)
 	{

@@ -62,6 +62,9 @@ class GC_MissionRuleEngine
 	protected GC_LobbyManager m_ActionManager;
 	protected bool m_bRunning;
 	protected bool m_bDispatching;
+	protected bool m_bWaitingForRespawnWave;
+	protected bool m_bDeferredStateChanged;
+	protected int m_iChainEvents;
 	protected float m_fNow;
 	protected ref array<ref GC_RandomConditionState> m_aRandomConditions = {};
 	protected ref map<GC_RuleCondition, bool> m_mRandomResults = new map<GC_RuleCondition, bool>();
@@ -331,6 +334,7 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	void Stop()
 	{
+		m_bWaitingForRespawnWave = false;
 		m_bRunning = false;
 		m_ActionManager = null;
 		foreach (string groupName, GC_AIGroupObservation group : m_mAIGroupNames)
@@ -433,6 +437,8 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void ResetPulses()
 	{
+		m_bDeferredStateChanged = false;
+		m_iChainEvents = 0;
 		foreach (GC_RuleCondition interactionCheck, GC_InteractionObservation interaction : m_mInteractions)
 			interaction.ResetPulse();
 		foreach (string eventName : m_aPulseEvents)
@@ -573,6 +579,10 @@ class GC_MissionRuleEngine
 		if (!m_bRunning || elapsedSeconds < m_fNow)
 			return;
 		m_fNow = elapsedSeconds;
+		// Preserve elapsed time, but do not consume delayed rules or sample
+		// conditions against a partially completed respawn wave.
+		if (m_bWaitingForRespawnWave)
+			return;
 		// Queue events until this pass completes, preventing reentrant timer execution.
 		m_bDispatching = true;
 		AdvanceRandomConditions();
@@ -1180,14 +1190,13 @@ class GC_MissionRuleEngine
 	//------------------------------------------------------------------------------------------------
 	protected void DrainEvents()
 	{
-		if (m_bDispatching || !m_bRunning)
+		if (m_bDispatching || m_bWaitingForRespawnWave || !m_bRunning)
 			return;
-		bool changed = !m_aEvents.IsEmpty();
+		bool changed = m_bDeferredStateChanged || !m_aEvents.IsEmpty();
 		m_bDispatching = true;
-		int processed;
-		while (m_bRunning && !m_aEvents.IsEmpty())
+		while (m_bRunning && !m_bWaitingForRespawnWave && !m_aEvents.IsEmpty())
 		{
-			if (++processed > 256)
+			if (++m_iChainEvents > 256)
 			{
 				StopEventLoop();
 				break;
@@ -1267,10 +1276,30 @@ class GC_MissionRuleEngine
 					TryRun(state);
 			}
 		}
-		ResetPulses();
 		m_bDispatching = false;
+		if (m_bWaitingForRespawnWave)
+		{
+			m_bDeferredStateChanged = changed;
+			return;
+		}
+		ResetPulses();
 		if (changed)
 			m_OnStateChanged.Invoke();
+	}
+
+	//! Only the owning manager resumes a queued wave's suspended action chain.
+	void ResumeAfterRespawnWave()
+	{
+		if (!m_bRunning || !m_bWaitingForRespawnWave)
+			return;
+		m_bWaitingForRespawnWave = false;
+		DrainEvents();
+	}
+
+	//! Phase teardown releases the wait before the new phase observation drains.
+	void CancelRespawnWaveWait()
+	{
+		m_bWaitingForRespawnWave = false;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1323,6 +1352,8 @@ class GC_MissionRuleEngine
 		}
 		if (!accepted)
 			PrintFormat("GC | Mission Framework | Action rejected: type=%1 target=%2 (check name, state and limits)", action.m_eDo, action.m_sTextOrName, level: LogLevel.WARNING);
+		else if (action.m_eDo == GC_ERuleAction.RESPAWN_WAVE)
+			m_bWaitingForRespawnWave = true;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -99,9 +99,23 @@ class GC_TelemetryMap
 	protected ref GC_MapPlanDrawings m_Drawings = new GC_MapPlanDrawings();
 	protected int m_iFaction = -1;
 	protected float m_fNextCycle;
+	protected ref GC_TelemetryMapSnapshot m_Snapshot;
+	protected ref JsonSaveContext m_Encoding;
+	protected ref array<SCR_MapMarkerBase> m_aNativeMarkers;
+	protected int m_iStage;
+	protected int m_iIndex;
+	protected int m_iShapeRevision;
+	protected int m_iCountedShapes;
+	protected int m_iCountedMarkers;
+	protected int m_iMinimumBytes;
+	protected GC_MapPlans m_Plans;
+	protected Faction m_Faction;
+	protected int m_iPlanRevision;
+	protected int m_iMarkerRevision;
+	protected SCR_EGameModeState m_ePhase;
 
 	//------------------------------------------------------------------------------------------------
-	void Sample(GC_TelemetryRecorder recorder, float now)
+	void Sample(GC_TelemetryRecorder recorder, float now, int started)
 	{
 		if (now < m_fNextCycle)
 			return;
@@ -118,32 +132,168 @@ class GC_TelemetryMap
 		Faction faction;
 		if (m_iFaction >= 0)
 			faction = factions.GetFactionByIndex(m_iFaction);
-		GC_TelemetryMapSnapshot snapshot = Capture(mode, manager, faction, m_iFaction);
-		m_iFaction++;
-		if (m_iFaction >= factions.GetFactionsCount())
+		GC_MapPlans plans = GC_MapPlans.GetInstance();
+		int planRevision;
+		if (plans)
+			planRevision = plans.GetContentRevision();
+		if (m_Snapshot && (m_iShapeRevision != mode.GetMapShapes().GetRevision()
+			|| m_iMarkerRevision != manager.GetBriefingMarkerRevision() || m_Plans != plans
+			|| m_iPlanRevision != planRevision || m_Faction != faction || m_ePhase != manager.GetLobbyPhase()))
 		{
-			m_iFaction = -1;
-			m_fNextCycle = now + 1000;
-		}
-		JsonSaveContext check = new JsonSaveContext();
-		check.SetMaxDecimalPlaces(6);
-		snapshot.Write(check);
-		string encoded = check.SaveToString();
-		if (!check.IsValid() || encoded.Length() > 65536 || snapshot.m_aShapes.Count() > 384 || snapshot.m_aMarkers.Count() > 512)
-		{
-			recorder.Stop("overflow");
+			ResetCapture();
 			return;
 		}
-		if (m_mPrevious.Contains(snapshot.m_sFaction) && m_mPrevious.Get(snapshot.m_sFaction) == encoded)
-			return;
-		JsonSaveContext context = recorder.BeginRecord("map-state");
-		snapshot.Write(context);
-		if (recorder.CommitRecord(context) > 0)
-			m_mPrevious.Set(snapshot.m_sFaction, encoded);
+		if (!m_Snapshot)
+		{
+			m_Snapshot = new GC_TelemetryMapSnapshot();
+			if (faction)
+				m_Snapshot.m_sFaction = faction.GetFactionKey();
+			m_iShapeRevision = mode.GetMapShapes().GetRevision();
+			m_iMarkerRevision = manager.GetBriefingMarkerRevision();
+			m_iPlanRevision = planRevision;
+			m_Plans = plans;
+			m_Faction = faction;
+			m_ePhase = manager.GetLobbyPhase();
+		}
+		// Each unit visits one source/encoded item. Share the recorder deadline;
+		// retaining cursors avoids restarting expensive collections next frame.
+		for (int unit; unit < 32 && recorder.IsRunning() && System.GetTickCount(started) < GC_TelemetryRecorder.TICK_BUDGET_MS; unit++)
+		{
+			if (m_iStage == 0)
+			{
+				if (m_iIndex < Math.Max(mode.GetMapShapes().GetShapeCount(), manager.GetBriefingMarkers().Count()))
+				{
+					GC_TelemetryMapSnapshot part = Capture(mode, manager, faction, m_iIndex++);
+					foreach (GC_TelemetryMapShape shape : part.m_aShapes)
+						m_Snapshot.m_aShapes.Insert(shape);
+					foreach (GC_TelemetryMapMarker marker : part.m_aMarkers)
+						m_Snapshot.m_aMarkers.Insert(marker);
+				}
+				else
+				{
+					m_aNativeMarkers = {};
+					SCR_MapMarkerManagerComponent nativeMarkers = SCR_MapMarkerManagerComponent.GetInstance();
+					if (nativeMarkers && nativeMarkers.GetMarkerConfig())
+					{
+						m_Snapshot.m_bMarkersAvailable = true;
+						m_aNativeMarkers.InsertAll(nativeMarkers.GetStaticMarkers());
+						m_aNativeMarkers.InsertAll(nativeMarkers.GetDisabledMarkers());
+					}
+					NextStage();
+				}
+			}
+			else if (m_iStage == 1)
+			{
+				if (m_iIndex < m_aNativeMarkers.Count())
+					CaptureSharedMarker(m_Snapshot, m_iFaction, m_aNativeMarkers[m_iIndex++]);
+				else
+					NextStage();
+			}
+			else if (m_iStage == 2)
+			{
+				if (!CaptureDrawing(recorder, m_Snapshot, m_iFaction, m_iIndex++))
+				{
+					m_Encoding = new JsonSaveContext();
+					m_Encoding.SetMaxDecimalPlaces(6);
+					m_Encoding.WriteValue("faction", m_Snapshot.m_sFaction);
+					m_Encoding.WriteValue("markersAvailable", m_Snapshot.m_bMarkersAvailable);
+					m_Encoding.WriteValue("drawingsAvailable", m_Snapshot.m_bDrawingsAvailable);
+					int shapeCount = m_Snapshot.m_aShapes.Count();
+					m_Encoding.StartArray("shapes", shapeCount);
+					NextStage();
+				}
+			}
+			else if (m_iStage == 3)
+			{
+				if (m_iIndex < m_Snapshot.m_aShapes.Count())
+				{
+					m_Encoding.StartObject();
+					m_Snapshot.m_aShapes[m_iIndex++].Write(m_Encoding);
+					m_Encoding.EndObject();
+				}
+				else
+				{
+					m_Encoding.EndArray();
+					int markerCount = m_Snapshot.m_aMarkers.Count();
+					m_Encoding.StartArray("markers", markerCount);
+					NextStage();
+				}
+			}
+			else if (m_iStage == 4)
+			{
+				if (m_iIndex < m_Snapshot.m_aMarkers.Count())
+				{
+					m_Encoding.StartObject();
+					m_Snapshot.m_aMarkers[m_iIndex++].Write(m_Encoding);
+					m_Encoding.EndObject();
+				}
+				else
+				{
+					m_Encoding.EndArray();
+					NextStage();
+				}
+			}
+			else
+			{
+				string encoded = m_Encoding.SaveToString();
+				if (!m_Encoding.IsValid() || encoded.Length() > 65536)
+					recorder.Stop("overflow");
+				else if (!m_mPrevious.Contains(m_Snapshot.m_sFaction) || m_mPrevious.Get(m_Snapshot.m_sFaction) != encoded)
+				{
+					if (recorder.CommitMapSnapshot(encoded) > 0)
+						m_mPrevious.Set(m_Snapshot.m_sFaction, encoded);
+				}
+				ResetCapture();
+				if (++m_iFaction >= factions.GetFactionsCount())
+				{
+					m_iFaction = -1;
+					m_fNextCycle = now + 1000;
+				}
+				return;
+			}
+			if (!WithinLimits())
+				recorder.Stop("overflow");
+		}
+	}
+
+	//! Account only newly appended items. Reject certainly oversized payloads
+	//! before native JSON serialization; the exact encoded size is checked too.
+	protected bool WithinLimits()
+	{
+		if (m_Snapshot.m_aShapes.Count() > 384 || m_Snapshot.m_aMarkers.Count() > 512)
+			return false;
+		while (m_iCountedShapes < m_Snapshot.m_aShapes.Count())
+			m_iMinimumBytes += m_Snapshot.m_aShapes[m_iCountedShapes++].m_aPoints.Count() * 2;
+		while (m_iCountedMarkers < m_Snapshot.m_aMarkers.Count())
+		{
+			GC_TelemetryMapMarker marker = m_Snapshot.m_aMarkers[m_iCountedMarkers++];
+			m_iMinimumBytes += marker.m_sLabel.Length() + marker.m_sIcon.Length() + marker.m_sQuad.Length();
+		}
+		return m_iMinimumBytes <= 65536;
+	}
+
+	protected void NextStage()
+	{
+		m_iStage++;
+		m_iIndex = 0;
+	}
+
+	protected void ResetCapture()
+	{
+		m_Snapshot = null;
+		m_Encoding = null;
+		m_aNativeMarkers = null;
+		m_iStage = 0;
+		m_iIndex = 0;
+		m_iCountedShapes = 0;
+		m_iCountedMarkers = 0;
+		m_iMinimumBytes = 0;
+		m_Plans = null;
+		m_Faction = null;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected GC_TelemetryMapSnapshot Capture(GC_LobbyGameMode mode, GC_LobbyManager manager, Faction faction, int factionIndex)
+	protected GC_TelemetryMapSnapshot Capture(GC_LobbyGameMode mode, GC_LobbyManager manager, Faction faction, int sourceIndex)
 	{
 		GC_TelemetryMapSnapshot result = new GC_TelemetryMapSnapshot();
 		if (faction)
@@ -152,7 +302,7 @@ class GC_TelemetryMap
 		array<bool> inverted = {};
 		array<float> widths = {};
 		array<vector> points = {};
-		mode.GetMapShapes().GetFactionSnapshot(faction, counts, colors, fills, inverted, widths, points);
+		mode.GetMapShapes().GetFactionSnapshot(faction, counts, colors, fills, inverted, widths, points, sourceIndex, 1);
 		int cursor;
 		foreach (int index, int count : counts)
 		{
@@ -168,10 +318,11 @@ class GC_TelemetryMap
 			}
 			result.m_aShapes.Insert(shape);
 		}
-		foreach (GC_BriefingMarker authored : manager.GetBriefingMarkers())
+		if (sourceIndex < manager.GetBriefingMarkers().Count())
 		{
+			GC_BriefingMarker authored = manager.GetBriefingMarkers()[sourceIndex];
 			if (!authored.IsVisibleToFaction(faction, manager.GetLobbyPhase()))
-				continue;
+				return result;
 			GC_TelemetryMapMarker marker = new GC_TelemetryMapMarker();
 			marker.m_vPosition = authored.GetWorldPosition();
 			marker.m_sLabel = authored.GetDescription();
@@ -184,108 +335,102 @@ class GC_TelemetryMap
 			marker.m_bWorldScale = authored.IsWorldScale();
 			result.m_aMarkers.Insert(marker);
 		}
-		CaptureSharedMarkers(result, factionIndex);
-		CaptureDrawings(result, factionIndex);
 		return result;
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void CaptureSharedMarkers(GC_TelemetryMapSnapshot result, int factionIndex)
+	protected void CaptureSharedMarker(GC_TelemetryMapSnapshot result, int factionIndex, SCR_MapMarkerBase sourceMarker)
 	{
 		SCR_MapMarkerManagerComponent manager = SCR_MapMarkerManagerComponent.GetInstance();
-		if (!manager || !manager.GetMarkerConfig())
+		if (!sourceMarker || !manager || !manager.GetMarkerConfig())
 			return;
-		result.m_bMarkersAvailable = true;
-		array<SCR_MapMarkerBase> markers = manager.GetStaticMarkers();
-		markers.InsertAll(manager.GetDisabledMarkers());
-		foreach (SCR_MapMarkerBase sourceMarker : markers)
+		if (sourceMarker.GetMarkerID() < 0)
+			return;
+		if (sourceMarker.GetType() != SCR_EMapMarkerType.PLACED_CUSTOM && sourceMarker.GetType() != SCR_EMapMarkerType.PLACED_MILITARY)
+			return;
+		if (sourceMarker.GetMarkerFactionFlags() != 0 && (factionIndex < 0 || !sourceMarker.IsFaction(factionIndex)))
+			return;
+		GC_TelemetryMapMarker marker = new GC_TelemetryMapMarker();
+		int xy[2];
+		sourceMarker.GetWorldPos(xy);
+		marker.m_vPosition = Vector(xy[0], 0, xy[1]);
+		marker.m_sLabel = sourceMarker.GetCustomText();
+		marker.m_fRotation = sourceMarker.GetRotation();
+		marker.m_iNativeType = sourceMarker.GetType();
+		marker.m_iNativeConfig = sourceMarker.GetMarkerConfigID();
+		marker.m_iNativeFlags = sourceMarker.GetFlags();
+		SCR_MapMarkerEntryPlaced config = SCR_MapMarkerEntryPlaced.Cast(manager.GetMarkerConfig().GetMarkerEntryConfigByType(sourceMarker.GetType()));
+		if (config)
 		{
-			if (sourceMarker.GetMarkerID() < 0)
-				continue;
-			if (sourceMarker.GetType() != SCR_EMapMarkerType.PLACED_CUSTOM && sourceMarker.GetType() != SCR_EMapMarkerType.PLACED_MILITARY)
-				continue;
-			if (sourceMarker.GetMarkerFactionFlags() != 0 && (factionIndex < 0 || !sourceMarker.IsFaction(factionIndex)))
-				continue;
-			GC_TelemetryMapMarker marker = new GC_TelemetryMapMarker();
-			int xy[2];
-			sourceMarker.GetWorldPos(xy);
-			marker.m_vPosition = Vector(xy[0], 0, xy[1]);
-			marker.m_sLabel = sourceMarker.GetCustomText();
-			marker.m_fRotation = sourceMarker.GetRotation();
-			marker.m_iNativeType = sourceMarker.GetType();
-			marker.m_iNativeConfig = sourceMarker.GetMarkerConfigID();
-			marker.m_iNativeFlags = sourceMarker.GetFlags();
-			SCR_MapMarkerEntryPlaced config = SCR_MapMarkerEntryPlaced.Cast(manager.GetMarkerConfig().GetMarkerEntryConfigByType(sourceMarker.GetType()));
-			if (config)
-			{
-				ResourceName glow;
-				config.GetIconEntry(sourceMarker.GetIconEntry(), marker.m_sIcon, glow, marker.m_sQuad);
-				marker.m_iColor = config.GetColorEntry(sourceMarker.GetColorEntry()).PackToInt();
-			}
-			SCR_MapMarkerEntryMilitary military = SCR_MapMarkerEntryMilitary.Cast(manager.GetMarkerConfig().GetMarkerEntryConfigByType(sourceMarker.GetType()));
-			if (military)
-			{
-				SCR_MarkerMilitaryFactionEntry identity = military.GetFactionEntry(marker.m_iNativeConfig % 100);
-				SCR_MarkerMilitaryDimension dimension = military.GetDimensionEntry(marker.m_iNativeConfig / 100);
-				if (identity)
-				{
-					marker.m_iMilitaryIdentity = identity.GetFactionIdentity();
-					marker.m_iColor = identity.GetColor().PackToInt();
-				}
-				if (dimension)
-					marker.m_iMilitaryDimension = dimension.GetDimension();
-			}
-			result.m_aMarkers.Insert(marker);
+			ResourceName glow;
+			config.GetIconEntry(sourceMarker.GetIconEntry(), marker.m_sIcon, glow, marker.m_sQuad);
+			marker.m_iColor = config.GetColorEntry(sourceMarker.GetColorEntry()).PackToInt();
 		}
+		SCR_MapMarkerEntryMilitary military = SCR_MapMarkerEntryMilitary.Cast(manager.GetMarkerConfig().GetMarkerEntryConfigByType(sourceMarker.GetType()));
+		if (military)
+		{
+			SCR_MarkerMilitaryFactionEntry identity = military.GetFactionEntry(marker.m_iNativeConfig % 100);
+			SCR_MarkerMilitaryDimension dimension = military.GetDimensionEntry(marker.m_iNativeConfig / 100);
+			if (identity)
+			{
+				marker.m_iMilitaryIdentity = identity.GetFactionIdentity();
+				marker.m_iColor = identity.GetColor().PackToInt();
+			}
+			if (dimension)
+				marker.m_iMilitaryDimension = dimension.GetDimension();
+		}
+		result.m_aMarkers.Insert(marker);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void CaptureDrawings(GC_TelemetryMapSnapshot result, int factionIndex)
+	protected bool CaptureDrawing(GC_TelemetryRecorder recorder, GC_TelemetryMapSnapshot result, int factionIndex, int index)
 	{
 		result.m_bDrawingsAvailable = m_Drawings.IsAvailable();
 		if (!result.m_bDrawingsAvailable)
-			return;
-		array<ref array<int>> rows = {};
-		m_Drawings.Capture(rows);
-		if (rows.IsEmpty())
-			return;
+			return false;
+		array<int> row;
+		if (!m_Drawings.CaptureRow(index, row))
+			return false;
 		SCR_MapEntity mapEntity = SCR_MapEntity.Cast(GetGame().GetMapManager());
 		if (!mapEntity)
 		{
 			result.m_bDrawingsAvailable = false;
-			return;
+			return false;
 		}
 		vector size = mapEntity.Size();
 		vector offset = mapEntity.Offset();
-		foreach (array<int> row : rows)
+		if (row && row.Count() > 256)
 		{
-			if (!row || row.Count() < 3)
-				continue;
-			int properties = row[0];
-			int visibility = (properties >> 10) & 63;
-			if (visibility != 63 && visibility != factionIndex)
-				continue;
-			int width = (properties >> 1) & 15;
-			int opacity = (properties >> 5) & 3;
-			int color = (properties >> 7) & 7;
-			GC_TelemetryMapShape shape = new GC_TelemetryMapShape();
-			int packed = Color.FromRGBA(191 * ((color >> 2) & 1), 191 * ((color >> 1) & 1), 191 * (color & 1), 64 * (opacity + 1) - 1).PackToInt();
-			shape.m_fWidth = 0.5 * width * width;
-			shape.m_bClosed = width == 0;
-			shape.m_bWorldWidth = true;
-			if (shape.m_bClosed)
-				shape.m_iFillColor = packed;
-			else
-				shape.m_iLineColor = packed;
-			for (int i = 1; i < row.Count(); i++)
-			{
-				int pointData = row[i];
-				int pointX = (pointData >> 16) & 65535;
-				int pointZ = pointData & 65535;
-				shape.m_aPoints.Insert(pointX / 65535.0 * size[0] - offset[0]);
-				shape.m_aPoints.Insert(pointZ / 65535.0 * size[2] - offset[2]);
-			}
-			result.m_aShapes.Insert(shape);
+			recorder.Stop("overflow");
+			return true;
 		}
+		if (!row || row.Count() < 3)
+			return true;
+		int properties = row[0];
+		int visibility = (properties >> 10) & 63;
+		if (visibility != 63 && visibility != factionIndex)
+			return true;
+		int width = (properties >> 1) & 15;
+		int opacity = (properties >> 5) & 3;
+		int color = (properties >> 7) & 7;
+		GC_TelemetryMapShape shape = new GC_TelemetryMapShape();
+		int packed = Color.FromRGBA(191 * ((color >> 2) & 1), 191 * ((color >> 1) & 1), 191 * (color & 1), 64 * (opacity + 1) - 1).PackToInt();
+		shape.m_fWidth = 0.5 * width * width;
+		shape.m_bClosed = width == 0;
+		shape.m_bWorldWidth = true;
+		if (shape.m_bClosed)
+			shape.m_iFillColor = packed;
+		else
+			shape.m_iLineColor = packed;
+		for (int i = 1; i < row.Count(); i++)
+		{
+			int pointData = row[i];
+			int pointX = (pointData >> 16) & 65535;
+			int pointZ = pointData & 65535;
+			shape.m_aPoints.Insert(pointX / 65535.0 * size[0] - offset[0]);
+			shape.m_aPoints.Insert(pointZ / 65535.0 * size[2] - offset[2]);
+		}
+		result.m_aShapes.Insert(shape);
+		return true;
 	}
 }

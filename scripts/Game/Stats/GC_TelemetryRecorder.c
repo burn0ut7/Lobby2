@@ -7,6 +7,9 @@ class GC_TelemetryRecorder
 	protected string m_sRecordingId;
 	protected string m_sRecords;
 	protected string m_sPending;
+	protected string m_sPendingRecords;
+	protected ref GC_TelemetryBinaryBatch m_PendingBinary;
+	protected bool m_bPublicationFailed;
 	protected string m_sStopReason;
 	protected int m_iSequence;
 	protected int m_iFirstSequence = 1;
@@ -29,6 +32,7 @@ class GC_TelemetryRecorder
 	protected int m_iTickMs;
 	protected int m_iMaxTickMs;
 	protected int m_iFlushes;
+	protected int m_iCaptureStage;
 	protected float m_fFrom;
 	protected float m_fLastDiscovery = -1000;
 	protected float m_fLastFlush;
@@ -48,6 +52,7 @@ class GC_TelemetryRecorder
 	protected int m_iProjectileSequence;
 	static const string OUTBOX = "$profile:Lobby2Telemetry";
 	static const int MAX_QUEUED_BYTES = 131072;
+	static const int TICK_BUDGET_MS = 2;
 
 	//------------------------------------------------------------------------------------------------
 	void Start(GC_SessionLogComponent logs, int quotaMiB)
@@ -103,14 +108,16 @@ class GC_TelemetryRecorder
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Shutdown gets one bounded write attempt; failed publication remains explicit.
+	//! Shutdown drains at most the frozen batch and the final live batch. Native IO
+	//! cannot continue after world termination; failure still retains both payloads.
 	void Close()
 	{
 		Stop("mission-end");
 		GetGame().GetCallqueue().Remove(Tick);
-		Flush();
-		if (!m_bSealed && m_sPending.IsEmpty())
-			Flush();
+		m_bPublicationFailed = false;
+		Flush(true);
+		if (!m_bSealed && !m_bPublicationFailed)
+			Flush(true);
 		Print("GC | Telemetry | " + Report());
 	}
 
@@ -139,6 +146,21 @@ class GC_TelemetryRecorder
 			return 0;
 		}
 		return CommitEncoded(record);
+	}
+
+	//! Map data was serialized incrementally. Add sequence/time only at commit,
+	//! after any intervening event callbacks, without serializing the data twice.
+	int CommitMapSnapshot(string encoded)
+	{
+		if (!m_bRunning)
+			return 0;
+		JsonSaveContext envelope = new JsonSaveContext();
+		envelope.SetMaxDecimalPlaces(6);
+		envelope.WriteValue("sequence", m_iSequence + 1);
+		envelope.WriteValue("timeMs", Now());
+		envelope.WriteValue("type", "map-state");
+		string header = envelope.SaveToString();
+		return CommitEncoded(header.Substring(0, header.Length() - 1) + ",\"data\":" + encoded + "}");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -403,10 +425,64 @@ class GC_TelemetryRecorder
 		}
 		int started = System.GetTickCount();
 		float now = Now();
-		if (m_bRunning && GC_LobbyGameMode.GetGameMode().GetState() != SCR_EGameModeState.GAME)
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (m_bRunning && (!mode || mode.GetState() != SCR_EGameModeState.GAME))
 			Stop("mission-end");
-		if (m_bRunning)
-			m_Map.Sample(this, now);
+		// Advance publication first, one bounded step. Remaining capture work
+		// shares the same allowance rather than appending IO after an exhausted tick.
+		if (NeedsFlush(now))
+		{
+			Flush();
+		}
+		int captureStarted = System.GetTickCount();
+		// Round robin prevents a costly map/discovery stage from starving actors.
+		// Native calls are indivisible: this is a cooperative, not hard, time limit.
+		for (int stage; stage < 4 && CanCapture(started, now); stage++)
+		{
+			int currentStage = m_iCaptureStage;
+			m_iCaptureStage = (m_iCaptureStage + 1) % 4;
+			switch (currentStage)
+			{
+				case 0: m_Map.Sample(this, now, started); break;
+				case 1: DiscoverPlayers(started, now); break;
+				case 2: DiscoverAgents(started, now); break;
+				case 3: SampleActors(started, now); break;
+			}
+		}
+		int elapsed = System.GetTickCount(captureStarted);
+		m_iSteps++;
+		m_iCaptureMs += elapsed;
+		m_iMaxCaptureMs = Math.Max(m_iMaxCaptureMs, elapsed);
+		RecordTickTime(started);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool NeedsFlush(float now)
+	{
+		return !m_sPending.IsEmpty() || BatchDue(now);
+	}
+
+	protected bool BatchDue(float now)
+	{
+		return !m_bRunning || m_sRecords.Length() + m_Binary.GetNumericBytes() >= 65536
+			|| m_iRecordCount >= 384 || (m_iRecordCount > 0 && now - m_fLastFlush >= 5000);
+	}
+
+	protected bool CanCapture(int started, float now)
+	{
+		return m_bRunning && System.GetTickCount(started) < TICK_BUDGET_MS && !BatchDue(now);
+	}
+
+	protected void RecordTickTime(int started)
+	{
+		int tickMs = System.GetTickCount(started);
+		m_iTickMs += tickMs;
+		m_iMaxTickMs = Math.Max(m_iMaxTickMs, tickMs);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void DiscoverPlayers(int started, float now)
+	{
 		if (m_bRunning && now - m_fLastDiscovery >= 1000 && m_iPlayerCursor >= m_aPlayers.Count())
 		{
 			m_fLastDiscovery = now;
@@ -414,8 +490,13 @@ class GC_TelemetryRecorder
 			GetGame().GetPlayerManager().GetPlayers(m_aPlayers);
 			m_iPlayerCursor = 0;
 		}
-		for (int discovered; m_bRunning && discovered < 8 && m_iPlayerCursor < m_aPlayers.Count(); discovered++)
+		for (int discovered; discovered < 8 && m_iPlayerCursor < m_aPlayers.Count() && CanCapture(started, now); discovered++)
 			Track(GetGame().GetPlayerManager().GetPlayerControlledEntity(m_aPlayers[m_iPlayerCursor++]));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void DiscoverAgents(int started, float now)
+	{
 		// Native AI registration includes stationary units; movement and combat
 		// are not discovery signals. Drain a snapshot in bounded per-frame work.
 		if (m_bRunning && now - m_fLastAgentDiscovery >= 1000 && m_iAgentCursor >= m_aAgents.Count())
@@ -426,14 +507,19 @@ class GC_TelemetryRecorder
 				GetGame().GetAIWorld().GetAIAgents(m_aAgents);
 			m_iAgentCursor = 0;
 		}
-		for (int aiDiscovered; m_bRunning && aiDiscovered < 8 && m_iAgentCursor < m_aAgents.Count(); aiDiscovered++)
+		for (int aiDiscovered; aiDiscovered < 8 && m_iAgentCursor < m_aAgents.Count() && CanCapture(started, now); aiDiscovered++)
 		{
 			AIAgent agent = m_aAgents[m_iAgentCursor++];
 			if (agent)
 				Track(agent.GetControlledEntity());
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SampleActors(int started, float now)
+	{
 		int count = m_aActors.Count();
-		for (int step; m_bRunning && step < count; step++)
+		for (int step; step < count && CanCapture(started, now); step++)
 		{
 			if (m_iCursor >= count)
 				m_iCursor = 0;
@@ -462,29 +548,17 @@ class GC_TelemetryRecorder
 			}
 			else
 				m_iCursor++;
-			if (System.GetTickCount(started) >= 2 || m_sRecords.Length() + m_Binary.GetNumericBytes() >= 65536)
-				break;
 		}
-		int elapsed = System.GetTickCount(started);
-		m_iSteps++;
-		m_iCaptureMs += elapsed;
-		m_iMaxCaptureMs = Math.Max(m_iMaxCaptureMs, elapsed);
-		if (!m_bRunning || m_sRecords.Length() + m_Binary.GetNumericBytes() >= 65536 || m_iRecordCount >= 384 || now - m_fLastFlush >= 5000)
-			Flush();
-		// Includes envelope serialization and synchronous publication; capture alone is not total cost.
-		int tickMs = System.GetTickCount(started);
-		m_iTickMs += tickMs;
-		m_iMaxTickMs = Math.Max(m_iMaxTickMs, tickMs);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void Flush()
+	protected void Flush(bool drain = false)
 	{
-		if (m_bSealed || (m_bRunning && m_iRecordCount == 0))
+		if (m_bSealed || (m_sPending.IsEmpty() && m_bRunning && m_iRecordCount == 0))
 			return;
-		m_iFlushes++;
 		if (m_sPending.IsEmpty())
 		{
+			m_iFlushes++;
 			JsonSaveContext context = new JsonSaveContext();
 			// Match record timestamp precision, including a start and event in one tick.
 			context.SetMaxDecimalPlaces(6);
@@ -523,30 +597,55 @@ class GC_TelemetryRecorder
 			context.WriteValue("gear", captured);
 			context.EndObject();
 			m_sPending = context.SaveToString();
+			// Freeze the publication payload. Event callbacks can keep recording
+			// into the next bounded batch while this one is written and verified.
+			m_sPendingRecords = "[" + m_sRecords + "]";
+			m_PendingBinary = m_Binary;
+			m_sRecords = string.Empty;
+			m_iRecordCount = 0;
+			m_iColdCount = 0;
+			m_Binary = new GC_TelemetryBinaryBatch();
+			m_iFirstSequence = m_iSequence + 1;
+			m_fFrom = Now();
+			m_fLastFlush = m_fFrom;
+			if (!drain)
+				return;
 		}
 		int started = System.GetTickCount();
 		string path = string.Format("%1/%2-telemetry-%3.l2t", OUTBOX, m_sRecordingId, m_iRevision);
-		bool saved = m_Binary.SaveVerified(path, m_sPending, "[" + m_sRecords + "]") && GC_StatsOutbox.WriteReady(path + ".ready");
+		int result;
+		if (drain)
+		{
+			if (m_PendingBinary.SaveVerified(path, m_sPending, m_sPendingRecords))
+				result = 1;
+			else
+				result = -1;
+		}
+		else
+		{
+			result = m_PendingBinary.SaveVerifiedStep(path, m_sPending, m_sPendingRecords);
+			while (result == 0 && System.GetTickCount(started) < TICK_BUDGET_MS)
+				result = m_PendingBinary.SaveVerifiedStep(path, m_sPending, m_sPendingRecords);
+		}
+		bool saved = result > 0 && GC_StatsOutbox.WriteReady(path + ".ready");
 		int elapsed = System.GetTickCount(started);
 		m_iWriteMs += elapsed;
 		m_iMaxWriteMs = Math.Max(m_iMaxWriteMs, elapsed);
+		if (result == 0)
+			return;
 		if (!saved)
 		{
+			m_bPublicationFailed = true;
 			Stop("storage-error");
 			GetGame().GetCallqueue().Remove(Tick);
 			Print("GC | Telemetry | publication failed; retained pending payload; " + Report(), LogLevel.ERROR);
 			return;
 		}
-		m_fBytes += 24 + m_sPending.Length() + m_sRecords.Length() + 2 + m_Binary.GetNumericBytes();
+		m_fBytes += 24 + m_sPending.Length() + m_sPendingRecords.Length() + m_PendingBinary.GetNumericBytes();
 		m_iRevision++;
 		m_sPending = string.Empty;
-		m_sRecords = string.Empty;
-		m_iRecordCount = 0;
-		m_iColdCount = 0;
-		m_Binary = new GC_TelemetryBinaryBatch();
-		m_iFirstSequence = m_iSequence + 1;
-		m_fFrom = Now();
-		m_fLastFlush = m_fFrom;
+		m_sPendingRecords = string.Empty;
+		m_PendingBinary = null;
 		if (m_bPendingClosed)
 		{
 			m_bSealed = true;
