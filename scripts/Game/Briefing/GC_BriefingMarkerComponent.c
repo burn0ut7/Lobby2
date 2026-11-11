@@ -16,7 +16,7 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.ResourcePickerThumbnail, "Optional highlight imageset using the same quad as the marker image", params: "imageset")]
 	protected ResourceName m_sHighlightImageSet;
 
-	[Attribute("", UIWidgets.EditBox, "Quad name used only when Image is an .imageset resource. Workbench does not expose image-set quads to scripted dropdowns")]
+	[Attribute("", UIWidgets.EditBox, "Quad name used only when Image is an .imageset resource. Select the entity to preview its actual icon in the 3D viewport")]
 	protected string m_sQuadName;
 
 	[Attribute("1", UIWidgets.CheckBox, "Off: Size is screen pixels. On: Size is a world offset and changes with map zoom, matching PS_ManualMarker")]
@@ -47,6 +47,15 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	{
 		super.OnPostInit(owner);
 
+#ifdef WORKBENCH
+		// Embedded Play must not retain visualization state from the editing world.
+		if (!SCR_Global.IsEditMode())
+		{
+			m_EditorPreview = null;
+			m_DirectionArrow = null;
+		}
+#endif
+
 		if (SCR_Global.IsEditMode() || !Replication.IsServer())
 			return;
 
@@ -69,6 +78,9 @@ class GC_BriefingMarkerComponent : ScriptComponent
 
 	override void OnDelete(IEntity owner)
 	{
+#ifdef WORKBENCH
+		m_EditorPreview = null;
+#endif
 		GetGame().GetCallqueue().Remove(RegisterWithManager);
 		if (m_bRegistered && owner)
 		{
@@ -107,16 +119,33 @@ class GC_BriefingMarkerComponent : ScriptComponent
 #ifdef WORKBENCH
 	protected ref Shape m_DirectionArrow;
 	protected int m_iDirectionArrowColor;
+	protected ref GC_MapMarkerPreview m_EditorPreview;
+
+	//------------------------------------------------------------------------------------------------
+	override void _WB_SetTransform(IEntity owner, inout vector mat[4], IEntitySource src)
+	{
+		if (!owner || !SCR_Global.IsEditMode())
+			return;
+
+		// Constrain this editor transform without scheduling a second move.
+		vector position = mat[3];
+		position[1] = owner.GetWorld().GetSurfaceY(position[0], position[2]);
+		mat[3] = position;
+	}
 
 	override int _WB_GetAfterWorldUpdateSpecs(IEntity owner, IEntitySource src)
 	{
-		return EEntityFrameUpdateSpecs.CALL_WHEN_ENTITY_VISIBLE;
+		return EEntityFrameUpdateSpecs.CALL_ALWAYS;
 	}
 
 	override event void _WB_AfterWorldUpdate(IEntity owner, float timeSlice)
 	{
-		if (!owner)
+		if (!owner || !SCR_Global.IsEditMode())
+		{
+			m_DirectionArrow = null;
+			m_EditorPreview = null;
 			return;
+		}
 
 		int arrowColor = Color.WHITE;
 		if (m_Color)
@@ -130,9 +159,28 @@ class GC_BriefingMarkerComponent : ScriptComponent
 		}
 
 		vector transform[4];
-		owner.GetTransform(transform);
+		// Map markers use yaw only, regardless of entity pitch, roll or scale.
+		Math3D.AnglesToMatrix(Vector(owner.GetYawPitchRoll()[0], 0, 0), transform);
+		transform[3] = owner.GetOrigin();
 		if (m_DirectionArrow)
 			m_DirectionArrow.SetMatrix(transform);
+
+		GenericEntity entity = GenericEntity.Cast(owner);
+		WorldEditorAPI api;
+		if (entity)
+			api = entity._WB_GetEditorAPI();
+		if (!api || !api.IsEntitySelected(api.EntityToSource(owner)))
+		{
+			m_EditorPreview = null;
+			return;
+		}
+
+		if (!m_EditorPreview)
+			m_EditorPreview = new GC_MapMarkerPreview();
+		float previewSize = 5;
+		if (m_bWorldScale)
+			previewSize = m_fSize;
+		m_EditorPreview.Update(owner, m_sImageSetOrImage, m_sQuadName, arrowColor, previewSize);
 	}
 #endif
 
