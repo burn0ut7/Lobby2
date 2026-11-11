@@ -4,7 +4,7 @@ class GC_AreaCaptureOptions
 	[Attribute("0", UIWidgets.EditBox, "Seconds of a changed area requirement needed to capture or lose the area. Zero changes instantly. Progress is measured at Check Interval; 10 seconds at 2 seconds needs five ticks.", "0 86400")]
 	float m_fSeconds;
 	[Attribute("1", UIWidgets.EditBox, "Seconds between capture checks, in whole seconds. Uses the existing area sampler. No catch-up ticks are invented after a delayed server update.", "1 3600 1")]
-	int m_iCheckInterval = 1;
+	int m_iCheckInterval;
 	[Attribute("0", UIWidgets.ComboBox, "When the requirement returns to the current captured state before a change completes: Roll back removes progress over time, Hold keeps it, Reset clears it. The same rule applies to interrupted capture and interrupted loss.", enums: {ParamEnum("Roll back", "0"), ParamEnum("Hold", "1"), ParamEnum("Reset", "2")})]
 	int m_iInterruption;
 	[Attribute("0", UIWidgets.CheckBox, "Unchecked: first valid Match observation establishes the initial result immediately and silently, like TilW discovery. Checked: start uncaptured and require the full capture time.")]

@@ -50,6 +50,21 @@ class GC_CaptureTestTracker : GC_MissionAreaTracker
 modded class GC_MissionRuleTests
 {
 	//------------------------------------------------------------------------------------------------
+	//! Script fixtures set fields explicitly; editor defaults belong to Attribute deserialization.
+	static GC_CaptureMessages CaptureTestMessages()
+	{
+		GC_CaptureMessages result = new GC_CaptureMessages();
+		result.m_sLocation = "the objective";
+		result.m_sCaptured = "%1 captured %2.";
+		result.m_sCapturing = "%1 is capturing %2.";
+		result.m_sCaptureInterrupted = "Capture of %2 has been interrupted.";
+		result.m_sLost = "%1 lost %2.";
+		result.m_sLosing = "%1 is losing %2.";
+		result.m_sLossInterrupted = "Loss of %2 has been interrupted.";
+		return result;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	string RunCaptureWorld()
 	{
 		BaseWorld world = GetGame().GetWorld();
@@ -77,6 +92,7 @@ modded class GC_MissionRuleTests
 		condition.m_Targets = targets;
 		condition.m_Requirement = new GC_AreaCount();
 		condition.m_Capture = new GC_AreaCaptureOptions();
+		condition.m_Capture.m_iCheckInterval = 1;
 		condition.m_Capture.m_fSeconds = 2;
 		condition.m_Capture.m_bSkipDiscovery = true;
 		GC_Event authored = StateRule("captured", SCR_EGameModeState.GAME);
@@ -119,7 +135,8 @@ modded class GC_MissionRuleTests
 	string RunCapture()
 	{
 		GC_AreaCaptureOptions options = new GC_AreaCaptureOptions();
-		Check(options.IsValid() && options.m_iCheckInterval == 1, "capture authored defaults valid");
+		options.m_iCheckInterval = 1;
+		Check(options.IsValid() && options.m_iCheckInterval == 1, "explicit script capture settings valid");
 		options.m_fSeconds = 3;
 		options.m_bSkipDiscovery = true;
 		GC_AreaCaptureState state = new GC_AreaCaptureState();
@@ -256,7 +273,7 @@ modded class GC_MissionRuleTests
 		geometry.m_bReady = true;
 		tracker.Sample(changed, true, 4, false);
 		Check(!tracker.IsAvailable(check), "capture unavailable after Match");
-		GC_CaptureMessages messages = new GC_CaptureMessages();
+		GC_CaptureMessages messages = GC_MissionRuleTests.CaptureTestMessages();
 		Check(messages.IsValid() && !messages.GetText(5).IsEmpty() && messages.GetText(6).IsEmpty(), "six named message states");
 		GC_RuleAction reversed = messages.BuildMessage(0, {"US"}, true);
 		Check(reversed && reversed.m_sTextOrName.Contains("lost"), "at-most requirement true announces faction loss, matching TilW");
@@ -277,7 +294,7 @@ modded class GC_LobbyManager
 
 	string GC_TestCaptureMessage(int status)
 	{
-		GC_CaptureMessages messages = new GC_CaptureMessages();
+		GC_CaptureMessages messages = GC_MissionRuleTests.CaptureTestMessages();
 		messages.m_sLocation = "Depot";
 		GC_RuleAction action = messages.BuildMessage(status, {"US"});
 		if (!action)

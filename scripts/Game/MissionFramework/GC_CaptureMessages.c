@@ -2,21 +2,21 @@
 class GC_CaptureMessages
 {
 	[Attribute("the objective", UIWidgets.EditBox, "Location inserted for %2. %1 is the selected faction names, or the selected force when no faction filter is set.")]
-	string m_sLocation = "the objective";
+	string m_sLocation;
 	[Attribute("", UIWidgets.EditComboBox, "Only these factions receive messages. Empty sends to everyone. These are recipients, not capture contestants.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
 	[Attribute("%1 captured %2.", UIWidgets.EditBox, "Changed to captured. Blank suppresses this message.")]
-	string m_sCaptured = "%1 captured %2.";
+	string m_sCaptured;
 	[Attribute("%1 is capturing %2.", UIWidgets.EditBox, "Capture started or resumed.")]
-	string m_sCapturing = "%1 is capturing %2.";
+	string m_sCapturing;
 	[Attribute("Capture of %2 has been interrupted.", UIWidgets.EditBox, "Capture progress interrupted.")]
-	string m_sCaptureInterrupted = "Capture of %2 has been interrupted.";
+	string m_sCaptureInterrupted;
 	[Attribute("%1 lost %2.", UIWidgets.EditBox, "Changed to not captured.")]
-	string m_sLost = "%1 lost %2.";
+	string m_sLost;
 	[Attribute("%1 is losing %2.", UIWidgets.EditBox, "Loss started or resumed.")]
-	string m_sLosing = "%1 is losing %2.";
+	string m_sLosing;
 	[Attribute("Loss of %2 has been interrupted.", UIWidgets.EditBox, "Loss progress interrupted.")]
-	string m_sLossInterrupted = "Loss of %2 has been interrupted.";
+	string m_sLossInterrupted;
 
 	//------------------------------------------------------------------------------------------------
 	string GetText(int status)

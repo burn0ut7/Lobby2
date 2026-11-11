@@ -97,7 +97,7 @@ Optional test addon: `GC_LobbyManager.GC_TestCapture()` exercises production
 timing, local faction counting, settings, availability and condition evaluation.
 `GC_TestCaptureRegression()` runs the existing living/area-condition checks.
 
-### Validation — 2026-11-11
+### Validation - 2026-11-11
 
 Workbench 1.9.0.37, existing Lobby2 MCP Tests project, embedded Arland Play:
 
@@ -124,12 +124,20 @@ normal framework does not start. Tests use isolated production engine instances,
 not those invalid authored rules. This is not a claim that Arland's current
 mission configuration was repaired.
 
-Log: `logs_2026-11-11_00-35-20/console.log`, final Reload lines 22711–22880;
-runtime receipts/checks through line 23104. The earlier default-construction
-failures were fixed with explicit scripted defaults and all checks rerun.
+Log: `logs_2026-11-11_00-35-20/console.log`, final Reload lines 22711-22880;
+runtime receipts/checks through line 23104. See the authored-setting correction below for the final default handling.
 Dedicated-server peers, remote/JIP delivery and faction-recipient rendering were
 not exercised. Local faction counting tests use controlled populations; native
 world integration uses named objects. No new RPC or UI layout was introduced.
 
 Independent implementation and notification-rendering review approved after the
 At Most status-direction correction and the final 79 passing checks.
+
+### Authored-setting correction (2026-11-11)
+
+Explicit script field initializers overrode saved resource values. Attribute
+defaults now own production defaults; tests constructing options directly set
+their inputs explicitly. GC_TestCaptureAuthoring loads a real config and verifies
+custom timing, interruption, messages (including blank suppression), faction
+share and copied options: all four groups passed (r0ff4c0f8175f40d99c02e8d8151c4741).
+The 42 core, 30 regression and seven native world checks passed again.

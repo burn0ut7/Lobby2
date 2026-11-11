@@ -1,0 +1,23 @@
+PolylineShapeEntity {
+ ID "987F3695818945D6"
+ components {
+  GC_AreaPrefabSpawnerComponent "{8EE2AB75C6B54D60}" {
+  }
+ }
+ IsClosed 1
+ LineColor 0.3 0.8 0.3 1
+ Points {
+  ShapePoint "{DB611DD0653D460B}" {
+   Position -10 0 -10
+  }
+  ShapePoint "{DF824395C49845F2}" {
+   Position 10 0 -10
+  }
+  ShapePoint "{1948105DA04C475A}" {
+   Position 10 0 10
+  }
+  ShapePoint "{8FC9ECA0523E424E}" {
+   Position -10 0 10
+  }
+ }
+}
