@@ -613,7 +613,13 @@ class GC_MissionRuleEngine
 			return;
 		GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.AREA_CHANGED, "");
 		notification.m_aAreaChecks = {};
-		m_Areas.Sample(notification.m_aAreaChecks, initial);
+		array<ref GC_RuleAction> messages = {};
+		m_Areas.Sample(notification.m_aAreaChecks, initial, m_fNow, m_eGameModeState == SCR_EGameModeState.GAME, messages);
+		foreach (GC_RuleAction message : messages)
+		{
+			if (m_ActionManager && !m_ActionManager.GC_ExecuteFrameworkAction(this, message))
+				Print("GC | Mission Framework | Capture status message rejected; check message length and recipient factions.", LogLevel.WARNING);
+		}
 		if (m_eGameModeState == SCR_EGameModeState.GAME && !notification.m_aAreaChecks.IsEmpty())
 			m_aEvents.Insert(notification);
 	}

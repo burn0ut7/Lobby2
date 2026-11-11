@@ -71,6 +71,10 @@ class GC_RuleCondition
 	bool m_bAreaAnywhere;
 	bool m_bAreaProportion;
 	float m_fAreaProportion;
+	bool m_bLocalFactionShare;
+	bool m_bShareAtMost;
+	ref array<string> m_aIgnoredFactions;
+	ref GC_AreaCaptureOptions m_Capture;
 	string m_sInteractionEntity;
 
 	//------------------------------------------------------------------------------------------------
@@ -197,6 +201,24 @@ class GC_RuleCondition
 			return false;
 		if (m_bAreaProportion && (m_iAreaTargets != 1 || m_bAreaAnywhere || !(m_fAreaProportion >= 0 && m_fAreaProportion <= 1)))
 			return false;
+		if (m_Capture && (m_bAreaAnywhere || !m_Capture.IsValid()))
+			return false;
+		if (m_bLocalFactionShare)
+		{
+			if (m_iAreaTargets != 1 || m_bAreaAnywhere || m_bAreaProportion || !m_aAreaFactions || m_aAreaFactions.IsEmpty()
+				|| !(m_fAreaProportion >= 0 && m_fAreaProportion <= 1))
+				return false;
+			if (m_aIgnoredFactions)
+			{
+				if (m_aIgnoredFactions.Count() > 256)
+					return false;
+				foreach (string ignored : m_aIgnoredFactions)
+				{
+					if (ignored.IsEmpty() || m_aAreaFactions.Contains(ignored))
+						return false;
+				}
+			}
+		}
 		array<string> keys = m_aAreaNames;
 		if (m_iAreaTargets == 1)
 		{
@@ -389,10 +411,7 @@ class GC_RuleCondition
 		}
 		if (m_iCheck == 10)
 		{
-			GC_MissionAreaObservation area;
-			if (areas)
-				area = areas.GetObservation(this);
-			return area && area.IsAvailable();
+			return areas && areas.IsAvailable(this);
 		}
 		if (m_iCheck == 9)
 		{
@@ -434,7 +453,7 @@ class GC_RuleCondition
 		else if (m_iCheck == 11)
 			answer = interactions.Get(this).IsTriggered();
 		else if (m_iCheck == 10)
-			answer = areas.GetObservation(this).PassesCondition(this);
+			answer = areas.PassesCondition(this);
 		else if (m_iCheck == 9)
 			answer = damage.Get(this).Passes(m_iDamageCheck, m_fDamageNeeded);
 		else if (m_iCheck == 8)

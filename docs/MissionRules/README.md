@@ -1,5 +1,8 @@
 # Lobby2 mission events
 
+Area Condition supports capture timing, competing faction shares, interruption
+behavior and optional status messages. See [Area capture](Capture.md).
+
 Select your game mode, then **GC_LobbyManager > Lobby2**. The top settings are **Mission Events**, **Mission Flags**, **Briefing Catalog**, and **Parameter Catalog**. Mission Events Enabled and Parameter Lock Seconds remain in Unsorted.
 
 ## Start with one mission event

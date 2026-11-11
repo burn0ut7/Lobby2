@@ -155,11 +155,17 @@ class GC_MissionAreaObservation
 	protected bool m_bAvailable;
 	protected int m_iInside;
 	protected int m_iTotal;
+	protected int m_iLocalTotal;
+	protected int m_iSelectedTotal;
 	protected bool m_bSampled;
 
 	//------------------------------------------------------------------------------------------------
 	bool Matches(GC_RuleCondition other)
 	{
+		if (m_Definition.m_bLocalFactionShare != other.m_bLocalFactionShare)
+			return false;
+		if (m_Definition.m_bLocalFactionShare && !SameKeys(m_Definition.m_aIgnoredFactions, other.m_aIgnoredFactions))
+			return false;
 		if (m_Definition.m_bAreaAnywhere != other.m_bAreaAnywhere || m_Definition.m_sAreaName != other.m_sAreaName || m_Definition.m_iAreaTargets != other.m_iAreaTargets)
 			return false;
 		array<string> first = m_Definition.m_aAreaNames;
@@ -191,11 +197,35 @@ class GC_MissionAreaObservation
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected bool SameKeys(array<string> first, array<string> second)
+	{
+		int firstCount;
+		int secondCount;
+		if (first)
+			firstCount = first.Count();
+		if (second)
+			secondCount = second.Count();
+		if (firstCount != secondCount)
+			return false;
+		if (first)
+		{
+			foreach (string key : first)
+			{
+				if (!second || !second.Contains(key))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void Sample(GC_AreaPopulation population)
 	{
 		bool available = m_Definition.m_bAreaAnywhere || (m_Area && m_Area.IsAvailable());
 		int total;
 		int inside;
+		int localTotal;
+		int selectedTotal;
 		if (m_Definition.m_iAreaTargets == 0)
 		{
 			foreach (GC_AreaEntityReference target : m_aTargets)
@@ -219,6 +249,22 @@ class GC_MissionAreaObservation
 				if ((m_Definition.m_iAreaWho == 0 && !character.m_bPlayer) || (m_Definition.m_iAreaWho == 1 && character.m_bPlayer))
 					continue;
 				array<string> factions = m_Definition.m_aAreaFactions;
+				if (m_Definition.m_bLocalFactionShare)
+				{
+					if (character.m_sFaction.IsEmpty() || (m_Definition.m_aIgnoredFactions && m_Definition.m_aIgnoredFactions.Contains(character.m_sFaction)))
+						continue;
+					bool local = m_Area.ContainsEntity(character.m_Entity, character.m_vPosition);
+					total++;
+					if (local)
+						localTotal++;
+					if (factions.Contains(character.m_sFaction))
+					{
+						selectedTotal++;
+						if (local)
+							inside++;
+					}
+					continue;
+				}
 				if (factions && !factions.IsEmpty() && !factions.Contains(character.m_sFaction))
 					continue;
 				total++;
@@ -226,11 +272,13 @@ class GC_MissionAreaObservation
 					inside++;
 			}
 		}
-		m_bChanged = !m_bSampled || available != m_bAvailable || inside != m_iInside || total != m_iTotal;
+		m_bChanged = !m_bSampled || available != m_bAvailable || inside != m_iInside || total != m_iTotal || localTotal != m_iLocalTotal || selectedTotal != m_iSelectedTotal;
 		m_bSampled = true;
 		m_bAvailable = available;
 		m_iInside = inside;
 		m_iTotal = total;
+		m_iLocalTotal = localTotal;
+		m_iSelectedTotal = selectedTotal;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -251,6 +299,23 @@ class GC_MissionAreaObservation
 	{
 		if (!IsAvailable())
 			return false;
+		if (check.m_bLocalFactionShare)
+		{
+			int selected = m_iInside;
+			int local = m_iLocalTotal;
+			if (check.m_bAreaOutside)
+			{
+				selected = m_iSelectedTotal - selected;
+				local = m_iTotal - local;
+			}
+			if (local == 0)
+				return check.m_bShareAtMost;
+			float share = selected;
+			share /= local;
+			if (check.m_bShareAtMost)
+				return share <= check.m_fAreaProportion;
+			return share >= check.m_fAreaProportion;
+		}
 		if (check.m_bAreaProportion)
 		{
 			int count = m_iInside;
@@ -293,6 +358,9 @@ class GC_MissionAreaObservation
 //! One server-owned sampler. Native registries supply populations; no spawn overrides or spatial queries.
 class GC_MissionAreaTracker
 {
+	protected ref map<GC_RuleCondition, ref GC_AreaCaptureState> m_mCaptures = new map<GC_RuleCondition, ref GC_AreaCaptureState>();
+	protected bool m_bCaptureActive;
+	protected float m_fSampleTime;
 	protected BaseWorld m_World;
 	protected GC_LobbyManager m_Manager;
 	protected ref GC_AreaPopulation m_Population;
@@ -326,6 +394,10 @@ class GC_MissionAreaTracker
 	//------------------------------------------------------------------------------------------------
 	bool Register(GC_RuleCondition check)
 	{
+		if (!check || !check.IsValid())
+			return false;
+		if (check.m_Capture && !m_mCaptures.Contains(check))
+			m_mCaptures.Set(check, new GC_AreaCaptureState());
 		foreach (GC_MissionAreaObservation pair : m_aPairs)
 		{
 			if (pair.Matches(check))
@@ -374,8 +446,30 @@ class GC_MissionAreaTracker
 	}
 
 	//------------------------------------------------------------------------------------------------
-	void Sample(array<GC_RuleCondition> changed, bool initial = false)
+	bool IsAvailable(GC_RuleCondition check)
 	{
+		GC_MissionAreaObservation observation = GetObservation(check);
+		return observation && observation.IsAvailable() && (!check.m_Capture || (m_bCaptureActive && m_mAvailability.Get(check)));
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool PassesCondition(GC_RuleCondition check)
+	{
+		if (!IsAvailable(check))
+			return false;
+		if (check.m_Capture)
+			return m_mCaptures.Get(check).IsCaptured();
+		return GetObservation(check).PassesCondition(check);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Sample(array<GC_RuleCondition> changed, bool initial = false, float elapsedSeconds = -1, bool captureActive = true, array<ref GC_RuleAction> messages = null)
+	{
+		if (elapsedSeconds >= 0)
+			m_fSampleTime = elapsedSeconds;
+		else if (!initial)
+			m_fSampleTime += 1;
+		m_bCaptureActive = captureActive;
 		foreach (string name, GC_AreaEntityReference resolved : m_mEntities)
 			resolved.Sample(m_World);
 		if (m_Population)
@@ -386,10 +480,28 @@ class GC_MissionAreaTracker
 			pair.Sample(m_Population);
 		foreach (GC_RuleCondition check, GC_MissionAreaObservation observation : m_mChecks)
 		{
-			if (!initial && !observation.m_bChanged)
+			if (!initial && !observation.m_bChanged && !check.m_Capture)
 				continue;
 			bool available = observation.IsAvailable();
 			bool answer = observation.PassesCondition(check);
+			if (check.m_Capture)
+			{
+				GC_AreaCaptureState capture = m_mCaptures.Get(check);
+				available = available && captureActive;
+				if (!available)
+					capture.Suspend(m_fSampleTime);
+				else
+				{
+					int status = capture.Sample(check.m_Capture, answer, m_fSampleTime);
+					if (status >= 0 && messages && check.m_Capture.m_Messages)
+					{
+						GC_RuleAction message = check.m_Capture.m_Messages.BuildMessage(status, check.m_aAreaFactions, check.m_bLocalFactionShare && check.m_bShareAtMost);
+						if (message)
+							messages.Insert(message);
+					}
+				}
+				answer = available && capture.IsCaptured();
+			}
 			if (initial || !m_mAvailability.Contains(check) || m_mAvailability.Get(check) != available || m_mAnswers.Get(check) != answer)
 				changed.Insert(check);
 			m_mAvailability.Set(check, available);

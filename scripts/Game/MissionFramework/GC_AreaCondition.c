@@ -10,11 +10,14 @@ class GC_AreaCondition : GC_ConditionBase
 	[Attribute("0", UIWidgets.CheckBox, "Checked: count targets outside the area. Unchecked: count targets inside. Requirement controls how many are needed. Checked once per second; brief crossings can be missed. Missing targets or invalid areas never pass.")]
 	bool m_bOutside;
 
-	[Attribute("", UIWidgets.Object, "Choose Count, or Proportion for Players / AI. New checks default to at least one matching target on the selected side. Older saved Count settings remain in use until you choose a Requirement. Proportion 0.9 means at least 90% of all eligible living characters are on that side. No eligible living characters means false. Named Entities supports Count only.")]
+	[Attribute("", UIWidgets.Object, "Choose Count, Proportion for extraction, or Local faction share for competing factions. New checks default to at least one matching target on the selected side. Older saved Count settings remain in use until you choose a Requirement. Proportion 0.9 means at least 90% of all eligible living characters are on that side. No eligible living characters means false. Named Entities supports Count only.")]
 	ref GC_LivingRequirementBase m_Requirement;
 
 	[Attribute("", UIWidgets.Hidden, "Legacy Count. Used only when Requirement is unset, preserving older saved area checks.")]
 	ref GC_AreaCount m_Count;
+
+	[Attribute("", UIWidgets.Object, "Optional capture timing and status messages. Leave unset for the existing immediate area check. Available during Match only.")]
+	ref GC_AreaCaptureOptions m_Capture;
 
 	//------------------------------------------------------------------------------------------------
 	override GC_RuleCondition BuildCheck(int depth = 0)
@@ -30,6 +33,8 @@ class GC_AreaCondition : GC_ConditionBase
 			requirement = m_Count;
 		if (requirement && !requirement.BuildRequirement(condition))
 			return null;
+		if (m_Capture)
+			condition.m_Capture = m_Capture.Copy();
 		if (!condition.IsValid(depth))
 			return null;
 		return condition;
