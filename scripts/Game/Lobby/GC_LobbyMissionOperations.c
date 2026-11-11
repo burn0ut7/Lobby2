@@ -3,6 +3,40 @@ modded class GC_LobbyManager
 {
 	protected ref map<string, int> m_mGC_FactionRespawnTickets = new map<string, int>();
 	protected bool m_bGC_RespawnWaveActive;
+	protected ref map<string, ref GC_RespawnLocation> m_mGC_RespawnLocations = new map<string, ref GC_RespawnLocation>();
+
+	//------------------------------------------------------------------------------------------------
+	//! Current server mission policy; null means original slot positions.
+	GC_RespawnLocation GC_GetRespawnLocation(FactionKey factionKey)
+	{
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown)
+			return null;
+		return m_mGC_RespawnLocations.Get(factionKey);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Trusted server mission API. Validate the entire scope before replacing any faction defaults.
+	bool GC_SetRespawnLocation(array<string> factionKeys, GC_RespawnLocation location)
+	{
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown
+			|| GetLobbyPhase() == SCR_EGameModeState.POSTGAME || m_bGC_RespawnWaveActive
+			|| !factionKeys || factionKeys.IsEmpty() || !GC_RuleAction.ValidTargetNames(factionKeys)
+			|| (location && !location.IsValid()))
+			return false;
+		foreach (string key : factionKeys)
+		{
+			if (!GetGame().GetFactionManager().GetFactionByKey(key))
+				return false;
+		}
+		foreach (string factionKey : factionKeys)
+		{
+			if (location)
+				m_mGC_RespawnLocations.Set(factionKey, location);
+			else
+				m_mGC_RespawnLocations.Remove(factionKey);
+		}
+		return true;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	int GC_GetFactionRespawnTickets(FactionKey factionKey)
@@ -26,7 +60,7 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! One ticket per successful connected KIA slot; the saved starting point is authoritative.
+	//! One ticket per successful connected KIA slot, using the faction's current destination.
 	int GC_RespawnFactionSlots(FactionKey factionKey)
 	{
 		return Math.Max(0, GC_RespawnWave({factionKey}));
@@ -34,11 +68,11 @@ modded class GC_LobbyManager
 
 	//------------------------------------------------------------------------------------------------
 	//! One synchronous wave through the existing slot respawn owner. Negative means rejected; zero is a valid empty wave.
-	int GC_RespawnWave(array<string> factionKeys, int maximumPlayers = 0, bool useTickets = true, bool randomOrder = false)
+	int GC_RespawnWave(array<string> factionKeys, int maximumPlayers = 0, bool useTickets = true, bool randomOrder = false, GC_RespawnLocation location = null)
 	{
 		if (!Replication.IsServer() || GetManager() != this || m_bShutdown
 			|| GetLobbyPhase() != SCR_EGameModeState.GAME || m_bGC_RespawnWaveActive
-			|| maximumPlayers < 0 || maximumPlayers > 1000000)
+			|| maximumPlayers < 0 || maximumPlayers > 1000000 || (location && !location.IsValid()))
 			return -1;
 		// Validate the whole requested scope before spending tickets or spawning anyone.
 		if (factionKeys)
@@ -72,6 +106,7 @@ modded class GC_LobbyManager
 		}
 		int respawned;
 		array<int> attemptedPlayers = {};
+		map<GC_RespawnLocation, int> locationIndices = new map<GC_RespawnLocation, int>();
 		foreach (int slotId : candidates)
 		{
 			if (GetManager() != this || m_bShutdown || GetLobbyPhase() != SCR_EGameModeState.GAME
@@ -85,8 +120,22 @@ modded class GC_LobbyManager
 			if (useTickets && tickets <= 0)
 				continue;
 			SCR_AIGroup group = ResolveSlotGroup(slot);
+			GC_RespawnLocation destination = location;
+			if (!destination)
+				destination = m_mGC_RespawnLocations.Get(factionKey);
+			EntitySpawnParams parameters;
+			if (destination)
+			{
+				int locationIndex = locationIndices.Get(destination);
+				locationIndices.Set(destination, locationIndex + 1);
+				if (!destination.Resolve(GetGame().GetWorld(), slot, locationIndex, parameters))
+				{
+					PrintFormat("GC | Respawn wave | slot=%1 rejected: destination unavailable", slot.GetID(), level: LogLevel.WARNING);
+					continue;
+				}
+			}
 			// Do not substitute the group's current location when the original anchor is unavailable.
-			if (!slot.GetAdminSpawnPoint() && !FindGroupSpawnTransform(group))
+			if (!parameters && !slot.GetAdminSpawnPoint() && !FindGroupSpawnTransform(group))
 			{
 				PrintFormat("GC | Respawn tickets | slot=%1 rejected: original spawn unavailable", slot.GetID(), level: LogLevel.WARNING);
 				continue;
@@ -95,7 +144,7 @@ modded class GC_LobbyManager
 			attemptedPlayers.Insert(slot.GetPlayerId());
 			if (useTickets)
 				m_mGC_FactionRespawnTickets.Set(factionKey, tickets - 1);
-			string result = RespawnAdminSlot(slot, false);
+			string result = RespawnAdminSlot(slot, false, parameters);
 			if (result == "applied")
 			{
 				respawned++;

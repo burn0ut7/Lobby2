@@ -3388,7 +3388,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	//------------------------------------------------------------------------------------------------
 	//! Stage a replacement before changing the claim or deleting the old body.
 	//! A failed spawn/possession keeps the original slot and character intact.
-	protected string RespawnAdminSlot(GC_Slot slot, bool atCurrentPosition)
+	protected string RespawnAdminSlot(GC_Slot slot, bool atCurrentPosition, EntitySpawnParams destination = null)
 	{
 		int playerId = slot.GetPlayerId();
 		SCR_AIGroup group = ResolveSlotGroup(slot);
@@ -3412,7 +3412,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		if (prefab.IsEmpty())
 			return "failed-prefab-resolution";
 		replacement.SetResolvedPrefab(prefab);
-		EntitySpawnParams spawnOverride;
+		EntitySpawnParams spawnOverride = destination;
 		if (atCurrentPosition)
 		{
 			spawnOverride = new EntitySpawnParams();

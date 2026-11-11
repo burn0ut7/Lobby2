@@ -40,7 +40,8 @@ enum GC_ERuleAction
 	VEHICLE,
 	MARKER_VISIBILITY,
 	JIP,
-	CUSTOM_SCRIPT
+	CUSTOM_SCRIPT,
+	RESPAWN_LOCATION
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -60,6 +61,7 @@ class GC_RuleAction
 	int m_iOperation;
 	int m_iAmount;
 	ref GC_PrefabSpawn m_Spawn;
+	ref GC_RespawnLocation m_RespawnLocation;
 	ref GC_MissionScript m_Script;
 	ref GC_RadiusDeletion m_RadiusDeletion;
 	float m_fTransitionSeconds;
@@ -120,7 +122,11 @@ class GC_RuleAction
 				&& (!m_bChangeFuel || (m_fFuelRatio >= 0 && m_fFuelRatio <= 1))
 				&& (!m_bChangeSupplies || (m_iAmount >= 0 && m_iAmount <= 1000000));
 		if (m_eDo == GC_ERuleAction.RESPAWN_WAVE)
-			return m_iAmount >= 0 && m_iAmount <= 1000000 && ValidTargetNames(m_aFlagNames);
+			return m_iAmount >= 0 && m_iAmount <= 1000000 && ValidTargetNames(m_aFlagNames)
+				&& (!m_RespawnLocation || m_RespawnLocation.IsValid());
+		if (m_eDo == GC_ERuleAction.RESPAWN_LOCATION)
+			return m_aFlagNames && !m_aFlagNames.IsEmpty() && ValidTargetNames(m_aFlagNames)
+				&& (!m_RespawnLocation || m_RespawnLocation.IsValid());
 		if (m_eDo == GC_ERuleAction.TIMER_CONTROL)
 			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5
 				&& (m_iOperation < 3 || (m_fTimerSeconds >= 0 && m_fTimerSeconds <= 86400));
