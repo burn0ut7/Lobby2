@@ -88,6 +88,36 @@ remain on the existing manager. See [reservation checks](../tests/SlotReservatio
 
 ## Architectural principles
 
+### Authored group call signs
+
+Select an ordinary `SCR_AIGroup` in Workbench and use **GC Lobby: Call sign**:
+
+- `m_sGC_ManualCallsign`: optional group name; trimmed, nonblank text takes priority in lobby, voice group labels and native group-name APIs.
+- `m_iGC_CallsignCompany`: zero-based index into that group's faction call sign company list. `-1` retains automatic assignment.
+- `m_iGC_CallsignPlatoon` and `m_iGC_CallsignSquad`: zero-based indices into the same faction's lists, both defaulting to `0`.
+
+For example, company `0`, platoon `0`, squad `1` selects the first company,
+first platoon and second squad from the faction's configured call signs. These
+are call sign indices, not indices selecting a faction. Set the group's faction
+through its normal faction property. A manual name such as `Viper One` overrides
+the displayed group name while preserving the underlying native indices for
+character call signs. Blank or whitespace-only manual text exposes the indexed
+or automatic name again. Individual character call signs remain native.
+
+Author these settings before Play, on the world group or its prefab. The native
+call sign manager validates and reserves an explicitly selected tuple during
+assignment; its existing component owns broadcasts, snapshots and release on
+faction changes/deletion. Invalid or already occupied tuples emit a warning and
+use native automatic assignment. Fixed selection is therefore subject to
+availability at assignment time; it does not displace an earlier group. Slave
+groups retain native master-index inheritance. Manual names need not be unique.
+
+All added behavior is guarded by the active Lobby2 mode. Presentation overrides
+read authored metadata without writing native custom-name state or creating
+listeners; leaving Lobby2 exposes inherited behavior. No runtime rename API or
+new ownership registry is introduced. See the group call sign entry in
+`tests/README.md` for local verification and remaining coverage limits.
+
 ### 1. Opt in instead of modifying globally
 
 Lobby2 must be safe while another game mode is selected.

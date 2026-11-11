@@ -4,6 +4,34 @@ This optional project owns Lobby2-specific test controls and checks. The MCP
 server remains addon-agnostic. Production Lobby2 does not depend on this addon,
 and loading it alone runs no tests. Do not publish the test addon.
 
+## Authored group call signs - 2026-11-11
+
+`GC_TestGroupCallsigns()` on `GC_LobbyManager` exercises the production faction
+index resolver, native allocation/reservation, occupied-index rejection,
+invalid-index rejection, automatic mode, whitespace handling and manual-name
+priority in lobby/native/custom group getters. It restores the original fields
+and native tuple. Run on an embedded host with available spare call signs.
+`GC_TestGroupCallsignPreview(true)` temporarily names the first group `Viper One`;
+call with `false` to restore it. Both are explicit optional test-addon fixtures.
+
+Workbench 1.9.0.37, existing Arland_Lobby world and loaded MCP test addon:
+Reload `eb926fce45bd4d0e8ca69684a9d8ce83` passed with no script errors; existing
+ArlandLobby GUID resource errors remain. Runtime operation
+`53ccfe5b44264deaacb6ab32cc0cd584` returned all eleven checks true, including
+restoration. Production `Lobby Button` navigation displayed `Viper One` in the
+group header and voice list; preview restoration returned `Aktiv-34`. MCP capture
+is retained locally at `Art/References/group-callsigns/manual.png`.
+Independent source and visual review approved the change.
+
+Source provenance: installed PAK revision `c52648a62fcb4229ad089610d060ea44`,
+`game/data/data007.pak/scripts/Game/Callsign/`: `SCR_CallsignManagerComponent.c`
+103-138 and 233-264, `SCR_CallsignGroupComponent.c` 432-571,
+`SCR_FactionCallsignInfo.c` 73-150 and native availability data classes.
+The shared guards were reviewed against native source, but no fresh addon-free
+mode-transition comparison was run. Peer/JIP, saved-game restoration and
+individual character UI were not exercised. This verifies authored group naming
+locally, not runtime text replication or multiplayer character renaming.
+
 ## Ratio indicator and faction targets — 2026-11-01
 
 The ratio icon is white when enforcement is active, red and horizontally mirrored

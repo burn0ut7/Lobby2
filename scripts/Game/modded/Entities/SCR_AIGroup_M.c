@@ -5,6 +5,79 @@
 //! the Lobby2 behavior is active only while GC_LobbyGameMode is the active mode.
 modded class SCR_AIGroup : ChimeraAIGroup
 {
+	[Attribute("", UIWidgets.EditBox, "Manual group call sign. Takes priority over faction call signs in GC Lobby.", category: "GC Lobby: Call sign")]
+	protected string m_sGC_ManualCallsign;
+
+	[Attribute("-1", UIWidgets.EditBox, "Zero-based company index in this group's faction call sign configuration. -1 uses automatic assignment.", category: "GC Lobby: Call sign")]
+	protected int m_iGC_CallsignCompany;
+
+	[Attribute("0", UIWidgets.EditBox, "Zero-based platoon index. Used when Company is set.", category: "GC Lobby: Call sign")]
+	protected int m_iGC_CallsignPlatoon;
+
+	[Attribute("0", UIWidgets.EditBox, "Zero-based squad index. Used when Company is set.", category: "GC Lobby: Call sign")]
+	protected int m_iGC_CallsignSquad;
+
+	//------------------------------------------------------------------------------------------------
+	string GC_GetManualCallsign()
+	{
+		if (!GC_LobbyGameMode.GetGameMode())
+			return string.Empty;
+
+		string name = m_sGC_ManualCallsign;
+		name.TrimInPlace();
+		return name;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! These are indices into the group's faction data, not faction IDs.
+	bool GC_GetAuthoredCallsign(Faction faction, out int company, out int platoon, out int squad)
+	{
+		if (!GC_LobbyGameMode.GetGameMode() || m_iGC_CallsignCompany == -1)
+			return false;
+
+		SCR_Faction scrFaction = SCR_Faction.Cast(faction);
+		SCR_FactionCallsignInfo info;
+		if (scrFaction)
+			info = scrFaction.GetCallsignInfo();
+		if (info)
+		{
+			array<ref SCR_CallsignInfo> companies = {};
+			array<ref SCR_CallsignInfo> platoons = {};
+			array<ref SCR_CallsignInfo> squads = {};
+			info.GetCompanyArray(companies);
+			info.GetPlatoonArray(platoons);
+			info.GetSquadArray(squads);
+			if (companies.IsIndexValid(m_iGC_CallsignCompany) && platoons.IsIndexValid(m_iGC_CallsignPlatoon) && squads.IsIndexValid(m_iGC_CallsignSquad))
+			{
+				company = m_iGC_CallsignCompany;
+				platoon = m_iGC_CallsignPlatoon;
+				squad = m_iGC_CallsignSquad;
+				return true;
+			}
+		}
+
+		PrintFormat("GC | Call sign | invalid faction indices for %1: %2/%3/%4; using automatic assignment", GetName(), m_iGC_CallsignCompany, m_iGC_CallsignPlatoon, m_iGC_CallsignSquad, level: LogLevel.WARNING);
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override string GetCustomName()
+	{
+		string name = GC_GetManualCallsign();
+		if (!name.IsEmpty())
+			return name;
+		return super.GetCustomName();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override string GetCustomNameWithOriginal()
+	{
+		string name = GC_GetManualCallsign();
+		if (!name.IsEmpty())
+			return name;
+		return super.GetCustomNameWithOriginal();
+	}
+
 #ifdef WORKBENCH
 	protected static ref GC_PlayerFormationCatalog s_WorkbenchFormationCatalog;
 	protected static bool s_bWorkbenchFormationFallbackLogged;

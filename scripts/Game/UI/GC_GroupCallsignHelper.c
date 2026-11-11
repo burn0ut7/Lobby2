@@ -6,6 +6,10 @@ class GC_GroupCallsignHelper
 		if (!group)
 			return string.Empty;
 
+		string manualName = group.GC_GetManualCallsign();
+		if (!manualName.IsEmpty())
+			return manualName;
+
 		SCR_CallsignGroupComponent callsignComponent = SCR_CallsignGroupComponent.Cast(group.FindComponent(SCR_CallsignGroupComponent));
 		if (callsignComponent)
 		{
