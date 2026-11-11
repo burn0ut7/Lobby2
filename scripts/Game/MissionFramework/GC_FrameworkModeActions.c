@@ -193,7 +193,18 @@ modded class GC_LobbyManager
 	{
 		array<int> recipients = {};
 		GC_EAdminMessageAudience audience = GC_EAdminMessageAudience.ALL_PLAYERS;
-		if (!action.m_aFlagNames || action.m_aFlagNames.IsEmpty())
+		if (action.m_iOperation == 1)
+		{
+			audience = GC_EAdminMessageAudience.ADMINS;
+			array<int> players = {};
+			GetGame().GetPlayerManager().GetPlayers(players);
+			foreach (int playerId : players)
+			{
+				if (SCR_Global.IsAdmin(playerId))
+					recipients.Insert(playerId);
+			}
+		}
+		else if (!action.m_aFlagNames || action.m_aFlagNames.IsEmpty())
 			GetGame().GetPlayerManager().GetPlayers(recipients);
 		else
 		{

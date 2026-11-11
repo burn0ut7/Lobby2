@@ -1,4 +1,5 @@
-[BaseContainerProps(category: "Advanced"), BaseContainerCustomStringTitleField("Log Message Action")]
+//! Serialized compatibility only. New authoring uses Message Action / Server log.
+[BaseContainerProps(visible: false, insertable: false), BaseContainerCustomStringTitleField("Log Message Action (legacy)")]
 class GC_LogMessageAction : GC_ActionBase
 {
 	[Attribute("Test complete", UIWidgets.EditBox, "The message to write to the Workbench log. This is a test message, not a message shown to players.")]

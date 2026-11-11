@@ -43,13 +43,15 @@ class GC_EventControlAction : GC_ActionBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Message Action")]
 class GC_MessageAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Heading shown above the message. Maximum 80 characters. Leave empty to use Mission, or Mission Warning when Warning is checked.")]
+	[Attribute("0", UIWidgets.ComboBox, "Players: notify everyone or the selected factions. Admins only: notify currently logged-in admins, regardless of faction. Server log: write the message to the server/Workbench log without a popup; Title, Factions and Warning are unused.", enums: {ParamEnum("Players", "0"), ParamEnum("Admins only", "1"), ParamEnum("Server log", "2")})]
+	int m_iDelivery;
+	[Attribute("", UIWidgets.EditBox, "Popup heading, up to 80 characters. Empty uses Mission or Admin according to delivery, with Warning added when checked. Unused for Server log.")]
 	string m_sTitle;
-	[Attribute("", UIWidgets.EditBox, "Message shown to connected players using the same notification stack as admin messages. Maximum 512 characters. Messages wait their turn when the stack is full; joining later does not replay them.")]
+	[Attribute("", UIWidgets.EditBox, "Text to deliver. Popups allow up to 512 characters and wait their turn in the shared notification stack. Joining or logging in later does not replay messages. Server log writes text without a popup.")]
 	string m_sMessage;
-	[Attribute("", UIWidgets.EditComboBox, "Faction keys receiving the message. Empty means everyone, including spectators. Multiple matching factions never send a player duplicate messages.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "For Players delivery only: faction keys receiving the message. Empty means everyone, including spectators. Multiple matching factions never send a player duplicate messages.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
-	[Attribute("0", UIWidgets.CheckBox, "Checked: use the warning icon, color and sound. Your Title stays the same. With no Title, the heading is Mission Warning instead of Mission.")]
+	[Attribute("0", UIWidgets.CheckBox, "Use the warning icon, color and sound for Players or Admins only. Your Title stays the same; an empty title becomes Mission Warning or Admin Warning. Unused for Server log.")]
 	bool m_bWarning;
 
 	//------------------------------------------------------------------------------------------------
@@ -57,6 +59,7 @@ class GC_MessageAction : GC_ActionBase
 	{
 		GC_RuleAction action = new GC_RuleAction();
 		action.m_eDo = GC_ERuleAction.MISSION_MESSAGE;
+		action.m_iOperation = m_iDelivery;
 		action.m_sMessageTitle = m_sTitle;
 		action.m_sMessageTitle.Replace("\r", " ");
 		action.m_sMessageTitle.Replace("\n", " ");
@@ -64,9 +67,14 @@ class GC_MessageAction : GC_ActionBase
 		action.m_sMessageTitle.TrimInPlace();
 		action.m_sTextOrName = m_sMessage;
 		action.m_sTextOrName.TrimInPlace();
+		if (m_iDelivery == 2)
+		{
+			action.m_eDo = GC_ERuleAction.WRITE_LOG;
+			return action;
+		}
 		action.m_bFlagAnswer = m_bWarning;
 		action.m_aFlagNames = {};
-		if (m_aFactions)
+		if (m_iDelivery == 0 && m_aFactions)
 			action.m_aFlagNames.Copy(m_aFactions);
 		return action;
 	}

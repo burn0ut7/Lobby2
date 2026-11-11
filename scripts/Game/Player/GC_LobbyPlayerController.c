@@ -614,7 +614,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			m_aAdminMessages.RemoveOrdered(0);
 		m_aAdminMessages.Insert(entry);
 		m_OnAdminMessagesChanged.Invoke();
-		if (audience != GC_EAdminMessageAudience.ADMINS)
+		if (audience != GC_EAdminMessageAudience.ADMINS || missionMessage)
 			GC_AdminMessagePopupComponent.Show(entry);
 	}
 
@@ -1274,6 +1274,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	[RplRpc(RplChannel.Reliable, RplRcver.Owner)]
 	protected void RpcDo_RevokeLobbyAdminVoice()
 	{
+		GC_AdminMessagePopupComponent.CloseAdminOnly();
 		for (int i = m_aAdminMessages.Count() - 1; i >= 0; i--)
 		{
 			if (m_aAdminMessages[i].m_eAudience == GC_EAdminMessageAudience.ADMINS)

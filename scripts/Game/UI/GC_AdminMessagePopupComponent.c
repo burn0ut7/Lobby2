@@ -39,6 +39,12 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 		s_bFilling = true;
 		while (s_aVisible.Count() < 3 && !s_aWaiting.IsEmpty())
 		{
+			// A queued admin notice must not appear after its recipient logs out.
+			if (s_aWaiting[0].m_eAudience == GC_EAdminMessageAudience.ADMINS && !SCR_Global.IsAdmin())
+			{
+				s_aWaiting.RemoveOrdered(0);
+				continue;
+			}
 			Widget widget = GetGame().GetWorkspace().CreateWidgets(LAYOUT, GetGame().GetWorkspace());
 			if (!widget)
 				break;
@@ -83,6 +89,12 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 			heading = "Mission";
 			if (message.m_bWarning)
 				heading = "Mission Warning";
+			if (message.m_eAudience == GC_EAdminMessageAudience.ADMINS)
+			{
+				heading = "Admin";
+				if (message.m_bWarning)
+					heading = "Admin Warning";
+			}
 			if (!message.m_sTitle.IsEmpty())
 				heading = message.m_sTitle;
 		}
@@ -156,6 +168,22 @@ class GC_AdminMessagePopupComponent : SCR_ScriptedWidgetComponent
 				popup.m_bPlaced = true;
 			}
 			top += popup.m_fHeight + 10;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	static void CloseAdminOnly()
+	{
+		for (int i = s_aWaiting.Count() - 1; i >= 0; i--)
+		{
+			if (s_aWaiting[i].m_eAudience == GC_EAdminMessageAudience.ADMINS)
+				s_aWaiting.RemoveOrdered(i);
+		}
+		for (int i = s_aVisible.Count() - 1; i >= 0; i--)
+		{
+			GC_AdminMessagePopupComponent popup = s_aVisible[i];
+			if (popup.m_Message.m_eAudience == GC_EAdminMessageAudience.ADMINS)
+				popup.m_wRoot.RemoveFromHierarchy();
 		}
 	}
 
