@@ -189,6 +189,8 @@ class GC_BoundaryAdmin
 	{
 		string outcome;
 		message.TrimInPlace();
+		if (immediate)
+			seconds = 120;
 		if (!HasAccess(playerId))
 			outcome = "Rejected: administrator access required.";
 		else if (m_Mode.GetState() != SCR_EGameModeState.GAME || revision != m_iEndingRevision)

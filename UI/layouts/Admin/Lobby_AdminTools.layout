@@ -33,7 +33,7 @@ FrameWidgetClass {
    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolGearLoadout" Slot FrameWidgetSlot { Anchor 0 0 0.47 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolForcedClothing" Slot FrameWidgetSlot { Anchor 0.49 0 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   } }
-  PanelWidgetClass { Name "GearSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.018 0.675 0.021 0.725 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
+  PanelWidgetClass { Name "GearSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { Anchor 0.018 .635 .021 .68 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
   ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
    Name "ToolAllowClothing"
    "Z Order" 1
@@ -88,7 +88,7 @@ FrameWidgetClass {
    "Ignore Cursor" 1
    Wrap 1
   }
-  ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolGear" Slot FrameWidgetSlot { Anchor 0.018 0.675 0.2 0.725 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+  ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolGear" Slot FrameWidgetSlot { Anchor 0.018 .635 .2 .68 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
    Name "AdminClose"
    Slot FrameWidgetSlot {
@@ -99,8 +99,10 @@ FrameWidgetClass {
     OffsetBottom 0
    }
   }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolBoundaries" Slot FrameWidgetSlot { Anchor 0.018 0.51 0.2 0.56 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolEndMatch" Slot FrameWidgetSlot { Anchor 0.018 .73 .2 .775 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolBoundaries" Slot FrameWidgetSlot { Anchor 0.018 .50 .2 .545 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolEndMatch" Slot FrameWidgetSlot { Anchor 0.018 .725 .2 .77 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 0 } } }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolMissions" Slot FrameWidgetSlot { Anchor 0.018 .68 .2 .725 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+FrameWidgetClass : "{E37A21004D960002}UI/layouts/Admin/Lobby_AdminMissions.layout" { Name "MissionsPanel" Slot FrameWidgetSlot { Anchor .24 .18 .98 .98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{E37A21004D960001}UI/layouts/Admin/Lobby_AdminEnding.layout" { Name "EndingPanel" Slot FrameWidgetSlot { Anchor .24 .18 .98 .98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" { Name "BoundaryPanel" Slot FrameWidgetSlot { Anchor 0.24 0.12 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
   ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
@@ -116,7 +118,7 @@ FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" 
   }
   PanelWidgetClass {
    Name "BoundariesSelectedBar"
-   Slot FrameWidgetSlot { Anchor 0.018 0.51 0.021 0.56 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+   Slot FrameWidgetSlot { Anchor 0.018 .50 .021 .545 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
    Color 0.95 0.73 0.3 1
    style full
    "Ignore Cursor" 1
@@ -179,8 +181,8 @@ FrameWidgetClass : "{6A5A00000000B001}UI/layouts/Admin/Lobby_Boundaries.layout" 
    style full
    "Ignore Cursor" 1
   }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolMapPlans" Slot FrameWidgetSlot { Anchor 0.018 0.62 0.2 0.67 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
-PanelWidgetClass { Name "MapPlansSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 0.62 0.021 0.67 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolMapPlans" Slot FrameWidgetSlot { Anchor 0.018 .59 .2 .635 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { SCR_ButtonTextComponent "{7C41F8A018B24C00}" { m_bCanBeToggled 1 m_bShowBorderOnFocus 1 } } }
+PanelWidgetClass { Name "MapPlansSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 .59 .021 .635 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
 FrameWidgetClass { Name "MapPlanPanel" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminMapPlansComponent "{6A5A000000000101}" {} } {
 TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" { Name "PlanNameLabel" Slot FrameWidgetSlot { Anchor 0 0 0.70 0 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom -20 } Text "Name" }
 PanelWidgetClass { Slot FrameWidgetSlot { Anchor 0 0 0.70 0 OffsetLeft 0 OffsetTop 26 OffsetRight 0 OffsetBottom -64 } Color 0.02 0.02 0.02 0.45 style full "Ignore Cursor" 1 }
@@ -231,8 +233,8 @@ PanelWidgetClass { Name "StatusSelectedBar" "Z Order" 1 Slot FrameWidgetSlot { A
 FrameWidgetClass : "{D389716BFE230A42}UI/layouts/Admin/Lobby_AdminStatus.layout" { Name "StatusFields" Slot FrameWidgetSlot { Anchor .24 .18 .98 .95 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{B4C238A9F06E7D12}UI/layouts/Admin/Lobby_AdminLogs.layout" { Name "LogFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
 FrameWidgetClass : "{6A5A000000000070}UI/layouts/Admin/Lobby_AdminModeration.layout" { Name "ModerationFields" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
-ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolReservations" Slot FrameWidgetSlot { Anchor 0.018 0.565 0.2 0.615 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }
-PanelWidgetClass { Name "ReservationsSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 0.565 0.021 0.615 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
+ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" { Name "ToolReservations" Slot FrameWidgetSlot { Anchor 0.018 .545 .2 .59 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }  }
+PanelWidgetClass { Name "ReservationsSelectedBar" Slot FrameWidgetSlot { Anchor 0.018 .545 .021 .59 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Color 0.95 0.73 0.3 1 style full "Ignore Cursor" 1 }
 FrameWidgetClass { Name "ReservationPanel" Slot FrameWidgetSlot { Anchor 0.24 0.18 0.98 0.98 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } components { GC_AdminReservationsComponent "{6A5A000000000099}" {} }
 {
 TextWidgetClass { Name "ReservationTransferHint" Slot FrameWidgetSlot { Anchor 0 0 1 0.12 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Reserve slots from the Lobby, or export the roster, add Arma UIDs and import. Blank UIDs keep existing assignments." "Font Size" 22 Wrap 1 "Ignore Cursor" 1 }

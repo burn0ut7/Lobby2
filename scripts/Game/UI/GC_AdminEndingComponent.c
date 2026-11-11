@@ -139,7 +139,9 @@ class GC_AdminEndingComponent : SCR_ScriptedWidgetComponent
 		}
 		string seconds = EditBoxWidget.Cast(m_wRoot.FindAnyWidget("EndSeconds")).GetText();
 		int duration = seconds.ToInt();
-		if (seconds != duration.ToString() || duration < 1 || duration > 3600)
+		if (name == "EndNow")
+			duration = 120;
+		else if (seconds != duration.ToString() || duration < 1 || duration > 3600)
 		{
 			Status("Enter whole seconds from 1 to 3600.");
 			return;

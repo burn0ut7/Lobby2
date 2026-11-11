@@ -27,6 +27,7 @@ class GC_AdminMissionRequest
 		int player = controller.GetPlayerId();
 		if (m_bBusy)
 		{
+			GC_AdminActionLogger.Log(player, "mission-" + action, mission, "rejected-request-pending");
 			controller.GC_SendMissionPart(requestId, "", "Another mission request is pending.", true);
 			return;
 		}
@@ -109,7 +110,10 @@ class GC_AdminMissionRequest
 	//------------------------------------------------------------------------------------------------
 	protected void OnError(RestCallback callback)
 	{
-		Fail("Website request failed. Refresh before retrying a launch; its outcome may be unknown.");
+		if (m_sAction == "launch")
+			Fail("Launch outcome unknown. Retry Load mission without changing the selection.");
+		else
+			Fail("Website request failed. Refresh to try again.");
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -139,8 +143,8 @@ class GC_AdminMissionRequest
 		}
 		foreach (string chunk : chunks)
 			m_Controller.GC_SendMissionPart(m_iRequest, chunk, "", false);
-		m_Controller.GC_SendMissionPart(m_iRequest, "", "", true);
 		m_bBusy = false;
 		GC_AdminActionLogger.Log(m_iPlayer, "mission-" + m_sAction, m_sMission, "website-response-received");
+		m_Controller.GC_SendMissionPart(m_iRequest, "", "", true);
 	}
 }

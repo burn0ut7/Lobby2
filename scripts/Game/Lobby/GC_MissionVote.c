@@ -127,66 +127,63 @@ class GC_MissionVote
 	//------------------------------------------------------------------------------------------------
 	protected void SelectForPopulation(int players)
 	{
-		array<int> upper = {}, lower = {}, shared = {};
+		array<int> available = {};
 		for (int i; i < m_aCandidates.Count(); i++)
-		{
-			int band = GetPopulationBand(m_aCandidates[i], players);
-			if (band == 0)
-				lower.Insert(i);
-			else if (band == 1)
-				upper.Insert(i);
-			else if (band == 2)
-				shared.Insert(i);
-		}
+			available.Insert(i);
 		m_sStatus = "#GC-Vote_Empty";
-		if (upper.IsEmpty() && lower.IsEmpty() && shared.IsEmpty())
+		if (available.IsEmpty())
 			return;
-		// Fixed slots preserve top/bottom placement even when one band is sparse.
 		for (int slot; slot < 6; slot++)
 		{
 			m_aRows.Insert("");
 			m_aCounts.Insert(0);
 		}
-		FillPopulationRow(upper, 0);
-		FillPopulationRow(lower, 3);
-		// Exact-current capacities fit either row; consume them only once.
-		FillPopulationRow(shared, 0);
-		FillPopulationRow(shared, 3);
+		// Uniform random choices within each broad population group, without a distance cutoff.
+		FillPopulationRow(available, 0, players, 1);
+		FillPopulationRow(available, 3, players, 0);
+		// Sparse groups borrow any remaining known capacity, then unknown metadata.
+		FillPopulationRow(available, 0, players, 2);
+		FillPopulationRow(available, 3, players, 2);
+		FillPopulationRow(available, 0, players, -1);
+		FillPopulationRow(available, 3, players, -1);
 		m_sStatus = "#GC-Vote_Choose";
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void FillPopulationRow(array<int> available, int first)
+	protected void FillPopulationRow(array<int> available, int first, int players, int group)
 	{
 		for (int slot = first; slot < first + 3 && !available.IsEmpty(); slot++)
 		{
 			if (!m_aRows[slot].IsEmpty())
 				continue;
-			int choice = Math.RandomInt(0, available.Count());
+			array<int> choices = {};
+			foreach (int index, int candidate : available)
+			{
+				int capacity = GetMaximumCapacity(m_aCandidates[candidate]);
+				if (group >= 0 && capacity <= 0)
+					continue;
+				if (group == 1 && capacity < players)
+					continue;
+				if (group == 0 && capacity > players)
+					continue;
+				choices.Insert(index);
+			}
+			if (choices.IsEmpty())
+				return;
+			int choice = choices[Math.RandomInt(0, choices.Count())];
 			m_aRows[slot] = m_aCandidates[available[choice]];
 			available.RemoveOrdered(choice);
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Maximum capacity determines the row; the mission minimum must fit today's population.
-	protected int GetPopulationBand(string row, int players)
+	protected int GetMaximumCapacity(string row)
 	{
-		if (players <= 0)
-			return -1;
 		JsonLoadContext json = new JsonLoadContext(false);
-		int minimum, maximum;
-		int lowerCapacity = Math.Ceil(players * 0.8);
-		int upperCapacity = Math.Floor(players * 1.2);
-		if (!json.LoadFromString(row) || !json.ReadValue("minPlayers", minimum)
-			|| !json.ReadValue("maxPlayers", maximum) || minimum <= 0 || maximum < minimum
-			|| minimum > players || maximum < lowerCapacity || maximum > upperCapacity)
-			return -1;
-		if (maximum == players)
-			return 2;
-		if (maximum > players)
-			return 1;
-		return 0;
+		int maximum;
+		if (!json.LoadFromString(row) || !json.ReadValue("maxPlayers", maximum) || maximum <= 0)
+			return 0;
+		return maximum;
 	}
 
 	//------------------------------------------------------------------------------------------------

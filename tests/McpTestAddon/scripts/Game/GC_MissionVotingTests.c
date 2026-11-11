@@ -6,56 +6,53 @@ modded class GC_MissionVote
 
 	string GC_TestPopulationFilter()
 	{
-		array<string> rows = {
-			"{\"minPlayers\":20,\"maxPlayers\":40}",
-			"{\"minPlayers\":50,\"maxPlayers\":60}",
-			"{\"minPlayers\":20,\"maxPlayers\":39}",
-			"{\"minPlayers\":20,\"maxPlayers\":61}",
-			"{\"minPlayers\":10,\"maxPlayers\":100}",
-			"{\"minPlayers\":50,\"maxPlayers\":50}",
-			"{}", "{\"minPlayers\":null,\"maxPlayers\":60}",
-			"{\"minPlayers\":60,\"maxPlayers\":40}",
-			"{\"minPlayers\":0,\"maxPlayers\":60}",
-			"{\"minPlayers\":51,\"maxPlayers\":60}"
-		};
-		array<int> expected = {0, 1, -1, -1, -1, 2, -1, -1, -1, -1, -1};
 		int failures;
-		string observed;
-		for (int i; i < rows.Count(); i++)
+		m_aCandidates = {"{\"maxPlayers\":100}", "{\"maxPlayers\":200}", "{\"maxPlayers\":300}",
+			"{\"maxPlayers\":10}", "{\"maxPlayers\":20}", "{\"maxPlayers\":40}"};
+		SelectForPopulation(50);
+		for (int i; i < 6; i++)
 		{
-			observed += GetPopulationBand(rows[i], 50).ToString() + ",";
-			if (GetPopulationBand(rows[i], 50) != expected[i])
+			int capacity = GetMaximumCapacity(m_aRows[i]);
+			if (!HasCandidate(i) || (i < 3 && capacity < 50) || (i >= 3 && capacity > 50))
+				failures++;
+			for (int j = i + 1; j < 6; j++)
+			{
+				if (m_aRows[i] == m_aRows[j])
+					failures++;
+			}
+		}
+		m_aRows.Clear();
+		m_aCounts.Clear();
+		m_aCandidates = {"{\"maxPlayers\":100}", "{\"maxPlayers\":200}", "{\"maxPlayers\":300}",
+			"{\"maxPlayers\":400}", "{\"maxPlayers\":50}", "{}"};
+		SelectForPopulation(50);
+		for (int slot; slot < 6; slot++)
+		{
+			if (!HasCandidate(slot))
 				failures++;
 		}
-		if (GetPopulationBand(rows[0], 0) != -1 || GetPopulationBand(rows[0], 51) != -1)
-			failures++;
-		m_aCandidates = {rows[0], rows[1], rows[5], rows[4]};
+		m_aRows.Clear();
+		m_aCounts.Clear();
+		m_aCandidates = {"{\"maxPlayers\":40}"};
 		SelectForPopulation(50);
-		observed += " slots=" + m_aRows.ToString();
-		if (m_aRows.Count() != 6 || m_aRows[0] != rows[1] || m_aRows[1] != rows[5]
-			|| !m_aRows[2].IsEmpty() || m_aRows[3] != rows[0] || HasCandidate(4) || HasCandidate(5))
-			failures++;
-		if (HasCandidate(-1) || HasCandidate(6) || !HasCandidate(0))
+		if (HasCandidate(0) || !HasCandidate(3) || HasCandidate(-1) || HasCandidate(6))
 			failures++;
 		m_aCounts[2] = 100;
-		m_aCounts[3] = 1;
 		if (PickWinner() != 3)
 			failures++;
 		m_aRows.Clear();
 		m_aCounts.Clear();
-		m_aCandidates = {rows[4]};
+		m_aCandidates.Clear();
 		SelectForPopulation(50);
-		if (!m_aRows.IsEmpty() || m_sStatus != "#GC-Vote_Empty" || PickWinner() != -1)
+		if (!m_aRows.IsEmpty() || PickWinner() != -1)
 			failures++;
-		// Real production selector samples the connected player list, not a supplied count.
 		array<int> players = {};
 		GetGame().GetPlayerManager().GetPlayers(players);
-		string fits = string.Format("{\"minPlayers\":%1,\"maxPlayers\":%1}", players.Count());
-		m_aCandidates = {"{}", fits};
+		m_aCandidates = {string.Format("{\"maxPlayers\":%1}", players.Count())};
 		SelectCandidates();
-		if (!HasCandidate(0) || m_aRows[0] != fits || HasCandidate(3))
+		if (!HasCandidate(0) || HasCandidate(3))
 			failures++;
-		return string.Format("PopulationBands: checks=17 failures=%1 connected=%2", failures, players.Count()) + " observed=" + observed;
+		return string.Format("PopulationGroups: failures=%1 connected=%2; broad groups, sparse borrowing, unknown counts, unique choices and empty-slot winners checked", failures, players.Count());
 	}
 
 	//! Explicit synthetic 50-player preview, never used by production selection.

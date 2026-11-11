@@ -16,8 +16,8 @@ modded class GC_LobbyManager
 		Widget root = GetGame().GetMenuManager().GetTopMenu().GetRootWidget();
 		GC_AdminSearchFilter result = GC_AdminSearchFilter.Cast(root.FindAnyWidget("EndResult").FindHandler(GC_AdminSearchFilter));
 		GC_AdminSearchFilter faction = GC_AdminSearchFilter.Cast(root.FindAnyWidget("EndFaction").FindHandler(GC_AdminSearchFilter));
-		result.SetCurrentItem(2, false, false, true);
-		faction.SetCurrentItem(1, false, false, true);
+		result.GC_TestChoose(2);
+		faction.GC_TestChoose(1);
 		MultilineEditBoxWidget.Cast(root.FindAnyWidget("EndMessage")).SetText("U.S. Army secured the objectives.");
 		return "Form filled through native choice events";
 	}
