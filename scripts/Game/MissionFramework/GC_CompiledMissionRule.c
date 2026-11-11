@@ -98,102 +98,98 @@ class GC_RuleAction
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
-		if (m_eDo == GC_ERuleAction.CUSTOM_SCRIPT)
-			return m_Script && m_Script.IsValid();
-		if (m_eDo == GC_ERuleAction.JIP)
-			return GC_JipSystem.IsValidMode(m_iOperation);
-		if (m_eDo == GC_ERuleAction.MARKER_VISIBILITY)
+		switch (m_eDo)
 		{
-			if (!m_aFlagNames || m_aFlagNames.IsEmpty() || !ValidTargetNames(m_aFlagNames)
-				|| !m_aMarkerFactions || m_aMarkerFactions.Count() > GC_BriefingMarker.MAX_FACTION_KEYS)
-				return false;
-			array<string> factions = {};
-			foreach (GC_MarkerFactionVisibility visibility : m_aMarkerFactions)
-			{
-				if (!visibility || visibility.m_sFaction.IsEmpty() || factions.Contains(visibility.m_sFaction))
+			case GC_ERuleAction.CUSTOM_SCRIPT:
+				return m_Script && m_Script.IsValid();
+			case GC_ERuleAction.JIP:
+				return GC_JipSystem.IsValidMode(m_iOperation);
+			case GC_ERuleAction.MARKER_VISIBILITY:
+				if (!m_aFlagNames || m_aFlagNames.IsEmpty() || !ValidTargetNames(m_aFlagNames)
+					|| !m_aMarkerFactions || m_aMarkerFactions.Count() > GC_BriefingMarker.MAX_FACTION_KEYS)
 					return false;
-				factions.Insert(visibility.m_sFaction);
-			}
-			return true;
-		}
-		if (m_eDo == GC_ERuleAction.VEHICLE)
-			return m_aFlagNames && !m_aFlagNames.IsEmpty() && ValidTargetNames(m_aFlagNames)
-				&& (m_bChangeFuel || m_bChangeSupplies || m_bRepair)
-				&& (!m_bChangeFuel || (m_fFuelRatio >= 0 && m_fFuelRatio <= 1))
-				&& (!m_bChangeSupplies || (m_iAmount >= 0 && m_iAmount <= 1000000));
-		if (m_eDo == GC_ERuleAction.RESPAWN_WAVE)
-			return m_iAmount >= 0 && m_iAmount <= 1000000 && ValidTargetNames(m_aFlagNames)
-				&& (!m_RespawnLocation || m_RespawnLocation.IsValid());
-		if (m_eDo == GC_ERuleAction.RESPAWN_LOCATION)
-			return m_aFlagNames && !m_aFlagNames.IsEmpty() && ValidTargetNames(m_aFlagNames)
-				&& (!m_RespawnLocation || m_RespawnLocation.IsValid());
-		if (m_eDo == GC_ERuleAction.TIMER_CONTROL)
-			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5
-				&& (m_iOperation < 3 || (m_fTimerSeconds >= 0 && m_fTimerSeconds <= 86400));
-		if (m_eDo == GC_ERuleAction.WEATHER)
-			return (m_bChangeWeather || m_bChangeTime)
-				&& (!m_bChangeWeather || (!m_sTextOrName.IsEmpty() && m_fTransitionSeconds >= 0 && m_fTransitionSeconds <= 86400))
-				&& (!m_bChangeTime || (m_iHours >= 0 && m_iHours <= 23 && m_iMinutes >= 0 && m_iMinutes <= 59 && m_iSeconds >= 0 && m_iSeconds <= 59));
-		if (m_eDo == GC_ERuleAction.DELETE_ENTITIES)
-		{
-			if (m_RadiusDeletion)
-				return m_RadiusDeletion.IsValid();
-			return m_aFlagNames && !m_aFlagNames.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames);
-		}
-		if (m_eDo == GC_ERuleAction.ASSIGN_WAYPOINTS)
-			return !m_sTextOrName.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames)
-				&& (m_bFlagAnswer || (m_aFlagNames && !m_aFlagNames.IsEmpty()));
-		if (m_eDo == GC_ERuleAction.SPAWN)
-			return m_Spawn && m_Spawn.IsValid();
-		if (m_eDo == GC_ERuleAction.FLAG_CONTROL)
-			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5 && m_iAmount >= 0 && m_iAmount <= 1000000;
-		if (m_eDo == GC_ERuleAction.EVENT_CONTROL)
-			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 3;
-		if (m_eDo == GC_ERuleAction.RESET_RANDOM)
-			return !m_sTextOrName.IsEmpty();
-		if (m_eDo == GC_ERuleAction.END_MISSION)
-			return m_iOperation >= 0 && m_iOperation <= 4
-				&& (m_iOperation == 0 || m_iOperation == 4 || !m_sTextOrName.IsEmpty())
-				&& m_sEndMessage.Length() <= 512 && !m_sEndMessage.Contains("<") && !m_sEndMessage.Contains(">")
-				&& ValidTargetNames(m_aFlagNames) && (!m_aFlagNames || m_aFlagNames.Count() <= 16)
-				&& (m_iOperation == 1 || !m_aFlagNames || m_aFlagNames.IsEmpty());
-		if (m_eDo == GC_ERuleAction.RESPAWN_TICKETS)
-			return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 2 && m_iAmount >= 0 && m_iAmount <= 1000000;
-		if (m_eDo == GC_ERuleAction.MISSION_MESSAGE)
-		{
-			if (m_iOperation < 0 || m_iOperation > 1)
-				return false;
-			if (m_sMessageTitle.Length() > 80 || m_sMessageTitle.Contains("<") || m_sMessageTitle.Contains(">"))
-				return false;
-			if (m_sTextOrName.IsEmpty() || m_sTextOrName.Length() > 512 || m_sTextOrName.Contains("<") || m_sTextOrName.Contains(">"))
-				return false;
-			if (m_aFlagNames)
-			{
-				if (m_aFlagNames.Count() > 256)
-					return false;
-				foreach (string faction : m_aFlagNames)
+				array<string> factions = {};
+				foreach (GC_MarkerFactionVisibility visibility : m_aMarkerFactions)
 				{
-					if (faction.IsEmpty())
+					if (!visibility || visibility.m_sFaction.IsEmpty() || factions.Contains(visibility.m_sFaction))
+						return false;
+					factions.Insert(visibility.m_sFaction);
+				}
+				return true;
+			case GC_ERuleAction.VEHICLE:
+				return m_aFlagNames && !m_aFlagNames.IsEmpty() && ValidTargetNames(m_aFlagNames)
+					&& (m_bChangeFuel || m_bChangeSupplies || m_bRepair)
+					&& (!m_bChangeFuel || (m_fFuelRatio >= 0 && m_fFuelRatio <= 1))
+					&& (!m_bChangeSupplies || (m_iAmount >= 0 && m_iAmount <= 1000000));
+			case GC_ERuleAction.RESPAWN_WAVE:
+				return m_iAmount >= 0 && m_iAmount <= 1000000 && ValidTargetNames(m_aFlagNames)
+					&& (!m_RespawnLocation || m_RespawnLocation.IsValid());
+			case GC_ERuleAction.RESPAWN_LOCATION:
+				return m_aFlagNames && !m_aFlagNames.IsEmpty() && ValidTargetNames(m_aFlagNames)
+					&& (!m_RespawnLocation || m_RespawnLocation.IsValid());
+			case GC_ERuleAction.TIMER_CONTROL:
+				return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5
+					&& (m_iOperation < 3 || (m_fTimerSeconds >= 0 && m_fTimerSeconds <= 86400));
+			case GC_ERuleAction.WEATHER:
+				return (m_bChangeWeather || m_bChangeTime)
+					&& (!m_bChangeWeather || (!m_sTextOrName.IsEmpty() && m_fTransitionSeconds >= 0 && m_fTransitionSeconds <= 86400))
+					&& (!m_bChangeTime || (m_iHours >= 0 && m_iHours <= 23 && m_iMinutes >= 0 && m_iMinutes <= 59 && m_iSeconds >= 0 && m_iSeconds <= 59));
+			case GC_ERuleAction.DELETE_ENTITIES:
+				if (m_RadiusDeletion)
+					return m_RadiusDeletion.IsValid();
+				return m_aFlagNames && !m_aFlagNames.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames);
+			case GC_ERuleAction.ASSIGN_WAYPOINTS:
+				return !m_sTextOrName.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames)
+					&& (m_bFlagAnswer || (m_aFlagNames && !m_aFlagNames.IsEmpty()));
+			case GC_ERuleAction.SPAWN:
+				return m_Spawn && m_Spawn.IsValid();
+			case GC_ERuleAction.FLAG_CONTROL:
+				return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 5 && m_iAmount >= 0 && m_iAmount <= 1000000;
+			case GC_ERuleAction.EVENT_CONTROL:
+				return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 3;
+			case GC_ERuleAction.RESET_RANDOM:
+				return !m_sTextOrName.IsEmpty();
+			case GC_ERuleAction.END_MISSION:
+				return m_iOperation >= 0 && m_iOperation <= 4
+					&& (m_iOperation == 0 || m_iOperation == 4 || !m_sTextOrName.IsEmpty())
+					&& m_sEndMessage.Length() <= 512 && !m_sEndMessage.Contains("<") && !m_sEndMessage.Contains(">")
+					&& ValidTargetNames(m_aFlagNames) && (!m_aFlagNames || m_aFlagNames.Count() <= 16)
+					&& (m_iOperation == 1 || !m_aFlagNames || m_aFlagNames.IsEmpty());
+			case GC_ERuleAction.RESPAWN_TICKETS:
+				return !m_sTextOrName.IsEmpty() && m_iOperation >= 0 && m_iOperation <= 2 && m_iAmount >= 0 && m_iAmount <= 1000000;
+			case GC_ERuleAction.MISSION_MESSAGE:
+				if (m_iOperation < 0 || m_iOperation > 1)
+					return false;
+				if (m_sMessageTitle.Length() > 80 || m_sMessageTitle.Contains("<") || m_sMessageTitle.Contains(">"))
+					return false;
+				if (m_sTextOrName.IsEmpty() || m_sTextOrName.Length() > 512 || m_sTextOrName.Contains("<") || m_sTextOrName.Contains(">"))
+					return false;
+				if (m_aFlagNames)
+				{
+					if (m_aFlagNames.Count() > 256)
+						return false;
+					foreach (string faction : m_aFlagNames)
+					{
+						if (faction.IsEmpty())
+							return false;
+					}
+				}
+				return true;
+			case GC_ERuleAction.CALL_FLAG:
+			case GC_ERuleAction.RESET_FLAG:
+				return !m_sTextOrName.IsEmpty();
+			case GC_ERuleAction.RANDOM_FLAG:
+				return !m_sTextOrName.IsEmpty() && m_fChancePercent >= 0 && m_fChancePercent <= 100;
+			case GC_ERuleAction.SELECT_FLAGS:
+				if (!m_aFlagNames || m_aFlagNames.IsEmpty() || m_aFlagNames.Count() > 256
+					|| m_iSelectionCount < 1 || m_iSelectionCount > m_aFlagNames.Count())
+					return false;
+				foreach (int index, string name : m_aFlagNames)
+				{
+					if (name.IsEmpty() || m_aFlagNames.Find(name) != index)
 						return false;
 				}
-			}
-			return true;
-		}
-		if (m_eDo == GC_ERuleAction.CALL_FLAG || m_eDo == GC_ERuleAction.RESET_FLAG)
-			return !m_sTextOrName.IsEmpty();
-		if (m_eDo == GC_ERuleAction.RANDOM_FLAG)
-			return !m_sTextOrName.IsEmpty() && m_fChancePercent >= 0 && m_fChancePercent <= 100;
-		if (m_eDo == GC_ERuleAction.SELECT_FLAGS)
-		{
-			if (!m_aFlagNames || m_aFlagNames.IsEmpty() || m_aFlagNames.Count() > 256
-				|| m_iSelectionCount < 1 || m_iSelectionCount > m_aFlagNames.Count())
-				return false;
-			foreach (int index, string name : m_aFlagNames)
-			{
-				if (name.IsEmpty() || m_aFlagNames.Find(name) != index)
-					return false;
-			}
-			return true;
+				return true;
 		}
 		return m_eDo >= 0 && m_eDo <= 2 && !m_sTextOrName.IsEmpty();
 	}

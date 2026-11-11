@@ -757,27 +757,30 @@ class GC_LobbyParameterCatalog
 		return null;
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Both update paths receive a complete, validated batch, in any order.
+	protected void CopyValidatedValues(array<ref GC_LobbyParameterValue> values)
+	{
+		array<ref GC_LobbyParameterValue> orderedValues = {};
+		orderedValues.Resize(values.Count());
+		foreach (GC_LobbyParameterValue submitted : values)
+		{
+			GC_LobbyParameterValue copy = new GC_LobbyParameterValue();
+			copy.CopyFrom(submitted);
+			orderedValues[submitted.GetDefinitionIndex()] = copy;
+		}
+		// Finish copying before replacing storage: values may be GetValues() itself.
+		m_aValues.Clear();
+		foreach (GC_LobbyParameterValue ordered : orderedValues)
+			m_aValues.Insert(ordered);
+	}
+
 	bool ApplyValues(array<ref GC_LobbyParameterValue> values)
 	{
 		if (!ValidateValues(values))
 			return false;
 
-		m_aValues.Clear();
-		for (int definitionIndex; definitionIndex < GetDefinitions().Count(); definitionIndex++)
-		{
-			GC_LobbyParameterValue submittedValue;
-			foreach (GC_LobbyParameterValue candidate : values)
-			{
-				if (candidate && candidate.GetDefinitionIndex() == definitionIndex)
-				{
-					submittedValue = candidate;
-					break;
-				}
-			}
-			GC_LobbyParameterValue value = new GC_LobbyParameterValue();
-			value.CopyFrom(submittedValue);
-			m_aValues.Insert(value);
-		}
+		CopyValidatedValues(values);
 
 		m_iRevision++;
 		return true;
@@ -788,22 +791,7 @@ class GC_LobbyParameterCatalog
 		if (revision <= m_iRevision || !ValidateValues(values))
 			return false;
 
-		m_aValues.Clear();
-		for (int definitionIndex; definitionIndex < GetDefinitions().Count(); definitionIndex++)
-		{
-			GC_LobbyParameterValue snapshotValue;
-			foreach (GC_LobbyParameterValue candidate : values)
-			{
-				if (candidate && candidate.GetDefinitionIndex() == definitionIndex)
-				{
-					snapshotValue = candidate;
-					break;
-				}
-			}
-			GC_LobbyParameterValue value = new GC_LobbyParameterValue();
-			value.CopyFrom(snapshotValue);
-			m_aValues.Insert(value);
-		}
+		CopyValidatedValues(values);
 
 		m_iRevision = revision;
 		return true;
