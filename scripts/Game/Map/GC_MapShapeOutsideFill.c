@@ -1,14 +1,16 @@
 //! Canvas polygons have no hole parameter. Partition the visible width at polygon
-//! vertices, then fill the outside intervals with non-overlapping trapezoids.
+//! vertices, then fill outside (or inside) intervals with non-overlapping trapezoids.
 //! Native canvas clipping trims their vertical extent to the map viewport.
 class GC_MapShapeOutsideFill
 {
 	//------------------------------------------------------------------------------------------------
-	static void Build(array<float> polygon, float width, float height, TriMeshDrawCommand mesh)
+	static void Build(array<float> polygon, float width, float height, TriMeshDrawCommand mesh, bool inverted = true)
 	{
 		mesh.m_Vertices.Clear();
 		mesh.m_Indices.Clear();
 		if (width <= 0 || height <= 0 || polygon.Count() < 6)
+			return;
+		if (polygon.Count() % 2 != 0)
 			return;
 
 		array<float> cuts = {0, width};
@@ -51,6 +53,12 @@ class GC_MapShapeOutsideFill
 			}
 
 			// A simple closed polygon alternates outside/inside at each crossing.
+			if (!inverted)
+			{
+				for (int inside = 0; inside + 1 < crossings.Count(); inside += 2)
+					AddTrapezoid(mesh, left, right, crossings[inside], crossings[inside + 1]);
+				continue;
+			}
 			vector upper = Vector(top, top, 0);
 			for (int interval; interval <= crossings.Count(); interval += 2)
 			{

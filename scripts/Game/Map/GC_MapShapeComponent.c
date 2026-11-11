@@ -165,16 +165,7 @@ class GC_MapShapeComponent : ScriptComponent
 			frameBounds[0] = minimum;
 			frameBounds[1] = maximum;
 		}
-		Color lineColor = m_LineColor;
-		if (m_bFactionColor)
-		{
-			string key;
-			if (m_aFactionKeys && !m_aFactionKeys.IsEmpty())
-				key = m_aFactionKeys[0];
-			Faction colorFaction = GetGame().GetFactionManager().GetFactionByKey(key);
-			if (colorFaction)
-				lineColor = colorFaction.GetFactionColor();
-		}
+		Color lineColor = GetOutlineColor();
 		int fill;
 		if (m_bFillEnabled)
 			fill = m_FillColor.PackToInt();
@@ -184,6 +175,25 @@ class GC_MapShapeComponent : ScriptComponent
 		inverted.Insert(m_bInvertFill);
 		widths.Insert(Math.Clamp(m_fLineWidth, 1, 20));
 		points.InsertAll(polygon);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected Color GetOutlineColor()
+	{
+		Color lineColor = m_LineColor;
+		if (m_bFactionColor)
+		{
+			string key;
+			if (m_aFactionKeys && !m_aFactionKeys.IsEmpty())
+				key = m_aFactionKeys[0];
+			Faction colorFaction;
+			FactionManager factions = GetGame().GetFactionManager();
+			if (factions)
+				colorFaction = factions.GetFactionByKey(key);
+			if (colorFaction)
+				lineColor = colorFaction.GetFactionColor();
+		}
+		return lineColor;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -205,6 +215,10 @@ class GC_MapShapeComponent : ScriptComponent
 	override void OnPostInit(IEntity owner)
 	{
 		super.OnPostInit(owner);
+#ifdef WORKBENCH
+		if (!SCR_Global.IsEditMode())
+			m_EditorPreview = null;
+#endif
 		if (!SCR_Global.IsEditMode() && Replication.IsServer())
 			GetGame().GetCallqueue().CallLater(RegisterShape, 0);
 	}
@@ -212,10 +226,42 @@ class GC_MapShapeComponent : ScriptComponent
 	//------------------------------------------------------------------------------------------------
 	override void OnDelete(IEntity owner)
 	{
+#ifdef WORKBENCH
+		m_EditorPreview = null;
+#endif
 		if (GetGame())
 			GetGame().GetCallqueue().Remove(RegisterShape);
 		if (m_System)
 			m_System.Unregister(this);
 		super.OnDelete(owner);
 	}
+
+#ifdef WORKBENCH
+	protected ref GC_MapShapePreview m_EditorPreview;
+
+	//------------------------------------------------------------------------------------------------
+	override int _WB_GetAfterWorldUpdateSpecs(IEntity owner, IEntitySource src)
+	{
+		return EEntityFrameUpdateSpecs.CALL_ALWAYS;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void _WB_AfterWorldUpdate(IEntity owner, float timeSlice)
+	{
+		PolylineShapeEntity shape = PolylineShapeEntity.Cast(owner);
+		if (!GC_MapShapePreview.IsSelected(shape))
+		{
+			m_EditorPreview = null;
+			return;
+		}
+		// Authoring previews show the configured style regardless of audience/enabled state.
+		if (!m_EditorPreview)
+			m_EditorPreview = new GC_MapShapePreview();
+		int fill;
+		if (m_bFillEnabled && m_FillColor)
+			fill = m_FillColor.PackToInt();
+		Color lineColor = GetOutlineColor();
+		m_EditorPreview.Update(shape, lineColor.PackToInt(), m_fLineWidth, fill, m_bInvertFill);
+	}
+#endif
 }
