@@ -83,7 +83,8 @@ class GC_Lobby_VotingMenu : ChimeraMenuBase
 		for (int i; i < m_aCards.Count(); i++)
 		{
 			Widget card = m_aCards[i].GetRootWidget();
-			bool visible = i < m_Controller.m_aGC_VoteCards.Count() && i < m_Controller.m_aGC_VoteCounts.Count();
+			bool visible = i < m_Controller.m_aGC_VoteCards.Count() && i < m_Controller.m_aGC_VoteCounts.Count()
+				&& !m_Controller.m_aGC_VoteCards[i].IsEmpty();
 			card.SetVisible(visible);
 			if (!visible)
 				continue;

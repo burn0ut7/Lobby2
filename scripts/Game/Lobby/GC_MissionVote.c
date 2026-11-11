@@ -137,19 +137,80 @@ class GC_MissionVote
 	{
 		if (m_bClosed || !m_aRows.IsEmpty())
 			return;
-		array<int> available = {};
+		array<int> players = {};
+		GetGame().GetPlayerManager().GetPlayers(players);
+		SelectForPopulation(players.Count());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SelectForPopulation(int players)
+	{
+		array<int> upper = {}, lower = {}, shared = {};
 		for (int i; i < m_aCandidates.Count(); i++)
-			available.Insert(i);
-		while (!available.IsEmpty() && m_aRows.Count() < 6)
 		{
-			int choice = Math.RandomInt(0, available.Count());
-			m_aRows.Insert(m_aCandidates[available[choice]]);
+			int band = GetPopulationBand(m_aCandidates[i], players);
+			if (band == 0)
+				lower.Insert(i);
+			else if (band == 1)
+				upper.Insert(i);
+			else if (band == 2)
+				shared.Insert(i);
+		}
+		m_sStatus = "#GC-Vote_Empty";
+		if (upper.IsEmpty() && lower.IsEmpty() && shared.IsEmpty())
+			return;
+		// Fixed slots preserve top/bottom placement even when one band is sparse.
+		for (int slot; slot < 6; slot++)
+		{
+			m_aRows.Insert("");
 			m_aCounts.Insert(0);
+		}
+		FillPopulationRow(upper, 0);
+		FillPopulationRow(lower, 3);
+		// Exact-current capacities fit either row; consume them only once.
+		FillPopulationRow(shared, 0);
+		FillPopulationRow(shared, 3);
+		m_sStatus = "#GC-Vote_Choose";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void FillPopulationRow(array<int> available, int first)
+	{
+		for (int slot = first; slot < first + 3 && !available.IsEmpty(); slot++)
+		{
+			if (!m_aRows[slot].IsEmpty())
+				continue;
+			int choice = Math.RandomInt(0, available.Count());
+			m_aRows[slot] = m_aCandidates[available[choice]];
 			available.RemoveOrdered(choice);
 		}
-		m_sStatus = "#GC-Vote_Choose";
-		if (m_aRows.IsEmpty())
-			m_sStatus = "#GC-Vote_Empty";
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Maximum capacity determines the row; the mission minimum must fit today's population.
+	protected int GetPopulationBand(string row, int players)
+	{
+		if (players <= 0)
+			return -1;
+		JsonLoadContext json = new JsonLoadContext(false);
+		int minimum, maximum;
+		int lowerCapacity = Math.Ceil(players * 0.8);
+		int upperCapacity = Math.Floor(players * 1.2);
+		if (!json.LoadFromString(row) || !json.ReadValue("minPlayers", minimum)
+			|| !json.ReadValue("maxPlayers", maximum) || minimum <= 0 || maximum < minimum
+			|| minimum > players || maximum < lowerCapacity || maximum > upperCapacity)
+			return -1;
+		if (maximum == players)
+			return 2;
+		if (maximum > players)
+			return 1;
+		return 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool HasCandidate(int index)
+	{
+		return index >= 0 && index < m_aRows.Count() && !m_aRows[index].IsEmpty();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -162,7 +223,7 @@ class GC_MissionVote
 	void CastVote(GC_LobbyPlayerController controller, string round, int choice)
 	{
 		if (!IsCurrent() || !m_bStarted || m_bClosed || Remaining() <= 0 || round != m_sRound
-			|| m_Manager.GetLobbyPhase() != SCR_EGameModeState.POSTGAME || choice < 0 || choice >= m_aRows.Count())
+			|| m_Manager.GetLobbyPhase() != SCR_EGameModeState.POSTGAME || !HasCandidate(choice))
 			return;
 		int playerId = controller.GetPlayerId();
 		if (!GetGame().GetPlayerManager().IsPlayerConnected(playerId)
@@ -212,10 +273,25 @@ class GC_MissionVote
 			m_sStatus = "#GC-Vote_EndedEmpty";
 			return;
 		}
+		m_iWinner = PickWinner();
+		if (m_iWinner < 0)
+		{
+			m_sStatus = "#GC-Vote_EndedEmpty";
+			return;
+		}
+		m_sStatus = "#GC-Vote_LoadingWinner";
+		GetGame().GetCallqueue().CallLater(LoadWinner, 3000);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected int PickWinner()
+	{
 		int highest = -1;
 		array<int> tied = {};
 		foreach (int index, int count : m_aCounts)
 		{
+			if (!HasCandidate(index))
+				continue;
 			if (count > highest)
 			{
 				highest = count;
@@ -224,9 +300,9 @@ class GC_MissionVote
 			if (count == highest)
 				tied.Insert(index);
 		}
-		m_iWinner = tied[Math.RandomInt(0, tied.Count())];
-		m_sStatus = "#GC-Vote_LoadingWinner";
-		GetGame().GetCallqueue().CallLater(LoadWinner, 3000);
+		if (tied.IsEmpty())
+			return -1;
+		return tied[Math.RandomInt(0, tied.Count())];
 	}
 
 	//------------------------------------------------------------------------------------------------

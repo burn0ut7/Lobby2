@@ -220,7 +220,7 @@ StringTable {
   CustomStringTableItem "{E37A21004D951004}" { Id "GC-Vote_InvalidResponse" Target_en_us "Mission catalog response is invalid" }
   CustomStringTableItem "{E37A21004D951005}" { Id "GC-Vote_Limit" Target_en_us "Mission catalog exceeds voting limit" }
   CustomStringTableItem "{E37A21004D951006}" { Id "GC-Vote_Choose" Target_en_us "Choose the next mission" }
-  CustomStringTableItem "{E37A21004D951007}" { Id "GC-Vote_Empty" Target_en_us "No installed missions are available for voting" }
+  CustomStringTableItem "{E37A21004D951007}" { Id "GC-Vote_Empty" Target_en_us "No installed missions match the current player count" }
   CustomStringTableItem "{E37A21004D951008}" { Id "GC-Vote_EndedEmpty" Target_en_us "Voting ended — no mission available" }
   CustomStringTableItem "{E37A21004D951009}" { Id "GC-Vote_LoadingWinner" Target_en_us "Winner selected — loading next mission…" }
   CustomStringTableItem "{E37A21004D95100A}" { Id "GC-Vote_LoadFailed" Target_en_us "The server could not load the winning mission" }
