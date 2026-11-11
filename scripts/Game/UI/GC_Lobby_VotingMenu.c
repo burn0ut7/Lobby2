@@ -136,6 +136,10 @@ class GC_Lobby_VotingMenu : ChimeraMenuBase
 		json.ReadValue("thumbnail", thumbnail);
 		json.ReadValue("plays", plays);
 		json.ReadValue("lastPlayed", lastPlayed);
+		int maxPlayers, minPlayers;
+		if (json.ReadValue("maxPlayers", maxPlayers) && json.ReadValue("minPlayers", minPlayers)
+			&& maxPlayers > 0 && minPlayers > 0 && minPlayers <= maxPlayers)
+			name = string.Format("%1 (%2-%3)", name, maxPlayers, minPlayers);
 		if (lastPlayed == "Never played")
 			lastPlayed = WidgetManager.Translate("#GC-Vote_Never");
 		TextWidget.Cast(card.FindAnyWidget("MissionName")).SetText(name);
