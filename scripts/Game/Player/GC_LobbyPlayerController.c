@@ -165,6 +165,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		StopServerNetworkCameraStream();
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
+		GetGame().GetCallqueue().Remove(GC_RestoreGameView);
 		GetGame().GetCallqueue().Remove(OpenSlottingFromPause);
 		GetGame().GetCallqueue().Remove(OpenBriefingFromPause);
 		GetGame().GetCallqueue().Remove(OpenAdminToolsFromPause);
@@ -2329,6 +2330,48 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		GetGame().GetCallqueue().CallLater(ReconcileSpectatorPresentation, 0, false, vector.Zero, vector.Zero, vector.Zero);
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Native menu handling may release character controls when its pause state changes.
+	override protected void UpdateControls()
+	{
+		bool wasPaused = m_bIsPaused;
+		super.UpdateControls();
+		IEntity body = GetControlledEntity();
+		if (wasPaused == m_bIsPaused || !body)
+			return;
+		GC_LobbySpectatorBodyComponent spectator = GC_LobbySpectatorBodyComponent.Cast(body.FindComponent(GC_LobbySpectatorBodyComponent));
+		if (spectator)
+			spectator.DisableCharacterControls();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Menu teardown can restore the possessed body's camera. Reconcile afterward.
+	void GC_ReturnToGameView()
+	{
+		GetGame().GetCallqueue().Remove(GC_RestoreGameView);
+		GetGame().GetCallqueue().CallLater(GC_RestoreGameView, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_RestoreGameView()
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!mode || GetGame().GetPlayerController() != this
+			|| !GC_LobbyPhase.IsAtOrAfter(mode.GetState(), SCR_EGameModeState.GAME))
+			return;
+
+		IEntity body = GetControlledEntity();
+		if (!body || !body.FindComponent(GC_LobbySpectatorBodyComponent)
+			|| GetLobbyPlayerState() != GC_ELobbyPlayerState.SPECTATOR)
+			return;
+
+		// POSTGAME ends automatic spectator presentation; explicit Game navigation
+		// may resume it without changing possession or the authoritative phase.
+		m_bSpectatorPresentationRequested = true;
+		ReconcileSpectatorPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void ReconcileSpectatorPresentation(vector position = vector.Zero, vector forward = vector.Zero, vector up = vector.Zero)
 	{
 		if (!GC_LobbyGameMode.GetGameMode() || !m_bSpectatorPresentationRequested)

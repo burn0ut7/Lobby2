@@ -102,6 +102,19 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		PrintFormat("GC | Phase UI Trace | game mode initialized: this=%1 state=%2 server=%3 rplMode=%4 playerController=%5 menuManager=%6", this, GC_LobbyManager.GetPhaseName(GetState()), Replication.IsServer(), RplSession.Mode(), GetGame().GetPlayerController(), GetGame().GetMenuManager());
 	}
 
+	//------------------------------------------------------------------------------------------------
+	//! Phase changes must never enable the dedicated radio/listener body's controls.
+	override protected void SetLocalControls(bool enabled)
+	{
+		PlayerController player = GetGame().GetPlayerController();
+		IEntity body;
+		if (player)
+			body = player.GetControlledEntity();
+		if (body && body.FindComponent(GC_LobbySpectatorBodyComponent))
+			enabled = false;
+		super.SetLocalControls(enabled);
+	}
+
 	//! Live transitions and JIP both use the replicated base game-mode state.
 	override protected void OnGameStateChanged()
 	{

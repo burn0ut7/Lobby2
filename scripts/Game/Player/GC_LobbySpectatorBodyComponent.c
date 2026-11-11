@@ -13,6 +13,12 @@ class GC_LobbySpectatorBodyComponent : ScriptComponent
 		// Replicated character initialization restores visibility after EOnInit.
 		// The call queue also runs for remote proxies without frame callbacks.
 		GetOwner().ClearFlags(EntityFlags.VISIBLE, true);
+		// Keep native storage and radio processing, but never expose an equipment
+		// inventory or drive this invisible body with ordinary character controls.
+		SCR_InventoryStorageManagerComponent inventory = SCR_InventoryStorageManagerComponent.Cast(GetOwner().FindComponent(SCR_InventoryStorageManagerComponent));
+		if (inventory)
+			inventory.AllowInventoryAccess(false);
+		DisableCharacterControls();
 		// This dedicated body is a voice listener, never a physical participant.
 		CharacterAnimationComponent animation = CharacterAnimationComponent.Cast(GetOwner().FindComponent(CharacterAnimationComponent));
 		if (animation)
@@ -32,6 +38,20 @@ class GC_LobbySpectatorBodyComponent : ScriptComponent
 		SCR_CharacterDamageManagerComponent damage = SCR_CharacterDamageManagerComponent.Cast(GetOwner().FindComponent(SCR_CharacterDamageManagerComponent));
 		if (damage && Replication.IsServer())
 			damage.EnableDamageHandling(false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Reapply when native phase/menu handling changes the local control flags.
+	void DisableCharacterControls()
+	{
+		if (!GC_LobbyManager.GetManager())
+			return;
+		CharacterControllerComponent controller = CharacterControllerComponent.Cast(GetOwner().FindComponent(CharacterControllerComponent));
+		if (!controller)
+			return;
+		controller.SetDisableMovementControls(true);
+		controller.SetDisableWeaponControls(true);
+		controller.SetDisableViewControls(true);
 	}
 
 	//------------------------------------------------------------------------------------------------

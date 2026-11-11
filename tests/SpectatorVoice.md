@@ -24,7 +24,32 @@ Body following retains the existing server validation and owner movement, but
 uses `BaseGameEntity.Teleport(transform)` directly instead of the player helper
 that fades the camera. The dedicated body has simulation NONE, inactive physics,
 no gravity or collision layers, no stamina/AI/character sound/editor component,
-and disabled damage. Native character movement, inventory and replication remain.
+and disabled damage. Native inventory storage and replication remain for radio
+ownership. Equipment-inventory access is disabled through `AllowInventoryAccess`;
+the dedicated body's movement, weapon and view controls remain disabled across
+native phase and menu transitions. The manual camera owns spectator movement.
+
+## Game navigation checks — 2026-11-11
+
+Workbench 1.9.0.37, embedded Arland, optional `GC_SpectatorGameViewTests`:
+
+- Actual header Game button activation returns to `GC_Lobby_SpectatorMenu` and
+  the current manual camera from active-match lobby, postgame voting, and debrief.
+  Postgame still opens voting automatically and initially removes the camera;
+  only explicit Game navigation restores it. Repeated debrief/Game navigation passes.
+- Native `Action_OpenInventory` leaves inventory closed. Radio discovery and
+  power remain available; both spectator VoN components remain active.
+- Across preview, GAME, POSTGAME and ordinary-body/spectator possession changes:
+  spectator movement/weapon/view restrictions remain set, physics remains inactive
+  with zero collision layers, damage remains disabled, and character sound,
+  stamina, AI and editable-character components are absent.
+- A temporary ordinary `Character_Base` retains enabled controls, sound, stamina,
+  physics and damage; Game navigation does not create a spectator camera for it.
+  The original spectator is restored and the temporary body deleted afterward.
+- Reload operation `8e8595829cf4477c8e84a4979117a9e3` succeeded; existing stale
+  Arland resource warnings remain. Local MCP captures/receipts are retained at
+  `Art/References/spectator-game-view/`. This pass does not repeat microphone
+  transmission, dedicated-server/remote-client, controller or other-mode testing.
 
 ## Evidence
 

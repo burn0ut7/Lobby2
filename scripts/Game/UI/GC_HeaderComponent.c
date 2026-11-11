@@ -395,7 +395,12 @@ class GC_HeaderComponent : SCR_ScriptedWidgetComponent
         else if (view == VIEW_BRIEFING)
             SwitchToBriefingMenu();
 		else if (view == VIEW_GAME)
+		{
 			CloseCurrentMenu();
+			GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+			if (controller)
+				controller.GC_ReturnToGameView();
+		}
 		else if (view == VIEW_DEBRIEF)
 		{
 			CloseCurrentMenu();
