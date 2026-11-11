@@ -61,6 +61,7 @@ class GC_RuleAction
 	int m_iAmount;
 	ref GC_PrefabSpawn m_Spawn;
 	ref GC_MissionScript m_Script;
+	ref GC_RadiusDeletion m_RadiusDeletion;
 	float m_fTransitionSeconds;
 	float m_fTimerSeconds;
 	string m_sMessageTitle;
@@ -128,7 +129,11 @@ class GC_RuleAction
 				&& (!m_bChangeWeather || (!m_sTextOrName.IsEmpty() && m_fTransitionSeconds >= 0 && m_fTransitionSeconds <= 86400))
 				&& (!m_bChangeTime || (m_iHours >= 0 && m_iHours <= 23 && m_iMinutes >= 0 && m_iMinutes <= 59 && m_iSeconds >= 0 && m_iSeconds <= 59));
 		if (m_eDo == GC_ERuleAction.DELETE_ENTITIES)
+		{
+			if (m_RadiusDeletion)
+				return m_RadiusDeletion.IsValid();
 			return m_aFlagNames && !m_aFlagNames.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames);
+		}
 		if (m_eDo == GC_ERuleAction.ASSIGN_WAYPOINTS)
 			return !m_sTextOrName.IsEmpty() && GC_RuleAction.ValidTargetNames(m_aFlagNames)
 				&& (m_bFlagAnswer || (m_aFlagNames && !m_aFlagNames.IsEmpty()));

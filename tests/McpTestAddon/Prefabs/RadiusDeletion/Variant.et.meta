@@ -1,0 +1,6 @@
+MetaFileClass {
+ Name "{F71C000000000042}Prefabs/RadiusDeletion/Variant.et"
+ Configurations {
+  EntityTemplateResourceClass PC {}
+ }
+}

@@ -1,6 +1,8 @@
 //! Authored server actions use existing Lobby2 owners. No client request or admin authorization bypass.
 modded class GC_LobbyManager
 {
+	protected ref array<ref GC_RadiusDeletionRecord> m_aGC_RadiusRemovals = {};
+
 	//------------------------------------------------------------------------------------------------
 	bool GC_ExecuteFrameworkAction(GC_MissionRuleEngine source, GC_RuleAction action)
 	{
@@ -163,6 +165,14 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	protected bool GC_DeleteFrameworkEntities(GC_RuleAction action)
 	{
+		if (action.m_RadiusDeletion)
+		{
+			GC_RadiusDeletionQuery query = new GC_RadiusDeletionQuery();
+			array<IEntity> selected = {};
+			if (!query.Collect(action.m_RadiusDeletion, GetOwner(), selected))
+				return false;
+			return GC_DeleteRadiusTargets(selected);
+		}
 		array<IEntity> targets = {};
 		foreach (string name : action.m_aFlagNames)
 		{
@@ -295,5 +305,103 @@ modded class GC_LobbyManager
 		else
 			tickets = Math.Max(0, tickets - action.m_iAmount);
 		return GC_SetFactionRespawnTickets(action.m_sTextOrName, tickets);
+	}
+
+
+	//------------------------------------------------------------------------------------------------
+	protected bool GC_DeleteRadiusTargets(array<IEntity> targets)
+	{
+		array<ref GC_RadiusDeletionRecord> records = {};
+		foreach (IEntity entity : targets)
+		{
+			if (!entity || entity.FindComponent(RplComponent))
+				continue;
+			GC_RadiusDeletionRecord record = new GC_RadiusDeletionRecord();
+			record.Capture(entity);
+			records.Insert(record);
+		}
+		// Reject before deleting anything rather than silently losing JIP consistency.
+		if (m_aGC_RadiusRemovals.Count() + records.Count() > 16384)
+			return false;
+		array<EntityID> ids = {};
+		array<string> types = {};
+		array<string> prefabs = {};
+		array<vector> positions = {};
+		foreach (GC_RadiusDeletionRecord record : records)
+		{
+			m_aGC_RadiusRemovals.Insert(record);
+			ids.Insert(record.m_EntityId);
+			types.Insert(record.m_sType);
+			prefabs.Insert(record.m_sPrefab);
+			positions.Insert(record.m_vPosition);
+			if (ids.Count() == 64)
+			{
+				Rpc(GC_RpcDo_RadiusRemovals, ids, types, prefabs, positions);
+				ids.Clear();
+				types.Clear();
+				prefabs.Clear();
+				positions.Clear();
+			}
+		}
+		if (!ids.IsEmpty())
+			Rpc(GC_RpcDo_RadiusRemovals, ids, types, prefabs, positions);
+		foreach (IEntity entity : targets)
+		{
+			if (entity)
+				SCR_EntityHelper.DeleteEntityAndChildren(entity);
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Broadcast)]
+	protected void GC_RpcDo_RadiusRemovals(array<EntityID> ids, array<string> types, array<string> prefabs, array<vector> positions)
+	{
+		if (Replication.IsServer() || GetManager() != this || !ids || !types || !prefabs || !positions
+			|| ids.Count() > 64 || ids.Count() != types.Count() || ids.Count() != prefabs.Count() || ids.Count() != positions.Count())
+			return;
+		for (int i; i < ids.Count(); i++)
+		{
+			GC_RadiusDeletionRecord record = new GC_RadiusDeletionRecord();
+			record.m_EntityId = ids[i];
+			record.m_sType = types[i];
+			record.m_sPrefab = prefabs[i];
+			record.m_vPosition = positions[i];
+			record.Apply(GetOwner().GetWorld());
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected bool RplSave(ScriptBitWriter writer)
+	{
+		if (!super.RplSave(writer))
+			return false;
+		writer.WriteInt(m_aGC_RadiusRemovals.Count());
+		foreach (GC_RadiusDeletionRecord record : m_aGC_RadiusRemovals)
+			record.Save(writer);
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override protected bool RplLoad(ScriptBitReader reader)
+	{
+		if (!super.RplLoad(reader))
+			return false;
+		int count;
+		if (!reader.ReadInt(count) || count < 0 || count > 16384)
+			return false;
+		array<ref GC_RadiusDeletionRecord> records = {};
+		for (int i; i < count; i++)
+		{
+			GC_RadiusDeletionRecord record = new GC_RadiusDeletionRecord();
+			if (!record.Load(reader))
+				return false;
+			records.Insert(record);
+		}
+		if (GetManager() != this)
+			return true;
+		foreach (GC_RadiusDeletionRecord record : records)
+			record.Apply(GetOwner().GetWorld());
+		return true;
 	}
 }
