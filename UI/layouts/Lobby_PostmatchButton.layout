@@ -1,0 +1,73 @@
+ButtonWidgetClass {
+ Name "PostmatchButton"
+ Slot FrameWidgetSlot { Anchor .84 .925 .96 .97 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+ Color 1 1 1 0
+ components {
+  SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+   m_fAnimationTime 0.05
+   m_bCanBeToggled 1
+   m_BackgroundDefault 1 1 1 0.035
+   m_BackgroundHovered 1 1 1 0.12
+   m_BackgroundSelected 0.9 0.68 0.27 0.45
+   m_BackgroundSelectedHovered 0.9 0.68 0.27 0.55
+   m_BackgroundClicked 0.9 0.68 0.27 0.6
+   m_bShowBorderOnFocus 1
+   m_bUseTextColorization 1
+   m_TextDefault 0.94 0.94 0.94 1
+   m_TextToggled 1 1 1 1
+  }
+ }
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" {
+   Slot ButtonWidgetSlot {
+    HorizontalAlign 3
+   }
+   AllowHeightOverride 1
+   HeightOverride 48
+   "Ignore Cursor" 1
+   {
+    OverlayWidgetClass "{7C41F8A018B24C02}" {
+     Slot AlignableSlot {
+      HorizontalAlign 3
+      VerticalAlign 3
+     }
+     {
+      PanelWidgetClass "{7C41F8A018B24C03}" {
+       Name "Background"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       Color 1 1 1 0.035
+       style full
+      }
+      PanelWidgetClass "{7C41F8A018B24C04}" {
+       Name "Border"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+       }
+       "Ignore Cursor" 1
+       Color 0.8 0.8 0.8 0.6
+       style outline_2px
+      }
+      TextWidgetClass "{7C41F8A018B24C05}" : "{E64DA8292CD7DBDD}UI/layouts/WidgetLibrary/TextWidgets/Text_InteractiveSmall.layout" {
+       Name "Text"
+       Slot OverlayWidgetSlot {
+        HorizontalAlign 3
+        VerticalAlign 3
+        Padding 12 0 12 0
+       }
+       "Ignore Cursor" 1
+       Color 0.94 0.94 0.94 1
+       Text "OPTION"
+       "Font Size" 24
+       "Vertical Alignment" Center
+       "Horizontal Alignment" Center
+      }
+     }
+    }
+   }
+  }
+ }
+}

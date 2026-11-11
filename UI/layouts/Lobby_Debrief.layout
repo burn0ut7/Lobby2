@@ -319,7 +319,7 @@ TextWidgetClass {
  Wrap 1
  "Ignore Cursor" 1
 }
-ButtonWidgetClass : "{7C41F8A018B24C10}UI/layouts/Admin/Lobby_AdminToolButton.layout" { Name "DebriefBack" Slot FrameWidgetSlot { Anchor .92 .96 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } }
+  ButtonWidgetClass : "{E37A21004D950005}UI/layouts/Lobby_PostmatchButton.layout" { Name "DebriefBack" }
 TextWidgetClass { Name "HeroValue0" Slot FrameWidgetSlot { Anchor 0.220 0.100 0.450 0.180 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
 TextWidgetClass { Name "HeroLabel0" Slot FrameWidgetSlot { Anchor 0.220 0.183 0.450 0.218 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "Projectiles" "Font Size" 24 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
 TextWidgetClass { Name "HeroValue1" Slot FrameWidgetSlot { Anchor 0.480 0.100 0.710 0.180 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 } Text "—" "Font Size" 70 FontProperties FontProperties { Font "{3E7733BAC8C831F6}UI/Fonts/RobotoCondensed/RobotoCondensed_Regular.fnt" } "Ignore Cursor" 1 }
