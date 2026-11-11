@@ -15,6 +15,9 @@ must be evaluated against Lobby2's requirements rather than reproduced by defaul
 - `worlds/examples`: authoring examples, including the Arland scenario.
 - `addon.gproj`: addon identity, dependencies and localization.
 
+The [mission framework source guide](scripts/Game/MissionFramework/README.md)
+maps events, conditions, actions, flags, areas, interactions and runtime execution.
+
 `Prefabs/MP/Modes/GameMode_Lobby.et` is the single canonical game mode.
 Save mission-specific settings and compositions as inherited prefabs under
 `Prefabs/Templates` (or in the mission's own addon), rather than adding another
