@@ -33,6 +33,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	protected GC_ELobbyPlayerState m_eLobbyPlayerState;
 	protected GC_SpectatorManualCamera m_SpectatorCamera;
+	protected bool m_bLastCharacterViewValid;
+	protected vector m_vLastCharacterEyePosition;
+	protected vector m_vLastCharacterViewDirection;
 	protected ref GC_SpectatorCameraContextAction m_ShoulderCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_FollowCameraAction;
 	protected ref GC_SpectatorCameraContextAction m_MirrorCameraAction;
@@ -1840,8 +1843,22 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	//! position later loses eye-to-lens precision and can mix camera/bone frames.
 	void GC_PublishNetworkCameraTransform(IEntity cameraOwner, vector cameraModelTransform[4], vector cameraTransform[4])
 	{
-		if (!m_bPublishNetworkCamera || !GC_LobbyGameMode.GetGameMode()
+		if (!GC_LobbyGameMode.GetGameMode()
 			|| GetGame().GetPlayerController() != this || cameraOwner != GetControlledEntity())
+			return;
+
+		// Retain the last living eye view, before death/ragdoll cameras can move it.
+		// This local handoff must also work when nobody subscribes to network video.
+		ChimeraCharacter character = ChimeraCharacter.Cast(cameraOwner);
+		if (character && !character.FindComponent(GC_LobbySpectatorBodyComponent)
+			&& character.GetCharacterController() && character.GetCharacterController().GetLifeState() != ECharacterLifeState.DEAD)
+		{
+			m_vLastCharacterEyePosition = character.EyePosition();
+			m_vLastCharacterViewDirection = cameraTransform[2];
+			m_bLastCharacterViewValid = true;
+		}
+
+		if (!m_bPublishNetworkCamera)
 			return;
 
 		float sampleTime = GetGame().GetWorld().GetWorldTime();
@@ -2166,6 +2183,11 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 	override void OnControlledEntityChanged(IEntity from, IEntity to)
 	{
+		// A new character starts a new life; null and spectator transfers retain
+		// the previous view until spectator activation succeeds, in either RPC order.
+		if (to && !to.FindComponent(GC_LobbySpectatorBodyComponent))
+			m_bLastCharacterViewValid = false;
+
 		GC_LobbyPlayerController.Cast(this).GC_StopRadioListening();
 		StopLobbyVoice();
 		BaseRadioComponent oldLobbyRadio = GC_LobbyRadio.FindRadio(from);
@@ -2189,6 +2211,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 
 		if (!GC_LobbyGameMode.GetGameMode())
 		{
+			m_bLastCharacterViewValid = false;
 			ShutdownLobbyPresentation();
 			return;
 		}
@@ -2424,6 +2447,14 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			Math3D.DirectionAndUpMatrix(forward, up, spawnParams.Transform);
 			spawnParams.Transform[3] = position;
 		}
+		else if (m_bLastCharacterViewValid)
+		{
+			// Rebuild yaw/pitch from direction: never inherit lean or camera roll.
+			vector angles = m_vLastCharacterViewDirection.VectorToAngles();
+			angles[2] = 0;
+			Math3D.AnglesToMatrix(angles, spawnParams.Transform);
+			spawnParams.Transform[3] = m_vLastCharacterEyePosition;
+		}
 
 		IEntity cameraEntity = GetGame().SpawnEntityPrefabLocal(cameraResource, GetWorld(), spawnParams);
 		m_SpectatorCamera = GC_SpectatorManualCamera.Cast(cameraEntity);
@@ -2455,6 +2486,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (m_bSpectatorNightModeEnabled && !m_SpectatorCamera.SetSpectatorNightModeEnabled(true))
 			m_bSpectatorNightModeEnabled = false;
 
+		m_bLastCharacterViewValid = false;
 		SetBaseHUDVisible(m_bSpectatorInterfaceVisible);
 		CreateSpectatorMenu();
 		CreateSpectatorMarkerOverlay();
