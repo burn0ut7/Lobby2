@@ -1,6 +1,0 @@
-MetaFileClass {
- Name "{F71C000000000041}Prefabs/RadiusDeletion/Base.et"
- Configurations {
-  EntityTemplateResourceClass PC {}
- }
-}

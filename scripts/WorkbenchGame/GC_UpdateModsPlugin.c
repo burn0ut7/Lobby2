@@ -138,9 +138,9 @@ class GC_ModWorkflow
 	static bool Launch(string arguments)
 	{
 		string helper;
-		if (!Workbench.GetAbsolutePath("$Lobby2:tools/GC-ModLauncher.js", helper))
+		if (!Workbench.GetAbsolutePath("$profile:GCWorkbench/tools/GC-ModLauncher.js", helper) || !FileIO.FileExists(helper))
 		{
-			Workbench.Dialog("GC Git", "Git tools are missing from Lobby2.");
+			Workbench.Dialog("GC Git", "Install the GC Workbench integration for this Workbench profile to use Git tools. These Windows helpers are distributed separately from the Workshop addon.");
 			return false;
 		}
 		ProcessHandle process = Workbench.RunProcess("wscript.exe //nologo //E:JScript \"" + helper + "\"" + arguments);

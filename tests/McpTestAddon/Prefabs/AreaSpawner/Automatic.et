@@ -1,8 +1,0 @@
-PolylineShapeEntity : "{C01C382206EB40BB}Prefabs/AreaSpawner/Manual.et" {
- ID "F71C000000000004"
- components {
-  GC_AreaPrefabSpawnerComponent "{8EE2AB75C6B54D60}" {
-   m_bSpawnOnInit 1
-  }
- }
-}

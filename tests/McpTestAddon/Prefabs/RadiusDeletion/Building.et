@@ -1,7 +1,0 @@
-Building {
- components {
-  MeshObject "{F71C000000000053}" {
-   Object "{A0FEC9BA20609F32}Assets/Structures/Agriculture/Barn/Barn_E_01/Barn_E_01.xob"
-  }
- }
-}

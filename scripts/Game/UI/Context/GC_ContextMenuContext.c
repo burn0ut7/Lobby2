@@ -376,28 +376,6 @@ class GC_ContextMenuAction
 	}
 }
 
-class GC_ContextMenuPrintTestAction : GC_ContextMenuAction
-{
-	override string GetLabel(GC_ContextMenuContext context)
-	{
-		return "PRINT TEST";
-	}
-
-	override void Execute(GC_ContextMenuContext context)
-	{
-		if (!context)
-			return;
-
-		PrintFormat(
-			"GC | Context | PRINT TEST | requester=%1 | target=%2 | label=%3",
-			context.GetRequesterPlayerId(),
-			context.GetTargetTypeName(),
-			context.GetTargetLabel(),
-			level: LogLevel.NORMAL
-		);
-	}
-}
-
 //! Shared action catalogue. Components may register owned action scripts and
 //! must unregister them when detached. Built-in actions check the active mode.
 class GC_ContextMenuActionRegistry

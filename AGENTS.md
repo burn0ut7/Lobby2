@@ -2,7 +2,7 @@
 
 Game-mode phases: lobby/role selection → briefing → match → after-action report. Keep transitions explicit.
 
-Use `$reforger` for game research, coding, UI and MCP testing workflows. Consult the [architecture reference](docs/Lobby2_Architecture_and_Best_Practices.md) for affected lifecycle, multiplayer, controller, group or menu responsibilities; this file takes precedence if guidance conflicts.
+Use `$reforger` for game research, coding, UI and MCP testing workflows. See [release structure](README.md). Keep development tools, test addons and evidence outside this addon.
 
 ## Ownership
 
@@ -24,7 +24,7 @@ Route accepted and rejected actions through `GC_AdminActionLogger.Log`: requeste
 
 ## Tests and delivery
 
-Keep project helpers in the optional [test addon](tests/README.md), using production handlers and real permissions. Production Lobby2 remains independent of it; tests run explicitly through MCP.
+Keep any test helpers in a separate addon outside this release tree, using production handlers and real permissions. Production Lobby2 remains independent of test addons; checks run explicitly through MCP.
 
 Commit and push completed task changes. Commit subject: at most five words; no body.
 

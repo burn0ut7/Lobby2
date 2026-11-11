@@ -1,7 +1,0 @@
-GenericEntity {
- components {
-  MeshObject "{F71C000000000051}" {
-   Object "{D73D5FE0EEFBCD9B}Assets/Props/Industrial/BarrelMetal_01/BarrelMetal_01.xob"
-  }
- }
-}

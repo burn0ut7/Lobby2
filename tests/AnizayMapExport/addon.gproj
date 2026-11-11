@@ -1,9 +1,0 @@
-GameProject {
- ID "GCAnizayMapExport"
- GUID "6A115D5DFF7ED8A3"
- TITLE "GC Anizay Map Export"
- Dependencies {
-  "6A115D5DFF7ED8A1"
-  "6266DCA9193C705E"
- }
-}
