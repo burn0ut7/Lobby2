@@ -55,6 +55,9 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 		string absoluteOutput;
 		string foundPath;
 		Resource resource;
+		ResourceName existingHeader;
+		string error;
+		GC_MissionMetadataConfig metadata = new GC_MissionMetadataConfig();
 		if (!form.m_bMetadataOnly)
 		{
 			if (Workbench.GetAbsolutePath(output, foundPath) || Workbench.GetAbsolutePath(output + ".meta", foundPath))
@@ -75,6 +78,16 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 			}
 		}
 
+		else
+		{
+			resource = metadata.FindHeader(world, worldResource, existingHeader, error);
+			if (!resource)
+			{
+				Workbench.Dialog("Create Mission Data", error);
+				return;
+			}
+		}
+
 		if (!editor.Save())
 		{
 			Workbench.Dialog("Create Mission Data", "World save failed. Mission data was not exported.");
@@ -91,7 +104,11 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 		}
 		if (!form.m_bMetadataOnly)
 		{
-			string error;
+			if (!metadata.Apply(resource.GetResource().ToBaseContainer(), exporter, worldResource, error))
+			{
+				Workbench.Dialog("Create Mission Data", error);
+				return;
+			}
 			if (!form.Create(resource.GetResource().ToBaseContainer(), worldResource, output, error))
 			{
 				Workbench.Dialog("Create Mission Data", "World saved. " + error);
@@ -103,9 +120,9 @@ class GC_CreateMissionHeaderPlugin : WorkbenchPlugin
 				return;
 			}
 		}
-		if (!exporter.Save(world + ".metadata.json", world))
+		if (form.m_bMetadataOnly && !metadata.Save(resource, existingHeader, exporter, worldResource, error))
 		{
-			Workbench.Dialog("Create Mission Data", "World saved. Metadata export failed. Check write access to the mission folder and the Workbench console before retrying.");
+			Workbench.Dialog("Create Mission Data", "World saved. " + error);
 			return;
 		}
 		string message = "Mission saved and metadata refreshed for " + exporter.GetEntityCount().ToString() + " entities.";

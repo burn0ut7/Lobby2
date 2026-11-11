@@ -430,6 +430,8 @@ class GC_MissionMetadataExport
 	//------------------------------------------------------------------------------------------------
 	GC_GeneratedMissionMetadata CreateSnapshot(ResourceName world)
 	{
+		if (!m_bComplete)
+			return null;
 		GC_GeneratedMissionMetadata snapshot = new GC_GeneratedMissionMetadata();
 		snapshot.m_iSchemaVersion = 1;
 		snapshot.m_aFactions = {};
@@ -439,7 +441,15 @@ class GC_MissionMetadataExport
 		snapshot.m_aPrefabs = {};
 		snapshot.m_aLoadedAddons = {};
 		snapshot.m_sWorld = world;
-		snapshot.m_sCaptureScope = "Editor snapshot; active subscene, including unsaved edits and prefab children. Factions include authored playable groups and loadout keys. Slot rows are exported only to the JSON sidecar. Other subscenes and runtime spawns excluded. This snapshot does not refresh automatically. Asset presence does not imply player availability; source addons are not a complete dependency list.";
+		snapshot.m_sCaptureScope = "world_subscene";
+		snapshot.m_aLimitations = {"Captured mission subscene and prefab children only; other subscenes and runtime spawns excluded.", "Editor snapshot; refresh explicitly after saving mission changes.", "Player slots describe authored playable groups and loadout prefabs; random variants and inventory contents are not expanded.", "Prefab source addons are content evidence, not a complete dependency list.", "Asset presence does not imply player availability; mod configuration may be inaccurate."};
+		snapshot.m_aPlayerSlots = {};
+		foreach (GC_MissionMetadataSlot slot : m_aPlayerSlots)
+			snapshot.m_aPlayerSlots.Insert(slot);
+		snapshot.m_aStartHours = {};
+		snapshot.m_aStartHours.Copy(m_aStartHours);
+		snapshot.m_bRandomStartTime = m_bRandomStart;
+		snapshot.m_bAllowHeaderTime = m_bAllowHeaderTime;
 		snapshot.m_iEntityCount = m_iEntityCount;
 		snapshot.m_aFactions.Copy(m_aFactions);
 		snapshot.m_aConfiguredFactions.Copy(m_aConfiguredFactions);
@@ -477,110 +487,5 @@ class GC_MissionMetadataExport
 		return snapshot;
 	}
 
-	//------------------------------------------------------------------------------------------------
-	bool Save(string output, string worldPath)
-	{
-		if (!m_bComplete)
-			return false;
-		PrettyJsonSaveContext context = CreateJson(worldPath);
-		return context && context.SaveToFile(output);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected PrettyJsonSaveContext CreateJson(string worldPath)
-	{
-		PrettyJsonSaveContext context = new PrettyJsonSaveContext(false);
-		array<string> limitations = {"Captured world subscene only; inherited/other world subscenes excluded.", "Current editor snapshot, including unsaved edits.", "Player slots describe authored playable groups and their loadout prefabs; random variants, runtime spawns and inventory contents are not expanded. Group and loadout faction keys are separate authored values; runtime changes are not inferred.", "Prefab source addons are evidence of content use, not a complete dependency list.", "Asset categories describe presence, not player availability; mod configuration may be inaccurate."};
-		bool valid = context.WriteValue("schemaVersion", 1)
-			&& context.WriteValue("world", worldPath)
-			&& context.WriteValue("scope", "world_subscene")
-			&& context.WriteValue("limitations", limitations)
-			&& context.WriteValue("entityCount", m_iEntityCount)
-			&& context.WriteValue("factions", m_aFactions)
-			&& context.WriteValue("configuredFactions", m_aConfiguredFactions)
-			&& context.WriteValue("referencedAddonIds", m_aReferencedAddons);
-		if (m_bRandomStart || !m_aStartHours.IsEmpty())
-		{
-			if (m_bRandomStart)
-				valid = context.WriteValue("randomStartTime", true) && valid;
-			else
-				valid = context.WriteValue("startHours", m_aStartHours) && valid;
-			valid = context.WriteValue("allowHeaderTime", m_bAllowHeaderTime) && valid;
-		}
-		int slotCount = m_aPlayerSlots.Count();
-		valid = context.StartArray("playerSlots", slotCount) && valid;
-		foreach (GC_MissionMetadataSlot slot : m_aPlayerSlots)
-		{
-			valid = context.StartObject() && valid;
-			valid = slot.Write(context) && valid;
-			valid = context.EndObject() && valid;
-		}
-		valid = context.EndArray() && valid;
-
-		array<string> keys = {};
-		foreach (string assetKey, int assetCount : m_mAssets)
-			keys.Insert(assetKey);
-		keys.Sort();
-		valid = context.StartObject("assets") && valid;
-		foreach (string asset : keys)
-			valid = context.WriteValue(asset, m_mAssets.Get(asset)) && valid;
-		valid = context.EndObject() && valid;
-
-		keys.Clear();
-		foreach (string prefabKey, GC_MissionMetadataPrefab row : m_mPrefabs)
-			keys.Insert(prefabKey);
-		keys.Sort();
-		int count = keys.Count();
-		valid = context.StartArray("prefabs", count) && valid;
-		foreach (string key : keys)
-		{
-			valid = context.StartObject() && valid;
-			valid = m_mPrefabs.Get(key).Write(context) && valid;
-			valid = context.EndObject() && valid;
-		}
-		valid = context.EndArray() && valid;
-
-		array<string> addons = {};
-		GameProject.GetLoadedAddons(addons);
-		addons.Sort();
-		count = addons.Count();
-		valid = context.StartArray("loadedAddons", count) && valid;
-		foreach (string guid : addons)
-		{
-			string id = GameProject.GetAddonID(guid);
-			valid = context.StartObject() && valid;
-			valid = context.WriteValue("id", id) && valid;
-			valid = context.WriteValue("guid", guid) && valid;
-			valid = context.WriteValue("title", GameProject.GetAddonTitle(guid)) && valid;
-			valid = context.WriteValue("vanilla", GameProject.IsVanillaAddon(guid)) && valid;
-			valid = context.WriteValue("referencedByPlacedPrefab", m_aReferencedAddons.Contains(id)) && valid;
-			valid = context.EndObject() && valid;
-		}
-		valid = context.EndArray() && valid;
-		if (!valid)
-			return null;
-		return context;
-	}
-}
-
-//! Export-only derived data; never appears in a mission header's property grid.
-class GC_MissionMetadataSlot
-{
-	string m_sGroup;
-	int m_iIndex;
-	string m_sFaction;
-	ResourceName m_sPrefab;
-	string m_sName;
-	string m_sLoadoutFaction;
-
-	bool Write(SaveContext context)
-	{
-		return context.WriteValue("group", m_sGroup)
-			&& context.WriteValue("index", m_iIndex)
-			&& context.WriteValue("faction", m_sFaction)
-			&& context.WriteValue("prefab", m_sPrefab)
-			&& context.WriteValue("name", m_sName)
-			&& context.WriteValue("loadoutFaction", m_sLoadoutFaction);
-	}
 }
 #endif

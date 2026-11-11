@@ -1,4 +1,4 @@
-//! Native metadata schema. Automatic population is currently an optional test-addon experiment.
+//! Mission catalogue settings and generated content evidence use native config serialization.
 class GC_MissionHeader : SCR_MissionHeader
 {
 	[Attribute("", UIWidgets.Object, "Choose the mission type, objectives and equipment. Other details are optional.", "noDetails")]
@@ -21,6 +21,16 @@ class GC_GeneratedMissionMetadata
 	ResourceName m_sWorld;
 	[Attribute()]
 	string m_sCaptureScope;
+	[Attribute()]
+	ref array<string> m_aLimitations;
+	[Attribute()]
+	ref array<ref GC_MissionMetadataSlot> m_aPlayerSlots;
+	[Attribute()]
+	ref array<int> m_aStartHours;
+	[Attribute()]
+	bool m_bRandomStartTime;
+	[Attribute()]
+	bool m_bAllowHeaderTime;
 	[Attribute()]
 	int m_iEntityCount;
 	[Attribute()]
@@ -61,7 +71,7 @@ class GC_MissionMetadataAddon
 	bool m_bReferencedByPlacedPrefab;
 }
 
-//! Shared data model for the native config and optional JSON export.
+//! Placed prefab evidence; presence does not imply player availability.
 [BaseContainerProps()]
 class GC_MissionMetadataPrefab
 {
@@ -80,17 +90,21 @@ class GC_MissionMetadataPrefab
 	[Attribute()]
 	ref array<string> m_aAddonIds;
 
-#ifdef WORKBENCH
-	//------------------------------------------------------------------------------------------------
-	bool Write(SaveContext context)
-	{
-		return context.WriteValue("prefab", m_sPrefab)
-			&& context.WriteValue("entityClass", m_sClass)
-			&& context.WriteValue("faction", m_sFaction)
-			&& context.WriteValue("asset", m_sAsset)
-			&& context.WriteValue("assetEvidence", m_sAssetEvidence)
-			&& context.WriteValue("count", m_iCount)
-			&& context.WriteValue("sourceAddonIds", m_aAddonIds);
-	}
-#endif
+}
+
+[BaseContainerProps()]
+class GC_MissionMetadataSlot
+{
+	[Attribute()]
+	string m_sGroup;
+	[Attribute()]
+	int m_iIndex;
+	[Attribute()]
+	string m_sFaction;
+	[Attribute()]
+	ResourceName m_sPrefab;
+	[Attribute()]
+	string m_sName;
+	[Attribute()]
+	string m_sLoadoutFaction;
 }
