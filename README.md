@@ -3,6 +3,10 @@
 Lobby and role selection, briefing, match and after-action reporting for Arma Reforger.
 Requires Arma Reforger. Lobby2's mission framework is independent of TilW Mission Framework.
 
+TilW is a research reference, not a runtime dependency or behavior specification.
+Lobby2 uses its own mission logic and the base game's APIs; reference designs
+must be evaluated against Lobby2's requirements rather than reproduced by default.
+
 ## Addon contents
 
 - `scripts/Game`, `scripts/GameCode`: gameplay and integrations with the game.

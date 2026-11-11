@@ -10,6 +10,14 @@ Base-game APIs/events own factions, groups, membership and character affiliation
 
 Keep one canonical implementation per responsibility. Prefer the smallest coherent change; discuss changes to the phase model or multiplayer ownership.
 
+## Framework independence
+
+TilW Mission Framework is research material only. Do not add its dependency, call its APIs, extend its classes, use fields injected by it, or place its framework entities in Lobby2 resources. Retain source attribution when documenting research.
+
+Choose behavior from Lobby2 requirements and supported base-game APIs. Evaluate reference patterns for ownership, authority, lifecycle, performance and failure behavior before adopting the idea; matching TilW behavior is not an acceptance criterion. Implement and validate Lobby2's own behavior, including operation with TilW absent.
+
+Optional integrations with separately requested addons belong in separate companion addons; they must not make production Lobby2 require those addons. The optional Map Drawing integration is distinct from TilW Mission Framework.
+
 ## Mode isolation
 
 Lobby2 may remain loaded in unrelated modes. Scope effects to the active Lobby2 mode, including asynchronous callbacks and RPCs. Shared overrides preserve inherited behavior when inactive. Release Lobby2-owned state/listeners on exit without overwriting others' changes.
