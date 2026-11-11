@@ -22,6 +22,10 @@ Optional integrations with separately requested addons belong in separate compan
 
 ## Mode isolation
 
+Treat base-game `modded class` hooks as a last resort. First check native APIs/invokers, an addon-owned component, and an opt-in subclass or resource. Document the concrete gap that requires each retained global hook; convenience and existing usage are not sufficient justification. Extensions of Lobby2-owned `GC_` classes are not global base-game hooks, but still need clear ownership and lifecycle.
+
+Before executing custom behavior in a shared hook, require the active Lobby2 mode and the relevant feature/owner. Outside that scope, preserve the inherited method and return value. Delayed callbacks and RPCs must recheck ownership; release only Lobby2-owned state on exit. Cached native opt-ins must follow their engine contract rather than using a dynamic guard; they require explicit isolation evidence. Any intentional non-Lobby cleanup exception must be narrow, documented and tested.
+
 Lobby2 may remain loaded in unrelated modes. Scope effects to the active Lobby2 mode, including asynchronous callbacks and RPCs. Shared overrides preserve inherited behavior when inactive. Release Lobby2-owned state/listeners on exit without overwriting others' changes.
 
 For shared override changes, verify unrelated-mode behavior and transitions against an addon-free baseline; voice changes include transmission, reception and routing. Record missing coverage.
