@@ -50,21 +50,3 @@ class GC_AdminGearAudit
 		GC_AdminActionLogger.Log(playerId, action, context, "observed-native-change; input-instigator-not-reported");
 	}
 }
-
-//! Observe successful native changes on authority; never replace inventory behavior or permissions.
-modded class SCR_InventoryStorageManagerComponent
-{
-	//------------------------------------------------------------------------------------------------
-	override protected void OnItemAdded(BaseInventoryStorageComponent storageOwner, IEntity item)
-	{
-		super.OnItemAdded(storageOwner, item);
-		GC_AdminGearAudit.InventoryChange(GetOwner(), storageOwner, item, true);
-	}
-
-	//------------------------------------------------------------------------------------------------
-	override protected void OnItemRemoved(BaseInventoryStorageComponent storageOwner, IEntity item)
-	{
-		GC_AdminGearAudit.InventoryChange(GetOwner(), storageOwner, item, false);
-		super.OnItemRemoved(storageOwner, item);
-	}
-}

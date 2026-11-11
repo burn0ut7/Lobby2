@@ -24,19 +24,8 @@ modded class SCR_CharacterInventoryStorageComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! The engine caches these opt-ins; mode and permission checks belong in the Can events.
-	override bool OnOverrideCanRemoveItem()
-	{
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	override bool OnOverrideCanReplaceItem()
-	{
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
+	//! Keep native validation enabled. The engine runs the script permission after
+	//! native checks when its cached override switch is false.
 	override bool CanRemoveItem(IEntity item)
 	{
 		return !GC_IsClothingLocked(item) && super.CanRemoveItem(item);

@@ -172,13 +172,33 @@ modded class GC_LobbyPlayerController
 	}
 
 	//------------------------------------------------------------------------------------------------
+	override void ShutdownLobbyPresentation()
+	{
+		GC_StopJipPresentation();
+		super.ShutdownLobbyPresentation();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_StopJipPresentation()
+	{
+		if (GetGame())
+		{
+			GetGame().GetCallqueue().Remove(GC_PresentJipMessage);
+			GetGame().GetCallqueue().Remove(GC_ObserveJip);
+			if (m_GC_JipInput)
+				m_GC_JipInput.RemoveActionListener("GC_Jip", EActionTrigger.DOWN, GC_OnJipPressed);
+		}
+		m_GC_JipInput = null;
+		m_sGC_JipMessage = string.Empty;
+		m_GC_JipOfferCharacter = RplId.Invalid();
+		m_GC_JipMovingCharacter = RplId.Invalid();
+		m_bGC_JipAuto = false;
+		m_fGC_LastJipPress = -1000;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void ~GC_LobbyPlayerController()
 	{
-		if (!GetGame())
-			return;
-		GetGame().GetCallqueue().Remove(GC_PresentJipMessage);
-		GetGame().GetCallqueue().Remove(GC_ObserveJip);
-		if (m_GC_JipInput)
-			m_GC_JipInput.RemoveActionListener("GC_Jip", EActionTrigger.DOWN, GC_OnJipPressed);
+		GC_StopJipPresentation();
 	}
 }

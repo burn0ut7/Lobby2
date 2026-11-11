@@ -4829,6 +4829,19 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_mAdminMessageTimes.Clear();
 		m_aModerationHistory.Clear();
 		GC_LobbyPlayerController localController = GC_LobbyPlayerController.Cast(GetGame().GetPlayerController());
+		// Authoritative remote controllers also own subscriptions and queued work.
+		if (Replication.IsServer())
+		{
+			PlayerManager players = GetGame().GetPlayerManager();
+			array<int> connectedPlayers = {};
+			players.GetPlayers(connectedPlayers);
+			foreach (int playerId : connectedPlayers)
+			{
+				GC_LobbyPlayerController controller = GC_LobbyPlayerController.Cast(players.GetPlayerController(playerId));
+				if (controller && controller != localController)
+					controller.ShutdownLobbyPresentation();
+			}
+		}
 		if (localController)
 			localController.ShutdownLobbyPresentation();
 		GetGame().GetCallqueue().Remove(ReconcilePendingPlayerRoles);

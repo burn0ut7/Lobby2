@@ -12,6 +12,72 @@ modded class GC_LobbyPlayerController
 	protected ResourceName m_sGC_GearAmountPrefab;
 	protected int m_iGC_GearAmount;
 	protected int m_iGC_GearAdded;
+	protected SCR_InventoryStorageManagerComponent m_GC_GearAuditInventory;
+	protected GC_LobbyGameMode m_GC_GearAuditMode;
+
+	//------------------------------------------------------------------------------------------------
+	override protected void OnInit(IEntity owner)
+	{
+		super.OnInit(owner);
+		GC_BindGearAudit();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void OnControlledEntityChanged(IEntity from, IEntity to)
+	{
+		GC_UnbindGearAudit();
+		super.OnControlledEntityChanged(from, to);
+		GC_BindGearAudit();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_BindGearAudit()
+	{
+		GC_UnbindGearAudit();
+		IEntity body = GetControlledEntity();
+		if (!Replication.IsServer() || !GC_LobbyManager.GetManager() || !body)
+			return;
+		m_GC_GearAuditInventory = SCR_InventoryStorageManagerComponent.Cast(body.FindComponent(SCR_InventoryStorageManagerComponent));
+		if (!m_GC_GearAuditInventory)
+			return;
+		m_GC_GearAuditMode = GC_LobbyGameMode.GetGameMode();
+		m_GC_GearAuditInventory.m_OnItemAddedInvoker.Insert(GC_OnGearItemAdded);
+		m_GC_GearAuditInventory.m_OnItemRemovedInvoker.Insert(GC_OnGearItemRemoved);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_UnbindGearAudit()
+	{
+		if (m_GC_GearAuditInventory)
+		{
+			m_GC_GearAuditInventory.m_OnItemAddedInvoker.Remove(GC_OnGearItemAdded);
+			m_GC_GearAuditInventory.m_OnItemRemovedInvoker.Remove(GC_OnGearItemRemoved);
+		}
+		m_GC_GearAuditInventory = null;
+		m_GC_GearAuditMode = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_OnGearItemAdded(IEntity item, BaseInventoryStorageComponent storage)
+	{
+		GC_RecordGearInventoryChange(item, storage, true);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_OnGearItemRemoved(IEntity item, BaseInventoryStorageComponent storage)
+	{
+		GC_RecordGearInventoryChange(item, storage, false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void GC_RecordGearInventoryChange(IEntity item, BaseInventoryStorageComponent storage, bool added)
+	{
+		if (!m_GC_GearAuditInventory || !m_GC_GearAuditMode || m_GC_GearAuditMode != GC_LobbyGameMode.GetGameMode()
+			|| m_GC_GearAuditInventory.GetOwner() != GetControlledEntity())
+			return;
+		// Authority and current authenticated-admin status are checked by the audit owner.
+		GC_AdminGearAudit.InventoryChange(GetControlledEntity(), storage, item, added);
+	}
 
 	//------------------------------------------------------------------------------------------------
 	static RplId GC_GearEntityId(IEntity entity)
@@ -470,6 +536,7 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	override void ShutdownLobbyPresentation()
 	{
+		GC_UnbindGearAudit();
 		if (Replication.IsServer() && m_bGC_GearAuditOpen)
 		{
 			m_bGC_GearAuditOpen = false;
