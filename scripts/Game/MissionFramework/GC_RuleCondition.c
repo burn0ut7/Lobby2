@@ -199,7 +199,7 @@ class GC_RuleCondition
 			return false;
 		if (m_bAreaAnywhere && (m_iAreaTargets != 1 || !m_sAreaName.IsEmpty() || m_bAreaOutside))
 			return false;
-		if (m_bAreaProportion && (m_iAreaTargets != 1 || m_bAreaAnywhere || !(m_fAreaProportion >= 0 && m_fAreaProportion <= 1)))
+		if (m_bAreaProportion && (m_bAreaAnywhere || !(m_fAreaProportion >= 0 && m_fAreaProportion <= 1)))
 			return false;
 		if (m_Capture && (m_bAreaAnywhere || !m_Capture.IsValid()))
 			return false;

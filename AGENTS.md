@@ -27,3 +27,9 @@ Route accepted and rejected actions through `GC_AdminActionLogger.Log`: requeste
 Keep project helpers in the optional [test addon](tests/README.md), using production handlers and real permissions. Production Lobby2 remains independent of it; tests run explicitly through MCP.
 
 Commit and push completed task changes. Commit subject: at most five words; no body.
+
+## Spatial checks
+
+Do not use `QueryEntitiesBySphere`. Area/capture conditions use direct named
+references or native player/AI registries and point-in-area checks. Avoid world
+entity scans for recurring area sampling.

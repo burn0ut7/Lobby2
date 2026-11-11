@@ -23,8 +23,11 @@ creation is server-only and nothing spawns in edit mode.
 - **Height Offset:** vertical offset applied after surface alignment.
 - **Minimum Spacing:** minimum horizontal distance between origins created by
   this instance. Other world entities are not part of this spacing list.
-- **Clearance Radius** on each entry: optional physics-entity exclusion sphere
-  resting on the placement surface. Zero disables it. Set the radius to suit
+- **Clearance Radius** on each entry: optional stationary physics box trace
+  above the placement surface. The value is the horizontal half-width; the box
+  height is twice that value. Only entities colliding with the projectile
+  physics mask are checked, using one trace per candidate. No entity sphere
+  enumeration is performed. Zero disables it. Set the radius to suit
   the prefab; this is not an exact bounding-box or mesh-overlap guarantee.
 - **Attempts Per Object:** limits candidate checks, including rejected points
   in a concave polygon. Obstructed or unsuitable areas can produce fewer objects.
@@ -103,3 +106,10 @@ all five survived owner deletion (rd82899ad871b45f08b427cfaecadf56d). Tests
 cover transformed and concave shapes, terrain alignment, water rejection,
 physical obstruction, spacing exhaustion and resource preflight. Dedicated
 server, remote clients and mission-event dispatch were not exercised.
+
+The sphere-query removal was verified with 28 placement checks, including
+positive empty-space clearance and a blocking physics object
+(`r77ab908800de4ab6aa046bb767e85a61`). Clearance uses the installed native
+`BaseWorld.TracePosition` contract (negative penetration means blocked), matching
+the stock entity-spawner collision-check approach. It is an approximation
+for collision-enabled objects, not detection of every entity in the world.

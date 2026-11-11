@@ -5,6 +5,30 @@ or closed polygon. Add its optional **Capture** object to turn the immediate
 area answer into a timed captured/not-captured answer. Leaving Capture unset
 preserves existing area behavior.
 
+## Players, objects and vehicles
+
+Capture timing works with either target selection:
+
+- **Players / AI:** living connected players, registered AI or both, with optional
+  faction filters. Use Count, Proportion or Local faction share.
+- **Named Entities:** any uniquely named world entities, including vehicles,
+  cargo, props, characters or mixed lists. Use Count or Proportion. For example,
+  list four supply trucks and use Proportion 0.75 with Capture Seconds 20 to
+  require at least three trucks in the area for 20 seconds. Duplicate names
+  count once. Every name must resolve; missing/deleted targets suspend capture
+  instead of reducing the denominator. A replacement with the same name is
+  resolved on a later check. Destroyed targets still count while they exist.
+
+Inside and Outside use the same capture/loss timing. Capture measures this
+area requirement; it does not turn unrelated event conditions into timed
+capture inputs. Combine conditions using the existing event/flag groups when
+additional requirements are needed.
+
+Area sampling uses cached named references and native player/AI registries,
+then direct point-in-area checks. It never searches world entities by sphere,
+box or another spatial enumeration. Counts are sampled together and reused
+by equivalent selections; Capture timing remains independent per condition.
+
 ## Factions and contesting
 
 Choose **Players / AI** targets and name the capturing faction(s). Choose
@@ -28,8 +52,9 @@ both sides pass at a tie. Use a threshold above 0.5 for majority control, or 1
 for no opponents. This does not change native faction membership or relations.
 
 **Proportion** remains the extraction requirement: e.g. 90% of all currently
-living US players inside the extraction area. **Count** remains suitable for
-named-object presence or fixed numbers of players/AI. Both can use the same
+living US players inside the extraction area, or a proportion of listed named
+entities. **Count** is suitable for named-object presence or fixed numbers of
+players/AI. Both can use the same
 Capture settings. Local share is a separate requirement so existing extraction
 missions do not silently change meaning.
 
@@ -141,3 +166,12 @@ their inputs explicitly. GC_TestCaptureAuthoring loads a real config and verifie
 custom timing, interruption, messages (including blank suppression), faction
 share and copied options: all four groups passed (r0ff4c0f8175f40d99c02e8d8151c4741).
 The 42 core, 30 regression and seven native world checks passed again.
+
+### General target validation (2026-11-11)
+
+`GC_TestCaptureTargets`: 10 native-world checks passed, using a real M1025 and
+wooden crate: mixed selections, deduplication, timed capture/loss, all/half
+proportions, missing-target unavailability, replacement lookup and Outside.
+Receipt `r0e9f35a1cf134da0be82c86b3299dfa4`. Existing 42 capture and 30
+living/area regression checks also passed. No capture spatial queries were
+introduced. Remote multiplayer was not exercised.

@@ -61,7 +61,7 @@ modded class GC_MissionRuleTests
 		GC_NamedAreaTargets named = new GC_NamedAreaTargets();
 		named.m_aNames = {"Truck"};
 		area.m_Targets = named;
-		Check(!area.BuildCheck(), "named entities do not accept living proportions");
+		Check(area.BuildCheck() != null, "named entities accept area proportions");
 		area.m_Requirement = null;
 		area.m_Count = count;
 		Check(area.BuildCheck().m_iAreaRequired == 5, "legacy area count remains readable");

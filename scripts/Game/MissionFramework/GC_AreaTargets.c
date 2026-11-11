@@ -11,7 +11,7 @@ class GC_AreaTargetsBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Named Entities")]
 class GC_NamedAreaTargets : GC_AreaTargetsBase
 {
-	[Attribute("", UIWidgets.EditBox, "Exact unique world names, not prefab paths or account names. One entry per target. Duplicate names count once. Every listed name must resolve; a missing object is not treated as Outside. Spawned replacements with the same name are resolved on a later check. Dead or destroyed named objects still count while they exist.")]
+	[Attribute("", UIWidgets.EditBox, "Exact unique world names of any entity: vehicles, props, cargo, characters or mixed types. Not prefab paths or account names. Count and Proportion both support capture timing. One entry per target. Duplicate names count once. Every listed name must resolve; a missing object is not treated as Outside. Spawned replacements with the same name are resolved on a later check. Dead or destroyed named objects still count while they exist.")]
 	ref array<string> m_aNames;
 
 	//------------------------------------------------------------------------------------------------

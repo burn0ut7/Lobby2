@@ -367,15 +367,16 @@ modded class GC_LobbyPlayerController
 	//------------------------------------------------------------------------------------------------
 	protected bool GC_CollectGearCrate(IEntity candidate)
 	{
+		candidate = candidate.GetRootParent();
 		if (!GC_GetGearCrateStorage(candidate) || !GC_GearEntityId(candidate).IsValid())
-			return true;
+			return false;
 		float distance = vector.Distance(GetControlledEntity().GetOrigin(), candidate.GetOrigin());
 		if (distance <= m_fGC_NearestDistance)
 		{
 			m_fGC_NearestDistance = distance;
 			m_GC_NearestCrate = candidate;
 		}
-		return true;
+		return false;
 	}
 
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
@@ -395,7 +396,15 @@ modded class GC_LobbyPlayerController
 		{
 			m_GC_NearestCrate = null;
 			m_fGC_NearestDistance = 5;
-			GetGame().GetWorld().QueryEntitiesBySphere(owner.GetOrigin(), 5, GC_CollectGearCrate);
+			TraceBox nearby = new TraceBox();
+			nearby.Start = owner.GetOrigin();
+			nearby.Mins = "-5 -5 -5";
+			nearby.Maxs = "5 5 5";
+			nearby.Exclude = owner;
+			nearby.Flags = TraceFlags.ENTS;
+			nearby.LayerMask = EPhysicsLayerDefs.Projectile;
+			// Reject every trace hit to visit all physical crate candidates, then select by distance.
+			GetGame().GetWorld().TracePosition(nearby, GC_CollectGearCrate);
 			crate = m_GC_NearestCrate;
 			m_GC_NearestCrate = null;
 		}

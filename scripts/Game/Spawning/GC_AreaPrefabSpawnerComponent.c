@@ -5,7 +5,7 @@ class GC_AreaSpawnEntry
 	ResourceName m_sPrefab;
 	[Attribute("1", UIWidgets.SpinBox, "Number of this prefab. Maximum 128 objects across the entire spawner.", "1 128 1")]
 	int m_iCount;
-	[Attribute("0", UIWidgets.EditBox, "Optional clear-space radius in metres. Zero disables the check. Rejects nearby entities with physics in a sphere resting on the surface. This is an authored clearance approximation, not an exact prefab collision test.", "0 100")]
+	[Attribute("0", UIWidgets.EditBox, "Optional clear-space radius in metres. Zero disables the check. Uses one stationary physics box trace per candidate, with this horizontal half-width and twice this height. This is an authored clearance approximation, not an exact prefab collision test.", "0 100")]
 	float m_fClearanceRadius;
 
 	//------------------------------------------------------------------------------------------------
@@ -45,7 +45,6 @@ class GC_AreaPrefabSpawnerComponent : ScriptComponent
 	protected string m_sLastError;
 	protected ref array<IEntity> m_aSpawned = {};
 	protected ref array<vector> m_aPlacedPositions = {};
-	protected bool m_bObstructed;
 
 	//------------------------------------------------------------------------------------------------
 	//! One attempt per instance. Repeated calls return the existing count without spawning again.
@@ -188,22 +187,18 @@ class GC_AreaPrefabSpawnerComponent : ScriptComponent
 		}
 		if (entry.m_fClearanceRadius > 0)
 		{
-			m_bObstructed = false;
-			vector centre = transform[3] + Vector(0, entry.m_fClearanceRadius, 0);
-			world.QueryEntitiesBySphere(centre, entry.m_fClearanceRadius, CheckObstruction, null, EQueryEntitiesFlags.ALL);
-			if (m_bObstructed)
+			float radius = entry.m_fClearanceRadius;
+			TraceBox trace = new TraceBox();
+			trace.Start = transform[3];
+			trace.Mins = Vector(-radius, 0.01, -radius);
+			trace.Maxs = Vector(radius, radius * 2 + 0.01, radius);
+			trace.Exclude = GetOwner();
+			trace.Flags = TraceFlags.ENTS;
+			trace.LayerMask = EPhysicsLayerDefs.Projectile;
+			if (world.TracePosition(trace, null) < 0)
 				return false;
 		}
 		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected bool CheckObstruction(IEntity entity)
-	{
-		if (entity == GetOwner() || !entity.GetPhysics())
-			return true;
-		m_bObstructed = true;
-		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------

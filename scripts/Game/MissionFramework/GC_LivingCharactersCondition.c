@@ -64,7 +64,7 @@ class GC_LivingRequirementBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Proportion")]
 class GC_LivingProportion : GC_LivingRequirementBase
 {
-	[Attribute("0.9", UIWidgets.Slider, "Minimum proportion on the selected side of Area: 0.9 means at least 90%, 1 means everyone, and 0 means any proportion of a nonempty population. The total includes all currently living characters matching Who and Factions, wherever they are. Deaths, respawns and faction changes update that total. No eligible living characters means false. Requires Area.", "0 1 0.01")]
+	[Attribute("0.9", UIWidgets.Slider, "Minimum proportion on the selected side of Area: 0.9 means at least 90%, 1 means everyone, and 0 means any proportion of a nonempty population. Named Entities uses all distinct listed names; every name must resolve, and destroyed objects count while they exist. Players / AI uses all currently living characters matching Who and Factions, wherever they are; deaths, respawns and faction changes update that total. An empty population is false. Requires Area.", "0 1 0.01")]
 	float m_fRequiredProportion;
 
 	//------------------------------------------------------------------------------------------------

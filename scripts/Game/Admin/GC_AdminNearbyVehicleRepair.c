@@ -6,7 +6,14 @@ class GC_AdminNearbyVehicleRepair
 	//------------------------------------------------------------------------------------------------
 	string Execute(int requesterId, vector centre, int radiusMeters, string context)
 	{
-		GetGame().GetWorld().QueryEntitiesBySphere(centre, radiusMeters, CollectVehicle);
+		m_aVehicles.Clear();
+		TraceBox trace = new TraceBox();
+		trace.Start = centre;
+		trace.Mins = Vector(-radiusMeters, -radiusMeters, -radiusMeters);
+		trace.Maxs = Vector(radiusMeters, radiusMeters, radiusMeters);
+		trace.Flags = TraceFlags.ENTS;
+		trace.LayerMask = EPhysicsLayerDefs.Projectile;
+		GetGame().GetWorld().TracePosition(trace, CollectVehicle);
 		int repaired;
 		int skipped;
 		foreach (IEntity vehicle : m_aVehicles)
@@ -53,6 +60,7 @@ class GC_AdminNearbyVehicleRepair
 		IEntity root = entity.GetRootParent();
 		if (root && root.FindComponent(SCR_VehicleDamageManagerComponent) && !m_aVehicles.Contains(root))
 			m_aVehicles.Insert(root);
-		return true;
+		// Reject hits so the trace visits all candidates; distance filtering happens above.
+		return false;
 	}
 }

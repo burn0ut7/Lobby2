@@ -13,6 +13,11 @@ modded class GC_AreaPrefabSpawnerComponent
 			entry.m_fClearanceRadius = clearance;
 	}
 
+	void GC_TestHeight(float height)
+	{
+		m_fHeightOffset = height;
+	}
+
 	void GC_TestInvalidEntry()
 	{
 		m_aPrefabs[1].m_sPrefab = "";
@@ -160,6 +165,12 @@ class GC_AreaSpawnerTests
 		submerged.GC_TestSettings(0, false, false, false);
 		Check(submerged.Spawn() == 5, "water permitted explicitly places on seabed");
 		Remember(submerged);
+
+		GC_AreaPrefabSpawnerComponent clear = Create("1190 100 2700");
+		clear.GC_TestSettings(0, false, false, false, 0.1);
+		clear.GC_TestHeight(50);
+		Check(clear.Spawn() == 5 && clear.IsComplete(), "clearance trace permits empty air");
+		Remember(clear);
 
 		EntitySpawnParams blockerParameters = new EntitySpawnParams();
 		blockerParameters.TransformMode = ETransformMode.WORLD;
