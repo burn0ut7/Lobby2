@@ -169,6 +169,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		Bind("ToolMapPlans", "Markers", "pinPlay");
 		Bind("ToolBoundaries", "Boundaries", "ruler");
 		Bind("ToolEndMatch", "End match", "pause");
+		Bind("MissionBrowse", "Mission browser", "listView");
 		Bind("ToolMissions", "Missions", "listView");
 		m_Missions = GC_AdminMissionsComponent.Cast(w.FindAnyWidget("MissionsPanel").FindHandler(GC_AdminMissionsComponent));
 		m_Ending = GC_AdminEndingComponent.Cast(w.FindAnyWidget("EndingPanel").FindHandler(GC_AdminEndingComponent));
@@ -276,7 +277,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 			m_iTool = 7;
 		else if (name == "ToolEndMatch")
 			m_iTool = 15;
-		else if (name == "ToolMissions")
+		else if (name == "ToolMissions" || name == "MissionBrowse")
 			m_iTool = 16;
 		else if (name == "ToolMapPlans")
 			m_iTool = 6;
@@ -442,8 +443,10 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		bool reservations = m_iTool == 4;
 		bool boundaries = m_iTool == 7;
 		bool ending = m_iTool == 15;
-		bool missions = m_iTool == 16;
-		m_Missions.SetActive(missions);
+		bool missions = m_iTool == 16 || ending;
+		m_wRoot.FindAnyWidget("MissionSections").SetVisible(missions);
+		m_Missions.SetActive(missions && !ending);
+		SCR_ButtonTextComponent.GetButtonText("MissionBrowse", m_wRoot).SetToggled(missions && !ending, false, false);
 		SCR_ButtonTextComponent.GetButtonText("ToolMissions", m_wRoot).SetToggled(missions, false, false);
 		m_Ending.SetActive(ending);
 		SCR_ButtonTextComponent.GetButtonText("ToolEndMatch", m_wRoot).SetToggled(ending, false, false);
@@ -689,9 +692,7 @@ class GC_AdminToolsComponent : SCR_ScriptedWidgetComponent
 		}
 		if (ending || missions)
 		{
-			title = "End match";
-			if (missions)
-				title = "Missions";
+			title = "Missions";
 			description = "";
 		}
 		TextWidget.Cast(m_wRoot.FindAnyWidget("ToolTitle")).SetText(title);

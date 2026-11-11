@@ -1,6 +1,6 @@
 # Admin missions
 
-Admin Tools now has **Missions** and **End match** under Mission. Both require a current native admin login; the server checks again for every request and logs accepted/rejected actions through `GC_AdminActionLogger`.
+Admin Tools has **Missions** under Mission, with **Mission browser** and **End match** subsections. **Gear** is under Players. Mission search, debrief message and countdown inputs have visible text-box backgrounds. Both require a current native admin login; the server checks again for every request and logs accepted/rejected actions through `GC_AdminActionLogger`.
 
 ## End match
 
