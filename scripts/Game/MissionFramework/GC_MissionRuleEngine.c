@@ -13,6 +13,7 @@ class GC_MissionRuleEvent
 	ref array<GC_RuleCondition> m_aAreaChecks;
 	ref array<GC_RuleCondition> m_aInteractionChecks;
 	ref array<GC_RuleCondition> m_aScriptChecks;
+	ref array<GC_RuleCondition> m_aAIGroupChecks;
 
 	void GC_MissionRuleEvent(GC_ERuleEvent kind, string name, bool flagCall = false)
 	{
@@ -69,6 +70,11 @@ class GC_MissionRuleEngine
 	protected ref GC_MissionAreaTracker m_Areas;
 	protected float m_fNextAreaCheck;
 	protected float m_fNextScriptCheck;
+	protected float m_fNextAIGroupCheck;
+	protected ref map<string, ref GC_AIGroupObservation> m_mAIGroupNames = new map<string, ref GC_AIGroupObservation>();
+	protected ref map<GC_RuleCondition, ref GC_AIGroupObservation> m_mAIGroups = new map<GC_RuleCondition, ref GC_AIGroupObservation>();
+	protected ref map<GC_RuleCondition, bool> m_mAIGroupAnswers = new map<GC_RuleCondition, bool>();
+	protected ref map<GC_RuleCondition, bool> m_mAIGroupAvailability = new map<GC_RuleCondition, bool>();
 	protected ref array<GC_RuleCondition> m_aScriptConditions = {};
 	protected ref map<GC_RuleCondition, bool> m_mScriptResults = new map<GC_RuleCondition, bool>();
 	protected ref map<GC_RuleCondition, ref GC_EntityDamageObservation> m_mDamage = new map<GC_RuleCondition, ref GC_EntityDamageObservation>();
@@ -166,6 +172,7 @@ class GC_MissionRuleEngine
 		RegisterInteractionConditions();
 		RegisterAreaConditions(damageWorld, areaManager);
 		RegisterScriptConditions();
+		RegisterAIGroupConditions();
 		m_bRunning = true;
 		if (GC_LobbyPhase.IsValid(initialState))
 			SetGameModeState(initialState);
@@ -288,6 +295,7 @@ class GC_MissionRuleEngine
 		ResetRandomConditions();
 		SampleAreas(true);
 		SampleScripts();
+		RefreshAIGroups();
 		if (state == SCR_EGameModeState.GAME)
 		{
 			BindEntityDamageConditions();
@@ -325,6 +333,15 @@ class GC_MissionRuleEngine
 	{
 		m_bRunning = false;
 		m_ActionManager = null;
+		foreach (string groupName, GC_AIGroupObservation group : m_mAIGroupNames)
+		{
+			group.GetOnChanged().Remove(OnAIGroupChanged);
+			group.Stop();
+		}
+		m_mAIGroups.Clear();
+		m_mAIGroupNames.Clear();
+		m_mAIGroupAnswers.Clear();
+		m_mAIGroupAvailability.Clear();
 		m_mRandomResults.Clear();
 		m_aScriptConditions.Clear();
 		m_mScriptResults.Clear();
@@ -380,7 +397,7 @@ class GC_MissionRuleEngine
 			return false;
 		if (GetFlagCallCount(name) == int.MAX)
 			return false;
-		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions, m_mScriptResults);
+		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions, m_mScriptResults, m_mAIGroups);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -559,6 +576,8 @@ class GC_MissionRuleEngine
 		// Queue events until this pass completes, preventing reentrant timer execution.
 		m_bDispatching = true;
 		AdvanceRandomConditions();
+		if (m_eGameModeState == SCR_EGameModeState.GAME && m_fNow >= m_fNextAIGroupCheck)
+			RefreshAIGroups();
 		if (m_eGameModeState == SCR_EGameModeState.GAME && m_fNow >= m_fNextScriptCheck)
 			SampleScripts();
 		if (m_eGameModeState == SCR_EGameModeState.GAME && m_fNow >= m_fNextAreaCheck)
@@ -584,6 +603,84 @@ class GC_MissionRuleEngine
 		}
 		m_bDispatching = false;
 		DrainEvents();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RegisterAIGroupConditions()
+	{
+		array<GC_RuleCondition> conditions = {};
+		foreach (GC_MissionRuleState state : m_aStates)
+		{
+			if (state.m_bValid && state.m_Rule.m_If)
+				state.m_Rule.m_If.CollectAIGroupConditions(conditions);
+		}
+		foreach (string name, GC_MissionFlagState memory : m_mFlagDefinitions)
+		{
+			if (memory.m_Condition)
+				memory.m_Condition.CollectAIGroupConditions(conditions);
+		}
+		if (conditions.Count() > 256)
+		{
+			Print("GC | Mission Framework | More than 256 AI group conditions; group conditions unavailable.", LogLevel.ERROR);
+			return;
+		}
+		foreach (GC_RuleCondition check : conditions)
+		{
+			GC_AIGroupObservation observation = m_mAIGroupNames.Get(check.m_sAIGroup);
+			if (!observation)
+			{
+				observation = new GC_AIGroupObservation(check.m_sAIGroup);
+				observation.GetOnChanged().Insert(OnAIGroupChanged);
+				m_mAIGroupNames.Set(check.m_sAIGroup, observation);
+			}
+			observation.AddCondition(check);
+			m_mAIGroups.Set(check, observation);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshAIGroups()
+	{
+		m_fNextAIGroupCheck = m_fNow + 1;
+		foreach (string name, GC_AIGroupObservation observation : m_mAIGroupNames)
+		{
+			if (m_eGameModeState != SCR_EGameModeState.GAME)
+				observation.Stop();
+			else
+			{
+				observation.Bind(m_DamageWorld);
+				OnAIGroupChanged(observation, false);
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Native mode callbacks preserve brief transitions; the existing tick only retries missing names.
+	protected void OnAIGroupChanged(GC_AIGroupObservation observation, bool drain = true)
+	{
+		if (!m_bRunning || m_eGameModeState != SCR_EGameModeState.GAME)
+			return;
+		GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.AI_GROUP_CHANGED, "");
+		notification.m_aAIGroupChecks = {};
+		foreach (GC_RuleCondition check : observation.GetConditions())
+		{
+			bool available = observation.IsAvailable(check);
+			bool answer = observation.Passes(check);
+			if (!m_mAIGroupAvailability.Contains(check) || m_mAIGroupAvailability.Get(check) != available || m_mAIGroupAnswers.Get(check) != answer)
+				notification.m_aAIGroupChecks.Insert(check);
+			m_mAIGroupAvailability.Set(check, available);
+			m_mAIGroupAnswers.Set(check, answer);
+		}
+		if (notification.m_aAIGroupChecks.IsEmpty())
+			return;
+		if (m_aEvents.Count() >= 256)
+		{
+			StopEventLoop();
+			return;
+		}
+		m_aEvents.Insert(notification);
+		if (drain)
+			DrainEvents();
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -919,7 +1016,7 @@ class GC_MissionRuleEngine
 	{
 		if (!state.m_bValid || state.m_bDisabled)
 			return false;
-		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions, m_mScriptResults))
+		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions, m_mScriptResults, m_mAIGroups))
 			return false;
 		return !state.m_Parent || ConditionsPass(state.m_Parent);
 	}
@@ -1116,6 +1213,7 @@ class GC_MissionRuleEngine
 				AcceptFlagCall(notification.m_sName);
 				continue;
 			}
+			bool aiGroupChanged = notification.m_eKind == GC_ERuleEvent.AI_GROUP_CHANGED;
 			bool scriptChanged = notification.m_eKind == GC_ERuleEvent.SCRIPT_CHANGED;
 			bool interactionUsed = notification.m_eKind == GC_ERuleEvent.INTERACTION_USED;
 			bool areaChanged = notification.m_eKind == GC_ERuleEvent.AREA_CHANGED;
@@ -1134,6 +1232,7 @@ class GC_MissionRuleEngine
 					|| (casualtyChanged && memory.m_Condition.UsesCasualties())
 					|| (damageChanged && memory.m_Condition.UsesEntityDamage(notification.m_aDamageChecks))
 					|| (areaChanged && memory.m_Condition.UsesArea(notification.m_aAreaChecks))
+					|| (aiGroupChanged && memory.m_Condition.UsesAIGroup(notification.m_aAIGroupChecks))
 					|| (scriptChanged && memory.m_Condition.UsesScript(notification.m_aScriptChecks))
 					|| (interactionUsed && memory.m_Condition.UsesInteraction(notification.m_aInteractionChecks))
 					|| (notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE && memory.m_Condition.UsesGameModeState()))
@@ -1150,6 +1249,7 @@ class GC_MissionRuleEngine
 					|| (casualtyChanged && rule.m_If.UsesCasualties())
 					|| (damageChanged && rule.m_If.UsesEntityDamage(notification.m_aDamageChecks))
 					|| (areaChanged && rule.m_If.UsesArea(notification.m_aAreaChecks))
+					|| (aiGroupChanged && rule.m_If.UsesAIGroup(notification.m_aAIGroupChecks))
 					|| (scriptChanged && rule.m_If.UsesScript(notification.m_aScriptChecks))
 					|| (interactionUsed && rule.m_If.UsesInteraction(notification.m_aInteractionChecks))))
 				{
