@@ -224,7 +224,7 @@ StringTable {
   CustomStringTableItem "{E37A21004D951008}" { Id "GC-Vote_EndedEmpty" Target_en_us "Voting ended — no mission available" }
   CustomStringTableItem "{E37A21004D951009}" { Id "GC-Vote_LoadingWinner" Target_en_us "Winner selected — loading next mission…" }
   CustomStringTableItem "{E37A21004D95100A}" { Id "GC-Vote_LoadFailed" Target_en_us "The server could not load the winning mission" }
-  CustomStringTableItem "{E37A21004D95100B}" { Id "GC-Vote_Continue" Target_en_us "Continue to debrief  >" }
+  CustomStringTableItem "{E37A21004D95100B}" { Id "GC-Vote_Continue" Target_en_us "Debrief" }
   CustomStringTableItem "{E37A21004D95100C}" { Id "GC-Vote_Closed" Target_en_us "Voting closed" }
   CustomStringTableItem "{E37A21004D95100D}" { Id "GC-Vote_Rules" Target_en_us "Most votes wins. Ties are decided randomly. You can change your vote." }
   CustomStringTableItem "{E37A21004D95100E}" { Id "GC-Vote_Selected" Target_en_us "Your vote" }
