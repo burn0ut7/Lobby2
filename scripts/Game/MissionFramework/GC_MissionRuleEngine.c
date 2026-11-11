@@ -12,6 +12,7 @@ class GC_MissionRuleEvent
 	ref array<GC_RuleCondition> m_aDamageChecks;
 	ref array<GC_RuleCondition> m_aAreaChecks;
 	ref array<GC_RuleCondition> m_aInteractionChecks;
+	ref array<GC_RuleCondition> m_aScriptChecks;
 
 	void GC_MissionRuleEvent(GC_ERuleEvent kind, string name, bool flagCall = false)
 	{
@@ -67,6 +68,9 @@ class GC_MissionRuleEngine
 	protected BaseWorld m_DamageWorld;
 	protected ref GC_MissionAreaTracker m_Areas;
 	protected float m_fNextAreaCheck;
+	protected float m_fNextScriptCheck;
+	protected ref array<GC_RuleCondition> m_aScriptConditions = {};
+	protected ref map<GC_RuleCondition, bool> m_mScriptResults = new map<GC_RuleCondition, bool>();
 	protected ref map<GC_RuleCondition, ref GC_EntityDamageObservation> m_mDamage = new map<GC_RuleCondition, ref GC_EntityDamageObservation>();
 	ref ScriptInvoker m_OnStateChanged = new ScriptInvoker();
 	protected ref map<GC_RuleCondition, ref GC_InteractionObservation> m_mInteractions = new map<GC_RuleCondition, ref GC_InteractionObservation>();
@@ -161,6 +165,7 @@ class GC_MissionRuleEngine
 		RegisterEntityDamageConditions();
 		RegisterInteractionConditions();
 		RegisterAreaConditions(damageWorld, areaManager);
+		RegisterScriptConditions();
 		m_bRunning = true;
 		if (GC_LobbyPhase.IsValid(initialState))
 			SetGameModeState(initialState);
@@ -282,6 +287,7 @@ class GC_MissionRuleEngine
 		m_eGameModeState = state;
 		ResetRandomConditions();
 		SampleAreas(true);
+		SampleScripts();
 		if (state == SCR_EGameModeState.GAME)
 		{
 			BindEntityDamageConditions();
@@ -320,6 +326,8 @@ class GC_MissionRuleEngine
 		m_bRunning = false;
 		m_ActionManager = null;
 		m_mRandomResults.Clear();
+		m_aScriptConditions.Clear();
+		m_mScriptResults.Clear();
 		m_Casualties = null;
 		foreach (GC_RuleCondition check, GC_EntityDamageObservation observation : m_mDamage)
 		{
@@ -372,7 +380,7 @@ class GC_MissionRuleEngine
 			return false;
 		if (GetFlagCallCount(name) == int.MAX)
 			return false;
-		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions);
+		return !memory.m_Condition || memory.m_Condition.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions, m_mScriptResults);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -551,6 +559,8 @@ class GC_MissionRuleEngine
 		// Queue events until this pass completes, preventing reentrant timer execution.
 		m_bDispatching = true;
 		AdvanceRandomConditions();
+		if (m_eGameModeState == SCR_EGameModeState.GAME && m_fNow >= m_fNextScriptCheck)
+			SampleScripts();
 		if (m_eGameModeState == SCR_EGameModeState.GAME && m_fNow >= m_fNextAreaCheck)
 			SampleAreas();
 		QueueInteractionChanges();
@@ -574,6 +584,63 @@ class GC_MissionRuleEngine
 		}
 		m_bDispatching = false;
 		DrainEvents();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RegisterScriptConditions()
+	{
+		array<GC_RuleCondition> conditions = {};
+		foreach (GC_MissionRuleState state : m_aStates)
+		{
+			if (state.m_bValid && state.m_Rule.m_If)
+				state.m_Rule.m_If.CollectScriptConditions(conditions);
+		}
+		foreach (string name, GC_MissionFlagState memory : m_mFlagDefinitions)
+		{
+			if (memory.m_Condition)
+				memory.m_Condition.CollectScriptConditions(conditions);
+		}
+		if (conditions.Count() > 256)
+		{
+			Print("GC | Mission Framework | More than 256 script conditions; script conditions unavailable.", LogLevel.ERROR);
+			return;
+		}
+		m_aScriptConditions.Copy(conditions);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SampleScripts()
+	{
+		m_fNextScriptCheck = m_fNow + 1;
+		if (m_aScriptConditions.IsEmpty())
+			return;
+		if (m_eGameModeState != SCR_EGameModeState.GAME)
+		{
+			m_mScriptResults.Clear();
+			return;
+		}
+		GC_MissionRuleEvent notification = new GC_MissionRuleEvent(GC_ERuleEvent.SCRIPT_CHANGED, "");
+		notification.m_aScriptChecks = {};
+		// A custom hook may stop its owner. Iterate a snapshot and discard results after shutdown.
+		array<GC_RuleCondition> conditions = {};
+		conditions.Copy(m_aScriptConditions);
+		foreach (GC_RuleCondition check : conditions)
+		{
+			bool answer;
+			bool available = m_ActionManager && m_ActionManager.GC_RunFrameworkScript(this, check.m_Script, answer);
+			if (!m_bRunning || m_eGameModeState != SCR_EGameModeState.GAME)
+				return;
+			bool previous;
+			bool wasAvailable = m_mScriptResults.Find(check, previous);
+			if (available)
+				m_mScriptResults.Set(check, answer);
+			else
+				m_mScriptResults.Remove(check);
+			if (available != wasAvailable || (available && previous != answer))
+				notification.m_aScriptChecks.Insert(check);
+		}
+		if (!notification.m_aScriptChecks.IsEmpty())
+			m_aEvents.Insert(notification);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -852,7 +919,7 @@ class GC_MissionRuleEngine
 	{
 		if (!state.m_bValid || state.m_bDisabled)
 			return false;
-		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions))
+		if (state.m_Rule.m_If && !state.m_Rule.m_If.Evaluate(m_mFlags, m_eGameModeState, m_mFlagCounts, m_mEventResults, m_mRandomResults, m_Casualties, m_mDamage, m_Areas, m_mInteractions, m_mScriptResults))
 			return false;
 		return !state.m_Parent || ConditionsPass(state.m_Parent);
 	}
@@ -1049,6 +1116,7 @@ class GC_MissionRuleEngine
 				AcceptFlagCall(notification.m_sName);
 				continue;
 			}
+			bool scriptChanged = notification.m_eKind == GC_ERuleEvent.SCRIPT_CHANGED;
 			bool interactionUsed = notification.m_eKind == GC_ERuleEvent.INTERACTION_USED;
 			bool areaChanged = notification.m_eKind == GC_ERuleEvent.AREA_CHANGED;
 			bool damageChanged = notification.m_eKind == GC_ERuleEvent.ENTITY_DAMAGE_CHANGED;
@@ -1066,6 +1134,7 @@ class GC_MissionRuleEngine
 					|| (casualtyChanged && memory.m_Condition.UsesCasualties())
 					|| (damageChanged && memory.m_Condition.UsesEntityDamage(notification.m_aDamageChecks))
 					|| (areaChanged && memory.m_Condition.UsesArea(notification.m_aAreaChecks))
+					|| (scriptChanged && memory.m_Condition.UsesScript(notification.m_aScriptChecks))
 					|| (interactionUsed && memory.m_Condition.UsesInteraction(notification.m_aInteractionChecks))
 					|| (notification.m_eKind == GC_ERuleEvent.GAME_MODE_STATE && memory.m_Condition.UsesGameModeState()))
 					CallFlag(flagName);
@@ -1081,6 +1150,7 @@ class GC_MissionRuleEngine
 					|| (casualtyChanged && rule.m_If.UsesCasualties())
 					|| (damageChanged && rule.m_If.UsesEntityDamage(notification.m_aDamageChecks))
 					|| (areaChanged && rule.m_If.UsesArea(notification.m_aAreaChecks))
+					|| (scriptChanged && rule.m_If.UsesScript(notification.m_aScriptChecks))
 					|| (interactionUsed && rule.m_If.UsesInteraction(notification.m_aInteractionChecks))))
 				{
 					// One eligible attempt per notification chain; false checks may pass on a later notification.

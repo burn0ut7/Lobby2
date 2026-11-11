@@ -75,14 +75,17 @@ class GC_RuleCondition
 	bool m_bShareAtMost;
 	ref array<string> m_aIgnoredFactions;
 	ref GC_AreaCaptureOptions m_Capture;
+	ref GC_MissionScript m_Script;
 	string m_sInteractionEntity;
 
 	//------------------------------------------------------------------------------------------------
 	//! Validate before inversion, so malformed data can never become a passing check.
 	bool IsValid(int depth = 0)
 	{
-		if (depth > 16 || m_iCheck < 0 || m_iCheck > 12)
+		if (depth > 16 || m_iCheck < 0 || m_iCheck > 13)
 			return false;
+		if (m_iCheck == 13)
+			return m_Script && m_Script.IsValid();
 		if (m_iCheck == 12)
 			return GC_LobbyPhase.IsValid(m_eGameModeState) && m_fRandomInterval >= 0.1
 				&& m_fTimerMaximum >= m_fRandomInterval && m_fTimerMaximum <= 86400;
@@ -277,6 +280,41 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
+	bool UsesScript(array<GC_RuleCondition> changed = null, int depth = 0)
+	{
+		if (depth > 16)
+			return false;
+		if (m_iCheck == 13)
+			return !changed || changed.Contains(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child && child.UsesScript(changed, depth + 1))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void CollectScriptConditions(array<GC_RuleCondition> result, int depth = 0)
+	{
+		if (depth > 16)
+			return;
+		if (m_iCheck == 13 && !result.Contains(this))
+			result.Insert(this);
+		if (m_iCheck == 0 && m_aChecks)
+		{
+			foreach (GC_RuleCondition child : m_aChecks)
+			{
+				if (child)
+					child.CollectScriptConditions(result, depth + 1);
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
 	bool UsesInteraction(array<GC_RuleCondition> changed = null, int depth = 0)
 	{
 		if (depth > 16)
@@ -400,10 +438,12 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool HasEvaluationContext(map<string, bool> events, map<GC_RuleCondition, bool> randomResults, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas, map<GC_RuleCondition, ref GC_InteractionObservation> interactions, int depth = 0)
+	protected bool HasEvaluationContext(map<string, bool> events, map<GC_RuleCondition, bool> randomResults, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas, map<GC_RuleCondition, ref GC_InteractionObservation> interactions, map<GC_RuleCondition, bool> scriptResults, int depth = 0)
 	{
 		if (depth > 16)
 			return false;
+		if (m_iCheck == 13)
+			return scriptResults && scriptResults.Contains(this);
 		if (m_iCheck == 11)
 		{
 			GC_InteractionObservation interaction;
@@ -426,7 +466,7 @@ class GC_RuleCondition
 		{
 			foreach (GC_RuleCondition child : m_aChecks)
 			{
-				if (!child || !child.HasEvaluationContext(events, randomResults, damage, areas, interactions, depth + 1))
+				if (!child || !child.HasEvaluationContext(events, randomResults, damage, areas, interactions, scriptResults, depth + 1))
 					return false;
 			}
 		}
@@ -434,15 +474,15 @@ class GC_RuleCondition
 	}
 
 	//------------------------------------------------------------------------------------------------
-	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null, GC_CasualtySnapshot casualties = null, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage = null, GC_MissionAreaTracker areas = null, map<GC_RuleCondition, ref GC_InteractionObservation> interactions = null)
+	bool Evaluate(map<string, bool> flags, SCR_EGameModeState gameModeState = -1, map<string, int> counts = null, map<string, bool> events = null, map<GC_RuleCondition, bool> randomResults = null, GC_CasualtySnapshot casualties = null, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage = null, GC_MissionAreaTracker areas = null, map<GC_RuleCondition, ref GC_InteractionObservation> interactions = null, map<GC_RuleCondition, bool> scriptResults = null)
 	{
-		if (!IsValid() || !HasEvaluationContext(events, randomResults, damage, areas, interactions) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
+		if (!IsValid() || !HasEvaluationContext(events, randomResults, damage, areas, interactions, scriptResults) || (UsesGameModeState() && !GC_LobbyPhase.IsValid(gameModeState)))
 			return false;
-		return EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas, interactions);
+		return EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas, interactions, scriptResults);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults, GC_CasualtySnapshot casualties, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas, map<GC_RuleCondition, ref GC_InteractionObservation> interactions)
+	protected bool EvaluateValid(map<string, bool> flags, SCR_EGameModeState gameModeState, map<string, int> counts, map<string, bool> events, map<GC_RuleCondition, bool> randomResults, GC_CasualtySnapshot casualties, map<GC_RuleCondition, ref GC_EntityDamageObservation> damage, GC_MissionAreaTracker areas, map<GC_RuleCondition, ref GC_InteractionObservation> interactions, map<GC_RuleCondition, bool> scriptResults)
 	{
 		bool answer;
 		if (m_iCheck == 1)
@@ -450,6 +490,8 @@ class GC_RuleCondition
 			if (flags)
 				flags.Find(m_sFlagName, answer);
 		}
+		else if (m_iCheck == 13)
+			scriptResults.Find(this, answer);
 		else if (m_iCheck == 11)
 			answer = interactions.Get(this).IsTriggered();
 		else if (m_iCheck == 10)
@@ -489,7 +531,7 @@ class GC_RuleCondition
 				count = m_aChecks.Count();
 				foreach (GC_RuleCondition check : m_aChecks)
 				{
-					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas, interactions))
+					if (check.EvaluateValid(flags, gameModeState, counts, events, randomResults, casualties, damage, areas, interactions, scriptResults))
 						passed++;
 				}
 			}

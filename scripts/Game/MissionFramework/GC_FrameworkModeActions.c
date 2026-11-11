@@ -4,11 +4,13 @@ modded class GC_LobbyManager
 	//------------------------------------------------------------------------------------------------
 	bool GC_ExecuteFrameworkAction(GC_MissionRuleEngine source, GC_RuleAction action)
 	{
-		if (!HasMissionRuleAuthority() || !m_bMissionEventsEnabled || !source || source != m_MissionRuleEngine
-			|| !source.IsRunning() || !action || !action.IsValid())
+		if (!GC_HasFrameworkSource(source) || !action || !action.IsValid())
 			return false;
 		switch (action.m_eDo)
 		{
+			case GC_ERuleAction.CUSTOM_SCRIPT:
+				bool result;
+				return GC_RunFrameworkScript(source, action.m_Script, result) && result;
 			case GC_ERuleAction.RESPAWN_WAVE:
 				return GC_RespawnWave(action.m_aFlagNames, action.m_iAmount, action.m_bFlagAnswer, action.m_bRandomOrder) >= 0;
 			case GC_ERuleAction.JIP:
@@ -34,6 +36,23 @@ modded class GC_LobbyManager
 				return GC_ChangeFrameworkTickets(action);
 		}
 		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool GC_HasFrameworkSource(GC_MissionRuleEngine source)
+	{
+		return HasMissionRuleAuthority() && m_bMissionEventsEnabled && source && source == m_MissionRuleEngine && source.IsRunning();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Shared dispatch for script actions and sampled conditions; false means unavailable, not a false answer.
+	bool GC_RunFrameworkScript(GC_MissionRuleEngine source, GC_MissionScript script, out bool result)
+	{
+		result = false;
+		if (!GC_HasFrameworkSource(source) || !script || !script.IsValid())
+			return false;
+		result = script.Run(this);
+		return GC_HasFrameworkSource(source);
 	}
 
 	//------------------------------------------------------------------------------------------------

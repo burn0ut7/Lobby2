@@ -11,7 +11,8 @@ enum GC_ERuleEvent
 	CASUALTIES_CHANGED,
 	ENTITY_DAMAGE_CHANGED,
 	AREA_CHANGED,
-	INTERACTION_USED
+	INTERACTION_USED,
+	SCRIPT_CHANGED
 }
 
 enum GC_ERuleAction
@@ -37,7 +38,8 @@ enum GC_ERuleAction
 	RESPAWN_WAVE,
 	VEHICLE,
 	MARKER_VISIBILITY,
-	JIP
+	JIP,
+	CUSTOM_SCRIPT
 }
 
 [BaseContainerProps(), BaseContainerCustomTitleField("m_sName")]
@@ -57,6 +59,7 @@ class GC_RuleAction
 	int m_iOperation;
 	int m_iAmount;
 	ref GC_PrefabSpawn m_Spawn;
+	ref GC_MissionScript m_Script;
 	float m_fTransitionSeconds;
 	float m_fTimerSeconds;
 	string m_sMessageTitle;
@@ -91,6 +94,8 @@ class GC_RuleAction
 	//------------------------------------------------------------------------------------------------
 	bool IsValid()
 	{
+		if (m_eDo == GC_ERuleAction.CUSTOM_SCRIPT)
+			return m_Script && m_Script.IsValid();
 		if (m_eDo == GC_ERuleAction.JIP)
 			return GC_JipSystem.IsValidMode(m_iOperation);
 		if (m_eDo == GC_ERuleAction.MARKER_VISIBILITY)
