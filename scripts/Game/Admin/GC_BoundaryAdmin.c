@@ -13,7 +13,7 @@ class GC_BoundaryAdminRow
 	bool Valid;
 }
 
-//! Mission-owned controls for existing zones and one display-only announcement.
+//! Mission-owned controls for zones and one countdown, optionally carrying a pending mission result.
 class GC_BoundaryAdmin
 {
 	protected GC_LobbyGameMode m_Mode;
@@ -24,6 +24,9 @@ class GC_BoundaryAdmin
 	protected ref array<string> m_aAnnouncementFactions = {};
 	protected float m_fAnnouncementDeadline;
 	protected bool m_bAnnouncing;
+	protected ref SCR_GameModeEndData m_PendingEndData;
+	protected string m_sPendingEndMessage;
+	protected int m_iEndingRevision;
 
 	//------------------------------------------------------------------------------------------------
 	void Start(GC_LobbyGameMode mode)
@@ -36,9 +39,57 @@ class GC_BoundaryAdmin
 	void Stop()
 	{
 		GetGame().GetCallqueue().Remove(UpdateAnnouncement);
+		ClearAnnouncement();
 		m_aZones.Clear();
 		m_mDisplayNumbers.Clear();
 		m_Mode = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	bool StartMissionEnding(SCR_GameModeEndData data, string message)
+	{
+		if (!Replication.IsServer() || !m_Mode || GC_LobbyGameMode.GetGameMode() != m_Mode
+			|| m_Mode.GetState() != SCR_EGameModeState.GAME || m_PendingEndData)
+			return false;
+		m_PendingEndData = data;
+		if (!m_PendingEndData)
+			m_PendingEndData = SCR_GameModeEndData.CreateSimple();
+		m_sPendingEndMessage = message;
+		m_iEndingRevision++;
+		m_sAnnouncement = "Mission ending in";
+		m_aAnnouncementFactions.Clear();
+		m_fAnnouncementDeadline = GetGame().GetWorld().GetWorldTime() * 0.001 + 120;
+		UpdateAnnouncement();
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Trusted server completion. Admin callers must authorize before reaching this method.
+	bool ForceMissionEnd()
+	{
+		if (!Replication.IsServer() || !m_Mode || GC_LobbyGameMode.GetGameMode() != m_Mode
+			|| m_Mode.GetState() != SCR_EGameModeState.GAME)
+			return false;
+		GC_LobbyManager manager = GC_LobbyManager.GetManager();
+		if (!manager)
+			return false;
+		// Retain the pending result through synchronous phase callbacks and collection finalization.
+		ref SCR_GameModeEndData data = m_PendingEndData;
+		string message = m_sPendingEndMessage;
+		ClearAnnouncement();
+		bool ended = manager.CompletePostGame(data, message);
+		UpdateAnnouncement();
+		return ended;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ClearAnnouncement()
+	{
+		m_fAnnouncementDeadline = 0;
+		m_sAnnouncement = string.Empty;
+		m_aAnnouncementFactions.Clear();
+		m_PendingEndData = null;
+		m_sPendingEndMessage = string.Empty;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -124,6 +175,9 @@ class GC_BoundaryAdmin
 		json.WriteValue("announcement", m_sAnnouncement);
 		json.WriteValue("remaining", Math.Max(0, m_fAnnouncementDeadline - GetGame().GetWorld().GetWorldTime() * 0.001));
 		json.WriteValue("factions", FactionText(m_aAnnouncementFactions));
+		bool ending = m_PendingEndData != null;
+		json.WriteValue("ending", ending);
+		json.WriteValue("endingRevision", m_iEndingRevision);
 		return json.SaveToString();
 	}
 
@@ -151,8 +205,7 @@ class GC_BoundaryAdmin
 				if (setup && setup.EndSetup())
 					ended++;
 			}
-			m_fAnnouncementDeadline = 0;
-			m_sAnnouncement = string.Empty;
+			ClearAnnouncement();
 			UpdateAnnouncement();
 			result = string.Format("Stopped all boundaries: %1 AOs disabled, %2 setups ended.", disabled, ended);
 		}
@@ -162,10 +215,46 @@ class GC_BoundaryAdmin
 			controller.GC_SetBoundaryMap(action == "map-on");
 			result = "Map visibility updated for you only.";
 		}
+		else if (action.StartsWith("ending-"))
+		{
+			if (!m_PendingEndData || key != m_iEndingRevision.ToString() || m_Mode.GetState() != SCR_EGameModeState.GAME)
+				result = "Not applied: the pending ending changed. Refresh the timer.";
+			else if (action == "ending-cancel")
+			{
+				ClearAnnouncement();
+				UpdateAnnouncement();
+				result = "Mission ending cancelled. The mission remains active.";
+			}
+			else if (action == "ending-force")
+			{
+				if (ForceMissionEnd())
+					result = "Mission ended.";
+				else
+					result = "Mission could not end; the countdown was cancelled.";
+			}
+			else if ((action != "ending-set" && action != "ending-extend") || seconds < 1 || seconds > 3600)
+				result = "Use 1-3600 seconds to set or extend the ending timer.";
+			else
+			{
+				float now = GetGame().GetWorld().GetWorldTime() * 0.001;
+				float remaining = Math.Max(0, m_fAnnouncementDeadline - now);
+				if (action == "ending-extend" && remaining + seconds > 3600)
+					result = "Not applied: the ending timer cannot exceed 60 minutes.";
+				else
+				{
+					m_fAnnouncementDeadline = now + seconds;
+					if (action == "ending-extend")
+						m_fAnnouncementDeadline += remaining;
+					UpdateAnnouncement();
+					result = "Mission ending timer updated.";
+				}
+			}
+		}
+		else if (m_PendingEndData && (action == "announce-stop" || action == "announce-start"))
+			result = "A mission ending is pending. Use its Set time, Extend, Cancel ending or End now controls.";
 		else if (action == "announce-stop")
 		{
-			m_fAnnouncementDeadline = 0;
-			m_sAnnouncement = string.Empty;
+			ClearAnnouncement();
 			UpdateAnnouncement();
 			result = "Announcement timer stopped.";
 		}
@@ -217,8 +306,10 @@ class GC_BoundaryAdmin
 				result = "Not applied: zone removed, invalid, ended, or action unavailable. Refresh the list.";
 		}
 		string context = key + " " + title + " " + FactionText(factions);
-		if (action == "extend")
+		if (action == "extend" || action == "ending-extend")
 			context = key + " add " + seconds.ToString() + " seconds";
+		else if (action == "ending-set")
+			context = key + " set " + seconds.ToString() + " seconds";
 		GC_AdminActionLogger.Log(playerId, "boundary-" + action, context, result);
 		return result;
 	}
@@ -226,15 +317,19 @@ class GC_BoundaryAdmin
 	//------------------------------------------------------------------------------------------------
 	protected void UpdateAnnouncement()
 	{
-		if (!m_Mode || GC_LobbyGameMode.GetGameMode() != m_Mode)
+		if (!Replication.IsServer() || !m_Mode || GC_LobbyGameMode.GetGameMode() != m_Mode)
 			return;
 		float seconds = Math.Max(0, m_fAnnouncementDeadline - GetGame().GetWorld().GetWorldTime() * 0.001);
+		if (m_PendingEndData && m_Mode.GetState() == SCR_EGameModeState.GAME && seconds <= 0)
+		{
+			ForceMissionEnd();
+			return;
+		}
 		if (m_Mode.GetState() != SCR_EGameModeState.GAME)
 			seconds = 0;
 		if (seconds <= 0)
 		{
-			m_fAnnouncementDeadline = 0;
-			m_sAnnouncement = string.Empty;
+			ClearAnnouncement();
 		}
 		array<int> players = {};
 		GetGame().GetPlayerManager().GetPlayers(players);

@@ -68,5 +68,61 @@ modded class GC_LobbyManager
 			report += " | " + row;
 		return report;
 	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestEndingControl(string action, int seconds, bool unauthorized)
+	{
+		int requester = GetGame().GetPlayerController().GetPlayerId();
+		if (unauthorized)
+			requester = -1;
+		GC_BoundaryAdmin owner = GC_LobbyGameMode.GetGameMode().GetBoundaryAdmin();
+		string key = owner.GC_TestEndingRevision().ToString();
+		if (action == "stale")
+		{
+			key = "-1";
+			action = "ending-force";
+		}
+		string result = owner.Execute(requester, action, key, "", seconds, {});
+		return result + " | " + GC_TestEndingSnapshot();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestEndingSnapshot()
+	{
+		GC_MissionStatsComponent stats = GC_MissionStatsComponent.GetInstance();
+		return string.Format("phase=%1 collecting=%2 finalized=%3 notifications=%4 %5", GetLobbyPhase(),
+			stats.IsCollecting(), stats.IsFinalized(), m_iAdminMessageSequence,
+			GC_LobbyGameMode.GetGameMode().GetBoundaryAdmin().GC_TestEndingState());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	string GC_TestEndingAdminOpen()
+	{
+		if (!SCR_Global.IsAdmin(GetGame().GetPlayerController().GetPlayerId()))
+			return "rejected: admin login required";
+		GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.GC_AdminToolsMenu);
+		return "requested native admin menu";
+	}
+}
+
+modded class GC_BoundaryAdmin
+{
+	int GC_TestEndingRevision()
+	{
+		return m_iEndingRevision;
+	}
+
+	string GC_TestEndingState()
+	{
+		int reason = -1;
+		array<int> factions = {};
+		if (m_PendingEndData)
+		{
+			reason = m_PendingEndData.GetEndReason();
+			m_PendingEndData.GetFactionWinnerIds(factions);
+		}
+		return string.Format("pending=%1 remaining=%2 revision=%3 reason=%4 factions=%5", m_PendingEndData != null,
+			Math.Max(0, m_fAnnouncementDeadline - GetGame().GetWorld().GetWorldTime() * 0.001), m_iEndingRevision, reason, factions.Count());
+	}
 }
 #endif

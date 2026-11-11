@@ -129,6 +129,48 @@ ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.la
     Anchor 0 .20 1 .88 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
    }
    {
+    TextWidgetClass {
+     Name "EndingHelp"
+     Slot FrameWidgetSlot { Anchor 0 0 .65 .72 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0 }
+     Text "Set time replaces the remaining minutes. Extend adds minutes. Cancel ending keeps the mission running. End now opens the debrief."
+     "Font Size" 22 Wrap 1 "Ignore Cursor" 1
+    }
+    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
+     Name "NoticeExtend" Slot FrameWidgetSlot {
+      Anchor .7 .56 1 .66 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+      }
+     }
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "plus" }
+   } }
+  } }
+ }
+}
+    ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.layout" {
+     Name "NoticeForce" Slot FrameWidgetSlot {
+      Anchor .7 .69 1 .79 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+     }
+     components {
+      SCR_ButtonTextComponent "{7C41F8A018B24C00}" {
+       m_bCanBeToggled 0 m_bShowBorderOnFocus 1
+      }
+     }
+
+ {
+  SizeLayoutWidgetClass "{7C41F8A018B24C01}" { Prefab "{7C41F8A018B24C01}" {
+   OverlayWidgetClass "{7C41F8A018B24C02}" { Prefab "{7C41F8A018B24C02}" {
+    ImageWidgetClass "{A592C710D3314B81}" { Prefab "{A592C710D3314B81}" Image "play" }
+   } }
+  } }
+ }
+}
     TextWidgetClass : "{E341A258BC700003}UI/layouts/Admin/Lobby_AdminFieldLabel.layout" {
      Name "NoticeTitleLabel" Slot FrameWidgetSlot {
       Anchor 0 0 .65 .065 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
@@ -233,7 +275,7 @@ ButtonWidgetClass : "{A592C710D3314B80}UI/layouts/Admin/Lobby_AdminIconButton.la
 }
     TextWidgetClass {
      Name "NoticeCurrent" Slot FrameWidgetSlot {
-      Anchor 0 .76 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
+      Anchor 0 .83 1 1 OffsetLeft 0 OffsetTop 0 OffsetRight 0 OffsetBottom 0
      }
      Text "" "Font Size" 21 Wrap 1 "Ignore Cursor" 1
     }

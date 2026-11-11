@@ -368,7 +368,7 @@ When adding test content:
 
 ### Mission completion path
 
-Trusted mission logic and the admin control must both use `GC_LobbyManager.EnterPostGame(endData)`. Do not create a second end-state variable or bypass this API with a separate Lobby2 phase mutation.
+Trusted mission logic uses `GC_LobbyManager.EnterPostGame(endData, message)` to request a two-minute countdown on the existing announcement-timer owner. GAME remains active, with statistics collecting, until expiry or an authenticated admin force-end. `GC_BoundaryAdmin` retains the native end data and optional message; it owns adjustment, cancellation and expiry. Cancellation clears that pending result without ending the game. Admin timer operations recheck login and the pending-result revision on the server. The admin phase override forces the retained result when present. Only `GC_LobbyManager.CompletePostGame` performs native `EndGameMode()` and publishes the final message. The native game-mode state remains the sole phase authority; the pending timer is not a new phase.
 
 ### Rejection behavior
 

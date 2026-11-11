@@ -247,16 +247,7 @@ modded class GC_LobbyManager
 			}
 		}
 		ref SCR_GameModeEndData data = SCR_GameModeEndData.Create(reason, null, results);
-		if (!EnterPostGame(data, action.m_sEndMessage))
-			return false;
-		if (!action.m_sEndMessage.IsEmpty())
-		{
-			GC_RuleAction notification = new GC_RuleAction();
-			notification.m_sTextOrName = action.m_sEndMessage;
-			notification.m_sMessageTitle = GC_MissionResult.Title(data);
-			GC_SendMissionMessage(notification);
-		}
-		return true;
+		return EnterPostGame(data, action.m_sEndMessage);
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -91,7 +91,7 @@ class GC_ResetRandomChanceAction : GC_ActionBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("End Mission Action")]
 class GC_EndMissionAction : GC_ActionBase
 {
-	[Attribute("0", UIWidgets.ComboBox, "Ends the active Match and opens the after-action phase. Has no effect before Match or after the mission has ended.", enums: {ParamEnum("Mission complete", "0"), ParamEnum("Faction victory", "1"), ParamEnum("Faction defeat", "2"), ParamEnum("Faction draw", "3"), ParamEnum("Mission failed", "4")})]
+	[Attribute("0", UIWidgets.ComboBox, "Starts a two-minute mission-ending countdown. Admins can adjust, cancel or force it. The match and statistics stay active until the countdown finishes. Has no effect before Match, while another ending is pending, or after the mission has ended.", enums: {ParamEnum("Mission complete", "0"), ParamEnum("Faction victory", "1"), ParamEnum("Faction defeat", "2"), ParamEnum("Faction draw", "3"), ParamEnum("Mission failed", "4")})]
 	int m_iResult;
 	[Attribute("", UIWidgets.EditBox, "Primary faction for a faction result; also counts as a winner for Victory. Leave empty for Mission complete or Mission failed.")]
 	string m_sFaction;

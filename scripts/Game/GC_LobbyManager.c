@@ -487,7 +487,8 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 		if (requestedPhase == SCR_EGameModeState.POSTGAME)
 		{
-			bool enteredPostGame = EnterPostGame(null);
+			GC_LobbyGameMode endingMode = GC_LobbyGameMode.GetGameMode();
+			bool enteredPostGame = endingMode && endingMode.GetBoundaryAdmin() && endingMode.GetBoundaryAdmin().ForceMissionEnd();
 			string outcome = "rejected-transition-failed";
 			if (enteredPostGame)
 				outcome = "succeeded";
@@ -567,8 +568,18 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Shared authority entry point for admin overrides and normal mission logic.
+	//! Mission logic requests a cancellable two-minute ending; GAME stays active meanwhile.
 	bool EnterPostGame(SCR_GameModeEndData endData, string message = "")
+	{
+		GC_LobbyGameMode mode = GC_LobbyGameMode.GetGameMode();
+		if (!Replication.IsServer() || GetManager() != this || m_bShutdown || !mode || !mode.GetBoundaryAdmin())
+			return false;
+		return mode.GetBoundaryAdmin().StartMissionEnding(endData, message);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Called by the countdown owner at expiry or an authenticated force-end request.
+	bool CompletePostGame(SCR_GameModeEndData endData, string message = "")
 	{
 		if (m_bShutdown)
 		{
@@ -581,6 +592,9 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			Print("GC | Phase | POSTGAME entry rejected: caller is not authority", LogLevel.ERROR);
 			return false;
 		}
+
+		if (GetManager() != this)
+			return false;
 
 		PrintFormat("GC | Phase | POSTGAME entry requested: lobby=%1 endDataProvided=%2", GetPhaseName(GetLobbyPhase()), endData != null);
 
@@ -617,6 +631,13 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			return false;
 		}
 
+		if (!message.IsEmpty())
+		{
+			GC_RuleAction notification = new GC_RuleAction();
+			notification.m_sTextOrName = message;
+			notification.m_sMessageTitle = GC_MissionResult.Title(resolvedEndData);
+			GC_LobbyManager.Cast(this).GC_SendMissionMessage(notification);
+		}
 		return true;
 	}
 

@@ -22,6 +22,8 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 	protected string m_sAnnouncement;
 	protected string m_sAnnouncementFactions;
 	protected float m_fAnnouncementRemaining;
+	protected bool m_bMissionEnding;
+	protected int m_iEndingRevision;
 
 	//------------------------------------------------------------------------------------------------
 	override void HandlerAttached(Widget w)
@@ -34,6 +36,8 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		Bind("BoundaryPanic", "Stop all boundaries");
 		Bind("NoticeStart", "Start timer");
 		Bind("NoticeStop", "Stop timer");
+		Bind("NoticeExtend", "Extend");
+		Bind("NoticeForce", "End now");
 		EditBoxWidget.Cast(w.FindAnyWidget("NoticeTitle")).SetText("HOLD");
 		EditBoxWidget.Cast(w.FindAnyWidget("NoticeMinutes")).SetText("5");
 		m_Type = SCR_ComboBoxComponent.Cast(w.FindAnyWidget("BoundaryType").FindHandler(SCR_ComboBoxComponent));
@@ -142,6 +146,11 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 				json.ReadValue("announcement", m_sAnnouncement);
 				json.ReadValue("remaining", m_fAnnouncementRemaining);
 				json.ReadValue("factions", m_sAnnouncementFactions);
+				bool wasEnding = m_bMissionEnding;
+				json.ReadValue("ending", m_bMissionEnding);
+				json.ReadValue("endingRevision", m_iEndingRevision);
+				if (m_bMissionEnding && !wasEnding)
+					EditBoxWidget.Cast(m_wRoot.FindAnyWidget("NoticeMinutes")).SetText("2");
 			}
 		}
 		else
@@ -208,6 +217,18 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 				Request("map-off");
 			else
 				Request("map-on");
+		}
+		else if (m_bMissionEnding && (name == "NoticeStart" || name == "NoticeStop" || name == "NoticeExtend" || name == "NoticeForce"))
+		{
+			string endingAction = "ending-set";
+			if (name == "NoticeStop")
+				endingAction = "ending-cancel";
+			else if (name == "NoticeExtend")
+				endingAction = "ending-extend";
+			else if (name == "NoticeForce")
+				endingAction = "ending-force";
+			float endingMinutes = EditBoxWidget.Cast(m_wRoot.FindAnyWidget("NoticeMinutes")).GetText().ToFloat();
+			Request(endingAction, m_iEndingRevision.ToString(), "", Math.Round(endingMinutes * 60));
 		}
 		else if (name == "NoticeStop")
 			Request("announce-stop");
@@ -319,7 +340,15 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 		if (m_bAnnouncement)
 		{
 			m_wRoot.FindAnyWidget("BoundaryEmpty").SetVisible(false);
-			RebuildFactions();
+			m_wRoot.FindAnyWidget("NoticeTitleLabel").SetVisible(!m_bMissionEnding);
+			m_wRoot.FindAnyWidget("NoticeTitle").GetParent().SetVisible(!m_bMissionEnding);
+			m_wRoot.FindAnyWidget("NoticeAudienceLabel").SetVisible(!m_bMissionEnding);
+			m_wRoot.FindAnyWidget("NoticeFactionScroll").SetVisible(!m_bMissionEnding);
+			m_wRoot.FindAnyWidget("NoticeExtend").SetVisible(m_bMissionEnding);
+			m_wRoot.FindAnyWidget("NoticeForce").SetVisible(m_bMissionEnding);
+			m_wRoot.FindAnyWidget("EndingHelp").SetVisible(m_bMissionEnding);
+			if (!m_bMissionEnding)
+				RebuildFactions();
 			string current;
 			if (m_fAnnouncementRemaining > 0)
 				current = m_sAnnouncement + " — " + Math.Ceil(m_fAnnouncementRemaining).ToString() + "s\nFactions: " + m_sAnnouncementFactions;
@@ -327,7 +356,14 @@ class GC_AdminBoundariesComponent : SCR_ScriptedWidgetComponent
 			string start = "Start timer";
 			if (m_fAnnouncementRemaining > 0)
 				start = "Replace timer";
+			string stop = "Stop timer";
+			if (m_bMissionEnding)
+			{
+				start = "Set time";
+				stop = "Cancel ending";
+			}
 			SCR_ButtonTextComponent.GetButtonText("NoticeStart", m_wRoot).SetText(start);
+			SCR_ButtonTextComponent.GetButtonText("NoticeStop", m_wRoot).SetText(stop);
 			return;
 		}
 		array<string> currentKeys = {};
