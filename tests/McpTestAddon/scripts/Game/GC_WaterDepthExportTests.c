@@ -10,35 +10,6 @@ modded class GC_LobbyManager
 	}
 
 	//------------------------------------------------------------------------------------------------
-	string GC_TestRiverSurfaceExport()
-	{
-		PlayerController player = GetGame().GetPlayerController();
-		if (!GC_MapExportReady() || !player || !AuthorizeAdminAction(player.GetPlayerId(), "river-surface-export", m_sGC_ExportName))
-			return "denied";
-		FileHandle output = FileIO.OpenFile("$profile:GC_RiverSurfaces_" + m_sGC_ExportName + ".tsv", FileMode.WRITE);
-		if (!output)
-			return "open-failed";
-		output.WriteLine("river\tindex\tx\ty\tz");
-		array<RiverEntity> rivers = {};
-		RiverEntity.GetExistingInstances(rivers);
-		int count;
-		foreach (int riverIndex, RiverEntity river : rivers)
-		{
-			if (river.GetWorld() != GetGame().GetWorld())
-				continue;
-			array<vector> outline = {};
-			river.GetOutlinePoints(outline);
-			foreach (int index, vector point : outline)
-			{
-				output.WriteLine(string.Format("%1\t%2\t%3\t%4\t%5", riverIndex, index, point[0], point[1], point[2]));
-				count++;
-			}
-		}
-		output.Close();
-		return "vertices=" + count;
-	}
-
-	//------------------------------------------------------------------------------------------------
 	string GC_TestWaterDepthExport()
 	{
 		PlayerController player = GetGame().GetPlayerController();
@@ -55,7 +26,7 @@ modded class GC_LobbyManager
 		{
 			array<string> fields = {};
 			line.Split("\t", fields, false);
-			if ((fields.Count() != 2 && fields.Count() != 3) || points.Count() >= 100000)
+			if (fields.Count() != 2 || points.Count() >= 100000)
 			{
 				input.Close();
 				return "invalid-input";
@@ -67,17 +38,7 @@ modded class GC_LobbyManager
 				input.Close();
 				return "outside-world";
 			}
-			float hint = -1e10;
-			if (fields.Count() == 3)
-			{
-				hint = fields[2].ToFloat();
-				if (!(hint >= -10000 && hint <= m_fGC_MaxWaterHint))
-				{
-					input.Close();
-					return "invalid-surface-hint";
-				}
-			}
-			points.Insert(Vector(x, hint, z));
+			points.Insert(Vector(x, 0, z));
 		}
 		input.Close();
 		FileHandle output = FileIO.OpenFile("$profile:GC_WaterDepth_" + m_sGC_ExportName + ".tsv", FileMode.WRITE);
@@ -89,25 +50,25 @@ modded class GC_LobbyManager
 		foreach (vector point : points)
 		{
 			float ground = world.GetSurfaceY(point[0], point[2]);
-			float surfaceHint = point[1];
-			point[1] = ground;
 			vector surface, transform[4], extents;
 			EWaterSurfaceType type;
-			bool wet = ChimeraWorldUtils.TryGetWaterSurface(world, point, surface, type, transform, extents);
-			// River volumes can stop well above the riverbed. Search the column
-			// up to the authored outline; the native query confirms each sample.
-			// Outline interpolation is a hint, not the final sloping water plane.
-			while (!wet && point[1] < surfaceHint)
+			bool wet;
+			// Water queries only hit inside the finite volume. Walk from above
+			// the map down to the bed, including the final partial step.
+			point[1] = Math.Max(m_fGC_WaterColumnTop, ground);
+			while (true)
 			{
-				point[1] = Math.Min(point[1] + 0.5, surfaceHint);
-				wet = ChimeraWorldUtils.TryGetWaterSurface(world, point, surface, type, transform, extents);
+				wet = ChimeraWorldUtils.TryGetWaterSurface(world, point, surface, type, transform, extents) && surface[1] > ground;
+				if (wet || point[1] <= ground)
+					break;
+				point[1] = Math.Max(ground, point[1] - 0.5);
 			}
 			if (wet)
 				wetCount++;
 			output.WriteLine(string.Format("%1\t%2\t%3\t%4\t%5\t%6", point[0], point[2], ground, surface[1], type, wet));
 		}
 		output.Close();
-		string result = string.Format("samples=%1 wet=%2", points.Count(), wetCount);
+		string result = string.Format("samples=%1 wet=%2 method=top-down-water-column-0.5m", points.Count(), wetCount);
 		GC_AdminActionLogger.Log(player.GetPlayerId(), "water-depth-export", m_sGC_ExportName, result);
 		return result;
 	}

@@ -1,16 +1,46 @@
-SCR_AIWorld : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
+SCR_AIWorld SCR_AIWorld_Arland_1 : "{01DC74137CFDDB6A}Prefabs/AI/SCR_AIWorld_Arland.et" {
  coords 1165.056 39 2712.759
 }
 SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  coords 1195.314 39 2720.544
 }
 GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/MP/Modes/GameMode_Lobby_Example.et" {
+ components {
+  GC_LobbyManager "{6A137A39106A4973}" {
+   m_aMissionEvents {
+    GC_Event "{6AD4976D04FE67E5}" {
+     m_aConditions {
+      GC_CasualtiesCondition "{6AD540E9B5E0CD27}" {
+       m_aFactions {
+        "zxzvzvzv"
+       }
+      }
+     }
+     m_aActions {
+      GC_FlagAction "{6AD497603979F20D}" {
+      }
+      GC_EndMissionAction "{6AD6536B8DC8ECF6}" {
+      }
+     }
+    }
+   }
+   m_aMissionFlags {
+    GC_MissionFlag "{6AD497606CEEFC0B}" {
+     m_sName "Test Flag"
+     m_aConditions {
+      GC_AreaCondition "{6AD49760634974AF}" {
+      }
+     }
+    }
+   }
+  }
+ }
  coords 1194.457 39 2723.129
 }
-ScriptedChatEntity : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
+ScriptedChatEntity GC_LobbyChat_1 : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
  coords 1222.934 39 2701.818
 }
-RadioManagerEntity : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
+RadioManagerEntity RadioManager_1 : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
  coords 1205.665 38.911 2686.31
 }
 GenericEntity marker2 {
@@ -27,18 +57,26 @@ GenericEntity marker2 {
  coords 1223.459 39 2739.611
  angles 0 144.276 0
 }
-SCR_AIGroup : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
+SCR_AIGroup Group_USSR_ManeuverGroup_1 : "{1A5F0D93609DA5DA}Prefabs/Groups/OPFOR/Group_USSR_ManeuverGroup.et" {
  coords 1198.979 39 2734.366
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
 }
-SCR_ChimeraCharacter : "{1CA3D30464EE4674}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Spotter.et" {
+SCR_ChimeraCharacter Character_US_Spotter_1 : "{1CA3D30464EE4674}Prefabs/Characters/Factions/BLUFOR/US_Army/Character_US_Spotter.et" {
  coords 1236.022 39 2739.588
 }
-SCR_ChimeraCharacter : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
+$grp GC_RadiusAreaEntity : "{2C4447C53A1E450B}Prefabs/Logic/Mission/RadiusArea.et" {
+ RadiusArea_1 {
+  coords 1080.822 49.046 2409.346
+ }
+ RadiusArea_2 {
+  coords 1073.657 49.046 2424.671
+ }
+}
+SCR_ChimeraCharacter Character_Base_1 : "{37578B1666981FCE}Prefabs/Characters/Core/Character_Base.et" {
  coords 1197.622 38.853 2682.345
 }
-GC_SetupZoneEntity : "{6A4D831C2E5079B3}Prefabs/Logic/Setup/SetupZone.et" {
+GC_SetupZoneEntity SetupZone_1 : "{6A4D831C2E5079B3}Prefabs/Logic/Setup/SetupZone.et" {
  components {
   GC_BoundaryWallComponent "{6A4D831C2E5079C0}" {
    m_Color 0.402 0 0 0.35
@@ -60,10 +98,10 @@ GC_SetupZoneEntity : "{6A4D831C2E5079B3}Prefabs/Logic/Setup/SetupZone.et" {
   }
  }
 }
-SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
+SCR_ChimeraCharacter Character_Spectator_1 : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
  coords 1194.502 38.827 2679.399
 }
-GC_AOLimitEntity : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
+GC_AOLimitEntity AOLimit_1 : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
  components {
   GC_BoundaryWallComponent "{6A4D831C2E5079C1}" {
    m_bEnabled 1
@@ -91,15 +129,15 @@ GC_AOLimitEntity : "{8F470B543A20D944}Prefabs/Logic/AO/AOLimit.et" {
   }
  }
 }
-TILW_MissionFrameworkEntity MissionFramework : "{8F846D0FD5D6EA51}Prefabs/MP/TILW_MissionFramework.et" {
- coords 1194 39 2723
+TILW_MissionFrameworkEntity TILW_MissionFramework_1 : "{8F846D0FD5D6EA51}Prefabs/MP/TILW_MissionFramework.et" {
+ coords 1198.807 39.001 2702.718
 }
-SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
+SCR_AIGroup Group_USSR_Team_AT_1 : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  coords 1197.625 39 2738.455
  m_bPlayable 1
  m_bDeleteIfNoPlayer 0
 }
-SCR_AIGroup : "{CB58D90EA14430AD}Prefabs/Groups/OPFOR/Group_USSR_SentryTeam.et" {
+SCR_AIGroup Group_USSR_SentryTeam_1 : "{CB58D90EA14430AD}Prefabs/Groups/OPFOR/Group_USSR_SentryTeam.et" {
  components {
   AIFormationComponent "{507E9DC12F541FE6}" {
    DefaultFormation "Line"
@@ -109,14 +147,31 @@ SCR_AIGroup : "{CB58D90EA14430AD}Prefabs/Groups/OPFOR/Group_USSR_SentryTeam.et" 
  angles 0 -14.618 0
  m_bPlayable 1
 }
-SCR_AIGroup : "{D807C7047E818488}Prefabs/Groups/BLUFOR/Group_US_SniperTeam.et" {
+SCR_AIGroup Group_US_SniperTeam_1 : "{D807C7047E818488}Prefabs/Groups/BLUFOR/Group_US_SniperTeam.et" {
  coords 1196.259 40.347 2726.05
 }
-SCR_ChimeraCharacter : "{DCB41B3746FDD1BE}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Rifleman.et" {
+SCR_ChimeraCharacter Character_USSR_Rifleman_1 : "{DCB41B3746FDD1BE}Prefabs/Characters/Factions/OPFOR/USSR_Army/Character_USSR_Rifleman.et" {
  coords 1202.527 39 2707.673
 }
+GC_PolygonAreaEntity PolygonArea_1 : "{EF63655250F54CCF}Prefabs/Logic/Mission/PolygonArea.et" {
+ coords 1078.597 39.01 2419.84
+ Points {
+  ShapePoint "{6AD2960B3AD84046}" {
+   Position 30.98 0 -0.94
+  }
+  ShapePoint "{6AD2960B3B1F7E8E}" {
+   Position 8.131 0 39.638
+  }
+  ShapePoint "{6AD2960B3D6959DC}" {
+   Position -33.561 0 17.855
+  }
+  ShapePoint "{6AD2960B3DA28C8D}" {
+   Position -20.376 0 -43.813
+  }
+ }
+}
 $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et" {
- {
+ Group_US_AmmoTeam_1 {
   components {
    AIFormationComponent "{507E9DC12F541FE6}" {
     DefaultFormation "Test"
@@ -127,7 +182,7 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
   m_bPlayable 1
   m_bDeleteIfNoPlayer 0
  }
- {
+ Group_US_AmmoTeam_2 {
   components {
    AIFormationComponent "{507E9DC12F541FE6}" {
     DefaultFormation "Test"
@@ -138,7 +193,7 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
   m_bPlayable 1
   m_bDeleteIfNoPlayer 0
  }
- {
+ Group_US_AmmoTeam_3 {
   components {
    AIFormationComponent "{507E9DC12F541FE6}" {
     DefaultFormation "Test"
@@ -149,7 +204,7 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
   m_bPlayable 1
   m_bDeleteIfNoPlayer 0
  }
- {
+ Group_US_AmmoTeam_4 {
   components {
    AIFormationComponent "{507E9DC12F541FE6}" {
     DefaultFormation "Test"
@@ -160,16 +215,16 @@ $grp SCR_AIGroup : "{F72EF3429D8C8DF5}Prefabs/Groups/BLUFOR/Group_US_AmmoTeam.et
   m_bPlayable 1
   m_bDeleteIfNoPlayer 0
  }
- {
+ Group_US_AmmoTeam_5 {
   coords 1202.769 38.688 2775.924
  }
- {
+ Group_US_AmmoTeam_6 {
   coords 1174.875 38.817 2766.863
  }
- {
+ Group_US_AmmoTeam_7 {
   coords 1145.004 38 2778.242
  }
- {
+ Group_US_AmmoTeam_8 {
   components {
    AIFormationComponent "{507E9DC12F541FE6}" {
     DefaultFormation "Test"

@@ -6,7 +6,7 @@ modded class GC_LobbyManager
 	protected string m_sGC_ExportWorld;
 	protected vector m_vGC_ExportSize;
 	protected vector m_vGC_ExportPhoto;
-	protected float m_fGC_MaxWaterHint;
+	protected float m_fGC_WaterColumnTop;
 
 	//------------------------------------------------------------------------------------------------
 	string GC_TestMapExportConfigure(string name)
@@ -35,8 +35,8 @@ modded class GC_LobbyManager
 		m_sGC_ExportName = name;
 		m_sGC_ExportWorld = GetGame().GetWorldFile();
 		m_vGC_ExportSize = size;
-		m_fGC_MaxWaterHint = size[1] + offset[1] + 512;
-		m_vGC_ExportPhoto = Vector(size[0] * 0.5, Math.Max(2048, m_fGC_MaxWaterHint + 512), size[2] * 0.5);
+		m_fGC_WaterColumnTop = size[1] + offset[1] + 512;
+		m_vGC_ExportPhoto = Vector(size[0] * 0.5, Math.Max(2048, m_fGC_WaterColumnTop + 512), size[2] * 0.5);
 		JsonSaveContext context = new JsonSaveContext();
 		context.WriteValue("version", 1);
 		context.WriteValue("name", name);

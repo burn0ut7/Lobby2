@@ -1,9 +1,9 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Assign Waypoints Action")]
 class GC_AssignWaypointsAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Exact name of the existing AI group receiving these orders. Use the group name, not an individual soldier or vehicle name.")]
+	[Attribute("", UIWidgets.EditComboBox, "Exact name of the existing AI group receiving these orders. Use the group name, not an individual soldier or vehicle name.", enums: {ParamEnum("", "", "rst-choices:2:GC_AIGroupChoices")})]
 	string m_sGroupName;
-	[Attribute("", UIWidgets.EditBox, "Exact names of existing AI waypoints, in order. If any waypoint is missing or is not an AI waypoint, no orders change.")]
+	[Attribute("", UIWidgets.EditComboBox, "Exact names of existing AI waypoints, in order. If any waypoint is missing or is not an AI waypoint, no orders change.", enums: {ParamEnum("", "", "rst-choices:2:GC_WaypointChoices")})]
 	ref array<string> m_aWaypoints;
 	[Attribute("0", UIWidgets.CheckBox, "Unchecked: add after current orders. Checked: replace current orders; an empty list clears them. The engine may delete removed editable waypoints. Replacing with an already assigned, group-owned editable waypoint is rejected before any changes; use new waypoints instead. AI may still react to combat.")]
 	bool m_bReplaceExisting;

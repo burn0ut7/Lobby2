@@ -48,7 +48,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected float m_fGraceSeconds;
 	[Attribute("RETURN TO AO", UIWidgets.EditBox, "Heading displayed above this AO warning countdown. Keep it short to fit the compact HUD.", category: "AO")]
 	protected string m_sWarningText;
-	[Attribute("", UIWidgets.EditBox, "Optional safe return transform for already enrolled characters without valid return history. Must satisfy ALL applicable hard limits. Units that have never entered the permitted area remain exempt.", category: "AO")]
+	[Attribute("", UIWidgets.EditComboBox, "Optional safe return transform for already enrolled characters without valid return history. Must satisfy ALL applicable hard limits. Units that have never entered the permitted area remain exempt.", category: "AO", enums: {ParamEnum("", "", "rst-choices:2:GC_EntityReferenceChoices")})]
 	protected string m_sReturnEntity;
 	[Attribute("", UIWidgets.Auto, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility")]
 	protected ref array<string> m_aFactionKeys;

@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Delete Entities Action")]
 class GC_DeleteEntitiesAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Exact names of entities to remove, including their attached children. Missing or already deleted names are skipped. This does not find entities by prefab or automatically find an AI group's members. The active game mode and its parents cannot be deleted.")]
+	[Attribute("", UIWidgets.EditComboBox, "Exact names of entities to remove, including their attached children. Missing or already deleted names are skipped. This does not find entities by prefab or automatically find an AI group's members. The active game mode and its parents cannot be deleted.", enums: {ParamEnum("", "", "rst-choices:2:GC_EntityReferenceChoices")})]
 	ref array<string> m_aEntities;
 
 	//------------------------------------------------------------------------------------------------

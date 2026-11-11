@@ -11,7 +11,7 @@ class GC_AreaTargetsBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Named Entities")]
 class GC_NamedAreaTargets : GC_AreaTargetsBase
 {
-	[Attribute("", UIWidgets.EditBox, "Exact unique world names of any entity: vehicles, props, cargo, characters or mixed types. Not prefab paths or account names. Count and Proportion both support capture timing. One entry per target. Duplicate names count once. Every listed name must resolve; a missing object is not treated as Outside. Spawned replacements with the same name are resolved on a later check. Dead or destroyed named objects still count while they exist.")]
+	[Attribute("", UIWidgets.EditComboBox, "Exact unique world names of any entity: vehicles, props, cargo, characters or mixed types. Not prefab paths or account names. Count and Proportion both support capture timing. One entry per target. Duplicate names count once. Every listed name must resolve; a missing object is not treated as Outside. Spawned replacements with the same name are resolved on a later check. Dead or destroyed named objects still count while they exist.", enums: {ParamEnum("", "", "rst-choices:2:GC_EntityReferenceChoices")})]
 	ref array<string> m_aNames;
 
 	//------------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class GC_CharacterAreaTargets : GC_AreaTargetsBase
 	[Attribute("0", UIWidgets.ComboBox, "Living characters only. Players means characters currently controlled by connected players. AI means registered AI characters, excluding playable slots. Both includes both groups once. Spectators, dead characters and empty playable slots never count. Respawns and new registered AI are included on the next check.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
 	int m_iWho;
 
-	[Attribute("", UIWidgets.EditBox, "Optional faction keys, for example US or USSR. Empty means all factions. Selected factions are counted together. Uses the character's current faction; no separate faction condition is required.")]
+	[Attribute("", UIWidgets.EditComboBox, "Optional faction keys, for example US or USSR. Empty means all factions. Selected factions are counted together. Uses the character's current faction; no separate faction condition is required.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
 
 	//------------------------------------------------------------------------------------------------

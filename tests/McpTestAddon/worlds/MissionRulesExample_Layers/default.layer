@@ -7,70 +7,14 @@ SCR_FactionManager FactionManager_USxUSSR1 : "{589540B35EBA8CDC}Prefabs/MP/Manag
 GC_LobbyGameMode GameMode_Lobby3 : "{7B115D5DFF7ED995}Prefabs/MP/Modes/GameMode_Lobby_RulesExample.et" {
  components {
   GC_LobbyManager "{6A137A39106A4973}" {
-   m_aFormations {
-    GC_PlayerFormationDefinition "{6A137A391367F905}" {
-     m_sName "Line"
-     m_aOffsets {
-      0 0 0
-      3 0 0
-      -3 0 0
-      6 0 0
-      -6 0 0
-      9 0 0
-      -9 0 0
-      12 0 0
-      -12 0 0
-      15 0 0
-      -15 0 0
-     }
+   m_aMissionEvents {
+    GC_Event "{7B115D5DFF7EDA01}" {
     }
-    GC_PlayerFormationDefinition "{6A143487881C7479}" {
-     m_sName "StaggeredColumn"
-     m_aOffsets {
-      0 0 0
-      3 0 -3
-      0 0 -6
-      3 0 -9
-      0 0 -12
-      3 0 -15
-      0 0 -18
-      3 0 -21
-      0 0 -24
-      3 0 -27
-      0 0 -30
-     }
+    GC_Event "{6AD2493B4C98D76C}" {
     }
-    GC_PlayerFormationDefinition "{6A1434878877C57B}" {
-     m_sName "Wedge"
-     m_aOffsets {
-      0 0 0
-      3 0 -3
-      -3 0 -3
-      6 0 -6
-      -6 0 -6
-      9 0 -9
-      -9 0 -9
-      12 0 -12
-      -12 0 -12
-      15 0 -15
-      -15 0 -15
-     }
+    GC_Event "{6AD2493B4D9BFC30}" {
     }
-    GC_PlayerFormationDefinition "{6A14348788A79894}" {
-     m_sName "Column"
-     m_aOffsets {
-      0 0 0
-      0 0 -3
-      0 0 -6
-      0 0 -9
-      0 0 -12
-      0 0 -15
-      0 0 -18
-      0 0 -21
-      0 0 -24
-      0 0 -27
-      0 0 -30
-     }
+    GC_Event "{6AD2493B0AD655F4}" {
     }
    }
   }
@@ -92,6 +36,9 @@ SCR_ChimeraCharacter : "{5B1996C05B1E51A4}Prefabs/Characters/Factions/BLUFOR/US_
 }
 SCR_ChimeraCharacter : "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et" {
  coords 119.751 1 129.574
+}
+TILW_MissionFrameworkEntity : "{8F846D0FD5D6EA51}Prefabs/MP/TILW_MissionFramework.et" {
+ coords 123.504 1 133.061
 }
 SCR_AIGroup : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  coords 113.795 1 122.404

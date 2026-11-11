@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Respawn Wave Action")]
 class GC_WaveRespawnAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Faction keys whose dead players may respawn. Empty means all factions. Only connected players with a claimed KIA slot qualify, including those waiting in spectator after death. Unassigned spectators, AI and living players are excluded. Players return to their slot's saved starting position.")]
+	[Attribute("", UIWidgets.EditComboBox, "Faction keys whose dead players may respawn. Empty means all factions. Only connected players with a claimed KIA slot qualify, including those waiting in spectator after death. Unassigned spectators, AI and living players are excluded. Players return to their slot's saved starting position.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
 	[Attribute("0", UIWidgets.EditBox, "Maximum players to respawn in this wave, across all selected factions combined. Zero means everyone eligible. Only successful respawns count toward the limit.", "0 1000000")]
 	int m_iMaximumPlayers;

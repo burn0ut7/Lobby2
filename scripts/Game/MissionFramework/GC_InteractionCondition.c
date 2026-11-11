@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Interaction Condition")]
 class GC_InteractionCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Exact unique world name of the object carrying GC_MissionInteractionComponent. Place it before Match starts. True only during the framework check caused by using this object. Resets afterward even if other conditions fail. Use a Mission Flag to remember success.")]
+	[Attribute("", UIWidgets.EditComboBox, "Exact unique world name of the object carrying GC_MissionInteractionComponent. Place it before Match starts. True only during the framework check caused by using this object. Resets afterward even if other conditions fail. Use a Mission Flag to remember success.", enums: {ParamEnum("", "", "rst-choices:2:GC_InteractionEntityChoices")})]
 	string m_sEntityName;
 
 	//------------------------------------------------------------------------------------------------

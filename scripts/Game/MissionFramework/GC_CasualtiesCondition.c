@@ -2,7 +2,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Casualties Condition")]
 class GC_CasualtiesCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditBox, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave the list empty to include every faction. Selected factions are counted together, not checked separately.")]
+	[Attribute("", UIWidgets.EditComboBox, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave the list empty to include every faction. Selected factions are counted together, not checked separately.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
 
 	[Attribute("0", UIWidgets.ComboBox, "Choose who to count at Match start. Players includes connected players' living claimed slot characters, even while possession is catching up. AI excludes spectators and unoccupied player slots. Later spawns and respawns do not change the starting group.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]

@@ -5,7 +5,7 @@ class GC_RadiusAreaEntityClass : GenericEntityClass
 
 class GC_RadiusAreaEntity : GenericEntity
 {
-	[Attribute("10", UIWidgets.SpinBox, "Distance in metres from the area's centre. Includes height: this is a sphere, not an unlimited-height circle. The boundary itself counts as inside. Entity scaling does not change this metre value.", "0.1 100000 0.1")]
+	[Attribute("10", UIWidgets.Auto, "Distance in metres from the area's centre. Includes height: this is a sphere, not an unlimited-height circle. The boundary itself counts as inside. Entity scaling does not change this metre value.", "0.1 100000 0.1")]
 	protected float m_fRadius;
 
 	//------------------------------------------------------------------------------------------------
