@@ -258,7 +258,7 @@ class GC_SpawnCrewGroup
 			{
 				SCR_AICombatComponent combat = SCR_AICombatComponent.Cast(occupant.FindComponent(SCR_AICombatComponent));
 				if (combat)
-					combat.m_neverDismountTurret = true;
+					combat.GC_KeepSpawnedGunnerSeated();
 			}
 		}
 		if (group)

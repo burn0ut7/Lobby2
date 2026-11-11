@@ -9,7 +9,7 @@
         "Prefab source addons are evidence of content use, not a complete dependency list.",
         "Asset categories describe presence, not player availability; mod configuration may be inaccurate."
     ],
-    "entityCount": 25,
+    "entityCount": 24,
     "factions": [
         "US",
         "USSR",
@@ -21,8 +21,7 @@
     ],
     "referencedAddonIds": [
         "ArmaReforger",
-        "Lobby2",
-        "TilWMissionFramework"
+        "Lobby2"
     ],
     "startHours": [
         12
@@ -381,17 +380,6 @@
             ]
         },
         {
-            "prefab": "{8F846D0FD5D6EA51}Prefabs/MP/TILW_MissionFramework.et",
-            "entityClass": "TILW_MissionFrameworkEntity",
-            "faction": "",
-            "asset": "",
-            "assetEvidence": "",
-            "count": 1,
-            "sourceAddonIds": [
-                "TilWMissionFramework"
-            ]
-        },
-        {
             "prefab": "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et",
             "entityClass": "SCR_AIGroup",
             "faction": "",
@@ -471,13 +459,6 @@
             "guid": "58D0FB3206B6F859",
             "title": "Arma Reforger",
             "vanilla": true,
-            "referencedByPlacedPrefab": true
-        },
-        {
-            "id": "TilWMissionFramework",
-            "guid": "61F0E6AB2D06B1C6",
-            "title": "TilW Mission Framework",
-            "vanilla": false,
             "referencedByPlacedPrefab": true
         },
         {

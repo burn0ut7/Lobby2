@@ -118,9 +118,6 @@ GC_AOLimitEntity AOLimit_1 : "{8F470B543A20D944}Prefabs/Logic/Mission/AOLimit.et
   }
  }
 }
-TILW_MissionFrameworkEntity TILW_MissionFramework_1 : "{8F846D0FD5D6EA51}Prefabs/MP/TILW_MissionFramework.et" {
- coords 1198.807 39.001 2702.718
-}
 SCR_AIGroup Group_USSR_Team_AT_1 : "{96BAB56E6558788E}Prefabs/Groups/OPFOR/Group_USSR_Team_AT.et" {
  coords 1197.625 39 2738.455
  m_bPlayable 1

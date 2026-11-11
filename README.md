@@ -1,7 +1,7 @@
 # Lobby2
 
 Lobby and role selection, briefing, match and after-action reporting for Arma Reforger.
-Requires Arma Reforger and TilW Mission Framework (`61F0E6AB2D06B1C6`).
+Requires Arma Reforger. Lobby2's mission framework is independent of TilW Mission Framework.
 
 ## Addon contents
 

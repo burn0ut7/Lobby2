@@ -103,7 +103,7 @@ class GC_MissionTemplatePlugin : WorkbenchPlugin
 		typename type = source.GetClassName().ToType();
 		if (type && (type.IsInherited(BaseGameMode) || type.IsInherited(AIWorld) || type.IsInherited(FactionManager)
 			|| type.IsInherited(RadioManagerEntity) || type.IsInherited(ScriptedChatEntity)
-			|| type.IsInherited(PerceptionManager) || type.IsInherited(TILW_MissionFrameworkEntity)))
+			|| type.IsInherited(PerceptionManager)))
 			return source;
 		for (int i, count = source.GetNumChildren(); i < count; i++)
 		{
