@@ -8,7 +8,7 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	[Attribute("", UIWidgets.EditBox, "Manual group call sign. Takes priority over faction call signs in GC Lobby.", category: "GC Lobby: Call sign")]
 	protected string m_sGC_ManualCallsign;
 
-	[Attribute("-1", UIWidgets.EditBox, "Zero-based company index in this group's faction call sign configuration. -1 uses automatic assignment.", category: "GC Lobby: Call sign")]
+	[Attribute("0", UIWidgets.EditBox, "Zero-based company index in this group's faction call sign configuration. -1 uses automatic assignment.", category: "GC Lobby: Call sign")]
 	protected int m_iGC_CallsignCompany;
 
 	[Attribute("0", UIWidgets.EditBox, "Zero-based platoon index. Used when Company is set.", category: "GC Lobby: Call sign")]
