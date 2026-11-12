@@ -225,7 +225,7 @@ class GC_VoiceChannelWidgetComponent : SCR_ScriptedWidgetComponent
 				if (ownerName.IsEmpty())
 					channelName.SetText("PERSONAL CHANNEL");
 				else
-					channelName.SetTextFormat("%1'S CHANNEL", ownerName);
+					channelName.SetTextFormat("%1's CHANNEL", ownerName);
 				break;
 			}
 		}

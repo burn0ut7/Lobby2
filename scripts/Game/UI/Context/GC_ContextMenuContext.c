@@ -320,7 +320,7 @@ class GC_ContextMenuContext
 						{
 							string playerName = playerManager.GetPlayerName(m_iVoicePersonalOwnerPlayerId);
 							if (!playerName.IsEmpty())
-								return string.Format("%1'S CHANNEL", playerName);
+								return string.Format("%1's CHANNEL", playerName);
 						}
 
 						return "PERSONAL CHANNEL";
