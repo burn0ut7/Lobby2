@@ -68,6 +68,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	protected int m_iKilledFromNextPart;
 	protected int m_iKilledFromPartCount;
 	protected ref GC_KilledFromDamageTracker m_KilledFromTracker;
+	protected ref array<ref GC_KilledFromDamageTracker> m_aPendingKilledFromTrackers = {};
 	protected int m_iKilledFromLife;
 	protected PauseMenuUI m_PauseMenu;
 	protected SCR_EditorManagerEntity m_PauseEditorManager;
@@ -162,6 +163,9 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		}
 		StopKilledFromTracking(false);
 		GetGame().GetCallqueue().Remove(PublishKilledFromDeath);
+		foreach (GC_KilledFromDamageTracker deathTracker : m_aPendingKilledFromTrackers)
+			deathTracker.Destroy();
+		m_aPendingKilledFromTrackers.Clear();
 		StopServerNetworkCameraStream();
 		GetGame().GetCallqueue().Remove(AttachEditorManager);
 		GetGame().GetCallqueue().Remove(ReconcileSpectatorPresentation);
@@ -2066,21 +2070,36 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			return;
 		GC_KilledFromSnapshot terminal = new GC_KilledFromSnapshot();
 		terminal.CaptureDeathFallback(victim, killer);
-		GetGame().GetCallqueue().CallLater(PublishKilledFromDeath, 0, false, terminal, m_iKilledFromLife);
+		// Spectator possession stops the controller's current tracker before the
+		// native fatal hit has finished notifying damage subscribers. Transfer it
+		// to this publication so the muzzle and impact are captured before teardown.
+		GC_KilledFromDamageTracker deathTracker = m_KilledFromTracker;
+		m_KilledFromTracker = null;
+		if (deathTracker)
+			m_aPendingKilledFromTrackers.Insert(deathTracker);
+		GetGame().GetCallqueue().CallLater(PublishKilledFromDeath, 0, false, terminal, deathTracker, m_iKilledFromLife);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void PublishKilledFromDeath(GC_KilledFromSnapshot terminal, int life)
+	protected void PublishKilledFromDeath(GC_KilledFromSnapshot terminal, GC_KilledFromDamageTracker deathTracker, int life)
 	{
+		GC_KilledFromSnapshot impact;
+		if (deathTracker)
+		{
+			impact = deathTracker.GetSnapshot();
+			deathTracker.Destroy();
+			m_aPendingKilledFromTrackers.RemoveItem(deathTracker);
+		}
+		// Release the old life's subscription even if the player has respawned
+		// or the mode changed while this publication was queued.
 		if (!Replication.IsServer() || !GC_LobbyGameMode.GetGameMode() || life != m_iKilledFromLife)
 			return;
-		GC_KilledFromSnapshot impact = m_KilledFromSnapshot;
-		if (m_KilledFromTracker)
-			impact = m_KilledFromTracker.GetSnapshot();
-		if (impact)
-			SendKilledFromSnapshot(impact);
-		else
-			SendKilledFromSnapshot(terminal);
+		if (!impact)
+			impact = m_KilledFromSnapshot;
+		if (!impact)
+			impact = terminal;
+		m_KilledFromSnapshot = impact;
+		SendKilledFromSnapshot(impact);
 	}
 
 	//------------------------------------------------------------------------------------------------
