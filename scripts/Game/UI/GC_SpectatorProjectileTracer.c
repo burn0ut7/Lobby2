@@ -341,12 +341,9 @@ class GC_SpectatorProjectileTracer
 		if (!trace.HasSegment())
 			return;
 
-		vector startScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetStartPosition(), m_World);
-		startScreenPosition[0] = m_Workspace.DPIUnscale(startScreenPosition[0]);
-		startScreenPosition[1] = m_Workspace.DPIUnscale(startScreenPosition[1]);
-		vector endScreenPosition = m_Workspace.ProjWorldToScreen(trace.GetEndPosition(), m_World);
-		endScreenPosition[0] = m_Workspace.DPIUnscale(endScreenPosition[0]);
-		endScreenPosition[1] = m_Workspace.DPIUnscale(endScreenPosition[1]);
+		// Canvas vertices use render-target pixels, including in the Workbench viewport.
+		vector startScreenPosition = m_Workspace.ProjWorldToScreenNative(trace.GetStartPosition(), m_World);
+		vector endScreenPosition = m_Workspace.ProjWorldToScreenNative(trace.GetEndPosition(), m_World);
 		if (startScreenPosition[2] > 0.0 && endScreenPosition[2] > 0.0)
 		{
 			float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
