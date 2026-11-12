@@ -936,9 +936,8 @@ class GC_SpectatorMarkerOverlay
 		if (!m_wRoot)
 			return false;
 
-		CanvasWidget tracerCanvas = CanvasWidget.Cast(m_wRoot.FindAnyWidget("LobbySpectatorProjectileTracer"));
 		m_ProjectileTracer = new GC_SpectatorProjectileTracer();
-		if (!m_ProjectileTracer.Start(tracerCanvas, m_Workspace, m_World, projectileTraceDuration, projectileTracersEnabled))
+		if (!m_ProjectileTracer.Start(m_World, projectileTraceDuration, projectileTracersEnabled))
 		{
 			m_wRoot.RemoveFromHierarchy();
 			m_wRoot = null;

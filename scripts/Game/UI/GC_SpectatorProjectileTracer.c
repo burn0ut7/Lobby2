@@ -111,7 +111,7 @@ class GC_SpectatorProjectileTrace
 
 }
 
-//! Spectator-only projectile event adapter and CanvasWidget renderer.
+//! Spectator-only projectile event adapter and depth-tested world renderer.
 //! It owns presentation state only; projectile simulation remains base-game owned.
 class GC_SpectatorProjectileTracer
 {
@@ -119,8 +119,6 @@ class GC_SpectatorProjectileTracer
 	protected static const float MIN_DRAWABLE_SEGMENT_LENGTH_SQ = 1.0;
 	protected static const int MAX_RETAINED_TRACES = 64;
 
-	protected CanvasWidget m_wCanvas;
-	protected WorkspaceWidget m_Workspace;
 	protected BaseWorld m_World;
 	protected float m_fTrailDuration;
 	protected bool m_bEnabled;
@@ -129,15 +127,12 @@ class GC_SpectatorProjectileTracer
 	protected ref map<IEntity, SCR_MuzzleEffectComponent> m_mMuzzleEffects = new map<IEntity, SCR_MuzzleEffectComponent>();
 	protected ref map<IEntity, int> m_mShooterReferences = new map<IEntity, int>();
 	protected ref array<ref GC_SpectatorProjectileTrace> m_aTraces = {};
-	protected ref array<ref CanvasWidgetCommand> m_aDrawCommands = {};
 
-	bool Start(CanvasWidget canvas, WorkspaceWidget workspace, BaseWorld world, float trailDuration, bool enabled)
+	bool Start(BaseWorld world, float trailDuration, bool enabled)
 	{
-		if (!canvas || !workspace || !world)
+		if (!world)
 			return false;
 
-		m_wCanvas = canvas;
-		m_Workspace = workspace;
 		m_World = world;
 		m_fTrailDuration = trailDuration;
 		if (m_fTrailDuration <= 0.0)
@@ -160,9 +155,6 @@ class GC_SpectatorProjectileTracer
 		}
 
 		m_aTraces.Clear();
-		m_aDrawCommands = {};
-		if (m_wCanvas)
-			m_wCanvas.SetDrawCommands(m_aDrawCommands);
 		ClearShooters();
 	}
 
@@ -176,12 +168,7 @@ class GC_SpectatorProjectileTracer
 		GetGame().GetCallqueue().Remove(Update);
 		ClearShooters();
 		m_aTraces.Clear();
-		m_aDrawCommands.Clear();
-		if (m_wCanvas)
-			m_wCanvas.SetDrawCommands(m_aDrawCommands);
-
-		m_wCanvas = null;
-		m_Workspace = null;
+		m_bEnabled = false;
 		m_World = null;
 		m_fTrailDuration = 0.0;
 	}
@@ -267,7 +254,7 @@ class GC_SpectatorProjectileTracer
 
 	protected void CreateProjectileTrace(IEntity projectile)
 	{
-		if (!m_bEnabled || !projectile || !m_wCanvas)
+		if (!m_bEnabled || !projectile || !m_World)
 			return;
 
 		foreach (GC_SpectatorProjectileTrace existingTrace : m_aTraces)
@@ -286,6 +273,10 @@ class GC_SpectatorProjectileTracer
 				m_aTraces.Remove(traceIndex);
 				break;
 			}
+
+			// Do not let sustained fire grow the per-frame work beyond the budget.
+			if (m_aTraces.Count() >= MAX_RETAINED_TRACES)
+				return;
 		}
 
 		GC_SpectatorProjectileTrace trace = new GC_SpectatorProjectileTrace(projectile, projectile.GetOrigin(), m_fTrailDuration);
@@ -295,7 +286,7 @@ class GC_SpectatorProjectileTracer
 
 	protected void Update()
 	{
-		if (!m_wCanvas || !m_Workspace || !m_World)
+		if (!m_bEnabled || !m_World)
 			return;
 
 		float timeSlice = m_World.GetTimeSlice();
@@ -307,10 +298,8 @@ class GC_SpectatorProjectileTracer
 				m_aTraces.Remove(traceIndex);
 		}
 
-		m_aDrawCommands.Clear();
 		foreach (GC_SpectatorProjectileTrace trace : m_aTraces)
 			DrawTrace(trace);
-		m_wCanvas.SetDrawCommands(m_aDrawCommands);
 	}
 
 	protected void ClearShooters()
@@ -341,23 +330,10 @@ class GC_SpectatorProjectileTracer
 		if (!trace.HasSegment())
 			return;
 
-		// Canvas vertices use render-target pixels, including in the Workbench viewport.
-		vector startScreenPosition = m_Workspace.ProjWorldToScreenNative(trace.GetStartPosition(), m_World);
-		vector endScreenPosition = m_Workspace.ProjWorldToScreenNative(trace.GetEndPosition(), m_World);
-		if (startScreenPosition[2] > 0.0 && endScreenPosition[2] > 0.0)
-		{
-			float screenDeltaX = endScreenPosition[0] - startScreenPosition[0];
-			float screenDeltaY = endScreenPosition[1] - startScreenPosition[1];
-			if (screenDeltaX * screenDeltaX + screenDeltaY * screenDeltaY > MIN_DRAWABLE_SEGMENT_LENGTH_SQ)
-			{
-				LineDrawCommand line = new LineDrawCommand();
-				line.m_iColor = GetSpeedColor(trace.GetCurrentSpeed(), trace.GetInitialSpeed());
-				line.m_fWidth = LINE_WIDTH;
-				line.m_bShouldEnclose = false;
-				line.m_Vertices = {startScreenPosition[0], startScreenPosition[1], endScreenPosition[0], endScreenPosition[1]};
-				m_aDrawCommands.Insert(line);
-			}
-		}
+		// Keep depth testing enabled: walls and terrain occlude each part of the line.
+		// ONCE owns the shape lifetime; NOZWRITE prevents tracers occluding the scene.
+		Shape.CreateLine(GetSpeedColor(trace.GetCurrentSpeed(), trace.GetInitialSpeed()),
+			ShapeFlags.ONCE | ShapeFlags.NOZWRITE, trace.GetStartPosition(), trace.GetEndPosition(), LINE_WIDTH);
 	}
 
 	//! Projects the same retained world-space traces used by the 3D overlay onto
