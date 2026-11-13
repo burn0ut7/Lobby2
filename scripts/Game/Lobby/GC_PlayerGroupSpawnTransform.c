@@ -1,5 +1,5 @@
 //! Immutable server-local copy of a playable group's authored world transform.
-//! SCR_AIGroup may recenter its runtime origin when players are added, so Lobby2
+//! SCR_AIGroup may recenter its runtime origin when players are added, so GC Lobby
 //! must not use that mutable origin as the formation anchor.
 class GC_PlayerGroupSpawnTransform
 {

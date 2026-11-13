@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Player", description: "Disables visibility and physics on the dedicated spectator body")]
+[ComponentEditorProps(category: "GC Lobby/Player", description: "Disables visibility and physics on the dedicated spectator body")]
 class GC_LobbySpectatorBodyComponentClass : ScriptComponentClass
 {
 }

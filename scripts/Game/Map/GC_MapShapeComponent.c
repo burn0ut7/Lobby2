@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Mission", description: "Passive map polygon on a closed PolylineShapeEntity. Solid fill and outline; no gameplay restriction.")]
+[ComponentEditorProps(category: "GC Lobby/Mission", description: "Passive map polygon on a closed PolylineShapeEntity. Solid fill and outline; no gameplay restriction.")]
 class GC_MapShapeComponentClass : ScriptComponentClass
 {
 }
@@ -203,7 +203,7 @@ class GC_MapShapeComponent : ScriptComponent
 		if (m_Shape && m_System)
 			m_System.Register(this);
 		else
-			Print("GC | Map shape | Requires a PolylineShapeEntity and active Lobby2 map system", LogLevel.ERROR);
+			Print("GC | Map shape | Requires a PolylineShapeEntity and active GC Lobby map system", LogLevel.ERROR);
 	}
 
 	//------------------------------------------------------------------------------------------------

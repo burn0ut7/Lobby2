@@ -17,8 +17,8 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
     protected static const string BLOCK_IMAGE_TAG_PREFIX = "<img ";
     protected static const string BLOCK_IMAGE_TAG_CLOSE = "/>";
     protected static const string TAG_ATTRIBUTE_CLOSE = "\">";
-    protected static const string INVALID_INTERACTIVE_TAG_TEXT = "Invalid Lobby2 briefing interaction tag.";
-    protected static const string INVALID_BLOCK_IMAGE_TAG_TEXT = "Invalid Lobby2 briefing image tag.";
+    protected static const string INVALID_INTERACTIVE_TAG_TEXT = "Invalid GC Lobby briefing interaction tag.";
+    protected static const string INVALID_BLOCK_IMAGE_TAG_TEXT = "Invalid GC Lobby briefing image tag.";
     protected static const int MAX_TAG_VALUE_LENGTH = 64;
     protected static const int MAX_LINK_URL_LENGTH = 512;
     protected static const int MAX_BLOCK_IMAGES = 16;
@@ -469,19 +469,19 @@ class GC_BriefingViewComponent : SCR_ScriptedWidgetComponent
             }
             else if (hasBlockImage && !hasBlockImageFlow)
             {
-                // Block images are Lobby2 syntax and are never forwarded to
+                // Block images are GC Lobby syntax and are never forwarded to
                 // the native parser when malformed or mixed with custom spans.
                 m_wRichSectionBody.SetText(INVALID_BLOCK_IMAGE_TAG_TEXT);
                 m_wRichSectionBody.SetVisible(true);
-                Print("GC | Invalid Lobby2 briefing image tag");
+                Print("GC | Invalid GC Lobby briefing image tag");
             }
             else if (hasCustomTag && !hasInteractiveTag)
             {
-                // Custom tags are Lobby2 syntax, not native RichText syntax.
+                // Custom tags are GC Lobby syntax, not native RichText syntax.
                 // Never pass a malformed custom tag through to the engine parser.
                 m_wRichSectionBody.SetText(INVALID_INTERACTIVE_TAG_TEXT);
                 m_wRichSectionBody.SetVisible(true);
-                Print("GC | Invalid Lobby2 briefing interaction tag");
+                Print("GC | Invalid GC Lobby briefing interaction tag");
             }
             else
             {

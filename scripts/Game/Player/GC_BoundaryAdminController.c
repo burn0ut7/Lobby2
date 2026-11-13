@@ -1,4 +1,4 @@
-//! Lobby2-owned controller transport; clients cannot choose the requesting player.
+//! GC Lobby-owned controller transport; clients cannot choose the requesting player.
 modded class GC_LobbyPlayerController
 {
 	ref ScriptInvoker m_GC_OnBoundaryResult = new ScriptInvoker();

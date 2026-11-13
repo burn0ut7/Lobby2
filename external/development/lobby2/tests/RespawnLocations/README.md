@@ -1,6 +1,6 @@
 # Respawn location checks
 
-Optional development addon depending only on Lobby2. Nothing runs automatically.
+Optional development addon depending only on GC Lobby. Nothing runs automatically.
 
 In embedded Play, invoke these methods on the scenario's `GC_LobbyManager` using Reforger MCP:
 

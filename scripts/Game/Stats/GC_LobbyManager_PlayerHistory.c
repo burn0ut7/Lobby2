@@ -1,4 +1,4 @@
-//! Extends only Lobby2's own manager. No base-game behavior or player ownership changes.
+//! Extends only GC Lobby's own manager. No base-game behavior or player ownership changes.
 modded class GC_LobbyManager
 {
 	protected ref GC_PlayerHistory m_GC_PlayerHistory;

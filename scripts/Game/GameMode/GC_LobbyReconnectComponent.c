@@ -7,7 +7,7 @@ class GC_LobbyReconnectComponentClass : SCR_ReconnectComponentClass
 {
 }
 
-//! Lobby2 reconnect policy. It keeps slot entities alive for the configured
+//! GC Lobby reconnect policy. It keeps slot entities alive for the configured
 //! lobby grace period and lets the manager decide what to release at expiry.
 class GC_LobbyReconnectComponent : SCR_ReconnectComponent
 {

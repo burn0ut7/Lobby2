@@ -38,7 +38,7 @@ Example: spawn an AI group with Entity Name `reinforcements`. A later event assi
 
 ## Implementation and verification
 
-Both actions use the existing current-framework/active-Lobby2/server authority gate. There are no client-request RPCs, polling loops or delayed callbacks. Named lists are limited to 128 nonblank names; radius prefab filters allow 128 resources each. Names resolve at execution, supporting entities spawned earlier in the mission. Spawn Action and Assign Waypoints share the same waypoint implementation.
+Both actions use the existing current-framework/active-GC Lobby/server authority gate. There are no client-request RPCs, polling loops or delayed callbacks. Named lists are limited to 128 nonblank names; radius prefab filters allow 128 resources each. Names resolve at execution, supporting entities spawned earlier in the mission. Spawn Action and Assign Waypoints share the same waypoint implementation.
 
 Reviewed TilW `TILW_DeleteEntitiesInstruction` and `TILW_AssignWaypointsInstruction` at commit `4a5300f94fb9323ce4942ef296bcffcdda922626`. Installed engine evidence, catalogue `c52648a62fcb4229ad089610d060ea44`: `scripts/Game/Helpers/SCR_EntityHelper.c:174-179` delegates deletion to `RplComponent.DeleteRplEntity`; `scripts/Game/Commanding/Commands/SCR_StopMovementGroupCommand.c:18-23` removes existing waypoint assignments. `scripts/Game/Editor/Components/EditableEntity/SCR_EditableGroupComponent.c:214-221` can delete removed group-owned editable waypoints, and `scripts/Game/Entities/SCR_AIGroup.c:2401` explicitly documents deletion by removal listeners.
 

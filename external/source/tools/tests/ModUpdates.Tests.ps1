@@ -12,7 +12,7 @@ git.exe -C $s commit -qm base
 $w=Join-Path $t work
 git.exe clone -q $s $w
 git.exe -C $w config "url.$s.insteadOf" https://github.com/burn0ut7/Lobby2.git
-$addon=@{Name='Lobby2';Project="$w/addon.gproj";Guid='6A115D5DFF7ED870';Repo='burn0ut7/Lobby2'}
+$addon=@{Name='GC Lobby';Project="$w/addon.gproj";Guid='6A115D5DFF7ED870';Repo='burn0ut7/Lobby2'}
 function Confirm-Replacement($name,$paths){$script:asked++; $script:shown=($paths -join ','); return $script:accept}
 function check($condition,$why){if(!$condition){throw $why}}
 function publish($file,$content){$content|Set-Content "$s/$file";git.exe -C $s add -- $file;git.exe -C $s commit -qm update}

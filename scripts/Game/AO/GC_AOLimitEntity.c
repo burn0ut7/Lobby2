@@ -29,7 +29,7 @@ enum GC_EAOItemCondition
 	MISSING_ANY
 }
 
-[EntityEditorProps(category: "Lobby2/Mission", description: "Closed XZ polygon AO. Applicable limits combine. Highest priority breached limit acts; equal priorities prefer hard return, then earliest soft deadline. Exact ties retain the first evaluated limit.", color: "255 70 70 255")]
+[EntityEditorProps(category: "GC Lobby/Mission", description: "Closed XZ polygon AO. Applicable limits combine. Highest priority breached limit acts; equal priorities prefer hard return, then earliest soft deadline. Exact ties retain the first evaluated limit.", color: "255 70 70 255")]
 class GC_AOLimitEntityClass : PolylineShapeEntityClass
 {
 }

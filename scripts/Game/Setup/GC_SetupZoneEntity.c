@@ -17,7 +17,7 @@ class GC_SetupPlayerState
 	bool m_bHasSafeTransform;
 }
 
-[EntityEditorProps(category: "Lobby2/Mission", description: "Mission-start setup zone. Author a closed polygon; players starting inside are released when its timer expires.", color: "230 160 40 255")]
+[EntityEditorProps(category: "GC Lobby/Mission", description: "Mission-start setup zone. Author a closed polygon; players starting inside are released when its timer expires.", color: "230 160 40 255")]
 class GC_SetupZoneEntityClass : PolylineShapeEntityClass
 {
 }

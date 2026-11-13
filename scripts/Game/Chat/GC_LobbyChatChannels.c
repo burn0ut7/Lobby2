@@ -1,4 +1,4 @@
-//! Native chat uses these channels only in Lobby2's chat entity prefab.
+//! Native chat uses these channels only in GC Lobby's chat entity prefab.
 class GC_LobbyChatMembership
 {
 	//------------------------------------------------------------------------------------------------

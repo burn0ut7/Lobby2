@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Mission", description: "Local proximity wall for setup/AO polygons. Uses native meshes and the vanilla virtual-area texture; no collision. Maximum 60 polygon points.")]
+[ComponentEditorProps(category: "GC Lobby/Mission", description: "Local proximity wall for setup/AO polygons. Uses native meshes and the vanilla virtual-area texture; no collision. Maximum 60 polygon points.")]
 class GC_BoundaryWallComponentClass : ScriptComponentClass
 {
 }

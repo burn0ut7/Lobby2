@@ -1,4 +1,4 @@
-//! Owns one in-flight native ban-service operation for this Lobby2 lifetime.
+//! Owns one in-flight native ban-service operation for this GC Lobby lifetime.
 //! Native persistence is authoritative; no local replacement ban database exists.
 class GC_AdminBanService
 {

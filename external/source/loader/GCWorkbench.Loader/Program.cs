@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace GCWorkbench.Loader;
 
-// This is a fixed Lobby2 dependency bootstrap, not an editor-control service.
+// This is a fixed GC Lobby dependency bootstrap, not an editor-control service.
 // There are no command-line targets, arbitrary DLLs, scripts or commands.
 internal static class Program
 {

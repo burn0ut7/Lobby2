@@ -1,7 +1,7 @@
 GameProject {
  ID "Lobby2RespawnLocationTests"
  GUID "7BD692D5E81A4203"
- TITLE "Lobby2 Respawn Location Tests"
+ TITLE "GC Lobby Respawn Location Tests"
  Dependencies {
   "6A115D5DFF7ED870"
  }

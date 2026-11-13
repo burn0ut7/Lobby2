@@ -1,4 +1,4 @@
-//! Lobby2's derived index of base-game factions, groups, and lobby-only slots.
+//! GC Lobby's derived index of base-game factions, groups, and lobby-only slots.
 //! Group membership itself remains owned by SCR_AIGroup and the groups manager.
 class GC_LobbyRoster
 {

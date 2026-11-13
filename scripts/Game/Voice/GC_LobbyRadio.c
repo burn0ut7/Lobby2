@@ -1,4 +1,4 @@
-//! Lobby2 transport helpers. Room selection remains owned by GC_LobbyManager.
+//! GC Lobby transport helpers. Room selection remains owned by GC_LobbyManager.
 class GC_LobbyRadio
 {
 	static const ResourceName PREFAB = "{A437C5A45B797D2B}Prefabs/Radio_Lobby_Spectator.et";

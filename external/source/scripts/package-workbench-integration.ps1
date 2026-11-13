@@ -77,7 +77,7 @@ Set-Content -LiteralPath ($destination + '.zip.sha256') -Value ($hash + '  ' + [
 Write-Output ($destination + '.zip')
 if ($LobbyDirectory) {
     $lobby = [IO.Path]::GetFullPath($LobbyDirectory)
-    if (!(Test-Path -LiteralPath (Join-Path $lobby 'addon.gproj'))) { throw 'LobbyDirectory must be the Lobby2 source addon.' }
+    if (!(Test-Path -LiteralPath (Join-Path $lobby 'addon.gproj'))) { throw 'LobbyDirectory must be the GC Lobby source addon.' }
     $external = Join-Path $lobby 'external/workbench'
     if (Test-Path -LiteralPath $external) { throw 'External package already exists; preserve or remove it explicitly before replacing.' }
     New-Item -ItemType Directory -Path $external -Force | Out-Null

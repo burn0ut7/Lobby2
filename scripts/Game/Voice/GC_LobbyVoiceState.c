@@ -1,4 +1,4 @@
-//! Owns Lobby2-only voice presentation state. Audio and authoritative group
+//! Owns GC Lobby-only voice presentation state. Audio and authoritative group
 //! membership remain owned by the base game.
 class GC_LobbyVoiceState
 {

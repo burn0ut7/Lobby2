@@ -1,6 +1,6 @@
-//! Lobby2-owned scenario parameter authoring and runtime snapshot types.
+//! GC Lobby-owned scenario parameter authoring and runtime snapshot types.
 //! Definitions are authored in the game-mode prefab. Values are created and
-//! changed only by the Lobby2 authority.
+//! changed only by the GC Lobby authority.
 
 enum GC_ELobbyParameterType
 {

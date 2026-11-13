@@ -4,16 +4,16 @@ class GC_LobbyManagerClass : SCR_BaseGameModeComponentClass
 
 class GC_LobbyManager : SCR_BaseGameModeComponent
 {
-	[Attribute("", UIWidgets.Object, "Add a mission event with conditions and actions. No conditions means always true. Top-level events with no conditions run at match start. Add Game Mode State to require a particular phase.", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "Add a mission event with conditions and actions. No conditions means always true. Top-level events with no conditions run at match start. Add Game Mode State to require a particular phase.", category: "GC Lobby")]
 	protected ref array<ref GC_EventDefinition> m_aMissionEvents;
 
-	[Attribute("", UIWidgets.Object, "Optional mission memory. Each flag remembers accepted calls. Set Repeatable and Conditions to control future calls; Call Flag notifies dependent events and flags.", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "Optional mission memory. Each flag remembers accepted calls. Set Repeatable and Conditions to control future calls; Call Flag notifies dependent events and flags.", category: "GC Lobby")]
 	protected ref array<ref GC_MissionFlag> m_aMissionFlags;
 
-	[Attribute("", UIWidgets.Object, "Lobby2 briefing and marker catalog", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "GC Lobby briefing and marker catalog", category: "GC Lobby")]
 	protected ref GC_LobbyBriefingCatalog m_BriefingCatalog;
 
-	[Attribute("", UIWidgets.Object, "Lobby2 scenario parameter definitions and runtime values", category: "Lobby2")]
+	[Attribute("", UIWidgets.Object, "GC Lobby scenario parameter definitions and runtime values", category: "GC Lobby")]
 	protected ref GC_LobbyParameterCatalog m_ParameterCatalog;
 
 	[Attribute("180", UIWidgets.EditBox, "Seconds after briefing begins before CO parameters lock; mission start locks earlier", params: "30 3600 1")]
@@ -634,7 +634,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	{
 		if (m_bShutdown)
 		{
-			Print("GC | Phase | POSTGAME entry rejected: Lobby2 manager is shutting down", LogLevel.WARNING);
+			Print("GC | Phase | POSTGAME entry rejected: GC Lobby manager is shutting down", LogLevel.WARNING);
 			return false;
 		}
 
@@ -1741,7 +1741,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         NotifyGroupFactionUpdated(group);
     }
 
-    //! Serializes Lobby2's replicated snapshot. Save and load order must match.
+    //! Serializes GC Lobby's replicated snapshot. Save and load order must match.
     override protected bool RplSave(ScriptBitWriter writer)
     {
 		// Faction-dependent authoring validation is intentionally deferred until
@@ -1801,7 +1801,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
         return true;
     }
 
-    //! Deserializes Lobby2's snapshot from the authority.
+    //! Deserializes GC Lobby's snapshot from the authority.
     override protected bool RplLoad(ScriptBitReader reader)
     {
 		if (!EnsureParameterCatalog())
@@ -4774,7 +4774,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Shared presentation and authority policy for player-owned slot requests.
-	//! Base-game group membership supplies the faction lock; Lobby2 stores no
+	//! Base-game group membership supplies the faction lock; GC Lobby stores no
 	//! parallel faction ownership value.
 	bool CanPlayerRequestSlot(int playerId, GC_Slot targetSlot)
 	{
@@ -4945,7 +4945,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 		m_BriefingCatalog.Clear();
 		if (m_ParameterCatalog)
 			m_ParameterCatalog.Clear();
-		Print("GC | Lifecycle | Lobby2 manager shutdown complete");
+		Print("GC | Lifecycle | GC Lobby manager shutdown complete");
     }
 
 	//------------------------------------------------------------------------------------------------

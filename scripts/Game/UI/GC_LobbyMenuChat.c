@@ -1,4 +1,4 @@
-//! Owns native chat input/update/cleanup for Lobby2 menus that contain ChatHud.
+//! Owns native chat input/update/cleanup for GC Lobby menus that contain ChatHud.
 class GC_LobbyMenuChat
 {
 	protected MenuBase m_Menu;

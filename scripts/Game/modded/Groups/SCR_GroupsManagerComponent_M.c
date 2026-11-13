@@ -1,4 +1,4 @@
-//! Lobby2-only exception for authored playable groups that must remain available
+//! GC Lobby-only exception for authored playable groups that must remain available
 //! while players change or release lobby slots.
 modded class SCR_GroupsManagerComponent
 {
@@ -21,7 +21,7 @@ modded class SCR_GroupsManagerComponent
 	//------------------------------------------------------------------------------------------------
 	override void OnPlayerFactionChanged(notnull FactionAffiliationComponent owner, Faction previousFaction, Faction newFaction)
 	{
-		// Lobby2 already selected the authored group through its slot workflow.
+		// GC Lobby already selected the authored group through its slot workflow.
 		// Native automatic group creation would introduce an unrelated extra squad.
 		if (GC_LobbyManager.GetManager())
 			return;
@@ -30,7 +30,7 @@ modded class SCR_GroupsManagerComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Release only a registration recorded as Lobby2-owned by its manager.
+	//! Release only a registration recorded as GC Lobby-owned by its manager.
 	//! Native UnregisterGroup can delete a slave and leaves agent listeners attached;
 	//! returning a live GM group to AI must do neither of those things.
 	void GC_ReleaseLobbyGroup(SCR_AIGroup group)

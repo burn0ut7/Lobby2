@@ -10,7 +10,7 @@ enum GC_EContextTargetType
 }
 
 //! Ephemeral, client-local context for one menu invocation. References point
-//! back to authoritative base-game or Lobby2 objects and are never replicated.
+//! back to authoritative base-game or GC Lobby objects and are never replicated.
 class GC_ContextMenuContext
 {
 	protected GC_EContextTargetType m_eTargetType;

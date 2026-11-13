@@ -1,4 +1,4 @@
-//! Only the Lobby2 camera uses this component; stock cameras retain their input handling.
+//! Only the GC Lobby camera uses this component; stock cameras retain their input handling.
 [BaseContainerProps(), SCR_BaseManualCameraComponentTitle()]
 class GC_SpectatorZoomCameraComponent : SCR_ZoomManualCameraComponent
 {

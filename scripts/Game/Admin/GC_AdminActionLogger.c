@@ -1,4 +1,4 @@
-//! Canonical audit entry point for Lobby2 admin actions.
+//! Canonical audit entry point for GC Lobby admin actions.
 //! Keep future audit destinations behind this function so callers do not
 //! develop separate logging paths.
 class GC_AdminActionLogger

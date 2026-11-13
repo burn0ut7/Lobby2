@@ -16,7 +16,7 @@ class GC_MapPlans
 	static const int RECOVERY_SECONDS = 7200;
 
 	//------------------------------------------------------------------------------------------------
-	//! Only eligibility is global: unrelated missions invalidate Lobby2 recovery
+	//! Only eligibility is global: unrelated missions invalidate GC Lobby recovery
 	//! without changing their gameplay or overwriting a recoverable map snapshot.
 	static void NoteMission()
 	{
@@ -26,7 +26,7 @@ class GC_MapPlans
 		if (!GC_LobbyGameMode.GetGameMode())
 		{
 			// Only release our prior recovery eligibility. Unrelated missions do
-			// not create a Lobby2 profile file or have their world recorded here.
+			// not create a GC Lobby profile file or have their world recorded here.
 			if (hasPrevious && previous != INACTIVE_MISSION && !GC_MapPlanData.WriteFile(LAST_MISSION_FILE, INACTIVE_MISSION))
 				Print("GC | Map recovery | Could not invalidate prior mission recovery.", LogLevel.ERROR);
 			return;
@@ -157,7 +157,7 @@ class GC_MapPlans
 	protected string Validate(GC_MapPlanData data)
 	{
 		if (!m_Drawings.IsAvailable())
-			return "Load the Lobby2 Map Drawing Plans addon to save or load drawings.";
+			return "Load the GC Lobby Map Drawing Plans addon to save or load drawings.";
 		if (data.m_sWorld != GetGame().GetWorldFile())
 			return "This plan belongs to a different mission.";
 		if (!data.m_aMarkers || !data.m_aTexts || !data.m_aFactions || !data.m_aDrawings
@@ -297,7 +297,7 @@ class GC_MapPlans
 		else if (GC_LobbyPhase.ArePlayerMapMarkersLocked())
 			result = "Load and Clear are available before gameplay only.";
 		else if (!m_Drawings.IsAvailable())
-			result = "Load the Lobby2 Map Drawing Plans addon to manage drawings.";
+			result = "Load the GC Lobby Map Drawing Plans addon to manage drawings.";
 		else
 		{
 			GC_MapPlanData data = new GC_MapPlanData();

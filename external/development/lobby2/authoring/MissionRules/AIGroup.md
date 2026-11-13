@@ -16,7 +16,7 @@ This observes the engine's group control mode; it does not order AI to fight or 
 
 Reference: `TILW_ControlModeFlag.c` in Til-Weimann/tilw-mission-framework, installed commit `4a5300f94fb9323ce4942ef296bcffcdda922626`. Its target mode, initial sampling, one-shot latch, continuous mode tracking and native mode-change callback are supported here as a reusable condition, rather than a second flag system attached to every group.
 
-Lobby2 deliberately observes only during Match. A continuous condition becoming false does **not** erase a remembered mission flag: flags retain the framework's existing memory behavior. Use the continuous condition directly for current-state gating. One-shot and repeatable event behavior also remain separate from condition latching.
+GC Lobby deliberately observes only during Match. A continuous condition becoming false does **not** erase a remembered mission flag: flags retain the framework's existing memory behavior. Use the continuous condition directly for current-state gating. One-shot and repeatable event behavior also remain separate from condition latching.
 
 One native listener is shared per configured group name. Bound mode changes are handled immediately; retries use direct named lookups on the existing engine tick. There are no world scans or `QueryEntitiesBySphere` calls. More than 256 compiled group conditions makes group checks unavailable with an error. The existing server-owned mission framework controls execution; no global engine override or client RPC was added.
 

@@ -1,4 +1,4 @@
-//! Reads the active Lobby2 state supplied by its authoritative game-mode callback.
+//! Reads the active GC Lobby state supplied by its authoritative game-mode callback.
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Game Mode State Condition")]
 class GC_GameModeStateCondition : GC_ConditionBase
 {

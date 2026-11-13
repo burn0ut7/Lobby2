@@ -1,6 +1,6 @@
 //! One 2D map symbol for a character proxy currently known to the local
 //! editable-entity registry. Position, facing, and faction are always read
-//! from the base-game entity instead of copied into Lobby2 state.
+//! from the base-game entity instead of copied into GC Lobby state.
 class GC_SpectatorMapCharacterSymbol
 {
 	protected static const ResourceName MARKER_LAYOUT = "{6A60000000000100}UI/layouts/Spectator/Lobby_Spectator_Map_Character.layout";

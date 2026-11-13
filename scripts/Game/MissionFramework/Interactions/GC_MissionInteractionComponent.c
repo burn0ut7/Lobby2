@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Mission", description: "Reusable mission interaction. Add GC_MissionInteractionAction to an ActionsManager action slot on this same entity. No nested condition lists.")]
+[ComponentEditorProps(category: "GC Lobby/Mission", description: "Reusable mission interaction. Add GC_MissionInteractionAction to an ActionsManager action slot on this same entity. No nested condition lists.")]
 class GC_MissionInteractionComponentClass : ScriptComponentClass
 {
 }

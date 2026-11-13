@@ -1,4 +1,4 @@
-//! Replicated body hold owned only by the active Lobby2 admin control-freeze service.
+//! Replicated body hold owned only by the active GC Lobby admin control-freeze service.
 modded class SCR_EditableEntityComponent
 {
 	[RplProp(onRplName: "GC_OnAdminPhysicsFreezeChanged")]

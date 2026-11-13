@@ -1,11 +1,11 @@
-# Lobby2 companion components
+# GC Lobby companion components
 
-These development sources belong to Lobby2. Exclude the entire `external`
+These development sources belong to GC Lobby. Exclude the entire `external`
 directory from Workshop releases; test addons must be copied to separate addon
 workspaces before loading. They are not part of Reforger MCP's provider-independent server logic.
 
 - Windows tools and native DLL sources live in `../../source`; they are owned
-  and packaged by Lobby2.
+  and packaged by GC Lobby.
 - `integrations/StatsIngest` and `integrations/Contracts`: external statistics
   ingestion, player history and shared data formats. Build/deploy independently
   following `integrations/StatsIngest/README.md`. Database setup and service
@@ -26,6 +26,6 @@ inspected installed configuration. Do not claim `.ps1`/`.js` are always excluded
 even bundling their bytes would not make Windows execute them from a PAK.
 The installer supplies real filesystem paths instead.
 
-Source migration: Lobby2 repository, release cleanup on 2026-11-11. Existing
+Source migration: GC Lobby repository, release cleanup on 2026-11-11. Existing
 runtime protocols and addon GUIDs are unchanged. Historical tests and evidence
 were removed from the release source and preserved in a local recovery directory.

@@ -1,4 +1,4 @@
-//! Keep native input, history, transport and commands. Lobby2 eligibility is rechecked as the active phase or player state changes.
+//! Keep native input, history, transport and commands. GC Lobby eligibility is rechecked as the active phase or player state changes.
 modded class SCR_ChatPanel
 {
 	protected ref SCR_ChatMessageStyle m_GC_AdminChannelStyle;

@@ -11,11 +11,11 @@ class GC_SpectatorManualCameraClass : SCR_ManualCameraClass
 {
 }
 
-//! Lobby2-owned manual camera and canonical owner of client-local spectator modes.
+//! GC Lobby-owned manual camera and canonical owner of client-local spectator modes.
 //! The inherited ManualCameraBase component stack continues to own movement,
 //! rotation, zoom and Follow attachment. Fixed-view modes apply their animated
 //! world transform after that stack.
-[EntityEditorProps(category: "GameScripted/Camera", description: "Lobby2 spectator manual camera", color: "0 255 255 255")]
+[EntityEditorProps(category: "GameScripted/Camera", description: "GC Lobby spectator manual camera", color: "0 255 255 255")]
 class GC_SpectatorManualCamera : SCR_ManualCamera
 {
 	[Attribute("0.3", desc: "Helmet-camera lateral offset along the Camera bone's negative X axis.")]
@@ -692,7 +692,7 @@ class GC_SpectatorManualCamera : SCR_ManualCamera
 
 		// SCR_ManualCamera processes and stores a local transform. This camera is a
 		// root entity, so its local transform is also the authored world transform.
-		// Apply immediately every frame; Lobby2 intentionally keeps no target-switch
+		// Apply immediately every frame; GC Lobby intentionally keeps no target-switch
 		// easing because spectator camera interpolation is explicitly disabled.
 		SetTransform(cameraTransform);
 	}

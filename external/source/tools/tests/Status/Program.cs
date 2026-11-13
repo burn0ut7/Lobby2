@@ -38,7 +38,7 @@ using(var cancelled=new CancellationTokenSource()) {
 var slow=await ToolStatus.RunAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"WindowsPowerShell/v1.0/powershell.exe"),["-NoProfile","-NonInteractive","-Command","Start-Sleep -Seconds 10"],1,CancellationToken.None);
 Check(slow.Code==-1,"Slow check did not time out safely");
 Console.WriteLine("PASS: missing/incomplete/current/outdated/corrupt installation, Git version comparison, unavailable helper.");
-var currentMod=ToolStatus.ModStatusField(new InputField{Id="lobby",Label="Lobby2",Kind="check",Checked=true},0,"{\"Status\":\"Up to date\",\"UpdateNeeded\":false}");
+var currentMod=ToolStatus.ModStatusField(new InputField{Id="lobby",Label="GC Lobby",Kind="check",Checked=true},0,"{\"Status\":\"Up to date\",\"UpdateNeeded\":false}");
 Check(!currentMod.Enabled&&!currentMod.Checked,"Current mod eligibility");
 var oldMod=ToolStatus.ModStatusField(currentMod,0,"{\"Status\":\"Update available\",\"UpdateNeeded\":true}");
 Check(oldMod.Enabled&&oldMod.Checked,"Outdated mod eligibility");

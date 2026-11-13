@@ -1,4 +1,4 @@
-//! Pure syntax inspection for Lobby2 briefing markup. It never creates widgets
+//! Pure syntax inspection for GC Lobby briefing markup. It never creates widgets
 //! or executes actions, which keeps malformed-content handling deterministic.
 class GC_BriefingParser
 {

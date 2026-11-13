@@ -1,11 +1,21 @@
-# Lobby2
+# GC Lobby
+
+The mod title is **GC Lobby - Dev**. This is a separate development addon,
+unrelated to the existing GC lobby mod. Its addon GUID remains `6A115D5DFF7ED870`;
+it does not replace or depend on the existing mod. Gameplay scripts expose
+`#define GC_LOBBY_DEV` for dev-specific integrations.
+
+Branding, editor categories and messages use **GC Lobby**. The internal project
+ID/mount `Lobby2`, existing resource GUIDs, profile paths, database schema,
+repository URL and `LOBBY2` compatibility define retain their existing contracts.
+These technical names are not the displayed mod title.
 
 Lobby and role selection, briefing, match and after-action reporting for Arma Reforger.
-Requires Arma Reforger. Lobby2's mission framework is independent of TilW Mission Framework.
+Requires Arma Reforger. GC Lobby's mission framework is independent of TilW Mission Framework.
 
 TilW is a research reference, not a runtime dependency or behavior specification.
-Lobby2 uses its own mission logic and the base game's APIs; reference designs
-must be evaluated against Lobby2's requirements rather than reproduced by default.
+GC Lobby uses its own mission logic and the base game's APIs; reference designs
+must be evaluated against GC Lobby's requirements rather than reproduced by default.
 
 ## Addon contents
 
@@ -26,10 +36,10 @@ game mode. `GC_MissionSettings_US_USSR.et` supplies faction-specific parameters;
 inherit the same game mode. Their resource GUIDs are preserved.
 
 Shared script hooks must preserve inherited behavior unless the active mode is
-`GC_LobbyGameMode`. The formation source is a separate Lobby2 prefab, not an
+`GC_LobbyGameMode`. The formation source is a separate GC Lobby prefab, not an
 override of the game's AI world. The bullet-base override adds only a telemetry
-callback; recording requires the active Lobby2 session on the server.
-Outside Lobby2, the recovery observer only invalidates an existing Lobby2
+callback; recording requires the active GC Lobby session on the server.
+Outside GC Lobby, the recovery observer only invalidates an existing GC Lobby
 last-mission record so an intervening mission cannot restore an old map plan.
 
 Open `addon.gproj` to work on the production addon. Create a mission in its own
@@ -60,13 +70,13 @@ Packed Workshop addons cannot launch these external Windows files.
 a SHA-256 sidecar checked before extraction. Setup extracts to a unique Windows
 temporary folder and installs under `%LOCALAPPDATA%/GCWorkbench`; it does not
 overwrite a loaded DLL. To uninstall, extract the archive and run `Uninstall.bat`.
-The package is generated from Lobby2-owned sources in `external/source` using
+The package is generated from GC Lobby-owned sources in `external/source` using
 `external/source/scripts/package-workbench-integration.ps1`. Reforger MCP is not
 a build, install or runtime dependency.
 Keep external Windows packages out of the published Workshop package.
 
-Companion sources live in `companion/lobby2` in the `reforger-script-tools`
-repository, alongside the standalone Workbench DLL installer:
+Companion sources live in `external/development/lobby2` in this repository.
+The standalone Workbench DLL installer and tools live in `external/source`:
 
 - `tools`: Windows Git updates, mission branches and submission. The installer
   places these in the active Workbench profile under `GCWorkbench/tools`.
@@ -74,7 +84,7 @@ repository, alongside the standalone Workbench DLL installer:
 - `integrations/StatsIngest` and `integrations/Contracts`: separately deployed
   statistics/history service and shared data contracts. Follow the service README
   for PostgreSQL setup, migrations and profile access; the mod does not host it.
-- `integrations/MapDrawing`: separate optional addon requiring Lobby2 and
+- `integrations/MapDrawing`: separate optional addon requiring GC Lobby and
   Map Drawing (`656AC01634459D8D`); publish it independently if needed.
 - `authoring`: detailed mission-authoring references.
 

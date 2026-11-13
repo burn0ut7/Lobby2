@@ -98,7 +98,7 @@ class GC_SlotReservationDocument
 		array<ref map<string, string>> rows;
 		if (!context.LoadFromString(input) || !context.ReadValue("version", version) || version != 1
 			|| !context.ReadValue("world", world) || !context.ReadValue("slots", rows) || !rows)
-			return "Invalid reservation document. Use a version 1 Lobby2 export.";
+			return "Invalid reservation document. Use a version 1 GC Lobby export.";
 		if (world != m_sWorld)
 			return "This export belongs to a different scenario.";
 		if (rows.Count() > 128)

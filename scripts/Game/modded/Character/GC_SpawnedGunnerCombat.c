@@ -1,4 +1,4 @@
-//! Keep only explicitly configured Lobby2 spawn-action gunners in their turrets.
+//! Keep only explicitly configured GC Lobby spawn-action gunners in their turrets.
 modded class SCR_AICombatComponent
 {
 	protected GC_LobbyGameMode m_GC_GunnerSeatMode;

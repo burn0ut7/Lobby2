@@ -1,4 +1,4 @@
-# Lobby2 data contracts
+# GC Lobby data contracts
 
 Canonical .NET statistics, session, history and telemetry validation plus the L2TB codec shared by StatsIngest and the GC website.
 The engine recorder and on-disk formats are unchanged by this extraction.

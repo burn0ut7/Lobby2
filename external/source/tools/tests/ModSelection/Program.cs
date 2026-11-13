@@ -11,7 +11,7 @@ static class Checks {
  [STAThread] static void Main(){
   var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
   SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
-  var spec=new DialogSpec{Title="Update mods",PrimaryAction="Update selected",Fields=[new(){Id="lobby",Label="Lobby2",Kind="check",Enabled=false,Checked=true,Help="Up to date"},new(){Id="core",Label="GC Core",Kind="check",Checked=false,Help="Update available"}]};
+  var spec=new DialogSpec{Title="Update mods",PrimaryAction="Update selected",Fields=[new(){Id="lobby",Label="GC Lobby",Kind="check",Enabled=false,Checked=true,Help="Up to date"},new(){Id="core",Label="GC Core",Kind="check",Checked=false,Help="Update available"}]};
   var window=new ToolWindow(spec,tools:true,observeStatus:false);
   var fileReview=new ToolWindow(new DialogSpec{Title="Submit mission",PrimaryAction="Submit",Section="Submit for approval",Fields=[
    new(){Id="title",Label="Mission name",Value="COOP Nightfall",Required=true},

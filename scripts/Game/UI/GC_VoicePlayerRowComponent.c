@@ -1,4 +1,4 @@
-//! Populates one reusable player row from authoritative player and Lobby2 slot data.
+//! Populates one reusable player row from authoritative player and GC Lobby slot data.
 class GC_VoicePlayerRowComponent : SCR_ScriptedWidgetComponent
 {
     protected int m_iPlayerId = -1;

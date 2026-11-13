@@ -118,7 +118,7 @@ class GC_AOWarning
 	}
 }
 
-//! This is the Lobby2-owned controller, not a shared base-game controller override.
+//! This is the GC Lobby-owned controller, not a shared base-game controller override.
 modded class GC_LobbyPlayerController
 {
 	protected ref GC_AOWarning m_GC_AOWarning;

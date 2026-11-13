@@ -6,7 +6,7 @@ polyline. The supplied shape is a 20 × 20 metre square. Add entries under
 each. Save a child prefab to reuse the shape and settings.
 
 This is an opt-in component on a standard `PolylineShapeEntity`. It has no
-dependency on Lobby2's game mode, flags, capture or mission-rule engine. Loading
+dependency on GC Lobby's game mode, flags, capture or mission-rule engine. Loading
 the addon does not run it; a placed/spawned configured instance does. All
 creation is server-only and nothing spawns in edit mode.
 

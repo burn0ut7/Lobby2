@@ -1,4 +1,4 @@
-//! Explicit Lobby2 boundary movement; ordinary GM transforms keep their vanilla feedback.
+//! Explicit GC Lobby boundary movement; ordinary GM transforms keep their vanilla feedback.
 modded class SCR_EditableEntityComponent
 {
 	//------------------------------------------------------------------------------------------------

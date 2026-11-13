@@ -8,7 +8,7 @@ try {
     $archive = Join-Path $PSScriptRoot 'GCWorkbench.zip'
     $expected = (Get-Content -LiteralPath ($archive + '.sha256') -Raw).Split(' ')[0].Trim()
     if ($expected -notmatch '^[0-9a-fA-F]{64}$' -or (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $expected) {
-        throw 'The external dependency package is incomplete or changed. Restore external/workbench from the Lobby2 source checkout.'
+        throw 'The external dependency package is incomplete or changed. Restore external/workbench from the GC Lobby source checkout.'
     }
     if (!$Preview -and !$env:GC_TOOLS_PIPE) { $Tools = $true }
     if ($Tools -or $Preview) {

@@ -1,4 +1,4 @@
-[ComponentEditorProps(category: "Lobby2/Briefing", description: "Places a replicated Lobby2 briefing-map marker at this entity's transform")]
+[ComponentEditorProps(category: "GC Lobby/Briefing", description: "Places a replicated GC Lobby briefing-map marker at this entity's transform")]
 class GC_BriefingMarkerComponentClass : ScriptComponentClass
 {
 }

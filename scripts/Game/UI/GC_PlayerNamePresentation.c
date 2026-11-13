@@ -1,4 +1,4 @@
-//! Canonical player-name styling for every Lobby2 presentation surface.
+//! Canonical player-name styling for every GC Lobby presentation surface.
 //! Administration is queried live from the base player manager and is never cached.
 class GC_PlayerNamePresentation
 {

@@ -3,7 +3,7 @@ class GC_LobbyHUDManagerComponentClass : SCR_HUDManagerComponentClass
 {
 }
 
-//! Lobby2 HUD stays below the native menu stack, including menus opened before HUD initialization.
+//! GC Lobby HUD stays below the native menu stack, including menus opened before HUD initialization.
 class GC_LobbyHUDManagerComponent : SCR_HUDManagerComponent
 {
 	//------------------------------------------------------------------------------------------------

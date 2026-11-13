@@ -1,8 +1,8 @@
-//! Lobby2 integration for the base group type.
+//! GC Lobby integration for the base group type.
 //!
 //! This is intentionally a guarded modded extension rather than a replacement
 //! group class. Every world keeps using the base SCR_AIGroup/prefab resources;
-//! the Lobby2 behavior is active only while GC_LobbyGameMode is the active mode.
+//! the GC Lobby behavior is active only while GC_LobbyGameMode is the active mode.
 modded class SCR_AIGroup : ChimeraAIGroup
 {
 	[Attribute("", UIWidgets.EditBox, "Manual group call sign. Takes priority over faction call signs in GC Lobby.", category: "GC Lobby: Call sign")]
@@ -83,7 +83,7 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	protected static bool s_bWorkbenchFormationFallbackLogged;
 #endif
 
-	//! Exposes the base group's authored member-placement policy to Lobby2's
+	//! Exposes the base group's authored member-placement policy to GC Lobby's
 	//! guarded spawn path without copying it into separate lobby state.
 	bool GC_ShouldSnapMembersToTerrain()
 	{
@@ -178,7 +178,7 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	{
 		// SCR_AIWorld drains queued startup requests through this method. Guard the
 		// dequeue path as well as RequestSpawn so initialization order cannot let a
-		// playable Lobby2 group materialize before its claimed slot is staged.
+		// playable GC Lobby group materialize before its claimed slot is staged.
 		if (GC_LobbyGameMode.GetGameMode() && m_bPlayable && !GetWorld().IsEditMode())
 			return false;
 
@@ -195,7 +195,7 @@ modded class SCR_AIGroup : ChimeraAIGroup
 		}
 
 		// Preserve the native empty event and dormant handling, but prevent its
-		// delayed entity deletion while Lobby2 owns this playable respawn group.
+		// delayed entity deletion while GC Lobby owns this playable respawn group.
 		bool deleteWhenEmpty = m_bDeleteWhenEmpty;
 		m_bDeleteWhenEmpty = false;
 		super.OnEmpty();

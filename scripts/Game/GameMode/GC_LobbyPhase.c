@@ -1,4 +1,4 @@
-//! Lobby2 extends the base game-mode phase domain so every base-game consumer
+//! GC Lobby extends the base game-mode phase domain so every base-game consumer
 //! observes the same automatically replicated state. Explicit large values
 //! avoid collisions with base-game or other add-on enum members.
 modded enum SCR_EGameModeState
@@ -7,7 +7,7 @@ modded enum SCR_EGameModeState
 	BRIEFING = 1787356802
 }
 
-//! Encodes Lobby2's legal ordering without storing a second phase value.
+//! Encodes GC Lobby's legal ordering without storing a second phase value.
 class GC_LobbyPhase
 {
 	//------------------------------------------------------------------------------------------------

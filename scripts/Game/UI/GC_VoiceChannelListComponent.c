@@ -277,7 +277,7 @@ class GC_VoiceChannelListComponent : SCR_ScriptedWidgetComponent
 
 	//! Global contains every connected player. Faction and group membership are
 	//! derived from the base-game group manager and therefore do not require a
-	//! Lobby2 slot record to exist.
+	//! GC Lobby slot record to exist.
 	protected void RefreshPlayers()
 	{
 		if (!m_LobbyManager)

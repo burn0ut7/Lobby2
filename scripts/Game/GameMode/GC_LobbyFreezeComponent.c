@@ -1,9 +1,9 @@
-[ComponentEditorProps(category: "Lobby2/Mission", description: "Authoritative mission staging countdown and boundaries")]
+[ComponentEditorProps(category: "GC Lobby/Mission", description: "Authoritative mission staging countdown and boundaries")]
 class GC_LobbyFreezeComponentClass : ScriptComponentClass
 {
 }
 
-//! Installed only on the Lobby2 game mode. Base-game possession and faction
+//! Installed only on the GC Lobby game mode. Base-game possession and faction
 //! remain authoritative; cached positions are only safe boundary return points.
 class GC_LobbyFreezeComponent : ScriptComponent
 {

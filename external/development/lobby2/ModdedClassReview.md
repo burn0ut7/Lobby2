@@ -2,7 +2,7 @@
 
 ## Implemented follow-up (2026-11-11)
 
-Production commit: Lobby2 `384d6bd` (`Reduce global inventory overrides`). Independent source review approved the final changes. Final production-only Reload `ebdcd38aed574f84910448e7c3385fd5` reported no script errors; three pre-existing Arland world resource GUID errors remain.
+Production commit: GC Lobby `384d6bd` (`Reduce global inventory overrides`). Independent source review approved the final changes. Final production-only Reload `ebdcd38aed574f84910448e7c3385fd5` reported no script errors; three pre-existing Arland world resource GUID errors remain.
 
 Removed four shared overrides without removing features: native inventory invokers now feed admin auditing through the Lobby controller's possession/shutdown lifecycle, and the two cached clothing override switches no longer bypass native validation. Clothing permissions still apply after native checks. JIP input and queued presentation work now detach at explicit presentation shutdown as well as destruction. Shared declarations decrease from 39 to 38; the inventory type still has a separate Workbench hook.
 
@@ -12,11 +12,11 @@ Retained AI muzzle hooks: optimized events omit the projectile, while replacing 
 
 ## Historical audit
 
-Reviewed 2026-11-11 against Lobby2 `6a1673a`, including its current working tree. This is a source and installed-engine-contract review, not multiplayer or cross-mode certification. No gameplay code was changed in this review.
+Reviewed 2026-11-11 against GC Lobby `6a1673a`, including its current working tree. This is a source and installed-engine-contract review, not multiplayer or cross-mode certification. No gameplay code was changed in this review.
 
 ## Result
 
-Production scripts contain **75 modded declarations**: **39 declarations extending 36 base-game types**, and **36 extensions of Lobby2-owned GC types**. Repeated declarations extend the same class; they are not additional component instances. Global hooks are spread across feature directories, `Game/modded`, and `GameCode/Network`.
+Production scripts contain **75 modded declarations**: **39 declarations extending 36 base-game types**, and **36 extensions of GC Lobby-owned GC types**. Repeated declarations extend the same class; they are not additional component instances. Global hooks are spread across feature directories, `Game/modded`, and `GameCode/Network`.
 
 Most behavior-changing hooks have active mode/feature checks and preserve inherited behavior outside that scope. This does not establish that every global hook is necessary. **Strict necessity and isolation are not fully approved:** there is a clear native-event replacement, a lifecycle cleanup gap, and cached inventory overrides need stronger isolation evidence.
 
@@ -28,11 +28,11 @@ Most behavior-changing hooks have active mode/feature checks and preserve inheri
 
 Installed `BaseInventoryStorageComponent.c:113–122` explicitly says these opt-ins are cached and cannot be dynamic. Its script defaults for `CanRemoveItem` and `CanReplaceItem` return true (`:139–142`); the inspected `SCR_CharacterInventoryStorageComponent` has no active script implementation of those methods. Calling `super` therefore does not itself demonstrate equivalence to the untouched C++ permission path. This is a **validation gap, not a demonstrated inventory bypass**.
 
-Required: compare valid/invalid removal and replacement with the addon absent, loaded in an unrelated mode, and active in Lobby2, including transitions and client/server authority. Investigate an opt-in storage subclass/resource or native permission mechanism. Do not insert a dynamic mode check into the cached opt-in callbacks: initialization order could silently disable protection.
+Required: compare valid/invalid removal and replacement with the addon absent, loaded in an unrelated mode, and active in GC Lobby, including transitions and client/server authority. Investigate an opt-in storage subclass/resource or native permission mechanism. Do not insert a dynamic mode check into the cached opt-in callbacks: initialization order could silently disable protection.
 
 ### 2. Admin inventory auditing can use native events
 
-`Admin/GC_AdminGearAudit.c:55–69` overrides global item-added/item-removed callbacks. Native `ScriptedInventoryStorageManagerComponent.c:7–23` already exposes `m_OnItemAddedInvoker` and `m_OnItemRemovedInvoker`, carrying item and storage. The native SCR handlers call their inherited implementations (`SCR_InventoryStorageManagerComponent.c:531–551`). Lobby2 already uses these events in `Player/GC_BoundaryDetectionController.c:219–230`.
+`Admin/GC_AdminGearAudit.c:55–69` overrides global item-added/item-removed callbacks. Native `ScriptedInventoryStorageManagerComponent.c:7–23` already exposes `m_OnItemAddedInvoker` and `m_OnItemRemovedInvoker`, carrying item and storage. The native SCR handlers call their inherited implementations (`SCR_InventoryStorageManagerComponent.c:531–551`). GC Lobby already uses these events in `Player/GC_BoundaryDetectionController.c:219–230`.
 
 Replace the audit interception with subscriptions owned by the Lobby player/inventory lifecycle. Rebind on controlled-entity changes; detach on replacement, disconnect and shutdown. Preserve current server, connected-player and authenticated-admin checks at execution time, with exactly one record per successful mutation. Verify respawn and admin login/logout. The current removal audit runs before `super`; native event notification runs inside the inherited chain. Check that item/storage lifetime, audit timing and recorded context remain equivalent. Keep this responsibility separate from boundary detection.
 
@@ -52,9 +52,9 @@ Ordinary `SCR_MuzzleEffectComponent.GetOnWeaponFired()` supplies effect entity, 
 
 The optimized component's getter returns `ScriptInvokerVoid` (`SCR_OptimizedMuzzleEffectComponent.c:48–53`), omitting the projectile required by `GC_MissionStatsComponent.RecordAIFired`. Do not assume both hooks can be replaced using the same event contract.
 
-### 5. Recovery deliberately performs cleanup outside Lobby2
+### 5. Recovery deliberately performs cleanup outside GC Lobby
 
-`modded/GameMode/SCR_BaseGameMode_M.c:7–14` invokes `GC_MapPlans.NoteMission` after inherited initialization on every non-editor server mode. In unrelated modes, `Briefing/GC_MapPlans.c:20–38` invalidates an existing Lobby2 recovery eligibility record. It does not record that unrelated world or overwrite the recoverable map snapshot.
+`modded/GameMode/SCR_BaseGameMode_M.c:7–14` invokes `GC_MapPlans.NoteMission` after inherited initialization on every non-editor server mode. In unrelated modes, `Briefing/GC_MapPlans.c:20–38` invalidates an existing GC Lobby recovery eligibility record. It does not record that unrelated world or overwrite the recoverable map snapshot.
 
 This is an intentional exception with a feature reason: prevent an intervening mission from making an old map plan eligible for automatic recovery. Retain only as documented cleanup until an equivalent lifecycle owner is established. Blindly adding a Lobby-only guard loses that protection. Test Lobby A, then an unrelated mission, then Lobby A, alongside an ordinary same-mission restart.
 
@@ -102,7 +102,7 @@ Scans covered production `scripts/Game` and `scripts/GameCode`. This does not ce
 
 ## Complete shared declaration inventory
 
-Paths are relative to the production Lobby2 addon. Repeated native types indicate separate declarations, not extra component instances.
+Paths are relative to the production GC Lobby addon. Repeated native types indicate separate declarations, not extra component instances.
 
 | Native type | Declaration |
 | --- | --- |
@@ -146,11 +146,11 @@ Paths are relative to the production Lobby2 addon. Repeated native types indicat
 | `SCR_VoNComponent` | `scripts/GameCode/Network/SCR_VoNComponent_M.c:1` |
 | `SCR_VONController` | `scripts/GameCode/Network/SCR_VoNController_M.c:1` |
 
-## Complete Lobby2-owned declaration inventory
+## Complete GC Lobby-owned declaration inventory
 
-These extend Lobby2-owned implementations, not global base-game classes. Their lifecycle and RPC ownership still need review.
+These extend GC Lobby-owned implementations, not global base-game classes. Their lifecycle and RPC ownership still need review.
 
-| Lobby2 type | Declaration |
+| GC Lobby type | Declaration |
 | --- | --- |
 | `GC_LobbyManager` | `scripts/Game/Admin/GC_AdminControlFreeze.c:1` |
 | `GC_LobbyManager` | `scripts/Game/Admin/GC_AdminGearStorage.c:43` |

@@ -2,7 +2,7 @@ class GC_LobbyEndScreenComponentClass : SCR_GameOverScreenManagerComponentClass
 {
 }
 
-//! Lobby2's native POSTGAME presentation owns the debrief; do not schedule a second end menu.
+//! GC Lobby's native POSTGAME presentation owns the debrief; do not schedule a second end menu.
 class GC_LobbyEndScreenComponent : SCR_GameOverScreenManagerComponent
 {
 	//------------------------------------------------------------------------------------------------

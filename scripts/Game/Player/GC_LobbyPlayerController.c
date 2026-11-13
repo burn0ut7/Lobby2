@@ -8,7 +8,7 @@ class GC_LobbyPlayerControllerClass : SCR_PlayerControllerClass
 {
 }
 
-//! Lobby2-only owning controller. The Lobby2 game-mode prefab selects a
+//! GC Lobby-only owning controller. The GC Lobby game-mode prefab selects a
 //! dedicated player-controller prefab using this class.
 class GC_LobbyPlayerController : SCR_PlayerController
 {
@@ -650,7 +650,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 	{
 		GC_LobbyManager manager = GC_LobbyManager.GetManager();
 		string output;
-		string outcome = "Lobby2 is no longer active.";
+		string outcome = "GC Lobby is no longer active.";
 		if (manager)
 			outcome = manager.ExecuteSlotReservation(GetPlayerId(), action, slotId, expectedClaim, identity, playerName, input, output);
 		else
@@ -1290,7 +1290,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 			StopLobbyVoice();
 	}
 
-	//! Adds Lobby2-owned access points to the active pause menu without
+	//! Adds GC Lobby-owned access points to the active pause menu without
 	//! modifying the shared pause-menu class or layout for unrelated modes.
 	protected void OnPauseMenuOpened()
 	{
@@ -1314,7 +1314,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		if (!buttonParent)
 			return;
 
-		// Reserve gaps between stock rows for the Lobby2 navigation entries.
+		// Reserve gaps between stock rows for the GC Lobby navigation entries.
 		Widget row = buttonParent.GetChildren();
 		array<Widget> rows = {};
 		while (row)
@@ -2007,7 +2007,7 @@ class GC_LobbyPlayerController : SCR_PlayerController
 		return true;
 	}
 
-	//! Assigns a Lobby2-owned main entity through the base controller lifecycle.
+	//! Assigns a GC Lobby-owned main entity through the base controller lifecycle.
 	//! This is authority-only and intentionally avoids temporary possession when
 	//! the player has no pre-existing main entity.
 	bool SetLobbyControlledEntity(IEntity entity, bool spectator)

@@ -1,4 +1,4 @@
-//! Adds Lobby2 slot registration to the existing Game Master properties dialog.
+//! Adds GC Lobby slot registration to the existing Game Master properties dialog.
 [BaseContainerProps(), SCR_BaseEditorAttributeCustomTitle()]
 class GC_PlayableEditorAttribute : SCR_BaseEditorAttribute
 {

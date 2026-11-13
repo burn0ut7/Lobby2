@@ -15,7 +15,7 @@ class GC_AreaSpawnEntry
 	}
 }
 
-[ComponentEditorProps(category: "Lobby2/Spawning", description: "Standalone, server-only random prefab placement inside the owner's closed polyline. No game-mode or mission-framework dependency.")]
+[ComponentEditorProps(category: "GC Lobby/Spawning", description: "Standalone, server-only random prefab placement inside the owner's closed polyline. No game-mode or mission-framework dependency.")]
 class GC_AreaPrefabSpawnerComponentClass : ScriptComponentClass
 {
 }

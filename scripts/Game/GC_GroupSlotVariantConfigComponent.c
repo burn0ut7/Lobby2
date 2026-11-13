@@ -25,7 +25,7 @@ class GC_GroupSlotVariantConfigComponentClass : ScriptComponentClass
 {
 }
 
-//! Optional Lobby2-owned configuration attached to an SCR_AIGroup.
+//! Optional GC Lobby-owned configuration attached to an SCR_AIGroup.
 //! Entries are keyed by the matching m_aUnitPrefabSlots index.
 class GC_GroupSlotVariantConfigComponent : ScriptComponent
 {

@@ -221,7 +221,7 @@ extern "C" __declspec(dllexport) int GC_WorkbenchExtensionStart_v1(const wchar_t
     return gc::detail::startSession(specification ? QString::fromWCharArray(specification) : QString());
 }
 
-// The Lobby2 bootstrap loads only this DLL, then queues this fixed initializer.
+// The GC Lobby bootstrap loads only this DLL, then queues this fixed initializer.
 // No commands, script execution, editor control or suppression are exposed.
 extern "C" __declspec(dllexport) unsigned long __stdcall GC_WorkbenchQueueStart_v1(void *argument)
 {

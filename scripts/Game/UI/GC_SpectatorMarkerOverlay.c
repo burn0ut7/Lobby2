@@ -1,4 +1,4 @@
-//! Lobby2 presentation layered on top of the native editable-character widget.
+//! GC Lobby presentation layered on top of the native editable-character widget.
 //! The base component remains responsible for resolving the character role icon.
 class GC_SpectatorCharacterEditableEntityUIComponent : SCR_CharacterEditableEntityUIComponent
 {

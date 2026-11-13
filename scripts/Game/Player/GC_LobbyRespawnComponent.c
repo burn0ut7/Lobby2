@@ -2,7 +2,7 @@ class GC_LobbyRespawnComponentClass : SCR_RespawnComponentClass
 {
 }
 
-//! Lobby2-owned component: record the accepted Respawn action before its native death.
+//! GC Lobby-owned component: record the accepted Respawn action before its native death.
 class GC_LobbyRespawnComponent : SCR_RespawnComponent
 {
 	//------------------------------------------------------------------------------------------------

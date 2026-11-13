@@ -129,9 +129,9 @@ modded class SCR_MapMarkersUI
 		if (!GC_LobbyGameMode.GetGameMode() || !m_MarkerEditRoot || !m_RootWidget)
 			return;
 
-		// The stock marker editor is created below the Lobby2 side panels because
+		// The stock marker editor is created below the GC Lobby side panels because
 		// those panels use an explicit Z-order. Restrict the adjustment to the
-		// Lobby2 briefing hierarchy so other game modes keep stock map behavior.
+		// GC Lobby briefing hierarchy so other game modes keep stock map behavior.
 		if (!m_RootWidget.FindAnyWidget("BriefingView") || !m_RootWidget.FindAnyWidget("PlayerListPanel"))
 			return;
 

@@ -6,10 +6,10 @@ class GC_LobbyGameModeClass : SCR_BaseGameModeClass
 
 class GC_LobbyGameMode : SCR_BaseGameMode
 {
-	[Attribute("1", UIWidgets.CheckBox, "Collect Lobby2 statistics, session history and playback. Disable for a full collection-off performance run. Set before starting the world.", category: "Lobby2 Collection")]
+	[Attribute("1", UIWidgets.CheckBox, "Collect GC Lobby statistics, session history and playback. Disable for a full collection-off performance run. Set before starting the world.", category: "GC Lobby Collection")]
 	protected bool m_bCollectionEnabled = true;
 
-	[Attribute("1", UIWidgets.CheckBox, "Record playback telemetry, including turret direction. Requires Collection Enabled. Disable to compare playback cost while retaining statistics. Set before starting the world.", category: "Lobby2 Collection")]
+	[Attribute("1", UIWidgets.CheckBox, "Record playback telemetry, including turret direction. Requires Collection Enabled. Disable to compare playback cost while retaining statistics. Set before starting the world.", category: "GC Lobby Collection")]
 	protected bool m_bPlaybackTelemetryEnabled = true;
 
 	protected bool m_bStartupLogged;
@@ -65,7 +65,7 @@ class GC_LobbyGameMode : SCR_BaseGameMode
 		return m_MapPlans;
 	}
 
-	//! Returns the active Lobby2 game mode, or null while another mode or the
+	//! Returns the active GC Lobby game mode, or null while another mode or the
 	//! editor is active.
 	static GC_LobbyGameMode GetGameMode()
 	{

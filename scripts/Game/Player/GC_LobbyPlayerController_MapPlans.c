@@ -22,7 +22,7 @@ modded class GC_LobbyPlayerController
 	{
 		GC_MapPlans plans = GC_MapPlans.GetInstance();
 		string output;
-		string outcome = "Lobby2 is no longer active.";
+		string outcome = "GC Lobby is no longer active.";
 		if (plans)
 			outcome = plans.Execute(GetPlayerId(), action, input, output);
 		else

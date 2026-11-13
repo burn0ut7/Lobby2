@@ -82,7 +82,7 @@ remains the authored <= comparison.
 
 Messages use `%1` for the selected faction display names and `%2` for Location.
 Recipient factions are independent of capturing/ignored factions; empty means
-everyone, including spectators. They use Lobby2's existing **Objective Status**
+everyone, including spectators. They use GC Lobby's existing **Objective Status**
 notification queue and lifetime, rather than introducing TilW's separate
 five-second hint display. Messages occur only on status transitions, including
 resuming interrupted progress; discovery is silent. Messages are not replayed

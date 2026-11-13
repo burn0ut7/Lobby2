@@ -1,4 +1,4 @@
-//! Authored server actions use existing Lobby2 owners. No client request or admin authorization bypass.
+//! Authored server actions use existing GC Lobby owners. No client request or admin authorization bypass.
 modded class GC_LobbyManager
 {
 	protected ref array<ref GC_RadiusDeletionRecord> m_aGC_RadiusRemovals = {};

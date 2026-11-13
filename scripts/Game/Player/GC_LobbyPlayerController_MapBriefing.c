@@ -1,4 +1,4 @@
-//! The local Lobby2 controller owns the briefing drawer for the gameplay map.
+//! The local GC Lobby controller owns the briefing drawer for the gameplay map.
 modded class GC_LobbyPlayerController
 {
 	protected Widget m_wGC_MapBriefing;

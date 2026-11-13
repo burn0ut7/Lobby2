@@ -1,6 +1,6 @@
-# Lobby2 performance checks
+# GC Lobby performance checks
 
-Explicit development addon; depends only on Lobby2. Nothing runs automatically. Invoke the methods below on `GameMode_Lobby2` / `GC_LobbyManager` through Reforger MCP in the Arland example's embedded Play session. These fixtures change runtime mission state, create characters/markers and write profile telemetry files. Use a disposable local Play session, never a running multiplayer mission. Stop Play afterward; world files are not changed.
+Explicit development addon; depends only on GC Lobby. Nothing runs automatically. Invoke the methods below on `GameMode_Lobby2` / `GC_LobbyManager` through Reforger MCP in the Arland example's embedded Play session. These fixtures change runtime mission state, create characters/markers and write profile telemetry files. Use a disposable local Play session, never a running multiplayer mission. Stop Play afterward; world files are not changed.
 
 The test scripts can be loaded as this addon or temporarily mounted through a directory junction under Workbench profile `scripts/Game/Lobby2PerformanceChecks`, followed by Reload. Remove only that junction and Reload when finished. Keep the production addon independent of test code.
 

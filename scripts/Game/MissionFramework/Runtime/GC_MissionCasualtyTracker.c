@@ -1,4 +1,4 @@
-//! Match-start cohort owned exclusively by the active authoritative Lobby2 manager.
+//! Match-start cohort owned exclusively by the active authoritative GC Lobby manager.
 class GC_MissionCasualtyTracker
 {
 	protected ref array<IEntity> m_aRecordedDeaths = {};

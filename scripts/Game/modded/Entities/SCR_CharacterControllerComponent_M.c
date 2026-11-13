@@ -1,5 +1,5 @@
 //! Shared engine hook: no persistent state and no change outside an active
-//! Lobby2 freeze. Preserve the inherited control pipeline in every mode.
+//! GC Lobby freeze. Preserve the inherited control pipeline in every mode.
 modded class SCR_CharacterControllerComponent
 {
 	//------------------------------------------------------------------------------------------------

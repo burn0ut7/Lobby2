@@ -1,5 +1,5 @@
-//! Tracks last-mission recovery eligibility and exposes Lobby2-only pre-match transitions.
-//! The shared initialization hook only writes Lobby2's eligibility file; unrelated
+//! Tracks last-mission recovery eligibility and exposes GC Lobby-only pre-match transitions.
+//! The shared initialization hook only writes GC Lobby's eligibility file; unrelated
 //! gameplay and native GAME/POSTGAME transitions retain their inherited behavior.
 modded class SCR_BaseGameMode
 {

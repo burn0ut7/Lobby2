@@ -17,7 +17,7 @@ class GC_SpectatorOptionButtonComponent : SCR_ButtonBaseComponent
 
 //! The base manual camera intentionally accepts input only while no menu is
 //! open or while the top menu is an EditorMenuUI. Using the camera-compatible
-//! base here keeps Lobby2 scoped and avoids a global SCR_ManualCamera override.
+//! base here keeps GC Lobby scoped and avoids a global SCR_ManualCamera override.
 class GC_Lobby_SpectatorMenu : EditorMenuUI
 {
 	protected static const float OPTION_TOOLTIP_GAP = 16;

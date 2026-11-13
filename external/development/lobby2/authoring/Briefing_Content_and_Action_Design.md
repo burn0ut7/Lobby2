@@ -1,4 +1,4 @@
-# Lobby2 Briefing Content and Action Design
+# GC Lobby Briefing Content and Action Design
 
 ## Status
 
@@ -13,7 +13,7 @@ renders this replicated data.
 
 The heterogeneous document-block model and general data-driven action definitions
 described below are still future slices. The first authored briefing is a labeled
-showcase of every currently supported native and Lobby2 formatting tag. It also
+showcase of every currently supported native and GC Lobby formatting tag. It also
 contains an `<action id="debug_print">...</action>` proof tag inside a normal
 paragraph. The renderer turns that paragraph into wrapping text runs and overlays
 a real button on only the tagged phrase. Clicking it requests the allowlisted
@@ -39,13 +39,13 @@ supported native rich-text formatting may be nested inside the custom tag label.
 - Reforger's native `<image set="..." name="..." scale="..." />` tag remains
   available for small inline imageset icons. Its scale is relative to the text
   line height, so it flows with surrounding glyphs.
-- Lobby2's existing `<img ... />` syntax can also join an inline paragraph by
+- GC Lobby's existing `<img ... />` syntax can also join an inline paragraph by
   adding `inline="true"`. This supports packaged textures and imageset quads:
   `<p><img resource="{GUID}path/icon.edds" inline="true" width="24" /> Text beside the icon.</p>`.
   Inline width and height are optional bounds from 16 through 96. With neither,
   the image is fitted to a 24-unit line-height icon. The aspect ratio is always
   preserved, and the icon wraps with the surrounding paragraph content.
-- Lobby2 adds `<img ... />` for larger block images placed between rich-text
+- GC Lobby adds `<img ... />` for larger block images placed between rich-text
   sections. Multiple block images may appear in one briefing body.
 - A packaged texture uses
   `<img resource="{GUID}path/image.edds" width="512" height="256" />`.
@@ -57,7 +57,7 @@ supported native rich-text formatting may be nested inside the custom tag label.
   box without distortion. Every image is additionally clamped to the current
   document width and centered with vertical separation from adjacent text.
 - Block-image bodies retain native rich-text formatting before, between, and
-  after images. They cannot yet contain Lobby2 custom interactive/decoration
+  after images. They cannot yet contain GC Lobby custom interactive/decoration
   spans (`action`, `marker`, `link`, `u`, `s`, `strike`, or `size`) in the same body;
   malformed or unsupported combinations show a safe validation message.
 - Images must resolve to packaged Resource Database assets. Remote URLs and local
@@ -65,7 +65,7 @@ supported native rich-text formatting may be nested inside the custom tag label.
 
 ### Current dynamic scenario contract
 
-- The reserved Lobby2 body token `<scenario />` renders the default `SCENARIO`
+- The reserved GC Lobby body token `<scenario />` renders the default `SCENARIO`
   briefing tab.
 - `GC_BriefingScenarioComponent` owns Scenario row creation, environment
   formatting, icons, change subscriptions, fallback timing, and teardown. The
@@ -87,7 +87,7 @@ supported native rich-text formatting may be nested inside the custom tag label.
 ### Current backend contract
 
 - Authors enter one briefing-content string with no text-format enum. The UI uses
-  rich rendering only when it finds a recognized native or Lobby2 tag; otherwise
+  rich rendering only when it finds a recognized native or GC Lobby tag; otherwise
   it falls back to normal text. Untagged text surrounding valid tags remains
   ordinary text inside the rich document.
 
@@ -125,8 +125,8 @@ supported native rich-text formatting may be nested inside the custom tag label.
 - The briefing view is authored as a reusable layout and instantiated by the
   separate `Lobby_Preview.layout`. It is not owned by `Lobby_Slotting.layout`.
 - The reusable view is host-screen agnostic: it resolves only widgets inside its
-  own layout root and subscribes directly to the Lobby2 briefing backend. Preview,
-  the dedicated Briefing screen, or another Lobby2 screen may instance the same
+  own layout root and subscribes directly to the GC Lobby briefing backend. Preview,
+  the dedicated Briefing screen, or another GC Lobby screen may instance the same
   layout without adding briefing behavior to that screen's menu class.
 - Preview hosts the view as a bounded left-side panel rather than a fullscreen
   overlay: a compact topic rail opens an adjacent readable document column while
@@ -143,7 +143,7 @@ supported native rich-text formatting may be nested inside the custom tag label.
 
 ## Goal
 
-Lobby2 briefings should support highly customizable, formatted mission information and interactive links. A briefing author should be able to select a supported action, pass parameters to it, and let Lobby2-owned script code perform navigation or dispatch further events.
+GC Lobby briefings should support highly customizable, formatted mission information and interactive links. A briefing author should be able to select a supported action, pass parameters to it, and let GC Lobby-owned script code perform navigation or dispatch further events.
 
 The flexibility boundary is intentional:
 
@@ -172,7 +172,7 @@ The documented formatting includes:
 - Unicode codepoints;
 - representations of configured input actions and individual keys.
 
-Lobby2 adds the common inline decorations that native RichText does not expose:
+GC Lobby adds the common inline decorations that native RichText does not expose:
 
 - `<u>underlined text</u>`;
 - `<s>struck text</s>` or `<strike>struck text</strike>`;
@@ -194,7 +194,7 @@ The base game also contains `SCR_RichTextTags.TagColor`, which emits the documen
 
 Plain text is a first-class briefing format. Authors must not be required to write rich-text markup for ordinary paragraphs, titles, labels, or action captions.
 
-Lobby2 should use one document system and one text-block model rather than separate plain-document and rich-document systems. Each text block contains one `content` value and may optionally declare its format:
+GC Lobby should use one document system and one text-block model rather than separate plain-document and rich-document systems. Each text block contains one `content` value and may optionally declare its format:
 
 ```text
 - type: text
@@ -224,10 +224,10 @@ The documented rich-text format does not provide:
 - embedded Enforce Script expressions;
 - Markdown parsing.
 
-### Lobby2 interactive tags
+### GC Lobby interactive tags
 
-Lobby2 preprocesses its HTML-style tags before the remaining content is
-given to `RichTextWidget`. They are Lobby2 document syntax, not native Reforger
+GC Lobby preprocesses its HTML-style tags before the remaining content is
+given to `RichTextWidget`. They are GC Lobby document syntax, not native Reforger
 rich-text elements:
 
 ```text
@@ -240,11 +240,11 @@ rich-text elements:
 ```
 
 Reforger also defines a native `<action>` tag for displaying an input binding.
-The attribute disambiguates the two forms: Lobby2 preprocesses
+The attribute disambiguates the two forms: GC Lobby preprocesses
 `<action id="...">...</action>`, while native `<action name="..." />` markup is
 left for `RichTextWidget` to render.
 
-Native formatting may be nested inside a Lobby2 label as long as the markup is
+Native formatting may be nested inside a GC Lobby label as long as the markup is
 properly nested:
 
 ```text
@@ -261,7 +261,7 @@ multiple action, marker, link, underline, strike, and size spans. Text between t
 spans must be plain, while native rich-text formatting may be properly nested
 inside each span. Underline, strike, and size wrappers may be nested around each
 other. Formatting elsewhere in the briefing remains supported before and after
-that paragraph. A malformed Lobby2 tag is not forwarded to Reforger's native
+that paragraph. A malformed GC Lobby tag is not forwarded to Reforger's native
 rich-text parser; the view shows a safe validation message instead.
 
 `RichTextWidget` exposes content sizing, line width, line visibility, and elision behavior in addition to inherited text behavior. It does not expose a documented character-range hit-test or clicked-span callback. Deriving a clicked word from cursor coordinates would therefore be fragile and inaccessible to controller users.
@@ -270,13 +270,13 @@ rich-text parser; the view shows a safe validation message instead.
 
 The engine declaration `PlatformService.OpenBrowser(string url)` is available. The base game uses it from `SCR_BrowserLinkComponent`, which can resolve a backend link item or open a configured URL from a button component.
 
-Lobby2 therefore renders `<link>` labels as explicit inline button widgets and
+GC Lobby therefore renders `<link>` labels as explicit inline button widgets and
 opens validated addresses through the platform browser service. They visually
 flow with the surrounding rich text but are not native rich-text hyperlinks.
 
-### Current Lobby2 briefing surface
+### Current GC Lobby briefing surface
 
-Lobby2 currently authors four briefing-title rows in `UI/layouts/Briefing/Lobby_Briefing_Titles.layout`. `GC_BriefingTitlesComponent` registers those rows by fixed widget name, and `GC_BriefingTitleRowComponent` owns their selection and visual state.
+GC Lobby currently authors four briefing-title rows in `UI/layouts/Briefing/Lobby_Briefing_Titles.layout`. `GC_BriefingTitlesComponent` registers those rows by fixed widget name, and `GC_BriefingTitleRowComponent` owns their selection and visual state.
 
 That is sufficient for a first briefing-body slice. A later customizable-section slice should replace the fixed registration list with data-driven row creation rather than expanding the hard-coded pattern.
 
@@ -324,26 +324,26 @@ An authored action request should contain:
 - a collection of serializable parameters;
 - optional presentation metadata such as label, icon, tooltip, and confirmation text.
 
-At runtime, Lobby2 adds context that content is not allowed to forge, such as:
+At runtime, GC Lobby adds context that content is not allowed to forge, such as:
 
 - the source briefing and section;
 - the local player/controller identity;
-- the active Lobby2 phase;
+- the active GC Lobby phase;
 - the source widget;
 - whether execution is occurring on a client or authority.
 
 ### Registered handlers
 
-The dispatcher resolves the stable action identifier to a Lobby2-owned registered handler. A handler may:
+The dispatcher resolves the stable action identifier to a GC Lobby-owned registered handler. A handler may:
 
 - change local briefing selection;
-- open or focus another Lobby2 panel;
+- open or focus another GC Lobby panel;
 - focus a known map target;
 - request a permitted server-authoritative operation;
-- invoke a Lobby2-owned event or `ScriptInvoker` for decoupled listeners;
+- invoke a GC Lobby-owned event or `ScriptInvoker` for decoupled listeners;
 - return a handled, denied, unavailable, or invalid result.
 
-Handlers should register when the owning Lobby2 UI or service becomes active and unregister during teardown. The dispatcher and its subscriptions must not remain active when Lobby2 is closed, unloaded, or not the selected game mode.
+Handlers should register when the owning GC Lobby UI or service becomes active and unregister during teardown. The dispatcher and its subscriptions must not remain active when GC Lobby is closed, unloaded, or not the selected game mode.
 
 ### Parameters
 
@@ -378,7 +378,7 @@ expression: GetGame().Something()
 
 Direct invocation would make content tightly coupled to implementation names and would bypass validation, phase rules, authority checks, and lifecycle cleanup. It would also make malformed or server-supplied content capable of reaching unrelated game systems.
 
-A registered action can still perform any behavior intentionally exposed by Lobby2. Adding new capabilities means adding a new handler or extending a handler's validated schema, not widening the interpreter.
+A registered action can still perform any behavior intentionally exposed by GC Lobby. Adding new capabilities means adding a new handler or extending a handler's validated schema, not widening the interpreter.
 
 ## Interaction and presentation rules
 
@@ -440,7 +440,7 @@ Briefing rendering and navigation are normally client presentation. A client may
 An action that changes authoritative game state must be treated as a request, not as permission. The authoritative system must independently validate:
 
 - the requesting player;
-- the active Lobby2 phase;
+- the active GC Lobby phase;
 - the referenced base-game player, group, faction, character, or mission object;
 - permissions and current state;
 - replay or repeated-click behavior.
@@ -459,10 +459,10 @@ Purely local actions should not be replicated. When all clients can derive a doc
 - Data-driven briefing sections and blocks.
 - Link-styled and conventional buttons.
 - Registered action IDs with validated parameters.
-- Lobby2 `<action>` tags with native rich-text formatting inside labels.
-- Lobby2 `<marker>` references that resolve a marker visible to the current
+- GC Lobby `<action>` tags with native rich-text formatting inside labels.
+- GC Lobby `<marker>` references that resolve a marker visible to the current
   player, pan to it, and then zoom to frame its authored-size footprint.
-- Handlers that dispatch further Lobby2-owned events.
+- Handlers that dispatch further GC Lobby-owned events.
 - Local navigation and presentation actions.
 - Explicit, validated requests to authoritative systems.
 - Approved external browser links through an explicit action.

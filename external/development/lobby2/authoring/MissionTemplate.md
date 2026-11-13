@@ -7,7 +7,7 @@ interactive editor tools such as Map / AO Polygon.
 
 The plugin places `Prefabs/Templates/GC_MissionTemplate_Coop.et` at the world origin and creates the
 terrain's AI-world prefab as its child. The root inherits `GameMode_Lobby.et` and
-contains the faction, radio, GC chat, and perception entities. Lobby2's mission
+contains the faction, radio, GC chat, and perception entities. GC Lobby's mission
 framework has no TilW Mission Framework dependency or integration.
 The terrain-specific AI world is a placed mission entity, not a runtime spawn.
 Save the world normally to persist it; one Undo removes the complete placement.

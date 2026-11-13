@@ -1,4 +1,4 @@
-//! Publish Lobby2's existing native group membership to the base controller APIs
+//! Publish GC Lobby's existing native group membership to the base controller APIs
 //! used by text chat and other base-game consumers. No parallel membership is stored.
 modded class SCR_PlayerControllerGroupComponent
 {

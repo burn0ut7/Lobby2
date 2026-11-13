@@ -1,6 +1,6 @@
-# Lobby2 Workbench extension
+# GC Lobby Workbench extension
 
-Lobby2 owns `gcworkbench.dll`, GC Tools and the dependency installer. Reforger
+GC Lobby owns `gcworkbench.dll`, GC Tools and the dependency installer. Reforger
 MCP is a separate generic development tool and is neither shipped nor invoked.
 Workbench automation, suppression and script-authorization policy remain MCP-only.
 
@@ -22,7 +22,7 @@ The DLL validates the installed Qt identities before attaching to choice fields.
 A process-specific attempt record prevents replay after an uncertain dispatch.
 Native hook confirmation, rather than DLL presence, records successful loading.
 
-`GC_EditorChoices.c` and `GC_EntityReferenceEdit.c` are Lobby2-owned providers.
+`GC_EditorChoices.c` and `GC_EntityReferenceEdit.c` are GC Lobby-owned providers.
 Their protocol fingerprint is `4df00e70851952d140c187dfefe9c59d274c81d0d9e30a12cd06d87b28accd8f`.
 Change both consumers deliberately when changing the wire contract. Generic
 MCP adapters have their own RST names and lifecycle. GC Tools has no editor-control

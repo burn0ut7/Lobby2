@@ -2,7 +2,7 @@
 
 Optional development tests outside the production addon. No automatic execution and no production dependency. The fixture constructs isolated data; it does not alter the live mission, permissions, players or resources.
 
-Temporarily mount this directory's `scripts/Game` under the Workbench profile's `scripts/Game/FrameworkSimplificationChecks`, following the existing RespawnLocations test setup. Reload through Reforger MCP, start embedded Play, then invoke `GC_TestFrameworkSimplification()` on the scenario's `GC_LobbyManager`. Remove only the verified test junction and Reload afterward to restore the original script set. A test project depending on Lobby2 can load the same source normally.
+Temporarily mount this directory's `scripts/Game` under the Workbench profile's `scripts/Game/FrameworkSimplificationChecks`, following the existing RespawnLocations test setup. Reload through Reforger MCP, start embedded Play, then invoke `GC_TestFrameworkSimplification()` on the scenario's `GC_LobbyManager`. Remove only the verified test junction and Reload afterward to restore the original script set. A test project depending on GC Lobby can load the same source normally.
 
 Coverage:
 

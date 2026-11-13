@@ -10,7 +10,7 @@ Add **Spawn Action** under a mission event's Actions, then choose one Spawn setu
 
 All three share Prefab, Location and optional Entity Name. Location must name an existing entity. Entity Name must be unused; leave it empty for repeatable spawns. Placement is exact: there is no ground snapping, collision search or random offset. Prefabs keep their own normal component behavior and replication configuration.
 
-The event owns when to spawn: conditions, repeatability and Advanced Delay. Other actions in the same event remain the place for follow-up framework actions. AI waypoints are orders, not a nested mission-action framework. AI Group prefabs must be configured to spawn their members; playable groups belong to Lobby2's slot system and are rejected.
+The event owns when to spawn: conditions, repeatability and Advanced Delay. Other actions in the same event remain the place for follow-up framework actions. AI waypoints are orders, not a nested mission-action framework. AI Group prefabs must be configured to spawn their members; playable groups belong to GC Lobby's slot system and are rejected.
 
 ## Vehicle crew
 
@@ -27,9 +27,9 @@ Example: select Crewed Vehicle, choose a transport prefab, and set Location to `
 
 ## Execution and limits
 
-The existing manager gate requires the active Lobby2 server and its running framework instance. Names are resolved directly when the action executes. Native groups own membership after spawning. Crew creation is synchronous through native compartment methods; there is no repeating timer or pending job after mode exit.
+The existing manager gate requires the active GC Lobby server and its running framework instance. Names are resolved directly when the action executes. Native groups own membership after spawning. Crew creation is synchronous through native compartment methods; there is no repeating timer or pending job after mode exit.
 
-Keep Gunners Seated uses a Lobby2-owned combat-component override, independent of TilW Mission Framework. Only explicitly configured spawned gunners in their originating Lobby2 game-mode instance suppress voluntary combat dismounting. Other characters and modes retain the inherited decision; old mode ownership is cleared when it no longer matches. This adds no RPC, registry, spawn hook, frame callback or world scan.
+Keep Gunners Seated uses a GC Lobby-owned combat-component override, independent of TilW Mission Framework. Only explicitly configured spawned gunners in their originating GC Lobby game-mode instance suppress voluntary combat dismounting. Other characters and modes retain the inherited decision; old mode ownership is cleared when it no longer matches. This adds no RPC, registry, spawn hook, frame callback or world scan.
 
 Resource and waypoint checks happen before spawning. A failed setup removes the newly created root, crew and crew groups tracked by this attempt. Existing named entities/groups are never replaced or merged. This is cleanup, not a transactional undo of arbitrary third-party prefab component side effects. Successful spawns remain ordinary world entities; resetting an event does not delete them.
 

@@ -1,4 +1,4 @@
-[EntityEditorProps(category: "Lobby2/Mission", description: "Radius Area: a passive spherical boundary for Area Condition. Set its name and radius. It does not scan entities, set flags or run actions.")]
+[EntityEditorProps(category: "GC Lobby/Mission", description: "Radius Area: a passive spherical boundary for Area Condition. Set its name and radius. It does not scan entities, set flags or run actions.")]
 class GC_RadiusAreaEntityClass : GenericEntityClass
 {
 }
