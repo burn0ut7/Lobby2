@@ -26,7 +26,10 @@ static class Checks {
   busy.Add("External dependencies");
   typeof(ToolWindow).GetMethod("Render",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.DeclaredOnly)!.Invoke(setup,[new DialogSpec{Title="External dependencies",PrimaryAction="Install / update"}]);
   var install=Find<Button>(setup).Single(b=>Equals(b.Content,"Install / update"));
-  if(!install.IsEnabled)throw new Exception("Install blocked by background status check");
+  if(install.IsEnabled)throw new Exception("Install allowed while dependencies still unknown");
+  typeof(ToolWindow).GetMethod("Render",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.DeclaredOnly)!.Invoke(setup,[ToolPages.Dependencies() with {Items=[new("GC Workbench Tools","","Not installed","warning"),new("Git for Windows","","Not installed","warning")]}]);
+  install=Find<Button>(setup).Single(b=>Equals(b.Content,"Install / update"));
+  if(!install.IsEnabled)throw new Exception("Missing dependencies cannot be installed");
   install.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(setup.Result.Action!="install")throw new Exception("Install action unavailable after notice");
   var hub=new ToolWindow(spec,tools:true);
@@ -72,7 +75,25 @@ static class Checks {
   Pump(()=>Find<Button>(submission).Any(b=>Equals(b.Content,"Submitted")));
   if(!Find<Button>(submission).Any(b=>Equals(b.Content,"View submission"))||submission.Result.Action!="cancel")throw new Exception("Submission result closed hub or lost link");
   Console.WriteLine("PASS: embedded conflict review, pending action, same-window submitted result and link.");
-  var dependencies=new ToolWindow(ToolPages.Dependencies(),tools:true);
+  var currentPage=ToolPages.Dependencies() with { Items=[new("GC Workbench Tools","","Up to date","ready"),new("Git for Windows","","Up to date","ready")] };
+  var currentDependencies=new ToolWindow(currentPage,tools:true);
+  if(Find<Button>(currentDependencies).Single(b=>Equals(b.Content,"Install / update")).IsEnabled)throw new Exception("Current dependencies allow reinstall");
+  var pendingInstall=new TaskCompletionSource<OperationResult>();
+  Dictionary<string,object>? selectedDependencies=null;
+  var mixedPage=currentPage with { Items=[currentPage.Items[0],new("Git for Windows","","Update available","warning")] };
+  var mixedDependencies=new ToolWindow(mixedPage,tools:true);
+  ((HashSet<string>)typeof(ToolWindow).GetField("checking",flags)!.GetValue(mixedDependencies)!).Add("External dependencies");
+  mixedDependencies.OperationRunner=(_,values,_)=>{selectedDependencies=values;return pendingInstall.Task;};
+  Find<Button>(mixedDependencies).Single(b=>Equals(b.Content,"Install / update")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  if(selectedDependencies is null||(bool)selectedDependencies["tools"]||!(bool)selectedDependencies["git"])throw new Exception("Current dependency was selected for update");
+  mixedDependencies.UpdateDependencyProgress(new("git","Updating...","pending"));
+  if(!Find<TextBlock>(mixedDependencies).Any(t=>t.Text=="Updating...")||!Find<TextBlock>(mixedDependencies).Any(t=>t.Text=="Up to date"))throw new Exception("Per-item updating status missing or overwrote current item");
+  mixedDependencies.UpdateDependencyProgress(new("git","Up to date","ready"));
+  pendingInstall.SetResult(new("Installed","Dependencies are up to date."));
+  Pump(()=>Find<Button>(mixedDependencies).Any(b=>Equals(b.Content,"Install / update")));
+  if(Find<Button>(mixedDependencies).Single(b=>Equals(b.Content,"Install / update")).IsEnabled)throw new Exception("Completed dependencies allow reinstall");
+  Console.WriteLine("PASS: current dependencies disabled, only outdated dependency dispatched, per-item updating and completion.");
+  var dependencies=new ToolWindow(ToolPages.Dependencies() with {Items=[new("GC Workbench Tools","","Not installed","warning"),new("Git for Windows","","Not installed","warning")]},tools:true);
   var dependencyChecks=(HashSet<string>)typeof(ToolWindow).GetField("checking",flags)!.GetValue(dependencies)!;
   dependencyChecks.Add("External dependencies"); // Keep this test independent of network status checks.
   var attempts=0;
@@ -84,20 +105,25 @@ static class Checks {
   if(footer.Children.Count!=1||Find<Button>(dependencies).Any(b=>Equals(b.Content,"Refresh")||Equals(b.Content,"Close")||Equals(b.Content,"Installation stopped")))throw new Exception("Failed dependencies must show only Retry in the footer");
   if(!Find<TextBlock>(dependencies).Any(t=>t.Text=="Fixture error"))throw new Exception("Retry lost error detail");
   retry.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-  if(attempts!=2||Find<Button>(dependencies).Single(b=>Equals(b.Content,"Installing...")).IsEnabled)throw new Exception("Retry did not run installation once with disabled progress button");
+  if(attempts!=2||Find<Button>(dependencies).Single(b=>Equals(b.Content,"Updating...")).IsEnabled)throw new Exception("Retry did not run installation once with disabled progress button");
   retried.SetResult(new("Installed","Restart Workbench"));
   Pump(()=>Find<Button>(dependencies).Any(b=>Equals(b.Content,"Install / update")));
   if(dependencies.Result.Action!="cancel")throw new Exception("Retry closed tools");
   Console.WriteLine("PASS: single Retry button, visible error, real retry dispatch, disabled progress and persistent completion.");
   var fixture=Path.Combine(Path.GetTempPath(),"gc-hub-test-"+Guid.NewGuid()+".ps1");
   var reviewPath=Path.GetFullPath("external/source/tools/GC-Review.ps1").Replace("'","''");
-  File.WriteAllText(fixture,". '"+reviewPath+"'\n$answer=Show-GcReview @{Title='Fixture review';PrimaryAction='Confirm'}\nif($answer.Action -ne 'confirm'){throw 'Wrong review answer'}\nSet-GcOutcome 'Submitted' 'Fixture confirmed' 'https://github.com/example/missions/pull/1'\n");
+  File.WriteAllText(fixture,". '"+reviewPath+"'\nif($env:GC_INSTALL_TOOLS -ne '0' -or $env:GC_INSTALL_GIT -ne '1'){throw 'Wrong dependency selection'}\nWrite-Output 'GC_PROGRESS:{\"Dependency\":\"git\",\"Status\":\"Updating...\",\"State\":\"pending\"}'\nStart-Sleep -Milliseconds 500\n$answer=Show-GcReview @{Title='Fixture review';PrimaryAction='Confirm'}\nif($answer.Action -ne 'confirm'){throw 'Wrong review answer'}\nSet-GcOutcome 'Submitted' 'Fixture confirmed' 'https://github.com/example/missions/pull/1'\n");
   var oldScript=Environment.GetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT");
   try {
    Environment.SetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT",fixture);
-   var operation=ToolOperations.RunAsync("install",[],request=>Task.FromResult(new DialogResult("confirm",[])));
+   var progressItems=new List<DependencyProgress>();
+   var operation=ToolOperations.RunAsync("install",new(){["tools"]=false,["git"]=true},request=>Task.FromResult(new DialogResult("confirm",[])),new Progress<DependencyProgress>(item=>progressItems.Add(item)));
+   Pump(()=>progressItems.Count==1);
+   if(operation.IsCompleted)throw new Exception("Progress arrived only after completion");
    Pump(()=>operation.IsCompleted);
    var receipt=operation.GetAwaiter().GetResult();
+   Pump(()=>progressItems.Count==1);
+   if(progressItems[0].Dependency!="git"||progressItems[0].Status!="Updating...")throw new Exception("Live child progress missing");
    if(receipt.Status!="Submitted"||receipt.Detail!="Fixture confirmed")throw new Exception("Pipe workflow did not return confirmed result");
    Console.WriteLine("PASS: real Windows PowerShell review pipe and operation outcome, without external mutations.");
   } finally {Environment.SetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT",oldScript);File.Delete(fixture);}

@@ -138,6 +138,7 @@ internal static class ToolStatus
             var entry = zip.GetEntry("support/files.json") ?? throw new IOException("No manifest");
             using var manifest = JsonDocument.Parse(entry.Open());
             var checkedFiles = 0;
+            var restartRequired = false;
             foreach (var file in manifest.RootElement.EnumerateArray())
             {
                 var relative = file.GetProperty("path").GetString()!;
@@ -145,9 +146,7 @@ internal static class ToolStatus
                 if (relative.StartsWith("support/payload/lobby2-tools/", StringComparison.Ordinal))
                     target = Path.Combine(profile, "GCWorkbench", "tools", Path.GetFileName(relative));
                 else if (relative.StartsWith("support/payload/helper/", StringComparison.Ordinal))
-                    target = Path.GetFileName(relative).StartsWith("GCWorkbench.UI", StringComparison.Ordinal)
-                        ? Path.Combine(uiDirectory ?? AppContext.BaseDirectory, Path.GetFileName(relative))
-                        : Path.Combine(destination, relative["support/".Length..]);
+                    target = Path.Combine(destination, relative["support/".Length..]);
                 else if (relative.StartsWith("support/payload/generic/", StringComparison.Ordinal))
                     target = Path.Combine(destination, relative["support/".Length..]);
                 else continue;
@@ -156,9 +155,19 @@ internal static class ToolStatus
                 using var content = File.OpenRead(target);
                 if (!Convert.ToHexString(SHA256.HashData(content)).Equals(file.GetProperty("sha256").GetString(), StringComparison.OrdinalIgnoreCase))
                     return new("GC Workbench Tools", "", "Update or repair available", "warning");
+                if (Path.GetFileName(relative) == "GCWorkbench.UI.dll")
+                {
+                    var running = Path.Combine(uiDirectory ?? AppContext.BaseDirectory, "GCWorkbench.UI.dll");
+                    if (!File.Exists(running)) restartRequired = true;
+                    else
+                    {
+                        using var runningFile = File.OpenRead(running);
+                        restartRequired = !Convert.ToHexString(SHA256.HashData(runningFile)).Equals(file.GetProperty("sha256").GetString(), StringComparison.OrdinalIgnoreCase);
+                    }
+                }
             }
             return checkedFiles == 0 ? new("GC Workbench Tools", "", "Update check unavailable", "warning")
-                : new("GC Workbench Tools", "Lobby package", "Up to date", "ready");
+                : new("GC Workbench Tools", "Lobby package", restartRequired ? "Restart Workbench" : "Up to date", "ready");
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException or KeyNotFoundException or ArgumentException)
         { return new("GC Workbench Tools", "", "Could not verify installation", "warning"); }

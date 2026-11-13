@@ -8,11 +8,12 @@ using System.Text.Json;
 namespace GCWorkbench.UI;
 
 internal sealed record OperationResult(string Status, string Detail = "", string Url = "");
+internal sealed record DependencyProgress(string Dependency, string Status, string State);
 
 internal static class ToolOperations
 {
     internal static async Task<OperationResult> RunAsync(string action, Dictionary<string, object> values,
-        Func<DialogSpec, Task<DialogResult>> review)
+        Func<DialogSpec, Task<DialogResult>> review, IProgress<DependencyProgress>? progress = null)
     {
         string world = "";
         if (action is "submit" or "update")
@@ -37,6 +38,9 @@ internal static class ToolOperations
             start.Environment["GC_TOOLS_PIPE"] = pipeName;
             start.Environment["GC_TOOLS_OUTCOME"] = outcome;
             start.Environment["GCM_TRACE_SECRETS"] = "0";
+            if (action == "install")
+                foreach (var key in new[] { "tools", "git" })
+                    start.Environment["GC_INSTALL_" + key.ToUpperInvariant()] = values.TryGetValue(key, out var selected) && selected is false ? "0" : "1";
             if (action != "install")
             {
                 foreach (var key in new[] { "Lobby2", "GlobalConflictsCore", "GlobalConflictsUnits", "GlobalConflictsMissions" })
@@ -54,7 +58,7 @@ internal static class ToolOperations
             }
             using var process = await Task.Run(() => Process.Start(start)) ?? throw new IOException("Could not start the action.");
             // Drain without exposing credentials or raw child-process diagnostics in the UI.
-            var output = process.StandardOutput.ReadToEndAsync();
+            var output = ReadProgressAsync(process.StandardOutput, action == "install" ? progress : null);
             var error = process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();
             await Task.WhenAll(output, error);
@@ -68,6 +72,21 @@ internal static class ToolOperations
             reviewLifetime.Cancel();
             try { await serve; } catch (OperationCanceledException) { }
             if (File.Exists(outcome)) File.Delete(outcome);
+        }
+    }
+
+    private static async Task ReadProgressAsync(StreamReader output, IProgress<DependencyProgress>? progress)
+    {
+        while (await output.ReadLineAsync() is { } line)
+        {
+            if (progress is null || !line.StartsWith("GC_PROGRESS:")) continue;
+            try
+            {
+                var item = JsonSerializer.Deserialize<DependencyProgress>(line[12..], Program.Json);
+                if (item is not null && item.Dependency is "tools" or "git" && item.State is "pending" or "ready" or "error" &&
+                    item.Status is "Updating..." or "Up to date" or "Restart Workbench" or "Update failed") progress.Report(item);
+            }
+            catch (JsonException) { /* Ignore non-protocol child output. */ }
         }
     }
 

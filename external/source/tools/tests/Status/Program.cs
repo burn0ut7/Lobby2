@@ -9,12 +9,16 @@ void Check(bool condition,string reason){if(!condition)throw new Exception(reaso
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Not installed","Missing installation");
 File.WriteAllText(Path.Combine(control,"installation.json"),JsonSerializer.Serialize(new{destination=install,profileDirectory=profile}));
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Installation incomplete","Missing native DLL");
-var paths=new Dictionary<string,string>{["support/payload/generic/gcworkbench.dll"]=Path.Combine(install,"payload/generic/gcworkbench.dll"),["support/payload/helper/GCWorkbench.UI.dll"]=Path.Combine(ui,"GCWorkbench.UI.dll"),["support/payload/lobby2-tools/GC-GitHub.ps1"]=Path.Combine(profile,"GCWorkbench/tools/GC-GitHub.ps1")};
+var paths=new Dictionary<string,string>{["support/payload/generic/gcworkbench.dll"]=Path.Combine(install,"payload/generic/gcworkbench.dll"),["support/payload/helper/GCWorkbench.UI.dll"]=Path.Combine(install,"payload/helper/GCWorkbench.UI.dll"),["support/payload/lobby2-tools/GC-GitHub.ps1"]=Path.Combine(profile,"GCWorkbench/tools/GC-GitHub.ps1")};
 foreach(var target in paths.Values){Directory.CreateDirectory(Path.GetDirectoryName(target)!);File.WriteAllText(target,"expected");}
 var zipPath=Path.Combine(package,"GCWorkbench.zip");
 using(var zip=ZipFile.Open(zipPath,ZipArchiveMode.Create))using(var writer=new StreamWriter(zip.CreateEntry("support/files.json").Open()))writer.Write(JsonSerializer.Serialize(paths.Select(p=>new{path=p.Key,sha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(p.Value)))})));
 File.WriteAllText(zipPath+".sha256",Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(zipPath)))+"  GCWorkbench.zip");
+File.WriteAllText(Path.Combine(ui,"GCWorkbench.UI.dll"),"expected");
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Up to date","Matching package");
+File.WriteAllText(Path.Combine(ui,"GCWorkbench.UI.dll"),"old running UI");
+var restart=ToolStatus.CheckWorkbench(control,package,ui);
+Check(restart.State=="ready"&&restart.Status=="Restart Workbench","Updated installed UI mistaken for another required install");
 File.WriteAllText(paths.Values.Last(),"old helper");
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Update or repair available","Changed helper");
 File.Delete(paths.Values.Last());

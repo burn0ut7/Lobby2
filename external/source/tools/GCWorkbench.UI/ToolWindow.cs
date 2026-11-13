@@ -25,7 +25,7 @@ public sealed class ToolWindow : Window
     private bool operating;
     private TaskCompletionSource<DialogResult>? reviewAnswer;
     private readonly Dictionary<string, OperationResult> outcomes = [];
-    internal Func<string, Dictionary<string, object>, Func<DialogSpec, Task<DialogResult>>, Task<OperationResult>> OperationRunner = ToolOperations.RunAsync;
+    internal Func<string, Dictionary<string, object>, Func<DialogSpec, Task<DialogResult>>, Task<OperationResult>> OperationRunner;
     public DialogResult Result { get; private set; } = new("cancel", []);
 
     public ToolWindow(DialogSpec specification, bool preview = false, bool tools = false, bool observeStatus = true, bool dependenciesMissing = false)
@@ -34,6 +34,7 @@ public sealed class ToolWindow : Window
         this.preview = preview;
         this.tools = tools;
         this.observeStatus = observeStatus;
+        OperationRunner = (action, values, review) => ToolOperations.RunAsync(action, values, review, new Progress<DependencyProgress>(UpdateDependencyProgress));
         Title = "GC Workbench";
         Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/GCWorkbench.UI;component/Assets/GC.ico"));
         Width = preview || tools ? 880 : 680;
@@ -203,6 +204,7 @@ public sealed class ToolWindow : Window
             }
         }
         void UpdateConfirm() => confirm.IsEnabled = (!operating || reviewAnswer is not null) && (!checking.Contains(spec.Title) || spec.Title is "External dependencies" or "Update mods") &&
+            (!dependencyPage || DependenciesActionable(spec)) &&
             (!tools || spec.Title != "Update mods" || inputs.Values.OfType<CheckBox>().Any(check => check.IsEnabled && check.IsChecked == true));
         foreach (var check in inputs.Values.OfType<CheckBox>())
         {
@@ -214,6 +216,7 @@ public sealed class ToolWindow : Window
         {
             if (reviewAnswer is not null) { var answer = ReadValues(); if (answer is not null) CompleteReview(new("confirm", answer)); return; }
             if (operating) return;
+            if (dependencyPage && !DependenciesActionable(spec)) return;
             if (checking.Contains(spec.Title) && spec.Title is not ("External dependencies" or "Update mods")) return;
             if (tools && spec.Title == "GitHub") { await RefreshStatusAsync(true); return; }
             var values = ReadValues();
@@ -262,7 +265,7 @@ public sealed class ToolWindow : Window
         if (spec.Title == title) SaveDraft();
         checking.Add(title);
         if (title == "Update mods") statusPages[title] = ToolPages.Updates();
-        if (spec.Title == title) Render(title == "Update mods" ? ToolPages.Updates() : spec with { Items = [new("Status", "", signIn ? "Waiting for GitHub sign-in..." : "Checking...")] });
+        if (spec.Title == title) Render(title == "Update mods" ? ToolPages.Updates() : title == "External dependencies" ? spec : spec with { Items = [new("Status", "", signIn ? "Waiting for GitHub sign-in..." : "Checking...")] });
         DialogSpec result;
         try
         {
@@ -280,7 +283,9 @@ public sealed class ToolWindow : Window
         }
         catch (Exception)
         {
-            result = (title == "GitHub" ? ToolPages.GitHub() : title == "Update mods" ? ToolPages.Updates("Unable to check - refresh") : ToolPages.Dependencies()) with { Items = [new("Status", "", title == "External dependencies" ? "Could not check status" : "Check unavailable \u00b7 try Refresh", "warning")] };
+            result = title == "External dependencies"
+                ? ToolPages.Dependencies() with { Items = ToolPages.Dependencies().Items.Select(item => item with { Status = "Could not check status", State = "warning" }).ToList() }
+                : (title == "GitHub" ? ToolPages.GitHub() : ToolPages.Updates("Unable to check - refresh")) with { Items = [new("Status", "", "Check unavailable \u00b7 try Refresh", "warning")] };
         }
         if (spec.Title == title) SaveDraft();
         checking.Remove(title);
@@ -311,9 +316,15 @@ public sealed class ToolWindow : Window
     {
         SaveDraft();
         var page = spec;
+        if (action == "install")
+        {
+            if (!DependenciesActionable(page)) return;
+            values["tools"] = !page.Items.Any(item => item.Title == "GC Workbench Tools" && item.State == "ready");
+            values["git"] = !page.Items.Any(item => item.Title == "Git for Windows" && item.State == "ready");
+        }
         operating = true;
         outcomes.Remove(page.Title);
-        Render(page with { PrimaryAction = action switch { "submit" => "Preparing...", "update" => "Updating...", _ => "Installing..." }, SecondaryAction = "" });
+        Render(page with { PrimaryAction = action switch { "submit" => "Preparing...", _ => "Updating..." }, SecondaryAction = "" });
         OperationResult result;
         try { result = await OperationRunner(action, values, ReviewAsync); }
         catch (Exception error) { result = new("Try again", error.Message); }
@@ -321,6 +332,21 @@ public sealed class ToolWindow : Window
         outcomes[page.Title] = result;
         Render(statusPages.GetValueOrDefault(page.Title, page));
         if (action is "update" or "install") await RefreshStatusAsync(false, page.Title);
+    }
+
+    private static bool DependenciesCurrent(DialogSpec page) =>
+        new[] { "GC Workbench Tools", "Git for Windows" }.All(title => page.Items.Any(item => item.Title == title && item.State == "ready"));
+
+    private static bool DependenciesActionable(DialogSpec page) => !DependenciesCurrent(page) &&
+        new[] { "GC Workbench Tools", "Git for Windows" }.All(title => page.Items.Any(item => item.Title == title && item.State != "pending"));
+
+    internal void UpdateDependencyProgress(DependencyProgress progress)
+    {
+        if (!operating || reviewAnswer is not null || spec.Title != "External dependencies") return;
+        var title = progress.Dependency == "tools" ? "GC Workbench Tools" : "Git for Windows";
+        var page = spec with { Items = spec.Items.Select(item => item.Title == title ? item with { Status = progress.Status, State = progress.State } : item).ToList() };
+        statusPages[page.Title] = page with { PrimaryAction = "Install / update" };
+        Render(page);
     }
 
     private FrameworkElement StatusCard(StatusItem item)
