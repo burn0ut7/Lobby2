@@ -13,7 +13,7 @@ try {
     $exe = Join-Path $fixture 'ArmaReforgerWorkbenchSteamDiag.exe'
     Set-Content -LiteralPath $exe -Value 'fixture'
     Set-Content -LiteralPath (Join-Path $profile 'wbSettingsDump.ini') -Value "NetAPI_Enabled=1`nNetAPI_Port=5776"
-    foreach ($name in @('Common.ps1','Uninstall.ps1','LobbyTools.ps1')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot ('../../installer/support/' + $name)) -Destination $source }
+    foreach ($name in @('Common.ps1','Uninstall.ps1','LobbyTools.ps1','Cleanup.ps1')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot ('../../installer/support/' + $name)) -Destination $source }
     foreach ($name in @('GC-ModLauncher.js','GC-ModWorkflow.ps1','GC-SubmitMission.ps1','GC-Review.ps1','GC-GitHub.ps1','GC-ModStatus.ps1')) {
         Set-Content -LiteralPath (Join-Path $source ('payload/lobby2-tools/' + $name)) -Value 'fixture'
     }
@@ -53,6 +53,25 @@ try {
     try { Uninstall-GcIntegration } catch { $refused = $_.Exception.Message -match 'modified startup script was preserved' }
     $disabled = Get-Content -LiteralPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench/installation.json') -Raw | ConvertFrom-Json
     if (!$refused -or $disabled.enabled -ne $false -or !(Test-Path -LiteralPath $record.startupPath)) { throw 'Uninstall must revoke loading and preserve edited bootstrap.' }
+    [IO.File]::WriteAllText($record.startupPath, $script, (New-Object Text.UTF8Encoding($true)))
+    $disabled.startupSha256 = (Get-FileHash -LiteralPath $record.startupPath).Hash
+    $disabled | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench/installation.json') -Encoding UTF8
+    # Capture the background worker rather than touching the real running editor.
+    function Start-Process { param($FilePath,$WindowStyle,$ArgumentList) $script:cleanupScript = $ArgumentList[5].Trim('"') }
+    $removed = Uninstall-GcIntegration
+    if (!$removed.Contains('Restart Workbench') -or (Test-Path -LiteralPath $record.startupPath) -or (Test-Path -LiteralPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench/installation.json'))) { throw 'Uninstall did not unregister immediately.' }
+    if (!(Test-Path -LiteralPath $destination)) { throw 'Uninstall removed live binaries before worker cleanup.' }
+    $next = Join-Path $env:LOCALAPPDATA 'GCWorkbench/versions/reinstalled'
+    Install-GcFiles $source $next $exe $profile | Out-Null
+    Enable-GcStartup $next
+    & $script:cleanupScript
+    if ((Test-Path -LiteralPath $destination) -or !(Test-Path -LiteralPath $next) -or !(Test-Path -LiteralPath $record.startupPath)) { throw 'Deferred cleanup missed old files or damaged reinstall.' }
+    $jobPath = Join-Path (Split-Path $script:cleanupScript -Parent) 'job.json'
+    @{ root = (Join-Path $env:LOCALAPPDATA 'GCWorkbench/versions'); targets = @($next, $profile) } | ConvertTo-Json | Set-Content -LiteralPath $jobPath -Encoding UTF8
+    & (Join-Path $PSHOME 'powershell.exe') -NoProfile -File $script:cleanupScript
+    if ($LASTEXITCODE -ne 1 -or !(Test-Path -LiteralPath $next) -or !(Test-Path -LiteralPath $profile)) { throw 'Cleanup must validate all targets before any deletion.' }
+    Write-Output 'PASS: out-of-root cleanup rejected before deleting any files.'
+    Write-Output 'PASS: uninstall unregisters immediately, defers binaries and preserves a subsequent reinstall.'
     Write-Output 'PASS: independent fresh install, fixed bootstrap, profile settings, repeat installation and modified-file preservation.'
 } finally {
     $env:LOCALAPPDATA = $original

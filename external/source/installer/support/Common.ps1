@@ -89,7 +89,7 @@ function Install-GcFiles([string]$Source, [string]$Destination, [string]$Workben
     if (Test-Path -LiteralPath $Destination) { throw 'The selected installation directory already exists.' }
     New-Item -ItemType Directory -Path $Destination -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $Source 'payload') -Destination $Destination -Recurse
-    foreach ($name in @('Common.ps1', 'Uninstall.ps1', 'LobbyTools.ps1')) { Copy-Item -LiteralPath (Join-Path $Source $name) -Destination $Destination }
+    foreach ($name in @('Common.ps1', 'Uninstall.ps1', 'LobbyTools.ps1', 'Cleanup.ps1')) { Copy-Item -LiteralPath (Join-Path $Source $name) -Destination $Destination }
     $profilePath = Get-GcCanonicalPath $Profile
     if (!(Test-Path -LiteralPath $profilePath -PathType Container)) { throw 'Open GC Tools from your Workbench profile.' }
     # Read the editor's own exported preferences; never configure or control Workbench.
@@ -176,23 +176,23 @@ function Uninstall-GcIntegration {
         }
     }
     Uninstall-GcLobbyTools $control
-    # A live DLL cannot safely unload. Disable first, then require a normal host exit.
-    $loaded = @(Get-Process -Name 'ArmaReforgerWorkbenchSteamDiag' -ErrorAction SilentlyContinue)
-    if ($loaded.Count) { throw 'Automatic loading is disabled and its startup script was removed. Close Workbench normally after saving your work, then run Uninstall.bat again to finish removing the installed files.' }
-    # Old sign-in watchers exit when their active file disappears; bounded startup helpers do too.
-    $deadline = [DateTime]::UtcNow.AddSeconds(15)
-    do {
-        $helpers = @(Get-Process -Name GCWorkbench.Loader -ErrorAction SilentlyContinue | Where-Object {
-            try { $_.Path.StartsWith($control + '\', [StringComparison]::OrdinalIgnoreCase) } catch { $false }
-        })
-        if (!$helpers.Count) { break }
-        Start-Sleep -Milliseconds 250
-    } while ([DateTime]::UtcNow -lt $deadline)
-    if ($helpers.Count) { throw 'Integration helpers are still finishing. Run Uninstall.bat again after they exit; no processes were force-terminated.' }
-    if (Test-Path -LiteralPath $control) {
-        $verified = Assert-GcOwnedPath $control ([IO.Path]::GetFullPath($env:LOCALAPPDATA))
-        if (@(Get-ChildItem -LiteralPath $verified -Recurse -Force | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }).Count) { throw 'Installation contains linked files; preserved without recursive deletion.' }
-        Remove-Item -LiteralPath $verified -Recurse -Force
+    # Capture old versions only. A subsequent installation uses a fresh directory.
+    $versions = Join-Path $control 'versions'
+    $targets = @()
+    if (Test-Path -LiteralPath $versions) {
+        $null = Assert-GcOwnedPath $versions $control
+        $targets = @(Get-ChildItem -LiteralPath $versions -Directory | ForEach-Object { Assert-GcOwnedPath $_.FullName $versions })
     }
-    return 'GC Workbench integration was removed. Other tools, Workbench preferences, your projects and Git were preserved.'
+    if ($targets.Count) {
+        $job = Join-Path ([IO.Path]::GetTempPath()) ('GC-uninstall-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $job | Out-Null
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'Cleanup.ps1') -Destination $job
+        @{ root = $versions; targets = $targets } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $job 'job.json') -Encoding UTF8
+        Start-Process -FilePath (Join-Path $PSHOME 'powershell.exe') -WindowStyle Hidden -ArgumentList @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', ('"' + (Join-Path $job 'Cleanup.ps1') + '"'), '-Wait') | Out-Null
+    }
+    foreach ($name in @('installation.json', 'ui-path.txt')) {
+        $path = Assert-GcOwnedPath (Join-Path $control $name) $control
+        if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path }
+    }
+    return 'GC integration removed. Restart Workbench to finish. Git and your projects were kept.'
 }

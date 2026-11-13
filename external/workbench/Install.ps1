@@ -1,4 +1,4 @@
-param([switch]$Preview, [switch]$Tools)
+param([switch]$Preview, [switch]$Tools, [switch]$Uninstall)
 $ErrorActionPreference = 'Stop'
 try {
     # Workbench may inherit another PowerShell version's module search path.
@@ -10,7 +10,7 @@ try {
     if ($expected -notmatch '^[0-9a-fA-F]{64}$' -or (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $expected) {
         throw 'The external dependency package is incomplete or changed. Restore external/workbench from the GC Lobby source checkout.'
     }
-    if (!$Preview -and !$env:GC_TOOLS_PIPE) { $Tools = $true }
+    if (!$Preview -and !$Uninstall -and !$env:GC_TOOLS_PIPE) { $Tools = $true }
     if ($Tools -or $Preview) {
         # Reuse one completed extraction per package instead of unpacking on every click.
         $cache = Join-Path $env:LOCALAPPDATA 'GCWorkbench/ui'
@@ -40,12 +40,14 @@ try {
         exit $picker.ExitCode
     } elseif ($Preview) {
         Start-Process -FilePath (Join-Path $destination 'support/payload/helper/GCWorkbench.UI.exe') -ArgumentList '--preview'
+    } elseif ($Uninstall) {
+        & (Join-Path $destination 'support/Uninstall.ps1') -Quiet
     } else {
         & (Join-Path $destination 'support/Install.ps1')
     }
 } catch {
     if ($env:GC_TOOLS_OUTCOME) {
-        [IO.File]::WriteAllText($env:GC_TOOLS_OUTCOME, (@{Status='Installation stopped';Detail=$_.Exception.Message} | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding($false)))
+        [IO.File]::WriteAllText($env:GC_TOOLS_OUTCOME, (@{Status=$(if ($Uninstall) { 'Uninstall stopped' } else { 'Installation stopped' });Detail=$_.Exception.Message} | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding($false)))
         exit 1
     }
     Add-Type -AssemblyName System.Windows.Forms

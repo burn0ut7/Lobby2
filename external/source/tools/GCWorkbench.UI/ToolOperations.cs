@@ -15,7 +15,7 @@ internal static class ToolOperations
     internal static async Task<OperationResult> RunAsync(string action, Dictionary<string, object> values,
         Func<DialogSpec, Task<DialogResult>> review, IProgress<DependencyProgress>? progress = null)
     {
-        var script = action == "install"
+        var script = action is "install" or "uninstall"
             ? Environment.GetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT")
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "lobby2-tools", "GC-ModWorkflow.ps1"));
         if (string.IsNullOrEmpty(script) || !File.Exists(script)) throw new IOException("Install the current GC Tools package.");
@@ -36,7 +36,8 @@ internal static class ToolOperations
             if (action == "install")
                 foreach (var key in new[] { "tools", "git" })
                     start.Environment["GC_INSTALL_" + key.ToUpperInvariant()] = values.TryGetValue(key, out var selected) && selected is false ? "0" : "1";
-            if (action != "install")
+            if (action == "uninstall") start.ArgumentList.Add("-Uninstall");
+            if (action is not ("install" or "uninstall"))
             {
                 foreach (var key in new[] { "Lobby2", "GlobalConflictsCore", "GlobalConflictsUnits", "GlobalConflictsMissions" })
                 {

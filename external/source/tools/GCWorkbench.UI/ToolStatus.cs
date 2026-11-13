@@ -124,6 +124,7 @@ internal static class ToolStatus
             var installation = Path.Combine(controlDirectory ?? Control, "installation.json");
             if (!File.Exists(installation)) return new("GC Workbench Tools", "", "Not installed", "warning");
             using var installed = JsonDocument.Parse(File.ReadAllText(installation));
+            if (installed.RootElement.TryGetProperty("enabled", out var enabled) && enabled.ValueKind == JsonValueKind.False) return new("GC Workbench Tools", "", "Not installed", "warning");
             var destination = installed.RootElement.GetProperty("destination").GetString()!;
             var profile = installed.RootElement.GetProperty("profileDirectory").GetString()!;
             if (!File.Exists(Path.Combine(destination, "payload", "generic", "gcworkbench.dll"))) return new("GC Workbench Tools", "", "Installation incomplete", "warning");

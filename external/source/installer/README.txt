@@ -25,7 +25,10 @@ Git for Windows is installed quietly from its official GitHub release, with
 release checksum and Windows signature verification. GC Tools uses Git Credential
 Manager's browser sign-in; it does not collect GitHub passwords.
 
-Uninstall: save and close Workbench, extract the ZIP and run Uninstall.bat.
+Uninstall: use Dependencies > Uninstall in GC Tools, or run Uninstall.bat.
+Save and restart Workbench normally afterward. Old version files are cleaned
+up after Workbench and GC Tools close; a later reinstall is preserved.
+Package caches and diagnostic logs remain available.
 Only GC-owned startup/helpers and installation files are removed. Other tools,
 editor settings, projects and Git are preserved. No live DLL is forcibly unloaded.
 

@@ -9,6 +9,9 @@ void Check(bool condition,string reason){if(!condition)throw new Exception(reaso
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Not installed","Missing installation");
 File.WriteAllText(Path.Combine(control,"installation.json"),JsonSerializer.Serialize(new{destination=install,profileDirectory=profile}));
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Installation incomplete","Missing native DLL");
+File.WriteAllText(Path.Combine(control,"installation.json"),JsonSerializer.Serialize(new{destination=install,profileDirectory=profile,enabled=false}));
+Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Not installed","Disabled integration reported installed");
+File.WriteAllText(Path.Combine(control,"installation.json"),JsonSerializer.Serialize(new{destination=install,profileDirectory=profile}));
 var paths=new Dictionary<string,string>{["support/payload/generic/gcworkbench.dll"]=Path.Combine(install,"payload/generic/gcworkbench.dll"),["support/payload/helper/GCWorkbench.UI.dll"]=Path.Combine(install,"payload/helper/GCWorkbench.UI.dll"),["support/payload/lobby2-tools/GC-GitHub.ps1"]=Path.Combine(profile,"GCWorkbench/tools/GC-GitHub.ps1")};
 foreach(var target in paths.Values){Directory.CreateDirectory(Path.GetDirectoryName(target)!);File.WriteAllText(target,"expected");}
 var zipPath=Path.Combine(package,"GCWorkbench.zip");

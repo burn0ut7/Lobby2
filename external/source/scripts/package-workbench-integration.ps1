@@ -28,7 +28,7 @@ foreach ($source in $nativeSources) {
 New-Item -ItemType Directory -Path $destination -Force | Out-Null
 $support = Join-Path $destination 'support'
 New-Item -ItemType Directory -Path $support -Force | Out-Null
-foreach ($file in @('Install.bat', 'Uninstall.bat', 'README.txt', 'support/Common.ps1', 'support/Install.ps1', 'support/Uninstall.ps1', 'support/LobbyTools.ps1')) {
+foreach ($file in @('Install.bat', 'Uninstall.bat', 'README.txt', 'support/Common.ps1', 'support/Install.ps1', 'support/Uninstall.ps1', 'support/LobbyTools.ps1', 'support/Cleanup.ps1')) {
     Copy-Item -LiteralPath (Join-Path $root ('installer/' + $file)) -Destination (Join-Path $destination $file)
 }
 $helper = Join-Path $support 'payload/helper'

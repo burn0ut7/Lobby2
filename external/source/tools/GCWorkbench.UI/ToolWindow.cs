@@ -220,10 +220,11 @@ public sealed class ToolWindow : Window
         var dependencyPage = spec.Title == "External dependencies" && reviewAnswer is null;
         var cancel = new Button { Content = spec.SecondaryAction, MinWidth = 92, Margin = new Thickness(0, 0, 10, 0) };
         cancel.Click += (_, _) => { if (reviewAnswer is not null) CompleteReview(new("cancel", [])); else Close(); };
-        var confirm = new Button { Content = spec.PrimaryAction, Background = Brush(spec.Accent), BorderBrush = Brush(spec.Accent), Foreground = Brush("#1b2119"), Margin = new Thickness(0) };
+        var confirm = new Button { Content = dependencyPage ? DependencyAction(spec) : spec.PrimaryAction, Background = Brush(spec.Accent), BorderBrush = Brush(spec.Accent), Foreground = Brush("#1b2119"), Margin = new Thickness(0) };
         if (tools && reviewAnswer is null && outcomes.TryGetValue(spec.Title, out var outcome))
         {
-            confirm.Content = outcome.Status is "Installed" or "Updated" or "Submitted" or "Approved" or "Cancelled" ? spec.PrimaryAction : "Retry";
+            confirm.Content = dependencyPage ? DependencyAction(spec) :
+                outcome.Status is "Installed" or "Updated" or "Submitted" or "Approved" or "Cancelled" ? spec.PrimaryAction : "Retry";
             var status = Text(outcome.Status == "Resubmit" ? "Request closed" : outcome.Status, 14, "#f0e9d5", bold: true, margin: new Thickness(0, 0, 0, 6));
             AutomationProperties.SetLiveSetting(status, AutomationLiveSetting.Polite);
             footer.Children.Add(status);
@@ -284,7 +285,21 @@ public sealed class ToolWindow : Window
             buttons.Children.Add(button);
         }
         if (spec.Actions.Count == 0) buttons.Children.Add(confirm);
-        footer.Children.Add(buttons);
+        if (dependencyPage)
+        {
+            var row = new DockPanel();
+            var uninstall = new Button { Content = "Uninstall", HorizontalAlignment = HorizontalAlignment.Left, IsEnabled = !operating };
+            uninstall.Click += async (_, _) =>
+            {
+                if (operating || preview) return;
+                await RunOperationAsync("uninstall", []);
+            };
+            DockPanel.SetDock(uninstall, Dock.Left);
+            row.Children.Add(uninstall);
+            row.Children.Add(buttons);
+            footer.Children.Add(row);
+        }
+        else footer.Children.Add(buttons);
         var footerBorder = new Border { Background = Background, Child = footer };
         Grid.SetRow(footerBorder, 2);
         body.Children.Add(footerBorder);
@@ -358,17 +373,22 @@ public sealed class ToolWindow : Window
         }
         operating = true;
         operationPage = page;
-        operationStatus = action == "submit" ? "Preparing submission..." : "Updating...";
+        operationStatus = action == "submit" ? "Preparing submission..." : action == "uninstall" ? "Uninstalling..." : "Updating...";
         outcomes.Remove(page.Title);
         Render(page);
         OperationResult result;
         try { result = await OperationRunner(action, values, ReviewAsync); }
-        catch (Exception error) { result = new("Try again", error.Message); }
+        catch (Exception error) { result = new(action == "uninstall" ? "Uninstall stopped" : "Try again", error.Message); }
         finally { reviewAnswer = null; operating = false; operationPage = null; operationStatus = ""; }
         outcomes[page.Title] = result;
         Render(statusPages.GetValueOrDefault(page.Title, page));
-        if (action is "update" or "install") await RefreshStatusAsync(false, page.Title);
+        if (action is "update" or "install" or "uninstall") await RefreshStatusAsync(false, page.Title);
     }
+
+    private static string DependencyAction(DialogSpec page) => page.Items.Count == 0 || page.Items.Any(item =>
+        item.Status.StartsWith("Not installed", StringComparison.OrdinalIgnoreCase) ||
+        item.Status.StartsWith("Installation incomplete", StringComparison.OrdinalIgnoreCase) ||
+        item.Status == "Git Credential Manager missing") ? "Install" : "Update";
 
     private static bool DependenciesCurrent(DialogSpec page) =>
         new[] { "GC Workbench Tools", "Git for Windows" }.All(title => page.Items.Any(item => item.Title == title && item.State == "ready"));
@@ -381,7 +401,7 @@ public sealed class ToolWindow : Window
         if (!operating || reviewAnswer is not null || spec.Title != "External dependencies") return;
         var title = progress.Dependency == "tools" ? "GC Workbench Tools" : "Git for Windows";
         var page = spec with { Items = spec.Items.Select(item => item.Title == title ? item with { Status = progress.Status, State = progress.State } : item).ToList() };
-        statusPages[page.Title] = page with { PrimaryAction = "Install / update" };
+        statusPages[page.Title] = page with { PrimaryAction = DependencyAction(page) };
         Render(page);
     }
 
