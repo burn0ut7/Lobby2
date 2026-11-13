@@ -41,6 +41,10 @@ in your default browser.
 
 ## External components
 
+`external/workbench/Preview UI.js` opens the shared GC tool-window design preview.
+Its sample dependency, update and submission forms do not perform operations.
+The UI is bundled with the existing Windows runtime; no separate installation is needed.
+
 For a source checkout, use **Plugins > GC > Install External Dependencies**, or
 double-click `external/workbench/Install.js`. Save work and stop Play first.
 Setup offers the dropdown DLL, profile Git helpers and the official Git for
