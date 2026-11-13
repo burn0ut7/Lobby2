@@ -10,7 +10,7 @@ class GC_ToolsPlugin : WorkbenchPlugin
 			Workbench.Dialog("GC Tools", "Open the Lobby2 source checkout with its external/workbench folder.");
 			return;
 		}
-		ProcessHandle process = Workbench.RunProcess("wscript.exe //nologo //E:JScript \"" + launcher + "\" --tools");
+		ProcessHandle process = Workbench.RunProcess("wscript.exe //nologo //E:JScript \"" + launcher + "\" --tools" + GC_ModWorkflow.ProjectArguments());
 		if (!process)
 		{
 			Workbench.Dialog("GC Tools", "Could not open GC Tools.");
