@@ -52,7 +52,7 @@ function Show-GcReview($spec) {
         }
         if ($script:cancel) {return}
         if ($script:reviewMutation) {& $script:reviewMutation;$script:reviewMutation=$null}
-        return @{Action='confirm';Values=@{title='COOP Alpha';body='Mission changes'}}
+        return @{Action='confirm';Values=@{title='COOP Alpha';overview='Mission changes';tested0=$true;reviewer='Check objectives';dependencies='None'}}
     }
     throw "Unexpected review: $($spec.Title)"
 }

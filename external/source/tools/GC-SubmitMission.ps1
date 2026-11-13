@@ -74,10 +74,70 @@ function Get-SubmissionSnapshot($root,$tip) {
     }
 }
 
+function Get-MissionSubmissionTemplate {
+    @{
+        Overview='Put a brief summary of the mission added or updated here.'
+        Testing='If you have not already, please read [testing your mission](https://github.com/Global-Conflicts-ArmA/gc-reforger-missions/wiki/Testing-your-mission).'
+        Question='Have you tested the following are all working as intended?'
+        Reviewer='Put any specifics the mission reviewer needs to look out for or double check here.'
+        Dependencies="If this mission is dependent on a pull request to GC units or core, or the TilW framework, link it here.`n`nIf this mission is dependent on a mod not currently on the GC mod list, put it here, though understand rejected or incompatible mods may require substantial changes to your mission."
+        Checks=@('Briefing, map, slotting screen','Setup timers / AO Limits','Custom prefabs','Key framework events and interactions (QRFs, etc)','End conditions','Playable in Dedicated Server Tool / Peer Tool')
+    }
+}
+
+function Get-SubmissionDescriptionFields($body,$template) {
+    $body=([string]$body).Replace("`r`n","`n")
+    $values=@{overview='';reviewer='';dependencies='';testingNotes='';checks=@{}}
+    $pattern='(?ms)\A# Overview\r?\n(?<overview>.*?)^## Testing\r?\n(?<testing>.*?)^## Comments for the reviewer\r?\n(?<reviewer>.*?)^## Dependencies\r?\n(?<dependencies>.*)\z'
+    if ($body -match $pattern) {
+        $values.overview=$Matches.overview.Trim()
+        $values.reviewer=$Matches.reviewer.Trim()
+        $values.dependencies=$Matches.dependencies.Trim()
+        $testing=$Matches.testing.Trim()
+        for($index=0;$index -lt $template.Checks.Count;$index++) {
+            $checkPattern='(?m)^- \[(?<checked>[ xX])\] '+[regex]::Escape($template.Checks[$index])+'\r?$'
+            $match=[regex]::Match($testing,$checkPattern)
+            $values.checks["tested$index"]=$match.Success -and $match.Groups['checked'].Value -match '[xX]'
+            $testing=[regex]::Replace($testing,$checkPattern,'')
+        }
+        $values.testingNotes=$testing.Replace($template.Testing,'').Replace($template.Question,'').Trim()
+        if($values.overview -eq $template.Overview){$values.overview=''}
+        if($values.reviewer -eq $template.Reviewer){$values.reviewer=''}
+        $values.dependencies=$values.dependencies.Replace($template.Dependencies,'').Trim()
+    } elseif ($body) {
+        # Preserve older/custom descriptions rather than discarding authored notes.
+        $values.overview=$body
+    }
+    $values
+}
+
+function New-SubmissionDescription($values,$template) {
+    $lines=@('# Overview',$(if([string]::IsNullOrWhiteSpace($values.overview)){$template.Overview}else{[string]$values.overview}),'','## Testing',$template.Testing,'',$template.Question)
+    for($index=0;$index -lt $template.Checks.Count;$index++) {
+        $mark=if($values["tested$index"] -is [bool] -and $values["tested$index"]){'x'}else{' '}
+        $lines+='- ['+$mark+'] '+$template.Checks[$index]
+    }
+    if($values.testingNotes){$lines+=@('',[string]$values.testingNotes)}
+    $lines+=@('','## Comments for the reviewer',$(if([string]::IsNullOrWhiteSpace($values.reviewer)){$template.Reviewer}else{[string]$values.reviewer}),'','## Dependencies',$template.Dependencies)
+    if($values.dependencies){$lines+=@('',[string]$values.dependencies)}
+    $lines -join "`n"
+}
+
 function Read-BranchSubmission($title,$existing,$files) {
+    $template=Get-MissionSubmissionTemplate
+    $saved=Get-SubmissionDescriptionFields $(if($existing -and !$existing.merged_at){[string]$existing.body}else{''}) $template
     $fields=@(
         @{Id='title';Label='Submission name';Required=$true;Value=$title},
-        @{Id='body';Label='Notes for the reviewer';Kind='multiline';Value=$(if($existing){[string]$existing.body}else{''})}
+        @{Id='overview';Label='Overview';Kind='multiline';Help=$template.Overview;Value=$saved.overview},
+        @{Id='testingRules';Label='Testing';Kind='filelist';ReadOnly=$true;Value=("Read: https://github.com/Global-Conflicts-ArmA/gc-reforger-missions/wiki/Testing-your-mission`n`n"+$template.Question)}
+    )
+    for($index=0;$index -lt $template.Checks.Count;$index++) {
+        $fields+=@{Id="tested$index";Label=$template.Checks[$index];Kind='check';Checked=[bool]$saved.checks["tested$index"]}
+    }
+    if($saved.testingNotes){$fields+=@{Id='testingNotes';Label='Testing notes';Kind='multiline';Value=$saved.testingNotes}}
+    $fields+=@(
+        @{Id='reviewer';Label='Comments for the reviewer';Kind='multiline';Help=$template.Reviewer;Value=$saved.reviewer},
+        @{Id='dependencies';Label='Dependencies';Kind='multiline';Help=$template.Dependencies;Value=$saved.dependencies}
     )
     foreach ($group in @(@{Code='A';Label='Added'},@{Code='M';Label='Changed'},@{Code='D';Label='Deleted'})) {
         $paths=@($files | Where-Object { $_.Status -eq $group.Code } | ForEach-Object { $_.Path })
@@ -92,7 +152,11 @@ function Read-BranchSubmission($title,$existing,$files) {
     if (!$answer) { return }
     $name=([string]$answer.Values.title).Trim()
     if (!$name) { throw 'Enter a submission name.' }
-    @{Title=$name;Body=[string]$answer.Values.body}
+    # The UI returns a PSCustomObject; normalize to a dictionary for checklist keys.
+    $values=@{}
+    if($answer.Values -is [System.Collections.IDictionary]) {foreach($key in $answer.Values.Keys){$values[$key]=$answer.Values[$key]}}
+    else {foreach($property in $answer.Values.PSObject.Properties){$values[$property.Name]=$property.Value}}
+    @{Title=$name;Body=(New-SubmissionDescription $values $template)}
 }
 
 function Get-SubmissionBackupTree($root,$stash) {
