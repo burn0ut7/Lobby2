@@ -46,12 +46,27 @@ class GC_LoadoutPrefab
 	}
 
 	//------------------------------------------------------------------------------------------------
+	static bool IsWritable(ResourceName resourceName)
+	{
+		if (!resourceName.GetPath().StartsWith("Prefabs/Loadouts/"))
+			return false;
+		string path;
+		if (!Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:" + resourceName.GetPath(), path))
+			return false;
+		ResourceManager manager = Workbench.GetModule(ResourceManager);
+		if (!manager)
+			return false;
+		MetaFile meta = manager.GetMetaFile(path);
+		return meta && meta.GetResourceID() == resourceName;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	static string Destination(string faction, string group, string name)
 	{
 		if (!ValidName(faction) || !ValidName(group) || !ValidName(name))
 			return string.Empty;
 		string root;
-		if (!Workbench.GetAbsolutePath("$Lobby2:", root))
+		if (!Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:", root))
 			return string.Empty;
 		root = FilePath.Concat(root, "Prefabs/Loadouts/");
 		array<string> files = {};
@@ -86,7 +101,7 @@ class GC_LoadoutPrefab
 		// even with runtime building disabled. Author the native prefab sidecar
 		// directly; the resource manager reads it without invoking the importer.
 		string root;
-		if (!Workbench.GetAbsolutePath("$Lobby2:", root))
+		if (!Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:", root))
 			return string.Empty;
 		root.Replace("\\", "/");
 		path.Replace("\\", "/");
@@ -129,7 +144,7 @@ class GC_LoadoutPrefab
 		if (!GetGame() || !GetGame().GetPlayerController() || !GC_PrefabAuthoringSession.IsAvailable(GetGame().GetPlayerController().GetControlledEntity()))
 			return string.Empty;
 		string root;
-		if (!Workbench.GetAbsolutePath("$Lobby2:Prefabs/Loadouts/", root, false))
+		if (!Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:Prefabs/Loadouts/", root, false))
 			return string.Empty;
 		string normalized = path;
 		normalized.Replace("\\", "/");
@@ -173,7 +188,7 @@ class GC_LoadoutPrefab
 	//------------------------------------------------------------------------------------------------
 	bool Open(ResourceName resourceName)
 	{
-		if (!resourceName.GetPath().StartsWith("Prefabs/Loadouts/"))
+		if (!IsWritable(resourceName))
 			return false;
 		m_sResource = resourceName;
 		m_Resource = Resource.Load(resourceName);
@@ -189,7 +204,7 @@ class GC_LoadoutPrefab
 	//! A new gear choice inherits the pool and uses a predictable, collision-safe filename.
 	static bool CreateGearVariant(IEntity owner, ResourceName parent, int number, out ResourceName created)
 	{
-		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !parent.GetPath().StartsWith("Prefabs/Loadouts/"))
+		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !IsWritable(parent))
 			return false;
 		GC_LoadoutMetadata metadata = GC_LoadoutMetadata.Read(parent);
 		if (!metadata)
@@ -202,7 +217,7 @@ class GC_LoadoutPrefab
 		if (!ValidName(faction) || !ValidName(pool))
 			return false;
 		string directory;
-		if (!Workbench.GetAbsolutePath("$Lobby2:" + FilePath.StripFileName(parent.GetPath()), directory, false))
+		if (!Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:" + FilePath.StripFileName(parent.GetPath()), directory, false))
 			return false;
 		string path;
 		string name;
@@ -427,7 +442,7 @@ class GC_LoadoutPrefab
 		string team = parts[3];
 		team.Replace(" ", "_");
 		string directory;
-		if (!Workbench.GetAbsolutePath("$Lobby2:Prefabs/Loadouts/" + parts[2] + "/" + parts[3] + "/Weapons/", directory, false))
+		if (!Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:Prefabs/Loadouts/" + parts[2] + "/" + parts[3] + "/Weapons/", directory, false))
 			return string.Empty;
 		ResourceManager manager = Workbench.GetModule(ResourceManager);
 		string path;
@@ -724,7 +739,7 @@ class GC_LoadoutPrefab
 	//! Updates only the selected prefab's native randomizer; no gear write or Play restart.
 	bool SaveVariants(IEntity owner, GC_LoadoutVariants variants)
 	{
-		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !m_Source || !variants || !variants.IsValid(m_sResource))
+		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !m_Source || !IsWritable(m_sResource) || !variants || !variants.IsValid(m_sResource))
 			return false;
 		if (variants.Equals(GC_LoadoutVariants.Read(m_Source)))
 			return m_API.SaveEntityTemplate(m_Source);
@@ -767,7 +782,7 @@ class GC_LoadoutPrefab
 	//------------------------------------------------------------------------------------------------
 	bool Save(IEntity owner, GC_LoadoutMetadata metadata = null, bool writeGear = true)
 	{
-		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !m_Source)
+		if (!GC_PrefabAuthoringSession.IsAvailable(owner) || !m_Source || !IsWritable(m_sResource))
 			return false;
 		array<ref ContainerIdPathEntry> editablePath = {};
 		array<ref ContainerIdPathEntry> factionPath = {};

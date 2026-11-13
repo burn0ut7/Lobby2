@@ -157,7 +157,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		// Authoring reads source files, including files created before the paused
 		// Play-time resource database has incorporated them.
 		string directory;
-		if (Workbench.GetAbsolutePath("$Lobby2:Prefabs/Loadouts/", directory, false))
+		if (Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:Prefabs/Loadouts/", directory, false))
 			FileIO.FindFiles(OnFile, directory, ".et");
 		array<string> names = {};
 		map<string, ResourceName> resources = new map<string, ResourceName>();
@@ -420,7 +420,7 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 		root.FindAnyWidget("FileActions").SetVisible(!variantSelected);
 		root.FindAnyWidget("VariantActions").SetVisible(variantSelected);
 		root.FindAnyWidget("VariantSave").SetVisible(m_bVariantsDirty);
-		bool writable = m_sSelected.GetPath().StartsWith("Prefabs/Loadouts/");
+		bool writable = GC_LoadoutPrefab.IsWritable(m_sSelected);
 		SCR_ButtonTextComponent.GetButtonText("AddVariant", root).SetEnabled(writable);
 		SCR_ButtonTextComponent.GetButtonText("DeleteVariant", root).SetEnabled(writable && variantSelected);
 		SCR_ButtonTextComponent.GetButtonText("Load", root).SetEnabled(!m_bCurrentGear && !m_bVariantsDirty);
@@ -742,6 +742,12 @@ class GC_LoadoutFilesMenu : ChimeraMenuBase
 				m_Status.SetText("#GC-Loadout_LoadFailed");
 			else
 				Close();
+			return;
+		}
+		string unitsRoot;
+		if (!Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:", unitsRoot))
+		{
+			m_Status.SetText("Load GC Units Dev to save loadouts.");
 			return;
 		}
 		string path = GC_LoadoutPrefab.Destination(m_Faction.GetText(), m_Group.GetText(), m_Name.GetText());

@@ -51,6 +51,11 @@ function Confirm-Replacement($name, [string[]]$filesToReplace) {
 }
 
 function Get-ModBase($root, $repo) {
+    if ($repo -in @('Global-Conflicts-ArmA/gc-reforger-core','Global-Conflicts-ArmA/gc-reforger-units','Global-Conflicts-ArmA/gc-reforger-missions')) {
+        $lines=@(Git $root @('ls-remote','--heads',"https://github.com/$repo.git",'refs/heads/dev'))
+        if ($lines.Count -ne 1 -or $lines[0] -notmatch '^([a-f0-9]{40,64})\s+refs/heads/dev$') { throw 'The required dev branch could not be found. No release branch was used.' }
+        return @{Name='dev';Commit=$Matches[1]}
+    }
     $lines = @(Git $root @('ls-remote','--symref',"https://github.com/$repo.git",'HEAD') | Where-Object { $_ -cmatch '\tHEAD$' })
     if ($lines.Count -ne 2 -or $lines[0] -notmatch '^ref: refs/heads/(.+)\s+HEAD$') { throw "Could not check $repo." }
     $name = $Matches[1]
@@ -131,9 +136,9 @@ function Connect-GitHub {
 function Get-GcAddons($Lobby2,$GlobalConflictsCore,$GlobalConflictsUnits,$GlobalConflictsMissions) {
     $addons = @(
         @{Name='GC Lobby'; Key='Lobby2'; Project=$Lobby2; Guid='6A115D5DFF7ED870'; Repo='burn0ut7/gc-lobby'}
-        @{Name='GC Core'; Key='GlobalConflictsCore'; Project=$GlobalConflictsCore; Guid='623555110E2B2CA0'; Repo='Global-Conflicts-ArmA/gc-reforger-core'}
-        @{Name='GC Units'; Key='GlobalConflictsUnits'; Project=$GlobalConflictsUnits; Guid='6156F2F771D5D73D'; Repo='Global-Conflicts-ArmA/gc-reforger-units'}
-        @{Name='GC Missions'; Key='GlobalConflictsMissions'; Project=$GlobalConflictsMissions; Guid='62D55563549DA97A'; Repo='Global-Conflicts-ArmA/gc-reforger-missions'}
+        @{Name='GC Core Dev'; Key='GlobalConflictsCore'; Project=$GlobalConflictsCore; Guid='623555110E2B2CA1'; Repo='Global-Conflicts-ArmA/gc-reforger-core'}
+        @{Name='GC Units Dev'; Key='GlobalConflictsUnits'; Project=$GlobalConflictsUnits; Guid='6156F2F771D5D73E'; Repo='Global-Conflicts-ArmA/gc-reforger-units'}
+        @{Name='GC Missions Dev'; Key='GlobalConflictsMissions'; Project=$GlobalConflictsMissions; Guid='62D55563549DA97B'; Repo='Global-Conflicts-ArmA/gc-reforger-missions'}
     )
     # Workbench only resolves mounts loaded in the current project. Source checkouts
     # installed alongside GC Lobby can still be updated after their GUID is verified.

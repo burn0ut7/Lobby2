@@ -87,3 +87,22 @@ Test projects, captures and historical development notes are not release inputs.
 `resourceDatabase.rdb` is Workbench-generated local state, not authored content.
 Publish through Workbench and inspect the produced package before release;
 source-tree cleanup alone does not validate a Workshop package.
+
+## Development content ownership
+
+GC Tools targets `dev` for GC Core, GC Units and GC Missions. Use their local
+Dev addon checkouts (GlobalConflictsCoreDev, GlobalConflictsUnitsDev and
+GlobalConflictsMissionsDev); release addons have different identities.
+
+- GC Core Dev owns shared mod-pack functionality and changes.
+- GC Units Dev owns unit/loadout prefabs. The loadout authoring tools write only
+  to its `Prefabs/Loadouts` tree, including gear and weapon variants. Load this
+  addon in Workbench before saving; other addons' prefabs remain read-only inputs.
+- GC Missions Dev owns GC mission worlds, headers and mission-specific scripts
+  and data. Save GC mission worlds there. Create Mission Data intentionally follows
+  the selected world's owning addon, so other addons' worlds keep their own headers.
+
+The Units Dev project depends on Core Dev; Missions Dev depends on both. The
+GC Lobby framework stays separate. Its example worlds remain development examples,
+not automatically moved into GC Missions. Submission updates contributors' forks
+and requests approval into dev; it does not push directly to shared branches.

@@ -1,16 +1,15 @@
 # Git-only branch submission. Never saves, exports, or queries Workbench.
 # Discover the contributor's one request, independent of their local branch.
 function Get-ContributorMissionPr($auth,$repo,$owner,$base) {
-    $baseName=[Uri]::EscapeDataString($base)
     $forkRepo=$owner+'/'+($repo -split '/')[1]
     foreach ($state in @('open','closed')) {
         $found=@()
         for ($page=1; $page -le 100; $page++) {
             # Windows PowerShell REST responses can arrive as one array object.
             # Enumerate the response before filtering individual requests.
-            $response=Invoke-SubmissionApi $auth GET "repos/$repo/pulls?state=$state&base=$baseName&sort=created&direction=desc&per_page=100&page=$page"
+            $response=Invoke-SubmissionApi $auth GET "repos/$repo/pulls?state=$state&sort=created&direction=desc&per_page=100&page=$page"
             $items=@($response | ForEach-Object { $_ })
-            $matches=@($items | Where-Object { $_.head.repo.full_name -ieq $forkRepo -and $_.base.ref -ceq $base })
+            $matches=@($items | Where-Object { $_.head.repo.full_name -ieq $forkRepo })
             if ($state -eq 'closed' -and $matches.Count) { return $matches[0] }
             $found+= $matches
             if ($items.Count -lt 100) { break }
@@ -23,7 +22,7 @@ function Get-ContributorMissionPr($auth,$repo,$owner,$base) {
 
 function Get-SubmissionPrRevision($pr) {
     if (!$pr) { return '' }
-    @($pr.number,$pr.state,$pr.merged_at,$pr.title,$pr.body,$pr.head.ref) | ConvertTo-Json -Compress
+    @($pr.number,$pr.state,$pr.merged_at,$pr.title,$pr.body,$pr.head.ref,$pr.base.ref) | ConvertTo-Json -Compress
 }
 
 function Get-SubmissionAuth { Get-GcGitHubAuth }
@@ -192,6 +191,7 @@ function Assert-SubmissionDependency($dependency,$auth) {
         throw 'Units / loadouts changed. Submit again to review those changes first.'
     }
     $status=Invoke-SubmissionApi $auth GET "repos/$($dependency.Repo)/pulls/$($dependency.Number)"
+    if($status.base.ref -cne $dependency.Base) {throw 'The units / loadout request target changed. Submit again to target dev.'}
     if($status.head.sha -ne $dependency.Commit) {throw 'The units / loadout request changed. Submit again to review it first.'}
     if(!$status.merged_at -and $status.merged -ne $true -and ($status.state -ne 'open' -or $status.mergeable -eq $false)) {
         throw 'The units / loadout request is closed or has conflicts. Submit again to resolve it first.'
@@ -400,7 +400,7 @@ function Invoke-MissionSubmissionCore($root,$repo,$kind='missions',$dependency=$
     $latest=Get-ModBase $root $repo
     if ($latest.Commit -ne $base.Commit -or $latest.Name -cne $base.Name) { throw "$sharedLabel changed during upload. Your upload is saved; an existing approval request now includes it. Submit again to sync the latest changes." }
     Assert-SubmissionDependency $dependency $auth
-    $fields=@{title=$review.Title;body=$review.Body}
+    $fields=@{title=$review.Title;body=$review.Body;base=$base.Name}
     $currentPr=Get-ContributorMissionPr $auth $repo $owner $base.Name
     if ((Get-SubmissionPrRevision $currentPr) -cne $prRevision) {
         throw 'Your approval request changed during upload. Your upload is saved; submit again to check its current status.'
@@ -422,7 +422,8 @@ function Invoke-MissionSubmissionCore($root,$repo,$kind='missions',$dependency=$
     }
     if (!$pr.number) {throw 'Upload saved. Approval request could not be confirmed. Retry Submit.'}
     $status=Invoke-SubmissionApi $auth GET "repos/$repo/pulls/$($pr.number)"
-    $receipt.Value=@{Status='submitted';Repo=$repo;Number=$pr.number;Url="https://github.com/$repo/pull/$($pr.number)";Root=$root;Commit=$commit;Tree=$tree}
+    $receipt.Value=@{Status='submitted';Repo=$repo;Base=$base.Name;Number=$pr.number;Url="https://github.com/$repo/pull/$($pr.number)";Root=$root;Commit=$commit;Tree=$tree}
+    if ($status.base.ref -cne $base.Name) { throw 'Upload saved. The approval request target could not be confirmed. Retry Submit.' }
     if ($status.merged -eq $true -or $status.merged_at) {
         Set-SubmissionResult $receipt 'Approved' 'This request has been merged. Submit again for any remaining changes.' "https://github.com/$repo/pull/$($pr.number)"
         return 0

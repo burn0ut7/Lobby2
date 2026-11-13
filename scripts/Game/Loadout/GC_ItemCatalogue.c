@@ -161,7 +161,7 @@ class GC_ItemCatalogue
 	{
 		m_iAuthoredRevision = s_iAuthoredRevision;
 		string directory;
-		if (Workbench.GetAbsolutePath("$Lobby2:Prefabs/Loadouts/", directory, false))
+		if (Workbench.GetAbsolutePath("$GlobalConflictsUnitsDev:Prefabs/Loadouts/", directory, false))
 			FileIO.FindFiles(OnAuthoredWeapon, directory, ".et");
 	}
 
@@ -175,7 +175,7 @@ class GC_ItemCatalogue
 		ResourceName prefab = meta.GetResourceID();
 		if (!prefab.GetPath().Contains("/Weapons/"))
 			return;
-		m_sDiscovering = "Lobby2";
+		m_sDiscovering = "GlobalConflictsUnitsDev";
 		OnResource(prefab, filename);
 	}
 #endif

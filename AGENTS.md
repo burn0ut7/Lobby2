@@ -28,6 +28,15 @@ Prefer supported engine and base-game capabilities over custom helpers. Retain c
 
 Keep one canonical implementation per responsibility. Prefer the smallest coherent change; discuss changes to the phase model or multiplayer ownership.
 
+## GC content destinations
+
+GC Core, Units and Missions tooling targets their `dev` branches and Dev addon
+identities. Core owns shared mod-pack code; Units owns loadout/unit prefabs;
+Missions owns mission worlds, headers and mission-specific scripts/data.
+Loadout authoring writes only to GlobalConflictsUnitsDev. Mission-header authoring
+follows the selected world's addon, including non-GC worlds; do not force every
+header into GC Missions. Use GC Missions Dev for GC submission content.
+
 ## Framework independence
 
 TilW Mission Framework is research material only. Do not add its dependency, call its APIs, extend its classes, use fields injected by it, or place its framework entities in GC Lobby resources. Retain source attribution when documenting research.

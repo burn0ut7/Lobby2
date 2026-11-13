@@ -6,9 +6,9 @@ $script:repos=@{};$addons=@()
 foreach($kind in @('units','missions')) {
     $repo="Global-Conflicts-ArmA/gc-reforger-$kind"
     $shared=Join-Path $fixture "$kind-shared";$author=Join-Path $fixture "$kind-author";$fork=Join-Path $fixture "$kind-fork.git"
-    $guid=if($kind -eq 'units'){'6156F2F771D5D73D'}else{'62D55563549DA97A'}
+    $guid=if($kind -eq 'units'){'6156F2F771D5D73E'}else{'62D55563549DA97B'}
     $null=New-Item -ItemType Directory $shared -Force
-    $null=Git $shared @('init','-q','-b','main')
+    $null=Git $shared @('init','-q','-b','dev')
     $null=Git $shared @('config','user.name','Fixture');$null=Git $shared @('config','user.email','fixture@example.invalid')
     [IO.File]::WriteAllText("$shared/addon.gproj",("GameProject {`n GUID `"$guid`"`n}"))
     $null=Git $shared @('add','.');$null=Git $shared @('commit','-qm','Base')
@@ -25,7 +25,7 @@ function Invoke-SubmissionApi($auth,$method,$path,$data,[switch]$AllowMissing) {
     if($path -eq 'user'){return @{login='tester';id=42}}
     if($path -notmatch '^repos/(?:Global-Conflicts-ArmA|tester)/(gc-reforger-(?:units|missions))(.*)$'){throw "Unexpected API $path"}
     $name=$Matches[1];$suffix=$Matches[2];$r=$script:repos["Global-Conflicts-ArmA/$name"]
-    if($suffix -eq ''){if($r.Ready){return @{fork=$true;parent=@{full_name="Global-Conflicts-ArmA/$name"};default_branch='main'}};return}
+    if($suffix -eq ''){if($r.Ready){return @{fork=$true;parent=@{full_name="Global-Conflicts-ArmA/$name"};default_branch='dev'}};return}
     if($suffix -eq '/forks'){$r.Ready=$true;$r.Forks++;return @{full_name="tester/$name"}}
     if($suffix.StartsWith('/pulls?')){
         $items=@();if($r.Pr -and $suffix.Contains('state='+$r.Pr.state+'&')){$items+=($r.Pr|ConvertTo-Json -Depth 10|ConvertFrom-Json)}
@@ -33,9 +33,9 @@ function Invoke-SubmissionApi($auth,$method,$path,$data,[switch]$AllowMissing) {
     }
     if($method -eq 'POST' -and $suffix -eq '/pulls'){
         $r.Created++
-        $r.Pr=@{number=$(if($r.Kind -eq 'units'){21}else{31});state='open';merged_at=$null;mergeable=$true;title=$data.title;body=$data.body;head=@{ref='gc-submissions';repo=@{full_name="tester/$name"}};base=@{ref='main'}}
-        Assert ($data.base -eq 'main') 'Wrong target branch'
-    } elseif($method -eq 'PATCH'){if($script:denyMissionReopen -and $r.Kind -eq 'missions' -and $data.state -eq 'open'){throw 'Fixture reopen denied'};$r.Patched++;$r.Pr.title=$data.title;$r.Pr.body=$data.body;if($data.state){$r.Pr.state=$data.state}}
+        $r.Pr=@{number=$(if($r.Kind -eq 'units'){21}else{31});state='open';merged_at=$null;mergeable=$true;title=$data.title;body=$data.body;head=@{ref='gc-submissions';repo=@{full_name="tester/$name"}};base=@{ref='dev'}}
+        Assert ($data.base -eq 'dev') 'Wrong target branch'
+    } elseif($method -eq 'PATCH'){if($script:denyMissionReopen -and $r.Kind -eq 'missions' -and $data.state -eq 'open'){throw 'Fixture reopen denied'};$r.Patched++;$r.Pr.title=$data.title;$r.Pr.base.ref=$data.base;$r.Pr.body=$data.body;if($data.state){$r.Pr.state=$data.state}}
     if($script:closeUnitsOnStatus -and $r.Kind -eq 'units' -and $method -eq 'GET'){$r.Pr.state='closed';$script:closeUnitsOnStatus=$false}
     $r.Pr.head.sha=Git $r.Fork @('rev-parse','gc-submissions')
     return $r.Pr
@@ -84,6 +84,12 @@ $script:closeUnitsOnStatus=$true;$script:reviews=@()
 Assert ((Invoke-MissionSubmission $addons) -eq 2) 'Closed units request allowed mission'
 Assert ($script:reviews.Count -eq 1 -and (Git $missions.Fork @('rev-parse','gc-submissions')) -eq $missionTip) 'Mission continued after units request closed'
 Assert ((Invoke-MissionSubmission $addons) -eq 0 -and $units.Created -eq 1) 'Closed units request retry duplicated or failed'
+$missionTip=Git $missions.Fork @('rev-parse','gc-submissions')
+$script:mutation={ $script:repos['Global-Conflicts-ArmA/gc-reforger-units'].Pr.base.ref='main' }
+Assert ((Invoke-MissionSubmission $addons) -eq 2) 'Retargeted units accepted'
+Assert ($script:outcome.Detail -like '*request target changed*' -and (Git $missions.Fork @('rev-parse','gc-submissions')) -eq $missionTip) 'Mission uploaded with release-targeted dependency'
+Assert ((Invoke-MissionSubmission $addons) -eq 0) 'Retargeted dependency retry failed'
+Assert ($units.Pr.base.ref -eq 'dev') 'Units request was not retargeted to dev'
 $missionTip=Git $missions.Fork @('rev-parse','gc-submissions')
 $script:mutation={ [IO.File]::WriteAllText(($script:repos['Global-Conflicts-ArmA/gc-reforger-units'].Author+'/Loadout.et'),'edited during mission review') }
 Assert ((Invoke-MissionSubmission $addons) -eq 2) 'Stale units accepted'

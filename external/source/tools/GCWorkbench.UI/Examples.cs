@@ -18,9 +18,9 @@ internal static class Examples
         PrimaryAction = "Update selected",
         Fields = [
             new() { Id = "lobby", Label = "GC Lobby", Kind = "check", Checked = true },
-            new() { Id = "core", Label = "GC Core", Kind = "check", Checked = true },
-            new() { Id = "units", Label = "GC Units", Kind = "check", Checked = true },
-            new() { Id = "missions", Label = "GC Missions", Kind = "check", Checked = true }
+            new() { Id = "core", Label = "GC Core Dev", Kind = "check", Checked = true },
+            new() { Id = "units", Label = "GC Units Dev", Kind = "check", Checked = true },
+            new() { Id = "missions", Label = "GC Missions Dev", Kind = "check", Checked = true }
         ]
     };
 

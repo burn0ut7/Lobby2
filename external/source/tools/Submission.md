@@ -10,10 +10,17 @@ Git Credential Manager handles GitHub browser sign-in. GC Tools uses the same
 credential provider for Git and API requests; it has no password form. Submission
 creates a personal fork when needed, so contributors need no upstream write access.
 
+## Development targets
+
+GC Core, GC Units and GC Missions checks, updates and pull requests target their
+explicit `dev` branches. Missing dev is an error; release/default branches are
+never substituted. Source checkout validation uses the separate Dev addon GUIDs.
+GC Lobby continues to follow its own default branch.
+
 ## Workflow
 
 1. Read the current branch and saved, unignored files in the GC Missions checkout.
-2. Fetch the latest shared main and any existing personal submission branch.
+2. Fetch the latest shared dev and any existing personal submission branch.
 3. Combine those changes, resolving conflicts in the hub before uploading.
 4. Review the mission name, overview, testing checklist, reviewer comments
    and Added / Changed / Deleted file lists. The form shows the
@@ -27,8 +34,8 @@ creates a personal fork when needed, so contributors need no upstream write acce
 
 All saved changes in that checkout are included, including dependency declarations
 and supporting files. GC Tools does not infer or download missing mission assets.
-The shared main branch is never pushed by submission. The local mission branch
-contains the fetched main before upload. Cancellation during review leaves the
+The shared dev branch is never pushed by submission. The local mission branch
+contains the fetched dev before upload. Cancellation during review leaves the
 checkout unchanged. Recovery references live under refs/gc/backups.
 
 ## Units / loadouts first
@@ -60,7 +67,8 @@ One personal fork is reused for all missions. The first online branch is
 branch, locally and online. Starting from another local editing branch combines
 its saved changes with the existing submission and switches back to that same
 submission branch. Other user-created branches are preserved. Lookup uses the
-contributor's fork and target main, not their current local branch.
+contributor's fork, not their current local branch. Existing requests targeting a
+release branch are reused and retargeted to dev after review.
 
 Additional missions update the same pending request. A closed, unmerged request
 shows Resubmit in review; confirming attempts to reopen that same request. If
@@ -79,11 +87,11 @@ picked up on the next submission; the displayed result is not a live GitHub feed
 
 Readable text conflicts show My version and Shared version with explicit file
 choices. Binary, oversized and unsupported file conflicts stop for manual help;
-GC Tools does not guess a winner. Changed local files, online submissions or main
+GC Tools does not guess a winner. Changed local files, online submissions or dev
 invalidate a review. A rejected upload keeps the local result for a safe retry.
 
 GitHub can change after any check. Pushing to an existing pull request immediately
-updates its head. If main changes during upload, GC Tools requests another Submit
+updates its head. If dev changes during upload, GC Tools requests another Submit
 to synchronize it; that check cannot undo an already uploaded head. GitHub's final
 mergeability check may still be pending when the request is created.
 

@@ -14,7 +14,10 @@ class GC_ModWorkflow
 		foreach (string mount : mounts)
 		{
 			string project;
-			if (Workbench.GetAbsolutePath("$" + mount + ":addon.gproj", project))
+			string sourceMount = mount;
+			if (mount != "Lobby2")
+				sourceMount += "Dev";
+			if (Workbench.GetAbsolutePath("$" + sourceMount + ":addon.gproj", project))
 				arguments += " -" + mount + " \"" + project + "\"";
 		}
 		return arguments;

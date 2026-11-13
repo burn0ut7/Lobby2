@@ -5,12 +5,12 @@ function Assert($value,$message) {if(!$value){throw $message}}
 $fixture=Join-Path ([IO.Path]::GetTempPath()) ('gc-submission-test-'+[guid]::NewGuid())
 $upstream=Join-Path $fixture 'shared';$author=Join-Path $fixture 'author';$forkPath=Join-Path $fixture 'personal.git'
 $null=New-Item -ItemType Directory -Path $upstream -Force
-$null=Git $upstream @('init','-q','-b','main')
+$null=Git $upstream @('init','-q','-b','dev')
 $null=Git $upstream @('config','user.name','Fixture')
 $null=Git $upstream @('config','user.email','fixture@example.invalid')
 $worldPath='worlds/Example.ent';$headerPath='Missions/Example.conf'
 $null=New-Item -ItemType Directory -Path "$upstream/worlds/Example_Layers","$upstream/Missions" -Force
-[IO.File]::WriteAllText("$upstream/addon.gproj",('GameProject {'+[Environment]::NewLine+' GUID "62D55563549DA97A"'+[Environment]::NewLine+'}'))
+[IO.File]::WriteAllText("$upstream/addon.gproj",('GameProject {'+[Environment]::NewLine+' GUID "62D55563549DA97B"'+[Environment]::NewLine+'}'))
 [IO.File]::WriteAllText("$upstream/$worldPath",'base world')
 [IO.File]::WriteAllText("$upstream/$worldPath.meta",'MetaFileClass {'+"`n"+' Name "{ABCD123456789012}worlds/Example.ent"'+"`n"+'}')
 [IO.File]::WriteAllText("$upstream/$headerPath",'GC_MissionHeader {'+"`n"+' World "{ABCD123456789012}worlds/Example.ent"'+"`n"+' m_sName "COOP Alpha"'+"`n"+'}')
@@ -26,7 +26,7 @@ $null=Git $author @('config','user.email','author@example.invalid')
 $repo='Global-Conflicts-ArmA/gc-reforger-missions'
 $null=Git $author @('config',"url.$upstream.insteadOf","https://github.com/$repo.git")
 $null=Git $author @('config',"url.$forkPath.insteadOf",'https://tester@github.com/tester/gc-reforger-missions.git')
-$addons=@(@{Name='GC Missions';Key='GlobalConflictsMissions';Project="$author/addon.gproj";Guid='62D55563549DA97A';Repo=$repo})
+$addons=@(@{Name='GC Missions';Key='GlobalConflictsMissions';Project="$author/addon.gproj";Guid='62D55563549DA97B';Repo=$repo})
 $script:forkReady=$false;$script:created=0;$script:patched=0;$script:pr=$null;$script:cancel=$false;$script:choice='mine';$script:conflicts=0;$script:reviewMutation=$null
 function Get-SubmissionAuth {@{}}
 function Get-GcGitHubStatus { @{Connected=$true} }
@@ -58,14 +58,14 @@ function Show-GcReview($spec) {
 }
 function Invoke-SubmissionApi($auth,$method,$path,$data,[switch]$AllowMissing) {
     if($path -eq 'user'){return @{login='tester';id=42}}
-    if($path -eq 'repos/tester/gc-reforger-missions') {if($script:forkReady){return @{fork=$true;parent=@{full_name=$repo};default_branch='main'}};return}
+    if($path -eq 'repos/tester/gc-reforger-missions') {if($script:forkReady){return @{fork=$true;parent=@{full_name=$repo};default_branch='dev'}};return}
     if($method -eq 'POST' -and $path -eq "repos/$repo/forks") {$script:forkReady=$true;return @{full_name='tester/gc-reforger-missions'}}
     if($method -eq 'GET' -and $path.Contains('/pulls?')){
         if($script:closeAfterPush -and $path.Contains('state=open&')) {
             $script:openChecks++
             if($script:openChecks -eq 4){$script:pr.state='closed';$script:closeAfterPush=$false}
         }
-        $unrelated=@{number=9000;state=$(if($path.Contains('state=open&')){'open'}else{'closed'});head=@{repo=@{full_name='another-user/gc-reforger-missions'};ref='unrelated-branch'};base=@{ref='main'}}
+        $unrelated=@{number=9000;state=$(if($path.Contains('state=open&')){'open'}else{'closed'});head=@{repo=@{full_name='another-user/gc-reforger-missions'};ref='unrelated-branch'};base=@{ref='dev'}}
         $page=@($unrelated)
         if($script:pr -and $path.Contains('state='+$script:pr.state+'&')) {$page+=($script:pr | ConvertTo-Json -Depth 10 | ConvertFrom-Json)}
         # Match Windows PowerShell Invoke-RestMethod's non-enumerated JSON array.
@@ -73,14 +73,14 @@ function Invoke-SubmissionApi($auth,$method,$path,$data,[switch]$AllowMissing) {
     }
     if($method -eq 'POST' -and $path.EndsWith('/pulls')) {
         $script:created++;$script:branch=$data.head.Substring('tester:'.Length)
-        Assert ($data.base -eq 'main' -and $data.maintainer_can_modify) 'Wrong PR destination'
+        Assert ($data.base -eq 'dev' -and $data.maintainer_can_modify) 'Wrong PR destination'
         $main=Git $upstream @('rev-parse','HEAD')
         Assert ((Git $forkPath @('merge-base',$script:branch,$main)) -eq $main) 'PR created before latest main was merged'
-        $script:pr=@{number=(11+$script:created);state='open';merged_at=$null;body=$data.body;title=$data.title;mergeable=$true;head=@{repo=@{full_name='tester/gc-reforger-missions';owner=@{login='tester'}};ref=$script:branch};base=@{ref='main'}}
+        $script:pr=@{number=(11+$script:created);state='open';merged_at=$null;body=$data.body;title=$data.title;mergeable=$true;head=@{repo=@{full_name='tester/gc-reforger-missions';owner=@{login='tester'}};ref=$script:branch};base=@{ref='dev'}}
         return $script:pr
     }
     if($path -match '/pulls/\d+$') {
-        if($method -eq 'PATCH'){$script:patched++;$script:pr.body=$data.body;$script:pr.title=$data.title;if($data.state){if($script:denyReopen){throw 'Fixture reopen denied'};$script:pr.state=$data.state}}
+        if($method -eq 'PATCH'){$script:patched++;$script:pr.body=$data.body;$script:pr.title=$data.title;$script:pr.base.ref=$data.base;if($data.state){if($script:denyReopen){throw 'Fixture reopen denied'};$script:pr.state=$data.state}}
         if($script:closeOnRead -and $method -eq 'GET'){$script:pr.state='closed';$script:closeOnRead=$false}
         return $script:pr
     }
@@ -107,12 +107,13 @@ Assert ([IO.File]::ReadAllText("$author/$worldPath") -eq 'my first world') 'Canc
 $script:cancel=$false
 Assert ((Invoke-MissionSubmission $addons) -eq 0) 'Initial submission failed'
 Assert ($created -eq 1 -and $script:branch -eq 'gc-submissions') 'Automatic branch/PR missing'
-Assert ((Git $author @('rev-parse','main')) -eq $initial) 'Original main branch was modified'
+Assert ((Git $author @('rev-parse','dev')) -eq $initial) 'Original main branch was modified'
 Assert ((Git $author @('branch','--show-current')) -eq 'gc-submissions') 'Automatic mission branch not selected'
 Assert ((Git $forkPath @('show',($script:branch+':new dependency.txt'))) -eq 'mission dependency') 'Saved new files missing'
 Assert (!(Test-Path "$author/readme.txt")) 'Deleted file restored during submission'
 Assert-Synced
 Assert (@(Git $author @('for-each-ref','--format=%(refname)','refs/gc/backups')).Count -ge 2) 'Recovery refs missing'
+$script:pr.base.ref='main' # An existing release-targeted request must be reused and retargeted.
 [IO.File]::WriteAllText("$author/$worldPath",'local conflict')
 [IO.File]::WriteAllText("$upstream/$worldPath",'shared conflict')
 $null=Git $upstream @('add','.');$null=Git $upstream @('commit','-qm','Shared conflict')
@@ -122,6 +123,7 @@ Assert ((Invoke-MissionSubmission $addons) -eq 2) 'Conflict cancel not honored'
 Assert ((Git $author @('rev-parse','HEAD')) -eq $before -and (Git $forkPath @('rev-parse',$script:branch)) -eq $remoteBefore) 'Conflict cancellation changed a branch'
 $script:choice='mine'
 Assert ((Invoke-MissionSubmission $addons) -eq 0 -and $conflicts -ge 2 -and $created -eq 1 -and $patched -eq 1) 'Conflict resolution/PR reuse failed'
+Assert ($script:pr.base.ref -eq 'dev') 'Existing request was not retargeted to dev'
 Assert ([IO.File]::ReadAllText("$author/$worldPath") -eq 'local conflict') 'Mine choice lost'
 Assert-Synced
 [IO.File]::WriteAllText("$author/$worldPath",'local next')
@@ -177,7 +179,7 @@ Assert-Synced
 $null=Git $author @('add','local-pending.txt')
 $null=Git $author @('commit','-qm','Local pending work')
 $branchesBefore=@(Git $author @('for-each-ref','--format=%(refname)','refs/heads'))
-$null=Git $author @('switch','-q','main')
+$null=Git $author @('switch','-q','dev')
 [IO.File]::WriteAllText("$author/worlds/FourthMission.ent",'another saved mission')
 $script:normalGit=${function:Git}
 function Git([string]$root,[string[]]$arguments) {
@@ -187,7 +189,7 @@ function Git([string]$root,[string[]]$arguments) {
 try {
     try {$null=Invoke-MissionSubmission $addons;throw 'Local apply failure accepted'} catch {Assert ($_.Exception.Message -like 'The update could not finish.*') $_.Exception.Message}
 } finally {Set-Item function:Git $script:normalGit}
-Assert ((Git $author @('branch','--show-current')) -eq 'main') 'Apply failure did not restore source branch'
+Assert ((Git $author @('branch','--show-current')) -eq 'dev') 'Apply failure did not restore source branch'
 Assert ([IO.File]::ReadAllText("$author/worlds/FourthMission.ent") -eq 'another saved mission') 'Apply failure lost saved files'
 [IO.File]::AppendAllText("$author/.git/info/exclude","`nlocal-pending.txt`n")
 [IO.File]::WriteAllText("$author/local-pending.txt",'ignored local file')
