@@ -31,6 +31,28 @@ The shared main branch is never pushed by submission. The local mission branch
 contains the fetched main before upload. Cancellation during review leaves the
 checkout unchanged. Recovery references live under refs/gc/backups.
 
+## Units / loadouts first
+
+Submit mission checks the GC Units source checkout first, including saved files,
+local submission commits and the online submission branch. If it has pending
+changes against the shared version, a separate units/loadouts review appears
+before the mission form, with Added / Changed / Deleted lists and conflict review.
+No pending changes means no units review, fork creation or upload.
+
+The same submission engine handles both repositories. Each repository has its
+own personal fork, reusable submission branch and one pending request. Confirming
+units creates or updates its request; the mission form then shows that request
+read-only and adds a Required units / loadouts link automatically to its PR body.
+There is no manual Dependencies form. The units request and saved files are
+rechecked before mission upload; a closed/conflicting or changed dependency stops
+submission for another review. Merged units with no remaining changes need no
+pending dependency link.
+
+Cancelling the units step stops before mission upload. If units were uploaded and
+the mission step is cancelled or fails, the units request remains saved and its
+link is shown. Retrying reuses it. These two GitHub requests are not an atomic
+transaction; reviewers still approve each separately and should merge units first.
+
 ## One contributor, one pending request
 
 One personal fork is reused for all missions. The first online branch is
