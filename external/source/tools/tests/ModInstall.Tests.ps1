@@ -25,6 +25,13 @@ try {
         $null = Git $upstream @('switch','-qc','dev')
         Set-Content -LiteralPath (Join-Path $upstream 'addon.gproj') -Value (' GUID "' + $addon.Guid + '"')
         $null = Git $upstream @('add','.'); $null = Git $upstream @('commit','-qm','Development')
+        if ($addon.Key -eq 'GlobalConflictsMissions') {
+            # Populate the tree without depending on PowerShell's own path limits.
+            $longPath = 'worlds/' + ('MissionAssets/' * 15) + 'Character_Sharpshooter.et.meta'
+            $blob = Git $upstream @('hash-object','-w','addon.gproj')
+            $null = Git $upstream @('update-index','--add','--cacheinfo',("100644,$blob,$longPath"))
+            $null = Git $upstream @('commit','-qm','Long mission path')
+        }
         $null = Git $upstream @('switch','-q','main')
         $null = Git $upstream @('config','--global','--add',("url.$upstream.insteadOf"),("https://github.com/" + $addon.Repo + '.git'))
         $status = Get-GcModStatus $addon
@@ -45,6 +52,21 @@ try {
         Assert ((Split-Path -Parent $root) -eq $parent) 'Clone was not beside Lobby.'
         Assert ((Git $root @('branch','--show-current')) -eq 'dev') 'Clone selected a release branch.'
         Assert (!(Get-GcModStatus $addon).UpdateNeeded) 'Installed mod remained actionable.'
+        Assert ((Git $root @('config','--local','core.longpaths')) -eq 'true') 'Clone did not retain long-path support.'
+        if ($addon.Key -eq 'GlobalConflictsMissions') {
+            Assert ((Join-Path $root $longPath).Length -gt 260) 'Fixture did not exceed Windows path limit.'
+            Assert ((Git $root @('hash-object','--',$longPath)) -eq $blob) 'Long file was not checked out.'
+            # Existing checkouts also work even if their saved setting disables it.
+            $null = Git $root @('config','--local','core.longpaths','false')
+            Assert (!(Git $root @('status','--porcelain'))) 'Long files reported missing in an existing checkout.'
+            $upstream = Join-Path $fixture ($addon.Key + '-upstream')
+            $null = Git $upstream @('switch','-q','dev')
+            $nextBlob = Git $upstream @('hash-object','-w','.git/HEAD')
+            $null = Git $upstream @('update-index','--cacheinfo',("100644,$nextBlob,$longPath"))
+            $null = Git $upstream @('commit','-qm','Update long mission path')
+            Assert ((Update-Mod $addon ([ref]$changed) ([ref]$pending)) -eq 'Updated.') 'Long-path update failed.'
+            Assert ((Git $root @('hash-object','--',$longPath)) -eq $nextBlob) 'Long file was not updated.'
+        }
     }
     # Reuse metadata in a fresh sibling area for failure/preservation checks.
     $other = Join-Path $fixture 'other-addons'
@@ -73,7 +95,7 @@ try {
     $rejected = $false
     try { Update-Mod $addon ([ref]$changed) ([ref]$pending) } catch { $rejected = $_.Exception.Message -eq 'Wrong mod folder.' }
     Assert ($rejected -and !(Get-ChildItem -LiteralPath $failParent -Force)) 'Wrong addon identity was published.'
-    Write-Output 'PASS: selected Dev clones beside Lobby, current status after install, no release fallback, existing-file preservation and failed-clone cleanup.'
+    Write-Output 'PASS: selected Dev clones, long-path checkout and update, current status, no release fallback, existing-file preservation and failed-clone cleanup.'
 } finally {
     foreach ($key in $keys) { [Environment]::SetEnvironmentVariable($key, $previous[$key]) }
     $resolved = [IO.Path]::GetFullPath($fixture)

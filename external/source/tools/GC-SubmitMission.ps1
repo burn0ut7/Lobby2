@@ -53,7 +53,7 @@ function Get-SubmissionRef($root,$ref) {
     $previous=$ErrorActionPreference
     try {
         $ErrorActionPreference='Continue'
-        $value=@(& (Get-GcGitExecutable) -C $root rev-parse --verify --quiet $ref 2>$null)
+        $value=@(& (Get-GcGitExecutable) -c core.longpaths=true -C $root rev-parse --verify --quiet $ref 2>$null)
         if ($LASTEXITCODE -eq 0) { return [string]$value[0] }
         if ($LASTEXITCODE -ne 1) { throw 'Could not read the saved submission.' }
     } finally { $ErrorActionPreference=$previous }

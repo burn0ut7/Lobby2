@@ -21,7 +21,7 @@ function Git([string]$root, [string[]]$arguments) {
     $oldStore=$env:GCM_CREDENTIAL_STORE;$oldTrace=$env:GCM_TRACE_SECRETS
     try {
         $env:GCM_CREDENTIAL_STORE='wincredman';$env:GCM_TRACE_SECRETS='0'
-        $output = @(& $git -c credential.helper= -c credential.helper=manager -c credential.credentialStore=wincredman -C $root @arguments 2>&1)
+        $output = @(& $git -c core.longpaths=true -c credential.helper= -c credential.helper=manager -c credential.credentialStore=wincredman -C $root @arguments 2>&1)
         if ($LASTEXITCODE -ne 0) { throw "Git failed ($($arguments[0])) in $root. $($output -join [Environment]::NewLine)" }
         $output | ForEach-Object { "$_" }
     } finally {$env:GCM_CREDENTIAL_STORE=$oldStore;$env:GCM_TRACE_SECRETS=$oldTrace}
@@ -88,7 +88,7 @@ function Install-GcMod($addon, [ref]$filesChanged) {
     $stage = Join-Path $parent ('.gc-install-' + [guid]::NewGuid().ToString('N'))
     $null = New-Item -ItemType Directory -Path $stage
     try {
-        $null = Git $parent @('clone','--quiet','--single-branch','--branch','dev','--no-tags','--',("https://github.com/" + $addon.Repo + '.git'),$stage)
+        $null = Git $parent @('clone','--config','core.longpaths=true','--quiet','--single-branch','--branch','dev','--no-tags','--',("https://github.com/" + $addon.Repo + '.git'),$stage)
         $null = Get-Checkout (Join-Path $stage 'addon.gproj') $addon.Guid
         if ((Git $stage @('symbolic-ref','--short','HEAD')) -cne 'dev') { throw 'The downloaded mod is not on its dev branch.' }
         # Publish only a complete, verified checkout. Never nest into or overwrite
