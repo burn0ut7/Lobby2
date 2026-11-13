@@ -1,4 +1,4 @@
-// Leave Workbench free to service the installer's setup/reload requests.
+// Keep Workbench responsive while GC Tools runs.
 var shell = new ActiveXObject("WScript.Shell");
 var files = new ActiveXObject("Scripting.FileSystemObject");
 var script = files.BuildPath(files.GetParentFolderName(WScript.ScriptFullName), "Install.ps1");
@@ -14,13 +14,25 @@ if (tools) {
         if (!/^-(Lobby2|GlobalConflictsCore|GlobalConflictsUnits|GlobalConflictsMissions|WorkbenchExecutable|WorkbenchProfile)$/.test(key) || argument + 1 >= WScript.Arguments.length) throw new Error("Invalid tool argument.");
         shell.Environment("Process")("GC_WORKBENCH_MOD_" + key.substring(1)) = WScript.Arguments(argument + 1);
     }
-
+    // The checksum selects this checkout's already-verified extraction. No archive
+    // is consumed on this path; install/update still verifies the ZIP in Install.ps1.
+    var checksum = files.BuildPath(files.GetParentFolderName(script), "GCWorkbench.zip.sha256");
+    if (files.FileExists(checksum)) {
+        var input = files.OpenTextFile(checksum, 1);
+        var expected = input.ReadAll().replace(/^\s+|\s+$/g, "").split(/\s+/)[0].toLowerCase();
+        input.Close();
+        if (/^[0-9a-f]{64}$/.test(expected)) {
+            var cache = files.BuildPath(shell.ExpandEnvironmentStrings("%LOCALAPPDATA%"), "GCWorkbench\\ui\\" + expected);
+            var complete = files.BuildPath(cache, "complete");
+            var ui = files.BuildPath(cache, "support\\payload\\helper\\GC Tools.exe");
+            if (files.FileExists(complete) && files.FileExists(ui)) {
+                input = files.OpenTextFile(complete, 1);
+                var receipt = input.ReadAll().replace(/^\s+|\s+$/g, "").toLowerCase();
+                input.Close();
+                if (receipt === expected) WScript.Quit(shell.Run('"' + ui + '" --tools', 1, true));
+            }
+        }
+    }
 }
-shell.Environment("Process")("GC_WORKBENCH_PREVIEW") = tools ? " -Tools" : WScript.Arguments.length === 1 && WScript.Arguments(0) === "--preview" ? " -Preview" : "";
-var bootstrap = "$start = New-Object Diagnostics.ProcessStartInfo; " +
-    "$start.FileName = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; " +
-    "$start.Arguments = '-NoProfile -STA -ExecutionPolicy Bypass -File ' + [char]34 + $env:GC_WORKBENCH_INSTALL_SCRIPT + [char]34 + $env:GC_WORKBENCH_PREVIEW; " +
-    "$start.UseShellExecute = $false; $start.CreateNoWindow = $true; " +
-    "$child = [Diagnostics.Process]::Start($start); " +
-    (tools ? "$child.WaitForExit(); exit $child.ExitCode" : "");
-WScript.Quit(shell.Run('"' + executable + '" -NoProfile -NonInteractive -Command "' + bootstrap + '"', 0, true));
+var mode = tools ? " -Tools" : WScript.Arguments.length === 1 && WScript.Arguments(0) === "--preview" ? " -Preview" : "";
+WScript.Quit(shell.Run('"' + executable + '" -NoProfile -STA -ExecutionPolicy Bypass -File "' + script + '"' + mode, 0, tools));
