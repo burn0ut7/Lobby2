@@ -21,8 +21,8 @@ creates a personal fork when needed, so contributors need no upstream write acce
    selects are marked complete in GitHub's Markdown checklist. Existing request
    text and checks are restored; a new request after merge starts unchecked.
 5. Save recovery references and a backup of local changes, then apply the reviewed
-   result to the local branch. Starting on main creates a separate mission branch;
-   an existing mission branch keeps its name.
+   result to the contributor's one submission branch. If it already exists,
+   reuse it; never create a per-mission or per-attempt branch.
 6. Push without force to the contributor's fork and create or reuse its pull request.
 
 All saved changes in that checkout are included, including dependency declarations
@@ -35,7 +35,9 @@ checkout unchanged. Recovery references live under refs/gc/backups.
 
 One personal fork is reused for all missions. The first online branch is
 `gc-submissions`; an existing request from an earlier tool version keeps its
-branch. The local editing branch may have a different name. Lookup uses the
+branch, locally and online. Starting from another local editing branch combines
+its saved changes with the existing submission and switches back to that same
+submission branch. Other user-created branches are preserved. Lookup uses the
 contributor's fork and target main, not their current local branch.
 
 Additional missions update the same pending request. A closed, unmerged request

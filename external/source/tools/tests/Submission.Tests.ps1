@@ -108,7 +108,7 @@ $script:cancel=$false
 Assert ((Invoke-MissionSubmission $addons) -eq 0) 'Initial submission failed'
 Assert ($created -eq 1 -and $script:branch -eq 'gc-submissions') 'Automatic branch/PR missing'
 Assert ((Git $author @('rev-parse','main')) -eq $initial) 'Original main branch was modified'
-Assert ((Git $author @('branch','--show-current')) -like 'mission/submission-*') 'Automatic mission branch not selected'
+Assert ((Git $author @('branch','--show-current')) -eq 'gc-submissions') 'Automatic mission branch not selected'
 Assert ((Git $forkPath @('show',($script:branch+':new dependency.txt'))) -eq 'mission dependency') 'Saved new files missing'
 Assert (!(Test-Path "$author/readme.txt")) 'Deleted file restored during submission'
 Assert-Synced
@@ -171,6 +171,37 @@ $firstRequest=$script:pr.number
 Assert ((Invoke-MissionSubmission $addons) -eq 0) 'Additional mission failed'
 Assert ($created -eq 1 -and $script:pr.number -eq $firstRequest) 'Additional mission created another request'
 Assert ((Git $forkPath @('show',($script:branch+':worlds/SecondMission.ent'))) -eq 'second mission') 'Additional mission absent from shared request'
+Assert-Synced
+# Returning to the shared checkout must reuse the same local submission branch.
+[IO.File]::WriteAllText("$author/local-pending.txt",'not uploaded yet')
+$null=Git $author @('add','local-pending.txt')
+$null=Git $author @('commit','-qm','Local pending work')
+$branchesBefore=@(Git $author @('for-each-ref','--format=%(refname)','refs/heads'))
+$null=Git $author @('switch','-q','main')
+[IO.File]::WriteAllText("$author/worlds/FourthMission.ent",'another saved mission')
+$script:normalGit=${function:Git}
+function Git([string]$root,[string[]]$arguments) {
+    if($arguments[0] -eq 'merge' -and $arguments -contains '--ff-only'){throw 'Fixture local apply failure'}
+    & $script:normalGit $root $arguments
+}
+try {
+    try {$null=Invoke-MissionSubmission $addons;throw 'Local apply failure accepted'} catch {Assert ($_.Exception.Message -like 'The update could not finish.*') $_.Exception.Message}
+} finally {Set-Item function:Git $script:normalGit}
+Assert ((Git $author @('branch','--show-current')) -eq 'main') 'Apply failure did not restore source branch'
+Assert ([IO.File]::ReadAllText("$author/worlds/FourthMission.ent") -eq 'another saved mission') 'Apply failure lost saved files'
+[IO.File]::AppendAllText("$author/.git/info/exclude","`nlocal-pending.txt`n")
+[IO.File]::WriteAllText("$author/local-pending.txt",'ignored local file')
+try {$null=Invoke-MissionSubmission $addons;throw 'Ignored collision accepted'} catch {Assert ($_.Exception.Message -like 'The update could not finish.*') $_.Exception.Message}
+Assert ([IO.File]::ReadAllText("$author/local-pending.txt") -eq 'ignored local file') 'Branch switch overwrote ignored file'
+Assert ([IO.File]::ReadAllText("$author/worlds/FourthMission.ent") -eq 'another saved mission') 'Ignored collision lost saved files'
+[IO.File]::Delete("$author/local-pending.txt")
+Assert ((Invoke-MissionSubmission $addons) -eq 0) 'Submission from main failed'
+Assert ([IO.File]::ReadAllText("$author/local-pending.txt") -eq 'not uploaded yet') 'Existing local pending work lost'
+Assert ((Git $author @('branch','--show-current')) -eq 'gc-submissions') 'Existing local submission branch not reused'
+Assert ((@(Git $author @('for-each-ref','--format=%(refname)','refs/heads')) -join '|') -eq ($branchesBefore -join '|')) 'Resubmission created another branch'
+Assert ([IO.File]::ReadAllText("$author/worlds/SecondMission.ent") -eq 'second mission') 'Pending mission lost returning from main'
+Assert ([IO.File]::ReadAllText("$author/worlds/FourthMission.ent") -eq 'another saved mission') 'New mission lost returning from main'
+Assert ($created -eq 1) 'Submission from main duplicated request'
 Assert-Synced
 # Closed requests are explicitly resubmitted, not duplicated or falsely reported.
 $script:pr.state='closed'

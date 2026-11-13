@@ -210,13 +210,18 @@ function Invoke-MissionSubmissionCore($root,$repo) {
     $existing=Get-ContributorMissionPr $auth $repo $owner $base.Name
     $prRevision=Get-SubmissionPrRevision $existing
     $branch=if($existing){[string]$existing.head.ref}else{'gc-submissions'}
-    $localBranch=$sourceBranch
-    if ($localBranch -ceq $base.Name) { $localBranch='mission/submission-'+[guid]::NewGuid().ToString('N').Substring(0,12) }
+    $localBranch=$branch
+    $localTip=Get-SubmissionRef $root ('refs/heads/'+$localBranch)
     $null=Git $root @('check-ref-format','--branch',$branch)
     $snapshot=Get-SubmissionSnapshot $root $tip
     $candidate=$tip
     if ($snapshot -ne (Git $root @('rev-parse',($tip+'^{tree}')))) {
         $candidate=New-SubmissionCommit $root $snapshot @($tip) 'Save mission changes' $user
+    }
+    if ($localTip -and $localBranch -cne $sourceBranch) {
+        $localTree=Merge-GcReviewedTree $root $candidate $localTip 'Your saved submission'
+        if (!$localTree) {Set-GcOutcome 'Cancelled';return 2}
+        $candidate=New-SubmissionCommit $root $localTree @($candidate,$localTip) 'Combine saved submission' $user
     }
     $name=($repo -split '/')[1];$forkRepo="$owner/$name"
     $fork=Invoke-SubmissionApi $auth GET "repos/$forkRepo" $null -AllowMissing
@@ -255,6 +260,7 @@ function Invoke-MissionSubmissionCore($root,$repo) {
     }
     $currentPr=Get-ContributorMissionPr $auth $repo $owner $base.Name
     if ((Get-SubmissionPrRevision $currentPr) -cne $prRevision) { throw 'Your submission changed during review. Submit again.' }
+    if ((Get-SubmissionRef $root ('refs/heads/'+$localBranch)) -ne $localTip) { throw 'Your saved submission changed during review. Submit again.' }
     $commit=New-SubmissionCommit $root $tree @($candidate,$base.Commit) $review.Title $user
     # Keep a named recovery reference before applying the reviewed changes.
     $backup='refs/gc/backups/'+[guid]::NewGuid().ToString('N')
@@ -269,11 +275,20 @@ function Invoke-MissionSubmissionCore($root,$repo) {
             if ((Get-SubmissionBackupTree $root $stash) -ne $snapshot) { throw 'Files changed while backing up the update.' }
         }
         if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $sourceBranch -or (Git $root @('rev-parse','HEAD')) -ne $tip -or @(Git $root @('status','--porcelain','--untracked-files=all')).Count) { throw 'Files changed while preparing the update.' }
-        if ($localBranch -cne $sourceBranch) { $null=Git $root @('switch','--quiet','-c',$localBranch) }
+        if ((Get-SubmissionRef $root ('refs/heads/'+$localBranch)) -ne $localTip) { throw 'Your saved submission changed while preparing the update.' }
+        if ($localBranch -cne $sourceBranch) {
+            if ($localTip) { $null=Git $root @('switch','--quiet','--no-overwrite-ignore',$localBranch) }
+            else { $null=Git $root @('switch','--quiet','--no-overwrite-ignore','-c',$localBranch) }
+        }
         $null=Git $root @('merge','--ff-only','--no-autostash','--no-overwrite-ignore','--quiet',$commit)
     } catch {
         # Restore dirty files only while HEAD is unchanged and the checkout is
         # still clean. Never overwrite edits made by another program.
+        if ($stash -and $localBranch -cne $sourceBranch -and (Git $root @('symbolic-ref','--short','HEAD')) -ceq $localBranch -and
+            (Git $root @('rev-parse','HEAD')) -eq $localTip -and (Get-SubmissionRef $root ('refs/heads/'+$sourceBranch)) -eq $tip -and
+            !@(Git $root @('status','--porcelain','--untracked-files=all')).Count) {
+            $null=Git $root @('switch','--quiet','--no-overwrite-ignore',$sourceBranch)
+        }
         if ($stash -and (Git $root @('rev-parse','HEAD')) -eq $tip -and !@(Git $root @('status','--porcelain','--untracked-files=all')).Count) {
             $null=Git $root @('stash','apply','--index',$stash)
         }
