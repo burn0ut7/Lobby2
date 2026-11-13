@@ -10,7 +10,7 @@ var tools = WScript.Arguments.length >= 1 && WScript.Arguments(0) === "--tools";
 if (tools) {
     for (var argument = 1; argument < WScript.Arguments.length; argument += 2) {
         var key = WScript.Arguments(argument);
-        if (!/^-(Lobby2|GlobalConflictsCore|GlobalConflictsUnits|GlobalConflictsMissions|ToolsSession|WorkbenchExecutable|WorkbenchProfile)$/.test(key) || argument + 1 >= WScript.Arguments.length) throw new Error("Invalid tool argument.");
+        if (!/^-(Lobby2|GlobalConflictsCore|GlobalConflictsUnits|GlobalConflictsMissions|WorkbenchExecutable|WorkbenchProfile)$/.test(key) || argument + 1 >= WScript.Arguments.length) throw new Error("Invalid tool argument.");
         shell.Environment("Process")("GC_WORKBENCH_MOD_" + key.substring(1)) = WScript.Arguments(argument + 1);
     }
     var registration = shell.ExpandEnvironmentStrings("%LOCALAPPDATA%") + "\\GCWorkbench\\ui-path.txt";

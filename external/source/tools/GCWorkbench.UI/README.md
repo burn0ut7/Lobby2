@@ -7,10 +7,10 @@ browser engine, UI framework installer, network connection or game addon is need
 This is the shared presentation layer for the tools hub, mission submission and
 conflict review. The PowerShell workflows own permissions, validation, file changes
 and verified outcomes. The hub stays open during actions and embeds review forms
-in its right panel. Workbench launches it without waiting, so saving/export and
-installer requests can reach the editor. A launch-scoped session authorizes the
-project-owned GC_ToolsBridge NET API handler; it only accepts save/update and
-mission-prepare actions, never code or caller-provided file paths.
+in its right panel. Workbench only launches the hub with filesystem paths.
+Submission and mod updates use Git and GitHub without an editor connection,
+saving, exporting, or inspecting the open world. Save authored files before
+submitting. Only the independent dropdown DLL uses the editor's lookup providers.
 
 `--tools` returns 2 only when closed. It no longer returns action exit codes.
 Action buttons show progress and the workflow's explicit outcome; no success is

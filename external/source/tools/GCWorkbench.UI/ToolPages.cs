@@ -7,7 +7,7 @@ internal static class ToolPages
     internal static DialogSpec Submission() => new()
     {
         Title = "Submit mission", PrimaryAction = "Submit", SecondaryAction = "",
-        Items = [new("Source", "", "Current Workbench mission"), new("Destination", "", "Mission pull request")]
+        Items = [new("Source", "", "GC Missions folder"), new("Destination", "", "Mission pull request")]
     };
 
     internal static DialogSpec Dependencies() => new()

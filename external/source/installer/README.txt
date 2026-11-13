@@ -11,7 +11,7 @@ Requires supported Workbench 1.9.0.37 and its exact Qt 6.8.3 binaries.
 Enable NET API in Workbench preferences and save preferences before first
 installation. GC adapters use the configured port on loopback; the editor may
 listen on other interfaces. This installer never changes those preferences.
-Lobby2 supplies the GC choice providers and mission bridge. The DLL applies
+Lobby2 supplies the GC dropdown and string lookup providers. The DLL applies
 to gc-choices fields; other editor fields keep normal behavior.
 
 Installed files live under %LOCALAPPDATA%/GCWorkbench. Changed bootstrap or

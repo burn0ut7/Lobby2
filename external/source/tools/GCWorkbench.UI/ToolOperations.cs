@@ -15,11 +15,6 @@ internal static class ToolOperations
     internal static async Task<OperationResult> RunAsync(string action, Dictionary<string, object> values,
         Func<DialogSpec, Task<DialogResult>> review, IProgress<DependencyProgress>? progress = null)
     {
-        string world = "";
-        if (action is "submit" or "update")
-        {
-            world = await Task.Run(() => Prepare(action));
-        }
         var script = action == "install"
             ? Environment.GetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT")
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "lobby2-tools", "GC-ModWorkflow.ps1"));
@@ -44,10 +39,15 @@ internal static class ToolOperations
             if (action != "install")
             {
                 foreach (var key in new[] { "Lobby2", "GlobalConflictsCore", "GlobalConflictsUnits", "GlobalConflictsMissions" })
-                    if (Environment.GetEnvironmentVariable("GC_WORKBENCH_MOD_" + key) is { Length: > 0 } project)
+                {
+                    var project = Environment.GetEnvironmentVariable("GC_WORKBENCH_MOD_" + key);
+                    if (string.IsNullOrEmpty(project) && key == "Lobby2" && Environment.GetEnvironmentVariable("GC_WORKBENCH_PACKAGE") is { } package)
+                        project = Path.GetFullPath(Path.Combine(package, "..", "..", "addon.gproj"));
+                    if (!string.IsNullOrEmpty(project))
                     { start.ArgumentList.Add("-" + key); start.ArgumentList.Add(project); }
+                }
                 if (action == "submit")
-                { start.ArgumentList.Add("-SubmitMission"); start.ArgumentList.Add("-MissionWorld"); start.ArgumentList.Add(world); }
+                { start.ArgumentList.Add("-SubmitMission"); }
                 else
                 {
                     var keys = new[] { ("lobby", "Lobby2"), ("core", "GlobalConflictsCore"), ("units", "GlobalConflictsUnits"), ("missions", "GlobalConflictsMissions") };
@@ -88,37 +88,6 @@ internal static class ToolOperations
             }
             catch (JsonException) { /* Ignore non-protocol child output. */ }
         }
-    }
-
-    private static string Prepare(string action)
-    {
-        var session = Environment.GetEnvironmentVariable("GC_WORKBENCH_MOD_ToolsSession");
-        if (string.IsNullOrEmpty(session)) throw new InvalidOperationException("Reopen GC Tools from Workbench.");
-        var control = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GCWorkbench");
-        using var installation = JsonDocument.Parse(File.ReadAllText(Path.Combine(control, "installation.json")));
-        using var config = JsonDocument.Parse(File.ReadAllText(Path.Combine(installation.RootElement.GetProperty("destination").GetString()!, "settings.json")));
-        var port = config.RootElement.GetProperty("port").GetInt32();
-        var response = WorkbenchNet.Call(port, new { APIFunc = "GC_ToolsBridge", session, action });
-        return ReadPreparation(response, session);
-    }
-
-    internal static string ReadPreparation(JsonElement response, string session)
-    {
-        if (!response.TryGetProperty("session", out var returnedSession) || returnedSession.ValueKind != JsonValueKind.String || returnedSession.GetString() != session)
-            throw new InvalidOperationException("Reopen GC Tools from Workbench.");
-        if (!response.TryGetProperty("ready", out var value)) throw new IOException("Workbench did not confirm whether the mission is ready.");
-        // Enforce JsonApiStruct serializes bool fields as 0/1 on supported Workbench.
-        bool ready = value.ValueKind switch
-        {
-            JsonValueKind.True => true,
-            JsonValueKind.False => false,
-            JsonValueKind.Number when value.TryGetInt32(out var number) && number is 0 or 1 => number == 1,
-            _ => throw new IOException("Workbench returned an invalid preparation result.")
-        };
-        if (!ready)
-            throw new InvalidOperationException(response.TryGetProperty("error", out var error) && error.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(error.GetString())
-                ? error.GetString() : "Workbench could not prepare this action.");
-        return response.TryGetProperty("path", out var path) && path.ValueKind == JsonValueKind.String ? path.GetString()! : "";
     }
 
     private static async Task ServeReviewsAsync(NamedPipeServerStream pipe, Func<DialogSpec, Task<DialogResult>> review, CancellationToken token)

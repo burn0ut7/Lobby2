@@ -18,7 +18,8 @@ cross-project dependencies.
 Workbench automation, focus/assertion suppression and automatic script
 authorization belong only to Reforger MCP. Lobby2's bootstrap may initialize its
 own fixed dropdown DLL on normal Workbench startup; it must not expose generic
-editor control or install MCP components. Keep external development/test sources
+editor control or install MCP components. GC Tools submission and mod updates use
+saved files, Git and GitHub only; never save/export worlds or connect to Workbench. Keep external development/test sources
 in this repository but exclude `external` from Workshop releases.
 
 Base-game APIs/events own factions, groups, membership and character affiliation. Lobby2 owns slot selection, reservations, locks and presentation metadata. Reference authoritative IDs and re-query ownership rather than maintaining shadow relationships. Discuss a new ownership source before introducing one.

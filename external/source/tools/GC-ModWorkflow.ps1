@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Lobby2, [string]$GlobalConflictsCore, [string]$GlobalConflictsUnits,
-    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [string]$MissionWorld, [switch]$SubmitMission
+    [string]$GlobalConflictsMissions, [string]$SelectedMods, [switch]$UpdateMods, [switch]$SubmitMission
 )
 
 $ErrorActionPreference = 'Stop'
@@ -137,7 +137,7 @@ function Get-GcAddons($Lobby2,$GlobalConflictsCore,$GlobalConflictsUnits,$Global
     # Workbench only resolves mounts loaded in the current project. Source checkouts
     # installed alongside Lobby2 can still be updated after their GUID is verified.
     if (!$Lobby2 -or !(Test-Path -LiteralPath $Lobby2 -PathType Leaf)) {
-        throw 'Open the Lobby2 source project before using GC Git tools.'
+        throw 'The Lobby2 source folder could not be found.'
     }
     $addonsDirectory = Split-Path -Parent (Split-Path -Parent ([IO.Path]::GetFullPath($Lobby2)))
     foreach ($addon in $addons) {
@@ -164,7 +164,7 @@ function Invoke-ModWorkflow {
     }
     if ($SubmitMission) {
         . (Join-Path $PSScriptRoot 'GC-SubmitMission.ps1')
-        $result=Invoke-MissionSubmission $addons $MissionWorld
+        $result=Invoke-MissionSubmission $addons
         if ($result -eq 2) {Set-GcOutcome 'Cancelled'}
         return $result
     }
@@ -186,7 +186,7 @@ function Invoke-ModWorkflow {
             $rows += "$($addon.Name): $result"
             if ($result -notmatch '^(Updated\.|Up to date\.)') {$complete=$false}
         }
-        if ($changed -and !$desktopPending) { $rows += 'Reload Workbench to use the changes.' }
+        if ($changed -and !$desktopPending) { $rows += 'Updates are saved. Reopen your editor to load them.' }
         if ($env:GC_TOOLS_OUTCOME) {
             Set-GcOutcome $(if($complete){'Updated'}else{'Review needed'}) ($rows -join [Environment]::NewLine)
         } else { $null = Show-Message ($rows -join [Environment]::NewLine) }

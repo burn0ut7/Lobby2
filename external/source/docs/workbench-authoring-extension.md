@@ -25,8 +25,8 @@ Native hook confirmation, rather than DLL presence, records successful loading.
 `GC_EditorChoices.c` and `GC_EntityReferenceEdit.c` are Lobby2-owned providers.
 Their protocol fingerprint is `4df00e70851952d140c187dfefe9c59d274c81d0d9e30a12cd06d87b28accd8f`.
 Change both consumers deliberately when changing the wire contract. Generic
-MCP adapters have their own RST names and lifecycle. GC Tools' mission bridge
-accepts only save/prepare requests with the current tool-session token.
+MCP adapters have their own RST names and lifecycle. GC Tools has no editor-control
+connection: submission and mod updates operate only on saved files and GitHub.
 
 The installer reads Workbench's saved NET API preferences. It does not enable,
 reconfigure or suppress the editor. Missing/disabled NET API is an explicit setup

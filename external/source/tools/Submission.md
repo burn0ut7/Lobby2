@@ -1,74 +1,47 @@
-# Mission submission prototype
+# Mission submission
 
-GC Tools > Submit mission prepares an approval request for contributors who have
-read access to GC Missions and a GitHub account, but no write access to the GC
-repository. The first use may require browser sign-in through Git Credential
-Manager. Credentials are stored in Windows Credential Manager; GC Tools never
-asks for a password or token. Its API requests use a credential briefly in memory,
-without persisting it to GC files or status output. The GitHub page verifies the
-account with `/user` and separately checks mission-repository read access. This
-does not guarantee permission to fork or submit; API errors remain authoritative.
-The user supplies a summary and testing/reviewer details; Git mechanics
-are handled by the tool.
+GC Tools submits saved GC Missions files for approval through GitHub. It does not
+save or export a Workbench world, inspect the editor, or require Workbench running.
+Save your work before selecting Submit.
 
-## Submission ownership
+## Account
 
-- `GC_MissionSubmission.c` saves the open mission and refreshes its mission data.
-- `GC-SubmitMission.ps1` snapshots only that world's `.ent`, `.meta`, matching
-  mission header and metadata, and `_Layers` directory. Other local changes are
-  displayed as excluded and require acknowledgement. Additional prefab/assets
-  outside this scope need a separate submission; the prototype does not infer
-  their dependency graph.
-- The author checkout's HEAD, branch, real index, and working files stay unchanged.
-  A temporary index builds the scoped tree on the shared ancestor. This prevents
-  unrelated committed changes on the author's branch from entering the request.
-- The first submission generates `mission/<mission-name>-<world-guid>` in the
-  author's own fork. The hidden name is retained in local Git configuration.
-  Saved source/submission refs preserve retry state and previous resolutions.
-  No upstream branch is pushed, no force push is used, and nothing auto-merges.
-- An existing open request is updated. Fork creation and readiness are handled by
-  the tool. The final screen reports awaiting approval, a known conflict, or a
-  pending GitHub conflict check; an unknown check is never presented as clean.
+Git Credential Manager handles GitHub browser sign-in. GC Tools uses the same
+credential provider for Git and API requests; it has no password form. Submission
+creates a personal fork when needed, so contributors need no upstream write access.
 
-## Conflicts and interrupted operations
+## Workflow
 
-`GC-Review.ps1` uses `git merge-tree` to detect overlapping edits without starting a
-merge in the author's checkout. Conflicting text files show read-only My version
-and Shared version previews with explicit whole-file choices and Cancel. Chosen
-content goes into the submission only. The world/mission-header resource linkage
-and required files are checked again after conflict resolution.
+1. Read the current branch and saved, unignored files in the GC Missions checkout.
+2. Fetch the latest shared main and any existing personal submission branch.
+3. Combine those changes, resolving conflicts in the hub before uploading.
+4. Review the mission name, notes and complete list of changed files.
+5. Save recovery references and a backup of local changes, then apply the reviewed
+   result to the local branch. Starting on main creates a separate mission branch;
+   an existing mission branch keeps its name.
+6. Push without force to the contributor's fork and create or reuse its pull request.
 
-The prototype stops safely for binary, structural, unreadable, or over-12KB file
-conflicts and asks for a mission reviewer. It does not guess a winning version or
-provide a line-by-line editor. Submissions changed on another computer also stop
-for review. Existing unfinished Git operations require human assistance.
+All saved changes in that checkout are included, including dependency declarations
+and supporting files. GC Tools does not infer or download missing mission assets.
+The shared main branch is never pushed by submission. The local mission branch
+contains the fetched main before upload. Cancellation during review leaves the
+checkout unchanged. Recovery references live under refs/gc/backups.
 
-Changes to the local mission, shared base or existing request during review stop
-submission and require a fresh review. Prepared objects are retained before push,
-so rejected or uncertain uploads can be retried without force-overwriting history.
-The submission mutex prevents two tool windows from preparing the same mission.
+## Conflicts and retries
 
-Committed mod-update conflicts use the same review surface; applying an accepted
-update changes the mod checkout. Overlapping uncommitted files require explicit
-Back up my files and update, using the existing selective backup mechanism.
-Skipping/cancelling keeps local changes. Backup recovery is not yet a UI workflow.
+Readable text conflicts show My version and Shared version with explicit file
+choices. Binary, oversized and unsupported file conflicts stop for manual help;
+GC Tools does not guess a winner. Changed local files, online submissions or main
+invalidate a review. A rejected upload keeps the local result for a safe retry.
 
-## Validation
+GitHub can change after any check. Pushing to an existing pull request immediately
+updates its head. If main changes during upload, GC Tools requests another Submit
+to synchronize it; that check cannot undo an already uploaded head. GitHub's final
+mergeability check may still be pending when the request is created.
 
-Run under Windows PowerShell 5.1:
+## Verification
 
-```powershell
-powershell -NoProfile -File external/source/tools/tests/Submission.Tests.ps1
-powershell -NoProfile -File external/source/tools/tests/ModUpdates.Tests.ps1
-```
-
-These use real isolated local Git repositories and a bare personal fork; only
-GitHub API responses and dialog choices are substituted. They do not create live
-GitHub forks or pull requests. Coverage includes scope/isolation, repeat requests,
-cancellation, both conflict choices, retained resolutions, review races, rejected
-push retry, external submission edits, selective backups and update conflicts.
-Live GitHub sign-in/API permissions still need a contributor-account acceptance
-pass. Private repositories must permit the contributor to read and fork them.
-
-Protocol references: https://docs.github.com/en/rest/repos/forks,
-https://docs.github.com/en/rest/pulls/pulls, https://git-scm.com/docs/git-merge-tree.
+Run external/source/tools/tests/Submission.Tests.ps1 with Windows PowerShell.
+It uses isolated local Git repositories and mocked GitHub requests; no live pull
+requests or user checkout mutations occur. Live contributor permissions remain
+subject to GitHub's responses.

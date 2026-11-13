@@ -9,25 +9,6 @@ static class Checks {
   foreach(var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())foreach(var result in Find<T>(child))yield return result;
  }
  [STAThread] static void Main(){
-  foreach(var wireReady in new[]{"true","1"}) {
-   using var response=System.Text.Json.JsonDocument.Parse("{\"session\":\"fixture\",\"ready\":"+wireReady+",\"path\":\"mission.ent\"}");
-   if(ToolOperations.ReadPreparation(response.RootElement,"fixture")!="mission.ent")throw new Exception("Workbench ready response not accepted");
-  }
-  foreach(var wireReady in new[]{"false","0"}) {
-   using var response=System.Text.Json.JsonDocument.Parse("{\"session\":\"fixture\",\"ready\":"+wireReady+",\"error\":\"Open your mission\"}");
-   try {ToolOperations.ReadPreparation(response.RootElement,"fixture");throw new Exception("Rejected preparation proceeded");}
-   catch(InvalidOperationException e) when(e.Message=="Open your mission") {}
-  }
-  foreach(var wireReady in new[]{"2","-1","null","\"true\""}) {
-   using var response=System.Text.Json.JsonDocument.Parse("{\"session\":\"fixture\",\"ready\":"+wireReady+"}");
-   try {ToolOperations.ReadPreparation(response.RootElement,"fixture");throw new Exception("Invalid preparation proceeded");}
-   catch(IOException) {}
-  }
-  using(var stale=System.Text.Json.JsonDocument.Parse("{\"session\":\"old\",\"ready\":1}")) {
-   try{ToolOperations.ReadPreparation(stale.RootElement,"fixture");throw new Exception("Stale session proceeded");}
-   catch(InvalidOperationException e) when(e.Message=="Reopen GC Tools from Workbench."){}
-  }
-  Console.WriteLine("PASS: engine numeric and boolean preparation results, actionable rejection, malformed/stale results refused.");
   var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
   SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
   var spec=new DialogSpec{Title="Update mods",PrimaryAction="Update selected",Fields=[new(){Id="lobby",Label="Lobby2",Kind="check",Enabled=false,Checked=true,Help="Up to date"},new(){Id="core",Label="GC Core",Kind="check",Checked=false,Help="Update available"}]};
@@ -163,6 +144,19 @@ static class Checks {
    if(receipt.Status!="Submitted"||receipt.Detail!="Fixture confirmed")throw new Exception("Pipe workflow did not return confirmed result");
    Console.WriteLine("PASS: real Windows PowerShell review pipe and operation outcome, without external mutations.");
   } finally {Environment.SetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT",oldScript);File.Delete(fixture);}
+  var workflowDirectory=Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,"..","lobby2-tools"));
+  var workflow=Path.Combine(workflowDirectory,"GC-ModWorkflow.ps1");
+  if(File.Exists(workflow))throw new Exception("Dispatch fixture would overwrite a workflow");
+  Directory.CreateDirectory(workflowDirectory);
+  File.WriteAllText(workflow,"param([switch]$SubmitMission,[string]$SelectedMods,[string]$Lobby2,[string]$GlobalConflictsCore,[string]$GlobalConflictsUnits,[string]$GlobalConflictsMissions)\n. '"+reviewPath+"'\nif(!$SubmitMission -and $SelectedMods -ne 'GlobalConflictsCore'){throw 'Wrong dispatch'}\nSet-GcOutcome 'Confirmed' 'Git-only dispatch'\n");
+  try {
+   foreach(var action in new[]{"submit","update"}) {
+    var dispatchedOperation=ToolOperations.RunAsync(action,new(){["core"]=true},_=>throw new Exception("Unexpected editor preparation"));
+    Pump(()=>dispatchedOperation.IsCompleted);
+    if(dispatchedOperation.GetAwaiter().GetResult().Status!="Confirmed")throw new Exception("Git-only dispatch failed");
+   }
+   Console.WriteLine("PASS: submit and update launch PowerShell directly without editor preparation.");
+  } finally {File.Delete(workflow);}
   Console.WriteLine("PASS: current mods gray/unchecked/disabled, button follows eligible selection, disabled mods excluded from dispatch.");
  }
  static void Pump(Func<bool> done){
