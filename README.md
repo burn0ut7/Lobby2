@@ -96,8 +96,12 @@ source-tree cleanup alone does not validate a Workshop package.
 
 ## Development content ownership
 
-GC Tools targets `dev` for GC Core, GC Units and GC Missions. Use their local
-Dev addon checkouts (GlobalConflictsCoreDev, GlobalConflictsUnitsDev and
+GC Tools targets `dev` for GC Core, GC Units and GC Missions. Missing Dev mods are selected by default on Update mods.
+**Update** clones the selected repositories beside the GC Lobby checkout; existing
+checkouts use the normal conflict-aware update flow. Incomplete existing folders
+are preserved for review.
+
+Use the local Dev addon checkouts (GlobalConflictsCoreDev, GlobalConflictsUnitsDev and
 GlobalConflictsMissionsDev); release addons have different identities.
 
 - GC Core Dev owns shared mod-pack functionality and changes.

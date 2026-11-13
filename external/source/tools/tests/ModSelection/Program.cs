@@ -11,7 +11,7 @@ static class Checks {
  [STAThread] static void Main(){
   var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
   SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
-  var spec=new DialogSpec{Title="Update mods",PrimaryAction="Update selected",Fields=[new(){Id="lobby",Label="GC Lobby",Kind="check",Enabled=false,Checked=true,Help="Up to date"},new(){Id="core",Label="GC Core",Kind="check",Checked=false,Help="Update available"}]};
+  var spec=new DialogSpec{Title="Update mods",PrimaryAction="Update",Fields=[new(){Id="lobby",Label="GC Lobby",Kind="check",Enabled=false,Checked=true,Help="Up to date"},new(){Id="core",Label="GC Core",Kind="check",Checked=false,Help="Update available"}]};
   var window=new ToolWindow(spec,tools:true,observeStatus:false);
   var fileReview=new ToolWindow(new DialogSpec{Title="Submit mission",PrimaryAction="Submit",Section="Submit for approval",Fields=[
    new(){Id="title",Label="Mission name",Value="COOP Nightfall",Required=true},
@@ -30,13 +30,21 @@ static class Checks {
    bitmap.Render(surface);var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
    using var stream=File.Create(reviewSnapshot);encoder.Save(stream);
   }
-  var checks=Find<CheckBox>(window).ToArray();var update=Find<Button>(window).Single(b=>Equals(b.Content,"Update selected"));
+  var checks=Find<CheckBox>(window).ToArray();var update=Find<Button>(window).Single(b=>Equals(b.Content,"Update"));
   if(checks[0].IsEnabled||checks[0].IsChecked==true||checks[0].Opacity>=1||update.IsEnabled)throw new Exception("Current mod or empty action enabled");
   checks[1].IsChecked=true;if(!update.IsEnabled)throw new Exception("Available selected mod did not enable update");
   checks[1].IsChecked=false;if(update.IsEnabled)throw new Exception("Empty selection remained enabled");
   checks[0].IsChecked=true;checks[1].IsChecked=true;
   update.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(window.Result.Action!="update"||(bool)window.Result.Values["lobby"]||!(bool)window.Result.Values["core"])throw new Exception("Disabled mod leaked into dispatch");
+  var missingModsPage=ToolPages.Updates() with {Fields=ToolPages.Updates().Fields.Select(field=>field.Id=="lobby" ? field with {Enabled=false,Checked=false,Help="Up to date"} : ToolStatus.ModStatusField(field,0,"{\"Status\":\"Not installed\",\"UpdateNeeded\":true}")).ToList()};
+  var missingModsWindow=new ToolWindow(missingModsPage,tools:true,observeStatus:false);
+  var missingChecks=Find<CheckBox>(missingModsWindow).ToArray();
+  if(missingChecks.Skip(1).Any(check=>!check.IsEnabled||check.IsChecked!=true)||!Find<Button>(missingModsWindow).Single(button=>Equals(button.Content,"Update")).IsEnabled)throw new Exception("Missing mods not selected/actionable");
+  missingChecks[2].IsChecked=false;
+  Find<Button>(missingModsWindow).Single(button=>Equals(button.Content,"Update")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  if(missingModsWindow.Result.Action!="update"||!(bool)missingModsWindow.Result.Values["core"]||(bool)missingModsWindow.Result.Values["units"]||!(bool)missingModsWindow.Result.Values["missions"])throw new Exception("Missing mod dispatch ignored selection");
+  Console.WriteLine("PASS: missing Dev mods selected by default; Update dispatch excludes unchecked mods.");
   var navigationWindow=new ToolWindow(ToolPages.Submission(),tools:true,observeStatus:false);
   var sharedRefresh=Find<Button>(navigationWindow).Single(b=>Equals(b.Content,"Refresh"));
   if(Grid.GetRow(sharedRefresh)!=1||sharedRefresh.MinHeight<50)throw new Exception("Refresh is not the large sidebar bottom action");
@@ -80,13 +88,13 @@ static class Checks {
   pending.Add("Update mods");
   render.Invoke(hub,[spec]);
   var ready=Find<CheckBox>(hub).Last();ready.IsChecked=true;
-  if(!Find<Button>(hub).Single(b=>Equals(b.Content,"Update selected")).IsEnabled)throw new Exception("Ready mod blocked by another pending check");
+  if(!Find<Button>(hub).Single(b=>Equals(b.Content,"Update")).IsEnabled)throw new Exception("Ready mod blocked by another pending check");
   typeof(ToolWindow).GetMethod("SaveDraft",flags)!.Invoke(hub,null);
   render.Invoke(hub,[spec]);
   if(Find<CheckBox>(hub).Last().IsChecked!=true)throw new Exception("Progress discarded user selection");
-  Find<Button>(hub).Single(b=>Equals(b.Content,"Update selected")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  Find<Button>(hub).Single(b=>Equals(b.Content,"Update")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(hub.Result.Action!="cancel"||dispatched is null||!(bool)dispatched["core"]||(bool)dispatched["lobby"])throw new Exception("Partial results dispatched unchecked or pending mods or closed hub");
-  if(!Find<TextBlock>(hub).Any(t=>t.Text=="Updated")||Find<Button>(hub).Any(b=>Equals(b.Content,"Updated"))||!Find<Button>(hub).Any(b=>Equals(b.Content,"Update selected")))throw new Exception("Update status must be separate from action");
+  if(!Find<TextBlock>(hub).Any(t=>t.Text=="Updated")||Find<Button>(hub).Any(b=>Equals(b.Content,"Updated"))||!Find<Button>(hub).Any(b=>Equals(b.Content,"Update")))throw new Exception("Update status must be separate from action");
   Console.WriteLine("PASS: cached navigation, partial-result action, selection retained across progress.");
   var submission=new ToolWindow(ToolPages.Submission(),tools:true);
   var completed=new TaskCompletionSource<OperationResult>();

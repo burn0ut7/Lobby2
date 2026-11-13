@@ -30,7 +30,7 @@ $status=Get-GcModStatus $addon
 Assert ($status.UpdateNeeded -and $status.Status -eq 'Update available') 'Behind not offered'
 Assert ((Git $behind @('rev-parse','HEAD')) -eq $head -and (Get-FileHash "$behind/.git/index").Hash -eq $index -and [IO.File]::ReadAllText("$behind/private") -eq 'working content') 'Status mutated working checkout'
 Assert (!(Test-Path "$behind/.git/FETCH_HEAD")) 'Status changed fetch metadata'
-$addon.Project=Join-Path $fixture 'missing/addon.gproj';Assert (!(Get-GcModStatus $addon).UpdateNeeded -and (Get-GcModStatus $addon).Status -eq 'Mod folder not found') 'Missing checkout enabled'
+$addon.Project=Join-Path $fixture 'missing/addon.gproj';Assert (!(Get-GcModStatus $addon).UpdateNeeded -and (Get-GcModStatus $addon).Status -eq 'This mod must already be installed.') 'Missing checkout enabled'
 $addon.Project="$behind/addon.gproj"
 function Get-ModBase {throw 'offline'}
 Assert ((Get-GcModStatus $addon).Status -eq 'Unable to check - refresh' -and !(Get-GcModStatus $addon).UpdateNeeded) 'Failed check claimed current'

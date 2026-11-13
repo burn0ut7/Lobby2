@@ -15,7 +15,7 @@ internal static class Examples
     internal static DialogSpec Updates() => new()
     {
         Title = "Update mods",
-        PrimaryAction = "Update selected",
+        PrimaryAction = "Update",
         Fields = [
             new() { Id = "lobby", Label = "GC Lobby", Kind = "check", Checked = true },
             new() { Id = "core", Label = "GC Core Dev", Kind = "check", Checked = true },

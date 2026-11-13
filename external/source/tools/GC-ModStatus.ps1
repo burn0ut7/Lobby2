@@ -5,7 +5,11 @@ $projects=@{Lobby2=$Lobby2;GlobalConflictsCore=$GlobalConflictsCore;GlobalConfli
 
 function Get-GcModStatus($addon) {
     try {
-        if (!$addon.Project -or !(Test-Path -LiteralPath $addon.Project -PathType Leaf)) {return @{Status='Mod folder not found';UpdateNeeded=$false}}
+        if (!$addon.Project -or !(Test-Path -LiteralPath $addon.Project -PathType Leaf)) {
+            try { $null = Get-GcInstallDestination $addon }
+            catch { return @{Status=$_.Exception.Message;UpdateNeeded=$false} }
+            return @{Status='Not installed';UpdateNeeded=$true}
+        }
         $root=Get-Checkout $addon.Project $addon.Guid
         $branch=Git $root @('symbolic-ref','--short','HEAD')
         $before=Git $root @('rev-parse','HEAD')

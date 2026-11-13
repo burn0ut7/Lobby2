@@ -63,7 +63,58 @@ function Get-ModBase($root, $repo) {
     @{ Name=$name; Commit=$Matches[1] }
 }
 
+function Get-GcInstallDestination($addon) {
+    if ($addon.Repo -notin @('Global-Conflicts-ArmA/gc-reforger-core','Global-Conflicts-ArmA/gc-reforger-units','Global-Conflicts-ArmA/gc-reforger-missions') -or !$addon.AddonsDirectory) {
+        throw 'This mod must already be installed.'
+    }
+    $parent = [IO.Path]::GetFullPath($addon.AddonsDirectory).TrimEnd('\')
+    $destination = [IO.Path]::GetFullPath((Join-Path $parent (($addon.Repo -split '/')[-1])))
+    if ([IO.Path]::GetDirectoryName($destination) -ne $parent -or
+        [IO.Path]::GetFullPath($addon.Project) -ne (Join-Path $destination 'addon.gproj')) { throw 'The mod must be installed beside GC Lobby.' }
+    $ancestor = $destination
+    while ($ancestor) {
+        if ((Test-Path -LiteralPath $ancestor) -and ((Get-Item -LiteralPath $ancestor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Linked mod folders are preserved. Choose an ordinary addon folder.' }
+        $ancestor = [IO.Path]::GetDirectoryName($ancestor)
+    }
+    if (Test-Path -LiteralPath $destination) { throw 'The mod folder already exists but is incomplete. Your files were kept; move that folder aside before installing.' }
+    return $destination
+}
+
+function Install-GcMod($addon, [ref]$filesChanged) {
+    $destination = Get-GcInstallDestination $addon
+    $parent = [IO.Path]::GetDirectoryName($destination)
+    $stage = Join-Path $parent ('.gc-install-' + [guid]::NewGuid().ToString('N'))
+    $null = New-Item -ItemType Directory -Path $stage
+    try {
+        $null = Git $parent @('clone','--quiet','--single-branch','--branch','dev','--no-tags','--',("https://github.com/" + $addon.Repo + '.git'),$stage)
+        $null = Get-Checkout (Join-Path $stage 'addon.gproj') $addon.Guid
+        if ((Git $stage @('symbolic-ref','--short','HEAD')) -cne 'dev') { throw 'The downloaded mod is not on its dev branch.' }
+        # Publish only a complete, verified checkout. Never nest into or overwrite
+        # a folder that appeared while the download was running.
+        $null = Get-GcInstallDestination $addon
+        [IO.Directory]::Move($stage, $destination)
+        $filesChanged.Value = $true
+        return 'Installed.'
+    } finally {
+        if (Test-Path -LiteralPath $stage) {
+            $full = [IO.Path]::GetFullPath($stage)
+            if ([IO.Path]::GetDirectoryName($full) -ne $parent -or [IO.Path]::GetFileName($full) -notlike '.gc-install-*') { throw 'Unsafe download cleanup path.' }
+            $ancestor = $full
+            while ($ancestor) {
+                if ((Test-Path -LiteralPath $ancestor) -and ((Get-Item -LiteralPath $ancestor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Linked download path preserved.' }
+                $ancestor = [IO.Path]::GetDirectoryName($ancestor)
+            }
+            if ((Get-Item -LiteralPath $full -Force).Attributes -band [IO.FileAttributes]::ReparsePoint -or
+                @(Get-ChildItem -LiteralPath $full -Recurse -Force | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }).Count) { throw 'Linked download files preserved.' }
+            Remove-Item -LiteralPath $full -Recurse -Force
+        }
+    }
+}
+
 function Update-Mod($addon, [ref]$filesChanged, [ref]$desktopPending, [switch]$ForSubmission) {
+    if (!$ForSubmission -and !(Test-Path -LiteralPath $addon.Project -PathType Leaf)) {
+        return Install-GcMod $addon $filesChanged
+    }
     $root = Get-Checkout $addon.Project $addon.Guid $desktopPending
     $branch = Git $root @('symbolic-ref','--short','HEAD')
     $url = "https://github.com/$($addon.Repo).git"
@@ -147,7 +198,8 @@ function Get-GcAddons($Lobby2,$GlobalConflictsCore,$GlobalConflictsUnits,$Global
     }
     $addonsDirectory = Split-Path -Parent (Split-Path -Parent ([IO.Path]::GetFullPath($Lobby2)))
     foreach ($addon in $addons) {
-        if (!$addon.Project) {
+        $addon.AddonsDirectory = $addonsDirectory
+        if (!$addon.Project -or !(Test-Path -LiteralPath $addon.Project -PathType Leaf)) {
             $folder = ($addon.Repo -split '/')[-1]
             $addon.Project = Join-Path $addonsDirectory "$folder/addon.gproj"
         }
@@ -158,7 +210,7 @@ function Get-GcAddons($Lobby2,$GlobalConflictsCore,$GlobalConflictsUnits,$Global
 function Invoke-ModWorkflow {
     $addons = @(Get-GcAddons $Lobby2 $GlobalConflictsCore $GlobalConflictsUnits $GlobalConflictsMissions)
     if (!(Get-Command git.exe -ErrorAction SilentlyContinue)) {
-        Set-GcOutcome 'Install dependencies' 'Open Dependencies and press Install / update.'
+        Set-GcOutcome 'Install dependencies' 'Open Dependencies and press Install.'
         return 2
     }
     if ($SubmitMission) {
@@ -188,7 +240,7 @@ function Invoke-ModWorkflow {
                 if ($result.StartsWith('Git failed')) { $result = 'Could not update. Check your connection and mod folder.' }
             }
             $rows += "$($addon.Name): $result"
-            if ($result -notmatch '^(Updated\.|Up to date\.)') {$complete=$false}
+            if ($result -notmatch '^(Updated\.|Installed\.|Up to date\.)') {$complete=$false}
         }
         if ($changed -and !$desktopPending) { $rows += 'Updates are saved. Reopen your editor to load them.' }
         if ($env:GC_TOOLS_OUTCOME) {
