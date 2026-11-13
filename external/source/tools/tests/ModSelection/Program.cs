@@ -123,6 +123,24 @@ static class Checks {
   if(!Find<Button>(missingAndOld).Single(b=>Equals(b.Content,"Install")).IsEnabled||!Find<Button>(missingAndOld).Single(b=>Equals(b.Content,"Uninstall")).IsEnabled)throw new Exception("Missing must take priority over outdated");
   var missingManager=new ToolWindow(currentPage with {Items=[currentPage.Items[0],new("Git for Windows","","Git Credential Manager missing","warning")]},tools:true,observeStatus:false);
   if(!Find<Button>(missingManager).Single(b=>Equals(b.Content,"Install")).IsEnabled)throw new Exception("Missing credential component must say Install");
+  var selectable=new ToolWindow(currentPage with {Items=[new("GC Workbench Tools","","Not installed","warning"),new("Git for Windows","","Update available","warning")]},tools:true);
+  var selections=Find<CheckBox>(selectable).ToArray();
+  if(selections.Length!=2||selections.Any(c=>c.IsChecked!=true))throw new Exception("Dependencies must start selected");
+  selections[0].IsChecked=false;
+  if(!Find<Button>(selectable).Single(b=>Equals(b.Content,"Update")).IsEnabled)throw new Exception("Unselected missing tools affected Git update");
+  Find<CheckBox>(selectable).Last().IsChecked=false;
+  if(Find<Button>(selectable).Single(b=>Equals(b.Content,"Update")).IsEnabled||Find<Button>(selectable).Single(b=>Equals(b.Content,"Uninstall")).IsEnabled)throw new Exception("Empty selection allowed an operation");
+  Find<CheckBox>(selectable).Last().IsChecked=true;
+  var selectionChecks=(HashSet<string>)typeof(ToolWindow).GetField("checking",flags)!.GetValue(selectable)!;
+  selectionChecks.Add("External dependencies");
+  Dictionary<string,object>? chosen=null;
+  selectable.OperationRunner=(_,values,_)=>{chosen=values;return Task.FromResult(new OperationResult("Installed"));};
+  Find<Button>(selectable).Single(b=>Equals(b.Content,"Update")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  if(chosen is null||(bool)chosen["tools"]||!(bool)chosen["git"])throw new Exception("Install ignored selection");
+  selectable.OperationRunner=(_,values,_)=>{chosen=values;return Task.FromResult(new OperationResult("Uninstalled"));};
+  Find<Button>(selectable).Single(b=>Equals(b.Content,"Uninstall")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  if(chosen is null||(bool)chosen["tools"]||!(bool)chosen["git"]||Find<CheckBox>(selectable).First().IsChecked!=false)throw new Exception("Uninstall or rerender lost selection");
+  Console.WriteLine("PASS: both selected by default, scoped actions and labels, empty selection disabled, selections retained.");
   var currentDependencies=new ToolWindow(currentPage,tools:true);
   if(Find<Button>(currentDependencies).Single(b=>Equals(b.Content,"Update")).IsEnabled)throw new Exception("Current dependencies allow reinstall");
   var uninstall=Find<Button>(currentDependencies).Single(b=>Equals(b.Content,"Uninstall"));
@@ -192,12 +210,28 @@ static class Checks {
    Pump(()=>progressItems.Count==1);
    if(progressItems[0].Dependency!="git"||progressItems[0].Status!="Updating...")throw new Exception("Live child progress missing");
    if(receipt.Status!="Submitted"||receipt.Detail!="Fixture confirmed")throw new Exception("Pipe workflow did not return confirmed result");
-   File.WriteAllText(fixture,"param([switch]$Uninstall)\n. '"+reviewPath+"'\nif(!$Uninstall){throw 'Missing uninstall switch'}\nSet-GcOutcome 'Uninstalled' 'Fixture only'\n");
-   var removal=ToolOperations.RunAsync("uninstall",[],_=>throw new Exception("Unexpected review"));
+   File.WriteAllText(fixture,"param([switch]$Uninstall)\n. '"+reviewPath+"'\nif(!$Uninstall -or $env:GC_UNINSTALL_TOOLS -ne '0' -or $env:GC_UNINSTALL_GIT -ne '1'){throw 'Wrong uninstall selection'}\nSet-GcOutcome 'Uninstalled' 'Fixture only'\n");
+   var removal=ToolOperations.RunAsync("uninstall",new(){["tools"]=false,["git"]=true},_=>throw new Exception("Unexpected review"));
    Pump(()=>removal.IsCompleted);
    if(removal.GetAwaiter().GetResult().Status!="Uninstalled")throw new Exception("Uninstall did not use the external installer");
    Console.WriteLine("PASS: real Windows PowerShell review pipe and operation outcome, without external mutations.");
   } finally {Environment.SetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT",oldScript);File.Delete(fixture);}
+  var cleanupFixture=Path.Combine(Path.GetTempPath(),"gc-cleanup-pipe-"+Guid.NewGuid().ToString("N"));
+  Directory.CreateDirectory(Path.Combine(cleanupFixture,"local","GCWorkbench","versions","old"));
+  File.WriteAllText(Path.Combine(cleanupFixture,"Common.ps1"),File.ReadAllText("external/source/installer/support/Common.ps1")+"\nfunction Remove-GcLegacyStartup {}\n");
+  File.Copy("external/source/installer/support/LobbyTools.ps1",Path.Combine(cleanupFixture,"LobbyTools.ps1"));
+  File.WriteAllText(Path.Combine(cleanupFixture,"Cleanup.ps1"),"param([switch]$Wait)\nStart-Sleep -Seconds 4\n");
+  var cleanupLauncher=Path.Combine(cleanupFixture,"Run.ps1");
+  File.WriteAllText(cleanupLauncher,"param([switch]$Uninstall)\n$env:LOCALAPPDATA=Join-Path $PSScriptRoot 'local'\n. (Join-Path $PSScriptRoot 'Common.ps1')\n$result=Uninstall-GcIntegration\n[IO.File]::WriteAllText($env:GC_TOOLS_OUTCOME,(@{Status='Uninstalled';Detail=$result}|ConvertTo-Json -Compress))\n");
+  try {
+   Environment.SetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT",cleanupLauncher);
+   var elapsed=System.Diagnostics.Stopwatch.StartNew();
+   var cleanupOperation=ToolOperations.RunAsync("uninstall",new(){["tools"]=true,["git"]=false},_=>throw new Exception("Unexpected review"));
+   Pump(()=>cleanupOperation.IsCompleted);
+   Console.WriteLine($"Cleanup receipt: {cleanupOperation.GetAwaiter().GetResult()} in {elapsed.Elapsed.TotalSeconds:F2}s");
+   if(cleanupOperation.GetAwaiter().GetResult().Status!="Uninstalled"||elapsed.Elapsed.TotalSeconds>=3.5)throw new Exception("Uninstall waited for the background cleanup output pipe");
+   Console.WriteLine("PASS: real uninstall returns while its background cleanup worker is still running.");
+  } finally {Environment.SetEnvironmentVariable("GC_WORKBENCH_INSTALL_SCRIPT",oldScript);Directory.Delete(cleanupFixture,true);}
   var workflowDirectory=Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,"..","lobby2-tools"));
   var workflow=Path.Combine(workflowDirectory,"GC-ModWorkflow.ps1");
   if(File.Exists(workflow))throw new Exception("Dispatch fixture would overwrite a workflow");

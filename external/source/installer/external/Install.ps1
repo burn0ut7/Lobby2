@@ -34,12 +34,12 @@ try {
     }
     if ($Tools) {
         # Bootstrap once for source checkouts that have not installed the integration yet.
-        $ui = Join-Path $destination 'support/payload/helper/GCWorkbench.UI.exe'
+        $ui = Join-Path $destination 'support/payload/helper/GC Tools.exe'
         [IO.File]::WriteAllText((Join-Path $env:LOCALAPPDATA 'GCWorkbench/ui-path.txt'), $ui, [Text.Encoding]::Unicode)
         $picker = Start-Process -FilePath $ui -ArgumentList '--tools' -Wait -PassThru
         exit $picker.ExitCode
     } elseif ($Preview) {
-        Start-Process -FilePath (Join-Path $destination 'support/payload/helper/GCWorkbench.UI.exe') -ArgumentList '--preview'
+        Start-Process -FilePath (Join-Path $destination 'support/payload/helper/GC Tools.exe') -ArgumentList '--preview'
     } elseif ($Uninstall) {
         & (Join-Path $destination 'support/Uninstall.ps1') -Quiet
     } else {

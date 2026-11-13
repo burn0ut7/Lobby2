@@ -17,6 +17,8 @@ function Install-LatestGit { param([switch]$Quiet) Add-Content -LiteralPath $env
     $env:GC_WORKBENCH_MOD_WorkbenchExecutable = 'fixture'
     $env:GC_WORKBENCH_MOD_WorkbenchProfile = 'fixture'
     foreach ($selected in @('git','tools')) {
+        $env:GC_WORKBENCH_MOD_WorkbenchExecutable = if ($selected -eq 'tools') { 'fixture' } else { $null }
+        $env:GC_WORKBENCH_MOD_WorkbenchProfile = if ($selected -eq 'tools') { 'fixture' } else { $null }
         $env:GC_INSTALL_TOOLS = if ($selected -eq 'tools') { '1' } else { '0' }
         $env:GC_INSTALL_GIT = if ($selected -eq 'git') { '1' } else { '0' }
         $env:GC_TEST_TRACE = Join-Path $fixture ($selected + '.txt')

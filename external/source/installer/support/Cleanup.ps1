@@ -11,7 +11,7 @@ try {
     }
     if ($Wait) {
         do {
-            $busy = @(Get-Process -Name 'ArmaReforgerWorkbenchSteamDiag','GCWorkbench.UI','GCWorkbench.Loader' -ErrorAction SilentlyContinue)
+            $busy = @(Get-Process -Name 'ArmaReforgerWorkbenchSteamDiag','GCWorkbench.UI','GC Tools','GCWorkbench.Loader' -ErrorAction SilentlyContinue)
             if ($busy.Count) { Start-Sleep -Seconds 3 }
         } while ($busy.Count)
     }

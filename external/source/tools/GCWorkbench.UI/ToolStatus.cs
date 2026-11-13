@@ -156,9 +156,9 @@ internal static class ToolStatus
                 using var content = File.OpenRead(target);
                 if (!Convert.ToHexString(SHA256.HashData(content)).Equals(file.GetProperty("sha256").GetString(), StringComparison.OrdinalIgnoreCase))
                     return new("GC Workbench Tools", "", "Update or repair available", "warning");
-                if (Path.GetFileName(relative) == "GCWorkbench.UI.dll")
+                if (Path.GetFileName(relative) == "GC Tools.dll")
                 {
-                    var running = Path.Combine(uiDirectory ?? AppContext.BaseDirectory, "GCWorkbench.UI.dll");
+                    var running = Path.Combine(uiDirectory ?? AppContext.BaseDirectory, "GC Tools.dll");
                     if (!File.Exists(running)) restartRequired = true;
                     else
                     {

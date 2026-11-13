@@ -29,8 +29,10 @@ Uninstall: use Dependencies > Uninstall in GC Tools, or run Uninstall.bat.
 Save and restart Workbench normally afterward. Old version files are cleaned
 up after Workbench and GC Tools close; a later reinstall is preserved.
 Package caches and diagnostic logs remain available.
-Only GC-owned startup/helpers and installation files are removed. Other tools,
-editor settings, projects and Git are preserved. No live DLL is forcibly unloaded.
+Both dependencies are selected by default. Install/Update and Uninstall apply
+only to the selected items. Selecting Git for uninstall runs its registered
+Windows uninstaller. Uninstall.bat removes only the GC integration.
+Editor settings and projects are preserved. No live DLL is forcibly unloaded.
 
 Sources and packaging belong to Lobby2/external/source. Development/test addons
 under external/development are not distributed in this Windows package or the

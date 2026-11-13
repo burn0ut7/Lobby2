@@ -46,7 +46,7 @@ Copy-Item -LiteralPath (Join-Path $root 'workbench/menu-icons.json') -Destinatio
 Copy-Item -LiteralPath (Join-Path $native 'manifest.json') -Destination (Join-Path $support 'payload/native-build.json')
 $notices = Join-Path $support 'payload/THIRD-PARTY'
 New-Item -ItemType Directory -Path $notices -Force | Out-Null
-$runtime = Get-Content -LiteralPath (Join-Path $helper 'GCWorkbench.UI.runtimeconfig.json') -Raw | ConvertFrom-Json
+$runtime = Get-Content -LiteralPath (Join-Path $helper 'GC Tools.runtimeconfig.json') -Raw | ConvertFrom-Json
 $assets = Get-Content -LiteralPath (Join-Path $root 'tools/GCWorkbench.UI/obj/project.assets.json') -Raw | ConvertFrom-Json
 foreach ($framework in $runtime.runtimeOptions.includedFrameworks) {
     $packageName = switch ($framework.name) {

@@ -16,6 +16,8 @@ public sealed class ToolWindow : Window
     private readonly Dictionary<string, Dictionary<string, object>> drafts = [];
     private readonly Grid body = new();
     private readonly Dictionary<string, FrameworkElement> inputs = [];
+    private readonly Dictionary<string, bool> dependencySelection = new() { ["tools"] = true, ["git"] = true };
+    private static string DependencyKey(StatusItem item) => item.Title == "GC Workbench Tools" ? "tools" : "git";
     private readonly Dictionary<string, TextBlock> errors = [];
     private readonly List<(Button Button, DialogSpec Spec)> navigation = [];
     private readonly CancellationTokenSource lifetime = new();
@@ -39,7 +41,7 @@ public sealed class ToolWindow : Window
         this.observeStatus = observeStatus;
         OperationRunner = (action, values, review) => ToolOperations.RunAsync(action, values, review, new Progress<DependencyProgress>(UpdateDependencyProgress));
         Title = "GC Workbench";
-        Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/GCWorkbench.UI;component/Assets/GC.ico"));
+        Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/GC%20Tools;component/Assets/GC.ico"));
         var workArea = SystemParameters.WorkArea;
         Width = Math.Min(preview || tools ? 1180 : 900, workArea.Width);
         Height = Math.Min(preview || tools ? 800 : 720, workArea.Height);
@@ -288,7 +290,7 @@ public sealed class ToolWindow : Window
         if (dependencyPage)
         {
             var row = new DockPanel();
-            var uninstall = new Button { Content = "Uninstall", HorizontalAlignment = HorizontalAlignment.Left, IsEnabled = !operating };
+            var uninstall = new Button { Content = "Uninstall", HorizontalAlignment = HorizontalAlignment.Left, IsEnabled = !operating && dependencySelection.Values.Any(selected => selected) };
             uninstall.Click += async (_, _) =>
             {
                 if (operating || preview) return;
@@ -368,8 +370,13 @@ public sealed class ToolWindow : Window
         if (action == "install")
         {
             if (!DependenciesActionable(page)) return;
-            values["tools"] = !page.Items.Any(item => item.Title == "GC Workbench Tools" && item.State == "ready");
-            values["git"] = !page.Items.Any(item => item.Title == "Git for Windows" && item.State == "ready");
+            values["tools"] = dependencySelection["tools"] && !page.Items.Any(item => item.Title == "GC Workbench Tools" && item.State == "ready");
+            values["git"] = dependencySelection["git"] && !page.Items.Any(item => item.Title == "Git for Windows" && item.State == "ready");
+        }
+        if (action == "uninstall")
+        {
+            if (!dependencySelection.Values.Any(selected => selected)) return;
+            foreach (var pair in dependencySelection) values[pair.Key] = pair.Value;
         }
         operating = true;
         operationPage = page;
@@ -385,16 +392,16 @@ public sealed class ToolWindow : Window
         if (action is "update" or "install" or "uninstall") await RefreshStatusAsync(false, page.Title);
     }
 
-    private static string DependencyAction(DialogSpec page) => page.Items.Count == 0 || page.Items.Any(item =>
+    private string DependencyAction(DialogSpec page) => page.Items.Count == 0 || page.Items.Where(item => dependencySelection[DependencyKey(item)]).Any(item =>
         item.Status.StartsWith("Not installed", StringComparison.OrdinalIgnoreCase) ||
         item.Status.StartsWith("Installation incomplete", StringComparison.OrdinalIgnoreCase) ||
         item.Status == "Git Credential Manager missing") ? "Install" : "Update";
 
-    private static bool DependenciesCurrent(DialogSpec page) =>
-        new[] { "GC Workbench Tools", "Git for Windows" }.All(title => page.Items.Any(item => item.Title == title && item.State == "ready"));
-
-    private static bool DependenciesActionable(DialogSpec page) => !DependenciesCurrent(page) &&
-        new[] { "GC Workbench Tools", "Git for Windows" }.All(title => page.Items.Any(item => item.Title == title && item.State != "pending"));
+    private bool DependenciesActionable(DialogSpec page)
+    {
+        var selected = page.Items.Where(item => dependencySelection[DependencyKey(item)]).ToArray();
+        return selected.Length > 0 && selected.All(item => item.State != "pending") && selected.Any(item => item.State != "ready");
+    }
 
     internal void UpdateDependencyProgress(DependencyProgress progress)
     {
@@ -412,6 +419,17 @@ public sealed class ToolWindow : Window
         panel.Children.Add(Text(item.Title, 15, "#f0e9d5", bold: true));
         if (item.Description.Length > 0) panel.Children.Add(Text(item.Description, 13, "#a9b09b", margin: new Thickness(0, 5, 0, 0)));
         panel.Children.Add(Text(item.Status, 12, color, bold: true, margin: new Thickness(0, 8, 0, 0)));
+        if (spec.Title == "External dependencies" && reviewAnswer is null)
+        {
+            var key = DependencyKey(item);
+            var check = new CheckBox { Content = panel, IsChecked = dependencySelection[key], IsEnabled = !operating,
+                VerticalContentAlignment = VerticalAlignment.Center, Padding = new Thickness(10, 0, 0, 0) };
+            AutomationProperties.SetName(check, item.Title);
+            void Changed(object sender, RoutedEventArgs args) { dependencySelection[key] = check.IsChecked == true; Render(spec); }
+            check.Checked += Changed;
+            check.Unchecked += Changed;
+            return Card(check);
+        }
         return Card(panel);
     }
 

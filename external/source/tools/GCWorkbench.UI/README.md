@@ -27,7 +27,7 @@ form values. The preview's statuses are illustrative, not machine observations.
 
 ## Try the design
 
-Build this project, then run `GCWorkbench.UI.exe --preview`. The sidebar switches
+Build this project, then run `GC Tools.exe --preview`. The sidebar switches
 between dependency setup, mod updates and mission submission. Fields and selection
 cards work; required-field errors appear beside their inputs. Preview actions never
 install, update or submit anything. Switching pages retains the current form values.

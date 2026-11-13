@@ -33,9 +33,9 @@ internal static class ToolOperations
             start.Environment["GC_TOOLS_PIPE"] = pipeName;
             start.Environment["GC_TOOLS_OUTCOME"] = outcome;
             start.Environment["GCM_TRACE_SECRETS"] = "0";
-            if (action == "install")
+            if (action is "install" or "uninstall")
                 foreach (var key in new[] { "tools", "git" })
-                    start.Environment["GC_INSTALL_" + key.ToUpperInvariant()] = values.TryGetValue(key, out var selected) && selected is false ? "0" : "1";
+                    start.Environment[(action == "install" ? "GC_INSTALL_" : "GC_UNINSTALL_") + key.ToUpperInvariant()] = values.TryGetValue(key, out var selected) && selected is false ? "0" : "1";
             if (action == "uninstall") start.ArgumentList.Add("-Uninstall");
             if (action is not ("install" or "uninstall"))
             {
@@ -59,10 +59,14 @@ internal static class ToolOperations
             }
             using var process = await Task.Run(() => Process.Start(start)) ?? throw new IOException("Could not start the action.");
             // Drain without exposing credentials or raw child-process diagnostics in the UI.
-            var output = ReadProgressAsync(process.StandardOutput, action == "install" ? progress : null);
-            var error = process.StandardError.ReadToEndAsync();
+            using var drainLifetime = new CancellationTokenSource();
+            var output = ReadProgressAsync(process.StandardOutput, action is "install" or "uninstall" ? progress : null, drainLifetime.Token);
+            var error = process.StandardError.ReadToEndAsync(drainLifetime.Token);
             await process.WaitForExitAsync();
-            await Task.WhenAll(output, error);
+            // A detached descendant can retain inherited handles after the action
+            // exits. Its lifetime must not hold the completed action open.
+            drainLifetime.CancelAfter(TimeSpan.FromMilliseconds(250));
+            try { await Task.WhenAll(output, error); } catch (OperationCanceledException) { }
             if (!File.Exists(outcome)) return new("Action stopped", "Completion could not be confirmed. Your files were not automatically retried.");
             if (new FileInfo(outcome).Length > 128 * 1024) throw new IOException("Invalid action result.");
             return JsonSerializer.Deserialize<OperationResult>(await File.ReadAllTextAsync(outcome), Program.Json)
@@ -76,16 +80,16 @@ internal static class ToolOperations
         }
     }
 
-    private static async Task ReadProgressAsync(StreamReader output, IProgress<DependencyProgress>? progress)
+    private static async Task ReadProgressAsync(StreamReader output, IProgress<DependencyProgress>? progress, CancellationToken token)
     {
-        while (await output.ReadLineAsync() is { } line)
+        while (await output.ReadLineAsync(token) is { } line)
         {
             if (progress is null || !line.StartsWith("GC_PROGRESS:")) continue;
             try
             {
                 var item = JsonSerializer.Deserialize<DependencyProgress>(line[12..], Program.Json);
-                if (item is not null && item.Dependency is "tools" or "git" && item.State is "pending" or "ready" or "error" &&
-                    item.Status is "Updating..." or "Up to date" or "Restart Workbench" or "Update failed") progress.Report(item);
+                if (item is not null && item.Dependency is "tools" or "git" && item.State is "pending" or "ready" or "error" or "warning" &&
+                    item.Status is "Updating..." or "Up to date" or "Restart Workbench" or "Update failed" or "Uninstalling..." or "Not installed" or "Uninstall failed") progress.Report(item);
             }
             catch (JsonException) { /* Ignore non-protocol child output. */ }
         }

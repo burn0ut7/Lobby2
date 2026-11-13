@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <AssemblyName>GC Tools</AssemblyName>
+    <AssemblyTitle>GC Tools</AssemblyTitle>
+    <Product>GC Tools</Product>
+    <RootNamespace>GCWorkbench.UI</RootNamespace>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Assets/GC.ico</ApplicationIcon>

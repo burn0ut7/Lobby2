@@ -11,9 +11,9 @@ $currentDependency = 'tools'
 try {
     $workbench = $env:GC_WORKBENCH_MOD_WorkbenchExecutable
     $profile = $env:GC_WORKBENCH_MOD_WorkbenchProfile
-    if (!$workbench -or !$profile) { throw 'Open GC Tools from Workbench to install dependencies.' }
     $updatedTools = $env:GC_INSTALL_TOOLS -ne '0'
     if ($updatedTools) {
+        if (!$workbench -or !$profile) { throw 'Open GC Tools from Workbench to install dependencies.' }
         Set-GcDependencyProgress 'tools' 'Updating...' 'pending'
         $destination = Join-Path $env:LOCALAPPDATA ('GCWorkbench/versions/' + [Guid]::NewGuid().ToString('N'))
         Install-GcFiles $PSScriptRoot $destination $workbench $profile | Out-Null

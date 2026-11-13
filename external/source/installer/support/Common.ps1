@@ -142,7 +142,7 @@ class GC_WorkbenchStartup : WorkbenchPlugin
     New-Item -ItemType Directory -Path (Split-Path $script -Parent) -Force | Out-Null
     Install-GcLobbyTools $Destination $profile
     $uiPath = Assert-GcOwnedPath (Join-Path $control 'ui-path.txt') $control
-    [IO.File]::WriteAllText($uiPath, (Join-Path $Destination 'payload/helper/GCWorkbench.UI.exe'), [Text.Encoding]::Unicode)
+    [IO.File]::WriteAllText($uiPath, (Join-Path $Destination 'payload/helper/GC Tools.exe'), [Text.Encoding]::Unicode)
     # Deactivate the previous version before replacing its bootstrap. No sign-in task is installed.
     Remove-GcLegacyStartup
     $active = Assert-GcOwnedPath (Join-Path $control 'active.json') $control
@@ -189,10 +189,33 @@ function Uninstall-GcIntegration {
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'Cleanup.ps1') -Destination $job
         @{ root = $versions; targets = $targets } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $job 'job.json') -Encoding UTF8
         Start-Process -FilePath (Join-Path $PSHOME 'powershell.exe') -WindowStyle Hidden -ArgumentList @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', ('"' + (Join-Path $job 'Cleanup.ps1') + '"'), '-Wait') | Out-Null
+
     }
     foreach ($name in @('installation.json', 'ui-path.txt')) {
         $path = Assert-GcOwnedPath (Join-Path $control $name) $control
         if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path }
     }
-    return 'GC integration removed. Restart Workbench to finish. Git and your projects were kept.'
+    return 'GC integration removed. Restart Workbench to finish. Your projects were kept.'
+}
+
+function Uninstall-GcGit {
+    $keys = @('HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1',
+        'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1',
+        'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1')
+    $records = @(Get-ItemProperty -LiteralPath $keys -ErrorAction SilentlyContinue)
+    if (!$records.Count) {
+        if (Get-Command git.exe -ErrorAction SilentlyContinue) { throw 'This Git installation has no Windows uninstaller. Remove it using the application that installed it.' }
+        return 'Git is not installed.'
+    }
+    foreach ($record in $records) {
+        $match = [regex]::Match($record.UninstallString, '^"([^"\r\n]+)"$')
+        if (!$match.Success -or [string]::IsNullOrWhiteSpace($record.InstallLocation)) { throw 'Git uninstaller registration is incomplete.' }
+        $exe = [IO.Path]::GetFullPath($match.Groups[1].Value)
+        if ([IO.Path]::GetFileName($exe) -notmatch '^unins[0-9]+\.exe$' -or
+            !(Test-GcSamePath ([IO.Path]::GetDirectoryName($exe)) $record.InstallLocation) -or
+            !(Test-Path -LiteralPath $exe -PathType Leaf)) { throw 'Git uninstaller could not be verified.' }
+        $process = Start-Process -FilePath $exe -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -WindowStyle Hidden -Wait -PassThru
+        if ($process.ExitCode -ne 0 -or (Test-Path -LiteralPath $record.PSPath)) { throw 'Git was not removed. Close applications using Git and try again.' }
+    }
+    return 'Git removed.'
 }

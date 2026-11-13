@@ -12,14 +12,14 @@ Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Installation incomp
 File.WriteAllText(Path.Combine(control,"installation.json"),JsonSerializer.Serialize(new{destination=install,profileDirectory=profile,enabled=false}));
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Not installed","Disabled integration reported installed");
 File.WriteAllText(Path.Combine(control,"installation.json"),JsonSerializer.Serialize(new{destination=install,profileDirectory=profile}));
-var paths=new Dictionary<string,string>{["support/payload/generic/gcworkbench.dll"]=Path.Combine(install,"payload/generic/gcworkbench.dll"),["support/payload/helper/GCWorkbench.UI.dll"]=Path.Combine(install,"payload/helper/GCWorkbench.UI.dll"),["support/payload/lobby2-tools/GC-GitHub.ps1"]=Path.Combine(profile,"GCWorkbench/tools/GC-GitHub.ps1")};
+var paths=new Dictionary<string,string>{["support/payload/generic/gcworkbench.dll"]=Path.Combine(install,"payload/generic/gcworkbench.dll"),["support/payload/helper/GC Tools.dll"]=Path.Combine(install,"payload/helper/GC Tools.dll"),["support/payload/lobby2-tools/GC-GitHub.ps1"]=Path.Combine(profile,"GCWorkbench/tools/GC-GitHub.ps1")};
 foreach(var target in paths.Values){Directory.CreateDirectory(Path.GetDirectoryName(target)!);File.WriteAllText(target,"expected");}
 var zipPath=Path.Combine(package,"GCWorkbench.zip");
 using(var zip=ZipFile.Open(zipPath,ZipArchiveMode.Create))using(var writer=new StreamWriter(zip.CreateEntry("support/files.json").Open()))writer.Write(JsonSerializer.Serialize(paths.Select(p=>new{path=p.Key,sha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(p.Value)))})));
 File.WriteAllText(zipPath+".sha256",Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(zipPath)))+"  GCWorkbench.zip");
-File.WriteAllText(Path.Combine(ui,"GCWorkbench.UI.dll"),"expected");
+File.WriteAllText(Path.Combine(ui,"GC Tools.dll"),"expected");
 Check(ToolStatus.CheckWorkbench(control,package,ui).Status=="Up to date","Matching package");
-File.WriteAllText(Path.Combine(ui,"GCWorkbench.UI.dll"),"old running UI");
+File.WriteAllText(Path.Combine(ui,"GC Tools.dll"),"old running UI");
 var restart=ToolStatus.CheckWorkbench(control,package,ui);
 Check(restart.State=="ready"&&restart.Status=="Restart Workbench","Updated installed UI mistaken for another required install");
 File.WriteAllText(paths.Values.Last(),"old helper");
