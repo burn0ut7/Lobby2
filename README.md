@@ -54,7 +54,13 @@ The UI is bundled with the existing Windows runtime; no separate installation is
 **Install external dependencies** in one window. **Open Wiki** remains separate.
 
 For a source checkout, use **GC Tools > Install external dependencies**, or
-open `external/workbench/Install.js` to view GC Tools. Save work and stop Play first.
+open `external/workbench/Install.js` to view GC Tools. Lobby's `external` folder
+contains the complete tool package and .NET runtime. Opening it does not require
+GC Core, Units, Missions, Git, the dropdown DLL, or Reforger MCP. Each checkout
+opens its own verified package; installed copies are not required for startup.
+Do not start Workbench with `-noThrow`: it blocks protected script file/process
+operations, including the GC Tools button. Remove that option and restart Workbench.
+Save work and stop Play before installing the dropdown DLL.
 Setup installs the dropdown DLL, profile Git helpers and Git for Windows.
 Save and restart Workbench after installing; subsequent launches load it automatically.
 Workbench NET API must be enabled in its saved preferences. Git installation needs internet access.

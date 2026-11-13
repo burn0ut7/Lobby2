@@ -16,6 +16,24 @@ internal static class ToolPages
         Items = [new("GC Workbench Tools", "", "Checking..."), new("Git for Windows", "", "Checking...")]
     };
 
+    internal static bool DependencyMissing(StatusItem item) =>
+        item.Status.StartsWith("Not installed", StringComparison.OrdinalIgnoreCase) ||
+        item.Status.StartsWith("Installation incomplete", StringComparison.OrdinalIgnoreCase) ||
+        item.Status == "Git Credential Manager missing";
+
+    internal static string? DependencyNotice(DialogSpec page)
+    {
+        bool missing = page.Items.Any(DependencyMissing);
+        bool updates = page.Items.Any(item => item.Status is "Update available" or "Update or repair available");
+        return (missing, updates) switch
+        {
+            (true, true) => "External dependencies missing or outdated",
+            (true, false) => "External dependencies not found",
+            (false, true) => "External dependency updates available",
+            _ => null
+        };
+    }
+
     internal static DialogSpec GitHub() => new()
     {
         Title = "GitHub", PrimaryAction = "Sign in on GitHub", SecondaryAction = "",

@@ -40,7 +40,7 @@ public sealed class ToolWindow : Window
         this.tools = tools;
         this.observeStatus = observeStatus;
         OperationRunner = (action, values, review) => ToolOperations.RunAsync(action, values, review, new Progress<DependencyProgress>(UpdateDependencyProgress));
-        Title = "GC Workbench";
+        Title = "GC Tools";
         Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/GC%20Tools;component/Assets/GC.ico"));
         var workArea = SystemParameters.WorkArea;
         Width = Math.Min(preview || tools ? 1180 : 900, workArea.Width);
@@ -102,19 +102,15 @@ public sealed class ToolWindow : Window
             {
                 if (initialized) return;
                 initialized = true;
-                bool missing = dependenciesMissing || await ToolStatus.MissingCredentialManagerAsync(lifetime.Token);
-                if (lifetime.IsCancellationRequested || operating || reviewAnswer is not null) return;
-                if (missing)
-                {
-                    Render(ToolPages.Dependencies());
-                    await ReviewAsync(new DialogSpec { Title = "External dependencies not found", PrimaryAction = "OK", SecondaryAction = "" });
-                    Render(ToolPages.Dependencies());
-                    if (!lifetime.IsCancellationRequested) await RefreshStatusAsync(false, "External dependencies");
-                }
-                else await Task.WhenAll(
-                    RefreshStatusAsync(false, "GitHub"),
-                    RefreshStatusAsync(false, "Update mods"),
-                    RefreshStatusAsync(false, "External dependencies"));
+                // Start every check immediately; notices do not postpone other pages.
+                var dependencies = RefreshStatusAsync(false, "External dependencies");
+                var otherChecks = Task.WhenAll(RefreshStatusAsync(false, "GitHub"), RefreshStatusAsync(false, "Update mods"));
+                if (dependenciesMissing)
+                    await ShowDependencyNoticeAsync(ToolPages.Dependencies(), "External dependencies not found");
+                await dependencies;
+                if (!dependenciesMissing && statusPages.TryGetValue("External dependencies", out var checkedDependencies))
+                    await ShowDependencyNoticeAsync(checkedDependencies);
+                await otherChecks;
             };
         }
         Closed += (_, _) => lifetime.Cancel();
@@ -392,10 +388,18 @@ public sealed class ToolWindow : Window
         if (action is "update" or "install" or "uninstall") await RefreshStatusAsync(false, page.Title);
     }
 
-    private string DependencyAction(DialogSpec page) => page.Items.Count == 0 || page.Items.Where(item => dependencySelection[DependencyKey(item)]).Any(item =>
-        item.Status.StartsWith("Not installed", StringComparison.OrdinalIgnoreCase) ||
-        item.Status.StartsWith("Installation incomplete", StringComparison.OrdinalIgnoreCase) ||
-        item.Status == "Git Credential Manager missing") ? "Install" : "Update";
+    private string DependencyAction(DialogSpec page) => page.Items.Count == 0 || page.Items
+        .Where(item => dependencySelection[DependencyKey(item)]).Any(ToolPages.DependencyMissing) ? "Install" : "Update";
+
+    internal async Task ShowDependencyNoticeAsync(DialogSpec page, string? title = null)
+    {
+        title ??= ToolPages.DependencyNotice(page);
+        if (title is null || lifetime.IsCancellationRequested || operating || reviewAnswer is not null) return;
+        SaveDraft();
+        Render(page);
+        await ReviewAsync(new DialogSpec { Title = title, PrimaryAction = "OK", SecondaryAction = "" });
+        if (!lifetime.IsCancellationRequested) Render(statusPages.GetValueOrDefault("External dependencies", page));
+    }
 
     private bool DependenciesActionable(DialogSpec page)
     {

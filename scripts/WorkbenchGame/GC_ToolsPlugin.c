@@ -6,6 +6,12 @@ class GC_ToolsPlugin : WorkbenchPlugin
 
 	override void Run()
 	{
+		string noThrow;
+		if (System.GetCLIParam("nothrow", noThrow))
+		{
+			Workbench.Dialog("GC Tools", "Restart Workbench without -noThrow. That launch option blocks opening GC Tools.");
+			return;
+		}
 		if (s_Process)
 		{
 			if (Workbench.IsRunningProcess(s_Process))
