@@ -72,6 +72,23 @@ static class Checks {
   Pump(()=>Find<Button>(submission).Any(b=>Equals(b.Content,"Submitted")));
   if(!Find<Button>(submission).Any(b=>Equals(b.Content,"View submission"))||submission.Result.Action!="cancel")throw new Exception("Submission result closed hub or lost link");
   Console.WriteLine("PASS: embedded conflict review, pending action, same-window submitted result and link.");
+  var dependencies=new ToolWindow(ToolPages.Dependencies(),tools:true);
+  var dependencyChecks=(HashSet<string>)typeof(ToolWindow).GetField("checking",flags)!.GetValue(dependencies)!;
+  dependencyChecks.Add("External dependencies"); // Keep this test independent of network status checks.
+  var attempts=0;
+  var retried=new TaskCompletionSource<OperationResult>();
+  dependencies.OperationRunner=(_,_,_)=>++attempts==1 ? Task.FromResult(new OperationResult("Installation stopped","Fixture error")) : retried.Task;
+  Find<Button>(dependencies).Single(b=>Equals(b.Content,"Install / update")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  var retry=Find<Button>(dependencies).Single(b=>Equals(b.Content,"Retry"));
+  var footer=(Panel)retry.Parent;
+  if(footer.Children.Count!=1||Find<Button>(dependencies).Any(b=>Equals(b.Content,"Refresh")||Equals(b.Content,"Close")||Equals(b.Content,"Installation stopped")))throw new Exception("Failed dependencies must show only Retry in the footer");
+  if(!Find<TextBlock>(dependencies).Any(t=>t.Text=="Fixture error"))throw new Exception("Retry lost error detail");
+  retry.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  if(attempts!=2||Find<Button>(dependencies).Single(b=>Equals(b.Content,"Installing...")).IsEnabled)throw new Exception("Retry did not run installation once with disabled progress button");
+  retried.SetResult(new("Installed","Restart Workbench"));
+  Pump(()=>Find<Button>(dependencies).Any(b=>Equals(b.Content,"Install / update")));
+  if(dependencies.Result.Action!="cancel")throw new Exception("Retry closed tools");
+  Console.WriteLine("PASS: single Retry button, visible error, real retry dispatch, disabled progress and persistent completion.");
   var fixture=Path.Combine(Path.GetTempPath(),"gc-hub-test-"+Guid.NewGuid()+".ps1");
   var reviewPath=Path.GetFullPath("external/source/tools/GC-Review.ps1").Replace("'","''");
   File.WriteAllText(fixture,". '"+reviewPath+"'\n$answer=Show-GcReview @{Title='Fixture review';PrimaryAction='Confirm'}\nif($answer.Action -ne 'confirm'){throw 'Wrong review answer'}\nSet-GcOutcome 'Submitted' 'Fixture confirmed' 'https://github.com/example/missions/pull/1'\n");

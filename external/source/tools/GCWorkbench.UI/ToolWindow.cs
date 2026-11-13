@@ -187,12 +187,13 @@ public sealed class ToolWindow : Window
         var footer = new StackPanel { Margin = new Thickness(24, 16, 24, 24) };
         if (spec.Note.Length > 0) footer.Children.Add(Text(spec.Note, 12, "#a9b09b", margin: new Thickness(0, 0, 0, 18)));
         var buttons = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right };
+        var dependencyPage = spec.Title == "External dependencies" && reviewAnswer is null;
         var cancel = new Button { Content = spec.SecondaryAction, MinWidth = 92, Margin = new Thickness(0, 0, 10, 0) };
         cancel.Click += (_, _) => { if (reviewAnswer is not null) CompleteReview(new("cancel", [])); else Close(); };
         var confirm = new Button { Content = spec.PrimaryAction, Background = Brush(spec.Accent), BorderBrush = Brush(spec.Accent), Foreground = Brush("#1b2119"), Margin = new Thickness(0) };
         if (tools && reviewAnswer is null && outcomes.TryGetValue(spec.Title, out var outcome))
         {
-            confirm.Content = outcome.Status;
+            confirm.Content = dependencyPage ? (outcome.Status == "Installed" ? "Install / update" : "Retry") : outcome.Status;
             if (!string.IsNullOrEmpty(outcome.Detail)) footer.Children.Add(Text(outcome.Detail, 13, "#a9b09b", margin: new Thickness(0, 0, 0, 12)));
             if (Uri.TryCreate(outcome.Url, UriKind.Absolute, out var link) && link.Scheme == "https" && link.Host == "github.com")
             {
@@ -234,13 +235,13 @@ public sealed class ToolWindow : Window
             Result = new DialogResult(tools ? ToolPages.Action(spec.Title) : "confirm", values);
             Close();
         };
-        if (tools && reviewAnswer is null && !operating && spec.Title is "GitHub" or "External dependencies" or "Update mods")
+        if (tools && reviewAnswer is null && !operating && spec.Title is "GitHub" or "Update mods")
         {
             var refresh = new Button { Content = "Refresh", IsEnabled = !checking.Contains(spec.Title), Margin = new Thickness(0, 0, 10, 0) };
             refresh.Click += async (_, _) => await RefreshStatusAsync();
             buttons.Children.Add(refresh);
         }
-        if (spec.SecondaryAction.Length > 0) buttons.Children.Add(cancel);
+        if (spec.SecondaryAction.Length > 0 && !dependencyPage) buttons.Children.Add(cancel);
         foreach (var action in spec.Actions)
         {
             var button = new Button { Content = action.Label, Margin = new Thickness(0, 0, 10, 0) };
@@ -279,7 +280,7 @@ public sealed class ToolWindow : Window
         }
         catch (Exception)
         {
-            result = (title == "GitHub" ? ToolPages.GitHub() : title == "Update mods" ? ToolPages.Updates("Unable to check - refresh") : ToolPages.Dependencies()) with { Items = [new("Status", "", "Check unavailable \u00b7 try Refresh", "warning")] };
+            result = (title == "GitHub" ? ToolPages.GitHub() : title == "Update mods" ? ToolPages.Updates("Unable to check - refresh") : ToolPages.Dependencies()) with { Items = [new("Status", "", title == "External dependencies" ? "Could not check status" : "Check unavailable \u00b7 try Refresh", "warning")] };
         }
         if (spec.Title == title) SaveDraft();
         checking.Remove(title);

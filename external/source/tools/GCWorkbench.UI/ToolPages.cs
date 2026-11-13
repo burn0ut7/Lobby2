@@ -12,7 +12,7 @@ internal static class ToolPages
 
     internal static DialogSpec Dependencies() => new()
     {
-        Title = "External dependencies", PrimaryAction = "Install / update", SecondaryAction = "Close",
+        Title = "External dependencies", PrimaryAction = "Install / update", SecondaryAction = "",
         Items = [new("GC Workbench Tools", "", "Checking..."), new("Git for Windows", "", "Checking...")]
     };
 
