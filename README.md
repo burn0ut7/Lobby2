@@ -35,6 +35,9 @@ last-mission record so an intervening mission cannot restore an old map plan.
 Open `addon.gproj` to work on the production addon. Create a mission in its own
 addon, inherit a supported terrain, and use **Plugins > GC > Spawn Mission Template**.
 Configure playable groups, briefing, mission events and a mission header before publishing.
+Use **Plugins > GC > Open Wiki** to open the
+[GC mission-making wiki](https://github.com/Global-Conflicts-ArmA/gc-reforger-missions/wiki)
+in your default browser.
 
 ## External components
 
