@@ -99,9 +99,26 @@ internal static class ToolOperations
         using var config = JsonDocument.Parse(File.ReadAllText(Path.Combine(installation.RootElement.GetProperty("destination").GetString()!, "settings.json")));
         var port = config.RootElement.GetProperty("port").GetInt32();
         var response = WorkbenchNet.Call(port, new { APIFunc = "GC_ToolsBridge", session, action });
-        if (response.GetProperty("session").GetString() != session) throw new InvalidOperationException("Reopen GC Tools from Workbench.");
-        if (!response.GetProperty("ready").GetBoolean()) throw new InvalidOperationException(response.GetProperty("error").GetString());
-        return response.GetProperty("path").GetString() ?? "";
+        return ReadPreparation(response, session);
+    }
+
+    internal static string ReadPreparation(JsonElement response, string session)
+    {
+        if (!response.TryGetProperty("session", out var returnedSession) || returnedSession.ValueKind != JsonValueKind.String || returnedSession.GetString() != session)
+            throw new InvalidOperationException("Reopen GC Tools from Workbench.");
+        if (!response.TryGetProperty("ready", out var value)) throw new IOException("Workbench did not confirm whether the mission is ready.");
+        // Enforce JsonApiStruct serializes bool fields as 0/1 on supported Workbench.
+        bool ready = value.ValueKind switch
+        {
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            JsonValueKind.Number when value.TryGetInt32(out var number) && number is 0 or 1 => number == 1,
+            _ => throw new IOException("Workbench returned an invalid preparation result.")
+        };
+        if (!ready)
+            throw new InvalidOperationException(response.TryGetProperty("error", out var error) && error.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(error.GetString())
+                ? error.GetString() : "Workbench could not prepare this action.");
+        return response.TryGetProperty("path", out var path) && path.ValueKind == JsonValueKind.String ? path.GetString()! : "";
     }
 
     private static async Task ServeReviewsAsync(NamedPipeServerStream pipe, Func<DialogSpec, Task<DialogResult>> review, CancellationToken token)

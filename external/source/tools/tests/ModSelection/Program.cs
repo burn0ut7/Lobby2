@@ -9,6 +9,25 @@ static class Checks {
   foreach(var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())foreach(var result in Find<T>(child))yield return result;
  }
  [STAThread] static void Main(){
+  foreach(var wireReady in new[]{"true","1"}) {
+   using var response=System.Text.Json.JsonDocument.Parse("{\"session\":\"fixture\",\"ready\":"+wireReady+",\"path\":\"mission.ent\"}");
+   if(ToolOperations.ReadPreparation(response.RootElement,"fixture")!="mission.ent")throw new Exception("Workbench ready response not accepted");
+  }
+  foreach(var wireReady in new[]{"false","0"}) {
+   using var response=System.Text.Json.JsonDocument.Parse("{\"session\":\"fixture\",\"ready\":"+wireReady+",\"error\":\"Open your mission\"}");
+   try {ToolOperations.ReadPreparation(response.RootElement,"fixture");throw new Exception("Rejected preparation proceeded");}
+   catch(InvalidOperationException e) when(e.Message=="Open your mission") {}
+  }
+  foreach(var wireReady in new[]{"2","-1","null","\"true\""}) {
+   using var response=System.Text.Json.JsonDocument.Parse("{\"session\":\"fixture\",\"ready\":"+wireReady+"}");
+   try {ToolOperations.ReadPreparation(response.RootElement,"fixture");throw new Exception("Invalid preparation proceeded");}
+   catch(IOException) {}
+  }
+  using(var stale=System.Text.Json.JsonDocument.Parse("{\"session\":\"old\",\"ready\":1}")) {
+   try{ToolOperations.ReadPreparation(stale.RootElement,"fixture");throw new Exception("Stale session proceeded");}
+   catch(InvalidOperationException e) when(e.Message=="Reopen GC Tools from Workbench."){}
+  }
+  Console.WriteLine("PASS: engine numeric and boolean preparation results, actionable rejection, malformed/stale results refused.");
   var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
   SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
   var spec=new DialogSpec{Title="Update mods",PrimaryAction="Update selected",Fields=[new(){Id="lobby",Label="Lobby2",Kind="check",Enabled=false,Checked=true,Help="Up to date"},new(){Id="core",Label="GC Core",Kind="check",Checked=false,Help="Update available"}]};
@@ -80,7 +99,7 @@ static class Checks {
    reviewShown=true;
    return await completed.Task;
   };
-  Find<Button>(submission).Single(b=>Equals(b.Content,"Review submission")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  Find<Button>(submission).Single(b=>Equals(b.Content,"Submit")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(!Find<Button>(submission).Any(b=>Equals(b.Content,"Use my file")))throw new Exception("Review not embedded in hub");
   if(Find<Button>(submission).Single(b=>Equals(b.Content,"Refresh")).IsEnabled)throw new Exception("Refresh enabled during review");
   if(!Find<Button>(submission).Any(b=>Equals(b.Content,"Cancel")))throw new Exception("Review lost its necessary cancel action");
