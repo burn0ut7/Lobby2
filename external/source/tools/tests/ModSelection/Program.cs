@@ -20,6 +20,21 @@ static class Checks {
   checks[0].IsChecked=true;checks[1].IsChecked=true;
   update.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(window.Result.Action!="update"||(bool)window.Result.Values["lobby"]||!(bool)window.Result.Values["core"])throw new Exception("Disabled mod leaked into dispatch");
+  var navigationWindow=new ToolWindow(ToolPages.Submission(),tools:true,observeStatus:false);
+  var sharedRefresh=Find<Button>(navigationWindow).Single(b=>Equals(b.Content,"Refresh"));
+  if(Grid.GetRow(sharedRefresh)!=1||sharedRefresh.MinHeight<50)throw new Exception("Refresh is not the large sidebar bottom action");
+  foreach(var title in new[]{"Dependencies","GitHub","Update mods","Submit mission"}) {
+   Find<Button>(navigationWindow).Single(b=>Equals(b.Content,title)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+   if(Find<Button>(navigationWindow).Any(b=>Equals(b.Content,"Close"))||!ReferenceEquals(sharedRefresh,Find<Button>(navigationWindow).Single(b=>Equals(b.Content,"Refresh"))))throw new Exception("Tool footer duplicated Close or Refresh");
+  }
+  Console.WriteLine("PASS: one persistent bottom-left Refresh across tools, no per-tool Close buttons.");
+  if(Environment.GetEnvironmentVariable("GC_TEST_SCREENSHOT") is {Length:>0} snapshot) {
+   var surface=(FrameworkElement)navigationWindow.Content;
+   surface.Measure(new Size(880,560));surface.Arrange(new Rect(0,0,880,560));surface.UpdateLayout();
+   var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap(880,560,96,96,System.Windows.Media.PixelFormats.Pbgra32);
+   bitmap.Render(surface);var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+   using var file=File.Create(snapshot);encoder.Save(file);
+  }
   var setup=new ToolWindow(new DialogSpec{Title="External dependencies",PrimaryAction="Install / update",SecondaryAction="Close"},tools:true,observeStatus:false);
   if(setup.Result.Action!="cancel")throw new Exception("Setup started without user action");
   var busy=(HashSet<string>)typeof(ToolWindow).GetField("checking",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.GetValue(setup)!;
@@ -67,6 +82,8 @@ static class Checks {
   };
   Find<Button>(submission).Single(b=>Equals(b.Content,"Review submission")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(!Find<Button>(submission).Any(b=>Equals(b.Content,"Use my file")))throw new Exception("Review not embedded in hub");
+  if(Find<Button>(submission).Single(b=>Equals(b.Content,"Refresh")).IsEnabled)throw new Exception("Refresh enabled during review");
+  if(!Find<Button>(submission).Any(b=>Equals(b.Content,"Cancel")))throw new Exception("Review lost its necessary cancel action");
   if(Find<Button>(submission).Single(b=>Equals(b.Content,"Update mods")).IsEnabled)throw new Exception("Navigation enabled during review");
   Find<Button>(submission).Single(b=>Equals(b.Content,"Use my file")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   Pump(()=>reviewShown);
@@ -102,7 +119,7 @@ static class Checks {
   Find<Button>(dependencies).Single(b=>Equals(b.Content,"Install / update")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   var retry=Find<Button>(dependencies).Single(b=>Equals(b.Content,"Retry"));
   var footer=(Panel)retry.Parent;
-  if(footer.Children.Count!=1||Find<Button>(dependencies).Any(b=>Equals(b.Content,"Refresh")||Equals(b.Content,"Close")||Equals(b.Content,"Installation stopped")))throw new Exception("Failed dependencies must show only Retry in the footer");
+  if(footer.Children.Count!=1||Find<Button>(dependencies).Any(b=>Equals(b.Content,"Close")||Equals(b.Content,"Installation stopped")))throw new Exception("Failed dependencies must show only Retry in the footer");
   if(!Find<TextBlock>(dependencies).Any(t=>t.Text=="Fixture error"))throw new Exception("Retry lost error detail");
   retry.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(attempts!=2||Find<Button>(dependencies).Single(b=>Equals(b.Content,"Updating...")).IsEnabled)throw new Exception("Retry did not run installation once with disabled progress button");

@@ -6,7 +6,7 @@ internal static class ToolPages
 
     internal static DialogSpec Submission() => new()
     {
-        Title = "Submit mission", PrimaryAction = "Review submission", SecondaryAction = "Close",
+        Title = "Submit mission", PrimaryAction = "Review submission", SecondaryAction = "",
         Items = [new("Source", "", "Current Workbench mission"), new("Destination", "", "Mission pull request")]
     };
 
@@ -18,13 +18,13 @@ internal static class ToolPages
 
     internal static DialogSpec GitHub() => new()
     {
-        Title = "GitHub", PrimaryAction = "Sign in on GitHub", SecondaryAction = "Close",
+        Title = "GitHub", PrimaryAction = "Sign in on GitHub", SecondaryAction = "",
         Items = [new("Connection", "", "Checking…")]
     };
 
     internal static DialogSpec Updates(string status = "Checking...") => Examples.Updates() with
     {
-        SecondaryAction = "Close",
+        SecondaryAction = "",
         Fields = Examples.Updates().Fields.Select(field => field with { Checked = false, Enabled = false, Help = status }).ToList()
     };
 

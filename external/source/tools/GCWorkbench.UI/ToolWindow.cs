@@ -21,6 +21,7 @@ public sealed class ToolWindow : Window
     private readonly CancellationTokenSource lifetime = new();
     private readonly Dictionary<string, DialogSpec> statusPages = [];
     private readonly HashSet<string> checking = [];
+    private Button? refreshButton;
     private DialogSpec spec;
     private bool operating;
     private TaskCompletionSource<DialogResult>? reviewAnswer;
@@ -137,7 +138,31 @@ public sealed class ToolWindow : Window
             navigation.Add((button, example));
             panel.Children.Add(button);
         }
-        return new Border { Background = Brush("#242b20"), Child = panel };
+        var sidebar = new Grid();
+        sidebar.RowDefinitions.Add(new RowDefinition());
+        sidebar.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        sidebar.Children.Add(panel);
+        if (tools)
+        {
+            refreshButton = new Button { Content = "Refresh", MinHeight = 52, FontSize = 16, Margin = new Thickness(12, 12, 12, 24) };
+            AutomationProperties.SetHelpText(refreshButton, "Refresh the selected tool's status");
+            refreshButton.Click += async (_, _) =>
+            {
+                if (operating || reviewAnswer is not null) return;
+                await RefreshStatusAsync(false, RefreshTarget());
+            };
+            Grid.SetRow(refreshButton, 1);
+            sidebar.Children.Add(refreshButton);
+        }
+        return new Border { Background = Brush("#242b20"), Child = sidebar };
+    }
+
+    private string RefreshTarget() => spec.Title == "Submit mission" ? "GitHub" : spec.Title;
+
+    private void UpdateRefreshButton()
+    {
+        if (refreshButton is not null)
+            refreshButton.IsEnabled = !operating && reviewAnswer is null && !checking.Contains(RefreshTarget());
     }
 
     private void Render(DialogSpec next)
@@ -145,6 +170,7 @@ public sealed class ToolWindow : Window
         foreach (var (button, _) in navigation) button.IsEnabled = !operating && reviewAnswer is null;
         next.Validate();
         spec = next;
+        UpdateRefreshButton();
         Resources["GcAccent"] = Brush(spec.Accent);
         foreach (var (button, page) in navigation)
         {
@@ -238,13 +264,7 @@ public sealed class ToolWindow : Window
             Result = new DialogResult(tools ? ToolPages.Action(spec.Title) : "confirm", values);
             Close();
         };
-        if (tools && reviewAnswer is null && !operating && spec.Title is "GitHub" or "Update mods")
-        {
-            var refresh = new Button { Content = "Refresh", IsEnabled = !checking.Contains(spec.Title), Margin = new Thickness(0, 0, 10, 0) };
-            refresh.Click += async (_, _) => await RefreshStatusAsync();
-            buttons.Children.Add(refresh);
-        }
-        if (spec.SecondaryAction.Length > 0 && !dependencyPage) buttons.Children.Add(cancel);
+        if (spec.SecondaryAction.Length > 0 && !dependencyPage && (!tools || reviewAnswer is not null)) buttons.Children.Add(cancel);
         foreach (var action in spec.Actions)
         {
             var button = new Button { Content = action.Label, Margin = new Thickness(0, 0, 10, 0) };
@@ -264,6 +284,7 @@ public sealed class ToolWindow : Window
         if (checking.Contains(title)) return;
         if (spec.Title == title) SaveDraft();
         checking.Add(title);
+        UpdateRefreshButton();
         if (title == "Update mods") statusPages[title] = ToolPages.Updates();
         if (spec.Title == title) Render(title == "Update mods" ? ToolPages.Updates() : title == "External dependencies" ? spec : spec with { Items = [new("Status", "", signIn ? "Waiting for GitHub sign-in..." : "Checking...")] });
         DialogSpec result;
@@ -289,6 +310,7 @@ public sealed class ToolWindow : Window
         }
         if (spec.Title == title) SaveDraft();
         checking.Remove(title);
+        UpdateRefreshButton();
         if (lifetime.IsCancellationRequested) return;
         statusPages[title] = result;
         if (title == "GitHub")
