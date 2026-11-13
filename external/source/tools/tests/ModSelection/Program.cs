@@ -106,9 +106,17 @@ static class Checks {
   Pump(()=>reviewShown);
   if(submission.Result.Action!="cancel")throw new Exception("Hub exited while workflow pending");
   completed.SetResult(new("Submitted","Awaiting approval","https://github.com/example/missions/pull/1"));
-  Pump(()=>Find<Button>(submission).Any(b=>Equals(b.Content,"Submitted")));
+  Pump(()=>Find<Button>(submission).Any(b=>Equals(b.Content,"Update submission")));
   if(!Find<Button>(submission).Any(b=>Equals(b.Content,"View submission"))||submission.Result.Action!="cancel")throw new Exception("Submission result closed hub or lost link");
   Console.WriteLine("PASS: embedded conflict review, pending action, same-window submitted result and link.");
+  var closedSubmission=new ToolWindow(ToolPages.Submission(),tools:true);
+  var submitAttempts=0;
+  closedSubmission.OperationRunner=(_,_,_)=>Task.FromResult(++submitAttempts==1 ? new OperationResult("Resubmit","Request closed.","https://github.com/example/missions/pull/1") : new OperationResult("Submitted","Awaiting approval"));
+  Find<Button>(closedSubmission).Single(b=>Equals(b.Content,"Submit")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  var resubmit=Find<Button>(closedSubmission).Single(b=>Equals(b.Content,"Resubmit"));
+  if(!resubmit.IsEnabled)throw new Exception("Closed submission cannot be retried");
+  resubmit.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+  if(submitAttempts!=2||!Find<Button>(closedSubmission).Any(b=>Equals(b.Content,"Update submission")))throw new Exception("Resubmit did not rerun workflow");
   var currentPage=ToolPages.Dependencies() with { Items=[new("GC Workbench Tools","","Up to date","ready"),new("Git for Windows","","Up to date","ready")] };
   var currentDependencies=new ToolWindow(currentPage,tools:true);
   if(Find<Button>(currentDependencies).Single(b=>Equals(b.Content,"Install / update")).IsEnabled)throw new Exception("Current dependencies allow reinstall");

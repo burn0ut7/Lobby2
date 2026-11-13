@@ -15,7 +15,7 @@ creates a personal fork when needed, so contributors need no upstream write acce
 1. Read the current branch and saved, unignored files in the GC Missions checkout.
 2. Fetch the latest shared main and any existing personal submission branch.
 3. Combine those changes, resolving conflicts in the hub before uploading.
-4. Review the mission name, notes and complete list of changed files.
+4. Review the submission name, notes and Added / Changed / Deleted file lists.
 5. Save recovery references and a backup of local changes, then apply the reviewed
    result to the local branch. Starting on main creates a separate mission branch;
    an existing mission branch keeps its name.
@@ -26,6 +26,26 @@ and supporting files. GC Tools does not infer or download missing mission assets
 The shared main branch is never pushed by submission. The local mission branch
 contains the fetched main before upload. Cancellation during review leaves the
 checkout unchanged. Recovery references live under refs/gc/backups.
+
+## One contributor, one pending request
+
+One personal fork is reused for all missions. The first online branch is
+`gc-submissions`; an existing request from an earlier tool version keeps its
+branch. The local editing branch may have a different name. Lookup uses the
+contributor's fork and target main, not their current local branch.
+
+Additional missions update the same pending request. A closed, unmerged request
+shows Resubmit in review; confirming attempts to reopen that same request. If
+GitHub refuses, the hub keeps Resubmit and View submission available and reports
+that it could not reopen. It does not create a duplicate as a fallback. A merged
+request is complete; subsequent changes create the next request using the same
+fork and online branch. Multiple pre-existing open requests stop with an explicit
+request for a reviewer to consolidate them; the tool never guesses which to close.
+
+Request state is rechecked around upload and after the API update. A request
+closed or merged during the operation is never reported as awaiting approval
+when the final check observes that state. External changes after that check are
+picked up on the next submission; the displayed result is not a live GitHub feed.
 
 ## Conflicts and retries
 

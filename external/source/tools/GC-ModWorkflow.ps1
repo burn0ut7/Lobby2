@@ -8,6 +8,7 @@ $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSHOME 'Modules/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility.psd1') -ErrorAction Stop
 . (Join-Path $PSScriptRoot 'GC-Review.ps1')
 . (Join-Path $PSScriptRoot 'GC-GitHub.ps1')
+. (Join-Path $PSScriptRoot 'GC-SubmitMission.ps1')
 [Console]::OutputEncoding = New-Object Text.UTF8Encoding
 $env:LC_ALL = 'C'
 $env:GIT_TERMINAL_PROMPT = '0'
@@ -163,9 +164,7 @@ function Invoke-ModWorkflow {
         }
     }
     if ($SubmitMission) {
-        . (Join-Path $PSScriptRoot 'GC-SubmitMission.ps1')
         $result=Invoke-MissionSubmission $addons
-        if ($result -eq 2) {Set-GcOutcome 'Cancelled'}
         return $result
     }
     if ($UpdateMods -and !$SelectedMods) { $SelectedMods = $addons.Key -join ',' }

@@ -221,7 +221,7 @@ public sealed class ToolWindow : Window
         var confirm = new Button { Content = spec.PrimaryAction, Background = Brush(spec.Accent), BorderBrush = Brush(spec.Accent), Foreground = Brush("#1b2119"), Margin = new Thickness(0) };
         if (tools && reviewAnswer is null && outcomes.TryGetValue(spec.Title, out var outcome))
         {
-            confirm.Content = dependencyPage ? (outcome.Status == "Installed" ? "Install / update" : "Retry") : outcome.Status;
+            confirm.Content = dependencyPage ? (outcome.Status == "Installed" ? "Install / update" : "Retry") : spec.Title == "Submit mission" ? outcome.Status switch { "Submitted" => "Update submission", "Approved" => "Submit", _ => outcome.Status } : outcome.Status;
             if (!string.IsNullOrEmpty(outcome.Detail)) footer.Children.Add(Text(outcome.Detail, 13, "#a9b09b", margin: new Thickness(0, 0, 0, 12)));
             if (Uri.TryCreate(outcome.Url, UriKind.Absolute, out var link) && link.Scheme == "https" && link.Host == "github.com")
             {

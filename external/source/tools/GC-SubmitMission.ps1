@@ -1,9 +1,26 @@
 # Git-only branch submission. Never saves, exports, or queries Workbench.
-function Get-OpenMissionPr($auth,$repo,$owner,$branch,$base) {
-    $source=[Uri]::EscapeDataString("${owner}:$branch")
+# Discover the contributor's one request, independent of their local branch.
+function Get-ContributorMissionPr($auth,$repo,$owner,$base) {
     $baseName=[Uri]::EscapeDataString($base)
-    $items=Invoke-SubmissionApi $auth GET "repos/$repo/pulls?state=open&head=$source&base=$baseName"
-    $items | Where-Object { $_.head.repo.owner.login -eq $owner -and $_.head.ref -ceq $branch -and $_.base.ref -ceq $base } | Select-Object -First 1
+    $forkRepo=$owner+'/'+($repo -split '/')[1]
+    foreach ($state in @('open','closed')) {
+        $found=@()
+        for ($page=1; $page -le 100; $page++) {
+            $items=@(Invoke-SubmissionApi $auth GET "repos/$repo/pulls?state=$state&base=$baseName&sort=created&direction=desc&per_page=100&page=$page")
+            $matches=@($items | Where-Object { $_.head.repo.full_name -ieq $forkRepo -and $_.base.ref -ceq $base })
+            if ($state -eq 'closed' -and $matches.Count) { return $matches[0] }
+            $found+= $matches
+            if ($items.Count -lt 100) { break }
+            if ($page -eq 100) { throw 'Could not finish checking existing submissions. Nothing was uploaded.' }
+        }
+        if ($found.Count -gt 1) { throw 'More than one approval request already exists. Ask a reviewer to keep one open before submitting.' }
+        if ($found.Count) { return $found[0] }
+    }
+}
+
+function Get-SubmissionPrRevision($pr) {
+    if (!$pr) { return '' }
+    @($pr.number,$pr.state,$pr.merged_at,$pr.title,$pr.body,$pr.head.ref) | ConvertTo-Json -Compress
 }
 
 function Get-SubmissionAuth { Get-GcGitHubAuth }
@@ -56,7 +73,7 @@ function Get-SubmissionSnapshot($root,$tip) {
 
 function Read-BranchSubmission($title,$existing,$files) {
     $fields=@(
-        @{Id='title';Label='Mission name';Required=$true;Value=$title},
+        @{Id='title';Label='Submission name';Required=$true;Value=$title},
         @{Id='body';Label='Notes for the reviewer';Kind='multiline';Value=$(if($existing){[string]$existing.body}else{''})}
     )
     foreach ($group in @(@{Code='A';Label='Added'},@{Code='M';Label='Changed'},@{Code='D';Label='Deleted'})) {
@@ -66,12 +83,12 @@ function Read-BranchSubmission($title,$existing,$files) {
         }
     }
     $answer=Show-GcReview @{
-        Title='Submit mission'; Section='Submit for approval'; PrimaryAction='Submit'; SecondaryAction='Cancel'
+        Title='Submit mission'; Section=$(if($existing.state -eq 'closed' -and !$existing.merged_at){'Request closed - resubmit for approval'}else{'Submit for approval'}); PrimaryAction=$(if($existing.state -eq 'closed' -and !$existing.merged_at){'Resubmit'}elseif($existing.state -eq 'open'){'Update submission'}else{'Submit'}); SecondaryAction='Cancel'
         Fields=$fields
     }
     if (!$answer) { return }
     $name=([string]$answer.Values.title).Trim()
-    if (!$name) { throw 'Enter a mission name.' }
+    if (!$name) { throw 'Enter a submission name.' }
     @{Title=$name;Body=[string]$answer.Values.body}
 }
 
@@ -123,8 +140,11 @@ function Invoke-MissionSubmissionCore($root,$repo) {
     $base=Get-ModBase $root $repo
     $null=Git $root @('fetch','--quiet','--no-tags',"https://github.com/$repo.git",('refs/heads/'+$base.Name))
     if ((Git $root @('rev-parse','FETCH_HEAD')) -ne $base.Commit) { throw 'Shared missions changed. Submit again to use the latest version.' }
-    $branch=$sourceBranch
-    if ($branch -ceq $base.Name) { $branch='mission/submission-'+[guid]::NewGuid().ToString('N').Substring(0,12) }
+    $existing=Get-ContributorMissionPr $auth $repo $owner $base.Name
+    $prRevision=Get-SubmissionPrRevision $existing
+    $branch=if($existing){[string]$existing.head.ref}else{'gc-submissions'}
+    $localBranch=$sourceBranch
+    if ($localBranch -ceq $base.Name) { $localBranch='mission/submission-'+[guid]::NewGuid().ToString('N').Substring(0,12) }
     $null=Git $root @('check-ref-format','--branch',$branch)
     $snapshot=Get-SubmissionSnapshot $root $tip
     $candidate=$tip
@@ -144,31 +164,30 @@ function Invoke-MissionSubmissionCore($root,$repo) {
             $null=Git $root @('fetch','--quiet','--no-tags',$url,"refs/heads/$branch")
             if ((Git $root @('rev-parse','FETCH_HEAD')) -ne $remoteTip) { throw 'Your online submission changed. Submit again to compare it.' }
             $remoteTree=Merge-GcReviewedTree $root $candidate $remoteTip 'Your online submission'
-            if (!$remoteTree) {return 2}
+            if (!$remoteTree) {Set-GcOutcome 'Cancelled';return 2}
             $candidate=New-SubmissionCommit $root $remoteTree @($candidate,$remoteTip) 'Combine mission changes' $user
         }
     }
     # Every local/online conflict and every conflict with latest main is resolved
     # before touching the checkout, pushing, or creating/updating a pull request.
     $tree=Merge-GcReviewedTree $root $candidate $base.Commit 'Shared missions'
-    if (!$tree) {return 2}
+    if (!$tree) {Set-GcOutcome 'Cancelled';return 2}
     $files=@(Git $root @('-c','core.quotePath=false','diff','--name-status','--no-renames',$base.Commit,$tree) | ForEach-Object {
         $parts=$_ -split "`t",2
         if ($parts.Count -ne 2 -or $parts[0] -notin 'A','M','D','T') { throw 'A changed file could not be reviewed safely.' }
         @{Status=$(if($parts[0] -eq 'T'){'M'}else{$parts[0]});Path=$parts[1]}
     })
     if (!$files.Count) { throw 'Your files already match the shared version. Nothing to submit.' }
-    $existing=Get-OpenMissionPr $auth $repo $owner $branch $base.Name
-    $title=if($existing){$existing.title}elseif($sourceBranch -ceq $base.Name){'New mission'}else{$sourceBranch -replace '[-_/]',' '}
+    $title=if($existing -and !$existing.merged_at){$existing.title}else{'Mission updates'}
     $review=Read-BranchSubmission $title $existing $files
-    if (!$review) {return 2}
+    if (!$review) {Set-GcOutcome 'Cancelled';return 2}
     $latest=Get-ModBase $root $repo
     if ($latest.Commit -ne $base.Commit -or $latest.Name -cne $base.Name) { throw 'Shared missions changed during review. Submit again to compare the latest version.' }
     if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $sourceBranch -or (Git $root @('rev-parse','HEAD')) -ne $tip -or (Get-SubmissionSnapshot $root $tip) -ne $snapshot) {
         throw 'Your files changed during review. Submit again.'
     }
-    $currentPr=Get-OpenMissionPr $auth $repo $owner $branch $base.Name
-    if ($currentPr.number -ne $existing.number -or $currentPr.body -cne $existing.body -or $currentPr.title -cne $existing.title) { throw 'Your submission changed during review. Submit again.' }
+    $currentPr=Get-ContributorMissionPr $auth $repo $owner $base.Name
+    if ((Get-SubmissionPrRevision $currentPr) -cne $prRevision) { throw 'Your submission changed during review. Submit again.' }
     $commit=New-SubmissionCommit $root $tree @($candidate,$base.Commit) $review.Title $user
     # Keep a named recovery reference before applying the reviewed changes.
     $backup='refs/gc/backups/'+[guid]::NewGuid().ToString('N')
@@ -183,7 +202,7 @@ function Invoke-MissionSubmissionCore($root,$repo) {
             if ((Get-SubmissionBackupTree $root $stash) -ne $snapshot) { throw 'Files changed while backing up the update.' }
         }
         if ((Git $root @('symbolic-ref','--short','HEAD')) -cne $sourceBranch -or (Git $root @('rev-parse','HEAD')) -ne $tip -or @(Git $root @('status','--porcelain','--untracked-files=all')).Count) { throw 'Files changed while preparing the update.' }
-        if ($branch -cne $sourceBranch) { $null=Git $root @('switch','--quiet','-c',$branch) }
+        if ($localBranch -cne $sourceBranch) { $null=Git $root @('switch','--quiet','-c',$localBranch) }
         $null=Git $root @('merge','--ff-only','--no-autostash','--no-overwrite-ignore','--quiet',$commit)
     } catch {
         # Restore dirty files only while HEAD is unchanged and the checkout is
@@ -206,19 +225,44 @@ function Invoke-MissionSubmissionCore($root,$repo) {
     }
     $latest=Get-ModBase $root $repo
     if ($latest.Commit -ne $base.Commit -or $latest.Name -cne $base.Name) { throw 'Shared missions changed. Your work is saved; submit again to sync the latest version.' }
-    if ((Git $root @('rev-parse','HEAD')) -ne $commit -or (Git $root @('symbolic-ref','--short','HEAD')) -cne $branch -or (Get-SubmissionSnapshot $root $commit) -ne $tree) { throw 'Your files changed. Submit again to include the latest edits.' }
+    if ((Git $root @('rev-parse','HEAD')) -ne $commit -or (Git $root @('symbolic-ref','--short','HEAD')) -cne $localBranch -or (Get-SubmissionSnapshot $root $commit) -ne $tree) { throw 'Your files changed. Submit again to include the latest edits.' }
+    $currentPr=Get-ContributorMissionPr $auth $repo $owner $base.Name
+    if ((Get-SubmissionPrRevision $currentPr) -cne $prRevision) { throw 'Your approval request changed. Your files are saved; submit again to check its current status.' }
     try {$null=Git $root @('push','--quiet','--no-follow-tags','--recurse-submodules=no',$url,"${commit}:refs/heads/$branch")}
     catch {throw 'Upload stopped. Your changes are saved. Retry Submit to compare the online version; nothing will be overwritten.'}
     $latest=Get-ModBase $root $repo
     if ($latest.Commit -ne $base.Commit -or $latest.Name -cne $base.Name) { throw 'Shared missions changed during upload. Your upload is saved; an existing approval request now includes it. Submit again to sync the latest changes.' }
     $fields=@{title=$review.Title;body=$review.Body}
-    if ($existing) {$pr=Invoke-SubmissionApi $auth PATCH "repos/$repo/pulls/$($existing.number)" $fields}
+    $currentPr=Get-ContributorMissionPr $auth $repo $owner $base.Name
+    if ((Get-SubmissionPrRevision $currentPr) -cne $prRevision) {
+        throw 'Your approval request changed during upload. Your upload is saved; submit again to check its current status.'
+    }
+    if ($existing -and !$existing.merged_at) {
+        if ($existing.state -eq 'closed') { $fields.state='open' }
+        try { $pr=Invoke-SubmissionApi $auth PATCH "repos/$repo/pulls/$($existing.number)" $fields }
+        catch {
+            if ($fields.state -eq 'open') {
+                Set-GcOutcome 'Resubmit' 'GitHub could not reopen this request. Your files are saved. View submission for reviewer feedback or retry.' "https://github.com/$repo/pull/$($existing.number)"
+                return 2
+            }
+            throw
+        }
+    }
     else {
         $fields.head="${owner}:$branch";$fields.base=$base.Name;$fields.maintainer_can_modify=$true
         $pr=Invoke-SubmissionApi $auth POST "repos/$repo/pulls" $fields
     }
     if (!$pr.number) {throw 'Upload saved. Approval request could not be confirmed. Retry Submit.'}
     $status=Invoke-SubmissionApi $auth GET "repos/$repo/pulls/$($pr.number)"
+    if ($status.merged -eq $true -or $status.merged_at) {
+        Set-GcOutcome 'Approved' 'This request has been merged. Submit again for any remaining changes.' "https://github.com/$repo/pull/$($pr.number)"
+        return 0
+    }
+    if ($status.state -eq 'closed') {
+        Set-GcOutcome 'Resubmit' 'Request closed. Your files are saved. View submission for feedback, or resubmit for approval.' "https://github.com/$repo/pull/$($pr.number)"
+        return 2
+    }
+    if ($status.state -ne 'open') { throw 'Upload saved. The approval request status could not be confirmed. Retry Submit.' }
     $state=if ($status.mergeable -eq $false) {'Shared missions changed - submit again to resolve conflicts'} elseif ($status.mergeable -eq $true) {'Awaiting approval'} else {'Awaiting approval - conflict check pending'}
     Set-GcOutcome 'Submitted' $state "https://github.com/$repo/pull/$($pr.number)"
     return 0
