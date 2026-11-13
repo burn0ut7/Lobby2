@@ -1,21 +1,16 @@
 # GC Lobby
 
-The mod title is **GC Lobby - Dev**. This is a separate development addon,
-unrelated to the existing GC lobby mod. Its addon GUID remains `6A115D5DFF7ED870`;
-it does not replace or depend on the existing mod. Gameplay scripts expose
-`#define GC_LOBBY_DEV` for dev-specific integrations.
-
-Branding, editor categories and messages use **GC Lobby**. The internal project
-ID/mount `Lobby2`, existing resource GUIDs, profile paths, database schema,
-repository URL and `LOBBY2` compatibility define retain their existing contracts.
-These technical names are not the displayed mod title.
-
 Lobby and role selection, briefing, match and after-action reporting for Arma Reforger.
 Requires Arma Reforger. GC Lobby's mission framework is independent of TilW Mission Framework.
 
 TilW is a research reference, not a runtime dependency or behavior specification.
 GC Lobby uses its own mission logic and the base game's APIs; reference designs
 must be evaluated against GC Lobby's requirements rather than reproduced by default.
+
+Branding, editor categories and messages use **GC Lobby**. The internal project
+ID/mount `Lobby2`, existing resource GUIDs, profile paths, database schema,
+and `LOBBY2` compatibility define retain their existing contracts.
+These technical names are not the displayed mod title.
 
 ## Addon contents
 

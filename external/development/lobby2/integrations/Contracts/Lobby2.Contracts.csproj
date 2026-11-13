@@ -8,7 +8,7 @@
     <Version>1.1.3</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>Canonical GC Lobby data contracts and L2TB codec.</Description>
-    <RepositoryUrl>https://github.com/burn0ut7/Lobby2</RepositoryUrl>
+    <RepositoryUrl>https://github.com/burn0ut7/gc-lobby</RepositoryUrl>
     <PathMap>$(MSBuildProjectDirectory)=/_/Contracts</PathMap>
   </PropertyGroup>
   <ItemGroup><None Include="README.md" Pack="true" PackagePath="/" /></ItemGroup>

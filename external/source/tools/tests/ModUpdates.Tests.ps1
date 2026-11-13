@@ -11,8 +11,8 @@ git.exe -C $s add .
 git.exe -C $s commit -qm base
 $w=Join-Path $t work
 git.exe clone -q $s $w
-git.exe -C $w config "url.$s.insteadOf" https://github.com/burn0ut7/Lobby2.git
-$addon=@{Name='GC Lobby';Project="$w/addon.gproj";Guid='6A115D5DFF7ED870';Repo='burn0ut7/Lobby2'}
+git.exe -C $w config "url.$s.insteadOf" https://github.com/burn0ut7/gc-lobby.git
+$addon=@{Name='GC Lobby';Project="$w/addon.gproj";Guid='6A115D5DFF7ED870';Repo='burn0ut7/gc-lobby'}
 function Confirm-Replacement($name,$paths){$script:asked++; $script:shown=($paths -join ','); return $script:accept}
 function check($condition,$why){if(!$condition){throw $why}}
 function publish($file,$content){$content|Set-Content "$s/$file";git.exe -C $s add -- $file;git.exe -C $s commit -qm update}
@@ -34,7 +34,7 @@ git.exe -C $w switch -qc my-mission;$r=update;check (!$asked -and $r -like 'Skip
 # Committed conflicts on a mission branch use the shared in-app review.
 $conflictRoot=Join-Path $t conflict
 $null=Git $s @('clone','-q',$s,$conflictRoot)
-$null=Git $conflictRoot @('config',"url.$s.insteadOf",'https://github.com/burn0ut7/Lobby2.git')
+$null=Git $conflictRoot @('config',"url.$s.insteadOf",'https://github.com/burn0ut7/gc-lobby.git')
 $null=Git $conflictRoot @('config','user.name','Tester')
 $null=Git $conflictRoot @('config','user.email','test@example.invalid')
 $null=Git $conflictRoot @('switch','-qc','mission/example')
