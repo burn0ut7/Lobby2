@@ -15,8 +15,8 @@ creates a personal fork when needed, so contributors need no upstream write acce
 1. Read the current branch and saved, unignored files in the GC Missions checkout.
 2. Fetch the latest shared main and any existing personal submission branch.
 3. Combine those changes, resolving conflicts in the hub before uploading.
-4. Review the submission name, overview, testing checklist, reviewer comments,
-   dependencies and Added / Changed / Deleted file lists. The form shows the
+4. Review the mission name, overview, testing checklist, reviewer comments
+   and Added / Changed / Deleted file lists. The form shows the
    supplied submission rules and testing-guide address. Only checks the author
    selects are marked complete in GitHub's Markdown checklist. Existing request
    text and checks are restored; a new request after merge starts unchecked.
