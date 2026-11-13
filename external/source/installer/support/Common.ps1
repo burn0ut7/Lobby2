@@ -20,6 +20,9 @@ function Get-LatestGitInstaller {
 }
 
 function Install-LatestGit([switch]$Quiet) {
+    $logs = Join-Path $env:LOCALAPPDATA 'GCWorkbench/logs'
+    New-Item -ItemType Directory -Path $logs -Force | Out-Null
+    $log = Join-Path $logs ('git-install-' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N') + '.log')
     $asset = Get-LatestGitInstaller
     $folder = Join-Path ([IO.Path]::GetTempPath()) ('GC-Git-' + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $folder | Out-Null
@@ -30,6 +33,7 @@ function Install-LatestGit([switch]$Quiet) {
         if ((Get-AuthenticodeSignature -LiteralPath $file).Status -ne 'Valid') { throw 'Git installer Windows signature is not valid.' }
         # This is the official interactive Git installer; its own wizard requests elevation if needed.
         $arguments = if ($Quiet) { '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP- /CURRENTUSER' } else { '/NORESTART' }
+        $arguments += ' /LOG="' + $log + '"'
         $process = Start-Process -FilePath $file -ArgumentList $arguments -Wait -PassThru
         if ($process.ExitCode -notin @(0, 3010)) { throw "Git installation did not complete (exit $($process.ExitCode))." }
         return "Git installed using $($asset.name). Open a new terminal to use it."
