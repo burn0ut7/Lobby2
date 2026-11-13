@@ -24,7 +24,7 @@ public sealed record DialogSpec
             throw new ArgumentException("Field IDs must be unique.");
         foreach (var field in Fields)
             if (string.IsNullOrWhiteSpace(field.Id) || string.IsNullOrWhiteSpace(field.Label) ||
-                field.Kind is not ("text" or "multiline" or "check"))
+                field.Kind is not ("text" or "multiline" or "check" or "filelist"))
                 throw new ArgumentException("Each field needs a unique ID, a label and a supported kind.");
         foreach (var item in Items)
             if (item.State is not ("ready" or "pending" or "warning" or "error"))

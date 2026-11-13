@@ -13,6 +13,23 @@ static class Checks {
   SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
   var spec=new DialogSpec{Title="Update mods",PrimaryAction="Update selected",Fields=[new(){Id="lobby",Label="Lobby2",Kind="check",Enabled=false,Checked=true,Help="Up to date"},new(){Id="core",Label="GC Core",Kind="check",Checked=false,Help="Update available"}]};
   var window=new ToolWindow(spec,tools:true,observeStatus:false);
+  var fileReview=new ToolWindow(new DialogSpec{Title="Submit mission",PrimaryAction="Submit",Section="Submit for approval",Fields=[
+   new(){Id="title",Label="Mission name",Value="COOP Nightfall",Required=true},
+   new(){Id="body",Label="Notes for the reviewer",Kind="multiline",Value="New mission and cleanup."},
+   new(){Id="filesA",Label="Added (2)",Kind="filelist",Value="Missions/Nightfall.conf\nworlds/Nightfall.ent"},
+   new(){Id="filesM",Label="Changed (1)",Kind="filelist",Value="addon.gproj"},
+   new(){Id="filesD",Label="Deleted (2)",Kind="filelist",Value="Missions/OldMission.conf\nworlds/OldMission.ent"}
+  ]},tools:true,observeStatus:false);
+  var fileBoxes=Find<TextBox>(fileReview).Skip(2).ToArray();
+  if(fileBoxes.Length!=3||fileBoxes.Any(t=>!t.IsReadOnly||t.MaxHeight!=240))throw new Exception("File groups must remain readable and read-only");
+  if(fileReview.Width!=Math.Min(1180,SystemParameters.WorkArea.Width)||fileReview.Height!=Math.Min(800,SystemParameters.WorkArea.Height))throw new Exception("Default hub size incorrect");
+  if(Environment.GetEnvironmentVariable("GC_TEST_REVIEW_SCREENSHOT") is {Length:>0} reviewSnapshot) {
+   var surface=(FrameworkElement)fileReview.Content;
+   surface.Measure(new Size(fileReview.Width,fileReview.Height));surface.Arrange(new Rect(0,0,fileReview.Width,fileReview.Height));surface.UpdateLayout();
+   var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap((int)fileReview.Width,(int)fileReview.Height,96,96,System.Windows.Media.PixelFormats.Pbgra32);
+   bitmap.Render(surface);var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+   using var stream=File.Create(reviewSnapshot);encoder.Save(stream);
+  }
   var checks=Find<CheckBox>(window).ToArray();var update=Find<Button>(window).Single(b=>Equals(b.Content,"Update selected"));
   if(checks[0].IsEnabled||checks[0].IsChecked==true||checks[0].Opacity>=1||update.IsEnabled)throw new Exception("Current mod or empty action enabled");
   checks[1].IsChecked=true;if(!update.IsEnabled)throw new Exception("Available selected mod did not enable update");

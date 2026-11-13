@@ -38,10 +38,11 @@ public sealed class ToolWindow : Window
         OperationRunner = (action, values, review) => ToolOperations.RunAsync(action, values, review, new Progress<DependencyProgress>(UpdateDependencyProgress));
         Title = "GC Workbench";
         Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri("pack://application:,,,/GCWorkbench.UI;component/Assets/GC.ico"));
-        Width = preview || tools ? 880 : 680;
-        Height = 560;
-        MinWidth = preview || tools ? 760 : 540;
-        MinHeight = 500;
+        var workArea = SystemParameters.WorkArea;
+        Width = Math.Min(preview || tools ? 1180 : 900, workArea.Width);
+        Height = Math.Min(preview || tools ? 800 : 720, workArea.Height);
+        MinWidth = Math.Min(preview || tools ? 760 : 540, workArea.Width);
+        MinHeight = Math.Min(500, workArea.Height);
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         FontFamily = new FontFamily("Segoe UI");
         FontSize = 14;
@@ -398,11 +399,18 @@ public sealed class ToolWindow : Window
             panel.Children.Add(Text(field.Label + (field.Required ? " *" : ""), 14, "#f0e9d5", bold: true, margin: new Thickness(0, 0, 0, 8)));
             var text = new TextBox { Text = field.Value, Foreground = Brush("#f0e9d5"), CaretBrush = Brush("#f0e9d5"), Padding = new Thickness(12, 10, 12, 10), BorderBrush = Brush("#404735"), Background = Brush("#242b20"), BorderThickness = new Thickness(1), MaxLength = 8192 };
             text.IsReadOnly = field.ReadOnly;
-            if (field.Kind == "multiline")
+            if (field.Kind is "multiline" or "filelist")
             {
                 text.AcceptsReturn = true;
                 text.TextWrapping = TextWrapping.Wrap;
-                text.Height = 106;
+                text.Height = field.Kind == "filelist" ? double.NaN : 106;
+                if (field.Kind == "filelist")
+                {
+                    text.IsReadOnly = true;
+                    text.Padding = new Thickness(10, 6, 10, 6);
+                    text.MaxHeight = 240;
+                    text.FontFamily = new FontFamily("Consolas");
+                }
                 text.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             }
             panel.Children.Add(text);
@@ -416,7 +424,7 @@ public sealed class ToolWindow : Window
         error.Visibility = Visibility.Collapsed;
         errors.Add(field.Id, error);
         panel.Children.Add(error);
-        return field.Kind == "check" ? Card(panel) : new Border { Child = panel, Margin = new Thickness(0, 0, 0, 20) };
+        return field.Kind == "check" ? Card(panel) : new Border { Child = panel, Margin = new Thickness(0, 0, 0, field.Kind == "filelist" ? 12 : 20) };
     }
 
     private void SaveDraft()

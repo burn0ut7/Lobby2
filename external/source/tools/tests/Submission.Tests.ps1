@@ -38,7 +38,13 @@ function Show-GcReview($spec) {
     }
     if ($spec.Section -eq 'Submit for approval') {
         Assert ($spec.PrimaryAction -eq 'Submit') 'Submission action is unclear'
-        Assert (@($spec.Fields | Where-Object Id -eq files).Count -eq 1) 'Changed files not reviewed'
+        Assert (@($spec.Fields | Where-Object Kind -eq filelist).Count -ge 1) 'Changed files not reviewed'
+        if ($script:verifyFiles) {
+            Assert (($spec.Fields | Where-Object Id -eq filesA).Value -match 'new dependency.txt') 'Added file missing from review'
+            Assert (($spec.Fields | Where-Object Id -eq filesM).Value -match 'worlds/Example.ent') 'Changed file missing from review'
+            Assert (($spec.Fields | Where-Object Id -eq filesD).Value -eq 'readme.txt') 'Deleted file missing from review'
+            $script:verifyFiles=$false
+        }
         if ($script:cancel) {return}
         if ($script:reviewMutation) {& $script:reviewMutation;$script:reviewMutation=$null}
         return @{Action='confirm';Values=@{title='COOP Alpha';body='Mission changes'}}
@@ -75,6 +81,8 @@ $initial=Git $author @('rev-parse','HEAD')
 [IO.File]::WriteAllText("$author/new dependency.txt",'mission dependency')
 [IO.File]::WriteAllText("$upstream/shared.txt",'latest main')
 $null=Git $upstream @('add','.');$null=Git $upstream @('commit','-qm','Shared change')
+[IO.File]::Delete("$author/readme.txt")
+$script:verifyFiles=$true
 $script:cancel=$true
 Assert ((Invoke-MissionSubmission $addons) -eq 2) 'Cancel not honored'
 Assert ((Git $author @('rev-parse','HEAD')) -eq $initial -and $created -eq 0 -and !$forkReady) 'Cancel mutated branch or GitHub'
@@ -85,6 +93,7 @@ Assert ($created -eq 1 -and $script:branch -like 'mission/submission-*') 'Automa
 Assert ((Git $author @('rev-parse','main')) -eq $initial) 'Original main branch was modified'
 Assert ((Git $author @('branch','--show-current')) -eq $script:branch) 'Automatic mission branch not selected'
 Assert ((Git $forkPath @('show',($script:branch+':new dependency.txt'))) -eq 'mission dependency') 'Saved new files missing'
+Assert (!(Test-Path "$author/readme.txt")) 'Deleted file restored during submission'
 Assert-Synced
 Assert (@(Git $author @('for-each-ref','--format=%(refname)','refs/gc/backups')).Count -ge 2) 'Recovery refs missing'
 [IO.File]::WriteAllText("$author/$worldPath",'local conflict')

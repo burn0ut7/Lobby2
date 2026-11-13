@@ -55,13 +55,19 @@ function Get-SubmissionSnapshot($root,$tip) {
 }
 
 function Read-BranchSubmission($title,$existing,$files) {
+    $fields=@(
+        @{Id='title';Label='Mission name';Required=$true;Value=$title},
+        @{Id='body';Label='Notes for the reviewer';Kind='multiline';Value=$(if($existing){[string]$existing.body}else{''})}
+    )
+    foreach ($group in @(@{Code='A';Label='Added'},@{Code='M';Label='Changed'},@{Code='D';Label='Deleted'})) {
+        $paths=@($files | Where-Object { $_.Status -eq $group.Code } | ForEach-Object { $_.Path })
+        if ($paths.Count) {
+            $fields+=@{Id=('files'+$group.Code);Label=($group.Label+' ('+$paths.Count+')');Kind='filelist';ReadOnly=$true;Value=($paths -join "`n")}
+        }
+    }
     $answer=Show-GcReview @{
         Title='Submit mission'; Section='Submit for approval'; PrimaryAction='Submit'; SecondaryAction='Cancel'
-        Fields=@(
-            @{Id='title';Label='Mission name';Required=$true;Value=$title},
-            @{Id='body';Label='Notes for the reviewer';Kind='multiline';Value=$(if($existing){[string]$existing.body}else{''})},
-            @{Id='files';Label='Files to submit';Kind='multiline';ReadOnly=$true;Value=($files -join "`n")}
-        )
+        Fields=$fields
     }
     if (!$answer) { return }
     $name=([string]$answer.Values.title).Trim()
@@ -146,7 +152,11 @@ function Invoke-MissionSubmissionCore($root,$repo) {
     # before touching the checkout, pushing, or creating/updating a pull request.
     $tree=Merge-GcReviewedTree $root $candidate $base.Commit 'Shared missions'
     if (!$tree) {return 2}
-    $files=@(Git $root @('-c','core.quotePath=false','diff','--name-only','--no-renames',$base.Commit,$tree))
+    $files=@(Git $root @('-c','core.quotePath=false','diff','--name-status','--no-renames',$base.Commit,$tree) | ForEach-Object {
+        $parts=$_ -split "`t",2
+        if ($parts.Count -ne 2 -or $parts[0] -notin 'A','M','D','T') { throw 'A changed file could not be reviewed safely.' }
+        @{Status=$(if($parts[0] -eq 'T'){'M'}else{$parts[0]});Path=$parts[1]}
+    })
     if (!$files.Count) { throw 'Your files already match the shared version. Nothing to submit.' }
     $existing=Get-OpenMissionPr $auth $repo $owner $branch $base.Name
     $title=if($existing){$existing.title}elseif($sourceBranch -ceq $base.Name){'New mission'}else{$sourceBranch -replace '[-_/]',' '}
