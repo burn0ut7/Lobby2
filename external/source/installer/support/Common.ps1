@@ -54,6 +54,18 @@ function Assert-GcOwnedPath([string]$Path, [string]$Root) {
     return $full
 }
 
+function Get-GcCanonicalPath([string]$Path) {
+    if ([string]::IsNullOrWhiteSpace($Path)) { throw 'Workbench did not supply a profile folder. Reopen GC Tools from Workbench.' }
+    $full = [IO.Path]::GetFullPath($Path.Replace('/', '\'))
+    $root = [IO.Path]::GetPathRoot($full)
+    if ($full.Length -gt $root.Length) { $full = $full.TrimEnd('\') }
+    return $full
+}
+
+function Test-GcSamePath([string]$First, [string]$Second) {
+    return [string]::Equals((Get-GcCanonicalPath $First), (Get-GcCanonicalPath $Second), [StringComparison]::OrdinalIgnoreCase)
+}
+
 function Remove-GcLegacyStartup {
     $control = Assert-GcOwnedPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench') $env:LOCALAPPDATA
     $automatic = Assert-GcOwnedPath (Join-Path $control 'automatic.json') $control
@@ -74,7 +86,7 @@ function Install-GcFiles([string]$Source, [string]$Destination, [string]$Workben
     New-Item -ItemType Directory -Path $Destination -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $Source 'payload') -Destination $Destination -Recurse
     foreach ($name in @('Common.ps1', 'Uninstall.ps1', 'LobbyTools.ps1')) { Copy-Item -LiteralPath (Join-Path $Source $name) -Destination $Destination }
-    $profilePath = [IO.Path]::GetFullPath($Profile)
+    $profilePath = Get-GcCanonicalPath $Profile
     if (!(Test-Path -LiteralPath $profilePath -PathType Container)) { throw 'Open GC Tools from your Workbench profile.' }
     # Read the editor's own exported preferences; never configure or control Workbench.
     $preferences = Join-Path $profilePath 'wbSettingsDump.ini'
@@ -96,17 +108,17 @@ function Install-GcFiles([string]$Source, [string]$Destination, [string]$Workben
 function Enable-GcStartup([string]$Destination) {
     $control = Assert-GcOwnedPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench') $env:LOCALAPPDATA
     $setup = Get-Content -LiteralPath (Join-Path $Destination 'settings.json') -Raw | ConvertFrom-Json
-    $profile = [IO.Path]::GetFullPath($setup.profileDirectory)
+    $profile = Get-GcCanonicalPath $setup.profileDirectory
     $script = Assert-GcOwnedPath (Join-Path $profile 'scripts/WorkbenchGame/GCWorkbench/GC_WorkbenchStartup.c') $profile
     $manifest = Assert-GcOwnedPath (Join-Path $control 'installation.json') $control
     if (Test-Path -LiteralPath $manifest) {
         $previous = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
-        if ($previous.startupPath -ne $script) { throw 'A different Workbench profile is installed. Uninstall that integration before changing profiles.' }
+        if (!(Test-GcSamePath $previous.startupPath $script)) { throw 'A different Workbench profile is installed. Uninstall that integration before changing profiles.' }
     }
     if (Test-Path -LiteralPath $script) {
         if (!(Test-Path -LiteralPath $manifest)) { throw "Unmanaged startup script preserved: $script" }
         $previous = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
-        if ($previous.startupPath -ne $script -or (Get-FileHash -LiteralPath $script -Algorithm SHA256).Hash -ne $previous.startupSha256) { throw "Modified startup script preserved: $script" }
+        if (!(Test-GcSamePath $previous.startupPath $script) -or (Get-FileHash -LiteralPath $script -Algorithm SHA256).Hash -ne $previous.startupSha256) { throw "Modified startup script preserved: $script" }
     }
     $executable = [IO.Path]::GetFullPath((Join-Path $Destination 'payload/helper/GCWorkbench.Loader.exe')).Replace('\','/')
     if ($executable.Contains('"')) { throw 'Unsupported quote in installation path.' }
@@ -150,7 +162,7 @@ function Uninstall-GcIntegration {
         $installed | Add-Member -NotePropertyName enabled -NotePropertyValue $false -Force
         $installed | ConvertTo-Json | Set-Content -LiteralPath $manifest -Encoding UTF8
         $expected = Join-Path $installed.profileDirectory 'scripts/WorkbenchGame/GCWorkbench/GC_WorkbenchStartup.c'
-        if ($installed.startupPath -ne $expected) { throw 'Installation record has an unexpected startup script path.' }
+        if (!(Test-GcSamePath $installed.startupPath $expected)) { throw 'Installation record has an unexpected startup script path.' }
         $script = Assert-GcOwnedPath $installed.startupPath $installed.profileDirectory
         if (Test-Path -LiteralPath $script) {
             if ((Get-FileHash -LiteralPath $script -Algorithm SHA256).Hash -ne $installed.startupSha256) { throw "Automatic loading is disabled, but the modified startup script was preserved. Remove or relocate it, then run Uninstall.bat again: $script" }

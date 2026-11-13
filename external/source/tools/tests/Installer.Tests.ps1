@@ -22,6 +22,22 @@ try {
     $destination = Join-Path $env:LOCALAPPDATA 'GCWorkbench/versions/test'
     Install-GcFiles $source $destination $exe $profile | Out-Null
     Enable-GcStartup $destination
+    # Workbench supplies a trailing slash, while older installers saved none.
+    # Exercise a real new-version update, including preexisting helper ownership.
+    $update = Join-Path $env:LOCALAPPDATA 'GCWorkbench/versions/update'
+    Install-GcFiles $source $update $exe ($profile.Replace('\', '/') + '/') | Out-Null
+    Enable-GcStartup $update
+    Install-GcLobbyTools $update ($profile.ToUpperInvariant() + '\.\')
+    $updated = Get-Content -LiteralPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench/installation.json') -Raw | ConvertFrom-Json
+    if ($updated.destination -ne $update -or $updated.profileDirectory -ne $profile) { throw 'Equivalent profile paths did not update in place.' }
+    if (Test-GcSamePath $profile ($profile + '-other')) { throw 'Distinct profiles must not compare equal.' }
+    # Legacy records may themselves contain mixed separators and trailing slashes.
+    $helperRecord = Join-Path $env:LOCALAPPDATA 'GCWorkbench/lobby-tools.json'
+    $legacy = Get-Content -LiteralPath $helperRecord -Raw | ConvertFrom-Json
+    $legacy.profile = $profile.Replace('\', '/') + '/'
+    $legacy | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $helperRecord -Encoding UTF8
+    Install-GcLobbyTools $update $profile
+    $destination = $update
     $record = Get-Content -LiteralPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench/installation.json') -Raw | ConvertFrom-Json
     $script = Get-Content -LiteralPath $record.startupPath -Raw
     if ($script -notmatch 'GCWorkbench.Loader.exe' -or $script -match 'ReforgerMcp|--config|--start-authoring') { throw 'Bootstrap is not independent.' }

@@ -1,5 +1,6 @@
 # Windows-only helpers are installed as ordinary files, never read from a PAK.
 function Install-GcLobbyTools([string]$Destination, [string]$Profile) {
+    $Profile = Get-GcCanonicalPath $Profile
     $control = Assert-GcOwnedPath (Join-Path $env:LOCALAPPDATA 'GCWorkbench') $env:LOCALAPPDATA
     $record = Assert-GcOwnedPath (Join-Path $control 'lobby-tools.json') $control
     $folder = Assert-GcOwnedPath (Join-Path $Profile 'GCWorkbench/tools') $Profile
@@ -7,7 +8,7 @@ function Install-GcLobbyTools([string]$Destination, [string]$Profile) {
     $previous = @()
     if (Test-Path -LiteralPath $record) {
         $installed = Get-Content -LiteralPath $record -Raw | ConvertFrom-Json
-        if ($installed.profile -ne $Profile) { throw 'Uninstall GC tools before changing Workbench profiles.' }
+        if (!(Test-GcSamePath $installed.profile $Profile)) { throw 'Uninstall GC tools before changing Workbench profiles.' }
         $previous = @($installed.files)
     }
     foreach ($name in $names) {
