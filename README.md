@@ -38,6 +38,22 @@ Configure playable groups, briefing, mission events and a mission header before 
 
 ## External components
 
+For a source checkout, use **Plugins > GC > Install External Dependencies**, or
+double-click `external/workbench/Install.js`. Save work and stop Play first.
+Setup offers the dropdown DLL, profile Git helpers and the official Git for
+Windows installer. It asks for your Workbench executable; save and restart
+Workbench after installing the integration. Git needs an internet connection.
+The archive includes its own .NET runtime; no developer tools are required.
+Packed Workshop addons cannot launch these external Windows files.
+
+`external/workbench/GCWorkbench.zip` is the packaged DLL and installer, with
+a SHA-256 sidecar checked before extraction. Setup extracts to a unique Windows
+temporary folder and installs under `%LOCALAPPDATA%/GCWorkbench`; it does not
+overwrite a loaded DLL. To uninstall, extract the archive and run `Uninstall.bat`.
+The package is generated from the authoritative sources in `reforger-script-tools`
+using `scripts/package-workbench-integration.ps1 -LobbyDirectory <Lobby2 path>`.
+Keep external Windows packages out of the published Workshop package.
+
 Companion sources live in `companion/lobby2` in the `reforger-script-tools`
 repository, alongside the standalone Workbench DLL installer:
 
