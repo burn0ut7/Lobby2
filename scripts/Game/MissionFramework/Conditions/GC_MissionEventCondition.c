@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Mission Event Condition")]
 class GC_MissionEventCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "The exact unique name of a regular mission event or random event group. Checks its result without running its actions or checking its conditions again.", enums: {ParamEnum("", "", "rst-choices:1:GC_MissionEventChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "The exact unique name of a regular mission event or random event group. Checks its result without running its actions or checking its conditions again.", enums: {ParamEnum("", "", "gc-choices:1:GC_MissionEventChoices")})]
 	string m_sEventName;
 	[Attribute("0", UIWidgets.CheckBox, "Checked: require the event result to be false. Unchecked: require true. A non-repeatable event remembers true after running; a repeatable event resets after its check cycle. Missing or duplicate names never pass.")]
 	bool m_bRequireFalse;

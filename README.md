@@ -49,10 +49,10 @@ The UI is bundled with the existing Windows runtime; no separate installation is
 **Install external dependencies** in one window. **Open Wiki** remains separate.
 
 For a source checkout, use **GC Tools > Install external dependencies**, or
-double-click `external/workbench/Install.js`. Save work and stop Play first.
-Setup offers the dropdown DLL, profile Git helpers and the official Git for
-Windows installer. It asks for your Workbench executable; save and restart
-Workbench after installing the integration. Git needs an internet connection.
+open `external/workbench/Install.js` to view GC Tools. Save work and stop Play first.
+Setup installs the dropdown DLL, profile Git helpers and Git for Windows.
+Save and restart Workbench after installing; subsequent launches load it automatically.
+Workbench NET API must be enabled in its saved preferences. Git installation needs internet access.
 The archive includes its own .NET runtime; no developer tools are required.
 Packed Workshop addons cannot launch these external Windows files.
 
@@ -60,8 +60,9 @@ Packed Workshop addons cannot launch these external Windows files.
 a SHA-256 sidecar checked before extraction. Setup extracts to a unique Windows
 temporary folder and installs under `%LOCALAPPDATA%/GCWorkbench`; it does not
 overwrite a loaded DLL. To uninstall, extract the archive and run `Uninstall.bat`.
-The package is generated from the authoritative sources in `reforger-script-tools`
-using `scripts/package-workbench-integration.ps1 -LobbyDirectory <Lobby2 path>`.
+The package is generated from Lobby2-owned sources in `external/source` using
+`external/source/scripts/package-workbench-integration.ps1`. Reforger MCP is not
+a build, install or runtime dependency.
 Keep external Windows packages out of the published Workshop package.
 
 Companion sources live in `companion/lobby2` in the `reforger-script-tools`

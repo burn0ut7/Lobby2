@@ -10,6 +10,7 @@ try {
     if ($expected -notmatch '^[0-9a-fA-F]{64}$' -or (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $expected) {
         throw 'The external dependency package is incomplete or changed. Restore external/workbench from the Lobby2 source checkout.'
     }
+    if (!$Preview -and !$env:GC_TOOLS_PIPE) { $Tools = $true }
     if ($Tools -or $Preview) {
         # Reuse one completed extraction per package instead of unpacking on every click.
         $cache = Join-Path $env:LOCALAPPDATA 'GCWorkbench/ui'
@@ -43,6 +44,10 @@ try {
         & (Join-Path $destination 'support/Install.ps1')
     }
 } catch {
+    if ($env:GC_TOOLS_OUTCOME) {
+        [IO.File]::WriteAllText($env:GC_TOOLS_OUTCOME, (@{Status='Installation stopped';Detail=$_.Exception.Message} | ConvertTo-Json -Compress), (New-Object Text.UTF8Encoding($false)))
+        exit 1
+    }
     Add-Type -AssemblyName System.Windows.Forms
     [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'Install External Dependencies', 'OK', 'Error') | Out-Null
     exit 1

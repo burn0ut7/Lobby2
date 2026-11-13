@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("AI Group Condition")]
 class GC_AIGroupCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Existing AI group in the world. Select the group itself, not a soldier or vehicle. Missing groups are retried once per second during Match and cannot pass through inversion.", enums: {ParamEnum("", "", "rst-choices:2:GC_AIGroupChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Existing AI group in the world. Select the group itself, not a soldier or vehicle. Missing groups are retried once per second during Match and cannot pass through inversion.", enums: {ParamEnum("", "", "gc-choices:2:GC_AIGroupChoices")})]
 	string m_sGroup;
 	[Attribute("2", UIWidgets.ComboBox, "Group control mode to observe. Autonomous normally means combat movement. Individual soldiers can fight while the group remains Following waypoint, particularly on Defend waypoints. None is pre-initialization; groups normally enter Idle before following orders.", enums: {ParamEnum("None (initializing)", "0"), ParamEnum("Idle", "1"), ParamEnum("Autonomous (combat movement)", "2"), ParamEnum("Following waypoint", "3")})]
 	EGroupControlMode m_eMode;

@@ -3,7 +3,7 @@ class GC_CaptureMessages
 {
 	[Attribute("the objective", UIWidgets.EditBox, "Location inserted for %2. %1 is the selected faction names, or the selected force when no faction filter is set.")]
 	string m_sLocation;
-	[Attribute("", UIWidgets.EditComboBox, "Only these factions receive messages. Empty sends to everyone. These are recipients, not capture contestants.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Only these factions receive messages. Empty sends to everyone. These are recipients, not capture contestants.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
 	[Attribute("%1 captured %2.", UIWidgets.EditBox, "Changed to captured. Blank suppresses this message.")]
 	string m_sCaptured;

@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Radius")]
 class GC_RadiusDeletion
 {
-	[Attribute("", UIWidgets.EditComboBox, "Existing entity whose current position is the center. The center and the active game mode are protected, including their parents.", enums: {ParamEnum("", "", "rst-choices:2:GC_EntityReferenceChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Existing entity whose current position is the center. The center and the active game mode are protected, including their parents.", enums: {ParamEnum("", "", "gc-choices:2:GC_EntityReferenceChoices")})]
 	string m_sCenter;
 	[Attribute("10", UIWidgets.SpinBox, "Radius in meters, including the boundary. Uses entity origins in 3D. Selected buildings include loose objects inside their interior volumes, even beyond the radius. Attached children are also removed.", "0.1 1000 0.1")]
 	float m_fRadius = 10;

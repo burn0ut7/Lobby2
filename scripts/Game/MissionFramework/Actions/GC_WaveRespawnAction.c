@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Respawn Wave Action")]
 class GC_WaveRespawnAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Faction keys whose dead players may respawn. Empty means all factions. Only connected players with a claimed KIA slot qualify, including those waiting in spectator after death. Unassigned spectators, AI and living players are excluded.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Faction keys whose dead players may respawn. Empty means all factions. Only connected players with a claimed KIA slot qualify, including those waiting in spectator after death. Unassigned spectators, AI and living players are excluded.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
 	[Attribute("", UIWidgets.Object, "Optional destination for this wave only. Empty uses each faction's configured default, or original slot positions if none is set. Choose Original Slot Position to explicitly ignore the faction default. Named entities follow moving locations; World Position uses fixed coordinates.")]
 	ref GC_RespawnLocation m_Location;

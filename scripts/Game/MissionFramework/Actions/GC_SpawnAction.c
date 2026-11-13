@@ -23,7 +23,7 @@ class GC_PrefabSpawn
 {
 	[Attribute("", UIWidgets.ResourceNamePicker, "Prefab to create. Its own components control its normal behavior. Playable groups are lobby slots and cannot be spawned by this action.", "et")]
 	ResourceName m_sPrefab;
-	[Attribute("", UIWidgets.EditComboBox, "Exact name of an existing entity. Its position and direction are used for the spawn. No automatic ground placement or clear-space search is performed.", enums: {ParamEnum("", "", "rst-choices:2:GC_EntityReferenceChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Exact name of an existing entity. Its position and direction are used for the spawn. No automatic ground placement or clear-space search is performed.", enums: {ParamEnum("", "", "gc-choices:2:GC_EntityReferenceChoices")})]
 	string m_sLocation;
 	[Attribute("", UIWidgets.EditBox, "Optional unique name for the new entity. Leave empty when spawning repeatedly. If this name is already in use, nothing spawns.")]
 	string m_sEntityName;
@@ -91,7 +91,7 @@ class GC_PrefabSpawn
 [BaseContainerProps(), BaseContainerCustomStringTitleField("AI Group")]
 class GC_AIGroupSpawn : GC_PrefabSpawn
 {
-	[Attribute("", UIWidgets.EditComboBox, "Names of existing AI waypoints, in order. Added after the prefab's existing orders. Leave empty to use only the prefab's orders. Choose a non-playable AI group prefab configured to spawn its members.", enums: {ParamEnum("", "", "rst-choices:2:GC_WaypointChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Names of existing AI waypoints, in order. Added after the prefab's existing orders. Leave empty to use only the prefab's orders. Choose a non-playable AI group prefab configured to spawn its members.", enums: {ParamEnum("", "", "gc-choices:2:GC_WaypointChoices")})]
 	ref array<string> m_aWaypoints;
 
 	//------------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ class GC_SpawnCrewGroup
 	bool m_bPassengers = true;
 	[Attribute("", UIWidgets.ResourceNamePicker, "Optional characters in the vehicle's seat order. Empty list: use default crew. With a list, a blank entry leaves that seat empty; when the list ends, this group stops filling seats.", "et")]
 	ref array<ResourceName> m_aCharacters;
-	[Attribute("", UIWidgets.EditComboBox, "Existing AI waypoint names in order. These orders apply only to this crew group. Empty means no added orders.", enums: {ParamEnum("", "", "rst-choices:2:GC_WaypointChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Existing AI waypoint names in order. These orders apply only to this crew group. Empty means no added orders.", enums: {ParamEnum("", "", "gc-choices:2:GC_WaypointChoices")})]
 	ref array<string> m_aWaypoints;
 	[Attribute("0", UIWidgets.CheckBox, "Keep this group's gunners in their turrets rather than voluntarily dismounting to fight.")]
 	bool m_bKeepGunnersSeated;

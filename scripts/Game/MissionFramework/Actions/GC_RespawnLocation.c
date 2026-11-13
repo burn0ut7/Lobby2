@@ -100,7 +100,7 @@ class GC_PlacedRespawnLocation : GC_RespawnLocation
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Named entities")]
 class GC_EntityRespawnLocation : GC_PlacedRespawnLocation
 {
-	[Attribute("", UIWidgets.EditComboBox, "Exact unique names of destination entities. Players are distributed through this list in order, then into rows at each location. Position and heading are read again for every spawn, so moving or rotating an entity moves its respawn point. A missing selected entity skips that player without spending a ticket; it never falls back to the original position. Use an offset to spawn beside a vehicle, not inside it.", enums: {ParamEnum("", "", "rst-choices:2:GC_EntityReferenceChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Exact unique names of destination entities. Players are distributed through this list in order, then into rows at each location. Position and heading are read again for every spawn, so moving or rotating an entity moves its respawn point. A missing selected entity skips that player without spending a ticket; it never falls back to the original position. Use an offset to spawn beside a vehicle, not inside it.", enums: {ParamEnum("", "", "gc-choices:2:GC_EntityReferenceChoices")})]
 	ref array<string> m_aEntities;
 
 	//------------------------------------------------------------------------------------------------

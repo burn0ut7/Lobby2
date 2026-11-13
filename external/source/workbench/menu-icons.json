@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "categories": [
+    {
+      "category": "GC",
+      "commands": [
+        "Create Mission Data",
+        "GC Tools",
+        "Open Wiki",
+        "Spawn Mission Template"
+      ],
+      "iconCommand": "Spawn Mission Template",
+      "bottomCommand": "Open Wiki"
+    },
+    {
+      "category": "GC",
+      "commands": [
+        "Create Mission Data",
+        "GC Tools",
+        "Open Wiki",
+        "Spawn Mission Template"
+      ],
+      "iconCommand": "Spawn Mission Template",
+      "bottomCommand": "GC Tools"
+    }
+  ]
+}

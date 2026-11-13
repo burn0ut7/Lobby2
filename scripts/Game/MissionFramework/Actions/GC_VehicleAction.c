@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Vehicle Fuel, Supplies and Repair Action")]
 class GC_VehicleAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Exact entity names to change. Missing entities and unsupported components are skipped. Fuel, supply storage and damage are changed on the existing entity, without replacing it or its occupants. Repair also works on other entities with a supported damage manager.", enums: {ParamEnum("", "", "rst-choices:2:GC_VehicleTargetChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Exact entity names to change. Missing entities and unsupported components are skipped. Fuel, supply storage and damage are changed on the existing entity, without replacing it or its occupants. Repair also works on other entities with a supported damage manager.", enums: {ParamEnum("", "", "gc-choices:2:GC_VehicleTargetChoices")})]
 	ref array<string> m_aEntities;
 	[Attribute("0", UIWidgets.CheckBox, "Set fuel to the selected level. Unchecked leaves fuel unchanged.")]
 	bool m_bChangeFuel;

@@ -9,7 +9,7 @@ class GC_EntityDamageOptions
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Entity Damage Condition")]
 class GC_EntityDamageCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Exact, unique name of an entity in the world, not a prefab file path or player name. Works with characters, vehicles and destructible objects that have a supported damage component. Missing or unsupported targets cannot pass, including inside a None group.", enums: {ParamEnum("", "", "rst-choices:2:GC_DamageEntityChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Exact, unique name of an entity in the world, not a prefab file path or player name. Works with characters, vehicles and destructible objects that have a supported damage component. Missing or unsupported targets cannot pass, including inside a None group.", enums: {ParamEnum("", "", "gc-choices:2:GC_DamageEntityChoices")})]
 	string m_sEntityName;
 
 	[Attribute("0", UIWidgets.ComboBox, "Destroyed checks whether the selected damage area is destroyed (dead for a character's main area). Not destroyed checks the opposite. Damage amount checks whether damage has reached Damage Needed. Repairs update the answer; the event's Advanced settings control repetition.", enums: {ParamEnum("Destroyed", "0"), ParamEnum("Not destroyed", "1"), ParamEnum("Damage amount", "2")})]

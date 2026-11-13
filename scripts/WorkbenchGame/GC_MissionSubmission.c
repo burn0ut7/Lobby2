@@ -1,24 +1,26 @@
 #ifdef WORKBENCH
 class GC_MissionSubmission
 {
-	static void Run()
+	static bool Prepare(out string path, out string error)
 	{
 		WorldEditor editor = Workbench.GetModule(WorldEditor);
 		if (!editor)
-			return;
+		{
+			error = "Open World Editor.";
+			return false;
+		}
 		WorldEditorAPI api = editor.GetApi();
 		if (!api || !api.IsEditMode() || api.IsGameMode() || api.IsPrefabEditMode() || api.IsDoingEditAction() || !api.GetWorld())
 		{
-			Workbench.Dialog("Submit Mission", "Open your mission in edit mode.");
-			return;
+			error = "Open your mission in edit mode.";
+			return false;
 		}
 		int subscene = api.GetCurrentSubScene();
 		string world = api.GetWorld().GetSubSceneName(subscene);
-		string path;
 		if (!world.StartsWith("$GlobalConflictsMissions:") || !Workbench.GetAbsolutePath(world, path))
 		{
-			Workbench.Dialog("Submit Mission", "Select a saved world in GC Missions.");
-			return;
+			error = "Select a saved world in GC Missions.";
+			return false;
 		}
 		ResourceManager manager = Workbench.GetModule(ResourceManager);
 		MetaFile worldMeta;
@@ -26,34 +28,33 @@ class GC_MissionSubmission
 			worldMeta = manager.GetMetaFile(path);
 		if (!worldMeta)
 		{
-			Workbench.Dialog("Submit Mission", "Save and register the mission world first.");
-			return;
+			error = "Save and register the mission world first.";
+			return false;
 		}
 		ResourceName worldResource = worldMeta.GetResourceID();
 		ResourceName headerName;
-		string error;
 		GC_MissionMetadataConfig metadata = new GC_MissionMetadataConfig();
 		Resource header = metadata.FindHeader(world, worldResource, headerName, error);
 		if (!header)
 		{
-			Workbench.Dialog("Submit Mission", error);
-			return;
+			// Header lookup supplies the error.
+			return false;
 		}
 		if (!editor.Save())
 		{
-			Workbench.Dialog("Submit Mission", "Save your mission and try again.");
-			return;
+			error = "Save your mission and try again.";
+			return false;
 		}
 		GC_MissionMetadataExport exporter = new GC_MissionMetadataExport();
-		WBProgressDialog progress = new WBProgressDialog("Refreshing mission data", editor);
+		WBProgressDialog progress;
 		bool collected = exporter.Collect(api, subscene, progress);
 		progress = null;
 		if (!collected || !metadata.Save(header, headerName, exporter, worldResource, error))
 		{
-			Workbench.Dialog("Submit Mission", "Could not refresh mission data. " + exporter.GetError() + error);
-			return;
+			error = "Could not refresh mission data. " + exporter.GetError() + error;
+			return false;
 		}
-		GC_ModWorkflow.Launch(GC_ModWorkflow.ProjectArguments() + " -SubmitMission -MissionWorld \"" + path + "\"");
+		return true;
 	}
 }
 #endif

@@ -15,6 +15,12 @@ be used for development and verification without becoming a product dependency.
 Existing coupled packages require migration; they are not precedent for new
 cross-project dependencies.
 
+Workbench automation, focus/assertion suppression and automatic script
+authorization belong only to Reforger MCP. Lobby2's bootstrap may initialize its
+own fixed dropdown DLL on normal Workbench startup; it must not expose generic
+editor control or install MCP components. Keep external development/test sources
+in this repository but exclude `external` from Workshop releases.
+
 Base-game APIs/events own factions, groups, membership and character affiliation. Lobby2 owns slot selection, reservations, locks and presentation metadata. Reference authoritative IDs and re-query ownership rather than maintaining shadow relationships. Discuss a new ownership source before introducing one.
 
 Prefer supported engine and base-game capabilities over custom helpers. Retain custom complexity only for a concrete feature, policy or compatibility gap; verify behavior and preserve features before replacing it. Line-count reduction alone is not a reason to change a contract.

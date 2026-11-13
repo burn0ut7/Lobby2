@@ -4,7 +4,7 @@ class GC_LivingCharactersCondition : GC_ConditionBase
 	[Attribute("0", UIWidgets.ComboBox, "Count living characters: connected players, registered AI, or both. Spectators, dead characters and empty playable slots never count. Unconscious living characters count. Updated once per second during Match and on phase changes.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
 	int m_iWho;
 
-	[Attribute("", UIWidgets.EditComboBox, "Optional faction keys, such as US or USSR. Empty means all factions. Selected factions are counted together, using each character's current faction.", enums: {ParamEnum("", "", "rst-choices:1:GC_FactionChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Optional faction keys, such as US or USSR. Empty means all factions. Selected factions are counted together, using each character's current faction.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	ref array<string> m_aFactions;
 
 	[Attribute("", UIWidgets.Hidden, "Legacy area configuration. Move this check to Area Condition; legacy area-based Living Characters checks are rejected rather than silently counting everywhere.")]

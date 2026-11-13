@@ -1,7 +1,7 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Map Marker Visibility Action")]
 class GC_MapMarkerVisibilityAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Exact names of entities with a GC Briefing Marker component. Changes the existing marker and its text without deleting them. Missing markers are skipped. Player-drawn markers, map shapes and legacy mission-description entities are not targets.", enums: {ParamEnum("", "", "rst-choices:2:GC_MarkerEntityChoices")})]
+	[Attribute("", UIWidgets.EditComboBox, "Exact names of entities with a GC Briefing Marker component. Changes the existing marker and its text without deleting them. Missing markers are skipped. Player-drawn markers, map shapes and legacy mission-description entities are not targets.", enums: {ParamEnum("", "", "gc-choices:2:GC_MarkerEntityChoices")})]
 	ref array<string> m_aMarkers;
 	[Attribute("", UIWidgets.Object, "Add each faction to change and check Visible to show it, or uncheck to hide it. Unlisted factions keep their current visibility. The marker's game-mode phase requirement still applies.")]
 	ref array<ref GC_MarkerFactionVisibility> m_aFactions;
