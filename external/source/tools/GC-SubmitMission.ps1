@@ -6,7 +6,10 @@ function Get-ContributorMissionPr($auth,$repo,$owner,$base) {
     foreach ($state in @('open','closed')) {
         $found=@()
         for ($page=1; $page -le 100; $page++) {
-            $items=@(Invoke-SubmissionApi $auth GET "repos/$repo/pulls?state=$state&base=$baseName&sort=created&direction=desc&per_page=100&page=$page")
+            # Windows PowerShell REST responses can arrive as one array object.
+            # Enumerate the response before filtering individual requests.
+            $response=Invoke-SubmissionApi $auth GET "repos/$repo/pulls?state=$state&base=$baseName&sort=created&direction=desc&per_page=100&page=$page"
+            $items=@($response | ForEach-Object { $_ })
             $matches=@($items | Where-Object { $_.head.repo.full_name -ieq $forkRepo -and $_.base.ref -ceq $base })
             if ($state -eq 'closed' -and $matches.Count) { return $matches[0] }
             $found+= $matches

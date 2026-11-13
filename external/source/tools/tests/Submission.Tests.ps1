@@ -65,8 +65,11 @@ function Invoke-SubmissionApi($auth,$method,$path,$data,[switch]$AllowMissing) {
             $script:openChecks++
             if($script:openChecks -eq 4){$script:pr.state='closed';$script:closeAfterPush=$false}
         }
-        if($script:pr -and $path.Contains('state='+$script:pr.state+'&')) {return ($script:pr | ConvertTo-Json -Depth 10 | ConvertFrom-Json)}
-        return
+        $unrelated=@{number=9000;state=$(if($path.Contains('state=open&')){'open'}else{'closed'});head=@{repo=@{full_name='another-user/gc-reforger-missions'};ref='unrelated-branch'};base=@{ref='main'}}
+        $page=@($unrelated)
+        if($script:pr -and $path.Contains('state='+$script:pr.state+'&')) {$page+=($script:pr | ConvertTo-Json -Depth 10 | ConvertFrom-Json)}
+        # Match Windows PowerShell Invoke-RestMethod's non-enumerated JSON array.
+        return ,$page
     }
     if($method -eq 'POST' -and $path.EndsWith('/pulls')) {
         $script:created++;$script:branch=$data.head.Substring('tester:'.Length)
