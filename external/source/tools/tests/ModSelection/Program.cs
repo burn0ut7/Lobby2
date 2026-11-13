@@ -159,6 +159,24 @@ static class Checks {
   Pump(()=>lateNotice.IsCompleted);
   Find<Button>(lateNoticeWindow).Single(b=>Equals(b.Content,"Update mods")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
   if(Find<CheckBox>(lateNoticeWindow).Last().IsChecked!=true)throw new Exception("Late startup notice discarded mod selection");
+  foreach(var tab in new[]{"Submit mission","Update mods","GitHub","Dependencies"}) {
+   var dismissible=new ToolWindow(noticePage,tools:true,observeStatus:false);
+   var dismissed=dismissible.ShowDependencyNoticeAsync(noticePage,"External dependencies not found");
+   var target=Find<Button>(dismissible).Single(b=>Equals(b.Content,tab));
+   if(!target.IsEnabled)throw new Exception("Notice disabled sidebar tab");
+   target.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+   Pump(()=>dismissed.IsCompleted);
+   var expected=tab=="Dependencies"?"External dependencies":tab;
+   if(!Find<TextBlock>(dismissible).Any(t=>t.Text==expected)||Find<Button>(dismissible).Any(b=>Equals(b.Content,"OK")))throw new Exception("Dismissed notice overrode selected tab");
+   dismissible.Close();
+  }
+  var closeNotice=new ToolWindow(noticePage,tools:true,observeStatus:false);
+  bool noticeClosed=false;closeNotice.Closed+=(_,_)=>noticeClosed=true;
+  var closingNotice=closeNotice.ShowDependencyNoticeAsync(noticePage,"External dependencies not found");
+  closeNotice.Close();
+  Pump(()=>closingNotice.IsCompleted);
+  if(!noticeClosed)throw new Exception("Notice prevented window closure");
+  Console.WriteLine("PASS: notice dismisses through every tab or window close, without redirecting navigation.");
   Console.WriteLine("PASS: missing/update/combined notices, unknown status suppression, OK returns to dependencies.");
   var currentDependencies=new ToolWindow(currentPage,tools:true);
   if(Find<Button>(currentDependencies).Single(b=>Equals(b.Content,"Update")).IsEnabled)throw new Exception("Current dependencies allow reinstall");

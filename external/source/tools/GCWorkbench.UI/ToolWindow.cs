@@ -29,6 +29,7 @@ public sealed class ToolWindow : Window
     private DialogSpec? operationPage;
     private string operationStatus = "";
     private TaskCompletionSource<DialogResult>? reviewAnswer;
+    private bool dependencyNoticeOpen;
     private readonly Dictionary<string, OperationResult> outcomes = [];
     internal Func<string, Dictionary<string, object>, Func<DialogSpec, Task<DialogResult>>, Task<OperationResult>> OperationRunner;
     public DialogResult Result { get; private set; } = new("cancel", []);
@@ -113,8 +114,8 @@ public sealed class ToolWindow : Window
                 await otherChecks;
             };
         }
-        Closed += (_, _) => lifetime.Cancel();
-        Closing += (_, e) => { if (operating || reviewAnswer is not null) e.Cancel = true; };
+        Closed += (_, _) => { lifetime.Cancel(); if (dependencyNoticeOpen) CompleteReview(new("cancel", [])); };
+        Closing += (_, e) => { if (operating || reviewAnswer is not null && !dependencyNoticeOpen) e.Cancel = true; };
         PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) { Close(); e.Handled = true; } };
     }
 
@@ -132,6 +133,8 @@ public sealed class ToolWindow : Window
             };
             button.Click += async (_, _) =>
             {
+                if (operating || reviewAnswer is not null && !dependencyNoticeOpen) return;
+                if (dependencyNoticeOpen) CompleteReview(new("cancel", []));
                 SaveDraft();
                 Render(statusPages.GetValueOrDefault(example.Title, example));
                 if (tools && observeStatus && !statusPages.ContainsKey(example.Title) && example.Title is "GitHub" or "External dependencies" or "Update mods") await RefreshStatusAsync();
@@ -168,7 +171,7 @@ public sealed class ToolWindow : Window
 
     private void Render(DialogSpec next)
     {
-        foreach (var (button, _) in navigation) button.IsEnabled = !operating && reviewAnswer is null;
+        foreach (var (button, _) in navigation) button.IsEnabled = !operating && (reviewAnswer is null || dependencyNoticeOpen);
         next.Validate();
         spec = next;
         UpdateRefreshButton();
@@ -354,6 +357,7 @@ public sealed class ToolWindow : Window
     {
         var pending = reviewAnswer;
         reviewAnswer = null;
+        dependencyNoticeOpen = false;
         // Disable the old form immediately: no repeated click may dispatch an action.
         if (operating && operationPage is not null) Render(operationPage);
         pending?.TrySetResult(answer);
@@ -397,8 +401,10 @@ public sealed class ToolWindow : Window
         if (title is null || lifetime.IsCancellationRequested || operating || reviewAnswer is not null) return;
         SaveDraft();
         Render(page);
-        await ReviewAsync(new DialogSpec { Title = title, PrimaryAction = "OK", SecondaryAction = "" });
-        if (!lifetime.IsCancellationRequested) Render(statusPages.GetValueOrDefault("External dependencies", page));
+        dependencyNoticeOpen = true;
+        var answer = await ReviewAsync(new DialogSpec { Title = title, PrimaryAction = "OK", SecondaryAction = "" });
+        if (answer.Action == "confirm" && !lifetime.IsCancellationRequested)
+            Render(statusPages.GetValueOrDefault("External dependencies", page));
     }
 
     private bool DependenciesActionable(DialogSpec page)
