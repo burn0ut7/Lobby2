@@ -13,7 +13,7 @@ internal static class ToolStatus
     private static readonly string Control = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GCWorkbench");
 
     // Local presence only: no network, archive extraction, or full payload hashing at startup.
-    internal static bool MissingStartupDependencies(string? controlDirectory = null, string? searchPath = null)
+    internal static bool MissingStartupDependencies(string? controlDirectory = null)
     {
         try
         {
@@ -24,20 +24,14 @@ internal static class ToolStatus
             var profile = record.RootElement.GetProperty("profileDirectory").GetString()!;
             foreach (var file in new[] { "payload/generic/gcworkbench.dll", "payload/helper/GCWorkbench.Loader.exe" })
                 if (!File.Exists(Path.Combine(destination, file))) return true;
-            foreach (var file in new[] { "GC-ModLauncher.js", "GC-ModWorkflow.ps1", "GC-SubmitMission.ps1", "GC-Review.ps1", "GC-GitHub.ps1", "GC-ModStatus.ps1" })
+            foreach (var file in new[] { "GC-GitInstallation.ps1", "GC-ModLauncher.js", "GC-ModWorkflow.ps1", "GC-SubmitMission.ps1", "GC-Review.ps1", "GC-GitHub.ps1", "GC-ModStatus.ps1" })
                 if (!File.Exists(Path.Combine(profile, "GCWorkbench", "tools", file))) return true;
-            return !(searchPath ?? Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator)
-                .Any(folder => !string.IsNullOrWhiteSpace(folder) && File.Exists(Path.Combine(folder.Trim().Trim('"'), "git.exe")));
+            // Git is inspected asynchronously through the registered-installation
+            // owner; arbitrary PATH entries may belong to other applications.
+            return false;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException or KeyNotFoundException or ArgumentException)
         { return true; }
-    }
-
-    internal static async Task<bool> MissingCredentialManagerAsync(CancellationToken cancellation)
-    {
-        var result = await RunAsync("git.exe", ["credential-manager", "--version"], 5, cancellation);
-        // A timeout is unknown, not proof that something is uninstalled.
-        return result.Code > 0;
     }
 
     internal static async Task<DialogSpec> ModsAsync(CancellationToken cancellation, IProgress<DialogSpec>? progress = null)
@@ -182,11 +176,12 @@ internal static class ToolStatus
 
     private static async Task<StatusItem> CheckGitAsync(CancellationToken cancellation)
     {
-        var result = await RunAsync("git.exe", ["--version"], 5, cancellation);
-        var current = ParseGitVersion(result.Output);
-        if (result.Code != 0 || current is null) return new("Git for Windows", "", "Not installed or unavailable", "warning");
-        var manager = await RunAsync("git.exe", ["credential-manager", "--version"], 5, cancellation);
-        if (manager.Code != 0) return new("Git for Windows", result.Output.Trim(), "Git Credential Manager missing", "warning");
+        var script = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "lobby2-tools", "GC-GitInstallation.ps1"));
+        var powershell = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
+        var result = await RunAsync(powershell, ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", script, "-Inspect"], 10, cancellation);
+        var installed = RegisteredGitStatus(result.Code, result.Output);
+        if (installed.State != "ready") return installed;
+        var current = ParseGitVersion(installed.Description)!;
         try
         {
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
@@ -196,10 +191,26 @@ internal static class ToolStatus
             using var release = JsonDocument.Parse(await response.Content.ReadAsStringAsync(cancellation));
             var latest = ParseGitVersion(release.RootElement.GetProperty("tag_name").GetString() ?? "");
             if (latest is null) throw new JsonException();
-            return new("Git for Windows", result.Output.Trim().Replace("git version ", ""), current < latest ? "Update available" : "Up to date", current < latest ? "warning" : "ready");
+            return new("Git for Windows", installed.Description, current < latest ? "Update available" : "Up to date", current < latest ? "warning" : "ready");
         }
         catch (Exception e) when (e is HttpRequestException or TaskCanceledException or JsonException or KeyNotFoundException)
-        { return new("Git for Windows", result.Output.Trim().Replace("git version ", ""), "Installed \u00b7 update check unavailable", "warning"); }
+        { return new("Git for Windows", installed.Description, "Installed \u00b7 update check unavailable", "warning"); }
+    }
+
+    internal static StatusItem RegisteredGitStatus(int code, string output)
+    {
+        try
+        {
+            if (code != 0) throw new JsonException();
+            using var info = JsonDocument.Parse(output);
+            if (!info.RootElement.GetProperty("Installed").GetBoolean()) return new("Git for Windows", "", "Not installed", "warning");
+            var version = info.RootElement.GetProperty("Version").GetString() ?? "";
+            if (ParseGitVersion(version) is null) throw new JsonException();
+            var manager = info.RootElement.GetProperty("CredentialManager").GetBoolean();
+            return new("Git for Windows", version.Replace("git version ", ""), manager ? "Installed" : "Git Credential Manager missing", manager ? "ready" : "warning");
+        }
+        catch (Exception error) when (error is JsonException or KeyNotFoundException or InvalidOperationException)
+        { return new("Git for Windows", "", "Could not check installation", "warning"); }
     }
 
     // Process creation itself can block under antivirus scanning. Keep it off the dispatcher too.

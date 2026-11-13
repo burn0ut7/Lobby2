@@ -14,7 +14,8 @@ try {
     Set-Content -LiteralPath $exe -Value 'fixture'
     Set-Content -LiteralPath (Join-Path $profile 'wbSettingsDump.ini') -Value "NetAPI_Enabled=1`nNetAPI_Port=5776"
     foreach ($name in @('Common.ps1','Uninstall.ps1','LobbyTools.ps1','Cleanup.ps1')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot ('../../installer/support/' + $name)) -Destination $source }
-    foreach ($name in @('GC-ModLauncher.js','GC-ModWorkflow.ps1','GC-SubmitMission.ps1','GC-Review.ps1','GC-GitHub.ps1','GC-ModStatus.ps1')) {
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../GC-GitInstallation.ps1') -Destination $source
+    foreach ($name in @('GC-GitInstallation.ps1','GC-ModLauncher.js','GC-ModWorkflow.ps1','GC-SubmitMission.ps1','GC-Review.ps1','GC-GitHub.ps1','GC-ModStatus.ps1')) {
         Set-Content -LiteralPath (Join-Path $source ('payload/lobby2-tools/' + $name)) -Value 'fixture'
     }
     Set-Content -LiteralPath (Join-Path $source 'payload/generic/gcworkbench.dll') -Value 'fixture'

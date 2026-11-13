@@ -1,5 +1,6 @@
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../GC-GitHub.ps1')
+function Get-GcGitExecutable { 'git.exe' }
 function Assert($condition,$message){if(!$condition){throw $message}}
 function Get-GcGitHubAuth {if($script:missing){throw 'no credential'};@{Authorization='Bearer test-only'}}
 $script:mode='ready';$script:missing=$false
@@ -29,6 +30,7 @@ function git.exe {
 Assert ((Connect-GcGitHub).Connected) 'Post-login connection not verified'
 'PASS: missing/expired/offline/connected account, repository access, browser-only sign-in, Windows credential store.'
 . (Join-Path $PSScriptRoot '../GC-ModWorkflow.ps1')
+function Get-GcGitExecutable { 'git.exe' }
 $originalStore=$env:GCM_CREDENTIAL_STORE;$originalTrace=$env:GCM_TRACE_SECRETS
 try {
     $env:GCM_CREDENTIAL_STORE='plaintext';$env:GCM_TRACE_SECRETS='1'

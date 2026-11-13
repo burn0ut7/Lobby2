@@ -2,6 +2,11 @@ $ErrorActionPreference = 'Stop'
 # Use this host's built-in hashing commands even when launched by another PowerShell version.
 Import-Module (Join-Path $PSHOME 'Modules/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility.psd1') -ErrorAction Stop
 . (Join-Path $PSScriptRoot 'LobbyTools.ps1')
+Import-Module (Join-Path $PSHOME 'Modules/Microsoft.PowerShell.Security/Microsoft.PowerShell.Security.psd1') -ErrorAction Stop
+$gitSupport = Join-Path $PSScriptRoot 'GC-GitInstallation.ps1'
+if (!(Test-Path -LiteralPath $gitSupport)) { $gitSupport = Join-Path $PSScriptRoot '../../tools/GC-GitInstallation.ps1' }
+. $gitSupport
+
 
 function Show-Message([string]$Text, [string]$Buttons = 'OK', [string]$Icon = 'Information') {
     Add-Type -AssemblyName System.Windows.Forms
@@ -16,6 +21,7 @@ function Get-LatestGitInstaller {
     $asset = $assets[0]
     if ($asset.browser_download_url -notmatch '^https://github\.com/git-for-windows/git/releases/download/[^/]+/Git-[0-9][0-9.]*-64-bit\.exe$' -or
         $asset.digest -notmatch '^sha256:[0-9a-fA-F]{64}$') { throw 'The official Git release URL or checksum is missing or unexpected.' }
+    $asset | Add-Member -NotePropertyName ExpectedVersion -NotePropertyValue $release.tag_name.TrimStart('v') -Force
     return $asset
 }
 
@@ -32,11 +38,20 @@ function Install-LatestGit([switch]$Quiet) {
         if ((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash -ne $asset.digest.Substring(7)) { throw 'Git download checksum did not match the official release.' }
         if ((Get-AuthenticodeSignature -LiteralPath $file).Status -ne 'Valid') { throw 'Git installer Windows signature is not valid.' }
         # This is the official interactive Git installer; its own wizard requests elevation if needed.
-        $arguments = if ($Quiet) { '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP- /CURRENTUSER' } else { '/NORESTART' }
+        $existing = @(Get-GcGitInstallations) | Select-Object -First 1
+        $arguments = if ($Quiet) { '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP-' } else { '/NORESTART' }
+        $arguments += if ($existing -and $existing.Scope -eq 'AllUsers') { ' /ALLUSERS' } else { ' /CURRENTUSER' }
+        if ($existing) { $arguments += ' /DIR="' + $existing.InstallLocation.TrimEnd('\') + '"' }
         $arguments += ' /LOG="' + $log + '"'
-        $process = Start-Process -FilePath $file -ArgumentList $arguments -Wait -PassThru
+        $process = Start-Process -FilePath $file -ArgumentList $arguments -WindowStyle Hidden -Wait -PassThru
         if ($process.ExitCode -notin @(0, 3010)) { throw "Git installation did not complete (exit $($process.ExitCode))." }
-        return "Git installed using $($asset.name). Open a new terminal to use it."
+        $git = Get-GcGitExecutable
+        if (!$git) { throw 'Git installation could not be confirmed.' }
+        $installedVersion = (& $git --version 2>$null) -join ' '
+        if ($LASTEXITCODE -ne 0 -or $installedVersion -cne ('git version ' + $asset.ExpectedVersion)) { throw 'Git setup finished, but the expected version is not installed.' }
+        $null = & $git credential-manager --version 2>$null
+        if ($LASTEXITCODE -ne 0) { throw 'Git setup finished, but Git Credential Manager is missing.' }
+        return "Git installed: $installedVersion"
     }
     finally {
         # Delete only the downloaded file, never a computed directory tree.
@@ -89,7 +104,7 @@ function Install-GcFiles([string]$Source, [string]$Destination, [string]$Workben
     if (Test-Path -LiteralPath $Destination) { throw 'The selected installation directory already exists.' }
     New-Item -ItemType Directory -Path $Destination -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $Source 'payload') -Destination $Destination -Recurse
-    foreach ($name in @('Common.ps1', 'Uninstall.ps1', 'LobbyTools.ps1', 'Cleanup.ps1')) { Copy-Item -LiteralPath (Join-Path $Source $name) -Destination $Destination }
+    foreach ($name in @('Common.ps1', 'Uninstall.ps1', 'LobbyTools.ps1', 'Cleanup.ps1', 'GC-GitInstallation.ps1')) { Copy-Item -LiteralPath (Join-Path $Source $name) -Destination $Destination }
     $profilePath = Get-GcCanonicalPath $Profile
     if (!(Test-Path -LiteralPath $profilePath -PathType Container)) { throw 'Open GC Tools from your Workbench profile.' }
     # Read the editor's own exported preferences; never configure or control Workbench.
@@ -199,14 +214,8 @@ function Uninstall-GcIntegration {
 }
 
 function Uninstall-GcGit {
-    $keys = @('HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1',
-        'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1',
-        'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1')
-    $records = @(Get-ItemProperty -LiteralPath $keys -ErrorAction SilentlyContinue)
-    if (!$records.Count) {
-        if (Get-Command git.exe -ErrorAction SilentlyContinue) { throw 'This Git installation has no Windows uninstaller. Remove it using the application that installed it.' }
-        return 'Git is not installed.'
-    }
+    $records = @(Get-GcGitInstallations)
+    if (!$records.Count) { return 'Git is not installed.' }
     foreach ($record in $records) {
         $match = [regex]::Match($record.UninstallString, '^"([^"\r\n]+)"$')
         if (!$match.Success -or [string]::IsNullOrWhiteSpace($record.InstallLocation)) { throw 'Git uninstaller registration is incomplete.' }

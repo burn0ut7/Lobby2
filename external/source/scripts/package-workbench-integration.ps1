@@ -31,9 +31,10 @@ New-Item -ItemType Directory -Path $support -Force | Out-Null
 foreach ($file in @('Install.bat', 'Uninstall.bat', 'README.txt', 'support/Common.ps1', 'support/Install.ps1', 'support/Uninstall.ps1', 'support/LobbyTools.ps1', 'support/Cleanup.ps1')) {
     Copy-Item -LiteralPath (Join-Path $root ('installer/' + $file)) -Destination (Join-Path $destination $file)
 }
+Copy-Item -LiteralPath (Join-Path $root 'tools/GC-GitInstallation.ps1') -Destination $support
 $helper = Join-Path $support 'payload/helper'
 New-Item -ItemType Directory -Path (Join-Path $support 'payload/lobby2-tools'),(Join-Path $support 'payload/generic') -Force | Out-Null
-foreach ($file in @('GC-ModLauncher.js', 'GC-ModWorkflow.ps1', 'GC-SubmitMission.ps1', 'GC-Review.ps1', 'GC-GitHub.ps1', 'GC-ModStatus.ps1')) {
+foreach ($file in @('GC-GitInstallation.ps1', 'GC-ModLauncher.js', 'GC-ModWorkflow.ps1', 'GC-SubmitMission.ps1', 'GC-Review.ps1', 'GC-GitHub.ps1', 'GC-ModStatus.ps1')) {
     Copy-Item -LiteralPath (Join-Path $root ('tools/' + $file)) -Destination (Join-Path $support ('payload/lobby2-tools/' + $file))
 }
 & $Dotnet publish (Join-Path $root 'loader/GCWorkbench.Loader/GCWorkbench.Loader.csproj') -c Release -r win-x64 --self-contained true -o $helper -p:OutputType=WinExe -p:DebugType=None -p:DebugSymbols=false

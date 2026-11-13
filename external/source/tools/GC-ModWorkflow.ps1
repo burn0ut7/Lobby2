@@ -15,11 +15,13 @@ $env:GIT_TERMINAL_PROMPT = '0'
 $env:GCM_INTERACTIVE = 'Never'
 
 function Git([string]$root, [string[]]$arguments) {
+    $git = Get-GcGitExecutable
+    if (!$git) { throw 'Install Git from External dependencies first.' }
     $ErrorActionPreference = 'Continue'
     $oldStore=$env:GCM_CREDENTIAL_STORE;$oldTrace=$env:GCM_TRACE_SECRETS
     try {
         $env:GCM_CREDENTIAL_STORE='wincredman';$env:GCM_TRACE_SECRETS='0'
-        $output = @(& git.exe -c credential.helper= -c credential.helper=manager -c credential.credentialStore=wincredman -C $root @arguments 2>&1)
+        $output = @(& $git -c credential.helper= -c credential.helper=manager -c credential.credentialStore=wincredman -C $root @arguments 2>&1)
         if ($LASTEXITCODE -ne 0) { throw "Git failed ($($arguments[0])) in $root. $($output -join [Environment]::NewLine)" }
         $output | ForEach-Object { "$_" }
     } finally {$env:GCM_CREDENTIAL_STORE=$oldStore;$env:GCM_TRACE_SECRETS=$oldTrace}
@@ -209,7 +211,7 @@ function Get-GcAddons($Lobby2,$GlobalConflictsCore,$GlobalConflictsUnits,$Global
 
 function Invoke-ModWorkflow {
     $addons = @(Get-GcAddons $Lobby2 $GlobalConflictsCore $GlobalConflictsUnits $GlobalConflictsMissions)
-    if (!(Get-Command git.exe -ErrorAction SilentlyContinue)) {
+    if (!(Get-GcGitExecutable)) {
         Set-GcOutcome 'Install dependencies' 'Open Dependencies and press Install.'
         return 2
     }

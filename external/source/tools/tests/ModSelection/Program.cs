@@ -265,6 +265,7 @@ static class Checks {
   Directory.CreateDirectory(Path.Combine(cleanupFixture,"local","GCWorkbench","versions","old"));
   File.WriteAllText(Path.Combine(cleanupFixture,"Common.ps1"),File.ReadAllText("external/source/installer/support/Common.ps1")+"\nfunction Remove-GcLegacyStartup {}\n");
   File.Copy("external/source/installer/support/LobbyTools.ps1",Path.Combine(cleanupFixture,"LobbyTools.ps1"));
+  File.Copy("external/source/tools/GC-GitInstallation.ps1",Path.Combine(cleanupFixture,"GC-GitInstallation.ps1"));
   File.WriteAllText(Path.Combine(cleanupFixture,"Cleanup.ps1"),"param([switch]$Wait)\nStart-Sleep -Seconds 4\n");
   var cleanupLauncher=Path.Combine(cleanupFixture,"Run.ps1");
   File.WriteAllText(cleanupLauncher,"param([switch]$Uninstall)\n$env:LOCALAPPDATA=Join-Path $PSScriptRoot 'local'\n. (Join-Path $PSScriptRoot 'Common.ps1')\n$result=Uninstall-GcIntegration\n[IO.File]::WriteAllText($env:GC_TOOLS_OUTCOME,(@{Status='Uninstalled';Detail=$result}|ConvertTo-Json -Compress))\n");

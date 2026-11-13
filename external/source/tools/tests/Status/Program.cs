@@ -53,14 +53,17 @@ Console.WriteLine("PASS: per-mod status eligibility mapping.");
 // First-launch routing uses local presence, not network/update-check results.
 Check(ToolPages.Initial(true).Title=="External dependencies","Missing dependency start page");
 Check(ToolPages.Initial(false).Title=="Submit mission","Installed start page");
-Check(ToolStatus.MissingStartupDependencies(control,""),"Missing Git or helpers not detected");
+Check(ToolStatus.MissingStartupDependencies(control),"Missing helpers not detected");
 var helper=Path.Combine(install,"payload/helper/GCWorkbench.Loader.exe");Directory.CreateDirectory(Path.GetDirectoryName(helper)!);File.WriteAllText(helper,"installed older version");
-foreach(var name in new[]{"GC-ModLauncher.js","GC-ModWorkflow.ps1","GC-SubmitMission.ps1","GC-Review.ps1","GC-GitHub.ps1","GC-ModStatus.ps1"})File.WriteAllText(Path.Combine(profile,"GCWorkbench/tools",name),"installed");
-var gitFolder=Path.Combine(root,"git bin");Directory.CreateDirectory(gitFolder);File.WriteAllText(Path.Combine(gitFolder,"git.exe"),"installed");
-Check(!ToolStatus.MissingStartupDependencies(control,gitFolder),"Present components mistaken for missing because updates exist");
-Check(ToolStatus.MissingStartupDependencies(control,""),"Missing Git not detected");
+foreach(var name in new[]{"GC-GitInstallation.ps1","GC-ModLauncher.js","GC-ModWorkflow.ps1","GC-SubmitMission.ps1","GC-Review.ps1","GC-GitHub.ps1","GC-ModStatus.ps1"})File.WriteAllText(Path.Combine(profile,"GCWorkbench/tools",name),"installed");
+Check(!ToolStatus.MissingStartupDependencies(control),"Present components mistaken for missing because updates exist");
+
 File.Delete(Path.Combine(profile,"GCWorkbench/tools/GC-ModStatus.ps1"));
-Check(ToolStatus.MissingStartupDependencies(control,gitFolder),"Missing profile helper not detected");
+Check(ToolStatus.MissingStartupDependencies(control),"Missing profile helper not detected");
 File.WriteAllText(Path.Combine(control,"installation.json"),"broken record");
-Check(ToolStatus.MissingStartupDependencies(control,gitFolder),"Broken install not routed to dependencies");
-Console.WriteLine("PASS: first-launch routing, present/older components, missing Git/helper, damaged installation.");
+Check(ToolStatus.MissingStartupDependencies(control),"Broken install not routed to dependencies");
+Console.WriteLine("PASS: first-launch routing, present/older components, missing helpers, damaged installation.");
+
+Check(ToolStatus.RegisteredGitStatus(0,"{\"Installed\":false}").Status=="Not installed","Bundled PATH Git must not count as Git for Windows");
+Check(ToolStatus.RegisteredGitStatus(0,"{\"Installed\":true,\"Version\":\"git version 2.56.0.windows.4\",\"CredentialManager\":true}").State=="ready","Registered Git version lost");
+Check(ToolStatus.RegisteredGitStatus(-1,"").Status=="Could not check installation","Failed inspection reported absent");

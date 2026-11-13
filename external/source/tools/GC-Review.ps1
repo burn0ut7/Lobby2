@@ -63,7 +63,7 @@ function Merge-GcReviewedTree($root, $mine, $shared, $label, $mergeBase = '') {
     $previous=$ErrorActionPreference
     try {
         $ErrorActionPreference='Continue'
-        $output=@(& git.exe -C $root @arguments $mine $shared 2>&1 | ForEach-Object { "$_" })
+        $output=@(& (Get-GcGitExecutable) -C $root @arguments $mine $shared 2>&1 | ForEach-Object { "$_" })
         $code=$LASTEXITCODE
     } finally { $ErrorActionPreference=$previous }
     if ($code -notin 0,1 -or !$output.Count -or $output[0] -notmatch '^[a-f0-9]{40,64}$') { throw 'Could not check conflicts. Update Git for Windows and try again.' }
