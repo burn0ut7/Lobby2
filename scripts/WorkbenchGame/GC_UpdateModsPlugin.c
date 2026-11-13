@@ -1,13 +1,4 @@
 #ifdef WORKBENCH
-[WorkbenchPluginAttribute(name: "Update Mods", description: "Update the selected mods.", wbModules: { "WorldEditor" }, category: "GC")]
-class GC_UpdateModsPlugin : WorkbenchPlugin
-{
-	override void Run()
-	{
-		GC_ModWorkflow.Run(true, false, "");
-	}
-}
-
 class GC_TemplateGitOptions
 {
 	[Attribute("0", UIWidgets.CheckBox, "Update selected mods.")]

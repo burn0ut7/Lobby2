@@ -45,7 +45,10 @@ in your default browser.
 Its sample dependency, update and submission forms do not perform operations.
 The UI is bundled with the existing Windows runtime; no separate installation is needed.
 
-For a source checkout, use **Plugins > GC > Install External Dependencies**, or
+**Plugins > GC > GC Tools** combines **Submit mission**, **Update mods**, and
+**Install external dependencies** in one window. **Open Wiki** remains separate.
+
+For a source checkout, use **GC Tools > Install external dependencies**, or
 double-click `external/workbench/Install.js`. Save work and stop Play first.
 Setup offers the dropdown DLL, profile Git helpers and the official Git for
 Windows installer. It asks for your Workbench executable; save and restart

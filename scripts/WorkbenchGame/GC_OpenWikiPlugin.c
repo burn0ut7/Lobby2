@@ -1,5 +1,5 @@
 #ifdef WORKBENCH
-[WorkbenchPluginAttribute(name: "Open Wiki", description: "Open the GC mission-making wiki in your default browser.", wbModules: { "WorldEditor" }, category: "GC")]
+[WorkbenchPluginAttribute(name: "Open Wiki", description: "Open the GC mission-making wiki in your default browser.", wbModules: { "WorldEditor" }, category: "GC", awesomeFontCode: 0xF02D)]
 class GC_OpenWikiPlugin : WorkbenchPlugin
 {
 	override void Run()

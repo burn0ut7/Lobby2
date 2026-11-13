@@ -1,8 +1,7 @@
 #ifdef WORKBENCH
-[WorkbenchPluginAttribute(name: "Submit Mission", description: "Save this GC mission and submit it for review.", wbModules: { "WorldEditor" }, category: "GC")]
-class GC_SubmitMissionPlugin : WorkbenchPlugin
+class GC_MissionSubmission
 {
-	override void Run()
+	static void Run()
 	{
 		WorldEditor editor = Workbench.GetModule(WorldEditor);
 		if (!editor)

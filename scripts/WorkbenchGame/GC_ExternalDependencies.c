@@ -1,8 +1,7 @@
 #ifdef WORKBENCH
-[WorkbenchPluginAttribute(name: "Install External Dependencies", description: "Install the GC Workbench dropdown extension, Git and Git helpers.", wbModules: { "WorldEditor" }, category: "GC")]
-class GC_InstallExternalDependenciesPlugin : WorkbenchPlugin
+class GC_ExternalDependencies
 {
-	override void Run()
+	static void Run()
 	{
 		string installer;
 		if (!Workbench.GetAbsolutePath("$Lobby2:external/workbench/Install.js", installer) || !FileIO.FileExists(installer))
