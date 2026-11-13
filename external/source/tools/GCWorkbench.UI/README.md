@@ -13,7 +13,8 @@ saving, exporting, or inspecting the open world. Save authored files before
 submitting. Only the independent dropdown DLL uses the editor's lookup providers.
 
 `--tools` returns 2 only when closed. It no longer returns action exit codes.
-Action buttons show progress and the workflow's explicit outcome; no success is
+Action buttons keep action labels; progress and verified outcomes appear separately
+above them. Actions are disabled while running; failures offer Retry. No success is
 inferred merely because a child exited. A submitted PR also gets View submission.
 A current-user-only named pipe carries JSON review requests/answers between the
 hub and its PowerShell child. The hub cannot close mid-action or bypass required

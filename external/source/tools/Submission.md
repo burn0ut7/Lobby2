@@ -36,7 +36,7 @@ contributor's fork and target main, not their current local branch.
 
 Additional missions update the same pending request. A closed, unmerged request
 shows Resubmit in review; confirming attempts to reopen that same request. If
-GitHub refuses, the hub keeps Resubmit and View submission available and reports
+GitHub refuses, the hub shows Request closed with Retry and View submission available and reports
 that it could not reopen. It does not create a duplicate as a fallback. A merged
 request is complete; subsequent changes create the next request using the same
 fork and online branch. Multiple pre-existing open requests stop with an explicit

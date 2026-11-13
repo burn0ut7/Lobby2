@@ -24,6 +24,8 @@ public sealed class ToolWindow : Window
     private Button? refreshButton;
     private DialogSpec spec;
     private bool operating;
+    private DialogSpec? operationPage;
+    private string operationStatus = "";
     private TaskCompletionSource<DialogResult>? reviewAnswer;
     private readonly Dictionary<string, OperationResult> outcomes = [];
     internal Func<string, Dictionary<string, object>, Func<DialogSpec, Task<DialogResult>>, Task<OperationResult>> OperationRunner;
@@ -221,7 +223,10 @@ public sealed class ToolWindow : Window
         var confirm = new Button { Content = spec.PrimaryAction, Background = Brush(spec.Accent), BorderBrush = Brush(spec.Accent), Foreground = Brush("#1b2119"), Margin = new Thickness(0) };
         if (tools && reviewAnswer is null && outcomes.TryGetValue(spec.Title, out var outcome))
         {
-            confirm.Content = dependencyPage ? (outcome.Status == "Installed" ? "Install / update" : "Retry") : spec.Title == "Submit mission" ? outcome.Status switch { "Submitted" => "Update submission", "Approved" => "Submit", _ => outcome.Status } : outcome.Status;
+            confirm.Content = outcome.Status is "Installed" or "Updated" or "Submitted" or "Approved" or "Cancelled" ? spec.PrimaryAction : "Retry";
+            var status = Text(outcome.Status == "Resubmit" ? "Request closed" : outcome.Status, 14, "#f0e9d5", bold: true, margin: new Thickness(0, 0, 0, 6));
+            AutomationProperties.SetLiveSetting(status, AutomationLiveSetting.Polite);
+            footer.Children.Add(status);
             if (!string.IsNullOrEmpty(outcome.Detail)) footer.Children.Add(Text(outcome.Detail, 13, "#a9b09b", margin: new Thickness(0, 0, 0, 12)));
             if (Uri.TryCreate(outcome.Url, UriKind.Absolute, out var link) && link.Scheme == "https" && link.Host == "github.com")
             {
@@ -229,6 +234,12 @@ public sealed class ToolWindow : Window
                 open.Click += (_, _) => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(link.AbsoluteUri) { UseShellExecute = true });
                 buttons.Children.Add(open);
             }
+        }
+        if (operating && reviewAnswer is null)
+        {
+            var status = Text(operationStatus, 14, "#a9b09b", margin: new Thickness(0, 0, 0, 12));
+            AutomationProperties.SetLiveSetting(status, AutomationLiveSetting.Polite);
+            footer.Children.Add(status);
         }
         void UpdateConfirm() => confirm.IsEnabled = (!operating || reviewAnswer is not null) && (!checking.Contains(spec.Title) || spec.Title is "External dependencies" or "Update mods") &&
             (!dependencyPage || DependenciesActionable(spec)) &&
@@ -331,7 +342,7 @@ public sealed class ToolWindow : Window
         var pending = reviewAnswer;
         reviewAnswer = null;
         // Disable the old form immediately: no repeated click may dispatch an action.
-        if (operating) Render(new DialogSpec { Title = "Working", PrimaryAction = "Working...", SecondaryAction = "" });
+        if (operating && operationPage is not null) Render(operationPage);
         pending?.TrySetResult(answer);
     }
 
@@ -346,12 +357,14 @@ public sealed class ToolWindow : Window
             values["git"] = !page.Items.Any(item => item.Title == "Git for Windows" && item.State == "ready");
         }
         operating = true;
+        operationPage = page;
+        operationStatus = action == "submit" ? "Preparing submission..." : "Updating...";
         outcomes.Remove(page.Title);
-        Render(page with { PrimaryAction = action switch { "submit" => "Preparing...", _ => "Updating..." }, SecondaryAction = "" });
+        Render(page);
         OperationResult result;
         try { result = await OperationRunner(action, values, ReviewAsync); }
         catch (Exception error) { result = new("Try again", error.Message); }
-        finally { reviewAnswer = null; operating = false; }
+        finally { reviewAnswer = null; operating = false; operationPage = null; operationStatus = ""; }
         outcomes[page.Title] = result;
         Render(statusPages.GetValueOrDefault(page.Title, page));
         if (action is "update" or "install") await RefreshStatusAsync(false, page.Title);
