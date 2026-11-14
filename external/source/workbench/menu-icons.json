@@ -10,6 +10,17 @@
         "Spawn Mission Template"
       ],
       "iconCommand": "Spawn Mission Template",
+      "bottomCommand": "Create Mission Data"
+    },
+    {
+      "category": "GC",
+      "commands": [
+        "Create Mission Data",
+        "GC Tools",
+        "Open Wiki",
+        "Spawn Mission Template"
+      ],
+      "iconCommand": "Spawn Mission Template",
       "bottomCommand": "Open Wiki"
     },
     {
