@@ -28,7 +28,14 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/Templates/GC_Missi
      m_aConditions {
       GC_TimerCondition "{6AD676FFD740FE02}" {
       }
+      GC_AreaCondition "{6ADAC840D9043D3F}" {
+      }
      }
+    }
+   }
+   m_aMissionFlags {
+    GC_MissionFlag "{6ADAC840E60517FB}" {
+     m_sName "test"
     }
    }
   }
@@ -43,7 +50,7 @@ GC_LobbyGameMode GameMode_Lobby2 : "{6A4D100000000010}Prefabs/Templates/GC_Missi
  coords 1194.457 39 2723.129
 }
 ScriptedChatEntity GC_LobbyChat_1 : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
- coords 1222.934 39 2701.818
+ coords 1237.407 39 2646.479
 }
 RadioManagerEntity RadioManager_1 : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
  coords 1205.665 38.911 2686.31
