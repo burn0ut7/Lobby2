@@ -1,0 +1,19 @@
+GC_LobbyGameMode : "{9B42B808F4E97C4D}Prefabs/MP/Modes/GameMode_Lobby.et" {
+ ID "A79C4E0A43DEB822"
+ coords 0 0 0
+ {
+  PerceptionManager GC_MissionPerception : "{028DAEAD63E056BE}Prefabs/World/Game/PerceptionManager.et" {
+   ID "A79C4E0A43DEB826"
+  }
+  SCR_FactionManager : "{4D1750C5F5444560}Prefabs/MP/Managers/Factions/FactionManager_Lobby.et" {
+   ID "6ADC9BB66394BE46"
+   coords 0 0 0
+  }
+  ScriptedChatEntity GC_MissionChat : "{6A63000000000001}Prefabs/MP/GC_LobbyChat.et" {
+   ID "A79C4E0A43DEB825"
+  }
+  RadioManagerEntity GC_MissionRadio : "{B8E09FAB91C4ECCD}Prefabs/Systems/Radio/RadioManager.et" {
+   ID "A79C4E0A43DEB824"
+  }
+ }
+}

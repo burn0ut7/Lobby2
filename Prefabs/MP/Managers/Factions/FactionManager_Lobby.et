@@ -1,8 +1,3 @@
-SCR_FactionManager : "{A242612865F2A48E}Prefabs/MP/Managers/Factions/FactionManager_Base.et" {
+SCR_FactionManager : "{589540B35EBA8CDC}Prefabs/MP/Managers/Factions/FactionManager_USxUSSR.et" {
  ID "56B2B4776E6E4499"
- Factions {
-  SCR_Faction "{6A141800911A0D0B}" {
-   FactionKey "US"
-  }
- }
 }
