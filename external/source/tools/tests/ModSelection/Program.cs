@@ -152,7 +152,7 @@ static class Checks {
   var noticePage=currentPage with {Items=[currentPage.Items[0],new("Git for Windows","","Update available","warning")]};
   if(ToolPages.DependencyNotice(currentPage)!=null||ToolPages.DependencyNotice(noticePage)!="External dependency updates available")throw new Exception("Startup update notice is incorrect");
   if(ToolPages.DependencyNotice(noticePage with {Items=[new("GC Workbench Tools","","Not installed","warning"),noticePage.Items[1]]})!="External dependencies missing or outdated")throw new Exception("Combined dependency notice is incorrect");
-  if(ToolPages.DependencyNotice(currentPage with {Items=[new("Git for Windows","","Installed · update check unavailable","warning")]})!=null)throw new Exception("Unknown status reported an update");
+  if(ToolPages.DependencyNotice(currentPage with {Items=[new("Git for Windows","","Installed \u00b7 update check unavailable","warning")]})!=null)throw new Exception("Unknown status reported an update");
   var noticeWindow=new ToolWindow(noticePage,tools:true,observeStatus:false);
   var notice=noticeWindow.ShowDependencyNoticeAsync(noticePage);
   if(!Find<TextBlock>(noticeWindow).Any(t=>t.Text=="External dependency updates available"))throw new Exception("Update notice was not displayed");
@@ -240,6 +240,41 @@ static class Checks {
   if(Find<TextBlock>(dependencies).Any(t=>t.Text=="Updating..."))throw new Exception("Progress remained after completion");
   if(dependencies.Result.Action!="cancel")throw new Exception("Retry closed tools");
   Console.WriteLine("PASS: stable Install action, separate error, real retry dispatch, disabled progress and persistent completion.");
+  foreach(var accountState in new[]{"Sign in required","Sign-in expired","Connected","Connection could not be verified","Failed install","Tools only"}) {
+   var afterInstall=new ToolWindow(ToolPages.Dependencies() with {Items=[new("GC Workbench Tools","","Not installed","warning"),new("Git for Windows","","Not installed","warning")]},tools:true,observeStatus:false);
+   var installChecks=(HashSet<string>)typeof(ToolWindow).GetField("checking",flags)!.GetValue(afterInstall)!;
+   installChecks.Add("External dependencies");installChecks.Add("Update mods");
+   int accountChecks=0, signIns=0;
+   afterInstall.GitHubStatusRunner=(signIn,_)=>{
+    if(signIn)signIns++;else accountChecks++;
+    return Task.FromResult(ToolPages.GitHub() with {Items=[new("GitHub","",signIn?"Connected":accountState,signIn||accountState=="Connected"?"ready":"warning")]});
+   };
+   afterInstall.OperationRunner=(_,_,_)=>Task.FromResult(new OperationResult(accountState=="Failed install"?"Installation stopped":"Installed"));
+   if(accountState=="Tools only")Find<CheckBox>(afterInstall).Last().IsChecked=false;
+   var operation=(Task)typeof(ToolWindow).GetMethod("RunOperationAsync",flags)!.Invoke(afterInstall,["install",new Dictionary<string,object>()])!;
+   Pump(()=>operation.IsCompleted);operation.GetAwaiter().GetResult();
+   bool prompted=accountState is "Sign in required" or "Sign-in expired";
+   if(Find<Button>(afterInstall).Any(b=>Equals(b.Content,"Sign in on GitHub"))!=prompted||signIns!=0||accountChecks!=(accountState=="Tools only"?0:1))throw new Exception("Post-install account refresh/prompt incorrect: "+accountState);
+   if(prompted) {
+    Find<Button>(afterInstall).Single(b=>Equals(b.Content,"Sign in on GitHub")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+    Pump(()=>signIns==1);
+    if(!Find<TextBlock>(afterInstall).Any(t=>t.Text=="Connected"))throw new Exception("Browser sign-in result not displayed");
+   }
+   afterInstall.Close();
+  }
+  var racing=new ToolWindow(ToolPages.Dependencies() with {Items=[new("Git for Windows","","Not installed","warning")]},tools:true,observeStatus:false);
+  var racingChecks=(HashSet<string>)typeof(ToolWindow).GetField("checking",flags)!.GetValue(racing)!;
+  racingChecks.Add("External dependencies");racingChecks.Add("Update mods");
+  var oldCheck=new TaskCompletionSource<DialogSpec>();int raceChecks=0;
+  racing.GitHubStatusRunner=(_,_)=>++raceChecks==1?oldCheck.Task:Task.FromResult(ToolPages.GitHub() with {Items=[new("GitHub","","Sign in required","warning")]});
+  var oldRefresh=(Task)typeof(ToolWindow).GetMethod("RefreshStatusAsync",flags)!.Invoke(racing,[false,"GitHub",false])!;
+  racing.OperationRunner=(_,_,_)=>Task.FromResult(new OperationResult("Installed"));
+  var installed=(Task)typeof(ToolWindow).GetMethod("RunOperationAsync",flags)!.Invoke(racing,["install",new Dictionary<string,object>()])!;
+  oldCheck.SetResult(ToolPages.GitHub() with {Items=[new("GitHub","","Install Git for Windows","warning")]});
+  Pump(()=>installed.IsCompleted);installed.GetAwaiter().GetResult();
+  if(raceChecks!=2||!Find<Button>(racing).Any(b=>Equals(b.Content,"Sign in on GitHub")))throw new Exception("Stale pre-install account check reused");
+  racing.Close();
+  Console.WriteLine("PASS: install refreshes account, prompts only when needed, browser sign-in requires click, stale checks rerun.");
   var fixture=Path.Combine(Path.GetTempPath(),"gc-hub-test-"+Guid.NewGuid()+".ps1");
   var reviewPath=Path.GetFullPath("external/source/tools/GC-Review.ps1").Replace("'","''");
   File.WriteAllText(fixture,". '"+reviewPath+"'\nif($env:GC_INSTALL_TOOLS -ne '0' -or $env:GC_INSTALL_GIT -ne '1'){throw 'Wrong dependency selection'}\nWrite-Output 'GC_PROGRESS:{\"Dependency\":\"git\",\"Status\":\"Updating...\",\"State\":\"pending\"}'\nStart-Sleep -Milliseconds 500\n$answer=Show-GcReview @{Title='Fixture review';PrimaryAction='Confirm'}\nif($answer.Action -ne 'confirm'){throw 'Wrong review answer'}\nSet-GcOutcome 'Submitted' 'Fixture confirmed' 'https://github.com/example/missions/pull/1'\n");

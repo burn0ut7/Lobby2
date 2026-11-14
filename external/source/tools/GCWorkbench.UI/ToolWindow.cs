@@ -23,6 +23,8 @@ public sealed class ToolWindow : Window
     private readonly CancellationTokenSource lifetime = new();
     private readonly Dictionary<string, DialogSpec> statusPages = [];
     private readonly HashSet<string> checking = [];
+    private readonly Dictionary<string, Task> refreshTasks = [];
+    internal Func<bool, CancellationToken, Task<DialogSpec>> GitHubStatusRunner = ToolStatus.GitHubAsync;
     private Button? refreshButton;
     private DialogSpec spec;
     private bool operating;
@@ -306,7 +308,22 @@ public sealed class ToolWindow : Window
         body.Children.Add(footerBorder);
     }
 
-    private async Task RefreshStatusAsync(bool signIn = false, string? title = null)
+    private async Task RefreshStatusAsync(bool signIn = false, string? title = null, bool fresh = false)
+    {
+        title ??= spec.Title;
+        if (refreshTasks.TryGetValue(title, out var pending))
+        {
+            await pending;
+            if (!fresh && !signIn) return;
+        }
+        if (lifetime.IsCancellationRequested) return;
+        var refresh = RefreshStatusCoreAsync(signIn, title);
+        refreshTasks[title] = refresh;
+        try { await refresh; }
+        finally { if (refreshTasks.GetValueOrDefault(title) == refresh) refreshTasks.Remove(title); }
+    }
+
+    private async Task RefreshStatusCoreAsync(bool signIn, string title)
     {
         title ??= spec.Title;
         if (checking.Contains(title)) return;
@@ -320,7 +337,7 @@ public sealed class ToolWindow : Window
         {
             result = title switch
             {
-                "GitHub" => await ToolStatus.GitHubAsync(signIn, lifetime.Token),
+                "GitHub" => await GitHubStatusRunner(signIn, lifetime.Token),
                 "Update mods" => await ToolStatus.ModsAsync(lifetime.Token, new Progress<DialogSpec>(page =>
                 {
                     if (lifetime.IsCancellationRequested || !checking.Contains("Update mods")) return;
@@ -389,7 +406,17 @@ public sealed class ToolWindow : Window
         finally { reviewAnswer = null; operating = false; operationPage = null; operationStatus = ""; }
         outcomes[page.Title] = result;
         Render(statusPages.GetValueOrDefault(page.Title, page));
-        if (action is "update" or "install" or "uninstall") await RefreshStatusAsync(false, page.Title);
+        if (action is "update" or "install" or "uninstall") await RefreshStatusAsync(false, page.Title, fresh: true);
+        if (action is "install" or "uninstall" && values.GetValueOrDefault("git") is true)
+        {
+            await RefreshStatusAsync(false, "GitHub", fresh: true);
+            if (action == "install" && result.Status == "Installed" && spec.Title == page.Title &&
+                !operating && reviewAnswer is null && !lifetime.IsCancellationRequested &&
+                statusPages.TryGetValue("GitHub", out var account) &&
+                account.Items.Any(item => item.Status is "Sign in required" or "Sign-in expired"))
+                Render(account);
+            await RefreshStatusAsync(false, "Update mods", fresh: true);
+        }
     }
 
     private string DependencyAction(DialogSpec page) => page.Items.Count == 0 || page.Items
