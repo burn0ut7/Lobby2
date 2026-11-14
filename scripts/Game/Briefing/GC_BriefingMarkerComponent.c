@@ -34,7 +34,7 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.EditBox, "Text displayed underneath the marker")]
 	protected string m_sDescription;
 
-	[Attribute("", UIWidgets.Object, "Authoritative base-game faction keys. Empty shows the marker to everyone")]
+	[Attribute("", UIWidgets.EditComboBox, "Authoritative base-game faction keys. Empty shows the marker to everyone", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	protected ref array<string> m_aFactionKeys;
 
 	[Attribute("0", UIWidgets.ComboBox, "Earliest game-mode phase from which this marker is shown", enumType: SCR_EGameModeState)]
