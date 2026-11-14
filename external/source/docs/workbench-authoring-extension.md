@@ -12,6 +12,22 @@ Then run `scripts/package-workbench-integration.ps1 -NativePackage <build-folder
 This publishes only the GC UI, fixed DLL loader, Git scripts and their .NET runtime.
 Source hashes and package hashes are recorded. Game binaries are not redistributed.
 
+## Faction fields
+
+All authored faction-key strings and string arrays use `UIWidgets.EditComboBox`
+with `enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")}`. The same DLL
+path handles scalar fields, newly added array entries and nested objects. The
+provider reads the current editor world's factions on refresh; fields do not
+carry separate faction lists. Keep existing descriptions, defaults and empty-list
+semantics when exposing a field this way.
+
+Run `scripts/Assert-FactionChoiceFields.ps1` after script changes. The DLL build
+also runs this audit. It checks attributed string fields whose names contain
+`Faction` or whose descriptions say `faction key`, including arrays. Hidden fields
+and the mission header's generated evidence are excluded. This catches missing
+connections without guessing from UI labels at runtime or modifying unrelated
+base-game properties.
+
 ## Startup ownership
 
 The profile bootstrap launches `GCWorkbench.Loader.exe` without arguments.

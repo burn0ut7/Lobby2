@@ -50,7 +50,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected string m_sWarningText;
 	[Attribute("", UIWidgets.EditComboBox, "Optional safe return transform from the active mission subscene for already enrolled characters without valid return history. Must satisfy ALL applicable hard limits. Units that have never entered the permitted area remain exempt.", category: "AO", enums: {ParamEnum("", "", "gc-choices:2:GC_AOReturnEntityChoices")})]
 	protected string m_sReturnEntity;
-	[Attribute("", UIWidgets.Auto, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility")]
+	[Attribute("", UIWidgets.EditComboBox, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	protected ref array<string> m_aFactionKeys;
 	[Attribute("0", UIWidgets.ComboBox, "Required vehicle state. Passenger includes turret occupants. All eligibility conditions must match.", enums: ParamEnumArray.FromEnum(GC_EAOVehicleState), category: "Eligibility")]
 	protected GC_EAOVehicleState m_eVehicleState;

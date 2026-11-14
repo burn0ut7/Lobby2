@@ -9,7 +9,7 @@ class GC_MapShapeComponent : ScriptComponent
 	protected bool m_bEnabled;
 	[Attribute("0", UIWidgets.CheckBox, "Frame this visible polygon when the map opens in lobby or briefing, with a margin around all opted-in shapes. Also frame once on the first map opening during play; later openings preserve manual pan and zoom.", category: "Map shape")]
 	protected bool m_bAutoFrameMap;
-	[Attribute("", UIWidgets.Auto, "Empty shows everyone; otherwise only these native faction keys can see the shape.", category: "Map shape")]
+	[Attribute("", UIWidgets.EditComboBox, "Empty shows everyone; otherwise only these native faction keys can see the shape.", category: "Map shape", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	protected ref array<string> m_aFactionKeys;
 	[Attribute("0.2 0.5 1 1", UIWidgets.ColorPicker, "Outline color and opacity. Set opacity to zero to hide the outline.", category: "Outline")]
 	protected ref Color m_LineColor;

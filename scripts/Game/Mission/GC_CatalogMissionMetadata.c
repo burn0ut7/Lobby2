@@ -38,7 +38,7 @@ class GC_CatalogMissionMetadata
 [BaseContainerProps()]
 class GC_CatalogForce
 {
-	[Attribute(desc: "Faction key from the mission's faction manager.")]
+	[Attribute(uiwidget: UIWidgets.EditComboBox, desc: "Faction key from the mission's faction manager.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	string m_sFactionKey;
 	[Attribute("", UIWidgets.ComboBox, "Choose the team's equipment style.", enums: { ParamEnum("Not set", ""), ParamEnum("Light infantry", "LIGHT"), ParamEnum("Motorized", "MOTORIZED"), ParamEnum("Mechanized", "MECHANIZED"), ParamEnum("Armored", "ARMORED"), ParamEnum("Airmobile", "AIRMOBILE"), ParamEnum("Airborne", "AIRBORNE"), ParamEnum("Combined arms", "COMBINED"), ParamEnum("Other", "OTHER") })]
 	string m_sForceType;

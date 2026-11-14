@@ -34,7 +34,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	protected float m_fGraceSeconds;
 	[Attribute("1", UIWidgets.CheckBox, "Block weapon fire, grenades, melee and turret fire for enrolled players until release.", category: "Setup")]
 	protected bool m_bSafeStart;
-	[Attribute("", UIWidgets.Auto, "Native faction keys. Empty means all factions. Eligibility is captured at the character's first observation in GAME.", category: "Setup")]
+	[Attribute("", UIWidgets.EditComboBox, "Native faction keys. Empty means all factions. Eligibility is captured at the character's first observation in GAME.", category: "Setup", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	protected ref array<string> m_aFactionKeys;
 	protected ref array<vector> m_aPolygon = {};
 	protected ref map<int, ref GC_SetupPlayerState> m_mPlayers = new map<int, ref GC_SetupPlayerState>();

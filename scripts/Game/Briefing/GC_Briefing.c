@@ -15,7 +15,7 @@ class GC_Briefing
 	[Attribute("", UIWidgets.EditBoxMultiline, "Plain or Reforger rich-text briefing body")]
 	protected string m_sContent;
 
-	[Attribute("", UIWidgets.EditBox, "Authoritative base-game faction keys. Empty shows the briefing to everyone")]
+	[Attribute("", UIWidgets.EditComboBox, "Authoritative base-game faction keys. Empty shows the briefing to everyone", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	protected ref array<string> m_aFactionKeys;
 
 	[Attribute("0", UIWidgets.ComboBox, "Earliest game-mode phase from which this briefing is shown", enumType: SCR_EGameModeState)]

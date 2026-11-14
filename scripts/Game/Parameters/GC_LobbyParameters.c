@@ -66,10 +66,10 @@ class GC_LobbyParameterDefinition
 	[Attribute("0", UIWidgets.ComboBox, "Gameplay consumer; non-NONE requires a nonnegative integer", enumType: GC_ELobbyParameterEffect)]
 	protected GC_ELobbyParameterEffect m_eEffect;
 
-	[Attribute("", UIWidgets.EditBox, "Required authoritative owner faction key")]
+	[Attribute("", UIWidgets.EditComboBox, "Required authoritative owner faction key", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	protected string m_sOwnerFactionKey;
 
-	[Attribute("", UIWidgets.EditBox, "Additional base-game faction keys allowed to view this parameter. Empty is owner-only")]
+	[Attribute("", UIWidgets.EditComboBox, "Additional base-game faction keys allowed to view this parameter. Empty is owner-only", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	protected ref array<string> m_aVisibleFactionKeys;
 
 	string GetLabel() { return m_sLabel; }

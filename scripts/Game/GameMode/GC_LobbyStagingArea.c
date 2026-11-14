@@ -7,7 +7,7 @@ class GC_LobbyStagingArea
 	vector m_vCenter;
 	[Attribute("50", UIWidgets.EditBox, "Horizontal staging radius in metres (1-5000)")]
 	float m_fRadius;
-	[Attribute("", UIWidgets.EditBox, "Base-game faction key, or empty for every faction")]
+	[Attribute("", UIWidgets.EditComboBox, "Base-game faction key, or empty for every faction", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
 	string m_sFactionKey;
 
 	//------------------------------------------------------------------------------------------------

@@ -5,6 +5,7 @@ param(
     [string]$Generator = 'Visual Studio 18 2026'
 )
 $ErrorActionPreference = 'Stop'
+& (Join-Path $PSScriptRoot 'Assert-FactionChoiceFields.ps1')
 $taskRoot = Split-Path $PSScriptRoot -Parent
 $taskSource = Join-Path $taskRoot 'native/WorkbenchAuthoring'
 $taskOutput = [IO.Path]::GetFullPath($OutputDirectory)
