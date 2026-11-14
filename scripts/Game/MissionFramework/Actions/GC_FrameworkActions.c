@@ -49,8 +49,8 @@ class GC_MessageAction : GC_ActionBase
 	string m_sTitle;
 	[Attribute("", UIWidgets.EditBox, "Text to deliver. Popups allow up to 512 characters and wait their turn in the shared notification stack. Joining or logging in later does not replay messages. Server log writes text without a popup.")]
 	string m_sMessage;
-	[Attribute("", UIWidgets.EditComboBox, "For Players delivery only: faction keys receiving the message. Empty means everyone, including spectators. Multiple matching factions never send a player duplicate messages.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "For Players delivery only: faction keys receiving the message. Empty means everyone, including spectators. Multiple matching factions never send a player duplicate messages.")]
+	ref array<FactionKey> m_aFactions;
 	[Attribute("0", UIWidgets.CheckBox, "Use the warning icon, color and sound for Players or Admins only. Your Title stays the same; an empty title becomes Mission Warning or Admin Warning. Unused for Server log.")]
 	bool m_bWarning;
 
@@ -75,7 +75,7 @@ class GC_MessageAction : GC_ActionBase
 		action.m_bFlagAnswer = m_bWarning;
 		action.m_aFlagNames = {};
 		if (m_iDelivery == 0 && m_aFactions)
-			action.m_aFlagNames.Copy(m_aFactions);
+			action.m_aFlagNames.Copy(GC_FactionKeys.ToStrings(m_aFactions));
 		return action;
 	}
 }
@@ -101,10 +101,10 @@ class GC_EndMissionAction : GC_ActionBase
 {
 	[Attribute("0", UIWidgets.ComboBox, "Starts a two-minute mission-ending countdown. Admins can adjust, cancel or force it. The match and statistics stay active until the countdown finishes. Has no effect before Match, while another ending is pending, or after the mission has ended.", enums: {ParamEnum("Mission complete", "0"), ParamEnum("Faction victory", "1"), ParamEnum("Faction defeat", "2"), ParamEnum("Faction draw", "3"), ParamEnum("Mission failed", "4")})]
 	int m_iResult;
-	[Attribute("", UIWidgets.EditComboBox, "Primary faction for a faction result; also counts as a winner for Victory. Leave empty for Mission complete or Mission failed.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	string m_sFaction;
-	[Attribute("", UIWidgets.EditComboBox, "Additional winning factions for Victory only. The primary faction is included automatically. Up to 16 additional entries; duplicates count once.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aWinningFactions;
+	[Attribute("", UIWidgets.Auto, "Primary faction for a faction result; also counts as a winner for Victory. Leave empty for Mission complete or Mission failed.")]
+	FactionKey m_sFaction;
+	[Attribute("", UIWidgets.Auto, "Additional winning factions for Victory only. The primary faction is included automatically. Up to 16 additional entries; duplicates count once.")]
+	ref array<FactionKey> m_aWinningFactions;
 	[Attribute("", UIWidgets.EditBox, "Optional ending description, up to 512 characters. Shown beneath the result heading in a notification and retained in the debrief and mission history. Blank means no notification.")]
 	string m_sMessage;
 
@@ -119,7 +119,7 @@ class GC_EndMissionAction : GC_ActionBase
 		action.m_sEndMessage.TrimInPlace();
 		action.m_aFlagNames = {};
 		if (m_aWinningFactions)
-			action.m_aFlagNames.Copy(m_aWinningFactions);
+			action.m_aFlagNames.Copy(GC_FactionKeys.ToStrings(m_aWinningFactions));
 		return action;
 	}
 }
@@ -127,8 +127,8 @@ class GC_EndMissionAction : GC_ActionBase
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Respawn Tickets Action")]
 class GC_RespawnTicketsAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Faction key whose remaining respawn tickets will change. This action does not respawn anyone.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	string m_sFaction;
+	[Attribute("", UIWidgets.Auto, "Faction key whose remaining respawn tickets will change. This action does not respawn anyone.")]
+	FactionKey m_sFaction;
 	[Attribute("0", UIWidgets.ComboBox, "Set replaces the remaining tickets. Add increases them. Subtract removes tickets, stopping at zero.", enums: {ParamEnum("Set", "0"), ParamEnum("Add", "1"), ParamEnum("Subtract", "2")})]
 	int m_iOperation;
 	[Attribute("1", UIWidgets.SpinBox, "Number of tickets to set, add or subtract.", "0 1000000 1")]

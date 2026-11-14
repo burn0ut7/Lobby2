@@ -2,8 +2,8 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Casualties Condition")]
 class GC_CasualtiesCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave the list empty to include every faction. Selected factions are counted together, not checked separately.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave the list empty to include every faction. Selected factions are counted together, not checked separately.")]
+	ref array<FactionKey> m_aFactions;
 
 	[Attribute("0", UIWidgets.ComboBox, "Choose who to count at Match start. Players includes connected players' living claimed slot characters, even while possession is catching up. AI excludes spectators and unoccupied player slots. Later spawns and respawns do not change the starting group.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
 	int m_iCount;
@@ -20,7 +20,7 @@ class GC_CasualtiesCondition : GC_ConditionBase
 		check.m_fCasualtyRatio = m_fCasualtyRatio;
 		check.m_aCasualtyFactions = {};
 		if (m_aFactions)
-			check.m_aCasualtyFactions.Copy(m_aFactions);
+			check.m_aCasualtyFactions.Copy(GC_FactionKeys.ToStrings(m_aFactions));
 		if (!check.IsValid(depth))
 			return null;
 		return check;

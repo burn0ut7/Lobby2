@@ -5,8 +5,8 @@ class GC_LocalFactionShare : GC_LivingRequirementBase
 	float m_fRequiredShare;
 	[Attribute("0", UIWidgets.CheckBox, "Unchecked: share must be at least the threshold. Checked: at most. An empty area fails At least and passes At most, matching TilW faction triggers.")]
 	bool m_bAtMost;
-	[Attribute("", UIWidgets.EditComboBox, "Factions excluded from both sides of the ratio, for example civilians. Unlisted factions compete regardless of their diplomatic relations. A capturing faction cannot also be ignored.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aIgnoredFactions;
+	[Attribute("", UIWidgets.Auto, "Factions excluded from both sides of the ratio, for example civilians. Unlisted factions compete regardless of their diplomatic relations. A capturing faction cannot also be ignored.")]
+	ref array<FactionKey> m_aIgnoredFactions;
 
 	//------------------------------------------------------------------------------------------------
 	override bool BuildRequirement(GC_RuleCondition check)
@@ -16,7 +16,7 @@ class GC_LocalFactionShare : GC_LivingRequirementBase
 		check.m_bShareAtMost = m_bAtMost;
 		check.m_aIgnoredFactions = {};
 		if (m_aIgnoredFactions)
-			check.m_aIgnoredFactions.Copy(m_aIgnoredFactions);
+			check.m_aIgnoredFactions.Copy(GC_FactionKeys.ToStrings(m_aIgnoredFactions));
 		return true;
 	}
 }

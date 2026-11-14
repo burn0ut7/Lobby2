@@ -34,8 +34,8 @@ class GC_BriefingMarkerComponent : ScriptComponent
 	[Attribute("", UIWidgets.EditBox, "Text displayed underneath the marker")]
 	protected string m_sDescription;
 
-	[Attribute("", UIWidgets.EditComboBox, "Authoritative base-game faction keys. Empty shows the marker to everyone", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	protected ref array<string> m_aFactionKeys;
+	[Attribute("", UIWidgets.Auto, "Authoritative base-game faction keys. Empty shows the marker to everyone")]
+	protected ref array<FactionKey> m_aFactionKeys;
 
 	[Attribute("0", UIWidgets.ComboBox, "Earliest game-mode phase from which this marker is shown", enumType: SCR_EGameModeState)]
 	protected SCR_EGameModeState m_eShowAtGameModeState;
@@ -111,7 +111,7 @@ class GC_BriefingMarkerComponent : ScriptComponent
 		if (m_Color)
 			markerColor = m_Color.PackToInt();
 		marker.Set(markerName, m_sImageSetOrImage, m_sHighlightImageSet, m_sQuadName, owner.GetOrigin(), owner.GetYawPitchRoll()[0] - 90,
-			m_bWorldScale, m_fSize, m_fMinSize, m_sDescription, m_aFactionKeys,
+			m_bWorldScale, m_fSize, m_fMinSize, m_sDescription, GC_FactionKeys.ToStrings(m_aFactionKeys),
 			m_eShowAtGameModeState, m_bInvertGameModeState, true, markerColor);
 		return marker;
 	}

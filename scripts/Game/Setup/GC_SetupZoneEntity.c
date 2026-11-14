@@ -34,8 +34,8 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	protected float m_fGraceSeconds;
 	[Attribute("1", UIWidgets.CheckBox, "Block weapon fire, grenades, melee and turret fire for enrolled players until release.", category: "Setup")]
 	protected bool m_bSafeStart;
-	[Attribute("", UIWidgets.EditComboBox, "Native faction keys. Empty means all factions. Eligibility is captured at the character's first observation in GAME.", category: "Setup", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	protected ref array<string> m_aFactionKeys;
+	[Attribute("", UIWidgets.Auto, "Native faction keys. Empty means all factions. Eligibility is captured at the character's first observation in GAME.", category: "Setup")]
+	protected ref array<FactionKey> m_aFactionKeys;
 	protected ref array<vector> m_aPolygon = {};
 	protected ref map<int, ref GC_SetupPlayerState> m_mPlayers = new map<int, ref GC_SetupPlayerState>();
 	protected GC_LobbyGameMode m_Mode;
@@ -84,7 +84,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 	void GetAdminInfo(GC_BoundaryAdminRow row)
 	{
 		row.Kind = "Setup";
-		row.Factions = GC_BoundaryAdmin.FactionText(m_aFactionKeys);
+		row.Factions = GC_BoundaryAdmin.FactionText(GC_FactionKeys.ToStrings(m_aFactionKeys));
 		row.Behavior = "Soft";
 		if (m_eBehavior == GC_ESetupBehavior.HARD)
 			row.Behavior = "Hard";
@@ -142,7 +142,7 @@ class GC_SetupZoneEntity : PolylineShapeEntity
 		m_aPolygon.Copy(points);
 		m_aFactionKeys = {};
 		if (factions)
-			m_aFactionKeys.Copy(factions);
+			m_aFactionKeys.Copy(GC_FactionKeys.FromStrings(factions));
 		m_fDuration = seconds;
 		m_eBehavior = behavior;
 		m_fGraceSeconds = graceSeconds;

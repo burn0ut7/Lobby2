@@ -37,4 +37,6 @@ struct PropertySourceValue {
 // establish that every target of a multiple-selection edit was updated.
 PropertySourceValue readPropertySource(QObject *property, quintptr validatedImage,
     PropertyDestination *destination = nullptr);
+// Declared script type, independent of the field's name, value or addon.
+QString readPropertyDeclaredType(QObject *property, quintptr validatedImage);
 }

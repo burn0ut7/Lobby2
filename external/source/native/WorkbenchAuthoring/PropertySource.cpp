@@ -68,8 +68,13 @@ PropertyDestination captureDestination(SourcePath path, const void *leaf, int ar
     result.state = QStringLiteral("destination_unresolved");
     if (!path.root || path.count > 64 || path.count > path.capacity || (path.count && !path.items))
         return result;
-    // Generated IEntitySource.GetID's exact runtime type guard and ID member.
-    if (!function<bool (*)(void *, unsigned)>(image, 0x1fe9240)(path.root, 0x71a6fe80))
+    // Non-entity grids (e.g. ScriptDialog/configs) are legitimate sources.
+    // Call BaseResourceObject's type predicate directly: the generated script
+    // guard at 1fe9240 raises a VM exception on an ordinary type mismatch.
+    // Evidence 04b863a195504d1b9cd7f41a3dc33134; RCX/RDX pass through to slot 0.
+    const auto *rootTable = member<const quintptr *>(path.root, 0);
+    if (!rootTable || !member<unsigned>(path.root, 0x10) ||
+        !reinterpret_cast<bool (*)(void *, unsigned)>(rootTable[0])(path.root, 0x71a6fe80))
         return result;
     const auto id = member<quint64>(path.root, 0x28);
     if (!id) return result;
@@ -136,6 +141,61 @@ PropertyDestination captureDestination(SourcePath path, const void *leaf, int ar
     result.state = QStringLiteral("captured");
     return result;
 }
+}
+
+QString readPropertyDeclaredType(QObject *property, quintptr image)
+{
+    if (!property || !image || !QCoreApplication::instance() ||
+        QThread::currentThread() != QCoreApplication::instance()->thread() ||
+        member<quintptr>(property, 0) != image + 0x2e18ab0) return {};
+    auto *grid = function<QObject *(*)(QObject *)>(image, 0x4b1410)(property);
+    grid = reinterpret_cast<const QMetaObject *>(image + 0x2e2c420)->cast(grid);
+    if (!grid) return {};
+    auto *sourceProperty = property;
+    auto *descriptor = function<const void *(*)(QObject *, QObject *)>(image, 0x318ca0)(grid, property);
+    bool arrayElement = false;
+    if (!descriptor) {
+        sourceProperty = function<QObject *(*)(QObject *, bool)>(image, 0x4b1120)(property, false);
+        if (!sourceProperty || member<quintptr>(sourceProperty, 0) != image + 0x2e1a5b0) return {};
+        descriptor = function<const void *(*)(QObject *, QObject *)>(image, 0x318ca0)(grid, sourceProperty);
+        arrayElement = true;
+    }
+    if (!descriptor) return {};
+    ScopedPath source{{}, image};
+    function<void *(*)(QObject *, QObject *, bool, SourcePath *)>(image, 0x318670)
+        (grid, sourceProperty, false, &source.path);
+    if (!source.path.root || source.path.count > 64 || source.path.count > source.path.capacity ||
+        (source.path.count && !source.path.items)) return {};
+    auto *container = function<void *(*)(SourcePath *, bool)>(image, 0x1b33bf0)(&source.path, true);
+    if (!container) return {};
+    const auto *schema = member<const void *>(container, 0x18);
+    if (!schema) return {};
+    const auto className = metadataText(member<const char *>(schema, 0x20)).toUtf8();
+    const auto key = metadataText(member<const char *>(descriptor, 8));
+    if (className.isEmpty() || key.isEmpty()) return {};
+    // Exact string.ToType and typename.GetVariableName/GetVariableType paths.
+    // No cached VM pointers: script reload replaces the reflected type graph.
+    auto *context = *reinterpret_cast<void **>(image + 0x3fdcd40);
+    if (!context) return {};
+    alignas(8) quintptr lookup[4]{};
+    auto *result = function<const void *(*)(void *, void *, const char *, int)>(image, 0x1eb45c0)
+        (context, lookup, className.constData(), 1);
+    const auto *type = result ? member<const void *>(result, 0) : nullptr;
+    if (!type) return {};
+    const auto count = member<unsigned>(type, 0x64);
+    const auto *fields = member<const void *const *>(type, 0x58);
+    if (count > 65536 || (count && !fields)) return {};
+    for (unsigned i = 0; i < count; ++i) {
+        const auto *field = fields[i];
+        if (!field || metadataText(member<const char *>(field, 8)) != key) continue;
+        const auto *fieldType = function<const void *(*)(const void *)>(image, 0x1fea1a0)(field);
+        if (!fieldType) return {};
+        const auto name = metadataText(member<const char *>(fieldType, 0x10));
+        if (arrayElement)
+            return name == QStringLiteral("array<FactionKey>") ? QStringLiteral("FactionKey") : QString{};
+        return name;
+    }
+    return {};
 }
 
 PropertySourceValue readPropertySource(QObject *property, quintptr image, PropertyDestination *destination)

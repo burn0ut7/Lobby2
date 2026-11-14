@@ -3,8 +3,8 @@ modded class GC_LobbyGameMode
 	[Attribute("0", UIWidgets.ComboBox, "Join-in-progress teleport policy.", enums: ParamEnumArray.FromEnum(GC_EJipMode), category: "Join in progress")]
 	protected GC_EJipMode m_eJipMode;
 
-	[Attribute(uiwidget: UIWidgets.EditComboBox, desc: "Faction keys allowed to use JIP. Empty means all factions.", category: "Join in progress", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	protected ref array<string> m_aJipFactions;
+	[Attribute(uiwidget: UIWidgets.Auto, desc: "Faction keys allowed to use JIP. Empty means all factions.", category: "Join in progress")]
+	protected ref array<FactionKey> m_aJipFactions;
 
 	[Attribute("0", UIWidgets.EditBox, "Seconds after mission start when JIP closes for everyone. Zero disables the cutoff.", category: "Join in progress", params: "0 inf 1")]
 	protected int m_iJipDenySeconds;

@@ -66,11 +66,11 @@ class GC_LobbyParameterDefinition
 	[Attribute("0", UIWidgets.ComboBox, "Gameplay consumer; non-NONE requires a nonnegative integer", enumType: GC_ELobbyParameterEffect)]
 	protected GC_ELobbyParameterEffect m_eEffect;
 
-	[Attribute("", UIWidgets.EditComboBox, "Required authoritative owner faction key", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	protected string m_sOwnerFactionKey;
+	[Attribute("", UIWidgets.Auto, "Required authoritative owner faction key")]
+	protected FactionKey m_sOwnerFactionKey;
 
-	[Attribute("", UIWidgets.EditComboBox, "Additional base-game faction keys allowed to view this parameter. Empty is owner-only", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	protected ref array<string> m_aVisibleFactionKeys;
+	[Attribute("", UIWidgets.Auto, "Additional base-game faction keys allowed to view this parameter. Empty is owner-only")]
+	protected ref array<FactionKey> m_aVisibleFactionKeys;
 
 	string GetLabel() { return m_sLabel; }
 	string GetDescription() { return m_sDescription; }
@@ -82,7 +82,7 @@ class GC_LobbyParameterDefinition
 		if (!m_aVisibleFactionKeys)
 			m_aVisibleFactionKeys = {};
 
-		return m_aVisibleFactionKeys;
+		return GC_FactionKeys.ToStrings(m_aVisibleFactionKeys);
 	}
 
 	bool IsVisibleToFaction(Faction faction)

@@ -3,8 +3,8 @@ class GC_CaptureMessages
 {
 	[Attribute("the objective", UIWidgets.EditBox, "Location inserted for %2. %1 is the selected faction names, or the selected force when no faction filter is set.")]
 	string m_sLocation;
-	[Attribute("", UIWidgets.EditComboBox, "Only these factions receive messages. Empty sends to everyone. These are recipients, not capture contestants.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "Only these factions receive messages. Empty sends to everyone. These are recipients, not capture contestants.")]
+	ref array<FactionKey> m_aFactions;
 	[Attribute("%1 captured %2.", UIWidgets.EditBox, "Changed to captured. Blank suppresses this message.")]
 	string m_sCaptured;
 	[Attribute("%1 is capturing %2.", UIWidgets.EditBox, "Capture started or resumed.")]
@@ -102,7 +102,7 @@ class GC_CaptureMessages
 		action.m_eDo = GC_ERuleAction.MISSION_MESSAGE;
 		action.m_sMessageTitle = "Objective Status";
 		action.m_sTextOrName = string.Format(message, names, m_sLocation);
-		action.m_aFlagNames = m_aFactions;
+		action.m_aFlagNames = GC_FactionKeys.ToStrings(m_aFactions);
 		return action;
 	}
 }

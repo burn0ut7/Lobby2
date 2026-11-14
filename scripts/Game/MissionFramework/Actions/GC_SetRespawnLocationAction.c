@@ -1,8 +1,8 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Set Respawn Location Action")]
 class GC_SetRespawnLocationAction : GC_ActionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Factions whose future default respawn destination changes. At least one faction is required. Does not move living players or respawn anyone.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "Factions whose future default respawn destination changes. At least one faction is required. Does not move living players or respawn anyone.")]
+	ref array<FactionKey> m_aFactions;
 	[Attribute("", UIWidgets.Object, "Default destination for all replacement-character respawns, including individual heal-and-respawn and automatic/scripted waves. An explicit location choice overrides it. Empty restores each caller's normal original/current fallback. Named destinations follow their entities as they move. Later actions replace this setting.")]
 	ref GC_RespawnLocation m_Location;
 
@@ -14,7 +14,7 @@ class GC_SetRespawnLocationAction : GC_ActionBase
 		action.m_RespawnLocation = m_Location;
 		action.m_aFlagNames = {};
 		if (m_aFactions)
-			action.m_aFlagNames.Copy(m_aFactions);
+			action.m_aFlagNames.Copy(GC_FactionKeys.ToStrings(m_aFactions));
 		return action;
 	}
 }

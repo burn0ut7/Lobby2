@@ -7,8 +7,8 @@ class GC_MissionInteractionComponent : ScriptComponent
 {
 	[Attribute("Interact", UIWidgets.EditBox, "Text shown in the normal interaction menu, for example Activate radio.")]
 	protected string m_sActionName;
-	[Attribute("", UIWidgets.EditComboBox, "Optional faction keys allowed to use this interaction. Empty means all factions. Only living, conscious player-controlled characters can use it; spectators cannot.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	protected ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "Optional faction keys allowed to use this interaction. Empty means all factions. Only living, conscious player-controlled characters can use it; spectators cannot.")]
+	protected ref array<FactionKey> m_aFactions;
 	[Attribute("", UIWidgets.EditComboBox, "Optional Mission Flag that must currently be true. Keep complex requirements on that flag in GC Lobby Manager, not on this object. Empty means no flag requirement. Available during Match only.", enums: {ParamEnum("", "", "gc-choices:1:GC_MissionFlagChoices")})]
 	protected string m_sRequiredFlag;
 	[Attribute("", UIWidgets.EditComboBox, "Optional Mission Flag to call after use. Its own conditions and repeatability still apply; a rejected flag call does not undo the interaction. Leave empty when using Interaction Condition only.", enums: {ParamEnum("", "", "gc-choices:1:GC_MissionFlagChoices")})]

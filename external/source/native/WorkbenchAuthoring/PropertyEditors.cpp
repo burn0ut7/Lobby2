@@ -103,10 +103,21 @@ QString PropertyEditors::install()
 
 QWidget *PropertyEditors::createEditor(QObject *property, QWidget *parent)
 {
+    bool entities = false;
+    auto provider = detail::provider(property, entities);
+    const auto declaredType = readPropertyDeclaredType(property, detail::image);
+    if (provider.isEmpty() && detail::owner &&
+        declaredType == QStringLiteral("FactionKey")) {
+        // Select the engine's editable combo before it creates/initializes the
+        // native value owner. Serialization and undo remain engine-owned.
+        *reinterpret_cast<int *>(reinterpret_cast<char *>(property) + 0xf0) = 1;
+        // StringPropCommon::IsEditable (1404b5210); consumed by the native
+        // combo constructor to wire editingFinished and preserve free text.
+        *reinterpret_cast<unsigned char *>(reinterpret_cast<char *>(property) + 0xf4) = 1;
+        provider = QStringLiteral("GC_FactionChoices");
+    }
     auto *widget = detail::original(property, parent);
     if (!detail::owner || !widget) return widget;
-    bool entities = false;
-    const auto provider = detail::provider(property, entities);
     if (provider.isEmpty()) return widget;
     // Creator stores the editor owner at property+0xa0 and returns its widget.
     // Getter +0x58 is 14034dd40, returning owner+0x18 (query

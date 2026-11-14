@@ -4,8 +4,8 @@ class GC_LivingCharactersCondition : GC_ConditionBase
 	[Attribute("0", UIWidgets.ComboBox, "Count living characters: connected players, registered AI, or both. Spectators, dead characters and empty playable slots never count. Unconscious living characters count. Updated once per second during Match and on phase changes.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
 	int m_iWho;
 
-	[Attribute("", UIWidgets.EditComboBox, "Optional faction keys, such as US or USSR. Empty means all factions. Selected factions are counted together, using each character's current faction.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "Optional faction keys, such as US or USSR. Empty means all factions. Selected factions are counted together, using each character's current faction.")]
+	ref array<FactionKey> m_aFactions;
 
 	[Attribute("", UIWidgets.Hidden, "Legacy area configuration. Move this check to Area Condition; legacy area-based Living Characters checks are rejected rather than silently counting everywhere.")]
 	ref GC_LivingCharacterArea m_Area;
@@ -27,7 +27,7 @@ class GC_LivingCharactersCondition : GC_ConditionBase
 		GC_RuleCondition check = new GC_RuleCondition();
 		check.m_iCheck = 10;
 		check.m_bAreaAnywhere = true;
-		if (!GC_AreaPopulation.BuildSelection(check, m_iWho, m_aFactions))
+		if (!GC_AreaPopulation.BuildSelection(check, m_iWho, GC_FactionKeys.ToStrings(m_aFactions)))
 			return null;
 		GC_AreaCount count = m_Count;
 		if (!count)

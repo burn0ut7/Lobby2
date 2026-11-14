@@ -2,8 +2,8 @@
 [BaseContainerProps(), BaseContainerCustomStringTitleField("Total Deaths Condition")]
 class GC_TotalDeathsCondition : GC_ConditionBase
 {
-	[Attribute("", UIWidgets.EditComboBox, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave empty for every faction. Deaths from selected factions are added together. Uses the character's faction when it dies.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "Spectator bodies never count, with any faction or Count setting. Faction keys to include, such as US or USSR. Leave empty for every faction. Deaths from selected factions are added together. Uses the character's faction when it dies.")]
+	ref array<FactionKey> m_aFactions;
 
 	[Attribute("0", UIWidgets.ComboBox, "Players counts player lives, including claimed player-slot characters. AI counts mission AI, excluding spectators and unoccupied playable slots. Players and AI counts both. Respawned characters and later reinforcements can add deaths.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
 	int m_iCount;
@@ -24,7 +24,7 @@ class GC_TotalDeathsCondition : GC_ConditionBase
 		check.m_iRequiredDeaths = m_iRequiredDeaths;
 		check.m_aCasualtyFactions = {};
 		if (m_aFactions)
-			check.m_aCasualtyFactions.Copy(m_aFactions);
+			check.m_aCasualtyFactions.Copy(GC_FactionKeys.ToStrings(m_aFactions));
 		if (!check.IsValid(depth))
 			return null;
 		return check;

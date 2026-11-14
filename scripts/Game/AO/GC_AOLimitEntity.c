@@ -50,8 +50,8 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	protected string m_sWarningText;
 	[Attribute("", UIWidgets.EditComboBox, "Optional safe return transform from the active mission subscene for already enrolled characters without valid return history. Must satisfy ALL applicable hard limits. Units that have never entered the permitted area remain exempt.", category: "AO", enums: {ParamEnum("", "", "gc-choices:2:GC_AOReturnEntityChoices")})]
 	protected string m_sReturnEntity;
-	[Attribute("", UIWidgets.EditComboBox, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	protected ref array<string> m_aFactionKeys;
+	[Attribute("", UIWidgets.Auto, "Native player faction keys. Empty applies to everyone; otherwise only the listed factions are affected.", category: "Eligibility")]
+	protected ref array<FactionKey> m_aFactionKeys;
 	[Attribute("0", UIWidgets.ComboBox, "Required vehicle state. Passenger includes turret occupants. All eligibility conditions must match.", enums: ParamEnumArray.FromEnum(GC_EAOVehicleState), category: "Eligibility")]
 	protected GC_EAOVehicleState m_eVehicleState;
 	[Attribute("0", UIWidgets.ComboBox, "ONLY_MATCHING affects occupants of listed vehicle prefabs. EXCEPT_MATCHING exempts those occupants. Prefab inheritance is included.", enums: ParamEnumArray.FromEnum(GC_EAOListMode), category: "Eligibility")]
@@ -178,7 +178,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 		m_aVehiclePrefabs = {};
 		m_aItemPrefabs = {};
 		if (factions)
-			m_aFactionKeys.Copy(factions);
+			m_aFactionKeys.Copy(GC_FactionKeys.FromStrings(factions));
 		if (vehicles)
 			m_aVehiclePrefabs.Copy(vehicles);
 		if (items)
@@ -198,7 +198,7 @@ class GC_AOLimitEntity : PolylineShapeEntity
 	void GetAdminInfo(GC_BoundaryAdminRow row)
 	{
 		row.Kind = "AO";
-		row.Factions = GC_BoundaryAdmin.FactionText(m_aFactionKeys);
+		row.Factions = GC_BoundaryAdmin.FactionText(GC_FactionKeys.ToStrings(m_aFactionKeys));
 		row.Behavior = "Hard";
 		if (m_eBehavior == GC_EAOBehavior.SOFT_KILL)
 			row.Behavior = "Soft";

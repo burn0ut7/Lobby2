@@ -37,13 +37,13 @@ class GC_CharacterAreaTargets : GC_AreaTargetsBase
 	[Attribute("0", UIWidgets.ComboBox, "Living characters only. Players means characters currently controlled by connected players. AI means registered AI characters, excluding playable slots. Both includes both groups once. Spectators, dead characters and empty playable slots never count. Respawns and new registered AI are included on the next check.", enums: {ParamEnum("Players", "0"), ParamEnum("AI", "1"), ParamEnum("Players and AI", "2")})]
 	int m_iWho;
 
-	[Attribute("", UIWidgets.EditComboBox, "Optional faction keys, for example US or USSR. Empty means all factions. Selected factions are counted together. Uses the character's current faction; no separate faction condition is required.", enums: {ParamEnum("", "", "gc-choices:1:GC_FactionChoices")})]
-	ref array<string> m_aFactions;
+	[Attribute("", UIWidgets.Auto, "Optional faction keys, for example US or USSR. Empty means all factions. Selected factions are counted together. Uses the character's current faction; no separate faction condition is required.")]
+	ref array<FactionKey> m_aFactions;
 
 	//------------------------------------------------------------------------------------------------
 	override bool BuildTargets(GC_RuleCondition check)
 	{
-		return GC_AreaPopulation.BuildSelection(check, m_iWho, m_aFactions);
+		return GC_AreaPopulation.BuildSelection(check, m_iWho, GC_FactionKeys.ToStrings(m_aFactions));
 	}
 }
 
