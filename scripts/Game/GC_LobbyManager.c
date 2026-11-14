@@ -3526,7 +3526,12 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 			slot.SetState(GC_SlotState.DISCONNECTED);
 		else
 			slot.SetState(GC_SlotState.FREE);
-		if (previous && previous != character)
+		// Dead player bodies keep their native garbage-collection deadline after
+		// respawn. Living replacements and unclaimed AI retain immediate cleanup.
+		ChimeraCharacter previousCharacter = ChimeraCharacter.Cast(previous);
+		bool keepPlayerBody = playerId > 0 && previousCharacter && previousCharacter.GetCharacterController()
+			&& previousCharacter.GetCharacterController().IsDead();
+		if (previous && previous != character && !keepPlayerBody)
 			SCR_EntityHelper.DeleteEntityAndChildren(previous);
 		return "applied";
 	}
