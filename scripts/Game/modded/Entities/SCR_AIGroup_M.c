@@ -8,14 +8,16 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	[Attribute("", UIWidgets.EditBox, "Manual group call sign. Takes priority over faction call signs in GC Lobby.", category: "GC Lobby: Call sign")]
 	protected string m_sGC_ManualCallsign;
 
-	[Attribute("0", UIWidgets.EditBox, "Zero-based company index in this group's faction call sign configuration. -1 uses automatic assignment.", category: "GC Lobby: Call sign")]
-	protected int m_iGC_CallsignCompany;
+	// Keep the serialized field names so existing authored indices survive.
+	// Strings distinguish an empty editor field from the valid index zero.
+	[Attribute("", UIWidgets.EditBox, "Company index (0 or higher). Blank uses faction assignment.", category: "GC Lobby: Call sign")]
+	protected string m_iGC_CallsignCompany;
 
-	[Attribute("0", UIWidgets.EditBox, "Zero-based platoon index. Used when Company is set.", category: "GC Lobby: Call sign")]
-	protected int m_iGC_CallsignPlatoon;
+	[Attribute("", UIWidgets.EditBox, "Platoon index (0 or higher). Blank uses faction assignment.", category: "GC Lobby: Call sign")]
+	protected string m_iGC_CallsignPlatoon;
 
-	[Attribute("0", UIWidgets.EditBox, "Zero-based squad index. Used when Company is set.", category: "GC Lobby: Call sign")]
-	protected int m_iGC_CallsignSquad;
+	[Attribute("", UIWidgets.EditBox, "Squad index (0 or higher). Blank uses faction assignment.", category: "GC Lobby: Call sign")]
+	protected string m_iGC_CallsignSquad;
 
 	//------------------------------------------------------------------------------------------------
 	string GC_GetManualCallsign()
@@ -32,32 +34,39 @@ modded class SCR_AIGroup : ChimeraAIGroup
 	//! These are indices into the group's faction data, not faction IDs.
 	bool GC_GetAuthoredCallsign(Faction faction, out int company, out int platoon, out int squad)
 	{
-		if (!GC_LobbyGameMode.GetGameMode() || m_iGC_CallsignCompany == -1)
+		if (!GC_LobbyGameMode.GetGameMode() || !GC_GetManualCallsign().IsEmpty())
 			return false;
 
-		SCR_Faction scrFaction = SCR_Faction.Cast(faction);
-		SCR_FactionCallsignInfo info;
-		if (scrFaction)
-			info = scrFaction.GetCallsignInfo();
-		if (info)
+		if (!GC_ParseCallsignIndex(m_iGC_CallsignCompany, company)
+			|| !GC_ParseCallsignIndex(m_iGC_CallsignPlatoon, platoon)
+			|| !GC_ParseCallsignIndex(m_iGC_CallsignSquad, squad))
 		{
-			array<ref SCR_CallsignInfo> companies = {};
-			array<ref SCR_CallsignInfo> platoons = {};
-			array<ref SCR_CallsignInfo> squads = {};
-			info.GetCompanyArray(companies);
-			info.GetPlatoonArray(platoons);
-			info.GetSquadArray(squads);
-			if (companies.IsIndexValid(m_iGC_CallsignCompany) && platoons.IsIndexValid(m_iGC_CallsignPlatoon) && squads.IsIndexValid(m_iGC_CallsignSquad))
-			{
-				company = m_iGC_CallsignCompany;
-				platoon = m_iGC_CallsignPlatoon;
-				squad = m_iGC_CallsignSquad;
-				return true;
-			}
+			PrintFormat("GC | Call sign | invalid indices for %1: %2/%3/%4; using automatic assignment", GetName(), m_iGC_CallsignCompany, m_iGC_CallsignPlatoon, m_iGC_CallsignSquad, level: LogLevel.WARNING);
+			return false;
 		}
 
-		PrintFormat("GC | Call sign | invalid faction indices for %1: %2/%3/%4; using automatic assignment", GetName(), m_iGC_CallsignCompany, m_iGC_CallsignPlatoon, m_iGC_CallsignSquad, level: LogLevel.WARNING);
-		return false;
+		return company >= 0 || platoon >= 0 || squad >= 0;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Blank (and legacy -1) means automatic; never turn malformed text into zero.
+	protected bool GC_ParseCallsignIndex(string value, out int index)
+	{
+		value.TrimInPlace();
+		index = -1;
+		if (value.IsEmpty() || value == "-1")
+			return true;
+
+		int parsed = 0;
+		for (int i = 0; i < value.Length(); i++)
+		{
+			int digit = "0123456789".IndexOf(value.Substring(i, 1));
+			if (digit < 0 || parsed > (int.MAX - digit) / 10)
+				return false;
+			parsed = parsed * 10 + digit;
+		}
+		index = parsed;
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

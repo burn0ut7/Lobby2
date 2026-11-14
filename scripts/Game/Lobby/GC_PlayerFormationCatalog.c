@@ -41,7 +41,7 @@ class GC_PlayerFormationCatalog
 {
 	static ResourceName GetDefaultSource()
 	{
-		return "{A36B8E17D92F40C5}Prefabs/AI/GC_LobbyFormationSource.et";
+		return "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
 	}
 
 	static string GetDefaultFormationName()

@@ -244,12 +244,12 @@ class GC_MapShapeComponent : ScriptComponent
 	override void _WB_AfterWorldUpdate(IEntity owner, float timeSlice)
 	{
 		PolylineShapeEntity shape = PolylineShapeEntity.Cast(owner);
-		if (!GC_MapShapePreview.IsSelected(shape))
+		if (!m_bEnabled || !GC_MapShapePreview.IsSelected(shape))
 		{
 			m_EditorPreview = null;
 			return;
 		}
-		// Authoring previews show the configured style regardless of audience/enabled state.
+		// Enabled authoring previews show the configured style regardless of audience.
 		if (!m_EditorPreview)
 			m_EditorPreview = new GC_MapShapePreview();
 		int fill;

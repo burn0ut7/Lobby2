@@ -25,7 +25,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	protected string m_sEndMessage;
 
 	protected const ResourceName SPECTATOR_PREFAB = "{8A578DE95771CC1D}Prefabs/Characters/Core/Character_Spectator.et";
-	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{A36B8E17D92F40C5}Prefabs/AI/GC_LobbyFormationSource.et";
+	protected const ResourceName DEFAULT_FORMATION_SOURCE = "{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et";
 	protected const string DEFAULT_FORMATION_NAME = "File";
 	protected const int JIP_REFERENCE_RETRY_MS = 1000;
 	protected const int PLAYER_CATCHUP_RETRY_MS = 250;
@@ -51,7 +51,7 @@ class GC_LobbyManager : SCR_BaseGameModeComponent
 	[Attribute("1", UIWidgets.CheckBox, "Start lobby slots locked. Admins can unlock all slots with the padlock in Lobby.")]
 	protected bool m_bSlotsStartLocked;
 
-	[Attribute("{A36B8E17D92F40C5}Prefabs/AI/GC_LobbyFormationSource.et", UIWidgets.ResourcePickerThumbnail, "AI world resource used only as a formation-data source", params: "et")]
+	[Attribute("{E0A05C76552E7F58}Prefabs/AI/SCR_AIWorld.et", UIWidgets.ResourcePickerThumbnail, "AI world resource used only as a formation-data source", params: "et")]
 	protected ResourceName m_sFormationSource;
 
 	[Attribute("File", UIWidgets.EditBox, "Formation name used when a group formation is unavailable")]
